@@ -6,26 +6,38 @@
 CloudDrift, accelerating Lagrangian Analysis
 ============================================
 
+General description
+
 Getting started
 ---------------
 
 * :doc:`why`
 * :doc:`install`
-* :doc:`usage`
 
 .. toctree::
    :hidden:
    :maxdepth: 2
    :caption: Getting started
-	 
+
    why
    install
-   usage
 
+Guide
+-----
+
+* :doc:`usage`
+
+.. toctree::
+   :hidden:
+   :maxdepth: 2
+   :caption: Guide
+
+   usage
 
 Reference
 ---------
 
+* :doc:`contributing`
 * :doc:`api`
 
 .. toctree::
@@ -33,8 +45,8 @@ Reference
     :hidden:
     :caption: Reference
 
+    contributing
     api
-
 
 .. Indices and tables
 .. ==================
