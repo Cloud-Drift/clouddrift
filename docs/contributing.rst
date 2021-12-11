@@ -17,7 +17,7 @@ Install sphinx and the Read the Docs theme:
 .. code-block:: text
 
   conda install sphinx
-  pip install sphinx-rtd-theme
+  pip install pydata-sphinx-theme
 
 Then from the ``clouddrift/docs`` directory, run:
 
