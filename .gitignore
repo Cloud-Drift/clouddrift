@@ -1,18 +1,9 @@
 # dataset files and folders
-data/process/gdp_1.04c.nc
-data/process/gdp_1.04c_traj.nc
+data/process/gdp_*.nc
 data/process/rowsize.csv
 data/process/count.csv
-data/raw/argos_block1/
-data/raw/argos_block2/
-data/raw/argos_block3/
-data/raw/argos_block4/
-data/raw/argos_block5/
-data/raw/argos_block6/
-data/raw/argos_block7/
-data/raw/argos_block8/
-data/raw/gps/
-data/sst/
+data/raw/v*
+data/raw/sst
 
 #
 # Byte-compiled / optimized / DLL files
