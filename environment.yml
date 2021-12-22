@@ -9,5 +9,6 @@ dependencies:
   - netCDF4
   - pandas
   - dask
+  - dask-labextension
   - matplotlib
   - cartopy
