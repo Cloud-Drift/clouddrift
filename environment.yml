@@ -10,5 +10,6 @@ dependencies:
   - pandas
   - dask
   - dask-labextension
+  - erddapy
   - matplotlib
   - cartopy
