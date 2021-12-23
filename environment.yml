@@ -2,14 +2,13 @@ name: clouddrift
 channels:
   - conda-forge
 dependencies:
-  - python>=3.9
-  - jupyterlab
-  - numpy
-  - xarray
-  - netCDF4
-  - pandas
+  - cartopy
   - dask
   - dask-labextension
   - erddapy
+  - jupyterlab
   - matplotlib
-  - cartopy
+  - numpy
+  - netCDF4
+  - pandas
+  - xarray
