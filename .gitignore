@@ -5,6 +5,9 @@ data/process/count.csv
 data/raw/v*
 data/raw/sst
 
+# dask
+dask-worker-space/
+
 #
 # Byte-compiled / optimized / DLL files
 __pycache__/
