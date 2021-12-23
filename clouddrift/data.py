@@ -102,7 +102,7 @@ class local(data):
         :return:
         '''
         if isinstance(id, int):
-            if np.any(self.ds_traj['ID'].data == id):
+            if np.isin(id, self.ds_traj.ID):
                 j = np.where(self.ds_traj['ID'].data == id)[0][0]
                 ds_subset = self.ds_obs.isel(obs=slice(self.traj_idx[j], self.traj_idx[j + 1]))
             else:
@@ -111,14 +111,16 @@ class local(data):
         
         elif isinstance(id, typing.Iterable):
             mask = np.empty(0, dtype='int')
+            
+            for i in id:
+                if not np.isin(i, self.ds_traj.ID):
+                    print('Error: Invalid id number %d.\n' % i)
+                    return None
+            
             j = []
             for i in id:
-                if np.any(self.ds_traj['ID'].data == i):
-                    j.append(int(np.where(self.ds_traj['ID'] == i)[0]))
-                    mask = np.hstack((mask, np.arange(self.traj_idx[j[-1]], self.traj_idx[j[-1] + 1])))
-                else:
-                    print('Error: Invalid id number %d.\n' % i)
-                    return
+                j.append(np.where(self.ds_traj['ID'].data == i)[0][0])
+                mask = np.hstack((mask, np.arange(self.traj_idx[j[-1]], self.traj_idx[j[-1] + 1])))
             ds_subset = self.ds_obs.isel(obs=mask)
             
         return ds_subset.compute()
