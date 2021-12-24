@@ -1,6 +1,6 @@
 # dataset files and folders
 data/process/gdp_*.nc
-data/process/rowsize.csv
+data/process/rowsize*.csv
 data/process/count.csv
 data/raw/v*
 data/raw/sst
