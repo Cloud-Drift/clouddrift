@@ -3,7 +3,7 @@ data/process/gdp_*.nc
 data/process/rowsize*.csv
 data/process/count.csv
 data/raw/v*
-data/raw/sst
+data/raw/6-hourly*
 
 # dask
 dask-worker-space/
