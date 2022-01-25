@@ -2,7 +2,7 @@
 data/process/gdp_*.nc
 data/process/rowsize*.csv
 data/process/count.csv
-data/raw/v*
+data/raw/v2.*
 data/raw/6-hourly*
 
 # dask
