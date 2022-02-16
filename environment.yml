@@ -12,3 +12,6 @@ dependencies:
   - netCDF4
   - pandas
   - xarray
+  - awkward
+  - pyarrow
+  - numba
