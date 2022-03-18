@@ -4,6 +4,7 @@ data/process/rowsize*.csv
 data/process/count.csv
 data/raw/v2.*
 data/raw/6-hourly*
+examples/GLAD_15min_filtered.dat
 
 # dask
 dask-worker-space/
