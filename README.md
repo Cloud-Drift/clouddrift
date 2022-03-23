@@ -6,5 +6,12 @@ This project is based on the open source software python. This software requires
 
 `conda env create --file environment.yml`
 
-This repository is organized as follows:
+Once the library is in a *beta* stage, a conda/pip packages will be available to simplify the installation process.
 
+This repository is organized as follows:
+- `cloudrift/`: modules of the clouddrift library
+- `data/`: processing scripts, the GPD raw dataset, and the processed ragged array
+- `docs/`: documentation *soon* available at [clouddrift.readthedocs.io](clouddrift.readthedocs.io)
+- `examples/`: series of Jupyter Notebooks showcasing the library use cases
+- `tests/`: test-suite
+- `dev/`: developement Jupyter Notebooks use to brainstorm new ideas and discussions
