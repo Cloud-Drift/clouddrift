@@ -12,8 +12,7 @@ dependencies:
   - netCDF4
   - pandas
   - xarray
+  - awkward
   - pyarrow
   - numba
-  - cfgrib
-  - pip:
-    - https://github.com/scikit-hep/awkward.git
+  - cfgrib     # for reading GRIB files such as from ECMWF

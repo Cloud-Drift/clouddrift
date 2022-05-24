@@ -10,7 +10,7 @@ Once the library is in a *beta* stage, a conda/pip packages will be available to
 
 This repository is organized as follows:
 - `cloudrift/`: modules of the clouddrift library
-- `data/`: processing scripts for various Lagrangian datasets, including the GDP historical dataset.
+- `data/`: processing scripts, the GPD raw dataset, and the processed ragged array
 - `docs/`: documentation *soon* available at [clouddrift.readthedocs.io](clouddrift.readthedocs.io)
 - `examples/`: series of Jupyter Notebooks showcasing the library use cases
 - `tests/`: test-suite
