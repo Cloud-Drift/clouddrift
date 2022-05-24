@@ -1,11 +1,8 @@
 # dataset files and folders
-data/process/gdp_*.nc
-data/process/gdp_*.parquet
-data/process/rowsize*.csv
-data/process/count.csv
-data/raw/v2.*
-data/raw/6-hourly*
-examples/GLAD_15min_filtered.dat
+data/process/*.nc
+data/process/*.parquet
+data/raw/gdp-*
+data/raw/glad/*
 
 # dask
 dask-worker-space/
