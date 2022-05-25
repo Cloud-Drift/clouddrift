@@ -6,7 +6,8 @@ import urllib.request
 import concurrent.futures
 import re
 from tqdm import tqdm
-from os.path import isfile, join
+import os
+from os.path import isfile, join, exists
 
 aoml_https_url = 'https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/netcdf/'   
 aoml_directories = ['buoydata_1_5000', 'buoydata_5001_10000', 'buoydata_10001_15000', 'buoydata_15001_dec20']
@@ -15,6 +16,11 @@ folder = '../data/raw/gdp-6hourly'
 file_pattern = (
     "drifter_{id}.nc"
 )
+
+# create raw data folder and subfolders
+os.makedirs(folder, exist_ok=exists(folder))
+for directory in aoml_directories:
+    os.makedirs(join(folder, directory), exist_ok=exists(join(folder, directory)))
 
 # find out what drifters are part of each directory
 dict_id = {}
@@ -66,8 +72,8 @@ def download(drifter_ids: list = None, n_random_id: int = None):
             file = f'drifter_{i}.nc'
             directory = dict_id[i]
             urls.append(join(aoml_https_url, directory, file))
-            files.append(join(folder, directory, file))
-
+            files.append(join(folder, directory, file))            
+            
         # parallel retrieving of individual netCDF files
         list(tqdm(exector.map(fetch_netcdf, urls, files), total=len(files)))
     

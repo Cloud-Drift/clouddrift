@@ -6,12 +6,14 @@ import urllib.request
 import concurrent.futures
 import re
 from tqdm import tqdm
-from os.path import isfile, join
+import os
+from os.path import isfile, join, exists
 from dataclasses import dataclass
 
 folder = '../data/raw/gdp-v2.00/'
 aoml_https_url = 'https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netcdf/'   
 file_pattern = ("drifter_{id}.nc")
+os.makedirs(folder, exist_ok=exists(folder))  # create raw data folder
 
 def fetch_netcdf(url, file):
     '''
@@ -53,7 +55,7 @@ def download(drifter_ids: list = None, n_random_id: int = None):
             file = file_pattern.format(id=i)
             urls.append(join(aoml_https_url, file))
             files.append(join(folder, file))
-
+                            
         # parallel retrieving of individual netCDF files
         list(tqdm(exector.map(fetch_netcdf, urls, files), total=len(files)))
 

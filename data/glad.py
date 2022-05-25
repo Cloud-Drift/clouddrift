@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 import urllib.request
-from os.path import isfile, join
+import os
+from os.path import isfile, join, exists
 
 # GRIIDC https://data.gulfresearchinitiative.org/
 # GLAD experiment CODE-style drifter trajectories (low-pass filtered, 15 minute interval records)
@@ -10,6 +11,7 @@ from os.path import isfile, join
 griidc_url = 'https://data.gulfresearchinitiative.org/pelagos-symfony/api/file/download/169841'
 folder = '../data/raw/glad/'
 file = 'GLAD_15min_filtered.dat'
+os.makedirs(folder, exist_ok=exists(folder))  # create raw data folder
 
 # download and parse the file
 if not isfile(join(folder, file)):
@@ -27,7 +29,7 @@ df.id = pd.to_numeric(df.id.str.slice(start=-3))
 df = df.set_index('id')
 
 
-def preprocess(index) -> xr.Dataset:   
+def preprocess(index: int) -> xr.Dataset:   
     """
     Extract the Lagrangian data for one trajectory from a pd.Dataframe
     
