@@ -15,5 +15,7 @@ dependencies:
   - pyarrow
   - numba
   - cfgrib
+  - tqdm
+  - pip
   - pip:
-    - https://github.com/scikit-hep/awkward.git
+    -  git+https://github.com/scikit-hep/awkward.git@1.9.0rc4
