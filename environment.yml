@@ -13,6 +13,7 @@ dependencies:
   - pandas
   - xarray
   - pyarrow
+  - zarr
   - numba
   - cfgrib
   - tqdm
