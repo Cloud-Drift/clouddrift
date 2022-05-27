@@ -36,9 +36,8 @@ def region(ds: ak.Array, lon: list = None, lat: list = None, days: list = None) 
                             )
                            )
     
-    ds_s = ak.copy(ds)
-    mask_id = np.in1d(ds_s.ID, np.unique(ak.flatten(ds_s.obs.ids[mask])))
-    ds_s = ds_s[mask_id]  # mask for variables with dimension ['traj']
-    ds_s.obs = ds_s.obs[mask[mask_id]] # mask for variables with dimension ['obs']
+    mask_id = np.in1d(ds.ID, np.unique(ak.flatten(ds.obs.ids[mask])))
+    ds = ds[mask_id]  # mask for variables with dimension ['traj']
+    ds.obs = ds.obs[mask[mask_id]] # mask for variables with dimension ['obs']
     
-    return copy(ds_s)
+    return ds
