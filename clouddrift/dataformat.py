@@ -8,8 +8,8 @@ from tqdm import tqdm
 
 
 class create_ragged_array:
-    def __init__(self, indices: list, vars_coords: dict, vars_meta: list, vars_data: list, 
-                 preprocess_func: Callable[[int], xr.Dataset], rowsize_func: Callable[[int], int] = None):
+    def __init__(self, indices: list, preprocess_func: Callable[[int], xr.Dataset], vars_coords: dict, 
+                 vars_meta: list = [], vars_data: list = [], rowsize_func: Callable[[int], int] = None):
         self.indices = indices
         self.preprocess_func = preprocess_func
         self.rowsize_func = rowsize_func if rowsize_func else lambda i: self.preprocess_func(i).dims['obs']
