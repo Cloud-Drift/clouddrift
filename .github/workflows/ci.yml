@@ -48,5 +48,5 @@ jobs:
         id: cache
   
       - name: Update environment
-        run: mamba env update -n clouddrift -f environment.yml
+        run: mamba update -n clouddrift -f environment.yml
         if: steps.cache.outputs.cache-hit != 'true'
