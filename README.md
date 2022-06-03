@@ -1,5 +1,10 @@
 # CloudDrift
 
+[![Documentation Status](https://readthedocs.org/projects/clouddrift/badge/?version=latest)](https://clouddrift.readthedocs.io/en/latest/?badge=latest)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Cloud-Drift/earthcube-meeting-2022/main?labpath=PM_05_Accelerating_Lagrangian_analyses_of_oceanic_data_benchmarking_typical_workflows.ipynb)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FCloud-Drift%2Fclouddrift&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+
 This project aims at accelerating the use of Lagrangian data for atmospheric, oceanic, and climate sciences. It is currently funded by the [NSF EarthCube program](https://www.earthcube.org/info). The lead Principal Investigator of the project is [Shane Elipot](https://github.com/selipot) and its developement is led by [Philippe Miron](https://github.com/philippemiron).
 
 This project is based on the open source software python. This software requires a number of modules that need to exist within your working python environment. The list of necessary modules is contained in the YAML file `environment.yml`. This file can be used with a package manager such as conda to create the necessary python environment. From the command line, run
