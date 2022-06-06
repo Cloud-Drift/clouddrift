@@ -20,6 +20,6 @@ setup(
         "zarr==2.11.3",
         "numba==0.53.1",
         "tqdm==4.64.0",
-        "awkward@https://github.com/scikit-hep/awkward.git@1.9.0rc4"
+        "awkward@https://github.com/scikit-hep/awkward.git@1.9.0rc4",
     ],
 )
