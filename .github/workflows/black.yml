@@ -1,6 +1,12 @@
 name: Lint
 
-on: [push, pull_request]
+# Controls when the workflow will run
+on:
+  # Triggers on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   lint:
