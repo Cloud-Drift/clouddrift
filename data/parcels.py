@@ -25,6 +25,7 @@ ds = xr.open_dataset(join(folder, file))
 def preprocess(index: int) -> xr.Dataset:
     """
     Extract the Lagrangian data for one trajectory from a Ocean Parcels dataset
+
     :param index: trajectory identification number
     :return: xr.Dataset containing the data and attributes
     """

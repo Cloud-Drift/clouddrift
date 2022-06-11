@@ -32,7 +32,6 @@ def download(drifter_ids: list = None, n_random_id: int = None):
     :param n_random_id [int]: randomly select n drifter netCDF files
     :return drifters_ids [list]: list of retrived drifter
     """
-
     # retrieve all drifter ID numbers
     if drifter_ids == None:
         urlpath = urllib.request.urlopen(aoml_https_url)
@@ -69,9 +68,9 @@ def download(drifter_ids: list = None, n_random_id: int = None):
 def decode_date(t):
     """
     The date format is specified in 'seconds since 1970-01-01 00:00:00' but the missing values
-    are stored as -1e+34 which is not supported by the default parsing mechanism in xarray This
-    function returns replaced the missing valye by NaT and return a datetime object.
+    are stored as -1e+34 which is not supported by the default parsing mechanism in xarray
 
+    This function returns replaced the missing valye by NaT and return a datetime object.
     :param t: date
     :return: datetime object
     """
@@ -84,9 +83,7 @@ def fill_values(var, default=np.nan):
     """
     Change fill values (-1e+34, inf, -inf) in var array to value specifed by default
     """
-
     missing_value = np.logical_or(np.isclose(var, -1e34), ~np.isfinite(var))
-
     if np.any(missing_value):
         var[missing_value] = default
     return var
@@ -97,7 +94,6 @@ def str_to_float(value, default=np.nan):
     :param value: string
     :return: bool
     """
-
     try:
         fvalue = float(value)
         if np.isnan(fvalue):
@@ -152,7 +148,6 @@ def preprocess(index: int) -> xr.Dataset:
     :param index: drifter's identification number
     :return: xr.Dataset containing the data and attributes
     """
-
     ds = xr.load_dataset(
         join(folder, file_pattern.format(id=index)),
         decode_times=False,
