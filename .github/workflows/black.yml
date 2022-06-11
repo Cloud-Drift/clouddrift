@@ -1,0 +1,16 @@
+name: Lint
+
+# Controls when the workflow will run
+on:
+  # Triggers on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: psf/black@stable
