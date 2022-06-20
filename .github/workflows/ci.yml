@@ -28,8 +28,7 @@ jobs:
           activate-environment: clouddrift
           environment-file: environment.yml
           mamba-version: "*"
-          channels: conda-forge,defaults
-          channel-priority: true
+          channels: conda-forge
       - name: Unit testing
         shell: bash -l {0}
         run: |

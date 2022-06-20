@@ -25,7 +25,7 @@ Then from the ``clouddrift/docs`` directory, run:
 
   make html
 
-to create the static website stored in ``clouddrift/docs/_build/html/``. The main page ``index.html`` can be visualized in any browser. After modifying the documentation, it might be necessary to run ``make clean`` before rebuilding.
+to create the static website stored in ``clouddrift/docs/_build/html/``. The main page ``index.html`` can be visualized in a browser. After modifying the documentation, it might be necessary to run ``make clean`` before rebuilding.
 
 Using pytest
 ------------
