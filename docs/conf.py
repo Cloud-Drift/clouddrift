@@ -18,14 +18,17 @@
 # -- Project information -----------------------------------------------------
 
 project = "CloudDrift"
-copyright = "2021, Philippe Miron"
+copyright = "2022, Philippe Miron"
 author = "Philippe Miron"
 
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../"))
-import clouddrift
+sys.path.insert(0, os.path.abspath("../clouddrift/"))
+
+import dataformat
+import filter
+import spectrum
 
 # -- General configuration ---------------------------------------------------
 
