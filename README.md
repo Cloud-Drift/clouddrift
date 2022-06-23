@@ -1,6 +1,6 @@
 # CloudDrift
 ![CI](https://github.com/Cloud-Drift/clouddrift/workflows/CI/badge.svg)
-[![Documentation Status](https://readthedocs.org/projects/clouddrift/badge/?version=latest)](https://clouddrift.readthedocs.io/en/latest/?badge=latest)
+![Documentation Status](https://github.com/Cloud-Drift/clouddrift/actions/workflows/docs.yml/badge.svg)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Cloud-Drift/clouddrift/main?labpath=examples)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FCloud-Drift%2Fclouddrift&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
