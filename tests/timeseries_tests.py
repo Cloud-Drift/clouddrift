@@ -1,7 +1,7 @@
 import unittest
 from unittest import TestCase
 import numpy as np
-from clouddrift import spectrum
+from clouddrift import timeseries
 
 if __name__ == "__main__":
     unittest.main()
