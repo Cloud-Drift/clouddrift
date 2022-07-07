@@ -40,14 +40,14 @@ def subset(ds: ak.Array, criteria: dict) -> ak.Array:
         be used as a criterion. Criterion can be defined using three datatypes:
 
         Tuple for subsetting between a range of values:
-        >>> subset(ds, lon = (min_lon, max_lon), lat=(min_lat, max_lat))  # extract a region
-        >>> subset(ds, time = (min_time, max_time))  # extract a temporal range
+        >>> subset(ds, {"lon": (min_lon, max_lon), "lat": (min_lat, max_lat)})  # extract a region
+        >>> subset(ds, {"time": (min_time, max_time)})  # extract a temporal range
 
         A list to select multiples values.
-        >>> subset(ds, ID = [1, 2, 3])  # different IDs
+        >>> subset(ds, {"ID": [1, 2, 3]})  # different IDs
 
         A scalar for specific value.
-        >>> subset(ds, drogue_status = True)  # extract segment of trajectory with drogue
+        >>> subset(ds, {"drogue_status": True})  # extract segment of trajectory with drogue
     """
 
     mask_traj = ak.ones_like(ds[ds.fields[0]], dtype="bool")
