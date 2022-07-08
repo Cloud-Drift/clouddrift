@@ -109,7 +109,7 @@ class create_ragged_array:
         ):
             ds = self.preprocess_func(index)
 
-            size = ds.dims["obs"]
+            size = self.rowsize[i]
             oid = self.index_traj[i]
 
             for var in self.variables_coords.keys():
