@@ -12,7 +12,7 @@ Dataformat
   :members:
   :undoc-members:
 
-Filtering
+Select
 ---------
 .. automodule:: select
   :members:
