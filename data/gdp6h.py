@@ -21,7 +21,7 @@ def parse_directory_file(url):
     when the last file is updated
     """
     df = pd.read_csv(url, delimiter="\s+", header=None)
-    
+
     # right now only the date is saved in the individual NetCDF
     # we still order them by date and time
     df[4] = df[4] + " " + df[5]
