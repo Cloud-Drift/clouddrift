@@ -9,6 +9,88 @@ from tqdm import tqdm
 import os
 from os.path import isfile, join, exists
 
+
+# read the directory files to order the dataset
+def parse_directory_file(url):
+    """
+    Read the dataframe from the given urlExport ragged array dataset to parquet archive
+
+    Args: url [str]: path of the dat files
+
+    Notes: due to naming of those files this requires manual intervention
+    when the last file is updated
+    """
+    df = pd.read_csv(url, delimiter="\s+", header=None)
+    
+    # right now only the date is saved in the individual NetCDF
+    # we still order them by date and time
+    df[4] = df[4] + " " + df[5]
+    df[8] = df[8] + " " + df[9]
+    df[12] = df[12] + " " + df[13]
+    df = df.drop(columns=[5, 9, 13])
+    df.columns = [
+        "ID",
+        "WMO_number",
+        "program_number",
+        "buoys_type",
+        "Deployment_date",
+        "Deployment_lat",
+        "Deployment_lon",
+        "End_date",
+        "End_lat",
+        "End_lon",
+        "Drogue_off_date",
+        "death_code",
+    ]
+    return df
+
+
+# list of directory files
+file_url = [
+    "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/dirfl_1_5000.dat",
+    "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/dirfl_5001_10000.dat",
+    "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/dirfl_10001_15000.dat",
+    "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/dirfl_15001_dec21.dat",
+]
+
+# concatenate and order directory files
+df = pd.concat([parse_directory_file(f) for f in file_url])
+for t in ["Deployment_date", "End_date", "Drogue_off_date"]:
+    df[t] = pd.to_datetime(df[t], format="%Y/%m/%d %H:%M", errors="coerce")
+df.sort_values(["End_date"], inplace=True, ignore_index=True)
+
+
+def orderby_end_date(idx):
+    """
+    From the previously sorted directory files DataFrame, this function
+    returns the drifter indices sorted by their end_date.
+
+    Args:
+        idx [list]: list of drifters to include in the ragged array
+
+    Returns:
+        idx [list]: sorted list of drifters
+    """
+
+    # Issue
+    # ID in the directory file are padded with 3002340
+    # for value over XXX but the 6-hourly NetCDFs are not
+    pad = 300234000000000
+    threshold = 60000000
+
+    # pad indices larger than XXX (look at the processing code)
+    idx = [i + pad if i > threshold else i for i in idx]
+
+    # sort looking at the order in the DataFrame
+    sorted_idx = df.ID[np.where(np.in1d(df.ID, idx))[0]].values
+
+    # remove the padding to be able to retrive the files
+    sorted_idx = [i - pad if i > threshold else i for i in sorted_idx]
+
+    return sorted_idx
+
+
+# list all the nc archives available to download from the http server
 aoml_https_url = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/netcdf/"
 aoml_directories = [
     "buoydata_1_5000",
@@ -82,7 +164,7 @@ def download(drifter_ids: list = None, n_random_id: int = None):
         # parallel retrieving of individual netCDF files
         list(tqdm(exector.map(fetch_netcdf, urls, files), total=len(files)))
 
-    return drifter_ids
+    return orderby_end_date(drifter_ids)
 
 
 def decode_date(t):
