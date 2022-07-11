@@ -23,7 +23,12 @@ class dataformat_tests(TestCase):
             "title": "test trajectories",
             "history": "version xyz",
         }
-        self.coords = {"ids": "ids", "time": "t", "lon": "longitude", "lat": "latitude"}
+        self.variables_coords = {
+            "ids": "ids",
+            "time": "t",
+            "lon": "longitude",
+            "lat": "latitude",
+        }
 
         # append xr.Dataset to a list
         list_ds = []
@@ -64,7 +69,11 @@ class dataformat_tests(TestCase):
 
         # create test ragged array
         self.ra = dataformat.create_ragged_array(
-            [0, 1, 2], lambda i: list_ds[i], self.coords, ["ID", "rowsize"], ["temp"]
+            [0, 1, 2],
+            lambda i: list_ds[i],
+            self.variables_coords,
+            ["ID", "rowsize"],
+            ["temp"],
         )
 
         # output archive
@@ -102,7 +111,7 @@ class dataformat_tests(TestCase):
         for var in ["lon", "lat", "time"]:  # coords are rename but not attributes here
             self.assertEqual(
                 self.ra.attrs_variables[var]["long_name"],
-                f"variable {self.coords[var]}",
+                f"variable {self.variables_coords[var]}",
             )
             self.assertEqual(self.ra.attrs_variables[var]["units"], "-")
 
