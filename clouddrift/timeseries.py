@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def periodogram_per_traj(uv):
+def periodogram(uv):
     dt = 1 / 24
     d = []
     for i in range(0, len(uv)):

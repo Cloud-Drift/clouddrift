@@ -12,14 +12,14 @@ Dataformat
   :members:
   :undoc-members:
 
-Filtering
+Select
 ---------
-.. automodule:: filter
+.. automodule:: select
   :members:
   :undoc-members:
 
 Spectrum
 --------
-.. automodule:: spectrum
+.. automodule:: timeseries
    :members:
    :undoc-members:
