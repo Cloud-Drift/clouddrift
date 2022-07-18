@@ -68,7 +68,7 @@ def subset(ds: ak.Array, criteria: dict) -> ak.Array:
         print("Empty set.")
         return ak.Array([])
     else:  # apply the filtering for both dimensions
-        ds_subset = ds[mask_traj]
-        ds_subset.obs = ds.obs[mask_obs][mask_traj]
+        ds_subset = ak.packed(ds[mask_traj])
+        ds_subset.obs = ak.packed(ds.obs[mask_obs][mask_traj])
         ds_subset.rowsize = ak.Array([len(x) for x in ds_subset.obs.ids])
         return ds_subset
