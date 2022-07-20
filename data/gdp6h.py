@@ -80,7 +80,14 @@ def download(drifter_ids: list = None, n_random_id: int = None):
             files.append(join(folder, directory, file))
 
         # parallel retrieving of individual netCDF files
-        list(tqdm(exector.map(fetch_netcdf, urls, files), total=len(files)))
+        list(
+            tqdm(
+                exector.map(fetch_netcdf, urls, files),
+                total=len(files),
+                desc="Downloading files",
+                ncols=80,
+            )
+        )
 
     return drifter_ids
 

@@ -3,7 +3,8 @@ from unittest import TestCase
 import numpy as np
 import xarray as xr
 import awkward._v2 as ak
-from clouddrift import dataformat, select
+from clouddrift.dataformat import ragged_array
+from clouddrift import select
 
 if __name__ == "__main__":
     unittest.main()
@@ -79,7 +80,7 @@ class select_tests(TestCase):
             )
 
         # create test ragged array
-        ra = dataformat.create_ragged_array(
+        ra = ragged_array.from_files(
             [0, 1, 2],
             lambda i: list_ds[i],
             variables_coords,
