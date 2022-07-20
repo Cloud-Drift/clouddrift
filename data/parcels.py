@@ -10,16 +10,22 @@ os.makedirs(folder, exist_ok=exists(folder))  # create raw data folder
 
 # download and parse the file
 if not isfile(join(folder, file)):
-    # TODO: select a file available online
-    # req = urllib.request.urlretrieve(griidc_url, join(folder, file))
-    # print(f"Dataset {file} downloaded to '{folder}'.")
-    print(f"Dataset {file} not found in '{folder}'.")
+    url = "https://zenodo.org/record/6310460/files/global-marine-litter-2021.nc"
+    print(f"Downloading ~1.1GB from {url}.")
+    req = urllib.request.urlretrieve(url, join(folder, file))
+    print(f"Dataset saved at {join(folder, file)}")
 else:
-    print(f"Dataset {file} already in '{folder}'.")
-
+    print(f"Dataset already at {join(folder, file)}.")
 
 # load the two-dimensional Dataset
 ds = xr.open_dataset(join(folder, file))
+finite_values = np.isfinite(ds["lon"])
+idx_finite = np.where(finite_values)
+rowsize_ = np.bincount(idx_finite[0]).astype("int32")
+
+
+def rowsize(index: int) -> int:
+    return rowsize_[index]
 
 
 def preprocess(index: int) -> xr.Dataset:
@@ -30,16 +36,14 @@ def preprocess(index: int) -> xr.Dataset:
     :return: xr.Dataset containing the data and attributes
     """
     # subset the main file
-    finite_values = np.where(np.isfinite(ds.trajectory[index, :]))[0]
-    ds_subset = ds.isel(traj=[index], obs=finite_values)
+    ds_subset = ds.isel(traj=[index], obs=finite_values[index])
 
     # add variables
-    trajectory_id = int(ds_subset.trajectory[0, 0].data)
-    ds_subset["ID"] = (("traj"), [trajectory_id])
+    ds_subset["ID"] = (("traj"), [index])
     ds_subset["rowsize"] = (("traj"), [ds_subset.dims["obs"]])
     ds_subset["ids"] = (
         ("obs"),
-        np.ones(ds_subset.dims["obs"], dtype="int") * trajectory_id,
+        np.ones(ds_subset.dims["obs"], dtype="int") * index,
     )
 
     return ds_subset

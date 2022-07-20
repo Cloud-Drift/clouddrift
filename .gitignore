@@ -3,6 +3,7 @@ data/process/*.nc
 data/process/*.parquet
 data/raw/gdp-*
 data/raw/glad/*
+data/raw/parcels/*
 
 # dask
 dask-worker-space/
