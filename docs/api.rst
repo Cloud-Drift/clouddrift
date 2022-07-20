@@ -8,18 +8,18 @@ Auto-generated summary of CloudDrift's API. For more details and examples, refer
 Dataformat
 ----------
 
-.. automodule:: dataformat
+.. automodule:: clouddrift.dataformat
   :members:
   :undoc-members:
 
 Select
 ---------
-.. automodule:: select
+.. automodule:: clouddrift.select
   :members:
   :undoc-members:
 
 Spectrum
 --------
-.. automodule:: timeseries
+.. automodule:: clouddrift.timeseries
    :members:
    :undoc-members:
