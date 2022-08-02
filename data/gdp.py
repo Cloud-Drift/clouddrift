@@ -26,10 +26,10 @@ def fetch_netcdf(url, file):
 
 def download(drifter_ids: list = None, n_random_id: int = None):
     """
-    Download individual netCDF files from the AOML server
+    Download individual NetCDF files from the AOML server
 
     :param drifter_ids [list]: list of drifter to retrieve (Default: all)
-    :param n_random_id [int]: randomly select n drifter netCDF files
+    :param n_random_id [int]: randomly select n drifter NetCDF files
     :return drifters_ids [list]: list of retrived drifter
     """
     # retrieve all drifter ID numbers
@@ -44,7 +44,7 @@ def download(drifter_ids: list = None, n_random_id: int = None):
     if n_random_id:
         if n_random_id > len(drifter_ids):
             print(
-                f"Error: Retrieving all trajectories because the subset of {n_random_id} trajectories is larger than the {len(drifter_ids)} selected files."
+                f"Warning: Retrieving all listed trajectories because {n_random_id} is larger than the {len(drifter_ids)} listed trajectories."
             )
         else:
             rng = np.random.RandomState(42)
