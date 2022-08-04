@@ -2,146 +2,211 @@ import awkward._v2 as ak
 import xarray as xr
 import numpy as np
 from collections.abc import Callable
-from typing import Tuple
-import concurrent.futures
+from typing import Tuple, Optional
 from tqdm import tqdm
 
 
-class create_ragged_array:
+class ragged_array:
     def __init__(
         self,
+        coords: dict,
+        metadata: dict,
+        data: dict,
+        attrs_global: Optional[dict] = {},
+        attrs_variables: Optional[dict] = {},
+    ):
+        self.coords = coords
+        self.metadata = metadata
+        self.data = data
+        self.attrs_global = attrs_global
+        self.attrs_variables = attrs_variables
+        self.validate_attributes()
+
+    @classmethod
+    def from_files(
+        cls,
         indices: list,
         preprocess_func: Callable[[int], xr.Dataset],
         vars_coords: dict,
         vars_meta: list = [],
         vars_data: list = [],
-        rowsize_func: Callable[[int], int] = None,
+        rowsize_func: Optional[Callable[[int], int]] = None,
     ):
-        self.indices = indices
-        self.preprocess_func = preprocess_func
-        self.rowsize_func = (
-            rowsize_func
-            if rowsize_func
-            else lambda i: self.preprocess_func(i).dims["obs"]
+        # if no method is supplied, get the dimension from the preprocessing function
+        rowsize_func = (
+            rowsize_func if rowsize_func else lambda i: preprocess_func(i).dims["obs"]
         )
-        self.rowsize = self.number_of_observations()
-        self.index_traj = np.insert(np.cumsum(self.rowsize), 0, 0)
-        self.nb_traj = len(self.rowsize)
-        self.nb_obs = np.sum(self.rowsize).astype("int")
-        self.variables_coords = vars_coords
-        self.variables_metadata = vars_meta
-        self.variables_data = vars_data
-        self.attrs_global, self.attrs_variables = self.attributes()
-        self.coords, self.metadata, self.data = self.allocate_data()
-        self.fill_ragged_arrays()
+        rowsize = cls.number_of_observations(rowsize_func, indices)
+        coords, metadata, data = cls.allocate(
+            preprocess_func, indices, rowsize, vars_coords, vars_meta, vars_data
+        )
+        attrs_global, attrs_variables = cls.attributes(
+            preprocess_func(indices[0]), vars_coords, vars_meta, vars_data
+        )
 
-    def number_of_observations(self) -> np.array:
+        return cls(coords, metadata, data, attrs_global, attrs_variables)
+
+    @classmethod
+    def from_netcdf(cls, filename: str):
+        """"""
+        coords = {}
+        metadata = {}
+        data = {}
+        attrs_global = {}
+        attrs_variables = {}
+
+        with xr.open_dataset(filename) as ds:
+            nb_traj = ds.dims["traj"]
+            nb_obs = ds.dims["obs"]
+
+            attrs_global = ds.attrs
+
+            for var in ds.coords.keys():
+                coords[var] = ds[var].data
+                attrs_variables[var] = ds[var].attrs
+
+            for var in ds.data_vars.keys():
+                if len(ds[var]) == nb_traj:
+                    metadata[var] = ds[var].data
+                elif len(ds[var]) == nb_obs:
+                    data[var] = ds[var].data
+                else:
+                    print(
+                        f"Error: variable '{var}' has unknown dimension size of {len(ds[var])}, which is not traj={nb_traj} or obs={nb_obs}."
+                    )
+                attrs_variables[var] = ds[var].attrs
+
+        return cls(coords, metadata, data, attrs_global, attrs_variables)
+
+    @classmethod
+    def from_parquet(cls, filename: str):
+        """"""
+        coords = {}
+        metadata = {}
+        data = {}
+        attrs_global = {}
+        attrs_variables = {}
+
+        ds = ak.from_parquet(filename)
+        attrs_global = ds.layout.parameters["attrs"]
+
+        name_coords = ["time", "lon", "lat", "ids"]
+        for var in name_coords:
+            coords[var] = ak.flatten(ds.obs[var]).to_numpy()
+            attrs_variables[var] = ds.obs[var].layout.parameters["attrs"]
+
+        for var in [v for v in ds.fields if v != "obs"]:
+            metadata[var] = ds[var].to_numpy()
+            attrs_variables[var] = ds[var].layout.parameters["attrs"]
+
+        for var in [v for v in ds.obs.fields if v not in name_coords]:
+            data[var] = ak.flatten(ds.obs[var]).to_numpy()
+            attrs_variables[var] = ds.obs[var].layout.parameters["attrs"]
+
+        return cls(coords, metadata, data, attrs_global, attrs_variables)
+
+    @staticmethod
+    def number_of_observations(
+        rowsize_func: Callable[[int], int], indices: list
+    ) -> np.array:
         """
         Load files and get the size of the observations.
         """
-        with concurrent.futures.ThreadPoolExecutor() as exector:
-            rowsize = list(
-                tqdm(
-                    exector.map(self.rowsize_func, self.indices),
-                    total=len(self.indices),
-                    desc="Calculating the number of observations",
-                )
-            )
+        rowsize = np.zeros(len(indices), dtype="int")
 
-        return np.array(rowsize, dtype="int")
+        for i, index in tqdm(
+            enumerate(indices),
+            total=len(indices),
+            desc="Retrieving the number of obs",
+            ncols=80,
+        ):
+            rowsize[i] = rowsize_func(index)
+        return rowsize
 
-    def attributes(self) -> Tuple[dict, dict]:
-        ds = self.preprocess_func(self.indices[0])  # open file to get atts
-
+    @staticmethod
+    def attributes(
+        ds: xr.Dataset, vars_coords: dict, vars_meta: list, vars_data: list
+    ) -> Tuple[dict, dict]:
         attrs_global = ds.attrs
+
         attrs_variables = {}
 
         # coordinates
-        for var in self.variables_coords.keys():
-            attrs_variables[var] = ds[self.variables_coords[var]].attrs
+        for var in vars_coords.keys():
+            attrs_variables[var] = ds[vars_coords[var]].attrs
 
-        # metadata
-        for var in self.variables_metadata:
+        # metadata and data
+        for var in vars_meta + vars_data:
             attrs_variables[var] = ds[var].attrs
-
-        # observations
-        for var in self.variables_data:
-            attrs_variables[var] = ds[var].attrs
-
-        ds.close()
 
         return attrs_global, attrs_variables
 
-    def allocate_data(self) -> Tuple[dict, dict, dict]:
+    @staticmethod
+    def allocate(
+        preprocess_func: Callable[[int], xr.Dataset],
+        indices: list,
+        rowsize: list,
+        vars_coords: dict,
+        vars_meta: list,
+        vars_data: list,
+    ) -> Tuple[dict, dict, dict]:
         """
-        Reserve the space for the ragged array associated with all variables
+        Allocate and fill for the ragged array associated with all variables
         """
-        # open one file to get dtype of variables
-        ds = self.preprocess_func(self.indices[0])
 
+        # open one file to get dtype of variables
+        ds = preprocess_func(indices[0])
+        nb_traj = len(rowsize)
+        nb_obs = np.sum(rowsize).astype("int")
+        index_traj = np.insert(np.cumsum(rowsize), 0, 0)
+
+        # allocate memory
         coords = {}
-        for var in self.variables_coords.keys():
-            coords[var] = np.zeros(
-                self.nb_obs, dtype=ds[self.variables_coords[var]].dtype
-            )
+        for var in vars_coords.keys():
+            coords[var] = np.zeros(nb_obs, dtype=ds[vars_coords[var]].dtype)
 
         metadata = {}
-        for var in self.variables_metadata:
-            metadata[var] = np.zeros(self.nb_traj, dtype=ds[var].dtype)
+        for var in vars_meta:
+            metadata[var] = np.zeros(nb_traj, dtype=ds[var].dtype)
 
         data = {}
-        for var in self.variables_data:
-            data[var] = np.zeros(self.nb_obs, dtype=ds[var].dtype)
-
+        for var in vars_data:
+            data[var] = np.zeros(nb_obs, dtype=ds[var].dtype)
         ds.close()
+
+        # loop and fill the ragged array
+        for i, index in tqdm(
+            enumerate(indices),
+            total=len(indices),
+            desc="Filling the Ragged Array",
+            ncols=80,
+        ):
+            with preprocess_func(index) as ds:
+                size = rowsize[i]
+                oid = index_traj[i]
+
+                for var in vars_coords.keys():
+                    coords[var][oid : oid + size] = ds[vars_coords[var]].data
+
+                for var in vars_meta:
+                    metadata[var][i] = ds[var][0].data
+
+                for var in vars_data:
+                    data[var][oid : oid + size] = ds[var].data
 
         return coords, metadata, data
 
-    def fill_ragged_arrays(self):
+    def validate_attributes(self):
         """
-        Fill the ragged array datastructure by iterating through the identification numbers
+        If not specify it creates an empty attributes for each variable
         """
-
-        for i, index in tqdm(
-            enumerate(self.indices),
-            total=len(self.indices),
-            desc="Filling the ragged array",
+        for key in (
+            list(self.coords.keys())
+            + list(self.metadata.keys())
+            + list(self.data.keys())
         ):
-            ds = self.preprocess_func(index)
-
-            size = self.rowsize[i]
-            oid = self.index_traj[i]
-
-            for var in self.variables_coords.keys():
-                self.coords[var][oid : oid + size] = ds[self.variables_coords[var]].data
-
-            for var in self.variables_metadata:
-                self.metadata[var][i] = ds[var][0].data
-
-            for var in self.variables_data:
-                self.data[var][oid : oid + size] = ds[var].data
-
-            ds.close()
-
-        return
-
-    def to_netcdf(self, filename: str):
-        """
-        Export ragged array dataset to NetCDF archive
-
-        Args: filename: path of the archive
-        """
-        self.to_xarray().to_netcdf(filename)
-        return
-
-    def to_parquet(self, filename: str):
-        """
-        Export ragged array dataset to parquet archive
-
-        Args: filename: path of the archive
-        """
-        ak.to_parquet(self.to_awkward(), filename)
-        return
+            if key not in self.attrs_variables:
+                self.attrs_variables[key] = {}
 
     def to_xarray(self):
         """
@@ -164,7 +229,8 @@ class create_ragged_array:
         """
         Output the ragged array dataformat to an Awkward Array archive
         """
-        offset = ak.index.Index64(self.index_traj)
+        index_traj = np.insert(np.cumsum(self.metadata["rowsize"]), 0, 0)
+        offset = ak.index.Index64(index_traj)
 
         data = []
         for var in self.coords.keys():
@@ -183,7 +249,7 @@ class create_ragged_array:
                     parameters={"attrs": self.attrs_variables[var]},
                 )
             )
-        data_names = list(self.variables_coords.keys()) + self.variables_data
+        data_names = list(self.coords.keys()) + list(self.data.keys())
 
         metadata = []
         for var in self.metadata.keys():
@@ -195,7 +261,7 @@ class create_ragged_array:
                     highlevel=False,
                 )
             )
-        metadata_names = self.variables_metadata.copy()
+        metadata_names = list(self.metadata.keys())
 
         # include the data inside the metadata list as a nested array
         metadata_names.append("obs")
@@ -207,68 +273,20 @@ class create_ragged_array:
             )
         )
 
+    def to_netcdf(self, filename: str):
+        """
+        Export ragged array dataset to NetCDF archive
 
-def read_from_netcdf(filename: str):
-    """
-    param: filename: path of the archive
-    return: Awkward Array from a NetCDF archive
-    """
-    ds = xr.open_dataset(filename)
-    index_traj = np.insert(np.cumsum(ds.rowsize), 0, 0)
-    offset = ak.index.Index64(index_traj)
-    nb_traj = ds.dims["traj"]
-    nb_obs = ds.dims["obs"]
+        Args: filename: path of the archive
+        """
+        self.to_xarray().to_netcdf(filename)
+        return
 
-    metadata = []
-    metadata_names = []
-    data = []
-    data_names = []
+    def to_parquet(self, filename: str):
+        """
+        Export ragged array dataset to parquet archive
 
-    for var in ds.coords.keys():
-        data.append(
-            ak.contents.ListOffsetArray(
-                offset,
-                ak.contents.NumpyArray(ds[var]),
-                parameters={"attrs": ds[var].attrs},
-            )
-        )
-        data_names.append(var)
-
-    for var in ds.data_vars.keys():
-        if len(ds[var]) == nb_traj:
-            metadata.append(
-                ak.with_parameter(ds[var].data, "attrs", ds[var].attrs, highlevel=False)
-            )
-            metadata_names.append(var)
-        elif len(ds[var]) == nb_obs:
-            data.append(
-                ak.contents.ListOffsetArray(
-                    offset,
-                    ak.contents.NumpyArray(ds[var]),
-                    parameters={"attrs": ds[var].attrs},
-                )
-            )
-            data_names.append(var)
-        else:
-            print(
-                f"Error: variable '{var}' has unknown dimension size of {len(ds[var])}, which is not traj={nb_traj} or obs={nb_obs}."
-            )
-    ds.close()
-
-    # include the data inside the metadata list as a nested array
-    metadata_names.append("obs")
-    metadata.append(ak.Array(ak.contents.RecordArray(data, data_names)).layout)
-
-    return ak.Array(
-        ak.contents.RecordArray(
-            metadata, metadata_names, parameters={"attrs": ds.attrs}
-        )
-    )
-
-
-def read_from_parquet(filename: str):
-    """
-    param: filename: path of the archive
-    return: Awkward Array from a parquet archive
-    """
-    return ak.from_parquet(filename)  # lazy=True not available yet
+        Args: filename: path of the archive
+        """
+        ak.to_parquet(self.to_awkward(), filename)
+        return

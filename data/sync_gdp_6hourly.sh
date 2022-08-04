@@ -1,7 +1,7 @@
 #!/bin/bash
 
 REMOTE_GDP_PATH=/phod/pub/lumpkin/netcdf
-LOCAL_GDP_PATH=raw/6-hourly
+LOCAL_GDP_PATH=raw/gdp-6hourly
 
 # declare folders list
 declare -a folders=("buoydata_1_5000" 

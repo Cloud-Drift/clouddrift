@@ -9,6 +9,7 @@ from tqdm import tqdm
 import os
 from os.path import isfile, join, exists
 from dataclasses import dataclass
+import warnings
 
 folder = "../data/raw/gdp-v2.00/"
 aoml_https_url = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netcdf/"
@@ -26,10 +27,10 @@ def fetch_netcdf(url, file):
 
 def download(drifter_ids: list = None, n_random_id: int = None):
     """
-    Download individual netCDF files from the AOML server
+    Download individual NetCDF files from the AOML server
 
     :param drifter_ids [list]: list of drifter to retrieve (Default: all)
-    :param n_random_id [int]: randomly select n drifter netCDF files
+    :param n_random_id [int]: randomly select n drifter NetCDF files
     :return drifters_ids [list]: list of retrived drifter
     """
     # retrieve all drifter ID numbers
@@ -43,8 +44,8 @@ def download(drifter_ids: list = None, n_random_id: int = None):
     # retrieve only a subset of n_random_id trajectories
     if n_random_id:
         if n_random_id > len(drifter_ids):
-            print(
-                f"Error: Retrieving all trajectories because the subset of {n_random_id} trajectories is larger than the {len(drifter_ids)} selected files."
+            warnings.warn(
+                f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(drifter_ids)} listed trajectories."
             )
         else:
             rng = np.random.RandomState(42)
@@ -60,7 +61,14 @@ def download(drifter_ids: list = None, n_random_id: int = None):
             files.append(join(folder, file))
 
         # parallel retrieving of individual netCDF files
-        list(tqdm(exector.map(fetch_netcdf, urls, files), total=len(files)))
+        list(
+            tqdm(
+                exector.map(fetch_netcdf, urls, files),
+                total=len(files),
+                desc="Downloading files",
+                ncols=80,
+            )
+        )
 
     return drifter_ids
 
