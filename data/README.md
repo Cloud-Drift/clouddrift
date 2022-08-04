@@ -1,29 +1,31 @@
 
-The CloudDrift library typically operates on Lagrangian data that are formatted in ragged arrays. A ragged array (also known as [jagged array](https://en.wikipedia.org/wiki/Jagged_array)), is *an array of arrays of which the member arrays can be of different lengths, producing rows of jagged edges when visualized as output*.
+# Lagrangian Data
 
-Because Lagrangian data do not typically come as ragged array, we have built tools to convert various Lagrangian datasets into this data format within the python computing environment. Note that data organized in this way can then be written into language and platform-independent files such as NetCDF or Parquet.
+The CloudDrift library operates on Lagrangian data that are formatted in ragged arrays. A ragged array (also known as [jagged array](https://en.wikipedia.org/wiki/Jagged_array)), is *an array of arrays of which the member arrays can be of different lengths, producing rows of jagged edges when visualized as output*.
 
-The `data/` folder contains code (e.g. `gdp.py`) that can be used to convert raw data contained in the `raw/` subfolder (e.g. `raw/gdp-v2.00/`) and written in a file as processed data in the `process/` subfolder (e.g. `process/gdp_v2.00.nc`).
+Because Lagrangian data do not typically come as a ragged array, we have built tools to convert various Lagrangian datasets into this data format within the python computing environment. Note that data organized in this way can then be exported into language and platform-independent files such as NetCDF or Parquet.
 
-Taking as an example the collection of surface drifter data from the [NOAA Global Drifter Program](https://www.aoml.noaa.gov/phod/gdp/) (GDP). The data from that program come in two products that can be downloaded in [a number of ways](https://www.aoml.noaa.gov/phod/gdp/data.php). We take the example of the high resolution [hourly data product](https://www.aoml.noaa.gov/phod/gdp/hourly_data.php) which is now officially distributed by [NOAA NCEI](https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.nodc:AOML-GDP-1HR) as a single file ([direct link to single NetCDF file](https://www.nodc.noaa.gov/archive/arc0199/0248584/1.1/data/0-data/gdp_v2.00.nc)) containing the data as a ragged array. This single file has been created with the tools described below and created as part of CloudDrift.  
+## Structure
 
-## Process data
+The `data/` folder contains modules (e.g. `gdp.py`) that can be used to convert raw data contained in the `raw/` subfolder (e.g. `raw/gdp-v2.00/`) and written in a processed file in the `process/` subfolder (e.g. `process/gdp_v2.00.nc`).
 
-Processed data as ragged arrays are stored in the `process/` folder.
-
-For *most users*, the NetCDF file `gdp_v2.00.nc`, can be retrieved directly from NOAA NCEI ([direct link to single NetCDF file](https://www.nodc.noaa.gov/archive/arc0199/0248584/1.1/data/0-data/gdp_v2.00.nc)) and stored in the `process/` folder (or any convenient location).
-
-For *advanced users*, the preprocessing routines are made available (`preprocess.ipynb`) to manually create the NetCDF ragged array (`gdp_v2.00.nc`) from the individual trajectory files. This requires downloading the raw dataset as explained below.
+Taking as an example the collection of surface drifter data from the [NOAA Global Drifter Program](https://www.aoml.noaa.gov/phod/gdp/) (GDP). The data from that program come in two products that can be downloaded in a number of ways. With the tools described below and created as part of CloudDrift, the high resolution hourly data product ([link](https://www.aoml.noaa.gov/phod/gdp/hourly_data.php)) is now officially distributed by [NOAA NCEI](https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.nodc:AOML-GDP-1HR) as a single ragged array NetCDF file ([link](https://www.nodc.noaa.gov/archive/arc0199/0248584/1.1/data/0-data/gdp_v2.00.nc)).
 
 ## Raw data
 
-The GDP hourly data can alternatively be downloaded individually for each drifter via the [FTP server](ftp://ftp.aoml.noaa.gov/phod/pub/lumpkin/hourly/v2.00/netcdf/) of the Data Assembly Center at NOAA AOML.
+Raw data must be available in the appropriate `raw/` subfolder before a dataset is processed.
 
-### Manually
-The [FTP folder](ftp://ftp.aoml.noaa.gov/phod/pub/lumpkin/hourly/v2.00/netcdf/) contains 17,324 netCDF files (for versions 1.04c and 2.00), with the format `drifter_{id}.nc`. Those files have to be downloaded, and extracted in the `raw/` folder before performing the preprocessing.
+For the GDP dataset (and also other available *examples*), a download function is provided (e.g. `gdp.download()`) to automatically retrieve any of the 17,324 individual NetCDF files from the AOML repository and stored them in the appropriate `raw/` subfolder.
 
-### Automatically
-Alternatively, the script `sync_gdp_hourly.sh` can be used to automatically retrieve (or update) the current dataset. It requires the `lftp` command, which is available on most Linux Distribution or through [Homebrew](https://formulae.brew.sh/formula/lftp) for macOS users.
+Alternatively, the GDP hourly data can be downloaded via the HTTPS ([link](https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netcdf/)) or FTP ([link](ftp://ftp.aoml.noaa.gov/phod/pub/lumpkin/hourly/v2.00/netcdf/)) repository of the Data Assembly Center at NOAA AOML. The scripts `sync_gdp_hourly.sh` (and `sync_gdp_6hourly.sh`) can be used to automatically retrieve the latest dataset (or update a local dataset). Both require the `lftp` command, which is available on most Linux Distribution or through for macOS users ([link](https://formulae.brew.sh/formula/lftp)).
+
+## Process data
+
+Processed data as ragged arrays are stored in the appropriate `process/` subfolder.
+
+For the GDP datasets, we suggest retrieving directly the ragged array NetCDF file `gdp_v2.00.nc` from NOAA NCEI ([link](https://www.nodc.noaa.gov/archive/arc0199/0248584/1.1/data/0-data/gdp_v2.00.nc)) and stored it in the `process/` folder (or any convenient location).
+
+For *advanced users* and *data originators*, Notebooks are made available to present the steps to manually create a NetCDF ragged array from a collection of individual trajectory files (e.g. `dataformat-gdp.ipynb`) or the numerical output of a Lagrangian simulation (e.g. `dataformat-numerical.ipynb`).
 
 ## References
 - Elipot, S., R. Lumpkin, R. C. Perez, J. M. Lilly, J. J. Early, and A. M. Sykulski (2016), "A global surface drifter dataset at hourly resolution", J. Geophys. Res. Oceans, 121, [doi:10.1002/2016JC011716](doi:10.1002/2016JC011716) [(Archived pdf)](https://www.aoml.noaa.gov/phod/gdp/papers/Elipot_et_al-2016.pdf)
