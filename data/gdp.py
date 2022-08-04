@@ -9,6 +9,7 @@ from tqdm import tqdm
 import os
 from os.path import isfile, join, exists
 from dataclasses import dataclass
+import warnings
 
 folder = "../data/raw/gdp-v2.00/"
 aoml_https_url = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netcdf/"
@@ -43,8 +44,8 @@ def download(drifter_ids: list = None, n_random_id: int = None):
     # retrieve only a subset of n_random_id trajectories
     if n_random_id:
         if n_random_id > len(drifter_ids):
-            print(
-                f"Warning: Retrieving all listed trajectories because {n_random_id} is larger than the {len(drifter_ids)} listed trajectories."
+            warnings.warn(
+                f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(drifter_ids)} listed trajectories."
             )
         else:
             rng = np.random.RandomState(42)

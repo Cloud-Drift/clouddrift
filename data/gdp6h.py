@@ -8,6 +8,7 @@ import re
 from tqdm import tqdm
 import os
 from os.path import isfile, join, exists
+import warnings
 
 aoml_https_url = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/netcdf/"
 aoml_directories = [
@@ -62,8 +63,8 @@ def download(drifter_ids: list = None, n_random_id: int = None):
 
     if n_random_id:
         if n_random_id > len(drifter_ids):
-            print(
-                f"Error: Retrieving all trajectories because the subset of {n_random_id} trajectories is larger than the {len(drifter_ids)} selected files."
+            warnings.warn(
+                f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(drifter_ids)} listed trajectories."
             )
         else:
             rng = np.random.RandomState(42)
