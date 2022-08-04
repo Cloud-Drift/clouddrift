@@ -17,7 +17,7 @@ Once the library is in a *beta* stage, a conda/pip packages will be available to
 This repository is organized as follows:
 - `cloudrift/`: modules of the clouddrift library
 - `data/`: processing scripts for various Lagrangian datasets, including the GDP historical dataset.
-- `docs/`: documentation *soon* available at [clouddrift.readthedocs.io](clouddrift.readthedocs.io)
+- `docs/`: documentation *soon* available at [cloud-drift.github.io](cloud-drift.github.io)
 - `examples/`: series of Jupyter Notebooks showcasing the library use cases
 - `tests/`: test-suite
 - `dev/`: developement Jupyter Notebooks use to brainstorm new ideas and discussions
