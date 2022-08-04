@@ -413,8 +413,8 @@ def preprocess(index: int) -> xr.Dataset:
         "contributor_name": "NOAA Global Drifter Program",
         "contributor_role": "Data Acquisition Center",
         "institution": "NOAA Atlantic Oceanographic and Meteorological Laboratory",
-        "acknowledgement": "Add reference. Accessed [date].",
-        "summary": "Global Drifter Program hourly data",
+        "acknowledgement": "Lumpkin, Rick; Centurioni, Luca (2019). NOAA Global Drifter Program quality-controlled 6-hour interpolated data from ocean surface drifting buoys. [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://doi.org/10.25921/7ntx-z961. Accessed [date].",
+        "summary": "Global Drifter Program six-hourly data",
     }
 
     # set attributes

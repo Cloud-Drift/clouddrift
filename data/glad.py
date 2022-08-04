@@ -31,7 +31,7 @@ df = pd.read_csv(
     names=["id", "date", "time", "lat", "lon", "err_pos", "ve", "vn", "err_vel"],
 )
 df.insert(0, "datetime", pd.to_datetime(df["date"] + " " + df["time"]))
-df["datetime"] = [(t - datetime(1970,1,1)).total_seconds() for t in df["datetime"]]
+df["datetime"] = [(t - datetime(1970, 1, 1)).total_seconds() for t in df["datetime"]]
 df = df.drop(labels=["date", "time"], axis=1)
 df.id = pd.to_numeric(df.id.str.slice(start=-3))
 df = df.set_index("id")
@@ -87,7 +87,11 @@ def preprocess(index: int) -> xr.Dataset:
                 df_subset.lat,
                 {"long_name": "Latitude", "units": "degrees_north"},
             ),
-            time=(["obs"], df_subset.datetime, {"long_name": "Time", "units": "seconds since 1970-01-01 00:00:00"}),
+            time=(
+                ["obs"],
+                df_subset.datetime,
+                {"long_name": "Time", "units": "seconds since 1970-01-01 00:00:00"},
+            ),
             ids=(
                 ["obs"],
                 df_subset.index,
