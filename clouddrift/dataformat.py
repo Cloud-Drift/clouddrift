@@ -242,8 +242,7 @@ class ragged_array:
         return coords, metadata, data
 
     def validate_attributes(self):
-        """Validate that each variable has an assigned attribute tag.
-        """
+        """Validate that each variable has an assigned attribute tag."""
         for key in (
             list(self.coords.keys())
             + list(self.metadata.keys())
@@ -258,7 +257,7 @@ class ragged_array:
         Returns:
             xr.Dataset: xarray Dataset containing the ragged arrays and their attributes
         """
-        
+
         xr_coords = {}
         for var in self.coords.keys():
             xr_coords[var] = (["obs"], self.coords[var], self.attrs_variables[var])
@@ -328,14 +327,14 @@ class ragged_array:
         Args:
             filename (str): filename of the NetCDF archive of ragged arrays
         """
-        
+
         self.to_xarray().to_netcdf(filename)
         return
 
     def to_parquet(self, filename: str):
         """Export ragged array object to a parquet archive.
 
-        Args: 
+        Args:
             filename (str): filename of the parquet archive of ragged arrays
         """
         ak.to_parquet(self.to_awkward(), filename)
