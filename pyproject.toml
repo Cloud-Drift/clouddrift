@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["clouddrift"]
+
+[project]
+name = "clouddrift"
+version = "0.1.0"
+authors = [
+  { name="Philippe Miron", email="philippemiron@gmail.com" },
+  { name="Shane Elipot", email="selipot@miami.edu" },
+]
+description = "Accelerating the use of Lagrangian data for atmospheric, oceanic, and climate sciences"
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy>=1.22.4",
+    "pandas>=1.4.2",
+    "xarray>=2022.3.0",
+    "netcdf4>=1.5.8",
+    "pyarrow>=8.0.0",
+    "zarr>=2.11.3",
+    "numba>=0.53.1",
+    "tqdm>=4.64.0",
+    "fsspec>=2022.3.0",
+    "awkward==1.9.0rc11",
+]
+
+[project.urls]
+Homepage = "https://github.com/Cloud-Drift/clouddrift"
+Documentation = "https://cloud-drift.github.io/clouddrift"
