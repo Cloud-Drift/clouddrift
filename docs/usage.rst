@@ -105,7 +105,7 @@ Once this is done, we can include extra metadata, such as the size of each traje
 Analysis
 --------
 
-Once an archive of ragged arrays is created, CloudDrift provides way to read in and convert the data to an Awkward Array object.
+Once an archive of ragged arrays is created, CloudDrift provides way to read in and convert the data to an `Awkward Array <https://awkward-array.org/quickstart.html>`_.
 
 .. code-block:: python
 
