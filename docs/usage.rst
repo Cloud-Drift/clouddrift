@@ -6,14 +6,14 @@ Usage
 Data format
 -----------
 
-The first release of CloudDrift provide a easy way to convert any Lagrangian datasets into an archive of ragged arrays. We provide step-by-step guide to convert the trajectories from the Global Drifter Program (GDP) hourly and 6-hourly datasets, an drifters experiment lead by `CARTHE <http://carthe.org/>`_, and a typical numerical Lagrangian output. 
+The first release of CloudDrift provide a relatively *easy* way to convert any Lagrangian datasets into an archive of `contiguous ragged arrays <https://cfconventions.org/cf-conventions/cf-conventions.html#_contiguous_ragged_array_representation>`_. We provide a step-by-step guides to convert the individual trajectories from the Global Drifter Program (GDP) hourly and 6-hourly datasets, the drifters from the `CARTHE <http://carthe.org/>`_ experiment, and a typical output from a numerical Lagrangian experiment.
 
-Below is a quick overview to transform an observational Lagrangian dataset stored into multiple files, or a numerical output from a Lagrangian simulation framework. **Detailed examples** are provided as Jupyter Notebooks and can be tested directly in a `Binder <https://mybinder.org/v2/gh/Cloud-Drift/clouddrift/main?labpath=examples>`_ environment.
+Below is a quick overview on how to transform an observational Lagrangian dataset stored into multiple files, or a numerical output from a Lagrangian simulation framework. Detailed examples are provided as Jupyter Notebooks which can be tested directly in a `Binder <https://mybinder.org/v2/gh/Cloud-Drift/clouddrift/main?labpath=examples>`_ executable environment.
 
 Collection of files
 ~~~~~~~~~~~~~~~~~~~
 
-First, to create a ragged arrays archive for a dataset where each trajectory is stored into a individual archive, e.g. the `GDP hourly dataset <https://www.aoml.noaa.gov/phod/gdp/hourly_data.php>`_, it is required to define a `preprocessing` function that returns an `xarray` dataset of a trajectory from its identification number.
+First, to create a ragged arrays archive for a dataset for which each trajectory is stored into a individual archive, e.g. the FTP distribution of the `GDP hourly dataset <https://www.aoml.noaa.gov/phod/gdp/hourly_data.php>`_, it is required to define a `preprocessing` function that returns an `xarray.Dataset <https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html>`_ for a trajectory from its identification number.
 
 .. code-block:: python
 
@@ -44,13 +44,13 @@ This function will be called for each indices of the dataset (`ids`) to construc
 
    ra = ragged_array.from_files(ids, preprocess, coords, metadata, data)
 
-which can be easily export to either a parquet,
+which can be easily export to either a parquet archive file,
 
 .. code-block:: python
 
    ra.to_parquet('data/archive.parquet')
 
-or a NetCDF archive.
+or a NetCDF archive file.
 
 .. code-block:: python
 
@@ -67,7 +67,7 @@ For a two-dimensional output (`lon`, `lat`, `time`) from a Lagrangian simulation
    coords = {}
    metadata = {}
 
-   # note that this example dataset does not contain other data than time, lon, lat, and ids 
+   # note that this example dataset does not contain other data than time, lon, lat, and ids
    # an empty dictionary "data" is initialize anyway
    data = {}
 
@@ -75,7 +75,7 @@ Numerical outputs are usually stored as a 2D matrix (`trajectory`, `time`) fille
 
 .. code-block:: python
 
-   ds = xr.open_dataset(join(folder, file), decode_times=False)   
+   ds = xr.open_dataset(join(folder, file), decode_times=False)
    finite_values = np.isfinite(ds['lon'])
    idx_finite = np.where(finite_values)
 
@@ -89,11 +89,11 @@ Numerical outputs are usually stored as a 2D matrix (`trajectory`, `time`) fille
    coords["lat"] = ds.lat.data[idx_finite]
    coords["ids"] = np.repeat(unique_id, rowsize)
 
-Once performed, we can include extra metadata, such as the size of each trajectory (`rowsize`), and create the ragged arrays archive.
+Once this is done, we can include extra metadata, such as the size of each trajectory (`rowsize`), and create the ragged arrays archive.
 
 .. code-block:: python
 
-   # metadata   
+   # metadata
    metadata = {}
    metadata["rowsize"] = rowsize
    metadata["ID"] = unique_id
