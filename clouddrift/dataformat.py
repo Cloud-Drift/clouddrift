@@ -272,7 +272,7 @@ class ragged_array:
         return xr.Dataset(coords=xr_coords, data_vars=xr_data, attrs=self.attrs_global)
 
     def to_awkward(self):
-        """Convert ragged array object to a xarray Dataset.
+        """Convert ragged array object to an Awkward Array.
 
         Returns:
             ak.Array: Awkward Array containing the ragged arrays and their attributes
