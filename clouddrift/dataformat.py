@@ -32,6 +32,20 @@ class ragged_array:
         vars_data: list = [],
         rowsize_func: Optional[Callable[[int], int]] = None,
     ):
+        """Generate ragged arrays archive from a list of trajectory files
+
+        Args:
+            indices (list): identification numbers list to iterate
+            preprocess_func (Callable[[int], xr.Dataset]): returns a processed xarray Dataset from an identification number
+            vars_coords (dict): Dictionary mapping field dimensions (ids, time, lon,
+               lat)
+            vars_meta (list, optional): metadata variable names to include in the archive (Defaults to [])
+            vars_data (list, optional): data variable names to include in the archive (Defaults to [])
+            rowsize_func (Optional[Callable[[int], int]], optional): returns a processed xarray Dataset from an identification number (to speed up processing) (Defaults to None)
+
+        Returns:
+            obj: ragged array class object
+        """
         # if no method is supplied, get the dimension from the preprocessing function
         rowsize_func = (
             rowsize_func if rowsize_func else lambda i: preprocess_func(i).dims["obs"]
@@ -48,7 +62,14 @@ class ragged_array:
 
     @classmethod
     def from_netcdf(cls, filename: str):
-        """"""
+        """Read a ragged arrays archive from a NetCDF file
+
+        Args:
+            filename (str): filename of NetCDF archive
+
+        Returns:
+            obj: ragged array class object
+        """
         coords = {}
         metadata = {}
         data = {}
@@ -80,7 +101,14 @@ class ragged_array:
 
     @classmethod
     def from_parquet(cls, filename: str):
-        """"""
+        """Read a ragged arrays archive from a parquet file
+
+        Args:
+            filename (str): filename of parquet archive
+
+        Returns:
+            obj: ragged array class object
+        """
         coords = {}
         metadata = {}
         data = {}
@@ -109,8 +137,14 @@ class ragged_array:
     def number_of_observations(
         rowsize_func: Callable[[int], int], indices: list
     ) -> np.array:
-        """
-        Load files and get the size of the observations.
+        """Iterate through the files and evaluate the number of observations.
+
+        Args:
+            rowsize_func (Callable[[int], int]): returns number observations of a trajectory from its identification number
+            indices (list): identification numbers list to iterate
+
+        Returns:
+            np.array: number of observations of each trajectory
         """
         rowsize = np.zeros(len(indices), dtype="int")
 
@@ -150,8 +184,19 @@ class ragged_array:
         vars_meta: list,
         vars_data: list,
     ) -> Tuple[dict, dict, dict]:
-        """
-        Allocate and fill for the ragged array associated with all variables
+        """Iterate through the files and fill for the ragged array associated with coordinates, and selected metadata and data variables.
+
+        Args:
+            preprocess_func (Callable[[int], xr.Dataset]): returns a processed xarray Dataset from an identification number
+            indices (list): list of indices separating trajectory in the ragged arrays
+            rowsize (list): list of the number of observations per trajectory
+            vars_coords (dict): Dictionary mapping field dimensions (ids, time, lon,
+               lat)
+            vars_meta (list): metadata variable names to include in the archive (Defaults to [])
+            vars_data (list): data variable names to include in the archive (Defaults to [])
+
+        Returns:
+            Tuple[dict, dict, dict]: dictionaries containing numerical data and attributes of coordinates, metadata and data variables.
         """
 
         # open one file to get dtype of variables
@@ -197,8 +242,7 @@ class ragged_array:
         return coords, metadata, data
 
     def validate_attributes(self):
-        """
-        If not specify it creates an empty attributes for each variable
+        """Validate that each variable has an assigned attribute tag.
         """
         for key in (
             list(self.coords.keys())
@@ -209,9 +253,12 @@ class ragged_array:
                 self.attrs_variables[key] = {}
 
     def to_xarray(self):
+        """Convert ragged array object to a xarray Dataset.
+
+        Returns:
+            xr.Dataset: xarray Dataset containing the ragged arrays and their attributes
         """
-        Output the ragged array dataformat to an xr.Dataset
-        """
+        
         xr_coords = {}
         for var in self.coords.keys():
             xr_coords[var] = (["obs"], self.coords[var], self.attrs_variables[var])
@@ -226,8 +273,10 @@ class ragged_array:
         return xr.Dataset(coords=xr_coords, data_vars=xr_data, attrs=self.attrs_global)
 
     def to_awkward(self):
-        """
-        Output the ragged array dataformat to an Awkward Array archive
+        """Convert ragged array object to a xarray Dataset.
+
+        Returns:
+            ak.Array: Awkward Array containing the ragged arrays and their attributes
         """
         index_traj = np.insert(np.cumsum(self.metadata["rowsize"]), 0, 0)
         offset = ak.index.Index64(index_traj)
@@ -274,19 +323,20 @@ class ragged_array:
         )
 
     def to_netcdf(self, filename: str):
-        """
-        Export ragged array dataset to NetCDF archive
+        """Export ragged array object to a NetCDF archive.
 
-        Args: filename: path of the archive
+        Args:
+            filename (str): filename of the NetCDF archive of ragged arrays
         """
+        
         self.to_xarray().to_netcdf(filename)
         return
 
     def to_parquet(self, filename: str):
-        """
-        Export ragged array dataset to parquet archive
+        """Export ragged array object to a parquet archive.
 
-        Args: filename: path of the archive
+        Args: 
+            filename (str): filename of the parquet archive of ragged arrays
         """
         ak.to_parquet(self.to_awkward(), filename)
         return
