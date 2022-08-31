@@ -3,17 +3,7 @@
 Installation
 =============
 
-Dependencies
-------------
-- numpy
-- xarray
-- dask
-- erddapy
-
-Instructions
-------------
-
-You can install the latest official release from the conda-forge repository:
+You can easily install the latest official release from the conda-forge repository:
 
 .. code-block:: text
 
@@ -25,8 +15,10 @@ or by using pip:
 
   pip install clouddrift
 
-or install the development version directly from the repository:
+or install the latest development version directly from the repository:
 
 .. code-block:: text
 
   pip install git+https://github.com/Cloud-Drift/clouddrift.git
+
+A quick how-to guide is provided on the `Usage <https://cloud-drift.github.io/clouddrift/usage.html>`_ page.
