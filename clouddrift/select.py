@@ -3,8 +3,8 @@ import numpy as np
 
 
 def mask_var(var: ak.Array, value):
-    """
-    Return the mask of a subset of the data matching a test criterion.
+    """Return the mask of a subset of the data matching a test criterion.
+
     Args:
         var (ak.Array): ak.Array
         value: tuple, list or scalar defining a test criterion

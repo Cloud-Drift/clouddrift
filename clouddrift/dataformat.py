@@ -37,8 +37,7 @@ class ragged_array:
         Args:
             indices (list): identification numbers list to iterate
             preprocess_func (Callable[[int], xr.Dataset]): returns a processed xarray Dataset from an identification number
-            vars_coords (dict): Dictionary mapping field dimensions (ids, time, lon,
-               lat)
+            vars_coords (dict): Dictionary mapping field dimensions (ids, time, lon, lat)
             vars_meta (list, optional): metadata variable names to include in the archive (Defaults to [])
             vars_data (list, optional): data variable names to include in the archive (Defaults to [])
             rowsize_func (Optional[Callable[[int], int]], optional): returns a processed xarray Dataset from an identification number (to speed up processing) (Defaults to None)
@@ -190,8 +189,7 @@ class ragged_array:
             preprocess_func (Callable[[int], xr.Dataset]): returns a processed xarray Dataset from an identification number
             indices (list): list of indices separating trajectory in the ragged arrays
             rowsize (list): list of the number of observations per trajectory
-            vars_coords (dict): Dictionary mapping field dimensions (ids, time, lon,
-               lat)
+            vars_coords (dict): Dictionary mapping field dimensions (ids, time, lon, lat)
             vars_meta (list): metadata variable names to include in the archive (Defaults to [])
             vars_data (list): data variable names to include in the archive (Defaults to [])
 
