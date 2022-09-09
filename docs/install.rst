@@ -3,19 +3,19 @@
 Installation
 =============
 
-You can easily install the latest official release from the conda-forge repository:
-
-.. code-block:: text
-
-  conda install -c conda-forge clouddrift
-
-or by using pip:
+For most *users*, the latest official package can be obtained from the `PyPi <pypi.org/project/clouddrift/>`_ repository: 
 
 .. code-block:: text
 
   pip install clouddrift
 
-or install the latest development version directly from the repository:
+or (soon!) from the conda-forge repository:
+
+.. code-block:: text
+
+  conda install -c conda-forge clouddrift
+
+For *developpers* who want to install the latest development version, you can install directly from the clouddrift's repository:
 
 .. code-block:: text
 

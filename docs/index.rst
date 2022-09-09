@@ -6,7 +6,7 @@ Lagrangian data typically refers to oceanic and atmosphere information acquired 
 As such, for both originators and users, Lagrangian data present challenges that the CloudDrift project aims to overcome. This project is funded by the `NSF EarthCube program <https://www.earthcube.org/info>`_ through `EarthCube Capabilities Grant No. 2126413 <https://www.nsf.gov/awardsearch/showAward?AWD_ID=2126413>`_.
 
 Motivations
-----------
+-----------
 
 The `Global Drifter Program (GDP) <https://www.aoml.noaa.gov/phod/gdp/>`_ of the US National Oceanic and Atmospheric Administration has released to date nearly 25,000 drifting buoys, or drifters, with the goal of obtaining observations of oceanic velocity, sea surface temperature, and sea level pressure. From these drifter observations, the GDP generates two data products: one of oceanic variables estimated along drifter trajectories at `hourly <https://www.aoml.noaa.gov/phod/gdp/interpolated/data/all.php>`_ time steps, and one at `six-hourly <https://www.aoml.noaa.gov/phod/gdp/hourly_data.php>`_ steps.
 

@@ -94,7 +94,6 @@ Once this is done, we can include extra metadata, such as the size of each traje
 .. code-block:: python
 
    # metadata
-   metadata = {}
    metadata["rowsize"] = rowsize
    metadata["ID"] = unique_id
 
