@@ -26,7 +26,6 @@ jobs:
     - name: Build docs
       shell: bash -l {0}
       run: |
-        conda activate clouddrift
         pushd docs
         pip install -r requirements.txt
         make html
