@@ -15,7 +15,7 @@ or (soon!) from the conda-forge repository:
 
   conda install -c conda-forge clouddrift
 
-For *developpers* who want to install the latest development version, you can install directly from the clouddrift's repository:
+For *developpers* who want to install the latest development version, you can install directly from the clouddrift's GitHub repository:
 
 .. code-block:: text
 
