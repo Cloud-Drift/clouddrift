@@ -105,7 +105,7 @@ class dataformat_tests(TestCase):
 
     def test_variable_attrs(self):
         """
-        Validate the variable attributes are properly transfered to the ragged array object.
+        Validate the variable attributes are properly transferred to the ragged array object.
         Note: as part of this test `long_name` is variable but `units` are always "-"
         """
         for var in ["lon", "lat", "time"]:  # coords are rename but not attributes here
@@ -123,7 +123,7 @@ class dataformat_tests(TestCase):
 
     def test_global_attrs(self):
         """
-        Validate the global attributes are properly transfered to the ragged array object
+        Validate the global attributes are properly transferred to the ragged array object
         """
         self.assertEqual(self.ra.attrs_global, self.attrs_global)
 
