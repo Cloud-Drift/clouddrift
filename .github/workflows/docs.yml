@@ -16,9 +16,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: mamba-org/provision-with-micromamba@main
-        with:
-          environment-file: environment.yml
-          environment-name: clouddrift
+      with:
+        environment-file: environment.yml
+        environment-name: clouddrift
     - name: Build docs
       shell: bash -l {0}
       run: |
