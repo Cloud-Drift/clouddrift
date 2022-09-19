@@ -15,6 +15,6 @@ dependencies:
   - fsspec>=2022.3.0
   - pip>=22.1.1
   - awkward>=1.8.0
-  - llvmlite>=0.39
+  - llvmlite>=0.39.1
   - pip:
     - git+https://github.com/philippemiron/clouddrift
