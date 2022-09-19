@@ -19,7 +19,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "numpy",
+    "numpy=1.22.4",
     "pandas",
     "xarray",
     "netcdf4",
