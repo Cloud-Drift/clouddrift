@@ -16,4 +16,4 @@ dependencies:
   - pip>=22.1.1
   - awkward>=1.8.0
   - pip:
-    - clouddrift
+    - git+https://github.com/philippemiron/clouddrift
