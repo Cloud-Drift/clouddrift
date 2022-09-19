@@ -28,7 +28,7 @@ dependencies = [
     "numba",
     "tqdm",
     "fsspec",
-    "awkward",
+    "awkward==1.9.0",
 ]
 
 [project.urls]
