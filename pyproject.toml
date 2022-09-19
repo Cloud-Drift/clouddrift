@@ -28,7 +28,6 @@ dependencies = [
     "numba>=0.53.1",
     "tqdm>=4.64.0",
     "fsspec>=2022.3.0",
-    "llvmlite>=0.39.1",
     "awkward>=1.8.0",
 ]
 
