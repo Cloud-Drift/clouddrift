@@ -19,16 +19,16 @@ classifiers = [
 ]
 
 dependencies = [
-    "numpy>=1.22.4",
-    "pandas>=1.4.2",
-    "xarray>=2022.3.0",
-    "netcdf4>=1.5.8",
-    "pyarrow>=8.0.0",
-    "zarr>=2.11.3",
-    "numba>=0.53.1",
-    "tqdm>=4.64.0",
-    "fsspec>=2022.3.0",
-    "awkward>=1.8.0",
+    "numpy",
+    "pandas",
+    "xarray",
+    "netcdf4",
+    "pyarrow",
+    "zarr",
+    "numba",
+    "tqdm",
+    "fsspec",
+    "awkward",
 ]
 
 [project.urls]
