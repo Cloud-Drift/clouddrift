@@ -4,17 +4,17 @@ channels:
 dependencies:
   - python>=3.8
   - matplotlib>=3.5.2
-  - numpy
-  - pandas
-  - xarray
-  - netcdf4
-  - pyarrow
-  - zarr
-  - numba
-  - tqdm
-  - fsspec
-  - awkward
-  - llvmlite
-  - pip
+  - numpy>=1.21.6
+  - pandas>=1.4.4
+  - xarray>=2022.6.0
+  - netcdf4>=1.6.1
+  - pyarrow>=9.0.0
+  - zarr>=2.12.0
+  - numba>=0.55.0
+  - tqdm>=4.64.1
+  - fsspec>=2022.8.2
+  - awkward>=1.8.0
+  - llvmlite>=0.38.1
+  - pip>=22.2.2
   - pip:
     - git+https://github.com/philippemiron/clouddrift
