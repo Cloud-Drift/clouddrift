@@ -54,7 +54,7 @@ def subset(ds: ak.Array, criteria: dict) -> ak.Array:
     mask_traj = ak.ones_like(ds[ds.fields[0]], dtype="bool")
     mask_obs = ak.ones_like(ds.obs[ds.obs.fields[0]], dtype="bool")
 
-    for key in list(criteria.keys()):
+    for key in criteria.keys():
         if key in ds.fields:
             mask_traj = np.logical_and(mask_traj, mask_var(ds[key], criteria[key]))
         elif key in ds.obs.fields:
