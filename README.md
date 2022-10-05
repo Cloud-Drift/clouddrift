@@ -38,7 +38,7 @@ cd clouddrift
 conda env create --file environment.yml
 ```
 
-Once the library is in Beta, a conda-forge package will be available to simplify the installation process.
+In the future, a conda-forge package will be available to simplify the installation process.
 
 ### Run the tests
 
