@@ -6,18 +6,60 @@
 [![NSF-2126413](https://img.shields.io/badge/NSF-2126413-blue.svg)](https://nsf.gov/awardsearch/showAward?AWD_ID=2126413)
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FCloud-Drift%2Fclouddrift&count_bg=%2368C563&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
-The *CloudDrift* project aims at accelerating the use of Lagrangian data for atmospheric, oceanic, and climate sciences. It is currently funded by the [NSF EarthCube program](https://www.earthcube.org/info) through [EarthCube Capabilities Grant No. 2126413](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2126413). The lead Principal Investigator of the project is [Shane Elipot](https://github.com/selipot) and its development is led by [Philippe Miron](https://github.com/philippemiron).
+CloudDrift accelerates the use of Lagrangian data for atmospheric, oceanic, and climate sciences.
+It is funded by [NSF EarthCube](https://www.earthcube.org/info) through the
+[EarthCube Capabilities Grant No. 2126413](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2126413).
 
-This project is generating the *clouddrift* library as an open source software written in python. This software requires a number of modules that need to exist within your working python environment. The list of necessary modules is contained in the YAML file `environment.yml`. This file can be used with a package manager such as conda to create the necessary python environment. From the command line, run
+## Getting started
 
-`conda env create --file environment.yml`
+### Install CloudDrift
 
-Once the library is in a *beta* stage, a conda/pip packages will be available to simplify the installation process.
+#### pip
 
-This repository is organized as follows:
-- `clouddrift/`: modules of the *clouddrift* library.
-- `data/`: processing scripts for various Lagrangian datasets, including the GDP historical dataset.
-- `docs/`: documentation *in-progress* available at [cloud-drift.github.io/clouddrift](https://cloud-drift.github.io/clouddrift/).
-- `examples/`: series of Jupyter Notebooks showcasing the library use cases.
-- `tests/`: test-suite.
-- `dev/`: development Jupyter Notebooks use to brainstorm new ideas and discussions.
+You can install CloudDrift using pip via PyPI:
+
+```
+pip install clouddrift
+```
+
+If you need the latest development version, get it from GitHub:
+
+```
+pip install git+https://github.com/cloud-drift/clouddrift
+```
+
+#### Conda
+
+You can also install CloudDrift using Conda:
+
+```
+git clone https://github.com/cloud-drift/clouddrift
+cd clouddrift
+conda env create --file environment.yml
+```
+
+Once the library is in Beta, a conda-forge package will be available to simplify the installation process.
+
+### Run the tests
+
+If you downloaded the CloudDrift source code from GitHub, you can run all tests
+like this:
+
+```
+python -m unittest tests/*.py
+```
+
+## Using CloudDrift
+
+Start by reading the [documentation](https://cloud-drift.github.io/clouddrift).
+
+Example Jupyter notebooks that showcase the library are in [examples](examples).
+More experimental notebooks to brainstorm new ideas are in [dev](dev).
+Scripts to process various Lagrangian datasets, including the
+[Global Drifter Program (GDP)](https://www.aoml.noaa.gov/phod/gdp/) historical
+dataset, are in [data](data).
+
+## Found an issue or need help?
+
+Please create a new issue [here](https://github.com/Cloud-Drift/clouddrift/issues/new)
+and provide as much detail as possible about your problem or question.
