@@ -2,7 +2,7 @@ name: clouddrift
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8
+  - python>=3.9
   - matplotlib>=3.5.2
   - numpy>=1.21.6
   - pandas>=1.4.4
