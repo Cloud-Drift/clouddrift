@@ -42,7 +42,7 @@ This function will be called for each indices of the dataset (`ids`) to construc
    metadata = ['ID', 'rowsize']
    data = ['ve', 'vn']
 
-   ra = ragged_array.from_files(ids, preprocess, coords, metadata, data)
+   ra = RaggedArray.from_files(ids, preprocess, coords, metadata, data)
 
 which can be easily export to either a parquet archive file,
 
@@ -98,7 +98,7 @@ Once this is done, we can include extra metadata, such as the size of each traje
    metadata["ID"] = unique_id
 
    # create the ragged arrays
-   ra = ragged_array(coords, metadata, data)
+   ra = RaggedArray(coords, metadata, data)
    ra.to_parquet('data/archive.parquet')
 
 Analysis
@@ -108,7 +108,7 @@ Once an archive of ragged arrays is created, CloudDrift provides way to read in 
 
 .. code-block:: python
 
-   ra = ragged_array.from_parquet('data/archive.parquet')
+   ra = RaggedArray.from_parquet('data/archive.parquet')
    ds = ra.to_awkward()
 
 Over the next year, the CloudDrift project will be developing a cloud-ready analysis library to perform typical Lagrangian workflows.

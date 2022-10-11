@@ -4,10 +4,11 @@ build-backend = "hatchling.build"
 
 [project]
 name = "clouddrift"
-version = "0.1.1"
+version = "0.2.0"
 authors = [
   { name="Shane Elipot", email="selipot@miami.edu" },
   { name="Philippe Miron", email="philippemiron@gmail.com" },
+  { name="Milan Curcic", email="mcurcic@miami.edu" }
 ]
 description = "Accelerating the use of Lagrangian data for atmospheric, oceanic, and climate sciences"
 readme = "README.md"

@@ -6,7 +6,7 @@ from typing import Tuple, Optional
 from tqdm import tqdm
 
 
-class ragged_array:
+class RaggedArray:
     def __init__(
         self,
         coords: dict,
