@@ -3,7 +3,7 @@ from unittest import TestCase
 import os
 import xarray as xr
 import numpy as np
-from clouddrift.dataformat import ragged_array
+from clouddrift.dataformat import RaggedArray
 import awkward._v2 as ak
 
 if __name__ == "__main__":
@@ -68,7 +68,7 @@ class dataformat_tests(TestCase):
             )
 
         # create test ragged array
-        self.ra = ragged_array.from_files(
+        self.ra = RaggedArray.from_files(
             [0, 1, 2],
             lambda i: list_ds[i],
             self.variables_coords,
@@ -163,12 +163,12 @@ class dataformat_tests(TestCase):
         """
         Validate the netCDF output archive
         """
-        ds = ragged_array.from_netcdf("test_archive.nc")
+        ds = RaggedArray.from_netcdf("test_archive.nc")
         self.compare_awkward_array(ds.to_awkward())
 
     def test_parquet_output(self):
         """
         Validate the netCDF output archive
         """
-        ds = ragged_array.from_parquet("test_archive.parquet")
+        ds = RaggedArray.from_parquet("test_archive.parquet")
         self.compare_awkward_array(ds.to_awkward())
