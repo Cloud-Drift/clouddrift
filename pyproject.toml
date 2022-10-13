@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "clouddrift"
-version = "0.2.0"
+version = "0.2.1"
 authors = [
   { name="Shane Elipot", email="selipot@miami.edu" },
   { name="Philippe Miron", email="philippemiron@gmail.com" },
