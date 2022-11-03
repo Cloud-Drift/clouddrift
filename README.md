@@ -53,11 +53,9 @@ python -m unittest tests/*.py
 
 Start by reading the [documentation](https://cloud-drift.github.io/clouddrift).
 
-Example Jupyter notebooks that showcase the library are in [examples](examples).
-More experimental notebooks to brainstorm new ideas are in [dev](dev).
-Scripts to process various Lagrangian datasets, including the
-[Global Drifter Program (GDP)](https://www.aoml.noaa.gov/phod/gdp/) historical
-dataset, are in [data](data).
+Example Jupyter notebooks that showcase the library, as well as scripts
+to process various Lagrangian datasets, are in
+[clouddrift-examples](https://github.com/Cloud-Drift/clouddrift-examples).
 
 ## Found an issue or need help?
 
