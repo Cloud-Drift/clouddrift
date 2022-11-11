@@ -87,6 +87,10 @@ class dataformat_tests(TestCase):
         os.remove("test_archive.nc")
         os.remove("test_archive.parquet")
 
+    def test_from_xarray(self):
+        ra = RaggedArray.from_xarray(xr.open_dataset("test_archive.nc"))
+        self.compare_awkward_array(ra.to_awkward())
+
     def test_length_ragged_arrays(self):
         """
         Validate the size of the ragged array variables
