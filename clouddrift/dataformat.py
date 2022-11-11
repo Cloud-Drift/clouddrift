@@ -4,6 +4,7 @@ import numpy as np
 from collections.abc import Callable
 from typing import Tuple, Optional
 from tqdm import tqdm
+import warnings
 
 
 class RaggedArray:
@@ -61,7 +62,9 @@ class RaggedArray:
 
     @classmethod
     def from_netcdf(cls, filename: str):
-        """Read a ragged arrays archive from a NetCDF file
+        """Read a ragged arrays archive from a NetCDF file.
+
+        This is a thin wrapper around from_xarray().
 
         Args:
             filename (str): filename of NetCDF archive
@@ -135,11 +138,11 @@ class RaggedArray:
             elif len(ds[var]) == ds.dims[dim_obs]:
                 data[var] = ds[var].data
             else:
-                # TODO Should raise a warning here
-                print(
+                warnings.warn(
                     f"""
-                    Error: variable '{var}' has unknown dimension size of {len(ds[var])}, 
-                    which is not traj={ds.dims[dim_traj]} or obs={ds.dims[dim_obs]}.
+                    Variable '{var}' has unknown dimension size of 
+                    {len(ds[var])}, which is not traj={ds.dims[dim_traj]} or 
+                    obs={ds.dims[dim_obs]}; skipping.
                     """
                 )
             attrs_variables[var] = ds[var].attrs
