@@ -3,7 +3,7 @@ from unittest import TestCase
 import os
 import xarray as xr
 import numpy as np
-from clouddrift.dataformat import RaggedArray
+from clouddrift import RaggedArray
 import awkward._v2 as ak
 
 if __name__ == "__main__":
@@ -89,6 +89,13 @@ class dataformat_tests(TestCase):
 
     def test_from_xarray(self):
         ra = RaggedArray.from_xarray(xr.open_dataset("test_archive.nc"))
+        self.compare_awkward_array(ra.to_awkward())
+
+    def test_from_xarray_dim_names(self):
+        ds = xr.open_dataset("test_archive.nc")
+        ra = RaggedArray.from_xarray(
+            ds.rename_dims({"traj": "t", "obs": "o"}), dim_traj="t", dim_obs="o"
+        )
         self.compare_awkward_array(ra.to_awkward())
 
     def test_length_ragged_arrays(self):
