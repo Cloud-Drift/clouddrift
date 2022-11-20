@@ -4,6 +4,7 @@ import numpy as np
 from collections.abc import Callable
 from typing import Tuple, Optional
 from tqdm import tqdm
+import warnings
 
 
 class RaggedArray:
@@ -93,7 +94,9 @@ class RaggedArray:
 
     @classmethod
     def from_netcdf(cls, filename: str):
-        """Read a ragged arrays archive from a NetCDF file
+        """Read a ragged arrays archive from a NetCDF file.
+
+        This is a thin wrapper around from_xarray().
 
         Args:
             filename (str): filename of NetCDF archive
@@ -101,34 +104,7 @@ class RaggedArray:
         Returns:
             obj: ragged array class object
         """
-        coords = {}
-        metadata = {}
-        data = {}
-        attrs_global = {}
-        attrs_variables = {}
-
-        with xr.open_dataset(filename) as ds:
-            nb_traj = ds.dims["traj"]
-            nb_obs = ds.dims["obs"]
-
-            attrs_global = ds.attrs
-
-            for var in ds.coords.keys():
-                coords[var] = ds[var].data
-                attrs_variables[var] = ds[var].attrs
-
-            for var in ds.data_vars.keys():
-                if len(ds[var]) == nb_traj:
-                    metadata[var] = ds[var].data
-                elif len(ds[var]) == nb_obs:
-                    data[var] = ds[var].data
-                else:
-                    print(
-                        f"Error: variable '{var}' has unknown dimension size of {len(ds[var])}, which is not traj={nb_traj} or obs={nb_obs}."
-                    )
-                attrs_variables[var] = ds[var].attrs
-
-        return cls(coords, metadata, data, attrs_global, attrs_variables)
+        return cls.from_xarray(xr.open_dataset(filename))
 
     @classmethod
     def from_parquet(cls, filename: str):
@@ -141,6 +117,47 @@ class RaggedArray:
             obj: ragged array class object
         """
         return cls.from_awkward(ak.from_parquet(filename))
+
+    @classmethod
+    def from_xarray(cls, ds: xr.Dataset, dim_traj: str = "traj", dim_obs: str = "obs"):
+        """Populate a RaggedArray instance from an xarray Dataset instance.
+
+        Args:
+            ds (xarray.Dataset): xarray Dataset from which to load the RaggedArray
+            dim_traj (str, optional): Name of the trajectories dimension in the xarray Dataset
+            dim_obs (str, optional): Name of the observations dimension in the xarray Dataset
+
+        Returns:
+            res (RaggedArray): A RaggedArray instance
+        """
+        coords = {}
+        metadata = {}
+        data = {}
+        attrs_global = {}
+        attrs_variables = {}
+
+        attrs_global = ds.attrs
+
+        for var in ds.coords.keys():
+            coords[var] = ds[var].data
+            attrs_variables[var] = ds[var].attrs
+
+        for var in ds.data_vars.keys():
+            if len(ds[var]) == ds.dims[dim_traj]:
+                metadata[var] = ds[var].data
+            elif len(ds[var]) == ds.dims[dim_obs]:
+                data[var] = ds[var].data
+            else:
+                warnings.warn(
+                    f"""
+                    Variable '{var}' has unknown dimension size of 
+                    {len(ds[var])}, which is not traj={ds.dims[dim_traj]} or 
+                    obs={ds.dims[dim_obs]}; skipping.
+                    """
+                )
+            attrs_variables[var] = ds[var].attrs
+
+        return cls(coords, metadata, data, attrs_global, attrs_variables)
 
     @staticmethod
     def number_of_observations(
