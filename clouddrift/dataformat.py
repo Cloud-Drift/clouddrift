@@ -24,6 +24,38 @@ class RaggedArray:
         self.validate_attributes()
 
     @classmethod
+    def from_awkward(cls, array: ak.Array):
+        """Load a RaggedArray instance from an Awkward Array.
+
+        Args:
+            array (ak.Array): Awkward Array instance to load the data from
+
+        Returns:
+            obj: RaggedArray instance
+        """
+        coords = {}
+        metadata = {}
+        data = {}
+        attrs_variables = {}
+
+        attrs_global = array.layout.parameters["attrs"]
+
+        name_coords = ["time", "lon", "lat", "ids"]
+        for var in name_coords:
+            coords[var] = ak.flatten(array.obs[var]).to_numpy()
+            attrs_variables[var] = array.obs[var].layout.parameters["attrs"]
+
+        for var in [v for v in array.fields if v != "obs"]:
+            metadata[var] = array[var].to_numpy()
+            attrs_variables[var] = array[var].layout.parameters["attrs"]
+
+        for var in [v for v in array.obs.fields if v not in name_coords]:
+            data[var] = ak.flatten(array.obs[var]).to_numpy()
+            attrs_variables[var] = array.obs[var].layout.parameters["attrs"]
+
+        return cls(coords, metadata, data, attrs_global, attrs_variables)
+
+    @classmethod
     def from_files(
         cls,
         indices: list,
@@ -84,29 +116,7 @@ class RaggedArray:
         Returns:
             obj: ragged array class object
         """
-        coords = {}
-        metadata = {}
-        data = {}
-        attrs_global = {}
-        attrs_variables = {}
-
-        ds = ak.from_parquet(filename)
-        attrs_global = ds.layout.parameters["attrs"]
-
-        name_coords = ["time", "lon", "lat", "ids"]
-        for var in name_coords:
-            coords[var] = ak.flatten(ds.obs[var]).to_numpy()
-            attrs_variables[var] = ds.obs[var].layout.parameters["attrs"]
-
-        for var in [v for v in ds.fields if v != "obs"]:
-            metadata[var] = ds[var].to_numpy()
-            attrs_variables[var] = ds[var].layout.parameters["attrs"]
-
-        for var in [v for v in ds.obs.fields if v not in name_coords]:
-            data[var] = ak.flatten(ds.obs[var]).to_numpy()
-            attrs_variables[var] = ds.obs[var].layout.parameters["attrs"]
-
-        return cls(coords, metadata, data, attrs_global, attrs_variables)
+        return cls.from_awkward(ak.from_parquet(filename))
 
     @classmethod
     def from_xarray(cls, ds: xr.Dataset, dim_traj: str = "traj", dim_obs: str = "obs"):
