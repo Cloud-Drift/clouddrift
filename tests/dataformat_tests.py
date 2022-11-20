@@ -6,6 +6,9 @@ import numpy as np
 from clouddrift import RaggedArray
 import awkward._v2 as ak
 
+NETCDF_ARCHIVE = "test_archive.nc"
+PARQUET_ARCHIVE = "test_archive.parquet"
+
 if __name__ == "__main__":
     unittest.main()
 
@@ -77,22 +80,22 @@ class dataformat_tests(TestCase):
         )
 
         # output archive
-        self.ra.to_netcdf("test_archive.nc")
-        self.ra.to_parquet("test_archive.parquet")
+        self.ra.to_netcdf(NETCDF_ARCHIVE)
+        self.ra.to_parquet(PARQUET_ARCHIVE)
 
     def tearDown(self):
         """
         Clean up saved archives
         """
-        os.remove("test_archive.nc")
-        os.remove("test_archive.parquet")
+        os.remove(NETCDF_ARCHIVE)
+        os.remove(PARQUET_ARCHIVE)
 
     def test_from_awkward(self):
-        ra = RaggedArray.from_awkward(ak.from_parquet("test_archive.parquet"))
+        ra = RaggedArray.from_awkward(ak.from_parquet(PARQUET_ARCHIVE))
         self.compare_awkward_array(ra.to_awkward())
 
     def test_from_xarray(self):
-        ra = RaggedArray.from_xarray(xr.open_dataset("test_archive.nc"))
+        ra = RaggedArray.from_xarray(xr.open_dataset(NETCDF_ARCHIVE))
         self.compare_awkward_array(ra.to_awkward())
 
     def test_from_xarray_dim_names(self):
@@ -178,12 +181,12 @@ class dataformat_tests(TestCase):
         """
         Validate the netCDF output archive
         """
-        ds = RaggedArray.from_netcdf("test_archive.nc")
+        ds = RaggedArray.from_netcdf(NETCDF_ARCHIVE)
         self.compare_awkward_array(ds.to_awkward())
 
     def test_parquet_output(self):
         """
         Validate the netCDF output archive
         """
-        ds = RaggedArray.from_parquet("test_archive.parquet")
+        ds = RaggedArray.from_parquet(PARQUET_ARCHIVE)
         self.compare_awkward_array(ds.to_awkward())
