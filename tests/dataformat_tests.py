@@ -4,11 +4,7 @@ import os
 import xarray as xr
 import numpy as np
 from clouddrift import RaggedArray
-
-try:
-    import awkward._v2 as ak  # provides v2 in 1.8.0rc1<=awkward<=1.10.1
-except ModuleNotFoundError:
-    import awkward as ak  # provides v2 in awkward>=2
+import awkward._v2 as ak
 
 NETCDF_ARCHIVE = "test_archive.nc"
 PARQUET_ARCHIVE = "test_archive.parquet"
