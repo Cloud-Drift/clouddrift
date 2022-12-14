@@ -12,5 +12,5 @@ dependencies:
   - llvmlite>=0.38.1
   - pip>=22.2.2
   - pip:
-    - awkward
+    - awkward>=2.0.0
     - git+https://github.com/Cloud-Drift/clouddrift.git
