@@ -1,7 +1,7 @@
 try:
-    import awkward._v2 as ak   # provides v2 in 1.8.0rc1<=awkward<=1.10.1
+    import awkward._v2 as ak  # provides v2 in 1.8.0rc1<=awkward<=1.10.1
 except ModuleNotFoundError:
-    import awkward as ak       # provides v2 in awkward>=2
+    import awkward as ak  # provides v2 in awkward>=2
 
 import xarray as xr
 import numpy as np

@@ -2,10 +2,11 @@ import unittest
 from unittest import TestCase
 import numpy as np
 import xarray as xr
+
 try:
-    import awkward._v2 as ak   # provides v2 in 1.8.0rc1<=awkward<=1.10.1
+    import awkward._v2 as ak  # provides v2 in 1.8.0rc1<=awkward<=1.10.1
 except ModuleNotFoundError:
-    import awkward as ak       # provides v2 in awkward>=2
+    import awkward as ak  # provides v2 in awkward>=2
 from clouddrift import RaggedArray, select
 
 if __name__ == "__main__":
