@@ -4,7 +4,7 @@ import os
 import xarray as xr
 import numpy as np
 from clouddrift import RaggedArray
-import awkward._v2 as ak
+import awkward as ak
 
 NETCDF_ARCHIVE = "test_archive.nc"
 PARQUET_ARCHIVE = "test_archive.parquet"

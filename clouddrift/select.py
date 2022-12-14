@@ -1,4 +1,4 @@
-import awkward._v2 as ak
+import awkward as ak
 import numpy as np
 
 
@@ -69,9 +69,9 @@ def subset(ds: ak.Array, criteria: dict) -> ak.Array:
         print("Empty set.")
         return ak.Array([])
     else:  # apply the filtering for both dimensions
-        ds_subset = ak.packed(ds[mask_traj])
+        ds_subset = ak.to_packed(ds[mask_traj])
         ds_subset = ak.with_field(
-            ds_subset, ak.packed(ds.obs[mask_obs][mask_traj]), "obs"
+            ds_subset, ak.to_packed(ds.obs[mask_obs][mask_traj]), "obs"
         )
         ds_subset = ak.with_field(
             ds_subset, ak.Array([len(x) for x in ds_subset.obs.ids]), "rowsize"
