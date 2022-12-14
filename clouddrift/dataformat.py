@@ -1,4 +1,4 @@
-import awkward._v2 as ak
+import awkward as ak
 import xarray as xr
 import numpy as np
 from collections.abc import Callable

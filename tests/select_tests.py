@@ -2,7 +2,7 @@ import unittest
 from unittest import TestCase
 import numpy as np
 import xarray as xr
-import awkward._v2 as ak
+import awkward as ak
 from clouddrift import RaggedArray, select
 
 if __name__ == "__main__":
