@@ -19,9 +19,16 @@ def velocity_from_positions(
 
     Difference scheme can take one of three values:
 
-        1. "forward" (default): finite difference is evaluated as dx[i] = dx[i+1] - dx[i];
-        2. "backward": finite difference is evaluated as dx[i] = dx[i] - dx[i-1];
-        3. "centered": finite difference is evaluated as dx[i] = (dx[i+1] - dx[i-1]) / 2.
+        1. "forward" (default): finite difference is evaluated as
+           dx[i] = dx[i+1] - dx[i];
+        2. "backward": finite difference is evaluated as
+           dx[i] = dx[i] - dx[i-1];
+        3. "centered": finite difference is evaluated as
+           dx[i] = (dx[i+1] - dx[i-1]) / 2.
+
+    Forward and backward schemes are effectively the same except that the
+    position at which the velocity is evaluated is shifted one element down in
+    the backward scheme relative to the forward scheme.
 
     Args:
         x (xr.DataArray[float]): An array of x-positions (longitude in degrees or easting in meters)
@@ -33,4 +40,12 @@ def velocity_from_positions(
     Returns:
         out (Tuple[xr.DataArray[float], xr.DataArray[float]]): Arrays of x- and y-velocities in meters per second
     """
-    raise NotImplementedError()
+
+    # Check user input
+    if not coord_system in ["spherical", "cartesian"]:
+        raise ValueError('coord_system must be "spherical" or "cartesian".')
+
+    if not difference_scheme in ["forward", "backward", "centered"]:
+        raise ValueError(
+            'difference_scheme must be "forward", "backward", or "centered".'
+        )
