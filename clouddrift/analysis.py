@@ -39,7 +39,7 @@ def velocity_from_positions(
     Args:
         x (xr.DataArray[float]): An array of x-positions (longitude in degrees or easting in meters)
         y (xr.DataArray[float]): An array of y-positions (latitude in degrees or northing in meters)
-        time (xr.DataArray[datetime]): An array of times
+        time (xr.DataArray[float]): An array of times as floating point seconds since epoch
         coord_system (str, optional): Coordinate system that x and y arrays are in; possible values are "spherical" (default) or "cartesian".
         difference_scheme (str, optional): Difference scheme to use; possible values are "forward", "backward", and "centered".
 
@@ -52,8 +52,8 @@ def velocity_from_positions(
         raise ValueError("x, y, and time must have the same shape.")
 
     dx = xr.zeros_like(x)
-    dy = xr.zeros_like(y.shape)
-    dt = xr.zeros_like(time.shape)
+    dy = xr.zeros_like(y)
+    dt = xr.zeros_like(time)
 
     # Compute dx, dy, and dt
     if difference_scheme == "forward":
