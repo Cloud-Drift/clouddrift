@@ -27,18 +27,10 @@ class haversine_tests(unittest.TestCase):
         )
 
     def test_distance_antimeridian(self):
-        self.assertTrue(
-            np.isclose(distance(0, 179.5, 0, -179.5), one_degree_meters)
-        )
-        self.assertTrue(
-            np.isclose(distance(0, -179.5, 0, 179.5), one_degree_meters)
-        )
-        self.assertTrue(
-            np.isclose(distance(0, 359.5, 0, 360.5), one_degree_meters)
-        )
-        self.assertTrue(
-            np.isclose(distance(0, 360.5, 0, 359.5), one_degree_meters)
-        )
+        self.assertTrue(np.isclose(distance(0, 179.5, 0, -179.5), one_degree_meters))
+        self.assertTrue(np.isclose(distance(0, -179.5, 0, 179.5), one_degree_meters))
+        self.assertTrue(np.isclose(distance(0, 359.5, 0, 360.5), one_degree_meters))
+        self.assertTrue(np.isclose(distance(0, 360.5, 0, 359.5), one_degree_meters))
 
     def test_bearing(self):
         self.assertTrue(np.isclose(bearing(0, 0, 0, 0.1), 0))
