@@ -74,7 +74,7 @@ def bearing(
     dlon = lon2_rad - lon1_rad
 
     theta = np.arctan2(
-        np.cos(lat1) * np.sin(lat2_rad)
+        np.cos(lat1_rad) * np.sin(lat2_rad)
         - np.sin(lat1_rad) * np.cos(lat2_rad) * np.cos(dlon),
         np.sin(dlon) * np.cos(lat2_rad),
     )
