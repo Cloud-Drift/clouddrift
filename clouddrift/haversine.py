@@ -45,15 +45,15 @@ def distance(
 def bearing(
     lat1: np.ndarray, lon1: np.ndarray, lat2: np.ndarray, lon2: np.ndarray
 ) -> np.ndarray:
-    """Return elementwise Haversine initial (forward) bearing in radians from
-    arrays of latitude and longitude in degrees.
+    """Return elementwise initial (forward) bearing in radians from arrays of
+    latitude and longitude in degrees, based on the spherical law of cosines.
 
     The formula is:
 
-    θ = atan2(sin Δλ ⋅ cos φ2, cos φ1 ⋅ sin φ2 - sin φ1 ⋅ cos φ2 ⋅ cos Δλ)
+    θ = atan2(cos φ1 ⋅ sin φ2 - sin φ1 ⋅ cos φ2 ⋅ cos Δλ, sin Δλ ⋅ cos φ2)
 
     where (φ, λ) is (lat, lon) and θ is bearing, all in radians.
-    Bearing is defined as zero toward North and increasing clockwise.
+    Bearing is defined as zero toward East and increasing counter-clockwise.
 
     Args:
         lat1 (array_like): Latitudes of the first set of points
@@ -74,9 +74,9 @@ def bearing(
     dlon = lon2_rad - lon1_rad
 
     theta = np.arctan2(
-        np.sin(dlon) * np.cos(lat2_rad),
         np.cos(lat1) * np.sin(lat2_rad)
         - np.sin(lat1_rad) * np.cos(lat2_rad) * np.cos(dlon),
+        np.sin(dlon) * np.cos(lat2_rad),
     )
 
     return theta

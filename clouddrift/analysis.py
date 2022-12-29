@@ -71,9 +71,9 @@ def velocity_from_positions(
         elif coord_system == "spherical":
             distances = distance(y[:-1], x[:-1], y[1:], x[1:])
             bearings = bearing(y[:-1], x[:-1], y[1:], x[1:])
-            dx[:-1] = distances * np.sin(bearings)
+            dx[:-1] = distances * np.cos(bearings)
             dx[-1] = dx[-2]
-            dy[:-1] = distances * np.cos(bearings)
+            dy[:-1] = distances * np.sin(bearings)
             dy[-1] = dy[-2]
         else:
             raise ValueError('coord_system must be "spherical" or "cartesian".')
@@ -93,9 +93,9 @@ def velocity_from_positions(
         elif coord_system == "spherical":
             distances = distance(y[:-1], x[:-1], y[1:], x[1:])
             bearings = bearing(y[:-1], x[:-1], y[1:], x[1:])
-            dx[1:] = distances * np.sin(bearings)
+            dx[1:] = distances * np.cos(bearings)
             dx[0] = dx[1]
-            dy[1:] = distances * np.cos(bearings)
+            dy[1:] = distances * np.sin(bearings)
             dy[0] = dy[1]
         else:
             raise ValueError('coord_system must be "spherical" or "cartesian".')
@@ -118,10 +118,10 @@ def velocity_from_positions(
         elif coord_system == "spherical":
             distances = distance(y[:-2], x[:-2], y[2:], x[2:])
             bearings = bearing(y[:-2], x[:-2], y[2:], x[2:])
-            dx[1:-1] = distances * np.sin(bearings) / 2
+            dx[1:-1] = distances * np.cos(bearings) / 2
             dx[0] = dx[1]  # FIXME
             dx[-1] = dx[-2]  # FIXME
-            dy[1:-1] = distances * np.cos(bearings) / 2
+            dy[1:-1] = distances * np.sin(bearings) / 2
             dy[0] = dy[1]  # FIXME
             dy[-1] = dy[-2]  # FIXME
         else:

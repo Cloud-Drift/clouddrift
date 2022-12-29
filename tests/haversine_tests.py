@@ -41,11 +41,11 @@ class haversine_tests(unittest.TestCase):
         )
 
     def test_bearing(self):
-        self.assertTrue(np.isclose(bearing(0, 0, 0.1, 0), 0))
+        self.assertTrue(np.isclose(bearing(0, 0, 0, 0.1), 0))
         self.assertTrue(np.isclose(bearing(0, 0, 0.1, 0.1), np.pi / 4))
-        self.assertTrue(np.isclose(bearing(0, 0, 0, 0.1), np.pi / 2))
-        self.assertTrue(np.isclose(bearing(0, 0, -0.1, 0.1), 3 / 4 * np.pi))
-        self.assertTrue(np.isclose(bearing(0, 0, -0.1, 0), np.pi))
+        self.assertTrue(np.isclose(bearing(0, 0, 0.1, 0), np.pi / 2))
+        self.assertTrue(np.isclose(bearing(0, 0, 0.1, -0.1), 3 / 4 * np.pi))
+        self.assertTrue(np.isclose(bearing(0, 0, 0, -0.1), np.pi))
         self.assertTrue(np.isclose(bearing(0, 0, -0.1, -0.1), -3 / 4 * np.pi))
-        self.assertTrue(np.isclose(bearing(0, 0, 0, -0.1), -np.pi / 2))
-        self.assertTrue(np.isclose(bearing(0, 0, 0.1, -0.1), -np.pi / 4))
+        self.assertTrue(np.isclose(bearing(0, 0, -0.1, 0), -np.pi / 2))
+        self.assertTrue(np.isclose(bearing(0, 0, -0.1, 0.1), -np.pi / 4))
