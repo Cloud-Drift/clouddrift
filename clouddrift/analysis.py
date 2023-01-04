@@ -6,9 +6,9 @@ from clouddrift.haversine import distance, bearing
 
 
 def velocity_from_positions(
-    x: xr.DataArray,
-    y: xr.DataArray,
-    time: xr.DataArray,
+    x: np.ndarray,
+    y: np.ndarray,
+    time: np.ndarray,
     coord_system: Optional[str] = "spherical",
     difference_scheme: Optional[str] = "forward",
 ) -> Tuple[xr.DataArray, xr.DataArray]:
@@ -37,9 +37,9 @@ def velocity_from_positions(
     evaluated using the forward and backward difference scheme, respectively.
 
     Args:
-        x (xr.DataArray[float]): An array of x-positions (longitude in degrees or easting in meters)
-        y (xr.DataArray[float]): An array of y-positions (latitude in degrees or northing in meters)
-        time (xr.DataArray[float]): An array of times as floating point seconds since epoch
+        x (array_like): An array of x-positions (longitude in degrees or easting in meters)
+        y (array_like): An array of y-positions (latitude in degrees or northing in meters)
+        time (array_like): An array of times as floating point seconds since epoch
         coord_system (str, optional): Coordinate system that x and y arrays are in; possible values are "spherical" (default) or "cartesian".
         difference_scheme (str, optional): Difference scheme to use; possible values are "forward", "backward", and "centered".
 
@@ -51,9 +51,9 @@ def velocity_from_positions(
     if not x.shape == y.shape == time.shape:
         raise ValueError("x, y, and time must have the same shape.")
 
-    dx = xr.zeros_like(x)
-    dy = xr.zeros_like(y)
-    dt = xr.zeros_like(time)
+    dx = np.empty(x.shape)
+    dy = np.empty(y.shape)
+    dt = np.empty(time.shape)
 
     # Compute dx, dy, and dt
     if difference_scheme == "forward":
