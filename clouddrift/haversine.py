@@ -1,4 +1,5 @@
 import numpy as np
+import xarray as xr
 
 EARTH_RADIUS_METERS = 6.3781e6
 
@@ -16,20 +17,34 @@ def distance(
     meters.
 
     Args:
-        lat1 (array_like): Latitudes of the first set of points
-        lon1 (array_like): Longitudes of the first set of points
-        lat2 (array_like): Latitudes of the second set of points
-        lon2 (array_like): Longitudes of the second set of points
+        lat1 (array_like): Latitudes of the first set of points, in degrees
+        lon1 (array_like): Longitudes of the first set of points, in degrees
+        lat2 (array_like): Latitudes of the second set of points, in degrees
+        lon2 (array_like): Longitudes of the second set of points, in degrees
 
     Returns:
         out (array_like): Great circle distance
     """
 
     # Input coordinates are in degrees; convert to radians.
-    lat1_rad = np.deg2rad(lat1)
-    lon1_rad = np.deg2rad(lon1)
-    lat2_rad = np.deg2rad(lat2)
-    lon2_rad = np.deg2rad(lon2)
+    # If any of the input arrays are xr.DataArray, extract the values first
+    # because Xarray enforces alignment between coordinates.
+    if type(lat1) is xr.DataArray:
+        lat1_rad = np.deg2rad(lat1.values)
+    else:
+        lat1_rad = np.deg2rad(lat1)
+    if type(lon1) is xr.DataArray:
+        lon1_rad = np.deg2rad(lon1.values)
+    else:
+        lon1_rad = np.deg2rad(lon1)
+    if type(lat2) is xr.DataArray:
+        lat2_rad = np.deg2rad(lat2.values)
+    else:
+        lat2_rad = np.deg2rad(lat2)
+    if type(lon2) is xr.DataArray:
+        lon2_rad = np.deg2rad(lon2.values)
+    else:
+        lon2_rad = np.deg2rad(lon2)
 
     dlat = lat2_rad - lat1_rad
     dlon = lon2_rad - lon1_rad
@@ -56,20 +71,34 @@ def bearing(
     Bearing is defined as zero toward East and increasing counter-clockwise.
 
     Args:
-        lat1 (array_like): Latitudes of the first set of points
-        lon1 (array_like): Longitudes of the first set of points
-        lat2 (array_like): Latitudes of the second set of points
-        lon2 (array_like): Longitudes of the second set of points
+        lat1 (array_like): Latitudes of the first set of points, in degrees
+        lon1 (array_like): Longitudes of the first set of points, in degrees
+        lat2 (array_like): Latitudes of the second set of points, in degrees
+        lon2 (array_like): Longitudes of the second set of points, in degrees
 
     Returns:
         theta (array_like): Bearing angles in radians
     """
 
     # Input coordinates are in degrees; convert to radians.
-    lat1_rad = np.deg2rad(lat1)
-    lon1_rad = np.deg2rad(lon1)
-    lat2_rad = np.deg2rad(lat2)
-    lon2_rad = np.deg2rad(lon2)
+    # If any of the input arrays are xr.DataArray, extract the values first
+    # because Xarray enforces alignment between coordinates.
+    if type(lat1) is xr.DataArray:
+        lat1_rad = np.deg2rad(lat1.values)
+    else:
+        lat1_rad = np.deg2rad(lat1)
+    if type(lon1) is xr.DataArray:
+        lon1_rad = np.deg2rad(lon1.values)
+    else:
+        lon1_rad = np.deg2rad(lon1)
+    if type(lat2) is xr.DataArray:
+        lat2_rad = np.deg2rad(lat2.values)
+    else:
+        lat2_rad = np.deg2rad(lat2)
+    if type(lon2) is xr.DataArray:
+        lon2_rad = np.deg2rad(lon2.values)
+    else:
+        lon2_rad = np.deg2rad(lon2)
 
     dlon = lon2_rad - lon1_rad
 
