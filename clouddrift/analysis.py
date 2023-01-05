@@ -1,11 +1,10 @@
-from datetime import datetime
 import numpy as np
 from typing import Optional, Tuple
 import xarray as xr
 from clouddrift.haversine import distance, bearing
 
 
-def velocity_from_positions(
+def velocity_from_position(
     x: np.ndarray,
     y: np.ndarray,
     time: np.ndarray,

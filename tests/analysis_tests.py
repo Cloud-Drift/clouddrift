@@ -1,4 +1,4 @@
-from clouddrift.analysis import velocity_from_positions
+from clouddrift.analysis import velocity_from_position
 from clouddrift.haversine import EARTH_RADIUS_METERS
 import unittest
 import numpy as np
@@ -9,17 +9,17 @@ if __name__ == "__main__":
     unittest.main()
 
 
-class velocity_from_positions_tests(unittest.TestCase):
+class velocity_from_position_tests(unittest.TestCase):
     def setUp(self):
         self.INPUT_SIZE = 100
         self.lon = np.rad2deg(np.linspace(-np.pi, np.pi, self.INPUT_SIZE))
         self.lat = np.zeros(self.lon.shape)
         self.time = np.linspace(0, 1e7, self.INPUT_SIZE)
-        self.uf, self.vf = velocity_from_positions(self.lon, self.lat, self.time)
-        self.ub, self.vb = velocity_from_positions(
+        self.uf, self.vf = velocity_from_position(self.lon, self.lat, self.time)
+        self.ub, self.vb = velocity_from_position(
             self.lon, self.lat, self.time, difference_scheme="backward"
         )
-        self.uc, self.vc = velocity_from_positions(
+        self.uc, self.vc = velocity_from_position(
             self.lon, self.lat, self.time, difference_scheme="centered"
         )
 
@@ -46,6 +46,6 @@ class velocity_from_positions_tests(unittest.TestCase):
         lon = xr.DataArray(data=self.lon, coords={"time": self.time})
         lat = xr.DataArray(data=self.lat, coords={"time": self.time})
         time = xr.DataArray(data=self.time, coords={"time": self.time})
-        uf, vf = velocity_from_positions(lon, lat, time)
+        uf, vf = velocity_from_position(lon, lat, time)
         self.assertTrue(np.all(uf == self.uf))
         self.assertTrue(np.all(vf == self.vf))
