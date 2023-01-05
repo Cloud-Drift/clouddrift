@@ -14,9 +14,8 @@ It is funded by [NSF EarthCube](https://www.earthcube.org/info) through the
 
 ### Install CloudDrift
 
-#### pip
-
-You can install CloudDrift using pip via PyPI:
+You can install the latest release of CloudDrift using pip via PyPI.
+In your virtualenv or Conda environment, type:
 
 ```
 pip install clouddrift
@@ -27,18 +26,6 @@ If you need the latest development version, get it from GitHub:
 ```
 pip install git+https://github.com/cloud-drift/clouddrift
 ```
-
-#### Conda
-
-You can also install CloudDrift using Conda:
-
-```
-git clone https://github.com/cloud-drift/clouddrift
-cd clouddrift
-conda env create --file environment.yml
-```
-
-In the future, a conda-forge package will be available to simplify the installation process.
 
 ### Run the tests
 
