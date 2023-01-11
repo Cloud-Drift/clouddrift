@@ -15,8 +15,11 @@ def velocity_from_position(
     time.
 
     x and y can be provided as longitude and latitude in degrees if
-    coord_system == "spherical" (default), or as northing and easting in meters
+    coord_system == "spherical" (default), or as Easting and Northing in meters
     if coord_system == "cartesian".
+
+    x, y, and time can be multi-dimensional array, but the last (fastest-varying)
+    dimension must be the time dimension along which the differencing is done.
 
     Difference scheme can take one of three values:
 
@@ -36,9 +39,12 @@ def velocity_from_position(
     evaluated using the forward and backward difference scheme, respectively.
 
     Args:
-        x (array_like): An array of x-positions (longitude in degrees or easting in meters)
-        y (array_like): An array of y-positions (latitude in degrees or northing in meters)
-        time (array_like): An array of times as floating point seconds since epoch
+        x (array_like): An N-d array of x-positions (longitude in degrees or easting in meters)
+            where the last (fastest-varying) dimension is the time
+        y (array_like): An N-d array of y-positions (latitude in degrees or northing in meters)
+            where the last (fastest-varying) dimension is the time
+        time (array_like): An N-d array of times as floating point seconds since epoch
+            where the last (fastest-varying) dimension is the time
         coord_system (str, optional): Coordinate system that x and y arrays are in; possible values are "spherical" (default) or "cartesian".
         difference_scheme (str, optional): Difference scheme to use; possible values are "forward", "backward", and "centered".
 
@@ -62,25 +68,25 @@ def velocity_from_position(
         # computed using the 1st order backward difference.
 
         # Time
-        dt[:-1] = np.diff(time)
-        dt[-1] = dt[-2]
+        dt[..., :-1] = np.diff(time)
+        dt[..., -1] = dt[..., -2]
 
         # Space
         if coord_system == "cartesian":
 
-            dx[:-1] = np.diff(x)
-            dx[-1] = dx[-2]
-            dy[:-1] = np.diff(y)
-            dy[-1] = dy[-2]
+            dx[..., :-1] = np.diff(x)
+            dx[..., -1] = dx[..., -2]
+            dy[..., :-1] = np.diff(y)
+            dy[..., -1] = dy[..., -2]
 
         elif coord_system == "spherical":
 
-            distances = distance(y[:-1], x[:-1], y[1:], x[1:])
-            bearings = bearing(y[:-1], x[:-1], y[1:], x[1:])
-            dx[:-1] = distances * np.cos(bearings)
-            dx[-1] = dx[-2]
-            dy[:-1] = distances * np.sin(bearings)
-            dy[-1] = dy[-2]
+            distances = distance(y[..., :-1], x[..., :-1], y[..., 1:], x[..., 1:])
+            bearings = bearing(y[..., :-1], x[..., :-1], y[..., 1:], x[..., 1:])
+            dx[..., :-1] = distances * np.cos(bearings)
+            dx[..., -1] = dx[..., -2]
+            dy[..., :-1] = distances * np.sin(bearings)
+            dy[..., -1] = dy[..., -2]
 
         else:
             raise ValueError('coord_system must be "spherical" or "cartesian".')
@@ -92,25 +98,25 @@ def velocity_from_position(
         # computed using the 1st order forward difference.
 
         # Time
-        dt[1:] = np.diff(time)
-        dt[0] = dt[1]
+        dt[..., 1:] = np.diff(time)
+        dt[..., 0] = dt[..., 1]
 
         # Space
         if coord_system == "cartesian":
 
-            dx[1:] = np.diff(x)
-            dx[0] = dx[1]
-            dy[1:] = np.diff(y)
-            dy[0] = dy[1]
+            dx[..., 1:] = np.diff(x)
+            dx[..., 0] = dx[..., 1]
+            dy[..., 1:] = np.diff(y)
+            dy[..., 0] = dy[..., 1]
 
         elif coord_system == "spherical":
 
-            distances = distance(y[:-1], x[:-1], y[1:], x[1:])
-            bearings = bearing(y[:-1], x[:-1], y[1:], x[1:])
-            dx[1:] = distances * np.cos(bearings)
-            dx[0] = dx[1]
-            dy[1:] = distances * np.sin(bearings)
-            dy[0] = dy[1]
+            distances = distance(y[..., :-1], x[..., :-1], y[..., 1:], x[..., 1:])
+            bearings = bearing(y[..., :-1], x[..., :-1], y[..., 1:], x[..., 1:])
+            dx[..., 1:] = distances * np.cos(bearings)
+            dx[..., 0] = dx[..., 1]
+            dy[..., 1:] = distances * np.sin(bearings)
+            dy[..., 0] = dy[..., 1]
 
         else:
             raise ValueError('coord_system must be "spherical" or "cartesian".')
@@ -122,37 +128,37 @@ def velocity_from_position(
         # forward and backward differencing, respectively.
 
         # Time
-        dt[1:-1] = (time[2:] - time[:-2]) / 2
-        dt[0] = time[1] - time[0]
-        dt[-1] = time[-1] - time[-2]
+        dt[..., 1:-1] = (time[..., 2:] - time[..., :-2]) / 2
+        dt[..., 0] = time[..., 1] - time[..., 0]
+        dt[..., -1] = time[..., -1] - time[..., -2]
 
         # Space
         if coord_system == "cartesian":
 
-            dx[1:-1] = (x[2:] - x[:-2]) / 2
-            dx[0] = x[1] - x[0]
-            dx[-1] = x[-1] - x[-2]
-            dy[1:-1] = (y[2:] - y[:-2]) / 2
-            dy[0] = y[1] - y[0]
-            dy[-1] = y[-1] - y[-2]
+            dx[..., 1:-1] = (x[..., 2:] - x[..., :-2]) / 2
+            dx[..., 0] = x[..., 1] - x[..., 0]
+            dx[..., -1] = x[..., -1] - x[..., -2]
+            dy[..., 1:-1] = (y[..., 2:] - y[..., :-2]) / 2
+            dy[..., 0] = y[..., 1] - y[..., 0]
+            dy[..., -1] = y[..., -1] - y[..., -2]
 
         elif coord_system == "spherical":
 
             # Inner values
-            distances = distance(y[:-2], x[:-2], y[2:], x[2:])
-            bearings = bearing(y[:-2], x[:-2], y[2:], x[2:])
-            dx[1:-1] = distances * np.cos(bearings) / 2
-            dy[1:-1] = distances * np.sin(bearings) / 2
+            distances = distance(y[..., :-2], x[..., :-2], y[..., 2:], x[..., 2:])
+            bearings = bearing(y[..., :-2], x[..., :-2], y[..., 2:], x[..., 2:])
+            dx[..., 1:-1] = distances * np.cos(bearings) / 2
+            dy[..., 1:-1] = distances * np.sin(bearings) / 2
 
             # Boundary values
-            distance1 = distance(y[0], x[0], y[1], x[1])
-            bearing1 = bearing(y[0], x[0], y[1], x[1])
-            dx[0] = distance1 * np.cos(bearing1)
-            dy[0] = distance1 * np.sin(bearing1)
-            distance2 = distance(y[-2], x[-2], y[-1], x[-1])
-            bearing2 = bearing(y[-2], x[-2], y[-1], x[-1])
-            dx[-1] = distance2 * np.cos(bearing2)
-            dy[-1] = distance2 * np.sin(bearing2)
+            distance1 = distance(y[..., 0], x[..., 0], y[..., 1], x[..., 1])
+            bearing1 = bearing(y[..., 0], x[..., 0], y[..., 1], x[..., 1])
+            dx[..., 0] = distance1 * np.cos(bearing1)
+            dy[..., 0] = distance1 * np.sin(bearing1)
+            distance2 = distance(y[..., -2], x[..., -2], y[..., -1], x[..., -1])
+            bearing2 = bearing(y[..., -2], x[..., -2], y[..., -1], x[..., -1])
+            dx[..., -1] = distance2 * np.cos(bearing2)
+            dy[..., -1] = distance2 * np.sin(bearing2)
 
         else:
             raise ValueError('coord_system must be "spherical" or "cartesian".')
