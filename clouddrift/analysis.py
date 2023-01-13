@@ -18,8 +18,9 @@ def velocity_from_position(
     coord_system == "spherical" (default), or as Easting and Northing in meters
     if coord_system == "cartesian".
 
-    x, y, and time can be multi-dimensional array, but the last (fastest-varying)
+    x, y, and time can be multi-dimensional arrays, but the last (fastest-varying)
     dimension must be the time dimension along which the differencing is done.
+    x, y, and time must have the same shape.
 
     Difference scheme can take one of three values:
 
