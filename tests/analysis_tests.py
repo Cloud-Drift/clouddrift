@@ -49,3 +49,27 @@ class velocity_from_position_tests(unittest.TestCase):
         uf, vf = velocity_from_position(lon, lat, time)
         self.assertTrue(np.all(uf == self.uf))
         self.assertTrue(np.all(vf == self.vf))
+
+    def test_works_with_2d_array(self):
+        lon = np.reshape(np.tile(self.lon, 4), (4, self.lon.size))
+        lat = np.reshape(np.tile(self.lat, 4), (4, self.lat.size))
+        time = np.reshape(np.tile(self.time, 4), (4, self.time.size))
+        expected_uf = np.reshape(np.tile(self.uf, 4), (4, self.uf.size))
+        expected_vf = np.reshape(np.tile(self.vf, 4), (4, self.vf.size))
+        uf, vf = velocity_from_position(lon, lat, time)
+        self.assertTrue(np.all(uf == expected_uf))
+        self.assertTrue(np.all(vf == expected_vf))
+        self.assertTrue(np.all(uf.shape == expected_uf.shape))
+        self.assertTrue(np.all(vf.shape == expected_vf.shape))
+
+    def test_works_with_3d_array(self):
+        lon = np.reshape(np.tile(self.lon, 4), (2, 2, self.lon.size))
+        lat = np.reshape(np.tile(self.lat, 4), (2, 2, self.lat.size))
+        time = np.reshape(np.tile(self.time, 4), (2, 2, self.time.size))
+        expected_uf = np.reshape(np.tile(self.uf, 4), (2, 2, self.uf.size))
+        expected_vf = np.reshape(np.tile(self.vf, 4), (2, 2, self.vf.size))
+        uf, vf = velocity_from_position(lon, lat, time)
+        self.assertTrue(np.all(uf == expected_uf))
+        self.assertTrue(np.all(vf == expected_vf))
+        self.assertTrue(np.all(uf.shape == expected_uf.shape))
+        self.assertTrue(np.all(vf.shape == expected_vf.shape))
