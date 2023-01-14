@@ -11,12 +11,20 @@ def velocity_from_position(
     coord_system: Optional[str] = "spherical",
     difference_scheme: Optional[str] = "forward",
 ) -> Tuple[xr.DataArray, xr.DataArray]:
-    """Compute velocity in meters per second given arrays of positions and
-    time.
+    """Compute velocity from arrays of positions and time.
 
     x and y can be provided as longitude and latitude in degrees if
-    coord_system == "spherical" (default), or as Easting and Northing in meters
-    if coord_system == "cartesian".
+    coord_system == "spherical" (default), or as easting and northing if
+    coord_system == "cartesian".
+
+    The units of the result are meters per unit of time if
+    coord_system == "spherical". For example, if the time is provided in the
+    units of seconds, the resulting velocity is in the units of meters per
+    second. Otherwise, if coord_system == "cartesian", the units of the
+    resulting velocity depend on the units of input easting, northing, and time.
+    For example, if Easting and Northing are in the units of kilometers and
+    time is in the units of hours, the resulting velocity is in the units of
+    kilometers per hour.
 
     x, y, and time can be multi-dimensional arrays, but the last (fastest-varying)
     dimension must be the time dimension along which the differencing is done.
@@ -40,17 +48,17 @@ def velocity_from_position(
     evaluated using the forward and backward difference scheme, respectively.
 
     Args:
-        x (array_like): An N-d array of x-positions (longitude in degrees or easting in meters)
+        x (array_like): An N-d array of x-positions (longitude in degrees or easting in any unit)
             where the last (fastest-varying) dimension is the time
-        y (array_like): An N-d array of y-positions (latitude in degrees or northing in meters)
+        y (array_like): An N-d array of y-positions (latitude in degrees or northing in any unit)
             where the last (fastest-varying) dimension is the time
-        time (array_like): An N-d array of times as floating point seconds since epoch
+        time (array_like): An N-d array of times as floating point values (in any unit)
             where the last (fastest-varying) dimension is the time
         coord_system (str, optional): Coordinate system that x and y arrays are in; possible values are "spherical" (default) or "cartesian".
         difference_scheme (str, optional): Difference scheme to use; possible values are "forward", "backward", and "centered".
 
     Returns:
-        out (Tuple[xr.DataArray[float], xr.DataArray[float]]): Arrays of x- and y-velocities in meters per second
+        out (Tuple[xr.DataArray[float], xr.DataArray[float]]): Arrays of x- and y-velocities
     """
 
     # Positions and time arrays must have the same shape.
