@@ -21,10 +21,10 @@ def velocity_from_position(
     coord_system == "spherical". For example, if the time is provided in the
     units of seconds, the resulting velocity is in the units of meters per
     second. Otherwise, if coord_system == "cartesian", the units of the
-    resulting velocity depend on the units of input easting, northing, and time.
-    For example, if Easting and Northing are in the units of kilometers and
-    time is in the units of hours, the resulting velocity is in the units of
-    kilometers per hour.
+    resulting velocity correspond to the units of the input. For example, 
+    if Easting and Northing are in the units of kilometers and time is in 
+    the units of hours, the resulting velocity is in the units of kilometers 
+    per hour.
 
     x, y, and time can be multi-dimensional arrays, but the last (fastest-varying)
     dimension must be the time dimension along which the differencing is done.
