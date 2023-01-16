@@ -75,11 +75,21 @@ class velocity_from_position_tests(unittest.TestCase):
         self.assertTrue(np.all(vf.shape == expected_vf.shape))
 
     def test_time_axis(self):
-        lon = np.reshape(np.tile(self.lon, 4), (2, self.lon.size, 2))
-        lat = np.reshape(np.tile(self.lat, 4), (2, self.lat.size, 2))
-        time = np.reshape(np.tile(self.time, 4), (2, self.time.size, 2))
-        expected_uf = np.reshape(np.tile(self.uf, 4), (2, self.uf.size, 2))
-        expected_vf = np.reshape(np.tile(self.vf, 4), (2, self.vf.size, 2))
+        lon = np.transpose(
+            np.reshape(np.tile(self.lon, 4), (2, 2, self.lon.size)), (0, 2, 1)
+        )
+        lat = np.transpose(
+            np.reshape(np.tile(self.lat, 4), (2, 2, self.lat.size)), (0, 2, 1)
+        )
+        time = np.transpose(
+            np.reshape(np.tile(self.time, 4), (2, 2, self.time.size)), (0, 2, 1)
+        )
+        expected_uf = np.transpose(
+            np.reshape(np.tile(self.uf, 4), (2, 2, self.uf.size)), (0, 2, 1)
+        )
+        expected_vf = np.transpose(
+            np.reshape(np.tile(self.vf, 4), (2, 2, self.vf.size)), (0, 2, 1)
+        )
         uf, vf = velocity_from_position(lon, lat, time, time_axis=1)
         self.assertTrue(np.all(uf == expected_uf))
         self.assertTrue(np.all(vf == expected_vf))

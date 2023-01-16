@@ -72,19 +72,18 @@ def velocity_from_position(
             f"time_axis ({time_axis}) is outside of the valid range ([-1, {len(x.shape) - 1}])."
         )
 
-    # If time_axis is not the last one, reshape the inputs
+    # Nominal order of axes on input, i.e. (0, 1, 2, ..., N-1)
+    target_axes = list(range(len(x.shape)))
+
+    # If time_axis is not the last one, transpose the inputs
     if time_axis != -1 and time_axis < len(x.shape) - 1:
-        target_shape = list(x.shape)
-        num_time = target_shape.pop(time_axis)
-        target_shape.append(num_time)
-        target_shape = tuple(target_shape)
-    else:
-        target_shape = x.shape
+        target_axes.pop(target_axes.index(time_axis))
+        target_axes.append(time_axis)
 
     # Reshape the inputs to ensure the time axis is last (fast-varying)
-    x_ = np.reshape(x, target_shape)
-    y_ = np.reshape(y, target_shape)
-    time_ = np.reshape(time, target_shape)
+    x_ = np.transpose(x, target_axes)
+    y_ = np.transpose(y, target_axes)
+    time_ = np.transpose(time, target_axes)
 
     dx = np.empty(x_.shape)
     dy = np.empty(y_.shape)
@@ -198,7 +197,7 @@ def velocity_from_position(
             'difference_scheme must be "forward", "backward", or "centered".'
         )
 
-    if target_shape == x.shape:
+    if target_axes == list(range(len(x.shape))):
         return dx / dt, dy / dt
     else:
-        return np.reshape(dx / dt, x.shape), np.reshape(dy / dt, y.shape)
+        return np.transpose(dx / dt, target_axes), np.transpose(dy / dt, target_axes)
