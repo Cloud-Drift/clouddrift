@@ -77,8 +77,7 @@ def velocity_from_position(
 
     # If time_axis is not the last one, transpose the inputs
     if time_axis != -1 and time_axis < len(x.shape) - 1:
-        target_axes.pop(target_axes.index(time_axis))
-        target_axes.append(time_axis)
+        target_axes.append(target_axes.pop(target_axes.index(time_axis)))
 
     # Reshape the inputs to ensure the time axis is last (fast-varying)
     x_ = np.transpose(x, target_axes)
