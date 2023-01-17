@@ -59,8 +59,9 @@ html_theme = "pydata_sphinx_theme"  # alabaster, sphinx_rtd_theme
 html_static_path = []
 html_logo = "logo.png"
 html_favicon = "favicon.ico"
-# html_theme_options = {
-#    "logo": {
-#        "text": "CloudDrift library",
-#    }
-# }
+html_theme_options = {
+   "logo": {
+      "image_light": "logo.png",
+      "image_dark": "logo.png",
+   }
+}
