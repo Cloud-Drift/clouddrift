@@ -60,8 +60,8 @@ html_static_path = []
 html_logo = "logo.png"
 html_favicon = "favicon.ico"
 html_theme_options = {
-   "logo": {
-      "image_light": "logo.png",
-      "image_dark": "logo.png",
-   }
+    "logo": {
+        "image_light": "logo.png",
+        "image_dark": "logo.png",
+    }
 }
