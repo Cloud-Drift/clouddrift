@@ -12,10 +12,12 @@ It is funded by [NSF EarthCube](https://www.earthcube.org/info) through the
 
 ## Getting started
 
+### Install CloudDrift
+
 You can install the latest release of CloudDrift using pip or Conda.
 You can also install the latest development (unreleased) version from GitHub.
 
-### pip
+#### pip
 
 In your virtual environment, type:
 
@@ -23,7 +25,7 @@ In your virtual environment, type:
 pip install clouddrift
 ```
 
-### Conda
+#### Conda
 
 First add `conda-forge` to your channels in your Conda environment:
 
@@ -38,7 +40,7 @@ then install CloudDrift:
 conda install clouddrift
 ```
 
-### Development branch
+#### Development branch
 
 If you need the latest development version, get it from GitHub using pip:
 
