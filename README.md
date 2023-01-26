@@ -14,14 +14,35 @@ It is funded by [NSF EarthCube](https://www.earthcube.org/info) through the
 
 ### Install CloudDrift
 
-You can install the latest release of CloudDrift using pip via PyPI.
-In your virtualenv or Conda environment, type:
+You can install the latest release of CloudDrift using pip or Conda.
+You can also install the latest development (unreleased) version from GitHub.
+
+#### pip
+
+In your virtual environment, type:
 
 ```
 pip install clouddrift
 ```
 
-If you need the latest development version, get it from GitHub:
+#### Conda
+
+First add `conda-forge` to your channels in your Conda environment:
+
+```
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+```
+
+then install CloudDrift:
+
+```
+conda install clouddrift
+```
+
+#### Development branch
+
+If you need the latest development version, get it from GitHub using pip:
 
 ```
 pip install git+https://github.com/cloud-drift/clouddrift
@@ -29,8 +50,18 @@ pip install git+https://github.com/cloud-drift/clouddrift
 
 ### Run the tests
 
-If you downloaded the CloudDrift source code from GitHub, you can run all tests
-like this:
+To run the tests, you need to first download the CloudDrift source code from
+GitHub and install it in your virtual environment:
+
+```
+git clone https://github.com/cloud-drift/clouddrift
+cd clouddrift
+python3 -m venv venv
+source venv/bin/activate
+pip install .
+```
+
+Then, run the tests like this:
 
 ```
 python -m unittest tests/*.py
