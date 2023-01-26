@@ -51,7 +51,16 @@ pip install git+https://github.com/cloud-drift/clouddrift
 ### Run the tests
 
 To run the tests, you need to first download the CloudDrift source code from
-GitHub and install it in your virtual environment.
+GitHub and install it in your virtual environment:
+
+```
+git clone https://github.com/cloud-drift/clouddrift
+cd clouddrift
+python3 -m venv venv
+source venv/bin/activate
+pip install .
+```
+
 Then, run the tests like this:
 
 ```
