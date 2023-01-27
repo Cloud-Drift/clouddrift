@@ -71,7 +71,7 @@ def get_gdp_metadata() -> pd.DataFrame:
     return df
 
 
-def order_by_date(idx):
+def order_by_date(df: pd.DataFrame, idx: list[int]) -> np.ndarray[int]:
     """From the previously sorted directory files DataFrame, return the drifter
     indices sorted by their end date.
 
@@ -137,7 +137,10 @@ def download(drifter_ids: list = None, n_random_id: int = None):
             )
         )
 
-    return order_by_date(drifter_ids)
+    # Download the metadata so we can order the drifter IDs by end date.
+    gdp_metadata = get_gdp_metadata()
+
+    return order_by_date(gdp_metadata, drifter_ids)
 
 
 def decode_date(t):
@@ -546,6 +549,3 @@ def preprocess(index: int) -> xr.Dataset:
     ds = ds.set_coords(["ids", "longitude", "lon360", "latitude", "time"])
 
     return ds
-
-
-df = get_gdp_metadata()
