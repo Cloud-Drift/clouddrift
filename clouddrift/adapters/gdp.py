@@ -15,6 +15,7 @@ GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netc
 GDP_FILENAME_PATTERN = "drifter_{id}.nc"
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
 
+
 def parse_directory_file(filename: str) -> pd.DataFrame:
     """Read a directory file which contains metadata of drifters' releases.
 
@@ -212,9 +213,7 @@ def drogue_presence(lost_time, time):
 
 def rowsize(index: int) -> int:
     return xr.open_dataset(
-        os.path.join(
-            GDP_TMP_PATH, GDP_FILENAME_PATTERN.format(id=index)
-        ),
+        os.path.join(GDP_TMP_PATH, GDP_FILENAME_PATTERN.format(id=index)),
         decode_cf=False,
         decode_times=False,
         concat_characters=False,
@@ -232,9 +231,7 @@ def preprocess(index: int) -> xr.Dataset:
     :return: xr.Dataset containing the data and attributes
     """
     ds = xr.load_dataset(
-        os.path.join(
-            GDP_TMP_PATH, GDP_FILENAME_PATTERN.format(id=index)
-        ),
+        os.path.join(GDP_TMP_PATH, GDP_FILENAME_PATTERN.format(id=index)),
         decode_times=False,
         decode_coords=False,
     )
