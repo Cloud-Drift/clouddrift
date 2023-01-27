@@ -5,6 +5,7 @@ import xarray as xr
 import urllib.request
 import concurrent.futures
 import re
+import tempfile
 from tqdm import tqdm
 import os
 import warnings
@@ -12,7 +13,7 @@ import warnings
 GDP_VERSION = "2.00"
 GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netcdf/"
 GDP_FILENAME_PATTERN = "drifter_{id}.nc"
-
+GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
 
 def parse_directory_file(filename: str) -> pd.DataFrame:
     """Read a directory file which contains metadata of drifters' releases.
@@ -95,6 +96,10 @@ def download(drifter_ids: list = None, n_random_id: int = None):
     :param n_random_id [int]: randomly select n drifter NetCDF files
     :return drifters_ids [list]: list of retrived drifter
     """
+
+    # Create a temporary directory if doesn't already exists.
+    os.makedirs(GDP_TMP_PATH, exist_ok=True)
+
     # retrieve all drifter ID numbers
     if drifter_ids is None:
         urlpath = urllib.request.urlopen(GDP_DATA_URL)
@@ -120,7 +125,7 @@ def download(drifter_ids: list = None, n_random_id: int = None):
         for i in drifter_ids:
             file = GDP_FILENAME_PATTERN.format(id=i)
             urls.append(os.path.join(GDP_DATA_URL, file))
-            files.append(os.path.join(folder, file))
+            files.append(os.path.join(GDP_TMP_PATH, file))
 
         # parallel retrieving of individual netCDF files
         list(
@@ -204,7 +209,9 @@ def drogue_presence(lost_time, time):
 
 def rowsize(index: int) -> int:
     return xr.open_dataset(
-        os.path.join(folder, GDP_FILENAME_PATTERN.format(id=index)),
+        os.path.join(
+            GDP_TMP_PATH, GDP_FILENAME_PATTERN.format(id=index)
+        ),
         decode_cf=False,
         decode_times=False,
         concat_characters=False,
@@ -222,7 +229,9 @@ def preprocess(index: int) -> xr.Dataset:
     :return: xr.Dataset containing the data and attributes
     """
     ds = xr.load_dataset(
-        os.path.join(folder, GDP_FILENAME_PATTERN.format(id=index)),
+        os.path.join(
+            GDP_TMP_PATH, GDP_FILENAME_PATTERN.format(id=index)
+        ),
         decode_times=False,
         decode_coords=False,
     )
@@ -538,9 +547,5 @@ def preprocess(index: int) -> xr.Dataset:
 
     return ds
 
-
-# Create subdirectory.
-folder = "../data/raw/gdp-v2.00/"
-os.makedirs(folder, exist_ok=os.path.exists(folder))  # create raw data folder
 
 df = get_gdp_metadata()
