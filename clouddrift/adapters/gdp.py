@@ -7,8 +7,6 @@ import concurrent.futures
 import re
 from tqdm import tqdm
 import os
-from os.path import isfile, join, exists
-from dataclasses import dataclass
 import warnings
 
 
@@ -26,7 +24,7 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
     """
     aoml_dirfl_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/"
 
-    df = pd.read_csv(join(aoml_dirfl_url, filename), delimiter="\s+", header=None)
+    df = pd.read_csv(os.path.join(aoml_dirfl_url, filename), delimiter="\s+", header=None)
     # combine the date and time columns to easily parse dates below
     df[4] += " " + df[5]
     df[8] += " " + df[9]
@@ -57,7 +55,7 @@ file_pattern = "drifter_{id}.nc"
 
 # create subdirectory
 folder = "../data/raw/gdp-v2.00/"
-os.makedirs(folder, exist_ok=exists(folder))  # create raw data folder
+os.makedirs(folder, exist_ok=os.path.exists(folder))  # create raw data folder
 
 # directory files
 dirfl_names = [
@@ -86,7 +84,7 @@ def fetch_netcdf(url, file):
     """
     Download and save file from the given url (if not present)
     """
-    if not isfile(file):
+    if not os.path.isfile(file):
         req = urllib.request.urlretrieve(url, file)
 
 
@@ -122,8 +120,8 @@ def download(drifter_ids: list = None, n_random_id: int = None):
         files = []
         for i in drifter_ids:
             file = file_pattern.format(id=i)
-            urls.append(join(aoml_https_url, file))
-            files.append(join(folder, file))
+            urls.append(os.path.join(aoml_https_url, file))
+            files.append(os.path.join(folder, file))
 
         # parallel retrieving of individual netCDF files
         list(
@@ -204,7 +202,7 @@ def drogue_presence(lost_time, time):
 
 def rowsize(index: int) -> int:
     return xr.open_dataset(
-        join(folder, file_pattern.format(id=index)),
+        os.path.join(folder, file_pattern.format(id=index)),
         decode_cf=False,
         decode_times=False,
         concat_characters=False,
@@ -222,7 +220,7 @@ def preprocess(index: int) -> xr.Dataset:
     :return: xr.Dataset containing the data and attributes
     """
     ds = xr.load_dataset(
-        join(folder, file_pattern.format(id=index)),
+        os.path.join(folder, file_pattern.format(id=index)),
         decode_times=False,
         decode_coords=False,
     )
