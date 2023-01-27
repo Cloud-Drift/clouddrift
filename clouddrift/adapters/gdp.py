@@ -13,6 +13,7 @@ GDP_VERSION = "2.00"
 GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netcdf/"
 GDP_FILENAME_PATTERN = "drifter_{id}.nc"
 
+
 def parse_directory_file(filename: str) -> pd.DataFrame:
     """Read a directory file which contains metadata of drifters' releases.
 
@@ -54,10 +55,6 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
 
     return df
 
-
-# Create subdirectory.
-folder = "../data/raw/gdp-v2.00/"
-os.makedirs(folder, exist_ok=os.path.exists(folder))  # create raw data folder
 
 def get_gdp_metadata() -> pd.DataFrame:
     """Download and parse GDP metadata and return it as a Pandas DataFrame."""
@@ -540,3 +537,10 @@ def preprocess(index: int) -> xr.Dataset:
     ds = ds.set_coords(["ids", "longitude", "lon360", "latitude", "time"])
 
     return ds
+
+
+# Create subdirectory.
+folder = "../data/raw/gdp-v2.00/"
+os.makedirs(folder, exist_ok=os.path.exists(folder))  # create raw data folder
+
+df = get_gdp_metadata()
