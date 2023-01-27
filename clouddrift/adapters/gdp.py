@@ -59,15 +59,18 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
 folder = "../data/raw/gdp-v2.00/"
 os.makedirs(folder, exist_ok=os.path.exists(folder))  # create raw data folder
 
-# directory files
-dirfl_names = [
-    "dirfl_1_5000.dat",
-    "dirfl_5001_10000.dat",
-    "dirfl_10001_15000.dat",
-    "dirfl_15001_jul22.dat",
-]
-df = pd.concat([parse_directory_file(f) for f in dirfl_names])
-df.sort_values(["Deployment_date"], inplace=True, ignore_index=True)
+def get_gdp_metadata() -> pd.DataFrame:
+    """Download and parse GDP metadata and return it as a Pandas DataFrame."""
+
+    directory_file_names = [
+        "dirfl_1_5000.dat",
+        "dirfl_5001_10000.dat",
+        "dirfl_10001_15000.dat",
+        "dirfl_15001_jul22.dat",
+    ]
+    df = pd.concat([parse_directory_file(f) for f in directory_file_names])
+    df.sort_values(["Deployment_date"], inplace=True, ignore_index=True)
+    return df
 
 
 def order_by_date(idx):
