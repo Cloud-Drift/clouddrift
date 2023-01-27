@@ -11,21 +11,23 @@ import warnings
 
 
 def parse_directory_file(filename: str) -> pd.DataFrame:
-    """
-    Read a directory file which contains metadata of drifters release
+    """Read a directory file which contains metadata of drifters' releases.
 
-    Note: due to naming of those files, it requires manual intervention to update the last file name after an update of the dataset
+    Due to naming of these files, a manual update of the last file name after an
+    update of the dataset is needed.
 
     Args:
-        filename (str): filename of the dirfl file
-
+        filename (str): Name of the directory file
     Returns:
-        pd.DataFrame: sorted list of drifters
+        pd.DataFrame: Sorted list of drifters
     """
     aoml_dirfl_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/"
 
-    df = pd.read_csv(os.path.join(aoml_dirfl_url, filename), delimiter="\s+", header=None)
-    # combine the date and time columns to easily parse dates below
+    df = pd.read_csv(
+        os.path.join(aoml_dirfl_url, filename), delimiter="\s+", header=None
+    )
+
+    # Combine the date and time columns to easily parse dates below.
     df[4] += " " + df[5]
     df[8] += " " + df[9]
     df[12] += " " + df[13]
@@ -46,6 +48,7 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
     ]
     for t in ["Deployment_date", "End_date", "Drogue_off_date"]:
         df[t] = pd.to_datetime(df[t], format="%Y/%m/%d %H:%M", errors="coerce")
+
     return df
 
 
@@ -53,7 +56,7 @@ version = "2.00"
 aoml_https_url = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netcdf/"
 file_pattern = "drifter_{id}.nc"
 
-# create subdirectory
+# Create subdirectory.
 folder = "../data/raw/gdp-v2.00/"
 os.makedirs(folder, exist_ok=os.path.exists(folder))  # create raw data folder
 
@@ -69,28 +72,25 @@ df.sort_values(["Deployment_date"], inplace=True, ignore_index=True)
 
 
 def order_by_date(idx):
-    """
-    From the previously sorted directory files DataFrame, this function
-    returns the drifter indices sorted by their end_date.
+    """From the previously sorted directory files DataFrame, return the drifter
+    indices sorted by their end date.
+
     Args:
-        idx [list]: list of drifters to include in the ragged array
+        idx [list]: List of drifters to include in the ragged array
     Returns:
-        idx [list]: sorted list of drifters
+        idx [list]: Sorted list of drifters
     """
     return df.ID[np.where(np.in1d(df.ID, idx))[0]].values
 
 
-def fetch_netcdf(url, file):
-    """
-    Download and save file from the given url (if not present)
-    """
+def fetch_netcdf(url: str, file: str):
+    """Download and save the file from the given url, if not already downloaded."""
     if not os.path.isfile(file):
         req = urllib.request.urlretrieve(url, file)
 
 
 def download(drifter_ids: list = None, n_random_id: int = None):
-    """
-    Download individual NetCDF files from the AOML server
+    """Download individual NetCDF files from the AOML server.
 
     :param drifter_ids [list]: list of drifter to retrieve (Default: all)
     :param n_random_id [int]: randomly select n drifter NetCDF files
@@ -137,13 +137,14 @@ def download(drifter_ids: list = None, n_random_id: int = None):
 
 
 def decode_date(t):
-    """
-    The date format is specified in 'seconds since 1970-01-01 00:00:00' but the missing values
-    are stored as -1e+34 which is not supported by the default parsing mechanism in xarray
+    """The date format is specified in 'seconds since 1970-01-01 00:00:00' but
+    the missing values are stored as -1e+34 which is not supported by the
+    default parsing mechanism in xarray.
 
-    This function returns replaced the missing valye by NaT and return a datetime object.
+    This function returns replaced the missing value by NaN and returns a
+    datetime instance.
     :param t: date
-    :return: datetime object
+    :return: datetime
     """
     nat_index = np.logical_or(np.isclose(t, -1e34), np.isnan(t))
     t[nat_index] = np.nan
@@ -151,8 +152,8 @@ def decode_date(t):
 
 
 def fill_values(var, default=np.nan):
-    """
-    Change fill values (-1e+34, inf, -inf) in var array to value specified by default
+    """Change fill values (-1e+34, inf, -inf) in var array to the value
+    specified by default.
     """
     missing_value = np.logical_or(np.isclose(var, -1e34), ~np.isfinite(var))
     if np.any(missing_value):
@@ -160,9 +161,11 @@ def fill_values(var, default=np.nan):
     return var
 
 
-def str_to_float(value, default=np.nan):
-    """
-    :param value: string
+def str_to_float(value: str, default=np.nan) -> float:
+    """Convert a string to float, while returning the value of default if the
+    string is not convertible to a float, or if it's a NaN.
+
+    :param value: str
     :return: bool
     """
     try:
@@ -211,10 +214,10 @@ def rowsize(index: int) -> int:
 
 
 def preprocess(index: int) -> xr.Dataset:
-    """
-    Mandatory function that extract and preprocess the Lagrangian data and attributes. The function takes and
-    identification number that can be used to: create a file or url pattern or select data from a Dataframe. It
-    then preprocess the data and return a clean xarray Dataset.
+    """Extract and preprocess the Lagrangian data and attributes. This function
+    takes an identification number that can be used to: create a file or url
+    pattern or select data from a Dataframe. It then preprocess the data and
+    returns a clean xarray Dataset.
 
     :param index: drifter's identification number
     :return: xr.Dataset containing the data and attributes
