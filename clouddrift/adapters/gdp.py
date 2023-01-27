@@ -9,6 +9,9 @@ from tqdm import tqdm
 import os
 import warnings
 
+GDP_VERSION = "2.00"
+GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netcdf/"
+GDP_FILENAME_PATTERN = "drifter_{id}.nc"
 
 def parse_directory_file(filename: str) -> pd.DataFrame:
     """Read a directory file which contains metadata of drifters' releases.
@@ -21,10 +24,10 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Sorted list of drifters
     """
-    aoml_dirfl_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/"
 
+    GDP_DIRECTORY_FILE_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/"
     df = pd.read_csv(
-        os.path.join(aoml_dirfl_url, filename), delimiter="\s+", header=None
+        os.path.join(GDP_DIRECTORY_FILE_URL, filename), delimiter="\s+", header=None
     )
 
     # Combine the date and time columns to easily parse dates below.
@@ -51,10 +54,6 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
 
     return df
 
-
-version = "2.00"
-aoml_https_url = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netcdf/"
-file_pattern = "drifter_{id}.nc"
 
 # Create subdirectory.
 folder = "../data/raw/gdp-v2.00/"
@@ -98,7 +97,7 @@ def download(drifter_ids: list = None, n_random_id: int = None):
     """
     # retrieve all drifter ID numbers
     if drifter_ids is None:
-        urlpath = urllib.request.urlopen(aoml_https_url)
+        urlpath = urllib.request.urlopen(GDP_DATA_URL)
         string = urlpath.read().decode("utf-8")
         pattern = re.compile("drifter_[0-9]*.nc")
         filelist = pattern.findall(string)
@@ -119,8 +118,8 @@ def download(drifter_ids: list = None, n_random_id: int = None):
         urls = []
         files = []
         for i in drifter_ids:
-            file = file_pattern.format(id=i)
-            urls.append(os.path.join(aoml_https_url, file))
+            file = GDP_FILENAME_PATTERN.format(id=i)
+            urls.append(os.path.join(GDP_DATA_URL, file))
             files.append(os.path.join(folder, file))
 
         # parallel retrieving of individual netCDF files
@@ -205,7 +204,7 @@ def drogue_presence(lost_time, time):
 
 def rowsize(index: int) -> int:
     return xr.open_dataset(
-        os.path.join(folder, file_pattern.format(id=index)),
+        os.path.join(folder, GDP_FILENAME_PATTERN.format(id=index)),
         decode_cf=False,
         decode_times=False,
         concat_characters=False,
@@ -223,7 +222,7 @@ def preprocess(index: int) -> xr.Dataset:
     :return: xr.Dataset containing the data and attributes
     """
     ds = xr.load_dataset(
-        os.path.join(folder, file_pattern.format(id=index)),
+        os.path.join(folder, GDP_FILENAME_PATTERN.format(id=index)),
         decode_times=False,
         decode_coords=False,
     )
@@ -512,7 +511,7 @@ def preprocess(index: int) -> xr.Dataset:
     # global attributes
     attrs = {
         "title": "Global Drifter Program hourly drifting buoy collection",
-        "history": f"Version {version}. Metadata from dirall.dat and deplog.dat",
+        "history": f"version {GDP_VERSION}. Metadata from dirall.dat and deplog.dat",
         "Conventions": "CF-1.6",
         "date_created": datetime.now().isoformat(),
         "publisher_name": "GDP Drifter DAC",
