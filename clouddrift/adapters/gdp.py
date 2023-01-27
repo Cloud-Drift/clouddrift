@@ -114,7 +114,7 @@ def download(drifter_ids: list = None, n_random_id: int = None):
             rng = np.random.RandomState(42)
             drifter_ids = sorted(rng.choice(drifter_ids, n_random_id, replace=False))
 
-    with concurrent.futures.ThreadPoolExecutor() as exector:
+    with concurrent.futures.ThreadPoolExecutor() as executor:
         # create list of urls and paths
         urls = []
         files = []
@@ -126,7 +126,7 @@ def download(drifter_ids: list = None, n_random_id: int = None):
         # parallel retrieving of individual netCDF files
         list(
             tqdm(
-                exector.map(fetch_netcdf, urls, files),
+                executor.map(fetch_netcdf, urls, files),
                 total=len(files),
                 desc="Downloading files",
                 ncols=80,
