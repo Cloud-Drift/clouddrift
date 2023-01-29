@@ -199,8 +199,8 @@ class RaggedArray:
         attrs_variables = {}
 
         # coordinates
-        for var in vars_coords.keys():
-            attrs_variables[var] = ds[vars_coords[var]].attrs
+        for var in vars_coords:
+            attrs_variables[var] = ds[var].attrs
 
         # metadata and data
         for var in vars_meta + vars_data:
@@ -213,7 +213,7 @@ class RaggedArray:
         preprocess_func: Callable[[int], xr.Dataset],
         indices: list,
         rowsize: list,
-        vars_coords: dict,
+        vars_coords: list,
         vars_meta: list,
         vars_data: list,
     ) -> Tuple[dict, dict, dict]:
