@@ -109,19 +109,12 @@ class dataformat_tests(TestCase):
         self.assertEqual(len(self.ra.metadata["ID"]), self.nb_traj)
         self.assertEqual(len(self.ra.data["temp"]), self.nb_obs)
 
-    def test_rename_coords(self):
-        """
-        Validate that coordinates name were modified
-        """
-        for key in self.ra.coords:
-            self.assertTrue(key in ("ids", "lon", "lat", "time"))
-
     def test_variable_attrs(self):
         """
         Validate the variable attributes are properly transferred to the ragged array object.
         Note: as part of this test `long_name` is variable but `units` are always "-"
         """
-        for var in ["lon", "lat", "time"]:  # coords are rename but not attributes here
+        for var in ["lon", "lat", "time"]:
             self.assertEqual(
                 self.ra.attrs_variables[var]["long_name"],
                 f"variable {var}",
