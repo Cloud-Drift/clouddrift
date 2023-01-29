@@ -77,7 +77,7 @@ class RaggedArray:
             vars_coords (list): coordinate variable names to include in the archive
             vars_meta (list, optional): metadata variable names to include in the archive (Defaults to [])
             vars_data (list, optional): data variable names to include in the archive (Defaults to [])
-            rowsize_func (Optional[Callable[[int], int]], optional): returns a processed xarray Dataset from an identification number (to speed up processing) (Defaults to None)
+            rowsize_func (Optional[Callable[[int], int]], optional): returns the number of observations from an identification number (to speed up processing) (Defaults to None)
 
         Returns:
             obj: ragged array class object
