@@ -27,7 +27,7 @@ class RaggedArray:
     def from_awkward(
         cls,
         array: ak.Array,
-        name_coords: Optional[list] = ["time", "lon", "lat", "ids"],
+        vars_coords: Optional[list] = ["time", "lon", "lat", "ids"],
     ):
         """Load a RaggedArray instance from an Awkward Array.
 
@@ -112,7 +112,7 @@ class RaggedArray:
 
     @classmethod
     def from_parquet(
-        cls, filename: str, name_coords: Optional[list] = ["time", "lon", "lat", "ids"]
+        cls, filename: str, vars_coords: Optional[list] = ["time", "lon", "lat", "ids"]
     ):
         """Read a ragged arrays archive from a parquet file
 
@@ -123,7 +123,7 @@ class RaggedArray:
         Returns:
             obj: ragged array class object
         """
-        return cls.from_awkward(ak.from_parquet(filename), name_coords)
+        return cls.from_awkward(ak.from_parquet(filename), vars_coords)
 
     @classmethod
     def from_xarray(cls, ds: xr.Dataset, dim_traj: str = "traj", dim_obs: str = "obs"):
