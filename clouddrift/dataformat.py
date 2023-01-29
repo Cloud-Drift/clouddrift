@@ -24,11 +24,16 @@ class RaggedArray:
         self.validate_attributes()
 
     @classmethod
-    def from_awkward(cls, array: ak.Array):
+    def from_awkward(
+        cls,
+        array: ak.Array,
+        name_coords: Optional[list] = ["time", "lon", "lat", "ids"],
+    ):
         """Load a RaggedArray instance from an Awkward Array.
 
         Args:
             array (ak.Array): Awkward Array instance to load the data from
+            name_coords (list, optional): Names of the coordinate variables in the ragged arrays
 
         Returns:
             obj: RaggedArray instance
@@ -40,7 +45,6 @@ class RaggedArray:
 
         attrs_global = array.layout.parameters["attrs"]
 
-        name_coords = ["time", "lon", "lat", "ids"]
         for var in name_coords:
             coords[var] = ak.flatten(array.obs[var]).to_numpy()
             attrs_variables[var] = array.obs[var].layout.parameters["attrs"]
@@ -107,16 +111,19 @@ class RaggedArray:
         return cls.from_xarray(xr.open_dataset(filename))
 
     @classmethod
-    def from_parquet(cls, filename: str):
+    def from_parquet(
+        cls, filename: str, name_coords: Optional[list] = ["time", "lon", "lat", "ids"]
+    ):
         """Read a ragged arrays archive from a parquet file
 
         Args:
             filename (str): filename of parquet archive
+            name_coords (list, optional): Names of the coordinate variables in the ragged arrays
 
         Returns:
             obj: ragged array class object
         """
-        return cls.from_awkward(ak.from_parquet(filename))
+        return cls.from_awkward(ak.from_parquet(filename), name_coords)
 
     @classmethod
     def from_xarray(cls, ds: xr.Dataset, dim_traj: str = "traj", dim_obs: str = "obs"):
