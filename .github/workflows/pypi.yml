@@ -1,4 +1,4 @@
-name: pypi
+name: Package pypi
 on:
   release:
     types:
@@ -20,18 +20,15 @@ jobs:
         name: Install Python
         with:
           python-version: 3.9
-
       - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install build twine docutils
-					
       - name: Create tarball and wheels
         run: |
           git clean -xdf
           git restore -SW .
           python -m build
-
       - name: Check built artifacts
         run: |
           python -m twine check dist/*
@@ -63,7 +60,6 @@ jobs:
         run: |
           ls -ltrh
           ls -ltrh dist
-
       - name: Verify the built dist/wheel is valid
         if: github.event_name == 'push'
         run: |
@@ -78,7 +74,6 @@ jobs:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
           verbose: true
-
 
   upload-to-pypi:
     needs: test-built-dist
