@@ -38,13 +38,9 @@ class select_tests(TestCase):
             "title": "test trajectories",
             "history": "version xyz",
         }
-        variables_coords = {
-            "ids": "ids",
-            "time": "t",
-            "lon": "longitude",
-            "lat": "latitude",
-        }
-        coords = {"longitude": longitude, "latitude": latitude, "ids": ids, "t": t}
+        variables_coords = ["ids", "time", "lon", "lat"]
+
+        coords = {"lon": longitude, "lat": latitude, "ids": ids, "time": t}
         metadata = {"ID": drifter_id, "rowsize": rowsize}
         data = {"test": test}
 

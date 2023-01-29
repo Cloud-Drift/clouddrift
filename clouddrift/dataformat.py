@@ -60,9 +60,9 @@ class RaggedArray:
         cls,
         indices: list,
         preprocess_func: Callable[[int], xr.Dataset],
-        vars_coords: dict,
-        vars_meta: list = [],
-        vars_data: list = [],
+        vars_coords: list,
+        vars_meta: Optional[list] = [],
+        vars_data: Optional[list] = [],
         rowsize_func: Optional[Callable[[int], int]] = None,
     ):
         """Generate ragged arrays archive from a list of trajectory files
@@ -70,7 +70,7 @@ class RaggedArray:
         Args:
             indices (list): identification numbers list to iterate
             preprocess_func (Callable[[int], xr.Dataset]): returns a processed xarray Dataset from an identification number
-            vars_coords (dict): Dictionary mapping field dimensions (ids, time, lon, lat)
+            vars_coords (list): coordinate variable names to include in the archive
             vars_meta (list, optional): metadata variable names to include in the archive (Defaults to [])
             vars_data (list, optional): data variable names to include in the archive (Defaults to [])
             rowsize_func (Optional[Callable[[int], int]], optional): returns a processed xarray Dataset from an identification number (to speed up processing) (Defaults to None)
@@ -232,8 +232,8 @@ class RaggedArray:
 
         # allocate memory
         coords = {}
-        for var in vars_coords.keys():
-            coords[var] = np.zeros(nb_obs, dtype=ds[vars_coords[var]].dtype)
+        for var in vars_coords:
+            coords[var] = np.zeros(nb_obs, dtype=ds[var].dtype)
 
         metadata = {}
         for var in vars_meta:
@@ -255,8 +255,8 @@ class RaggedArray:
                 size = rowsize[i]
                 oid = index_traj[i]
 
-                for var in vars_coords.keys():
-                    coords[var][oid : oid + size] = ds[vars_coords[var]].data
+                for var in vars_coords:
+                    coords[var][oid : oid + size] = ds[var].data
 
                 for var in vars_meta:
                     metadata[var][i] = ds[var][0].data
