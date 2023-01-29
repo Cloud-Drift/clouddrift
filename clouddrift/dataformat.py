@@ -45,7 +45,7 @@ class RaggedArray:
 
         attrs_global = array.layout.parameters["attrs"]
 
-        for var in name_coords:
+        for var in vars_coords:
             coords[var] = ak.flatten(array.obs[var]).to_numpy()
             attrs_variables[var] = array.obs[var].layout.parameters["attrs"]
 
@@ -53,7 +53,7 @@ class RaggedArray:
             metadata[var] = array[var].to_numpy()
             attrs_variables[var] = array[var].layout.parameters["attrs"]
 
-        for var in [v for v in array.obs.fields if v not in name_coords]:
+        for var in [v for v in array.obs.fields if v not in vars_coords]:
             data[var] = ak.flatten(array.obs[var]).to_numpy()
             attrs_variables[var] = array.obs[var].layout.parameters["attrs"]
 
