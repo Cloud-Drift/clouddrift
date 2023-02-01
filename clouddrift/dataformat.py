@@ -194,6 +194,17 @@ class RaggedArray:
     def attributes(
         ds: xr.Dataset, name_coords: list, name_meta: list, name_data: list
     ) -> Tuple[dict, dict]:
+        """Returns the global attributes and the attributes of all variables (name_coords, name_meta, and name_data) from a xr.Dataset
+
+        Args:
+            ds (xr.Dataset): _description_
+            name_coords (list): Name of the coordinate variables to include in the archive
+            name_meta (list): Name of metadata variables to include in the archive (Defaults to [])
+            name_data (list): Name of the data variables to include in the archive (Defaults to [])
+
+        Returns:
+            Tuple[dict, dict]: the global and variables attributes
+        """
         attrs_global = ds.attrs
 
         # coordinates, metadata, and data
