@@ -24,11 +24,16 @@ class RaggedArray:
         self.validate_attributes()
 
     @classmethod
-    def from_awkward(cls, array: ak.Array):
+    def from_awkward(
+        cls,
+        array: ak.Array,
+        name_coords: Optional[list] = ["time", "lon", "lat", "ids"],
+    ):
         """Load a RaggedArray instance from an Awkward Array.
 
         Args:
             array (ak.Array): Awkward Array instance to load the data from
+            name_coords (list, optional): Names of the coordinate variables in the ragged arrays
 
         Returns:
             obj: RaggedArray instance
@@ -40,7 +45,6 @@ class RaggedArray:
 
         attrs_global = array.layout.parameters["attrs"]
 
-        name_coords = ["time", "lon", "lat", "ids"]
         for var in name_coords:
             coords[var] = ak.flatten(array.obs[var]).to_numpy()
             attrs_variables[var] = array.obs[var].layout.parameters["attrs"]
@@ -60,9 +64,9 @@ class RaggedArray:
         cls,
         indices: list,
         preprocess_func: Callable[[int], xr.Dataset],
-        vars_coords: dict,
-        vars_meta: list = [],
-        vars_data: list = [],
+        name_coords: list,
+        name_meta: Optional[list] = [],
+        name_data: Optional[list] = [],
         rowsize_func: Optional[Callable[[int], int]] = None,
     ):
         """Generate ragged arrays archive from a list of trajectory files
@@ -70,10 +74,10 @@ class RaggedArray:
         Args:
             indices (list): identification numbers list to iterate
             preprocess_func (Callable[[int], xr.Dataset]): returns a processed xarray Dataset from an identification number
-            vars_coords (dict): Dictionary mapping field dimensions (ids, time, lon, lat)
-            vars_meta (list, optional): metadata variable names to include in the archive (Defaults to [])
-            vars_data (list, optional): data variable names to include in the archive (Defaults to [])
-            rowsize_func (Optional[Callable[[int], int]], optional): returns a processed xarray Dataset from an identification number (to speed up processing) (Defaults to None)
+            name_coords (list): Name of the coordinate variables to include in the archive
+            name_meta (list, optional): Name of metadata variables to include in the archive (Defaults to [])
+            name_data (list, optional): Name of the data variables to include in the archive (Defaults to [])
+            rowsize_func (Optional[Callable[[int], int]], optional): returns the number of observations from an identification number (to speed up processing) (Defaults to None)
 
         Returns:
             obj: ragged array class object
@@ -84,10 +88,10 @@ class RaggedArray:
         )
         rowsize = cls.number_of_observations(rowsize_func, indices)
         coords, metadata, data = cls.allocate(
-            preprocess_func, indices, rowsize, vars_coords, vars_meta, vars_data
+            preprocess_func, indices, rowsize, name_coords, name_meta, name_data
         )
         attrs_global, attrs_variables = cls.attributes(
-            preprocess_func(indices[0]), vars_coords, vars_meta, vars_data
+            preprocess_func(indices[0]), name_coords, name_meta, name_data
         )
 
         return cls(coords, metadata, data, attrs_global, attrs_variables)
@@ -107,16 +111,19 @@ class RaggedArray:
         return cls.from_xarray(xr.open_dataset(filename))
 
     @classmethod
-    def from_parquet(cls, filename: str):
+    def from_parquet(
+        cls, filename: str, name_coords: Optional[list] = ["time", "lon", "lat", "ids"]
+    ):
         """Read a ragged arrays archive from a parquet file
 
         Args:
             filename (str): filename of parquet archive
+            name_coords (list, optional): Names of the coordinate variables in the ragged arrays
 
         Returns:
             obj: ragged array class object
         """
-        return cls.from_awkward(ak.from_parquet(filename))
+        return cls.from_awkward(ak.from_parquet(filename), name_coords)
 
     @classmethod
     def from_xarray(cls, ds: xr.Dataset, dim_traj: str = "traj", dim_obs: str = "obs"):
@@ -185,18 +192,24 @@ class RaggedArray:
 
     @staticmethod
     def attributes(
-        ds: xr.Dataset, vars_coords: dict, vars_meta: list, vars_data: list
+        ds: xr.Dataset, name_coords: list, name_meta: list, name_data: list
     ) -> Tuple[dict, dict]:
+        """Returns the global attributes and the attributes of all variables (name_coords, name_meta, and name_data) from a xr.Dataset
+
+        Args:
+            ds (xr.Dataset): _description_
+            name_coords (list): Name of the coordinate variables to include in the archive
+            name_meta (list): Name of metadata variables to include in the archive (Defaults to [])
+            name_data (list): Name of the data variables to include in the archive (Defaults to [])
+
+        Returns:
+            Tuple[dict, dict]: the global and variables attributes
+        """
         attrs_global = ds.attrs
 
+        # coordinates, metadata, and data
         attrs_variables = {}
-
-        # coordinates
-        for var in vars_coords.keys():
-            attrs_variables[var] = ds[vars_coords[var]].attrs
-
-        # metadata and data
-        for var in vars_meta + vars_data:
+        for var in name_coords + name_meta + name_data:
             attrs_variables[var] = ds[var].attrs
 
         return attrs_global, attrs_variables
@@ -206,9 +219,9 @@ class RaggedArray:
         preprocess_func: Callable[[int], xr.Dataset],
         indices: list,
         rowsize: list,
-        vars_coords: dict,
-        vars_meta: list,
-        vars_data: list,
+        name_coords: list,
+        name_meta: list,
+        name_data: list,
     ) -> Tuple[dict, dict, dict]:
         """Iterate through the files and fill for the ragged array associated with coordinates, and selected metadata and data variables.
 
@@ -216,9 +229,9 @@ class RaggedArray:
             preprocess_func (Callable[[int], xr.Dataset]): returns a processed xarray Dataset from an identification number
             indices (list): list of indices separating trajectory in the ragged arrays
             rowsize (list): list of the number of observations per trajectory
-            vars_coords (dict): Dictionary mapping field dimensions (ids, time, lon, lat)
-            vars_meta (list): metadata variable names to include in the archive (Defaults to [])
-            vars_data (list): data variable names to include in the archive (Defaults to [])
+            name_coords (list): Name of the coordinate variables to include in the archive
+            name_meta (list, optional): Name of metadata variables to include in the archive (Defaults to [])
+            name_data (list, optional): Name of the data variables to include in the archive (Defaults to [])
 
         Returns:
             Tuple[dict, dict, dict]: dictionaries containing numerical data and attributes of coordinates, metadata and data variables.
@@ -232,15 +245,15 @@ class RaggedArray:
 
         # allocate memory
         coords = {}
-        for var in vars_coords.keys():
-            coords[var] = np.zeros(nb_obs, dtype=ds[vars_coords[var]].dtype)
+        for var in name_coords:
+            coords[var] = np.zeros(nb_obs, dtype=ds[var].dtype)
 
         metadata = {}
-        for var in vars_meta:
+        for var in name_meta:
             metadata[var] = np.zeros(nb_traj, dtype=ds[var].dtype)
 
         data = {}
-        for var in vars_data:
+        for var in name_data:
             data[var] = np.zeros(nb_obs, dtype=ds[var].dtype)
         ds.close()
 
@@ -255,13 +268,13 @@ class RaggedArray:
                 size = rowsize[i]
                 oid = index_traj[i]
 
-                for var in vars_coords.keys():
-                    coords[var][oid : oid + size] = ds[vars_coords[var]].data
+                for var in name_coords:
+                    coords[var][oid : oid + size] = ds[var].data
 
-                for var in vars_meta:
+                for var in name_meta:
                     metadata[var][i] = ds[var][0].data
 
-                for var in vars_data:
+                for var in name_data:
                     data[var][oid : oid + size] = ds[var].data
 
         return coords, metadata, data

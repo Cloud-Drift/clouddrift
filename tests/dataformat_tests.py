@@ -26,18 +26,13 @@ class dataformat_tests(TestCase):
             "title": "test trajectories",
             "history": "version xyz",
         }
-        self.variables_coords = {
-            "ids": "ids",
-            "time": "t",
-            "lon": "longitude",
-            "lat": "latitude",
-        }
+        self.variables_coords = ["ids", "time", "lon", "lat"]
 
         # append xr.Dataset to a list
         list_ds = []
         for i in range(0, len(self.rowsize)):
             xr_coords = {}
-            for var in ["longitude", "latitude", "t"]:
+            for var in ["lon", "lat", "time"]:
                 xr_coords[var] = (
                     ["obs"],
                     np.random.rand(self.rowsize[i]),
@@ -114,22 +109,15 @@ class dataformat_tests(TestCase):
         self.assertEqual(len(self.ra.metadata["ID"]), self.nb_traj)
         self.assertEqual(len(self.ra.data["temp"]), self.nb_obs)
 
-    def test_rename_coords(self):
-        """
-        Validate that coordinates name were modified
-        """
-        for key in self.ra.coords:
-            self.assertTrue(key in ("ids", "lon", "lat", "time"))
-
     def test_variable_attrs(self):
         """
         Validate the variable attributes are properly transferred to the ragged array object.
         Note: as part of this test `long_name` is variable but `units` are always "-"
         """
-        for var in ["lon", "lat", "time"]:  # coords are rename but not attributes here
+        for var in ["lon", "lat", "time"]:
             self.assertEqual(
                 self.ra.attrs_variables[var]["long_name"],
-                f"variable {self.variables_coords[var]}",
+                f"variable {var}",
             )
             self.assertEqual(self.ra.attrs_variables[var]["units"], "-")
 
