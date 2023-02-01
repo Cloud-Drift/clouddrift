@@ -17,6 +17,72 @@ GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netc
 GDP_FILENAME_PATTERN = "drifter_{id}.nc"
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
 
+GDP_COORDS = [
+    "ids",
+    "time",
+]
+GDP_METADATA = [
+    "ID",
+    "rowsize",
+    "WMO",
+    "expno",
+    "deploy_date",
+    "deploy_lat",
+    "deploy_lon",
+    "end_date",
+    "end_lat",
+    "end_lon",
+    "drogue_lost_date",
+    "typedeath",
+    "typebuoy",
+    "location_type",
+    "DeployingShip",
+    "DeploymentStatus",
+    "BuoyTypeManufacturer",
+    "BuoyTypeSensorArray",
+    "CurrentProgram",
+    "PurchaserFunding",
+    "SensorUpgrade",
+    "Transmissions",
+    "DeployingCountry",
+    "DeploymentComments",
+    "ManufactureYear",
+    "ManufactureMonth",
+    "ManufactureSensorType",
+    "ManufactureVoltage",
+    "FloatDiameter",
+    "SubsfcFloatPresence",
+    "DrogueType",
+    "DrogueLength",
+    "DrogueBallast",
+    "DragAreaAboveDrogue",
+    "DragAreaOfDrogue",
+    "DragAreaRatio",
+    "DrogueCenterDepth",
+    "DrogueDetectSensor",
+]
+GDP_DATA = [
+    "lon",
+    "lat",
+    "ve",
+    "vn",
+    "err_lat",
+    "err_lon",
+    "err_ve",
+    "err_vn",
+    "gap",
+    "sst",
+    "sst1",
+    "sst2",
+    "err_sst",
+    "err_sst1",
+    "err_sst2",
+    "flg_sst",
+    "flg_sst1",
+    "flg_sst2",
+    "drogue_status",
+]
+
 
 def parse_directory_file(filename: str) -> pd.DataFrame:
     """Read a directory file which contains metadata of drifters' releases.
@@ -550,83 +616,26 @@ def preprocess(index: int) -> xr.Dataset:
     return ds
 
 
-def to_raggedarray(drifter_ids: Optional[list[int]] = None) -> RaggedArray:
+def to_raggedarray(
+    drifter_ids: Optional[list[int]] = None, n_random_id: Optional[int] = None
+) -> RaggedArray:
     """Download and process individual GDP hourly files and return a
     RaggedArray instance with the data.
-    """
-    coords = {
-        "ids": "ids",
-        "time": "time",
-        "lon": "longitude",  # or alternatively lon360
-        "lat": "latitude",
-    }
-    metadata = [
-        "ID",
-        "rowsize",
-        "WMO",
-        "expno",
-        "deploy_date",
-        "deploy_lat",
-        "deploy_lon",
-        "end_date",
-        "end_lat",
-        "end_lon",
-        "drogue_lost_date",
-        "typedeath",
-        "typebuoy",
-        "location_type",
-        "DeployingShip",
-        "DeploymentStatus",
-        "BuoyTypeManufacturer",
-        "BuoyTypeSensorArray",
-        "CurrentProgram",
-        "PurchaserFunding",
-        "SensorUpgrade",
-        "Transmissions",
-        "DeployingCountry",
-        "DeploymentComments",
-        "ManufactureYear",
-        "ManufactureMonth",
-        "ManufactureSensorType",
-        "ManufactureVoltage",
-        "FloatDiameter",
-        "SubsfcFloatPresence",
-        "DrogueType",
-        "DrogueLength",
-        "DrogueBallast",
-        "DragAreaAboveDrogue",
-        "DragAreaOfDrogue",
-        "DragAreaRatio",
-        "DrogueCenterDepth",
-        "DrogueDetectSensor",
-    ]
-    data = [
-        "ve",
-        "vn",
-        "err_lat",
-        "err_lon",
-        "err_ve",
-        "err_vn",
-        "gap",
-        "sst",
-        "sst1",
-        "sst2",
-        "err_sst",
-        "err_sst1",
-        "err_sst2",
-        "flg_sst",
-        "flg_sst1",
-        "flg_sst2",
-        "drogue_status",
-    ]
 
-    drifter_ids = download()
+    Args:
+        drifter_ids [list]: list of drifters to retrieve (Default: all)
+        n_random_id [int]: randomly select n drifter NetCDF files
+    Returns:
+        out [RaggedArray]: A RaggedArray instance of the requested dataset
+    """
+
+    ids = download(drifter_ids, n_random_id)
 
     return RaggedArray.from_files(
-        drifter_ids,
+        indices=ids,
         preprocess_func=preprocess,
-        name_coords=coords,
-        name_meta=metadata,
-        name_data=data,
+        name_coords=GDP_COORDS,
+        name_meta=GDP_METADATA,
+        name_data=GDP_DATA,
         rowsize_func=rowsize,
     )
