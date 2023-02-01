@@ -1,3 +1,4 @@
+from ..dataformat import RaggedArray
 import numpy as np
 import pandas as pd
 from datetime import datetime
@@ -7,6 +8,7 @@ import concurrent.futures
 import re
 import tempfile
 from tqdm import tqdm
+from typing import Optional
 import os
 import warnings
 
@@ -546,3 +548,85 @@ def preprocess(index: int) -> xr.Dataset:
     ds = ds.set_coords(["ids", "longitude", "lon360", "latitude", "time"])
 
     return ds
+
+
+def to_raggedarray(drifter_ids: Optional[list[int]] = None) -> RaggedArray:
+    """Download and process individual GDP hourly files and return a
+    RaggedArray instance with the data.
+    """
+    coords = {
+        "ids": "ids",
+        "time": "time",
+        "lon": "longitude",  # or alternatively lon360
+        "lat": "latitude",
+    }
+    metadata = [
+        "ID",
+        "rowsize",
+        "WMO",
+        "expno",
+        "deploy_date",
+        "deploy_lat",
+        "deploy_lon",
+        "end_date",
+        "end_lat",
+        "end_lon",
+        "drogue_lost_date",
+        "typedeath",
+        "typebuoy",
+        "location_type",
+        "DeployingShip",
+        "DeploymentStatus",
+        "BuoyTypeManufacturer",
+        "BuoyTypeSensorArray",
+        "CurrentProgram",
+        "PurchaserFunding",
+        "SensorUpgrade",
+        "Transmissions",
+        "DeployingCountry",
+        "DeploymentComments",
+        "ManufactureYear",
+        "ManufactureMonth",
+        "ManufactureSensorType",
+        "ManufactureVoltage",
+        "FloatDiameter",
+        "SubsfcFloatPresence",
+        "DrogueType",
+        "DrogueLength",
+        "DrogueBallast",
+        "DragAreaAboveDrogue",
+        "DragAreaOfDrogue",
+        "DragAreaRatio",
+        "DrogueCenterDepth",
+        "DrogueDetectSensor",
+    ]
+    data = [
+        "ve",
+        "vn",
+        "err_lat",
+        "err_lon",
+        "err_ve",
+        "err_vn",
+        "gap",
+        "sst",
+        "sst1",
+        "sst2",
+        "err_sst",
+        "err_sst1",
+        "err_sst2",
+        "flg_sst",
+        "flg_sst1",
+        "flg_sst2",
+        "drogue_status",
+    ]
+
+    drifter_ids = download()
+
+    return RaggedArray.from_files(
+        drifter_ids,
+        preprocess_func=preprocess,
+        name_coords=coords,
+        name_meta=metadata,
+        name_data=data,
+        rowsize_func=rowsize,
+    )
