@@ -213,9 +213,9 @@ class RaggedArray:
         preprocess_func: Callable[[int], xr.Dataset],
         indices: list,
         rowsize: list,
-        vars_coords: list,
-        vars_meta: list,
-        vars_data: list,
+        name_coords: list,
+        name_meta: list,
+        name_data: list,
     ) -> Tuple[dict, dict, dict]:
         """Iterate through the files and fill for the ragged array associated with coordinates, and selected metadata and data variables.
 
