@@ -196,14 +196,9 @@ class RaggedArray:
     ) -> Tuple[dict, dict]:
         attrs_global = ds.attrs
 
+        # coordinates, metadata, and data
         attrs_variables = {}
-
-        # coordinates
-        for var in vars_coords:
-            attrs_variables[var] = ds[var].attrs
-
-        # metadata and data
-        for var in vars_meta + vars_data:
+        for var in name_coords + name_meta + name_data:
             attrs_variables[var] = ds[var].attrs
 
         return attrs_global, attrs_variables
