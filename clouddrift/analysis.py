@@ -90,7 +90,6 @@ def velocity_from_position(
 
     # Compute dx, dy, and dt
     if difference_scheme == "forward":
-
         # All values except the ending boundary value are computed using the
         # 1st order forward differencing. The ending boundary value is
         # computed using the 1st order backward difference.
@@ -101,14 +100,12 @@ def velocity_from_position(
 
         # Space
         if coord_system == "cartesian":
-
             dx[..., :-1] = np.diff(x_)
             dx[..., -1] = dx[..., -2]
             dy[..., :-1] = np.diff(y_)
             dy[..., -1] = dy[..., -2]
 
         elif coord_system == "spherical":
-
             distances = distance(y_[..., :-1], x_[..., :-1], y_[..., 1:], x_[..., 1:])
             bearings = bearing(y_[..., :-1], x_[..., :-1], y_[..., 1:], x_[..., 1:])
             dx[..., :-1] = distances * np.cos(bearings)
@@ -120,7 +117,6 @@ def velocity_from_position(
             raise ValueError('coord_system must be "spherical" or "cartesian".')
 
     elif difference_scheme == "backward":
-
         # All values except the starting boundary value are computed using the
         # 1st order backward differencing. The starting boundary value is
         # computed using the 1st order forward difference.
@@ -131,14 +127,12 @@ def velocity_from_position(
 
         # Space
         if coord_system == "cartesian":
-
             dx[..., 1:] = np.diff(x_)
             dx[..., 0] = dx[..., 1]
             dy[..., 1:] = np.diff(y_)
             dy[..., 0] = dy[..., 1]
 
         elif coord_system == "spherical":
-
             distances = distance(y_[..., :-1], x_[..., :-1], y_[..., 1:], x_[..., 1:])
             bearings = bearing(y_[..., :-1], x_[..., :-1], y_[..., 1:], x_[..., 1:])
             dx[..., 1:] = distances * np.cos(bearings)
@@ -150,7 +144,6 @@ def velocity_from_position(
             raise ValueError('coord_system must be "spherical" or "cartesian".')
 
     elif difference_scheme == "centered":
-
         # Inner values are computed using the 2nd order centered differencing.
         # The start and end boundary values are computed using the 1st order
         # forward and backward differencing, respectively.
@@ -162,7 +155,6 @@ def velocity_from_position(
 
         # Space
         if coord_system == "cartesian":
-
             dx[..., 1:-1] = (x_[..., 2:] - x_[..., :-2]) / 2
             dx[..., 0] = x_[..., 1] - x_[..., 0]
             dx[..., -1] = x_[..., -1] - x_[..., -2]
@@ -171,7 +163,6 @@ def velocity_from_position(
             dy[..., -1] = y_[..., -1] - y_[..., -2]
 
         elif coord_system == "spherical":
-
             # Inner values
             distances = distance(y_[..., :-2], x_[..., :-2], y_[..., 2:], x_[..., 2:])
             bearings = bearing(y_[..., :-2], x_[..., :-2], y_[..., 2:], x_[..., 2:])
