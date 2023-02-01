@@ -544,8 +544,8 @@ def preprocess(index: int) -> xr.Dataset:
         ds[var].attrs = vars_attrs[var]
     ds.attrs = attrs
 
-    # set coordinates
-    ds = ds.set_coords(["ids", "longitude", "lon360", "latitude", "time"])
+    # rename variables
+    ds = ds.rename_vars({"longitude": "lon", "latitude": "lat"})
 
     return ds
 
