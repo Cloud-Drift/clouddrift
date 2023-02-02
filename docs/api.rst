@@ -31,9 +31,3 @@ Select
 .. automodule:: clouddrift.select
   :members:
   :undoc-members:
-
-Spectrum
---------
-.. automodule:: clouddrift.timeseries
-   :members:
-   :undoc-members:
