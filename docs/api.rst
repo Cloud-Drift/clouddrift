@@ -5,6 +5,20 @@ API
 
 Auto-generated summary of CloudDrift's API. For more details and examples, refer to the different Jupyter Notebooks.
 
+Adapters
+--------
+
+.. automodule:: clouddrift.adapters
+  :members:
+  :undoc-members:
+
+GDP
+^^^
+
+.. automodule:: clouddrift.adapters.gdp
+  :members:
+  :undoc-members:
+
 Analysis
 --------
 

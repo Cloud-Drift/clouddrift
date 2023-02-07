@@ -1,3 +1,8 @@
+"""
+This module provides functions and metadata that can be used to convert the
+hourly Global Drifter Program (GDP) data to a ``clouddrift.RaggedArray`` instance.
+"""
+
 from ..dataformat import RaggedArray
 import numpy as np
 import pandas as pd
@@ -254,12 +259,14 @@ def str_to_float(value: str, default=np.nan) -> float:
         return default
 
 
-def cut_str(value, max_length):
-    """
-    Cut a string to a specific length.
-    :param value: string
-           max_length: length of the output
-    :return: string with max_length chars
+def cut_str(value: str, max_length: int) -> np.chararray:
+    """Cut a string to a specific length and return it as a numpy chararray.
+
+    Args:
+        value (str): String to cut
+        max_length (int): Length of the output
+    Returns:
+        out (np.chararray): String with max_length characters
     """
     charar = np.chararray(1, max_length)
     charar[:max_length] = value
@@ -267,11 +274,13 @@ def cut_str(value, max_length):
 
 
 def drogue_presence(lost_time, time):
-    """
-    Create drogue status from the drogue lost time and the trajectory time
-    :params lost_time: timestamp of the drogue loss (or NaT)
-            time[obs]: observation time
-    :return: bool[obs]: 1 drogued, 0 undrogued
+    """Create drogue status from the drogue lost time and the trajectory time.
+
+    Args:
+        lost_time: Timestamp of the drogue loss (or NaT)
+        time: Observation time
+    Returns:
+        out (bool): True if drogues and False otherwise
     """
     if pd.isnull(lost_time) or lost_time >= time[-1]:
         return np.ones_like(time, dtype="bool")
