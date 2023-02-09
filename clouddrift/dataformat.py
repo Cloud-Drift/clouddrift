@@ -86,14 +86,27 @@ class RaggedArray:
         """
         # if no method is supplied, get the dimension from the preprocessing function
         rowsize_func = (
-            rowsize_func if rowsize_func else lambda i, filename_pattern: preprocess_func(i, filename_pattern).dims["obs"]
+            rowsize_func
+            if rowsize_func
+            else lambda i, filename_pattern: preprocess_func(i, filename_pattern).dims[
+                "obs"
+            ]
         )
         rowsize = cls.number_of_observations(rowsize_func, indices, filename_pattern)
         coords, metadata, data = cls.allocate(
-            preprocess_func, indices, filename_pattern, rowsize, name_coords, name_meta, name_data
+            preprocess_func,
+            indices,
+            filename_pattern,
+            rowsize,
+            name_coords,
+            name_meta,
+            name_data,
         )
         attrs_global, attrs_variables = cls.attributes(
-            preprocess_func(indices[0], filename_pattern), name_coords, name_meta, name_data
+            preprocess_func(indices[0], filename_pattern),
+            name_coords,
+            name_meta,
+            name_data,
         )
 
         return cls(coords, metadata, data, attrs_global, attrs_variables)
@@ -289,7 +302,9 @@ class RaggedArray:
                     if var in ds.keys():
                         data[var][oid : oid + size] = ds[var].data
                     else:
-                        warnings.warn(f"Variable {var} requested but not found; skipping.")
+                        warnings.warn(
+                            f"Variable {var} requested but not found; skipping."
+                        )
 
         return coords, metadata, data
 
