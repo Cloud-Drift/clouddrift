@@ -19,7 +19,9 @@ import warnings
 
 GDP_VERSION = "2.00"
 GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netcdf/"
-GDP_FILENAME_PATTERN = "drifter_{id}.nc"
+GDP_DATA_URL_EXPERIMENTAL = (
+    "ftp://ftp.aoml.noaa.gov/phod/pub/lumpkin/hourly/experimental/"
+)
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
 
 GDP_COORDS = [
@@ -163,23 +165,35 @@ def fetch_netcdf(url: str, file: str):
         req = urllib.request.urlretrieve(url, file)
 
 
-def download(drifter_ids: list = None, n_random_id: int = None):
+def download(
+    drifter_ids: list = None, n_random_id: int = None, url: str = GDP_DATA_URL
+):
     """Download individual NetCDF files from the AOML server.
 
-    :param drifter_ids [list]: list of drifter to retrieve (Default: all)
-    :param n_random_id [int]: randomly select n drifter NetCDF files
-    :return drifters_ids [list]: list of retrived drifter
+    Args:
+        drifter_ids [list]: list of drifter to retrieve (Default: all)
+        n_random_id [int]: randomly select n drifter NetCDF files
+        url [str]: URL from which to download the data (Default: GDP_DATA_URL).
+                   Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL.
+    Returns:
+        out [list]: list of retrived drifters
     """
 
     # Create a temporary directory if doesn't already exists.
     os.makedirs(GDP_TMP_PATH, exist_ok=True)
 
+    if url == GDP_DATA_URL:
+        pattern = "drifter_[0-9]*.nc"
+        filename_pattern = "drifter_{id}.nc"
+    elif url == GDP_DATA_URL_EXPERIMENTAL:
+        pattern = "drifter_hourly_[0-9]*.nc"
+        filename_pattern = "drifter_hourly_{id}.nc"
+
     # retrieve all drifter ID numbers
     if drifter_ids is None:
-        urlpath = urllib.request.urlopen(GDP_DATA_URL)
+        urlpath = urllib.request.urlopen(url)
         string = urlpath.read().decode("utf-8")
-        pattern = re.compile("drifter_[0-9]*.nc")
-        filelist = pattern.findall(string)
+        filelist = re.compile(pattern).findall(string)
         drifter_ids = np.unique([int(f.split("_")[-1][:-3]) for f in filelist])
 
     # retrieve only a subset of n_random_id trajectories
@@ -197,8 +211,8 @@ def download(drifter_ids: list = None, n_random_id: int = None):
         urls = []
         files = []
         for i in drifter_ids:
-            file = GDP_FILENAME_PATTERN.format(id=i)
-            urls.append(os.path.join(GDP_DATA_URL, file))
+            file = filename_pattern.format(id=i)
+            urls.append(os.path.join(url, file))
             files.append(os.path.join(GDP_TMP_PATH, file))
 
         # parallel retrieving of individual netCDF files
@@ -288,9 +302,9 @@ def drogue_presence(lost_time, time):
         return time < lost_time
 
 
-def rowsize(index: int) -> int:
+def rowsize(index: int, filename_pattern: str) -> int:
     return xr.open_dataset(
-        os.path.join(GDP_TMP_PATH, GDP_FILENAME_PATTERN.format(id=index)),
+        os.path.join(GDP_TMP_PATH, filename_pattern.format(id=index)),
         decode_cf=False,
         decode_times=False,
         concat_characters=False,
@@ -298,7 +312,7 @@ def rowsize(index: int) -> int:
     ).dims["obs"]
 
 
-def preprocess(index: int) -> xr.Dataset:
+def preprocess(index: int, filename_pattern: str) -> xr.Dataset:
     """Extract and preprocess the Lagrangian data and attributes. This function
     takes an identification number that can be used to: create a file or url
     pattern or select data from a Dataframe. It then preprocess the data and
@@ -308,7 +322,7 @@ def preprocess(index: int) -> xr.Dataset:
     :return: xr.Dataset containing the data and attributes
     """
     ds = xr.load_dataset(
-        os.path.join(GDP_TMP_PATH, GDP_FILENAME_PATTERN.format(id=index)),
+        os.path.join(GDP_TMP_PATH, filename_pattern.format(id=index)),
         decode_times=False,
         decode_coords=False,
     )
@@ -320,16 +334,22 @@ def preprocess(index: int) -> xr.Dataset:
     ds["time"].data = decode_date(np.array([ds.time.data[0]]))
 
     # convert fill values to nan
-    ds["err_lon"].data = fill_values(ds["err_lon"].data)
-    ds["err_lat"].data = fill_values(ds["err_lat"].data)
-    ds["err_ve"].data = fill_values(ds["err_ve"].data)
-    ds["err_vn"].data = fill_values(ds["err_vn"].data)
-    ds["sst"].data = fill_values(ds["sst"].data)
-    ds["sst1"].data = fill_values(ds["sst1"].data)
-    ds["sst2"].data = fill_values(ds["sst2"].data)
-    ds["err_sst"].data = fill_values(ds["err_sst"].data)
-    ds["err_sst1"].data = fill_values(ds["err_sst1"].data)
-    ds["err_sst2"].data = fill_values(ds["err_sst2"].data)
+    for var in [
+        "err_lon",
+        "err_lat",
+        "err_ve",
+        "err_vn",
+        "sst",
+        "sst1",
+        "sst2",
+        "err_sst",
+        "err_sst1",
+        "err_sst2",
+    ]:
+        try:
+            ds[var].data = fill_values(ds[var].data)
+        except KeyError:
+            warnings.warn(f"Variable {var} not found; skipping.")
 
     # fix missing values stored as str
     for var in [
@@ -345,16 +365,27 @@ def preprocess(index: int) -> xr.Dataset:
         "sst1",
         "sst2",
     ]:
-        ds[var].encoding["missing value"] = -1e-34
+        try:
+            ds[var].encoding["missing value"] = -1e-34
+        except KeyError:
+            warnings.warn(f"Variable {var} not found in upstream data; skipping.")
 
     # convert type of some variable
-    ds["ID"].data = ds["ID"].data.astype("int64")
-    ds["WMO"].data = ds["WMO"].data.astype("int32")
-    ds["expno"].data = ds["expno"].data.astype("int32")
-    ds["typedeath"].data = ds["typedeath"].data.astype("int8")
-    ds["flg_sst"].data = ds["flg_sst"].data.astype("int8")
-    ds["flg_sst1"].data = ds["flg_sst1"].data.astype("int8")
-    ds["flg_sst2"].data = ds["flg_sst2"].data.astype("int8")
+    target_dtype = {
+        "ID": "int64",
+        "WMO": "int32",
+        "expno": "int32",
+        "typedeath": "int8",
+        "flg_sst": "int8",
+        "flg_sst1": "int8",
+        "flg_sst2": "int8",
+    }
+
+    for var in target_dtype.keys():
+        if var in ds.keys():
+            ds[var].data = ds[var].data.astype(target_dtype[var])
+        else:
+            warnings.warn(f"Variable {var} not found in upstream data; skipping.")
 
     # new variables
     ds["ids"] = (["traj", "obs"], [np.repeat(ds.ID.values, ds.dims["obs"])])
@@ -616,7 +647,10 @@ def preprocess(index: int) -> xr.Dataset:
 
     # set attributes
     for var in vars_attrs.keys():
-        ds[var].attrs = vars_attrs[var]
+        if var in ds.keys():
+            ds[var].attrs = vars_attrs[var]
+        else:
+            warnings.warn(f"Variable {var} not found in upstream data; skipping.")
     ds.attrs = attrs
 
     # rename variables
@@ -626,7 +660,9 @@ def preprocess(index: int) -> xr.Dataset:
 
 
 def to_raggedarray(
-    drifter_ids: Optional[list[int]] = None, n_random_id: Optional[int] = None
+    drifter_ids: Optional[list[int]] = None,
+    n_random_id: Optional[int] = None,
+    url: Optional[str] = GDP_DATA_URL,
 ) -> RaggedArray:
     """Download and process individual GDP hourly files and return a
     RaggedArray instance with the data.
@@ -638,7 +674,14 @@ def to_raggedarray(
         out [RaggedArray]: A RaggedArray instance of the requested dataset
     """
 
-    ids = download(drifter_ids, n_random_id)
+    ids = download(drifter_ids, n_random_id, url)
+
+    if url == GDP_DATA_URL:
+        filename_pattern = "drifter_{id}.nc"
+    elif url == GDP_DATA_URL_EXPERIMENTAL:
+        filename_pattern = "drifter_hourly_{id}.nc"
+    else:
+        raise ValueError(f"url must be {GDP_DATA_URL} or {GDP_DATA_URL_EXPERIMENTAL}.")
 
     return RaggedArray.from_files(
         indices=ids,
@@ -647,4 +690,5 @@ def to_raggedarray(
         name_meta=GDP_METADATA,
         name_data=GDP_DATA,
         rowsize_func=rowsize,
+        filename_pattern=filename_pattern,
     )
