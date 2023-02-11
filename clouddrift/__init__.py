@@ -6,3 +6,4 @@ from clouddrift.dataformat import RaggedArray
 import clouddrift.adapters
 import clouddrift.analysis
 import clouddrift.haversine
+import clouddrift.sphere
