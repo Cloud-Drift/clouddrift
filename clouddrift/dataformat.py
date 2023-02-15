@@ -395,5 +395,5 @@ def unpack(ragged_array: np.ndarray, rowsize: np.ndarray[int]) -> list[np.ndarra
             correspond to the values in rowsize, and types that correspond
             to the type of ragged_array
     """
-    indices = np.insert(np.cumsum(ds.rowsize.values), 0, 0)
-    return [ragged_array[indices[n]:indices[n+1]] for n in range(indices.size - 1)]
+    indices = np.insert(np.cumsum(np.array(rowsize)), 0, 0)
+    return [ragged_array[indices[n] : indices[n + 1]] for n in range(indices.size - 1)]
