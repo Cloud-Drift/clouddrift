@@ -377,3 +377,28 @@ class RaggedArray:
         """
         ak.to_parquet(self.to_awkward(), filename)
         return
+
+
+def unpack(ragged_array: np.ndarray, rowsize: np.ndarray[int]) -> list[np.ndarray]:
+    """Unpack a ragged array into a list of regular arrays.
+
+    Unpacking ragged_array as an np.ndarray is about 2 orders of magnitude
+    faster than unpacking it as an xr.DataArray, so unles you need a DataArray
+    as the result, we recommend passing np.ndarray as input.
+
+    Args:
+        ragged_array (array-like): A ragged_array to unpack
+        rowsize (array-like): An array of integers whose values is the size of
+            each row in the ragged array
+    Returns:
+        unpacked_arrays (list): A list of array-likes with sizes that
+            correspond to the values in rowsize, and types that correspond
+            to the type of ragged_array
+    """
+    unpacked_arrays = []
+    start = 0
+    for rs in rowsize:
+        end = start + int(rs)
+        unpacked_arrays.append(ragged_array[start:end])
+        start = end
+    return unpacked_arrays
