@@ -4,6 +4,7 @@ import os
 import xarray as xr
 import numpy as np
 from clouddrift import RaggedArray
+from clouddrift.dataformat import unpack_ragged
 import awkward as ak
 
 NETCDF_ARCHIVE = "test_archive.nc"
@@ -178,3 +179,20 @@ class dataformat_tests(TestCase):
         """
         ds = RaggedArray.from_parquet(PARQUET_ARCHIVE)
         self.compare_awkward_array(ds.to_awkward())
+
+    def test_unpack_ragged(self):
+        ds = self.ra.to_xarray()
+
+        # Test unpacking into DataArrays
+        lon = unpack_ragged(ds.lon, ds.rowsize)
+
+        self.assertTrue(type(lon) is list)
+        self.assertTrue(np.all([type(a) is xr.DataArray for a in lon]))
+        self.assertTrue(np.all([lon[n].size == ds.rowsize[n] for n in range(len(lon))]))
+
+        # Test unpacking into np.ndarrays
+        lon = unpack_ragged(ds.lon.values, ds.rowsize)
+
+        self.assertTrue(type(lon) is list)
+        self.assertTrue(np.all([type(a) is np.ndarray for a in lon]))
+        self.assertTrue(np.all([lon[n].size == ds.rowsize[n] for n in range(len(lon))]))
