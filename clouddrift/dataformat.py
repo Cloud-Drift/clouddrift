@@ -384,9 +384,9 @@ def unpack_ragged(
 ) -> list[np.ndarray]:
     """Unpack a ragged array into a list of regular arrays.
 
-    Unpacking ragged_array as an np.ndarray is about 2 orders of magnitude
-    faster than unpacking it as an xr.DataArray, so unles you need a DataArray
-    as the result, we recommend passing np.ndarray as input.
+    Unpacking a ``np.ndarray`` ragged array is about 2 orders of magnitude
+    faster than unpacking an ``xr.DataArray`` ragged array, so unless you need a
+    ``DataArray`` as the result, we recommend passing ``np.ndarray`` as input.
 
     Parameters
     ----------
