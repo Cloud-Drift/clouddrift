@@ -4,7 +4,7 @@ from typing import Optional
 
 def rot(x: np.ndarray):
     """Complex-valued rotation"""
-    x = np.mod(x + np.pi, 2 * np.pi) - np.pi # convert to [-pi, pi]
+    x = np.mod(x + np.pi, 2 * np.pi) - np.pi  # convert to [-pi, pi]
     return np.exp(1j * x)
 
 
