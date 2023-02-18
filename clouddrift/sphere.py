@@ -10,7 +10,7 @@ def rot(x: np.ndarray):
 
 def recast_longitude(lon: np.ndarray, lon0: Optional[float] = -180):
     """
-    Recast longitude values to a selected range of 360 degrees starting from lon0.
+    Recast (convert) longitude values to a selected range of 360 degrees starting from lon0.
 
     As an example, with:
     - lon0 = -180, longitude values are converted to range [-180, 180]
