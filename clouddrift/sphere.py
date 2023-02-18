@@ -4,9 +4,7 @@ from typing import Optional
 
 def rot(x: np.ndarray):
     """Complex-valued rotation"""
-    # angle in [-pi, pi]
-    x = np.mod(x, 2 * np.pi)
-    x[np.where(x > np.pi)] -= 2 * np.pi
+    x = np.mod(x + np.pi, 2 * np.pi) - np.pi # convert to [-pi, pi]
     return np.exp(1j * x)
 
 
@@ -15,9 +13,9 @@ def recast_longitude(lon: np.ndarray, lon0: Optional[float] = -180):
     Recast longitude in a selected range of 360˚ starting from lon0.
 
     More precisely, setting:
-    - lon0 = -180, the output range is [-180, 180]
-    - lon = 0, the output range is [0, 360]
-    - lon = 20, the output range is [20, 380]
+    - lon0 = -180, longitude range is converted to [-180, 180]
+    - lon = 0, longitude range is converted tos [0, 360]
+    - lon = 20, longitude range is converted to [20, 380]
 
     Args:
         lon (array_like): An N-d array of x-positions (longitude in degrees)
