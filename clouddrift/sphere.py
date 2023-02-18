@@ -21,7 +21,7 @@ def recast_longitude(lon: np.ndarray, lon0: Optional[float] = -180):
         lon (array_like): An N-d array of x-positions (longitude in degrees)
         lon0 (float): Starting longitude of the recasted range (Default: -180)
     Returns:
-        out (array_like): Converted longitudes in range (lon0, lon0+360)
+        out (array_like): Converted longitudes in range [lon0, lon0+360]
 
     """
     return (
