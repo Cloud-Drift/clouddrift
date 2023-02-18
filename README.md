@@ -8,7 +8,7 @@
 [![NSF-2126413](https://img.shields.io/badge/NSF-2126413-blue.svg)](https://nsf.gov/awardsearch/showAward?AWD_ID=2126413)
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FCloud-Drift%2Fclouddrift&count_bg=%2368C563&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
-CloudDrift accelerates the use of Lagrangian data for atmospheric, oceanic, and climate sciences.
+CloudDrift is a python package meant to accelerate the use of Lagrangian data for atmospheric, oceanic, and climate sciences.
 It is funded by [NSF EarthCube](https://www.earthcube.org/info) through the
 [EarthCube Capabilities Grant No. 2126413](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2126413).
 
@@ -16,10 +16,10 @@ It is funded by [NSF EarthCube](https://www.earthcube.org/info) through the
 
 ### Install CloudDrift
 
-You can install the latest release of CloudDrift using pip or conda. Note that using the pip [package](https://pypi.org/project/clouddrift/), you might have to manually install system libraries required by `clouddrift`, e.g. the `libnetcdf4`. As an alternative, using the conda [package](https://anaconda.org/conda-forge/clouddrift) those libraries are automatically installed.
+You can install the latest release of CloudDrift using [pip](https://pypi.org/project/clouddrift/) or [conda](https://anaconda.org/conda-forge/clouddrift). Note that if you use pip, you might have to manually install system libraries required by `clouddrift` such as the `libnetcdf4`. With conda, the needed libraries are automatically installed.
 
-#### Latest official release
-##### pip
+#### Latest official release:
+##### pip:
 
 In your virtual environment, type:
 
@@ -27,7 +27,7 @@ In your virtual environment, type:
 pip install clouddrift
 ```
 
-##### Conda
+##### Conda:
 
 First add `conda-forge` to your channels in your Conda configuration (`~/.condarc`):
 
@@ -42,17 +42,17 @@ then install CloudDrift:
 conda install clouddrift
 ```
 
-#### Development branch
+#### Development branch:
 
-If you need the latest development version, you can install it directly from GitHub.
+If you need the latest development version, you can install it directly from this GitHub repository.
 
-##### pip
+##### pip:
 
 ```
 pip install git+https://github.com/cloud-drift/clouddrift
 ```
 
-##### Conda
+##### Conda:
 ```
 conda env create -f environment.yml
 ````
@@ -81,7 +81,7 @@ python -m unittest tests/*.py
 Start by reading the [documentation](https://cloud-drift.github.io/clouddrift).
 
 Example Jupyter notebooks that showcase the library, as well as scripts
-to process various Lagrangian datasets, are in
+to process various Lagrangian datasets, can be found in
 [clouddrift-examples](https://github.com/Cloud-Drift/clouddrift-examples).
 
 ## Found an issue or need help?
