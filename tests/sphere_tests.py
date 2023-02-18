@@ -41,7 +41,7 @@ class recast_longitude_tests(unittest.TestCase):
                 recast_longitude(np.array([200]), -200), np.array([-160])
             )
         )
-    
+
     def test_range_close(self):
         self.assertIsNone(
             np.testing.assert_allclose(
@@ -56,7 +56,7 @@ class recast_longitude_tests(unittest.TestCase):
 
         self.assertIsNone(
             np.testing.assert_allclose(
-                recast_longitude(np.array([20]), 20), np.array([20])
+                recast_longitude(np.array([-20]), -20), np.array([-20])
             )
         )
 
