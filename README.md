@@ -67,6 +67,7 @@ GitHub and create the required environment:
 git clone https://github.com/cloud-drift/clouddrift
 cd clouddrift/
 conda env create -f environment.yml
+conda activate clouddrift
 ```
 
 Then, run the tests like this:
