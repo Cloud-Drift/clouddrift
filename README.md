@@ -1,6 +1,7 @@
 # CloudDrift
 ![CI](https://github.com/Cloud-Drift/clouddrift/workflows/CI/badge.svg)
 [![Documentation Status](https://github.com/Cloud-Drift/clouddrift/actions/workflows/docs.yml/badge.svg)](https://cloud-drift.github.io/clouddrift)
+[![codecov](https://codecov.io/gh/Cloud-Drift/clouddrift/branch/main/graph/badge.svg)](https://codecov.io/gh/Cloud-Drift/clouddrift/)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Cloud-Drift/clouddrift-examples/main?labpath=notebooks)
 [![Available on conda-forge](https://img.shields.io/badge/Anaconda.org-0.6.0-blue.svg)](https://anaconda.org/conda-forge/clouddrift/)
 [![Available on pypi](https://img.shields.io/pypi/v/clouddrift.svg?style=flat&color=blue)](https://pypi.org/project/clouddrift/)
