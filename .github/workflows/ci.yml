@@ -30,4 +30,10 @@ jobs:
       - name: Unit testing
         shell: bash -l {0}
         run: |
-              python -m unittest discover -s tests -p "*.py"
+              pip install coverage
+              coverage run -m unittest discover -s tests -p "*.py"
+              coverage xml
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
