@@ -17,7 +17,7 @@ It is funded by [NSF EarthCube](https://www.earthcube.org/info) through the
 
 ### Install CloudDrift
 
-You can install the latest release of CloudDrift using [pip](https://pypi.org/project/clouddrift/) or [conda](https://anaconda.org/conda-forge/clouddrift). Note that if you use pip, you might have to manually install system libraries required by `clouddrift` such as the `libnetcdf4`. With conda, the needed libraries are automatically installed.
+You can install the latest release of CloudDrift using [pip](https://pypi.org/project/clouddrift/) or [conda](https://anaconda.org/conda-forge/clouddrift).
 
 #### Latest official release:
 ##### pip:
