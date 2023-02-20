@@ -49,6 +49,8 @@ If you need the latest development version, you can install it directly from thi
 
 ##### pip:
 
+In your virtual environment, type:
+
 ```
 pip install git+https://github.com/cloud-drift/clouddrift
 ```
@@ -56,17 +58,32 @@ pip install git+https://github.com/cloud-drift/clouddrift
 ##### Conda:
 ```
 conda env create -f environment.yml
-````
+```
 with the environment [file](https://github.com/Cloud-Drift/clouddrift/blob/main/environment.yml) located in the main repository.
 
 ### Run the tests
 
 To run the tests, you need to first download the CloudDrift source code from
-GitHub and create the required environment:
+GitHub:
 
 ```
 git clone https://github.com/cloud-drift/clouddrift
 cd clouddrift/
+```
+
+and create the virtual environment.
+
+With pip:
+
+```
+python3 -m venv .venv
+source .venv/bin/activate
+pip install .
+```
+
+With Conda:
+
+```
 conda env create -f environment.yml
 conda activate clouddrift
 ```
