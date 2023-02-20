@@ -13,6 +13,9 @@ CloudDrift is a Python package that accelerates the use of Lagrangian data for a
 It is funded by [NSF EarthCube](https://www.earthcube.org/info) through the
 [EarthCube Capabilities Grant No. 2126413](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2126413).
 
+Read the [documentation](https://cloud-drift.github.io/clouddrift) or explore
+the [Jupyter Notebook Examples](https://github.com/Cloud-Drift/clouddrift-examples).
+
 ## Getting started
 
 ### Install CloudDrift
