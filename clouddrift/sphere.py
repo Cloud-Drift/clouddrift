@@ -3,48 +3,72 @@ from typing import Optional
 
 
 def rot(x: np.ndarray) -> np.ndarray:
-    """Complex-valued rotation"""
+    """Rotate and return the complex phase of x.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        An N-d array of angles in radians
+
+    Returns
+    -------
+    np.ndarray
+        Rotated and complex phase of x
+
+    Examples
+    --------
+
+    .. code-block:: python
+
+        rot(0) # (1+0j)
+        rot(np.pi / 2) # approx. (0+1j)
+        rot(np.pi) # approx. (-1+0j)
+        rot(3 * np.pi / 2) # approx. (0-1j)
+    """
     x = np.mod(x + np.pi, 2 * np.pi) - np.pi  # convert to [-pi, pi]
     return np.exp(1j * x)
 
 
 def recast_longitude(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
-    """Recast (convert) longitude values to a selected range of 360 degrees starting from lon0.
+    """Recast (convert) longitude values to a selected range of 360 degrees
+    starting from ``lon0``.
 
     Parameters
     ----------
     lon : np.ndarray
-        An N-d array of x-positions (longitude in degrees)
-    lon0 (Optional[float], optional)
-        Starting longitude of the recasted range (Default: -180).
+        An N-d array of longitudes in degrees
+    lon0 : float, optional
+        Starting longitude of the recasted range (default -180).
 
     Returns
     -------
     np.ndarray
-        Converted longitudes in range [lon0, lon0+360]
+        Converted longitudes in the range `[lon0, lon0+360]`
 
     Examples
     --------
-    The range of the output longitude is controlled by lon0. For example, with `lon0 = -180`, the longitude values are converted to range `[-180, 180]`.
+
+    By default, ``recast_longitude`` converts longitude values to the range
+    `[-180, 180]`:
 
     .. code-block:: python
 
-        recast_longitude(200, -180)
-        > -160
+        recast_longitude(200) # -160
 
-    With `lon0 = 0`, the longitude values are converted to range `[0, 360]`.
-
-    .. code-block:: python
-
-        recast_longitude(200, -180)
-        > -160
-
-    With `lon0 = 20`, longitude values are converted to range `[20, 380]`, which can be useful to avoid cutting the major ocean basins.
+    The range of the output longitude is controlled by ``lon0``.
+    For example, with ``lon0 = 0``, the longitude values are converted to the
+    range `[0, 360]`.
 
     .. code-block:: python
 
-        recast_longitude(10, 20)
-        > 370
+        recast_longitude(200, -180) # -160
+
+    With ``lon0 = 20``, longitude values are converted to range `[20, 380]`,
+    which can be useful to avoid cutting the major ocean basins.
+
+    .. code-block:: python
+
+        recast_longitude(10, 20) # 370
 
     """
 
