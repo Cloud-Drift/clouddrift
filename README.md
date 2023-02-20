@@ -9,15 +9,18 @@
 [![NSF-2126413](https://img.shields.io/badge/NSF-2126413-blue.svg)](https://nsf.gov/awardsearch/showAward?AWD_ID=2126413)
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FCloud-Drift%2Fclouddrift&count_bg=%2368C563&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
-CloudDrift is a python package meant to accelerate the use of Lagrangian data for atmospheric, oceanic, and climate sciences.
+CloudDrift is a Python package that accelerates the use of Lagrangian data for atmospheric, oceanic, and climate sciences.
 It is funded by [NSF EarthCube](https://www.earthcube.org/info) through the
 [EarthCube Capabilities Grant No. 2126413](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2126413).
+
+Read the [documentation](https://cloud-drift.github.io/clouddrift) or explore
+the [Jupyter Notebook Examples](https://github.com/Cloud-Drift/clouddrift-examples).
 
 ## Getting started
 
 ### Install CloudDrift
 
-You can install the latest release of CloudDrift using [pip](https://pypi.org/project/clouddrift/) or [conda](https://anaconda.org/conda-forge/clouddrift). Note that if you use pip, you might have to manually install system libraries required by `clouddrift` such as the `libnetcdf4`. With conda, the needed libraries are automatically installed.
+You can install the latest release of CloudDrift using [pip](https://pypi.org/project/clouddrift/) or [conda](https://anaconda.org/conda-forge/clouddrift).
 
 #### Latest official release:
 ##### pip:
@@ -49,6 +52,8 @@ If you need the latest development version, you can install it directly from thi
 
 ##### pip:
 
+In your virtual environment, type:
+
 ```
 pip install git+https://github.com/cloud-drift/clouddrift
 ```
@@ -56,17 +61,32 @@ pip install git+https://github.com/cloud-drift/clouddrift
 ##### Conda:
 ```
 conda env create -f environment.yml
-````
+```
 with the environment [file](https://github.com/Cloud-Drift/clouddrift/blob/main/environment.yml) located in the main repository.
 
 ### Run the tests
 
 To run the tests, you need to first download the CloudDrift source code from
-GitHub and create the required environment:
+GitHub:
 
 ```
 git clone https://github.com/cloud-drift/clouddrift
 cd clouddrift/
+```
+
+and create the virtual environment.
+
+With pip:
+
+```
+python3 -m venv .venv
+source .venv/bin/activate
+pip install .
+```
+
+With Conda:
+
+```
 conda env create -f environment.yml
 conda activate clouddrift
 ```
@@ -76,6 +96,18 @@ Then, run the tests like this:
 ```
 python -m unittest tests/*.py
 ```
+
+### Installing CloudDrift on unsupported platforms
+
+One or more dependencies of CloudDrift may not have pre-built wheels for
+platforms like IBM Power9 or Raspberry Pi.
+If you are using pip to install CloudDrift and are getting errors during the
+installation step, try installing CloudDrift using Conda.
+If you still have issues installing CloudDrift, you may need to install system
+dependencies first.
+Please let us know by opening an
+[issue](https://github.com/Cloud-Drift/clouddrift/issues/new) and we will do our
+best to help you.
 
 ## Using CloudDrift
 
