@@ -9,21 +9,45 @@ def rot(x: np.ndarray) -> np.ndarray:
 
 
 def recast_longitude(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
+    """Recast (convert) longitude values to a selected range of 360 degrees starting from lon0.
+
+    Parameters
+    ----------
+    lon : np.ndarray
+        An N-d array of x-positions (longitude in degrees)
+    lon0 (Optional[float], optional)
+        Starting longitude of the recasted range (Default: -180).
+
+    Returns
+    -------
+    np.ndarray
+        Converted longitudes in range [lon0, lon0+360]
+
+    Examples
+    --------
+    The range of the output longitude is controlled by lon0. For example, with `lon0 = -180`, the longitude values are converted to range `[-180, 180]`.
+
+    .. code-block:: python
+
+        recast_longitude(200, -180)
+        > -160
+
+    With `lon0 = 0`, the longitude values are converted to range `[0, 360]`.
+
+    .. code-block:: python
+
+        recast_longitude(200, -180)
+        > -160
+
+    With `lon0 = 20`, longitude values are converted to range `[20, 380]`, which can be useful to avoid cutting the major ocean basins.
+
+    .. code-block:: python
+
+        recast_longitude(10, 20)
+        > 370
+
     """
-    Recast (convert) longitude values to a selected range of 360 degrees starting from lon0.
 
-    As an example, with:
-        - lon0 = -180, longitude values are converted to range [-180, 180]
-        - lon = 0, longitude values are converted to range [0, 360]
-        - lon = 20, longitude values are converted to range [20, 380]
-
-    Args:
-        lon (array_like): An N-d array of x-positions (longitude in degrees)
-        lon0 (float): Starting longitude of the recasted range (Default: -180)
-    Returns:
-        out (array_like): Converted longitudes in range [lon0, lon0+360]
-
-    """
     return (
         np.mod(
             np.divide(360, 2 * np.pi)
