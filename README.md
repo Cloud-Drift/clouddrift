@@ -97,6 +97,18 @@ Then, run the tests like this:
 python -m unittest tests/*.py
 ```
 
+### Installing CloudDrift on unsupported platforms
+
+One or more dependencies of CloudDrift may not have pre-built wheels for
+platforms like IBM Power9 or Raspberry Pi.
+If you are using pip to install CloudDrift and are getting errors during the
+installation step, try installing CloudDrift using Conda.
+If you still have issues installing CloudDrift, you may need to install system
+dependencies first.
+Please let us know by opening an
+[issue](https://github.com/Cloud-Drift/clouddrift/issues/new) and we will do our
+best to help you.
+
 ## Using CloudDrift
 
 Start by reading the [documentation](https://cloud-drift.github.io/clouddrift).
