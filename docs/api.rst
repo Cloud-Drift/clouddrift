@@ -42,6 +42,14 @@ Haversine
 
 Select
 ---------
+
 .. automodule:: clouddrift.select
+  :members:
+  :undoc-members:
+
+Sphere
+---------
+
+.. automodule:: clouddrift.sphere
   :members:
   :undoc-members:
