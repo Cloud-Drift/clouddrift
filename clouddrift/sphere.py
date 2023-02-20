@@ -48,6 +48,9 @@ def recast_longitude(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarra
 
     """
 
+    if np.isscalar(lon):
+        lon = np.array([lon])
+
     return (
         np.mod(
             np.divide(360, 2 * np.pi)
