@@ -9,7 +9,7 @@
 [![NSF-2126413](https://img.shields.io/badge/NSF-2126413-blue.svg)](https://nsf.gov/awardsearch/showAward?AWD_ID=2126413)
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FCloud-Drift%2Fclouddrift&count_bg=%2368C563&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
-CloudDrift is a python package meant to accelerate the use of Lagrangian data for atmospheric, oceanic, and climate sciences.
+CloudDrift is a Python package that accelerates the use of Lagrangian data for atmospheric, oceanic, and climate sciences.
 It is funded by [NSF EarthCube](https://www.earthcube.org/info) through the
 [EarthCube Capabilities Grant No. 2126413](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2126413).
 
