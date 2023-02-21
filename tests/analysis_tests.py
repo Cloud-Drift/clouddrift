@@ -29,6 +29,13 @@ class segment_tests(unittest.TestCase):
         self.assertTrue(np.all(segment_sizes[0] == np.array([1, 3, 2])))
         self.assertTrue(np.all(segment_sizes[1] == np.array([4, 1])))
 
+    def test_segment_rowsize_raises(self):
+        x = [0, 1, 2, 3]
+        tol = 0.5
+        rowsize = [1, 2]  # rowsize is too short
+        with self.assertRaises(ValueError):
+            segment(x, tol, rowsize)
+
 
 class velocity_from_position_tests(unittest.TestCase):
     def setUp(self):
