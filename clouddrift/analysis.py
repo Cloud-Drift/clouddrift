@@ -35,11 +35,17 @@ def segment(
     >>> rowsize = [3, 2, 6]
     >>> segment(x, 0.5, rowsize)
     [array([1, 2]), array([1, 1]), array([1, 4, 1])]
+
+    >>> x = [0, 1, 2, 0, 1, 2]
+    >>> segment(x, -0.5)
+    array([3, 3])
     """
     if rowsize is None:
-        segment_sizes = np.diff(
-            np.insert(np.where(np.diff(x) > tolerance)[0] + 1, 0, 0)
-        )
+        if tolerance >= 0:
+            exceeds_tolerance = np.diff(x) > tolerance
+        else:
+            exceeds_tolerance = np.diff(x) < tolerance
+        segment_sizes = np.diff(np.insert(np.where(exceeds_tolerance)[0] + 1, 0, 0))
         segment_sizes = np.append(segment_sizes, len(x) - np.sum(segment_sizes))
         return segment_sizes
     else:

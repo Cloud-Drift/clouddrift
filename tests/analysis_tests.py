@@ -20,6 +20,11 @@ class segment_tests(unittest.TestCase):
             np.all(segment(xr.DataArray(data=x), tol) == np.array([1, 3, 2, 4, 1]))
         )
 
+    def test_segment_negative_tolerance(self):
+        x = [0, 1, 1, 1, 2, 0, 3, 3, 3, 4]
+        tol = -1
+        self.assertTrue(np.all(segment(x, tol) == np.array([5, 5])))
+
     def test_segment_rowsize(self):
         x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
         tol = 0.5
