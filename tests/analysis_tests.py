@@ -30,9 +30,8 @@ class segment_tests(unittest.TestCase):
         tol = 0.5
         rowsize = [6, 5]
         segment_sizes = segment(x, tol, rowsize)
-        self.assertTrue(type(segment_sizes) is list)
-        self.assertTrue(np.all(segment_sizes[0] == np.array([1, 3, 2])))
-        self.assertTrue(np.all(segment_sizes[1] == np.array([4, 1])))
+        self.assertTrue(type(segment_sizes) is np.ndarray)
+        self.assertTrue(np.all(segment_sizes == np.array([1, 3, 2, 4, 1])))
 
     def test_segment_rowsize_raises(self):
         x = [0, 1, 2, 3]

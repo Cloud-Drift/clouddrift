@@ -34,7 +34,7 @@ def segment(
 
     >>> rowsize = [3, 2, 6]
     >>> segment(x, 0.5, rowsize)
-    [array([1, 2]), array([1, 1]), array([1, 4, 1])]
+    array([1, 2, 1, 1, 1, 4, 1])
 
     >>> x = [0, 1, 2, 0, 1, 2]
     >>> segment(x, -0.5)
@@ -57,7 +57,7 @@ def segment(
             end = start + int(r)
             segment_sizes.append(segment(x[start:end], tolerance))
             start = end
-        return segment_sizes
+        return np.concatenate(segment_sizes)
 
 
 def velocity_from_position(
