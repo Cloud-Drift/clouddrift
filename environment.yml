@@ -10,7 +10,7 @@ dependencies:
   - tqdm>=4.64.1
   - fsspec>=2022.8.2
   - llvmlite>=0.38.1
+  - awkward>=2.0.0
   - pip>=22.2.2
   - pip:
-    - awkward
     - git+https://github.com/Cloud-Drift/clouddrift.git

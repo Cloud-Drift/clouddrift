@@ -68,9 +68,7 @@ def recast_lon(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
     .. code-block:: python
 
         recast_lon(10, 20) # 370
-
     """
-
     if np.isscalar(lon):
         lon = np.array([lon])
 
