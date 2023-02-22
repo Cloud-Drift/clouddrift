@@ -16,15 +16,14 @@ def segment(
     tolerance : float
         The maximum distance between consecutive points in a segment.
     rowsize : np.ndarray[int], optional
-        The size of rows if x is a ragged array. If present, the function result
-        is a list of arrays. Otherwise, the function result is a single array.
+        The size of rows if x is a ragged array. If present, x will be
+        segmented both by gaps that exceed the tolerance, and by rows
+        of the ragged array.
 
     Returns
     -------
-    segment_sizes : np.ndarray[int] or list[np.ndarray[int]]
+    segment_sizes : np.ndarray[int]
         An array of row-sizes that segment the input array into contiguous segments.
-        The type is np.ndarray[int] if rowsize is None, otherwise it is a list of
-        np.ndarray[int].
 
     Examples
     --------
