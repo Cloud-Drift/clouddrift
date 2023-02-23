@@ -1,33 +1,6 @@
 import numpy as np
 from typing import Optional
 
-
-def rot(x: np.ndarray) -> np.ndarray:
-    """Rotate and return the complex phase of x.
-
-    Parameters
-    ----------
-    x : np.ndarray
-        An N-d array of angles in radians
-
-    Returns
-    -------
-    np.ndarray
-        Rotated and complex phase of x
-
-    Examples
-    --------
-
-    .. code-block:: python
-
-        rot(0) # (1+0j)
-        rot(np.pi / 2) # approx. (0+1j)
-        rot(np.pi) # approx. (-1+0j)
-        rot(3 * np.pi / 2) # approx. (0-1j)
-    """
-    return np.exp(1j * x)
-
-
 def recast_lon(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
     """Recast (convert) longitude values to a selected range of 360 degrees
     starting from ``lon0``.
