@@ -2,8 +2,7 @@ import numpy as np
 from typing import Optional
 
 def recast_lon(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
-    """Recast (convert) longitude values to a selected range of 360 degrees
-    starting from ``lon0``.
+    """Recast (convert) longitude values to a selected range of 360 degrees starting from ``lon0``.
 
     Parameters
     ----------
@@ -45,14 +44,7 @@ def recast_lon(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
     if np.isscalar(lon):
         lon = np.array([lon])
 
-    return (
-        np.mod(
-            np.divide(360, 2 * np.pi)
-            * np.unwrap(np.angle(rot(np.divide(2 * np.pi, 360) * (lon - lon0)))),
-            360,
-        )
-        + lon0
-    )
+    return np.mod(lon - lon0, 360) + lon0
 
 
 def recast_lon360(lon: np.ndarray) -> np.ndarray:
