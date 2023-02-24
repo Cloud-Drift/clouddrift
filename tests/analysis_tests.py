@@ -1,4 +1,4 @@
-from clouddrift.analysis import velocity_from_position
+from clouddrift.analysis import segment, velocity_from_position
 from clouddrift.haversine import EARTH_RADIUS_METERS
 import unittest
 import numpy as np
@@ -7,6 +7,43 @@ import xarray as xr
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class segment_tests(unittest.TestCase):
+    def test_segment(self):
+        x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
+        tol = 0.5
+        self.assertTrue(type(segment(x, tol)) is np.ndarray)
+        self.assertTrue(np.all(segment(x, tol) == np.array([1, 3, 2, 4, 1])))
+        self.assertTrue(np.all(segment(np.array(x), tol) == np.array([1, 3, 2, 4, 1])))
+        self.assertTrue(
+            np.all(segment(xr.DataArray(data=x), tol) == np.array([1, 3, 2, 4, 1]))
+        )
+
+    def test_segment_negative_tolerance(self):
+        x = [0, 1, 1, 1, 2, 0, 3, 3, 3, 4]
+        tol = -1
+        self.assertTrue(np.all(segment(x, tol) == np.array([5, 5])))
+
+    def test_segment_rowsize(self):
+        x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
+        tol = 0.5
+        rowsize = [6, 5]
+        segment_sizes = segment(x, tol, rowsize)
+        self.assertTrue(type(segment_sizes) is np.ndarray)
+        self.assertTrue(np.all(segment_sizes == np.array([1, 3, 2, 4, 1])))
+
+    def test_segment_positive_and_negative_tolerance(self):
+        x = [1, 1, 2, 2, 1, 1, 2, 2]
+        segment_sizes = segment(x, 0.5, rowsize=segment(x, -0.5))
+        self.assertTrue(np.all(segment_sizes == np.array([2, 2, 2, 2])))
+
+    def test_segment_rowsize_raises(self):
+        x = [0, 1, 2, 3]
+        tol = 0.5
+        rowsize = [1, 2]  # rowsize is too short
+        with self.assertRaises(ValueError):
+            segment(x, tol, rowsize)
 
 
 class velocity_from_position_tests(unittest.TestCase):

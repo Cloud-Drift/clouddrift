@@ -4,6 +4,82 @@ import xarray as xr
 from clouddrift.haversine import distance, bearing
 
 
+def segment(
+    x: np.ndarray, tolerance: float, rowsize: np.ndarray[int] = None
+) -> np.ndarray[int]:
+    """Segment an array into contiguous segments.
+
+    Parameters
+    ----------
+    x : list, np.ndarray, or xr.DataArray
+        An array to segment.
+    tolerance : float
+        The maximum signed difference between consecutive points in a segment.
+    rowsize : np.ndarray[int], optional
+        The size of rows if x is a ragged array. If present, x will be
+        segmented both by gaps that exceed the tolerance, and by rows
+        of the ragged array.
+
+    Returns
+    -------
+    segment_sizes : np.ndarray[int]
+        An array of row-sizes that segment the input array into contiguous segments.
+
+    Examples
+    --------
+
+    The simplest use of ``segment`` is to provide a tolerance value that is
+    used to segment an array into contiguous segments.
+
+    >>> x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
+    >>> segment(x, 0.5)
+    array([1, 3, 2, 4, 1])
+
+    If the array is already previously segmented (e.g. multiple trajectories
+    as a ragged array), then the ``rowsize`` argument can be used to preserve
+    the input segments.
+
+    >>> rowsize = [3, 2, 6]
+    >>> segment(x, 0.5, rowsize)
+    array([1, 2, 1, 1, 1, 4, 1])
+
+    The tolerance can also be negative. In this case, the segments are
+    determined by the gaps where the negative difference exceeds the negative
+    value of the tolerance, i.e. where ``x[n+1] - x[n] < -tolerance``.
+
+    >>> x = [0, 1, 2, 0, 1, 2]
+    >>> segment(x, -0.5)
+    array([3, 3])
+
+    To segment an array for both positive and negative gaps, invoke the function
+    twice, once for a positive tolerance and once for a negative tolerance.
+    The result of the first invocation can be passed as the ``rowsize`` argument
+    to the first ``segment`` invocation.
+
+    >>> x = [1, 1, 2, 2, 1, 1, 2, 2]
+    >>> segment(x, 0.5, rowsize=segment(x, -0.5))
+    array([2, 2, 2, 2])
+    """
+    if rowsize is None:
+        if tolerance >= 0:
+            exceeds_tolerance = np.diff(x) > tolerance
+        else:
+            exceeds_tolerance = np.diff(x) < tolerance
+        segment_sizes = np.diff(np.insert(np.where(exceeds_tolerance)[0] + 1, 0, 0))
+        segment_sizes = np.append(segment_sizes, len(x) - np.sum(segment_sizes))
+        return segment_sizes
+    else:
+        if not sum(rowsize) == len(x):
+            raise ValueError("The sum of rowsize must equal the length of x.")
+        segment_sizes = []
+        start = 0
+        for r in rowsize:
+            end = start + int(r)
+            segment_sizes.append(segment(x[start:end], tolerance))
+            start = end
+        return np.concatenate(segment_sizes)
+
+
 def velocity_from_position(
     x: np.ndarray,
     y: np.ndarray,
