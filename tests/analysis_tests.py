@@ -33,6 +33,11 @@ class segment_tests(unittest.TestCase):
         self.assertTrue(type(segment_sizes) is np.ndarray)
         self.assertTrue(np.all(segment_sizes == np.array([1, 3, 2, 4, 1])))
 
+    def test_segment_positive_and_negative_tolerance(self):
+        x = [1, 1, 2, 2, 1, 1, 2, 2]
+        segment_sizes = segment(x, 0.5, rowsize=segment(x, -0.5))
+        self.assertTrue(np.all(segment_sizes == np.array([2, 2, 2, 2])))
+
     def test_segment_rowsize_raises(self):
         x = [0, 1, 2, 3]
         tol = 0.5

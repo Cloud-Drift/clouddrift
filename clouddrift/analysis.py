@@ -14,7 +14,7 @@ def segment(
     x : list, np.ndarray, or xr.DataArray
         An array to segment.
     tolerance : float
-        The maximum distance between consecutive points in a segment.
+        The maximum signed difference between consecutive points in a segment.
     rowsize : np.ndarray[int], optional
         The size of rows if x is a ragged array. If present, x will be
         segmented both by gaps that exceed the tolerance, and by rows
@@ -27,17 +27,38 @@ def segment(
 
     Examples
     --------
+
+    The simplest use of ``segment`` is to provide a tolerance value that is
+    used to segment an array into contiguous segments.
+
     >>> x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
     >>> segment(x, 0.5)
     array([1, 3, 2, 4, 1])
+
+    If the array is already previously segmented (e.g. multiple trajectories
+    as a ragged array), then the ``rowsize`` argument can be used to preserve
+    the input segments.
 
     >>> rowsize = [3, 2, 6]
     >>> segment(x, 0.5, rowsize)
     array([1, 2, 1, 1, 1, 4, 1])
 
+    The tolerance can also be negative. In this case, the segments are
+    determined by the gaps where the negative difference exceeds the negative
+    value of the tolerance, i.e. where ``x[n+1] - x[n] < -tolerance``.
+
     >>> x = [0, 1, 2, 0, 1, 2]
     >>> segment(x, -0.5)
     array([3, 3])
+
+    To segment an array for both positive and negative gaps, invoke the function
+    twice, once for a positive tolerance and once for a negative tolerance.
+    The result of the first invocation can be passed as the ``rowsize`` argument
+    to the first ``segment`` invocation.
+
+    >>> x = [1, 1, 2, 2, 1, 1, 2, 2]
+    >>> segment(x, 0.5, rowsize=segment(x, -0.5))
+    array([2, 2, 2, 2])
     """
     if rowsize is None:
         if tolerance >= 0:
