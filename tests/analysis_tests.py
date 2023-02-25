@@ -1,4 +1,4 @@
-from clouddrift.analysis import velocity_from_position
+from clouddrift.analysis import velocity_from_position, apply_ragged
 from clouddrift.haversine import EARTH_RADIUS_METERS
 import unittest
 import numpy as np
@@ -95,3 +95,16 @@ class velocity_from_position_tests(unittest.TestCase):
         self.assertTrue(np.all(vf == expected_vf))
         self.assertTrue(np.all(uf.shape == expected_uf.shape))
         self.assertTrue(np.all(vf.shape == expected_vf.shape))
+
+
+class apply_ragged_tests(unittest.TestCase):
+    def setUp(self):
+        self.rowsize = [2, 3, 4]
+        self.x = np.array([1, 2, 10, 12, 14, 30, 33, 36, 39])
+        self.y = np.arange(0, len(self.x))
+        self.t = np.array([1, 2, 1, 2, 3, 1, 2, 3, 4])
+
+    def test_velocity(self):
+        u, v = apply_ragged(velocity_from_position, self.rowsize, [self.x, self.y, self.t], coord_system="cartesian")
+        self.assertIsNone(np.testing.assert_allclose(u, [1., 1., 2., 2., 2., 3., 3., 3., 3.]))
+        self.assertIsNone(np.testing.assert_allclose(v, [1., 1., 1., 1., 1., 1., 1., 1., 1.]))
