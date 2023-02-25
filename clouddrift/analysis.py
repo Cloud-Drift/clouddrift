@@ -8,7 +8,11 @@ from clouddrift.haversine import distance, bearing
 
 def apply_ragged(func, rowsize, arrs, *args, **kwargs):
     """Wrapper to apply a function to a ragged array in parallel.
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 05735fde7bd751515a52c423253b6b7454e21dee
     Args:
         func (callable): Function to apply to each trajectory.
         rowsize (list): List of integers specifying the number of data points in each trajectory.
@@ -22,11 +26,16 @@ def apply_ragged(func, rowsize, arrs, *args, **kwargs):
     # make sure the arrs is iterable
     if not isinstance(arrs[0], Iterable):
         arrs = [arrs]
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 05735fde7bd751515a52c423253b6b7454e21dee
     # validate rowsize
     for arr in arrs:
         if not sum(rowsize) == len(arr):
             raise ValueError("The sum of rowsize must equal the length of arr.")
+<<<<<<< HEAD
 
     # split the array(s) into trajectories
     arrs = [np.array_split(arr, np.cumsum(rowsize[:-1])) for arr in arrs]
@@ -36,11 +45,25 @@ def apply_ragged(func, rowsize, arrs, *args, **kwargs):
     for arg in iter:
         if args:
             arg.append(*args)
+=======
+    
+    # split the array(s) into trajectories
+    arrs = [np.array_split(arr, np.cumsum(rowsize[:-1])) for arr in arrs]
+    iter = [[arrs[i][j] for i in range(len(arrs))] for j in range(len(arrs[0]))]
+      
+    # combine other arguments
+    for arg in iter:
+        if args: arg.append(*args)
+>>>>>>> 05735fde7bd751515a52c423253b6b7454e21dee
 
     # parallel execution
     with futures.ThreadPoolExecutor() as executor:
         res = executor.map(lambda x: func(*x, **kwargs), iter)
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 05735fde7bd751515a52c423253b6b7454e21dee
     # concatenate the outputs
     res = list(res)
     if isinstance(res[0], tuple):  # more than 1 parameter
@@ -50,6 +73,7 @@ def apply_ragged(func, rowsize, arrs, *args, **kwargs):
         return tuple(outputs)
     else:
         return np.concatenate([r for r in res])
+<<<<<<< HEAD
 
 
 def segment(
@@ -127,6 +151,9 @@ def segment(
             start = end
         return np.concatenate(segment_sizes)
 
+=======
+    
+>>>>>>> 05735fde7bd751515a52c423253b6b7454e21dee
 
 def velocity_from_position(
     x: np.ndarray,
