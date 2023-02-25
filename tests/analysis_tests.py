@@ -142,6 +142,15 @@ class apply_ragged_tests(unittest.TestCase):
         self.t = np.array([1, 2, 1, 2, 3, 1, 2, 3, 4])
 
     def test_velocity(self):
-        u, v = apply_ragged(velocity_from_position, self.rowsize, [self.x, self.y, self.t], coord_system="cartesian")
-        self.assertIsNone(np.testing.assert_allclose(u, [1., 1., 2., 2., 2., 3., 3., 3., 3.]))
-        self.assertIsNone(np.testing.assert_allclose(v, [1., 1., 1., 1., 1., 1., 1., 1., 1.]))
+        u, v = apply_ragged(
+            velocity_from_position,
+            self.rowsize,
+            [self.x, self.y, self.t],
+            coord_system="cartesian",
+        )
+        self.assertIsNone(
+            np.testing.assert_allclose(u, [1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0])
+        )
+        self.assertIsNone(
+            np.testing.assert_allclose(v, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+        )
