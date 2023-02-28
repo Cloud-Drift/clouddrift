@@ -4,21 +4,21 @@ from typing import Optional, Tuple
 import xarray as xr
 from concurrent import futures
 from clouddrift.haversine import distance, bearing
-from dataformat import unpack_ragged
+from clouddrift.dataformat import unpack_ragged
 
 
 def apply_ragged(func, rowsize, arrs, *args, **kwargs):
     """Wrapper to apply a function to a ragged array in parallel.
 
-        Args:
-            func (callable): Function to apply to each trajectory.
-            rowsize (list): List of integers specifying the number of data points in each trajectory.
-            arrs (list): List of ragged arrays to apply func to.
-            *args: Additional arguments to pass to func.
-            **kwargs: Additional keyword arguments to pass to func.
+    Args:
+        func (callable): Function to apply to each trajectory.
+        rowsize (list): List of integers specifying the number of data points in each trajectory.
+        arrs (list): List of ragged arrays to apply func to.
+        *args: Additional arguments to pass to func.
+        **kwargs: Additional keyword arguments to pass to func.
 
-        Returns:
-            out (np.ndarray): Array of outputs from func.
+    Returns:
+        out (np.ndarray): Array of outputs from func.
     """
     # make sure the arrs is iterable
     if not isinstance(arrs[0], Iterable):
@@ -107,7 +107,7 @@ def segment(
     >>> segment(x, 0.5, rowsize=segment(x, -0.5))
     array([2, 2, 2, 2])
     """
-    
+
     if rowsize is None:
         if tolerance >= 0:
             exceeds_tolerance = np.diff(x) > tolerance
