@@ -9,11 +9,6 @@ from dataformat import unpack_ragged
 
 def apply_ragged(func, rowsize, arrs, *args, **kwargs):
     """Wrapper to apply a function to a ragged array in parallel.
-    <<<<<<< HEAD
-
-    =======
-
-    >>>>>>> 05735fde7bd751515a52c423253b6b7454e21dee
         Args:
             func (callable): Function to apply to each trajectory.
             rowsize (list): List of integers specifying the number of data points in each trajectory.
