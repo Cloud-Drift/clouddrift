@@ -9,6 +9,7 @@ from dataformat import unpack_ragged
 
 def apply_ragged(func, rowsize, arrs, *args, **kwargs):
     """Wrapper to apply a function to a ragged array in parallel.
+
         Args:
             func (callable): Function to apply to each trajectory.
             rowsize (list): List of integers specifying the number of data points in each trajectory.
@@ -106,6 +107,7 @@ def segment(
     >>> segment(x, 0.5, rowsize=segment(x, -0.5))
     array([2, 2, 2, 2])
     """
+    
     if rowsize is None:
         if tolerance >= 0:
             exceeds_tolerance = np.diff(x) > tolerance
