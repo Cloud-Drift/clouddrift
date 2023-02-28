@@ -38,7 +38,7 @@ def apply_ragged(func, rowsize, arrs, *args, max_workers=None, **kwargs):
             arg.append(*args)
 
     # parallel execution
-    with futures.ThreadPoolExecutor() as executor:
+    with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         res = executor.map(lambda x: func(*x, **kwargs), iter)
     # concatenate the outputs
     res = list(res)
