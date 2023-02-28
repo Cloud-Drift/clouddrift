@@ -146,6 +146,10 @@ class apply_ragged_tests(unittest.TestCase):
         self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
     def test_simple_with_args(self):
+        y = apply_ragged(lambda x, p: x**p, np.array([1, 2, 3, 4]), [2, 2], 2)
+        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+
+    def test_simple_with_kwargs(self):
         y = apply_ragged(lambda x, p: x**p, np.array([1, 2, 3, 4]), [2, 2], p=2)
         self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
