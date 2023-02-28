@@ -7,7 +7,7 @@ from clouddrift.haversine import distance, bearing
 from clouddrift.dataformat import unpack_ragged
 
 
-def apply_ragged(func, rowsize, arrs, *args, **kwargs):
+def apply_ragged(func, rowsize, arrs, *args, max_workers=None, **kwargs):
     """Wrapper to apply a function to a ragged array in parallel.
 
     Args:
