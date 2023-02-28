@@ -4,6 +4,7 @@ from typing import Optional, Tuple
 import xarray as xr
 from concurrent import futures
 from clouddrift.haversine import distance, bearing
+from dataformat import unpack_ragged
 
 
 def apply_ragged(func, rowsize, arrs, *args, **kwargs):
@@ -32,7 +33,7 @@ def apply_ragged(func, rowsize, arrs, *args, **kwargs):
             raise ValueError("The sum of rowsize must equal the length of arr.")
 
     # split the array(s) into trajectories
-    arrs = [np.array_split(arr, np.cumsum(rowsize[:-1])) for arr in arrs]
+    arrs = [unpack_ragged(arr, rowsize) for arr in arrs]
     iter = [[arrs[i][j] for i in range(len(arrs))] for j in range(len(arrs[0]))]
 
     # combine other arguments
@@ -51,7 +52,7 @@ def apply_ragged(func, rowsize, arrs, *args, **kwargs):
             outputs.append(np.concatenate([r[i] for r in res]))
         return tuple(outputs)
     else:
-        return np.concatenate([r for r in res])
+        return np.concatenate(res)
 
 
 def segment(
