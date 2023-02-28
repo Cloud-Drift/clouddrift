@@ -9,8 +9,8 @@ from clouddrift.dataformat import unpack_ragged
 
 def apply_ragged(
     func: callable,
-    rowsize: list[int],
     arrs: list[np.ndarray],
+    rowsize: list[int],
     *args: tuple,
     max_workers: int = None,
     **kwargs: dict,
@@ -29,10 +29,10 @@ def apply_ragged(
     ----------
     func : callable
         Function to apply to each row of each ragged array in ``arrs``.
-    rowsize : list
-        List of integers specifying the number of data points in each row.
     arrs : list[np.ndarray] or np.ndarray
         An array or a list of arrays to apply ``func`` to.
+    rowsize : list
+        List of integers specifying the number of data points in each row.
     *args : tuple
         Additional arguments to pass to ``func``.
     max_workers : int, optional
@@ -52,7 +52,7 @@ def apply_ragged(
     ...     return x + y
     >>> x = np.arange(10)
     >>> y = np.arange(10, 20)
-    >>> apply_ragged(func, [5, 5], [x, y])
+    >>> apply_ragged(func, [x, y], [5, 5])
     array([10, 12, 14, 16, 18, 20, 22, 24, 26, 28])
 
     Raises
