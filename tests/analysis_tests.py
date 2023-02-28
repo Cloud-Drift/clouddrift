@@ -145,6 +145,10 @@ class apply_ragged_tests(unittest.TestCase):
         y = apply_ragged(lambda x: x**2, np.array([1, 2, 3, 4]), [2, 2])
         self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
+    def test_simple_with_args(self):
+        y = apply_ragged(lambda x, p: x**p, np.array([1, 2, 3, 4]), [2, 2], p=2)
+        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+
     def test_velocity_ndarray(self):
         u, v = apply_ragged(
             velocity_from_position,
