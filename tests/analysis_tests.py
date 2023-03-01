@@ -1,4 +1,4 @@
-from clouddrift.analysis import segment, velocity_from_position
+from clouddrift.analysis import segment, velocity_from_position, apply_ragged
 from clouddrift.haversine import EARTH_RADIUS_METERS
 import unittest
 import numpy as np
@@ -132,3 +132,67 @@ class velocity_from_position_tests(unittest.TestCase):
         self.assertTrue(np.all(vf == expected_vf))
         self.assertTrue(np.all(uf.shape == expected_uf.shape))
         self.assertTrue(np.all(vf.shape == expected_vf.shape))
+
+
+class apply_ragged_tests(unittest.TestCase):
+    def setUp(self):
+        self.rowsize = [2, 3, 4]
+        self.x = np.array([1, 2, 10, 12, 14, 30, 33, 36, 39])
+        self.y = np.arange(0, len(self.x))
+        self.t = np.array([1, 2, 1, 2, 3, 1, 2, 3, 4])
+
+    def test_simple(self):
+        y = apply_ragged(lambda x: x**2, np.array([1, 2, 3, 4]), [2, 2])
+        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+
+    def test_simple_dataarray(self):
+        y = apply_ragged(
+            lambda x: x**2,
+            xr.DataArray(data=[1, 2, 3, 4], coords={"obs": [1, 2, 3, 4]}),
+            [2, 2],
+        )
+        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+
+    def test_simple_with_args(self):
+        y = apply_ragged(lambda x, p: x**p, np.array([1, 2, 3, 4]), [2, 2], 2)
+        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+
+    def test_simple_with_kwargs(self):
+        y = apply_ragged(lambda x, p: x**p, np.array([1, 2, 3, 4]), [2, 2], p=2)
+        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+
+    def test_velocity_ndarray(self):
+        u, v = apply_ragged(
+            velocity_from_position,
+            [self.x, self.y, self.t],
+            self.rowsize,
+            coord_system="cartesian",
+        )
+        self.assertIsNone(
+            np.testing.assert_allclose(u, [1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0])
+        )
+        self.assertIsNone(
+            np.testing.assert_allclose(v, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+        )
+
+    def test_velocity_dataarray(self):
+        u, v = apply_ragged(
+            velocity_from_position,
+            [
+                xr.DataArray(data=self.x),
+                xr.DataArray(data=self.y),
+                xr.DataArray(data=self.t),
+            ],
+            xr.DataArray(data=self.rowsize),
+            coord_system="cartesian",
+        )
+        self.assertIsNone(
+            np.testing.assert_allclose(u, [1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0])
+        )
+        self.assertIsNone(
+            np.testing.assert_allclose(v, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+        )
+
+    def test_bad_rowsize_raises(self):
+        with self.assertRaises(ValueError):
+            y = apply_ragged(lambda x: x**2, np.array([1, 2, 3, 4]), [2])

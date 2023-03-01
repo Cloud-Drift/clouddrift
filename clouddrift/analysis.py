@@ -1,7 +1,93 @@
 import numpy as np
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 import xarray as xr
+from concurrent import futures
 from clouddrift.haversine import distance, bearing
+from clouddrift.dataformat import unpack_ragged
+
+
+def apply_ragged(
+    func: callable,
+    arrays: list[np.ndarray],
+    rowsize: list[int],
+    *args: tuple,
+    max_workers: int = None,
+    **kwargs: dict,
+) -> Union[tuple[np.ndarray], np.ndarray]:
+    """Apply a function to a ragged array.
+
+    The function ``func`` will be applied to each contiguous row of ``arrays`` as
+    indicated by row sizes ``rowsize``. The output of ``func`` will be
+    concatenated into a single ragged array.
+
+    This function uses ``concurrent.futures.ThreadPoolExecutor`` to run ``func``
+    in multiple threads. The number of threads can be controlled by the
+    ``max_workers`` argument, which is passed down to ``ThreadPoolExecutor``.
+
+    Parameters
+    ----------
+    func : callable
+        Function to apply to each row of each ragged array in ``arrays``.
+    arrays : list[np.ndarray] or np.ndarray
+        An array or a list of arrays to apply ``func`` to.
+    rowsize : list
+        List of integers specifying the number of data points in each row.
+    *args : tuple
+        Additional arguments to pass to ``func``.
+    max_workers : int, optional
+        Number of threads to use. If None, the number of threads will be equal
+        to the ``max_workers`` default value of ``concurrent.futures.ThreadPoolExecutor``.
+    **kwargs : dict
+        Additional keyword arguments to pass to ``func``.
+
+    Returns
+    -------
+    out : tuple[np.ndarray] or np.ndarray
+        Output array(s) from ``func``.
+
+    Examples
+    --------
+    >>> def func(x, y):
+    ...     return x + y
+    >>> x = np.arange(10)
+    >>> y = np.arange(10, 20)
+    >>> apply_ragged(func, [x, y], [5, 5])
+    array([10, 12, 14, 16, 18, 20, 22, 24, 26, 28])
+
+    Raises
+    ------
+    ValueError
+        If the sum of ``rowsize`` does not equal the length of ``arrays``.
+    """
+    # make sure the arrays is iterable
+    if type(arrays) not in [list, tuple]:
+        arrays = [arrays]
+    # validate rowsize
+    for arr in arrays:
+        if not sum(rowsize) == len(arr):
+            raise ValueError("The sum of rowsize must equal the length of arr.")
+
+    # split the array(s) into trajectories
+    arrays = [unpack_ragged(arr, rowsize) for arr in arrays]
+    iter = [[arrays[i][j] for i in range(len(arrays))] for j in range(len(arrays[0]))]
+
+    # combine other arguments
+    for arg in iter:
+        if args:
+            arg.append(*args)
+
+    # parallel execution
+    with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        res = executor.map(lambda x: func(*x, **kwargs), iter)
+    # concatenate the outputs
+    res = list(res)
+    if isinstance(res[0], tuple):  # more than 1 parameter
+        outputs = []
+        for i in range(len(res[0])):
+            outputs.append(np.concatenate([r[i] for r in res]))
+        return tuple(outputs)
+    else:
+        return np.concatenate(res)
 
 
 def segment(
@@ -60,6 +146,7 @@ def segment(
     >>> segment(x, 0.5, rowsize=segment(x, -0.5))
     array([2, 2, 2, 2])
     """
+
     if rowsize is None:
         if tolerance >= 0:
             exceeds_tolerance = np.diff(x) > tolerance
