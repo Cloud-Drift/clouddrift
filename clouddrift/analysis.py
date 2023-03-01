@@ -8,7 +8,7 @@ from clouddrift.dataformat import unpack_ragged
 
 def apply_ragged(
     func: callable,
-    arrs: list[np.ndarray],
+    arrays: list[np.ndarray],
     rowsize: list[int],
     *args: tuple,
     max_workers: int = None,
@@ -16,7 +16,7 @@ def apply_ragged(
 ) -> Union[tuple[np.ndarray], np.ndarray]:
     """Apply a function to a ragged array.
 
-    The function ``func`` will be applied to each contiguous row of ``arrs`` as
+    The function ``func`` will be applied to each contiguous row of ``arrays`` as
     indicated by row sizes ``rowsize``. The output of ``func`` will be
     concatenated into a single ragged array.
 
@@ -27,8 +27,8 @@ def apply_ragged(
     Parameters
     ----------
     func : callable
-        Function to apply to each row of each ragged array in ``arrs``.
-    arrs : list[np.ndarray] or np.ndarray
+        Function to apply to each row of each ragged array in ``arrays``.
+    arrays : list[np.ndarray] or np.ndarray
         An array or a list of arrays to apply ``func`` to.
     rowsize : list
         List of integers specifying the number of data points in each row.
@@ -57,19 +57,19 @@ def apply_ragged(
     Raises
     ------
     ValueError
-        If the sum of ``rowsize`` does not equal the length of ``arrs``.
+        If the sum of ``rowsize`` does not equal the length of ``arrays``.
     """
-    # make sure the arrs is iterable
-    if type(arrs) not in [list, tuple]:
-        arrs = [arrs]
+    # make sure the arrays is iterable
+    if type(arrays) not in [list, tuple]:
+        arrays = [arrays]
     # validate rowsize
-    for arr in arrs:
+    for arr in arrays:
         if not sum(rowsize) == len(arr):
             raise ValueError("The sum of rowsize must equal the length of arr.")
 
     # split the array(s) into trajectories
-    arrs = [unpack_ragged(arr, rowsize) for arr in arrs]
-    iter = [[arrs[i][j] for i in range(len(arrs))] for j in range(len(arrs[0]))]
+    arrays = [unpack_ragged(arr, rowsize) for arr in arrays]
+    iter = [[arrays[i][j] for i in range(len(arrays))] for j in range(len(arrays[0]))]
 
     # combine other arguments
     for arg in iter:
