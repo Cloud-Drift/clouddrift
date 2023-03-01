@@ -140,7 +140,7 @@ def get_gdp_metadata() -> pd.DataFrame:
         "dirfl_1_5000.dat",
         "dirfl_5001_10000.dat",
         "dirfl_10001_15000.dat",
-        "dirfl_15001_jul22.dat",
+        "dirfl_15001_oct22.dat",
     ]
     df = pd.concat([parse_directory_file(f) for f in directory_file_names])
     df.sort_values(["Deployment_date"], inplace=True, ignore_index=True)
