@@ -1,5 +1,4 @@
 import numpy as np
-from collections.abc import Iterable
 from typing import Optional, Tuple, Union
 import xarray as xr
 from concurrent import futures
@@ -61,7 +60,7 @@ def apply_ragged(
         If the sum of ``rowsize`` does not equal the length of ``arrs``.
     """
     # make sure the arrs is iterable
-    if not isinstance(arrs[0], Iterable):
+    if type(arrs) not in [list, tuple]:
         arrs = [arrs]
     # validate rowsize
     for arr in arrs:
