@@ -20,7 +20,7 @@ import warnings
 GDP_VERSION = "2.00"
 GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netcdf/"
 GDP_DATA_URL_EXPERIMENTAL = (
-    "ftp://ftp.aoml.noaa.gov/phod/pub/lumpkin/hourly/experimental/"
+    "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental/"
 )
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
 
