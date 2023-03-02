@@ -51,10 +51,10 @@ class segment_tests(unittest.TestCase):
             np.datetime64("2023-01-02"),
             np.datetime64("2023-01-03"),
             np.datetime64("2023-02-01"),
-            np.datetime64("2010-02-01"),
+            np.datetime64("2023-02-02"),
         ]
         tol = np.timedelta64(1, "D")
-        self.assertTrue(np.all(segment(x, tol) == np.array([3, 2])))
+        self.assertIsNone(np.testing.assert_equal(segment(x, tol), np.array([3, 2])))
 
 
 class velocity_from_position_tests(unittest.TestCase):
