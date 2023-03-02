@@ -3,6 +3,7 @@ from clouddrift.haversine import EARTH_RADIUS_METERS
 import unittest
 import numpy as np
 import xarray as xr
+import datetime
 
 
 if __name__ == "__main__":
@@ -47,11 +48,11 @@ class segment_tests(unittest.TestCase):
 
     def test_segments_datetime(self):
         x = [
-            np.datetime64("2023-01-01"),
-            np.datetime64("2023-01-02"),
-            np.datetime64("2023-01-03"),
-            np.datetime64("2023-02-01"),
-            np.datetime64("2023-02-02"),
+            datetime.datetime(2023, 1, 1),
+            datetime.datetime(2023, 1, 2),
+            datetime.datetime(2023, 1, 3),
+            datetime.datetime(2023, 2, 1),
+            datetime.datetime(2023, 2, 2),
         ]
         tol = np.timedelta64(1, "D")
         self.assertIsNone(np.testing.assert_equal(segment(x, tol), np.array([3, 2])))
