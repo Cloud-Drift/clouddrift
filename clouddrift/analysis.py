@@ -93,7 +93,8 @@ def apply_ragged(
 
 def segment(
     x: np.ndarray,
-    tolerance: Union[float, timedelta], rowsize: np.ndarray[int] = None,
+    tolerance: Union[float, timedelta],
+    rowsize: np.ndarray[int] = None,
 ) -> np.ndarray[int]:
     """Segment an array into contiguous segments.
 
