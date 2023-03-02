@@ -54,7 +54,7 @@ class segment_tests(unittest.TestCase):
             datetime.datetime(2023, 2, 1),
             datetime.datetime(2023, 2, 2),
         ]
-        tol = np.timedelta64(1, "D")
+        tol = datetime.timedelta(days=1)
         self.assertIsNone(np.testing.assert_equal(segment(x, tol), np.array([3, 2])))
 
 
