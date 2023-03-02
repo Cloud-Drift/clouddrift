@@ -2,6 +2,7 @@ import numpy as np
 from typing import Optional, Tuple, Union
 import xarray as xr
 from concurrent import futures
+import datetime
 from clouddrift.haversine import distance, bearing
 from clouddrift.dataformat import unpack_ragged
 
@@ -91,7 +92,9 @@ def apply_ragged(
 
 
 def segment(
-    x: np.ndarray, tolerance: float, rowsize: np.ndarray[int] = None
+    x: np.ndarray,
+    tolerance: float | datetime.timedelta,
+    rowsize: np.ndarray[int] = None,
 ) -> np.ndarray[int]:
     """Segment an array into contiguous segments.
 
@@ -147,8 +150,13 @@ def segment(
     array([2, 2, 2, 2])
     """
 
+    if type(tolerance) == datetime.timedelta:
+        positive_tol = tolerance > datetime.timedelta(seconds=0)
+    else:
+        positive_tol = tolerance > 0
+
     if rowsize is None:
-        if tolerance >= 0:
+        if positive_tol:
             exceeds_tolerance = np.diff(x) > tolerance
         else:
             exceeds_tolerance = np.diff(x) < tolerance
