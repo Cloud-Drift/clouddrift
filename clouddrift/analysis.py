@@ -125,6 +125,15 @@ def segment(
     >>> segment(x, 0.5)
     array([1, 3, 2, 4, 1])
 
+    If the array represents time and the tolerance is a timedelta, 
+    the same logic applies.
+
+    >>> x = np.array([np.datetime64("2023-01-01"), np.datetime64("2023-01-02"), 
+                      np.datetime64("2023-01-03"), np.datetime64("2023-02-01"),
+                      np.datetime64("2023-02-02")])
+    >>> segment(x, np.timedelta64(1, "D"))
+    np.array([3, 2])
+
     If the array is already previously segmented (e.g. multiple trajectories
     as a ragged array), then the ``rowsize`` argument can be used to preserve
     the input segments.
