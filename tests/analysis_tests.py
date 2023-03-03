@@ -82,7 +82,7 @@ class segment_tests(unittest.TestCase):
                 np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
             )
 
-    def test_segments_pandas_date(self):
+    def test_segments_pandas(self):
         x = pd.to_datetime(["1/1/2023", "1/2/2023", "1/3/2023", "2/1/2023", "2/2/2023"])
         for tol in [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]:
             self.assertIsNone(
