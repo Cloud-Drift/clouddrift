@@ -3,6 +3,7 @@ from clouddrift.haversine import EARTH_RADIUS_METERS
 import unittest
 import numpy as np
 import xarray as xr
+import pandas as pd
 from datetime import datetime, timedelta
 
 
@@ -61,8 +62,32 @@ class segment_tests(unittest.TestCase):
             datetime(2023, 2, 1),
             datetime(2023, 2, 2),
         ]
-        tol = timedelta(days=1)
-        self.assertIsNone(np.testing.assert_equal(segment(x, tol), np.array([3, 2])))
+        for tol in [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]:
+            self.assertIsNone(
+                np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
+            )
+
+    def test_segments_numpy(self):
+        x = np.array(
+            [
+                np.datetime64("2023-01-01"),
+                np.datetime64("2023-01-02"),
+                np.datetime64("2023-01-03"),
+                np.datetime64("2023-02-01"),
+                np.datetime64("2023-02-02"),
+            ]
+        )
+        for tol in [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]:
+            self.assertIsNone(
+                np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
+            )
+
+    def test_segments_pandas_date(self):
+        x = pd.to_datetime(["1/1/2023", "1/2/2023", "1/3/2023", "2/1/2023", "2/2/2023"])
+        for tol in [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]:
+            self.assertIsNone(
+                np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
+            )
 
 
 class velocity_from_position_tests(unittest.TestCase):
