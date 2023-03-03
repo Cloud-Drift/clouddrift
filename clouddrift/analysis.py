@@ -151,10 +151,9 @@ def segment(
     """
 
     if type(tolerance) == timedelta:
-        positive_tol = tolerance > timedelta(seconds=0)
+        positive_tol = tolerance >= timedelta(seconds=0)
     else:
-        positive_tol = tolerance > 0
-
+        positive_tol = tolerance >= 0
     if rowsize is None:
         if positive_tol:
             exceeds_tolerance = np.diff(x) > tolerance

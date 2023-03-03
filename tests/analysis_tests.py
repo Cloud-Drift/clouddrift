@@ -21,6 +21,13 @@ class segment_tests(unittest.TestCase):
             np.all(segment(xr.DataArray(data=x), tol) == np.array([1, 3, 2, 4, 1]))
         )
 
+    def test_segment_zero_tolerance(self):
+        x = [1, 2, 2, 3, 3, 3, 4, 4, 4, 4]
+        tol = 0
+        self.assertIsNone(
+            np.testing.assert_equal(segment(x, tol), np.array([1, 2, 3, 4]))
+        )
+
     def test_segment_negative_tolerance(self):
         x = [0, 1, 1, 1, 2, 0, 3, 3, 3, 4]
         tol = -1
