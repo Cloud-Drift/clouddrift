@@ -3,6 +3,7 @@ from clouddrift.haversine import EARTH_RADIUS_METERS
 import unittest
 import numpy as np
 import xarray as xr
+from datetime import datetime, timedelta
 
 
 if __name__ == "__main__":
@@ -18,6 +19,13 @@ class segment_tests(unittest.TestCase):
         self.assertTrue(np.all(segment(np.array(x), tol) == np.array([1, 3, 2, 4, 1])))
         self.assertTrue(
             np.all(segment(xr.DataArray(data=x), tol) == np.array([1, 3, 2, 4, 1]))
+        )
+
+    def test_segment_zero_tolerance(self):
+        x = [1, 2, 2, 3, 3, 3, 4, 4, 4, 4]
+        tol = 0
+        self.assertIsNone(
+            np.testing.assert_equal(segment(x, tol), np.array([1, 2, 3, 4]))
         )
 
     def test_segment_negative_tolerance(self):
@@ -44,6 +52,17 @@ class segment_tests(unittest.TestCase):
         rowsize = [1, 2]  # rowsize is too short
         with self.assertRaises(ValueError):
             segment(x, tol, rowsize)
+
+    def test_segments_datetime(self):
+        x = [
+            datetime(2023, 1, 1),
+            datetime(2023, 1, 2),
+            datetime(2023, 1, 3),
+            datetime(2023, 2, 1),
+            datetime(2023, 2, 2),
+        ]
+        tol = timedelta(days=1)
+        self.assertIsNone(np.testing.assert_equal(segment(x, tol), np.array([3, 2])))
 
 
 class velocity_from_position_tests(unittest.TestCase):
