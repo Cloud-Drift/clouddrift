@@ -154,6 +154,7 @@ def segment(
         positive_tol = tolerance >= timedelta(seconds=0)
     else:
         positive_tol = tolerance >= 0
+
     if rowsize is None:
         if positive_tol:
             exceeds_tolerance = np.diff(x) > tolerance
