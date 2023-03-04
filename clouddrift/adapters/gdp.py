@@ -136,13 +136,22 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
 def get_gdp_metadata() -> pd.DataFrame:
     """Download and parse GDP metadata and return it as a Pandas DataFrame."""
 
-    directory_file_names = [
-        "dirfl_1_5000.dat",
-        "dirfl_5001_10000.dat",
-        "dirfl_10001_15000.dat",
-        "dirfl_15001_oct22.dat",
-    ]
-    df = pd.concat([parse_directory_file(f) for f in directory_file_names])
+    directory_file_pattern = "dirfl_{low}_{high}.dat"
+    
+    dfs = []
+    start = 1
+    while True:
+        name = directory_file_pattern.format(low=start, high=start+4999)
+        try:
+            dfs.append(parse_directory_file(name))
+            start += 5000
+        except:
+            break
+    
+    name = directory_file_pattern.format(low=start, high="current")
+    dfs.append(parse_directory_file(name))
+    
+    df = pd.concat(dfs)
     df.sort_values(["Deployment_date"], inplace=True, ignore_index=True)
     return df
 
