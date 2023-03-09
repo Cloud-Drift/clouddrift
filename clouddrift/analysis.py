@@ -1,6 +1,7 @@
 import numpy as np
 from typing import Optional, Tuple, Union
 import xarray as xr
+import pandas as pd
 from concurrent import futures
 from datetime import timedelta
 from clouddrift.haversine import distance, bearing
@@ -93,7 +94,7 @@ def apply_ragged(
 
 def segment(
     x: np.ndarray,
-    tolerance: Union[float, timedelta],
+    tolerance: Union[float, np.timedelta64, timedelta, pd.Timedelta],
     rowsize: np.ndarray[int] = None,
 ) -> np.ndarray[int]:
     """Segment an array into contiguous segments.
@@ -102,7 +103,7 @@ def segment(
     ----------
     x : list, np.ndarray, or xr.DataArray
         An array to segment.
-    tolerance : float
+    tolerance : float, np.timedelta64, timedelta, pd.Timedelta
         The maximum signed difference between consecutive points in a segment.
     rowsize : np.ndarray[int], optional
         The size of rows if x is a ragged array. If present, x will be
@@ -123,6 +124,15 @@ def segment(
     >>> x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
     >>> segment(x, 0.5)
     array([1, 3, 2, 4, 1])
+
+    If the array represents time and the tolerance is a timedelta,
+    the same logic applies.
+
+    >>> x = np.array([np.datetime64("2023-01-01"), np.datetime64("2023-01-02"),
+                      np.datetime64("2023-01-03"), np.datetime64("2023-02-01"),
+                      np.datetime64("2023-02-02")])
+    >>> segment(x, np.timedelta64(1, "D"))
+    np.array([3, 2])
 
     If the array is already previously segmented (e.g. multiple trajectories
     as a ragged array), then the ``rowsize`` argument can be used to preserve
@@ -150,8 +160,12 @@ def segment(
     array([2, 2, 2, 2])
     """
 
-    if type(tolerance) == timedelta:
-        positive_tol = tolerance >= timedelta(seconds=0)
+    # for compatibility with datetime list or np.timedelta64 arrays
+    if type(tolerance) in [np.timedelta64, timedelta]:
+        tolerance = pd.Timedelta(tolerance)
+
+    if type(tolerance) == pd.Timedelta:
+        positive_tol = tolerance >= pd.Timedelta("0 seconds")
     else:
         positive_tol = tolerance >= 0
 
