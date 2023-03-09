@@ -103,7 +103,7 @@ def segment(
     ----------
     x : list, np.ndarray, or xr.DataArray
         An array to segment.
-    tolerance : float
+    tolerance : float, np.timedelta64, timedelta, pd.Timedelta
         The maximum signed difference between consecutive points in a segment.
     rowsize : np.ndarray[int], optional
         The size of rows if x is a ragged array. If present, x will be
