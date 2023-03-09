@@ -68,6 +68,7 @@ class RaggedArray:
         name_meta: Optional[list] = [],
         name_data: Optional[list] = [],
         rowsize_func: Optional[Callable[[int], int]] = None,
+        filename_pattern: Optional[str] = "drifter_{id}.nc",
     ):
         """Generate ragged arrays archive from a list of trajectory files
 
@@ -78,20 +79,34 @@ class RaggedArray:
             name_meta (list, optional): Name of metadata variables to include in the archive (Defaults to [])
             name_data (list, optional): Name of the data variables to include in the archive (Defaults to [])
             rowsize_func (Optional[Callable[[int], int]], optional): returns the number of observations from an identification number (to speed up processing) (Defaults to None)
+            filename_pattern (Optional[str]): filename pattern as function of id, e.g. 'drifter_{id}.nc' (default), to use as the second argument to preprocess_func and rowsize_func
 
         Returns:
             obj: ragged array class object
         """
         # if no method is supplied, get the dimension from the preprocessing function
         rowsize_func = (
-            rowsize_func if rowsize_func else lambda i: preprocess_func(i).dims["obs"]
+            rowsize_func
+            if rowsize_func
+            else lambda i, filename_pattern: preprocess_func(i, filename_pattern).dims[
+                "obs"
+            ]
         )
-        rowsize = cls.number_of_observations(rowsize_func, indices)
+        rowsize = cls.number_of_observations(rowsize_func, indices, filename_pattern)
         coords, metadata, data = cls.allocate(
-            preprocess_func, indices, rowsize, name_coords, name_meta, name_data
+            preprocess_func,
+            indices,
+            filename_pattern,
+            rowsize,
+            name_coords,
+            name_meta,
+            name_data,
         )
         attrs_global, attrs_variables = cls.attributes(
-            preprocess_func(indices[0]), name_coords, name_meta, name_data
+            preprocess_func(indices[0], filename_pattern),
+            name_coords,
+            name_meta,
+            name_data,
         )
 
         return cls(coords, metadata, data, attrs_global, attrs_variables)
@@ -168,13 +183,14 @@ class RaggedArray:
 
     @staticmethod
     def number_of_observations(
-        rowsize_func: Callable[[int], int], indices: list
+        rowsize_func: Callable[[int], int], indices: list, filename_pattern: str
     ) -> np.array:
         """Iterate through the files and evaluate the number of observations.
 
         Args:
             rowsize_func (Callable[[int], int]): returns number observations of a trajectory from its identification number
             indices (list): identification numbers list to iterate
+            filename_pattern (str): filename pattern as function of id, e.g. 'drifter_{id}.nc'
 
         Returns:
             np.array: number of observations of each trajectory
@@ -187,7 +203,7 @@ class RaggedArray:
             desc="Retrieving the number of obs",
             ncols=80,
         ):
-            rowsize[i] = rowsize_func(index)
+            rowsize[i] = rowsize_func(index, filename_pattern)
         return rowsize
 
     @staticmethod
@@ -210,7 +226,10 @@ class RaggedArray:
         # coordinates, metadata, and data
         attrs_variables = {}
         for var in name_coords + name_meta + name_data:
-            attrs_variables[var] = ds[var].attrs
+            if var in ds.keys():
+                attrs_variables[var] = ds[var].attrs
+            else:
+                warnings.warn(f"Variable {var} requested but not found; skipping.")
 
         return attrs_global, attrs_variables
 
@@ -218,6 +237,7 @@ class RaggedArray:
     def allocate(
         preprocess_func: Callable[[int], xr.Dataset],
         indices: list,
+        filename_pattern: str,
         rowsize: list,
         name_coords: list,
         name_meta: list,
@@ -228,6 +248,7 @@ class RaggedArray:
         Args:
             preprocess_func (Callable[[int], xr.Dataset]): returns a processed xarray Dataset from an identification number
             indices (list): list of indices separating trajectory in the ragged arrays
+            filename_pattern (str): filename pattern as function of id, e.g. 'drifter_{id}.nc'
             rowsize (list): list of the number of observations per trajectory
             name_coords (list): Name of the coordinate variables to include in the archive
             name_meta (list, optional): Name of metadata variables to include in the archive (Defaults to [])
@@ -238,7 +259,7 @@ class RaggedArray:
         """
 
         # open one file to get dtype of variables
-        ds = preprocess_func(indices[0])
+        ds = preprocess_func(indices[0], filename_pattern)
         nb_traj = len(rowsize)
         nb_obs = np.sum(rowsize).astype("int")
         index_traj = np.insert(np.cumsum(rowsize), 0, 0)
@@ -254,7 +275,10 @@ class RaggedArray:
 
         data = {}
         for var in name_data:
-            data[var] = np.zeros(nb_obs, dtype=ds[var].dtype)
+            if var in ds.keys():
+                data[var] = np.zeros(nb_obs, dtype=ds[var].dtype)
+            else:
+                warnings.warn(f"Variable {var} requested but not found; skipping.")
         ds.close()
 
         # loop and fill the ragged array
@@ -264,7 +288,7 @@ class RaggedArray:
             desc="Filling the Ragged Array",
             ncols=80,
         ):
-            with preprocess_func(index) as ds:
+            with preprocess_func(index, filename_pattern) as ds:
                 size = rowsize[i]
                 oid = index_traj[i]
 
@@ -275,7 +299,12 @@ class RaggedArray:
                     metadata[var][i] = ds[var][0].data
 
                 for var in name_data:
-                    data[var][oid : oid + size] = ds[var].data
+                    if var in ds.keys():
+                        data[var][oid : oid + size] = ds[var].data
+                    else:
+                        warnings.warn(
+                            f"Variable {var} requested but not found; skipping."
+                        )
 
         return coords, metadata, data
 
