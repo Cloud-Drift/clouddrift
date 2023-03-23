@@ -119,16 +119,16 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
         "WMO_number",
         "program_number",
         "buoys_type",
-        "Deployment_date",
-        "Deployment_lat",
-        "Deployment_lon",
+        "Start_date",
+        "Start_lat",
+        "Start_lon",
         "End_date",
         "End_lat",
         "End_lon",
         "Drogue_off_date",
         "death_code",
     ]
-    for t in ["Deployment_date", "End_date", "Drogue_off_date"]:
+    for t in ["Start_date", "End_date", "Drogue_off_date"]:
         df[t] = pd.to_datetime(df[t], format="%Y/%m/%d %H:%M", errors="coerce")
 
     return df
@@ -158,13 +158,14 @@ def get_gdp_metadata() -> pd.DataFrame:
     dfs.append(parse_directory_file(name))
 
     df = pd.concat(dfs)
-    df.sort_values(["Deployment_date"], inplace=True, ignore_index=True)
+    df.sort_values(["Start_date"], inplace=True, ignore_index=True)
     return df
 
 
 def order_by_date(df: pd.DataFrame, idx: list[int]) -> np.ndarray[int]:
-    """From the previously sorted directory files DataFrame, return the drifter
-    indices sorted by their deployment date.
+    """From the previously sorted DataFrame of directory files, return the
+    unique set of drifter IDs sorted by their start date (the date of the first
+    quality-controlled data point).
 
     Parameters
     ----------
@@ -174,7 +175,7 @@ def order_by_date(df: pd.DataFrame, idx: list[int]) -> np.ndarray[int]:
     Returns
     -------
     idx : list
-        List of drifters sorted by their end date.
+        Unique set of drifter IDs sorted by their start date.
     """
     return df.ID[np.where(np.in1d(df.ID, idx))[0]].values
 
