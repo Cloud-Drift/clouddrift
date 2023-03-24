@@ -77,7 +77,7 @@ class select_tests(TestCase):
         # create test ragged array
         ra = RaggedArray.from_files(
             [0, 1, 2],
-            lambda i, _: list_ds[i],
+            lambda i: list_ds[i],
             variables_coords,
             ["ID", "rowsize"],
             ["test"],

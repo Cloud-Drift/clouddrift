@@ -63,7 +63,7 @@ class RaggedArray:
     def from_files(
         cls,
         indices: list,
-        preprocess_func: Callable[[int]],
+        preprocess_func: Callable[[int], xr.Dataset],
         name_coords: list,
         name_meta: Optional[list] = [],
         name_data: Optional[list] = [],
@@ -74,7 +74,7 @@ class RaggedArray:
 
         Args:
             indices (list): identification numbers list to iterate
-            preprocess_func (Callable[int]): returns a processed xarray Dataset from an identification number
+            preprocess_func (Callable[[int], xr.Dataset]): returns a processed xarray Dataset from an identification number
             name_coords (list): Name of the coordinate variables to include in the archive
             name_meta (list, optional): Name of metadata variables to include in the archive (Defaults to [])
             name_data (list, optional): Name of the data variables to include in the archive (Defaults to [])
