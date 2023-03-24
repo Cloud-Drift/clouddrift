@@ -298,9 +298,9 @@ def drogue_presence(lost_time, time) -> bool:
         return time < lost_time
 
 
-def rowsize(index: int, filename_pattern: str) -> int:
+def rowsize(index: int, **kwargs) -> int:
     return xr.open_dataset(
-        os.path.join(GDP_TMP_PATH, filename_pattern.format(id=index)),
+        os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)),
         decode_cf=False,
         decode_times=False,
         concat_characters=False,
@@ -308,7 +308,7 @@ def rowsize(index: int, filename_pattern: str) -> int:
     ).dims["obs"]
 
 
-def preprocess(index: int, filename_pattern: str) -> xr.Dataset:
+def preprocess(index: int, **kwargs) -> xr.Dataset:
     """Extract and preprocess the Lagrangian data and attributes.
 
     This function takes an identification number that can be used to create a
@@ -326,7 +326,7 @@ def preprocess(index: int, filename_pattern: str) -> xr.Dataset:
         Xarray Dataset containing the data and attributes
     """
     ds = xr.load_dataset(
-        os.path.join(GDP_TMP_PATH, filename_pattern.format(id=index)),
+        os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)),
         decode_times=False,
         decode_coords=False,
     )

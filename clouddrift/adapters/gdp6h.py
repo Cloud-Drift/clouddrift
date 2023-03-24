@@ -131,4 +131,5 @@ def to_raggedarray(
         name_data=gdp.GDP_DATA,
         rowsize_func=gdp.rowsize,
         filename_pattern="drifter_{id}.nc",
+        tmp_path=GDP_TMP_PATH,
     )
