@@ -5,17 +5,11 @@ defined in this module are common to both hourly (``clouddrift.adapters.gdp1h``)
 and six-hourly (``clouddrift.adapters.gdp6h``) GDP modules.
 """
 
-from ..dataformat import RaggedArray
 import numpy as np
 import pandas as pd
 from datetime import datetime
 import xarray as xr
 import urllib.request
-import concurrent.futures
-import re
-import tempfile
-from tqdm import tqdm
-from typing import Optional
 import os
 import warnings
 

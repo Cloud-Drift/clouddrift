@@ -4,7 +4,8 @@ This module provides functions and metadata that can be used to convert the
 instance.
 """
 
-from ..dataformat import RaggedArray
+import clouddrift.adapters.gdp as gdp
+from clouddrift.dataformat import RaggedArray
 import numpy as np
 import urllib.request
 import concurrent.futures
@@ -14,8 +15,6 @@ from tqdm import tqdm
 from typing import Optional
 import os
 import warnings
-
-import clouddrift.adapters.gdp as gdp
 
 
 GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/netcdf/"
@@ -115,6 +114,9 @@ def to_raggedarray(
         List of drifters to retrieve (Default: all)
     n_random_id : list[int], optional
         Randomly select n_random_id drifter NetCDF files
+    url : str, optional
+        URL from which to download the data (Default: GDP_DATA_URL).
+        Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL.
 
     Returns
     -------
