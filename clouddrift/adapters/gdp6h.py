@@ -103,10 +103,9 @@ def download(
 def to_raggedarray(
     drifter_ids: Optional[list[int]] = None,
     n_random_id: Optional[int] = None,
-    url: Optional[str] = GDP_DATA_URL,
 ) -> RaggedArray:
-    """Download and process individual GDP hourly files and return a RaggedArray
-    instance with the data.
+    """Download and process individual GDP 6-hourly files and return a
+    RaggedArray instance with the data.
 
     Parameters
     ----------
@@ -114,16 +113,13 @@ def to_raggedarray(
         List of drifters to retrieve (Default: all)
     n_random_id : list[int], optional
         Randomly select n_random_id drifter NetCDF files
-    url : str, optional
-        URL from which to download the data (Default: GDP_DATA_URL).
-        Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL.
 
     Returns
     -------
     out : RaggedArray
         A RaggedArray instance of the requested dataset
     """
-    ids = download(drifter_ids, n_random_id, url)
+    ids = download(drifter_ids, n_random_id, GDP_DATA_URL)
 
     return RaggedArray.from_files(
         indices=ids,
