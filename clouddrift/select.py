@@ -1,5 +1,6 @@
-import awkward as ak
+import xarray as xr
 import numpy as np
+import warnings
 
 
 def mask_var(var: xr.DataArray, value):
@@ -16,7 +17,7 @@ def mask_var(var: xr.DataArray, value):
     if isinstance(value, tuple):  # min/max defining range
         mask = np.logical_and(var >= min(value), var <= max(value))
     elif isinstance(value, list):  # select multiples
-        mask = ak.zeros_like(var)
+        mask = xr.zeros_like(var)
         for v in value:
             mask = np.logical_or(mask, var == v)
     else:  # select one
@@ -50,8 +51,8 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
         A scalar for selecting a specific value.
         >>> subset(ds, {"drogue_status": True})  # extract segment of trajectory with drogue
     """
-    mask_traj = xr.DataArray(data=np.ones(ds.dims["traj"]), dims=["traj"])
-    mask_obs = xr.DataArray(data=np.ones(ds.dims["obs"]), dims=["obs"])
+    mask_traj = xr.DataArray(data=np.ones(ds.dims["traj"], dtype="bool"), dims=["traj"])
+    mask_obs = xr.DataArray(data=np.ones(ds.dims["obs"], dtype="bool"), dims=["obs"])
 
     for key in criteria.keys():
         if key in ds:
@@ -62,13 +63,22 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
         else:
             raise ValueError(f"Unknown variable '{key}'.")
 
+    # remove data when trajectories are filtered
+    traj_idx = np.insert(np.cumsum(ds["rowsize"].values), 0, 0)
+    for i in np.where(~mask_traj)[0]:
+        mask_obs[slice(traj_idx[i], traj_idx[i + 1])] = False
+
     # remove trajectory completely filtered in mask_obs
     mask_traj = np.logical_and(
-        mask_traj, np.in1d(ds.ID, np.unique(ds.ids.sel({"obs": b})))
+        mask_traj, np.in1d(ds["ID"], np.unique(ds["ids"].isel({"obs": mask_obs})))
     )
 
     if not any(mask_traj):
         warnings.warn("Empty set.")
         return xr.Dataset()
-    else:  # apply the filtering for both dimensions
+    else:
+        # update rowsize
+        id_count = np.bincount(ds.ids[mask_obs])
+        ds["rowsize"].values[mask_traj] = [id_count[i] for i in ds.ID[mask_traj]]
+        # apply the filtering for both dimensions
         return ds.isel({"traj": mask_traj, "obs": mask_obs})

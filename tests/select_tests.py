@@ -5,15 +5,9 @@ import xarray as xr
 import awkward as ak
 from clouddrift import RaggedArray, select
 
+
 if __name__ == "__main__":
     unittest.main()
-
-
-def is_ak_empty(ds: ak.Array):
-    if len(ds) == 0 and not ds.fields:
-        return True
-    else:
-        return False
 
 
 class select_tests(TestCase):
@@ -83,7 +77,7 @@ class select_tests(TestCase):
             ["test"],
         )
 
-        self.ds = ra.to_awkward()
+        self.ds = ra.to_xarray()
 
     def test_equal(self):
         ds_sub = select.subset(self.ds, {"test": True})
@@ -91,41 +85,46 @@ class select_tests(TestCase):
 
     def test_select(self):
         ds_sub = select.subset(self.ds, {"ID": [1, 2]})
-        self.assertTrue(ak.all(ds_sub.ID == ak.Array([1, 2])))
-        self.assertEqual(len(ds_sub.obs.lon), 2)
+        self.assertTrue(all(ds_sub.ID == [1, 2]))
+        self.assertEqual(len(ds_sub.ID), 2)
 
     def test_range(self):
         # positive
         ds_sub = select.subset(self.ds, {"lon": (0, 180)})
-        self.assertTrue(ak.all(ds_sub.obs.lon[0] == ak.Array([51, 61, 71])))
-        self.assertTrue(ak.all(ds_sub.obs.lon[1] == ak.Array([12, 22, 32, 42])))
-        self.assertTrue(ak.all(ds_sub.obs.lon[2] == ak.Array([103, 113])))
+        traj_idx = np.insert(np.cumsum(ds_sub["rowsize"].values), 0, 0)
+        self.assertTrue(
+            all(ds_sub.lon[slice(traj_idx[0], traj_idx[1])] == [51, 61, 71])
+        )
+        self.assertTrue(
+            all(ds_sub.lon[slice(traj_idx[1], traj_idx[2])] == [12, 22, 32, 42])
+        )
+        self.assertTrue(all(ds_sub.lon[slice(traj_idx[2], traj_idx[3])] == [103, 113]))
 
         # negative range
         ds_sub = select.subset(self.ds, {"lon": (-180, 0)})
+        traj_idx = np.insert(np.cumsum(ds_sub["rowsize"].values), 0, 0)
         self.assertEqual(len(ds_sub.ID), 1)
         self.assertEqual(ds_sub.ID[0], 1)
-        self.assertEqual(len(ds_sub.obs.lon), 1)
-        self.assertTrue(ak.all(ds_sub.obs.lon[0] == ak.Array([-121, -111])))
+        self.assertTrue(all(ds_sub.lon == [-121, -111]))
 
         # both
         ds_sub = select.subset(self.ds, {"lon": (-30, 30)})
+        traj_idx = np.insert(np.cumsum(ds_sub["rowsize"].values), 0, 0)
         self.assertEqual(len(ds_sub.ID), 1)
         self.assertEqual(ds_sub.ID[0], 2)
-        self.assertEqual(len(ds_sub.obs.lon), 1)
-        self.assertTrue(ak.all(ds_sub.obs.lon[0] == ak.Array([12, 22])))
+        self.assertTrue(all(ds_sub.lon[slice(traj_idx[0], traj_idx[1])] == ([12, 22])))
 
     def test_combine(self):
         ds_sub = select.subset(
             self.ds, {"ID": [1, 2], "lat": (-90, 20), "lon": (-180, 25), "test": True}
         )
-        self.assertTrue(ak.all(ds_sub.ID == ak.Array([1, 2])))
-        self.assertTrue(ak.all(ds_sub.obs.lon == ak.Array([[-121, -111], [12]])))
-        self.assertTrue(ak.all(ds_sub.obs.lat == ak.Array([[-90, -45], [10]])))
+        self.assertTrue(all(ds_sub.ID == [1, 2]))
+        self.assertTrue(all(ds_sub.lon == [-121, -111, 12]))
+        self.assertTrue(all(ds_sub.lat == [-90, -45, 10]))
 
     def test_empty(self):
         ds_sub = select.subset(self.ds, {"ID": 3, "lon": (-180, 0)})
-        self.assertTrue(is_ak_empty(ds_sub))
+        self.assertTrue(ds_sub.dims == {})
 
     def test_unknown_var(self):
         with self.assertRaises(ValueError):
