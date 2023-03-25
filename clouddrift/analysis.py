@@ -54,8 +54,8 @@ def apply_ragged(
     >>> y = np.arange(0, len(x))
     >>> t = np.array([1, 2, 1, 2, 3, 1, 2, 3, 4])
 
-    Using apply_ragged, allow the process trajectory of an array independently. For example,
-    we can calculate the velocity from the position and time arrays. Note that the first trajectory
+    Using ``velocity_from_position`` with ``apply_ragged``, the velocities of each trajectory
+    are obtained from the positions and time ragged arrays [x,y,t]. Note that the first trajectory
     has 2 data points, the second has 3, and the third has 4.
 
     >>> u1, v1 = apply_ragged(velocity_from_position, rowsize, [x, y, t], coord_system="cartesian")
