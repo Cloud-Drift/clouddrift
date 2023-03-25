@@ -49,12 +49,18 @@ def apply_ragged(
 
     Examples
     --------
-    >>> def func(x, y):
-    ...     return x + y
-    >>> x = np.arange(10)
-    >>> y = np.arange(10, 20)
-    >>> apply_ragged(func, [x, y], [5, 5])
-    array([10, 12, 14, 16, 18, 20, 22, 24, 26, 28])
+    >>> rowsize = [2, 3, 4]
+    >>> x = np.array([1, 2, 10, 12, 14, 30, 33, 36, 39])
+    >>> y = np.arange(0, len(x))
+    >>> t = np.array([1, 2, 1, 2, 3, 1, 2, 3, 4])
+
+    Using apply_ragged, allow the process trajectory of an array independently. For example,
+    we can calculate the velocity from the position and time arrays. Note that the first trajectory
+    has 2 data points, the second has 3, and the third has 4.
+
+    >>> u1, v1 = apply_ragged(velocity_from_position, rowsize, [x, y, t], coord_system="cartesian")
+    array([1., 1., 2., 2., 2., 3., 3., 3., 3.]),
+    array([1., 1., 1., 1., 1., 1., 1., 1., 1.]))
 
     Raises
     ------
