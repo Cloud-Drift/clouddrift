@@ -2,15 +2,15 @@ import awkward as ak
 import numpy as np
 
 
-def mask_var(var: ak.Array, value):
+def mask_var(var: xr.DataArray, value):
     """Return the mask of a subset of the data matching a test criterion.
 
     Args:
-        var (ak.Array): ak.Array
+        var (xr.DataArray): ak.Array
         value: tuple, list or scalar defining a test criterion
 
     Returns:
-        mask (Ak.Array): where values corresponding to the criterion are True
+        mask (xr.DataArray): where values corresponding to the criterion are True
     """
 
     if isinstance(value, tuple):  # min/max defining range
@@ -24,17 +24,17 @@ def mask_var(var: ak.Array, value):
     return mask
 
 
-def subset(ds: ak.Array, criteria: dict) -> ak.Array:
+def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
     """Subset the dataset as a function of one or many criteria. The criteria are passed as a dictionary, where
     a variable to subset is assigned to either a range (valuemin, valuemax), a list [value1, value2, valueN],
     or a single value.
 
     Args:
-        ds (ak.Array): dataset
+        ds (xr.Dataset): dataset
         criteria (dict): dictionary containing the variables and the ranges/values to retrieve
 
     Returns:
-        ds_subset: subset ak.Array Dataset
+        ds_subset: subset xr.Dataset
 
     Usage:
         Operation can be combined, and any data or metadata variables part of the Dataset can
@@ -50,30 +50,25 @@ def subset(ds: ak.Array, criteria: dict) -> ak.Array:
         A scalar for selecting a specific value.
         >>> subset(ds, {"drogue_status": True})  # extract segment of trajectory with drogue
     """
-
-    mask_traj = ak.ones_like(ds[ds.fields[0]], dtype="bool")
-    mask_obs = ak.ones_like(ds.obs[ds.obs.fields[0]], dtype="bool")
+    mask_traj = xr.DataArray(data=np.ones(ds.dims["traj"]), dims=["traj"])
+    mask_obs = xr.DataArray(data=np.ones(ds.dims["obs"]), dims=["obs"])
 
     for key in criteria.keys():
-        if key in ds.fields:
-            mask_traj = np.logical_and(mask_traj, mask_var(ds[key], criteria[key]))
-        elif key in ds.obs.fields:
-            mask_obs = np.logical_and(mask_obs, mask_var(ds.obs[key], criteria[key]))
+        if key in ds:
+            if ds[key].dims == ("traj",):
+                mask_traj = np.logical_and(mask_traj, mask_var(ds[key], criteria[key]))
+            elif ds[key].dims == ("obs",):
+                mask_obs = np.logical_and(mask_obs, mask_var(ds[key], criteria[key]))
         else:
             raise ValueError(f"Unknown variable '{key}'.")
 
-    # mask id not in mask_obs
-    mask_traj = np.logical_and(mask_traj, ak.any(mask_obs, 1))
+    # remove trajectory completely filtered in mask_obs
+    mask_traj = np.logical_and(
+        mask_traj, np.in1d(ds.ID, np.unique(ds.ids.sel({"obs": b})))
+    )
 
-    if not ak.any(mask_traj):
-        print("Empty set.")
-        return ak.Array([])
+    if not any(mask_traj):
+        warnings.warn("Empty set.")
+        return xr.Dataset()
     else:  # apply the filtering for both dimensions
-        ds_subset = ak.to_packed(ds[mask_traj])
-        ds_subset = ak.with_field(
-            ds_subset, ak.to_packed(ds.obs[mask_obs][mask_traj]), "obs"
-        )
-        ds_subset = ak.with_field(
-            ds_subset, ak.Array([len(x) for x in ds_subset.obs.ids]), "rowsize"
-        )
-        return ds_subset
+        return ds.isel({"traj": mask_traj, "obs": mask_obs})
