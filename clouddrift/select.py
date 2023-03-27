@@ -4,7 +4,9 @@ import warnings
 from typing import Union
 
 
-def mask_var(var: xr.DataArray, criterion: Union[tuple, list, bool, float, int]) -> xr.DataArray:
+def mask_var(
+    var: xr.DataArray, criterion: Union[tuple, list, bool, float, int]
+) -> xr.DataArray:
     """Return the mask of a subset of the data matching a test criterion.
 
     Parameters
@@ -21,10 +23,10 @@ def mask_var(var: xr.DataArray, criterion: Union[tuple, list, bool, float, int])
     --------
     >>> x = xr.DataArray(data=np.arange(0, 5))
     >>> mask_var(x, (2, 4))
-    <xarray.DataArray (dim_0: 5)> 
+    <xarray.DataArray (dim_0: 5)>
     array([False, False,  True,  True,  True])
     Dimensions without coordinates: dim_0
-    
+
     >>> mask_var(x, [0, 2, 4])
     <xarray.DataArray (dim_0: 5)>
     array([ True, False, True,  False, True])
@@ -86,7 +88,7 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
     ------
     ValueError
         If one of the variable in a criterion is not found in the Dataset
-    """    
+    """
     mask_traj = xr.DataArray(data=np.ones(ds.dims["traj"], dtype="bool"), dims=["traj"])
     mask_obs = xr.DataArray(data=np.ones(ds.dims["obs"], dtype="bool"), dims=["obs"])
 
