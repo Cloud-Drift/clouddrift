@@ -41,6 +41,8 @@ def download(
         List of retrived drifters
     """
 
+    print(f"Downloading GDP 6-hourly data to {GDP_TMP_PATH}...")
+
     # Create a temporary directory if doesn't already exists.
     os.makedirs(GDP_TMP_PATH, exist_ok=True)
 
