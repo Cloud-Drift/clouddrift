@@ -6,4 +6,5 @@ Currently, clouddrift only provides an adapter module for the hourly Global
 Drifter Program (GDP) data, and more adapters will be added in the future.
 """
 
-import clouddrift.adapters.gdp
+import clouddrift.adapters.gdp1h
+import clouddrift.adapters.gdp6h

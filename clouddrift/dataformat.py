@@ -68,7 +68,7 @@ class RaggedArray:
         name_meta: Optional[list] = [],
         name_data: Optional[list] = [],
         rowsize_func: Optional[Callable[[int], int]] = None,
-        filename_pattern: Optional[str] = "drifter_{id}.nc",
+        **kwargs,
     ):
         """Generate ragged arrays archive from a list of trajectory files
 
@@ -79,7 +79,6 @@ class RaggedArray:
             name_meta (list, optional): Name of metadata variables to include in the archive (Defaults to [])
             name_data (list, optional): Name of the data variables to include in the archive (Defaults to [])
             rowsize_func (Optional[Callable[[int], int]], optional): returns the number of observations from an identification number (to speed up processing) (Defaults to None)
-            filename_pattern (Optional[str]): filename pattern as function of id, e.g. 'drifter_{id}.nc' (default), to use as the second argument to preprocess_func and rowsize_func
 
         Returns:
             obj: ragged array class object
@@ -88,22 +87,20 @@ class RaggedArray:
         rowsize_func = (
             rowsize_func
             if rowsize_func
-            else lambda i, filename_pattern: preprocess_func(i, filename_pattern).dims[
-                "obs"
-            ]
+            else lambda i, **kwargs: preprocess_func(i, **kwargs).dims["obs"]
         )
-        rowsize = cls.number_of_observations(rowsize_func, indices, filename_pattern)
+        rowsize = cls.number_of_observations(rowsize_func, indices, **kwargs)
         coords, metadata, data = cls.allocate(
             preprocess_func,
             indices,
-            filename_pattern,
             rowsize,
             name_coords,
             name_meta,
             name_data,
+            **kwargs,
         )
         attrs_global, attrs_variables = cls.attributes(
-            preprocess_func(indices[0], filename_pattern),
+            preprocess_func(indices[0], **kwargs),
             name_coords,
             name_meta,
             name_data,
@@ -183,14 +180,13 @@ class RaggedArray:
 
     @staticmethod
     def number_of_observations(
-        rowsize_func: Callable[[int], int], indices: list, filename_pattern: str
+        rowsize_func: Callable[[int], int], indices: list, **kwargs
     ) -> np.array:
         """Iterate through the files and evaluate the number of observations.
 
         Args:
             rowsize_func (Callable[[int], int]): returns number observations of a trajectory from its identification number
             indices (list): identification numbers list to iterate
-            filename_pattern (str): filename pattern as function of id, e.g. 'drifter_{id}.nc'
 
         Returns:
             np.array: number of observations of each trajectory
@@ -203,7 +199,7 @@ class RaggedArray:
             desc="Retrieving the number of obs",
             ncols=80,
         ):
-            rowsize[i] = rowsize_func(index, filename_pattern)
+            rowsize[i] = rowsize_func(index, **kwargs)
         return rowsize
 
     @staticmethod
@@ -237,18 +233,17 @@ class RaggedArray:
     def allocate(
         preprocess_func: Callable[[int], xr.Dataset],
         indices: list,
-        filename_pattern: str,
         rowsize: list,
         name_coords: list,
         name_meta: list,
         name_data: list,
+        **kwargs,
     ) -> Tuple[dict, dict, dict]:
         """Iterate through the files and fill for the ragged array associated with coordinates, and selected metadata and data variables.
 
         Args:
             preprocess_func (Callable[[int], xr.Dataset]): returns a processed xarray Dataset from an identification number
             indices (list): list of indices separating trajectory in the ragged arrays
-            filename_pattern (str): filename pattern as function of id, e.g. 'drifter_{id}.nc'
             rowsize (list): list of the number of observations per trajectory
             name_coords (list): Name of the coordinate variables to include in the archive
             name_meta (list, optional): Name of metadata variables to include in the archive (Defaults to [])
@@ -259,7 +254,7 @@ class RaggedArray:
         """
 
         # open one file to get dtype of variables
-        ds = preprocess_func(indices[0], filename_pattern)
+        ds = preprocess_func(indices[0], **kwargs)
         nb_traj = len(rowsize)
         nb_obs = np.sum(rowsize).astype("int")
         index_traj = np.insert(np.cumsum(rowsize), 0, 0)
@@ -288,7 +283,7 @@ class RaggedArray:
             desc="Filling the Ragged Array",
             ncols=80,
         ):
-            with preprocess_func(index, filename_pattern) as ds:
+            with preprocess_func(index, **kwargs) as ds:
                 size = rowsize[i]
                 oid = index_traj[i]
 
