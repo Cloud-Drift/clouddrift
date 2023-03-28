@@ -69,7 +69,7 @@ class dataformat_tests(TestCase):
         # create test ragged array
         self.ra = RaggedArray.from_files(
             [0, 1, 2],
-            lambda i, _: list_ds[i],
+            lambda i: list_ds[i],
             self.variables_coords,
             ["ID", "rowsize"],
             ["temp"],
