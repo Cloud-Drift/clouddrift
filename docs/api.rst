@@ -12,10 +12,17 @@ Adapters
   :members:
   :undoc-members:
 
-GDP
-^^^
+GDP (hourly)
+^^^^^^^^^^^^
 
-.. automodule:: clouddrift.adapters.gdp
+.. automodule:: clouddrift.adapters.gdp1h
+  :members:
+  :undoc-members:
+
+GDP (6-hourly)
+^^^^^^^^^^^^^^
+
+.. automodule:: clouddrift.adapters.gdp6h
   :members:
   :undoc-members:
 
@@ -37,13 +44,6 @@ Haversine
 ---------
 
 .. automodule:: clouddrift.haversine
-  :members:
-  :undoc-members:
-
-Select
----------
-
-.. automodule:: clouddrift.select
   :members:
   :undoc-members:
 
