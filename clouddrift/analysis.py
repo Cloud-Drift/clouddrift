@@ -99,6 +99,24 @@ def apply_ragged(
         return np.concatenate(res)
 
 
+def chunk(
+    x: Union[np.ndarray, xr.DataArray], length: int, overlap: int = 0
+) -> np.ndarray:
+    """Chunk the ragged array x.
+    """
+    num_chunks = len(x) // (length - overlap)
+    if overlap == 0:
+        return np.reshape(x[: num_chunks * length].values, (num_chunks, length))
+    elif 1 >= overlap < length:
+        res = np.zeros((num_chunks, length))
+        for n in range(num_chunks):
+            start = n * (length - overlap)
+            end = start + length
+            res[n] = x[start:end]
+    else:
+        raise ValueError("Bad value for overlap")
+
+
 def segment(
     x: np.ndarray,
     tolerance: Union[float, np.timedelta64, timedelta, pd.Timedelta],
