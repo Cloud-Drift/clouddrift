@@ -100,21 +100,76 @@ def apply_ragged(
 
 
 def chunk(
-    x: Union[np.ndarray, xr.DataArray], length: int, overlap: int = 0
+    x: Union[list, np.ndarray, xr.DataArray],
+    length: int,
+    overlap: int = 0,
+    rowsize: Union[np.ndarray, xr.DataArray] = None,
 ) -> np.ndarray:
-    """Chunk the ragged array x.
+    """Chunk the ragged array ``x`` into equal-length chunks while respecting
+    the contiguous segments of the ragged array. The result is 2-dimensional
+    NumPy array of shape ``(num_chunks, length)``. The resulting number of chunks
+    is determined based on the length of ``x``, ``length``, ``overlap``, and
+    ``rowsize`` if provided.
+
+    Parameters
+    ----------
+    x : list or np.ndarray or xr.DataArray
+        A list or array-like to split into chunks.
+    length : int
+        The length of each chunk.
+    overlap : int, optional
+        The number of overlapping points between chunks. The default is 0.
+        Must be smaller than ``length``. For example, if ``length`` is 4 and
+        ``overlap`` is 2, the chunks of ``[0, 1, 2, 3, 4, 5]`` will be
+        ``np.array([[0, 1, 2, 3], [2, 3, 4, 5]])``.
+    rowsize : np.ndarray or xr.DataArray, optional
+        The size of rows if x is a ragged array. The default is None, in which
+        case x is assumed to be a 1-dimensional, non-ragged array.
+
+    Returns
+    -------
+    np.ndarray
+        2-dimensional array of shape ``(num_chunks, length)``.
+
+    Examples
+    --------
+
+    >>> chunk([1, 2, 3, 4, 5], 2)
+    array([[1., 2.],
+           [3., 4.]])
+
+    >>> chunk([1, 2, 3, 4, 5], 2, overlap=1)
+    array([[1., 2.],
+           [2., 3.],
+           [3., 4.],
+           [4., 5.]])
     """
-    num_chunks = len(x) // (length - overlap)
-    if overlap == 0:
-        return np.reshape(x[: num_chunks * length].values, (num_chunks, length))
-    elif 1 >= overlap < length:
-        res = np.zeros((num_chunks, length))
-        for n in range(num_chunks):
-            start = n * (length - overlap)
-            end = start + length
-            res[n] = x[start:end]
+
+    if rowsize is None:
+        num_chunks = [
+            (len(x) - length) // (length - overlap) + 1 if len(x) >= length else 0
+        ]
     else:
-        raise ValueError("Bad value for overlap")
+        num_chunks = [
+            (int(row_length) - length) // (length - overlap) + 1
+            if int(row_length) >= length
+            else 0
+            for row_length in rowsize
+        ]
+
+    res = np.empty((sum(num_chunks), length))
+
+    nchunk = 0
+    start = 0
+    for n in num_chunks:
+        # TODO Fix bug with start and end when we have varying rowsizes
+        for i in range(n):
+            end = start + length
+            res[nchunk] = x[start:end]
+            start = end - overlap
+            nchunk += 1
+
+    return res
 
 
 def segment(
