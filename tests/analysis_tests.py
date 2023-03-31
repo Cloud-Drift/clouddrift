@@ -1,4 +1,10 @@
-from clouddrift.analysis import segment, velocity_from_position, apply_ragged, subset
+from clouddrift.analysis import (
+    apply_ragged,
+    chunk,
+    segment,
+    subset,
+    velocity_from_position,
+)
 from clouddrift.haversine import EARTH_RADIUS_METERS
 from clouddrift.dataformat import RaggedArray
 import unittest
@@ -10,6 +16,106 @@ from datetime import datetime, timedelta
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class chunk_tests(unittest.TestCase):
+    def test_chunk(self):
+        # Simple chunk without trimming
+        self.assertTrue(np.all(chunk([1, 2, 3, 4], 2) == np.array([[1, 2], [3, 4]])))
+
+        # Simple chunk with trimming
+        self.assertTrue(np.all(chunk([1, 2, 3, 4, 5], 2) == np.array([[1, 2], [3, 4]])))
+
+        # When length == 1, result is a transpose of the input
+        self.assertTrue(np.all(chunk([1, 2, 3, 4], 1) == np.array([[1, 2, 3, 4]]).T))
+
+        # When length > len(x), result is an empty 2-d array
+        self.assertTrue(chunk([1], 2).shape == (0, 2))
+
+        # When length == 0, the function raises a ZeroDivisionError
+        with self.assertRaises(ZeroDivisionError):
+            chunk([1], 0)
+
+        # When length < 0, the function raises a ValueError
+        with self.assertRaises(ValueError):
+            chunk([1], -1)
+
+    def test_chunk_overlap(self):
+        # Simple chunk with overlap
+        self.assertTrue(
+            np.all(
+                chunk([1, 2, 3, 4, 5], 2, 1)
+                == np.array([[1, 2], [2, 3], [3, 4], [4, 5]])
+            )
+        )
+
+        # Overlap larger than length raises ValueError
+        with self.assertRaises(ValueError):
+            chunk([1, 2, 3, 4, 5], 2, 3)
+
+        # Negative overlap offsets chunks
+        self.assertTrue(
+            np.all(chunk([1, 2, 3, 4, 5], 2, -1) == np.array([[1, 2], [4, 5]]))
+        )
+
+    def test_chunk_rowsize(self):
+        # Simple chunk with rowsize
+        self.assertTrue(
+            np.all(
+                chunk([1, 2, 3, 4, 5, 6], 2, rowsize=[2, 3, 1])
+                == np.array([[1, 2], [3, 4]])
+            )
+        )
+
+        # rowsize too short raises ValueError
+        with self.assertRaises(ValueError):
+            chunk([1, 2, 3, 4, 5, 6], 2, rowsize=[2, 3])
+
+        # rowsize too long raises ValueError
+        with self.assertRaises(ValueError):
+            chunk([1, 2, 3, 4, 5, 6], 2, rowsize=[2, 3, 1, 1])
+
+        # rowsize with overlap
+        self.assertTrue(
+            np.all(
+                chunk([1, 2, 3, 4, 5, 6], 2, overlap=1, rowsize=[2, 3, 1])
+                == np.array([[1, 2], [3, 4], [4, 5]])
+            )
+        )
+
+    def test_chunk_array_like(self):
+        # chunk works with array-like objects
+        self.assertTrue(
+            np.all(chunk(np.array([1, 2, 3, 4]), 2) == np.array([[1, 2], [3, 4]]))
+        )
+        self.assertTrue(
+            np.all(
+                chunk(xr.DataArray(data=[1, 2, 3, 4]), 2) == np.array([[1, 2], [3, 4]])
+            )
+        )
+        self.assertTrue(
+            np.all(chunk(pd.Series(data=[1, 2, 3, 4]), 2) == np.array([[1, 2], [3, 4]]))
+        )
+
+        # chunk works with rowsize as array-like objects
+        self.assertTrue(
+            np.all(
+                chunk([1, 2, 3, 4], 2, rowsize=np.array([2, 2]))
+                == np.array([[1, 2], [3, 4]])
+            )
+        )
+        self.assertTrue(
+            np.all(
+                chunk([1, 2, 3, 4], 2, rowsize=xr.DataArray(data=[2, 2]))
+                == np.array([[1, 2], [3, 4]])
+            )
+        )
+        self.assertTrue(
+            np.all(
+                chunk([1, 2, 3, 4], 2, rowsize=pd.Series(data=[2, 2]))
+                == np.array([[1, 2], [3, 4]])
+            )
+        )
 
 
 class segment_tests(unittest.TestCase):
