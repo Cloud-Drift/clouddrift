@@ -187,7 +187,7 @@ def chunk(
             start = end - overlap
             nchunk += 1
         if rowsize is not None:
-            row_start += rowsize[row]
+            row_start += int(rowsize[row])
 
     return res
 
