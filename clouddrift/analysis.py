@@ -99,6 +99,83 @@ def apply_ragged(
         return np.concatenate(res)
 
 
+def chunk(
+    x: Union[list, np.ndarray, xr.DataArray, pd.Series],
+    length: int,
+    overlap: int = 0,
+) -> np.ndarray:
+    """Chunk an array ``x`` into equal-length chunks while respecting
+    the contiguous segments of the ragged array. The result is 2-dimensional
+    NumPy array of shape ``(num_chunks, length)``. The resulting number of chunks
+    is determined based on the length of ``x``, ``length``, and ``overlap``.
+
+    ``chunk`` is compatible with :func:`apply_ragged`, which allows you to chunk
+    a ragged array.
+
+    Parameters
+    ----------
+    x : list or array-like
+        Array to split into chunks.
+    length : int
+        The length of each chunk.
+    overlap : int, optional
+        The number of overlapping points between chunks. The default is 0.
+        Must be smaller than ``length``. For example, if ``length`` is 4 and
+        ``overlap`` is 2, the chunks of ``[0, 1, 2, 3, 4, 5]`` will be
+        ``np.array([[0, 1, 2, 3], [2, 3, 4, 5]])``. Negative overlap can be used
+        to offset chunks by some number of elements. For example, if ``length``
+        is 2 and ``overlap`` is -1, the chunks of ``[0, 1, 2, 3, 4, 5]`` will
+        be ``np.array([[0, 1], [3, 4]])``.
+
+    Returns
+    -------
+    np.ndarray
+        2-dimensional array of shape ``(num_chunks, length)``.
+
+    Examples
+    --------
+
+    Chunk a simple list; this will trim the end that exceeds the last chunk:
+
+    >>> chunk([1, 2, 3, 4, 5], 2)
+    array([[1, 2],
+           [3, 4]])
+
+    Specify ``overlap`` to get overlapping chunks:
+
+    >>> chunk([1, 2, 3, 4, 5], 2, overlap=1)
+    array([[1, 2],
+           [2, 3],
+           [3, 4],
+           [4, 5]])
+
+    Use ``apply_ragged`` to chunk a ragged array; notice that you must pass the
+    array to chunk as an array-like, not a list:
+
+    >>> apply_ragged(chunk, np.array([1, 2, 3, 4, 5]), rowsize=[2, 1, 2], 2)])
+    array([[1, 2],
+           [4, 5]])
+
+    Raises
+    ------
+    ValueError
+        If ``length < 0``.
+    ZeroDivisionError
+        if ``length == 0``.
+    """
+    num_chunks = (len(x) - length) // (length - overlap) + 1 if len(x) >= length else 0
+
+    res = np.empty((num_chunks, length), dtype=np.array(x).dtype)
+
+    start = 0
+    for n in range(num_chunks):
+        end = start + length
+        res[n] = x[start:end]
+        start = end - overlap
+
+    return res
+
+
 def segment(
     x: np.ndarray,
     tolerance: Union[float, np.timedelta64, timedelta, pd.Timedelta],
