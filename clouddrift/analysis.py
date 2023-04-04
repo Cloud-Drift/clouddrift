@@ -103,6 +103,7 @@ def chunk(
     x: Union[list, np.ndarray, xr.DataArray, pd.Series],
     length: int,
     overlap: int = 0,
+    discard_last: bool = True,
 ) -> np.ndarray:
     """Chunk an array ``x`` into equal-length chunks while respecting
     the contiguous segments of the ragged array. The result is 2-dimensional
@@ -126,6 +127,10 @@ def chunk(
         to offset chunks by some number of elements. For example, if ``length``
         is 2 and ``overlap`` is -1, the chunks of ``[0, 1, 2, 3, 4, 5]`` will
         be ``np.array([[0, 1], [3, 4]])``.
+    discard_last : bool, optional
+        If the number of chunks is not a multiple of the length of ``x``, the
+        points at the end will be thrown away. If ``skip_last`` is False, the
+        points at the beginning are thrown away. The default is True.
 
     Returns
     -------
@@ -167,7 +172,7 @@ def chunk(
 
     res = np.empty((num_chunks, length), dtype=np.array(x).dtype)
 
-    start = 0
+    start = 0 if discard_last else 1
     for n in range(num_chunks):
         end = start + length
         res[n] = x[start:end]

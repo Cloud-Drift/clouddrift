@@ -26,6 +26,9 @@ class chunk_tests(unittest.TestCase):
         # Simple chunk with trimming
         self.assertTrue(np.all(chunk([1, 2, 3, 4, 5], 2) == np.array([[1, 2], [3, 4]])))
 
+        # Simple chunk with trimming skipping the first point
+        self.assertTrue(np.all(chunk([1, 2, 3, 4, 5], 2, discard_last=False) == np.array([[2, 3], [4, 5]])))
+
         # When length == 1, result is a transpose of the input
         self.assertTrue(np.all(chunk([1, 2, 3, 4], 1) == np.array([[1, 2, 3, 4]]).T))
 
