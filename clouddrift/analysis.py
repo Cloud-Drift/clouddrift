@@ -103,13 +103,14 @@ def chunk(
     x: Union[list, np.ndarray, xr.DataArray, pd.Series],
     length: int,
     overlap: int = 0,
-    rowsize: Union[list, np.ndarray, xr.DataArray, pd.Series] = None,
 ) -> np.ndarray:
-    """Chunk the ragged array ``x`` into equal-length chunks while respecting
+    """Chunk an array ``x`` into equal-length chunks while respecting
     the contiguous segments of the ragged array. The result is 2-dimensional
     NumPy array of shape ``(num_chunks, length)``. The resulting number of chunks
-    is determined based on the length of ``x``, ``length``, ``overlap``, and
-    ``rowsize`` if provided.
+    is determined based on the length of ``x``, ``length``, and ``overlap``.
+
+    ``chunk`` is compatible with :func:`apply_ragged`, which allows you to chunk
+    a ragged array.
 
     Parameters
     ----------
@@ -125,9 +126,6 @@ def chunk(
         to offset chunks by some number of elements. For example, if ``length``
         is 2 and ``overlap`` is -1, the chunks of ``[0, 1, 2, 3, 4, 5]`` will
         be ``np.array([[0, 1], [3, 4]])``.
-    rowsize : np.ndarray or xr.DataArray, optional
-        The size of rows if x is a ragged array. The default is None, in which
-        case x is assumed to be a 1-dimensional, non-ragged array.
 
     Returns
     -------
@@ -137,9 +135,13 @@ def chunk(
     Examples
     --------
 
+    Chunk a simple list; this will trim the end that exceeds the last chunk:
+
     >>> chunk([1, 2, 3, 4, 5], 2)
     array([[1, 2],
            [3, 4]])
+
+    Specify ``overlap`` to get overlapping chunks:
 
     >>> chunk([1, 2, 3, 4, 5], 2, overlap=1)
     array([[1, 2],
@@ -147,47 +149,29 @@ def chunk(
            [3, 4],
            [4, 5]])
 
-    >>> chunk([1, 2, 3, 4, 5, 6, 7, 8], 2, rowsize=[3, 2, 3])
+    Use ``apply_ragged`` to chunk a ragged array; notice that you must pass the
+    array to chunk as an array-like, not a list:
+
+    >>> apply_ragged(chunk, np.array([1, 2, 3, 4, 5]), rowsize=[2, 1, 2], 2)])
     array([[1, 2],
-           [4, 5],
-           [6, 7]])
+           [4, 5]])
 
     Raises
     ------
     ValueError
-        If the sum of ``rowsize`` does not equal the length of ``x``.
         If ``length < 0``.
     ZeroDivisionError
         if ``length == 0``.
     """
+    num_chunks = (len(x) - length) // (length - overlap) + 1 if len(x) >= length else 0
 
-    if rowsize is None:
-        num_chunks = [
-            (len(x) - length) // (length - overlap) + 1 if len(x) >= length else 0
-        ]
-    else:
-        if not sum(rowsize) == len(x):
-            raise ValueError("The sum of rowsize must equal the length of x.")
-        num_chunks = [
-            (int(row_length) - length) // (length - overlap) + 1
-            if int(row_length) >= length
-            else 0
-            for row_length in rowsize
-        ]
+    res = np.empty((num_chunks, length), dtype=np.array(x).dtype)
 
-    res = np.empty((sum(num_chunks), length), dtype=np.array(x).dtype)
-
-    nchunk = 0
-    row_start = 0
-    for row, n in enumerate(num_chunks):
-        start = row_start
-        for i in range(n):
-            end = start + length
-            res[nchunk] = x[start:end]
-            start = end - overlap
-            nchunk += 1
-        if rowsize is not None:
-            row_start += int(rowsize[row])
+    start = 0
+    for n in range(num_chunks):
+        end = start + length
+        res[n] = x[start:end]
+        start = end - overlap
 
     return res
 

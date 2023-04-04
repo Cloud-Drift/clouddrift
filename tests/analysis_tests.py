@@ -62,23 +62,17 @@ class chunk_tests(unittest.TestCase):
         # Simple chunk with rowsize
         self.assertTrue(
             np.all(
-                chunk([1, 2, 3, 4, 5, 6], 2, rowsize=[2, 3, 1])
+                apply_ragged(chunk, np.array([1, 2, 3, 4, 5, 6]), [2, 3, 1], 2)
                 == np.array([[1, 2], [3, 4]])
             )
         )
 
-        # rowsize too short raises ValueError
-        with self.assertRaises(ValueError):
-            chunk([1, 2, 3, 4, 5, 6], 2, rowsize=[2, 3])
-
-        # rowsize too long raises ValueError
-        with self.assertRaises(ValueError):
-            chunk([1, 2, 3, 4, 5, 6], 2, rowsize=[2, 3, 1, 1])
-
         # rowsize with overlap
         self.assertTrue(
             np.all(
-                chunk([1, 2, 3, 4, 5, 6], 2, overlap=1, rowsize=[2, 3, 1])
+                apply_ragged(
+                    chunk, np.array([1, 2, 3, 4, 5, 6]), [2, 3, 1], 2, overlap=1
+                )
                 == np.array([[1, 2], [3, 4], [4, 5]])
             )
         )
@@ -95,26 +89,6 @@ class chunk_tests(unittest.TestCase):
         )
         self.assertTrue(
             np.all(chunk(pd.Series(data=[1, 2, 3, 4]), 2) == np.array([[1, 2], [3, 4]]))
-        )
-
-        # chunk works with rowsize as array-like objects
-        self.assertTrue(
-            np.all(
-                chunk([1, 2, 3, 4], 2, rowsize=np.array([2, 2]))
-                == np.array([[1, 2], [3, 4]])
-            )
-        )
-        self.assertTrue(
-            np.all(
-                chunk([1, 2, 3, 4], 2, rowsize=xr.DataArray(data=[2, 2]))
-                == np.array([[1, 2], [3, 4]])
-            )
-        )
-        self.assertTrue(
-            np.all(
-                chunk([1, 2, 3, 4], 2, rowsize=pd.Series(data=[2, 2]))
-                == np.array([[1, 2], [3, 4]])
-            )
         )
 
 
