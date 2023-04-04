@@ -172,7 +172,11 @@ def chunk(
 
     res = np.empty((num_chunks, length), dtype=np.array(x).dtype)
 
-    start = 0 if discard_last else 1
+    if discard_last:
+        start = 0
+    else:
+        start = (len(x) + (num_chunks - 1) * overlap) - num_chunks * length
+
     for n in range(num_chunks):
         end = start + length
         res[n] = x[start:end]
