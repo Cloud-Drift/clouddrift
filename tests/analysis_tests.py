@@ -28,16 +28,13 @@ class chunk_tests(unittest.TestCase):
 
         # Simple chunk with trimming skipping the first point
         self.assertTrue(
-            np.all(
-                chunk([1, 2, 3, 4, 5], 2, discard_last=False)
-                == np.array([[2, 3], [4, 5]])
-            )
+            np.all(chunk([1, 2, 3, 4, 5], 2, keep="end") == np.array([[2, 3], [4, 5]]))
         )
 
         # Simple chunk with trimming skipping the first point
         self.assertTrue(
             np.all(
-                chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, discard_last=False)
+                chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, keep="end")
                 == np.array([[3, 4, 5], [6, 7, 8]])
             )
         )
@@ -45,9 +42,14 @@ class chunk_tests(unittest.TestCase):
         # Simple chunk with trimming skipping the first point with overlap
         self.assertTrue(
             np.all(
-                chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, 1, discard_last=False)
+                chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, 1, keep="end")
                 == np.array([[2, 3, 4], [4, 5, 6], [6, 7, 8]])
             )
+        )
+
+        # Simple chunk with trimming skipping the first point with overlap
+        self.assertTrue(
+            np.all(chunk(np.arange(1, 12), 4) == np.array([[2, 3, 4, 5], [6, 7, 8, 9]]))
         )
 
         # When length == 1, result is a transpose of the input

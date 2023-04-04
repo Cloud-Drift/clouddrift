@@ -103,7 +103,7 @@ def chunk(
     x: Union[list, np.ndarray, xr.DataArray, pd.Series],
     length: int,
     overlap: int = 0,
-    discard_last: bool = True,
+    keep: str = "mid",
 ) -> np.ndarray:
     """Chunk an array ``x`` into equal-length chunks while respecting
     the contiguous segments of the ragged array. The result is 2-dimensional
@@ -127,11 +127,15 @@ def chunk(
         to offset chunks by some number of elements. For example, if ``length``
         is 2 and ``overlap`` is -1, the chunks of ``[0, 1, 2, 3, 4, 5]`` will
         be ``np.array([[0, 1], [3, 4]])``.
-    discard_last : bool, optional
+    keep : str, optional ["start", "mid", "last"]
         If the number of chunks (including or not overlap) is not a multiple of the
-        length of ``x``, the points at the end of the array will be thrown away.
-        If ``discard_last`` is False, the points at the beginning of the array are
-        thrown away. The default is True.
+        length of ``x`` and there is a reminder of N points, this parameter controls
+        which part of the array will be kept into the chunks. If `keep="mid"`, floor(N/2)
+        ceil(N/2) points will be respectively discarded from the beginning and the end of
+        the array. If ``keep="start"``, the points at the beginning of the array will
+        be kept, and N points are discarded at the end. If ``keep="last"``, the points at
+        the end of the array will be kept, and the `N` first points are discarded.
+        The default is "mid".
 
     Returns
     -------
@@ -170,13 +174,15 @@ def chunk(
         if ``length == 0``.
     """
     num_chunks = (len(x) - length) // (length - overlap) + 1 if len(x) >= length else 0
-
+    reminder = len(x) - num_chunks * length + (num_chunks - 1) * overlap
     res = np.empty((num_chunks, length), dtype=np.array(x).dtype)
 
-    if discard_last:
+    if keep == "start":
         start = 0
+    elif keep == "end":
+        start = reminder
     else:
-        start = len(x) + (num_chunks - 1) * overlap - num_chunks * length
+        start = np.floor(reminder / 2).astype("int")
 
     for n in range(num_chunks):
         end = start + length
@@ -348,7 +354,8 @@ def velocity_from_position(
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(x.shape) - 1:
         raise ValueError(
-            f"time_axis ({time_axis}) is outside of the valid range ([-1, {len(x.shape) - 1}])."
+            f"time_axis ({time_axis}) is outside of the valid range ([-1,"
+            f" {len(x.shape) - 1}])."
         )
 
     # Nominal order of axes on input, i.e. (0, 1, 2, ..., N-1)
