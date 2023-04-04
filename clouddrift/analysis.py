@@ -176,7 +176,7 @@ def chunk(
     if discard_last:
         start = 0
     else:
-        start = (len(x) + (num_chunks - 1) * overlap) - num_chunks * length
+        start = len(x) + (num_chunks - 1) * overlap - num_chunks * length
 
     for n in range(num_chunks):
         end = start + length
