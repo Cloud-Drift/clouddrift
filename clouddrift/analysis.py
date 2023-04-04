@@ -128,9 +128,9 @@ def chunk(
         is 2 and ``overlap`` is -1, the chunks of ``[0, 1, 2, 3, 4, 5]`` will
         be ``np.array([[0, 1], [3, 4]])``.
     discard_last : bool, optional
-        If the number of chunks (including or not overlap) is not a multiple of the 
-        length of ``x``, the points at the end of the array will be thrown away. 
-        If ``discard_last`` is False, the points at the beginning of the array are 
+        If the number of chunks (including or not overlap) is not a multiple of the
+        length of ``x``, the points at the end of the array will be thrown away.
+        If ``discard_last`` is False, the points at the beginning of the array are
         thrown away. The default is True.
 
     Returns
