@@ -130,11 +130,11 @@ def chunk(
     keep : str, optional ["start", "mid", "last"]
         If the number of chunks (including or not overlap) is not a multiple of the
         length of ``x`` and there is a reminder of N points, this parameter controls
-        which part of the array will be kept into the chunks. If `keep="mid"`, floor(N/2)
-        ceil(N/2) points will be respectively discarded from the beginning and the end of
-        the array. If ``keep="start"``, the points at the beginning of the array will
-        be kept, and N points are discarded at the end. If ``keep="last"``, the points at
-        the end of the array will be kept, and the `N` first points are discarded.
+        which part of the array will be kept into the chunks. If ``keep="start"``, the
+        points at the beginning of the array will be kept, and N points are discarded at
+        the end. If `keep="mid"`, floor(N/2) and ceil(N/2) points will be respectively
+        discarded from the beginning and the end of the array. If ``keep="last"``, the
+        points at the end of the array will be kept, and the `N` first points are discarded.
         The default is "mid".
 
     Returns
