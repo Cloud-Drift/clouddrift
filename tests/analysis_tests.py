@@ -28,28 +28,39 @@ class chunk_tests(unittest.TestCase):
 
         # Simple chunk with trimming skipping the first point
         self.assertTrue(
-            np.all(chunk([1, 2, 3, 4, 5], 2, keep="end") == np.array([[2, 3], [4, 5]]))
+            np.all(chunk([1, 2, 3, 4, 5], 2, align="end") == np.array([[2, 3], [4, 5]]))
         )
 
         # Simple chunk with trimming skipping the first point
         self.assertTrue(
             np.all(
-                chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, keep="end")
+                chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, align="end")
                 == np.array([[3, 4, 5], [6, 7, 8]])
             )
         )
 
-        # Simple chunk with trimming skipping the first point with overlap
+        # Simple chunk with trimming with middle alignment
         self.assertTrue(
             np.all(
-                chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, 1, keep="end")
+                chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, align="middle")
+                == np.array([[2, 3, 4], [5, 6, 7]])
+            )
+        )
+
+        # Simple chunk with align to the end with with overlap
+        self.assertTrue(
+            np.all(
+                chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, 1, align="end")
                 == np.array([[2, 3, 4], [4, 5, 6], [6, 7, 8]])
             )
         )
 
         # Simple chunk with trimming skipping the first point with overlap
         self.assertTrue(
-            np.all(chunk(np.arange(1, 12), 4) == np.array([[2, 3, 4, 5], [6, 7, 8, 9]]))
+            np.all(
+                chunk(np.arange(1, 12), 4, align="middle")
+                == np.array([[2, 3, 4, 5], [6, 7, 8, 9]])
+            )
         )
 
         # When length == 1, result is a transpose of the input
@@ -65,6 +76,10 @@ class chunk_tests(unittest.TestCase):
         # When length < 0, the function raises a ValueError
         with self.assertRaises(ValueError):
             chunk([1], -1)
+
+        # When align is assigned a wrong value, the function raises a ValueError
+        with self.assertRaises(ValueError):
+            chunk([1], 1, align="wrong")
 
     def test_chunk_overlap(self):
         # Simple chunk with overlap

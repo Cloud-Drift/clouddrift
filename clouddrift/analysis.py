@@ -103,7 +103,7 @@ def chunk(
     x: Union[list, np.ndarray, xr.DataArray, pd.Series],
     length: int,
     overlap: int = 0,
-    keep: str = "mid",
+    align: str = "start",
 ) -> np.ndarray:
     """Chunk an array ``x`` into equal-length chunks while respecting
     the contiguous segments of the ragged array. The result is 2-dimensional
@@ -127,15 +127,15 @@ def chunk(
         to offset chunks by some number of elements. For example, if ``length``
         is 2 and ``overlap`` is -1, the chunks of ``[0, 1, 2, 3, 4, 5]`` will
         be ``np.array([[0, 1], [3, 4]])``.
-    keep : str, optional ["start", "mid", "end"]
+    keep : str, optional ["start", "middle", "end"]
         If the number of chunks (including or not overlap) is not a multiple of the
         length of ``x`` and there is a reminder of N points, this parameter controls
         which part of the array will be kept into the chunks. If ``keep="start"``, the
         points at the beginning of the array will be kept, and N points are discarded at
-        the end. If `keep="mid"`, floor(N/2) and ceil(N/2) points will be respectively
+        the end. If `keep="middle"`, floor(N/2) and ceil(N/2) points will be respectively
         discarded from the beginning and the end of the array. If ``keep="end"``, the
         points at the end of the array will be kept, and the `N` first points are discarded.
-        The default is "mid".
+        The default is "start".
 
     Returns
     -------
@@ -150,6 +150,16 @@ def chunk(
     >>> chunk([1, 2, 3, 4, 5], 2)
     array([[1, 2],
            [3, 4]])
+
+    To trim the beginning of the array, use ``align="end"``:
+    >>> chunk([1, 2, 3, 4, 5], 2)
+    array([[2, 3],
+           [4, 5]])
+
+    or to centered the chunks with respect to the array, use ``align="middle"``:
+    chunk([1, 2, 3, 4, 5, 6, 7, 8], 2)
+    array([[2, 3, 4],
+           [5, 6, 7]])
 
     Specify ``overlap`` to get overlapping chunks:
 
@@ -170,19 +180,23 @@ def chunk(
     ------
     ValueError
         If ``length < 0``.
+    ValueError
+        If ``align not in ["start", "middle", "end"]``.
     ZeroDivisionError
         if ``length == 0``.
     """
     num_chunks = (len(x) - length) // (length - overlap) + 1 if len(x) >= length else 0
-    reminder = len(x) - num_chunks * length + (num_chunks - 1) * overlap
+    remainder = len(x) - num_chunks * length + (num_chunks - 1) * overlap
     res = np.empty((num_chunks, length), dtype=np.array(x).dtype)
 
-    if keep == "start":
+    if align == "start":
         start = 0
-    elif keep == "end":
-        start = reminder
-    else:
+    elif align == "middle":
         start = remainder // 2
+    elif align == "end":
+        start = remainder
+    else:
+        raise ValueError("align must be one of 'start', 'middle', or 'end'.")
 
     for n in range(num_chunks):
         end = start + length
