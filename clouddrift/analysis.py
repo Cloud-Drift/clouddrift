@@ -182,7 +182,7 @@ def chunk(
     elif keep == "end":
         start = reminder
     else:
-        start = np.floor(reminder / 2).astype("int")
+        start = remainder // 2
 
     for n in range(num_chunks):
         end = start + length
