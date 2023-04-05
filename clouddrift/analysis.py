@@ -157,7 +157,7 @@ def chunk(
            [4, 5]])
 
     or to centered the chunks with respect to the array, use ``align="middle"``:
-    chunk([1, 2, 3, 4, 5, 6, 7, 8], 2)
+    >>> chunk([1, 2, 3, 4, 5, 6, 7, 8], 3)
     array([[2, 3, 4],
            [5, 6, 7]])
 
