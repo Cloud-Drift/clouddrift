@@ -152,12 +152,12 @@ def chunk(
            [3, 4]])
 
     To trim the beginning of the array, use ``align="end"``:
-    >>> chunk([1, 2, 3, 4, 5], 2)
+    >>> chunk([1, 2, 3, 4, 5], 2, align="end")
     array([[2, 3],
            [4, 5]])
 
     or to centered the chunks with respect to the array, use ``align="middle"``:
-    >>> chunk([1, 2, 3, 4, 5, 6, 7, 8], 3)
+    >>> chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, align="middle")
     array([[2, 3, 4],
            [5, 6, 7]])
 
