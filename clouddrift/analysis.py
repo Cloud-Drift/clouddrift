@@ -127,13 +127,13 @@ def chunk(
         to offset chunks by some number of elements. For example, if ``length``
         is 2 and ``overlap`` is -1, the chunks of ``[0, 1, 2, 3, 4, 5]`` will
         be ``np.array([[0, 1], [3, 4]])``.
-    keep : str, optional ["start", "middle", "end"]
+    align : str, optional ["start", "middle", "end"]
         If the number of chunks (including or not overlap) is not a multiple of the
         length of ``x`` and there is a reminder of N points, this parameter controls
-        which part of the array will be kept into the chunks. If ``keep="start"``, the
+        which part of the array will be kept into the chunks. If ``align="start"``, the
         points at the beginning of the array will be kept, and N points are discarded at
-        the end. If `keep="middle"`, floor(N/2) and ceil(N/2) points will be respectively
-        discarded from the beginning and the end of the array. If ``keep="end"``, the
+        the end. If `align="middle"`, floor(N/2) and ceil(N/2) points will be respectively
+        discarded from the beginning and the end of the array. If ``align="end"``, the
         points at the end of the array will be kept, and the `N` first points are discarded.
         The default is "start".
 
