@@ -206,14 +206,14 @@ def chunk(
     return res
 
 
-def matrix_to_ragged(array: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    """Convert a 2d array to a ragged array. NaN values in the input array are
+def regular_to_ragged(array: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Convert a two-dimensional array to a ragged array. NaN values in the input array are
     excluded from the output ragged array.
 
     Parameters
     ----------
     array : np.ndarray
-        A 2d array.
+        A two-dimensional array.
 
     Returns
     -------
@@ -222,23 +222,23 @@ def matrix_to_ragged(array: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
     Examples
     --------
-    >>> matrix_to_ragged(np.array([[1, 2], [3, np.nan], [4, 5]]))
+    >>> regular_to_ragged(np.array([[1, 2], [3, np.nan], [4, 5]]))
     (array([1., 2., 3., 4., 5.]), array([2, 1, 2]))
 
     See Also
     --------
-    :func:`ragged_to_2darray`
+    :func:`ragged_to_regular`
     """
     ragged = array.flatten()
     return ragged[~np.isnan(ragged)], np.sum(~np.isnan(array), axis=1)
 
 
-def ragged_to_2darray(
+def ragged_to_regular(
     ragged: Union[np.ndarray, pd.Series, xr.DataArray],
     rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
 ) -> np.ndarray:
-    """Convert a ragged array to a 2d array such that each contiguous segment
-    of a ragged array is a row in the 2d array, and the remaining elements are
+    """Convert a ragged array to a two-dimensional array such that each contiguous segment
+    of a ragged array is a row in the two-dimensional array, and the remaining elements are
     padded with NaNs.
 
     Note: Although this function accepts parameters of type ``xarray.DataArray``,
@@ -254,18 +254,18 @@ def ragged_to_2darray(
     Returns
     -------
     np.ndarray
-        A 2d array.
+        A two-dimensional array.
 
     Examples
     --------
-    >>> ragged_to_2darray(np.array([1, 2, 3, 4, 5]), np.array([2, 1, 2]))
+    >>> ragged_to_regular(np.array([1, 2, 3, 4, 5]), np.array([2, 1, 2]))
     array([[ 1.,  2.],
            [ 3., nan],
            [ 4.,  5.]])
 
     See Also
     --------
-    :func:`matrix_to_ragged`
+    :func:`regular_to_ragged`
     """
     res = np.nan * np.empty((len(rowsize), int(max(rowsize))), dtype=ragged.dtype)
     unpacked = unpack_ragged(ragged, rowsize)
