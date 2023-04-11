@@ -1,6 +1,8 @@
 from clouddrift.analysis import (
     apply_ragged,
     chunk,
+    regular_to_ragged,
+    ragged_to_regular,
     segment,
     subset,
     velocity_from_position,
@@ -210,6 +212,49 @@ class segment_tests(unittest.TestCase):
             self.assertIsNone(
                 np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
             )
+
+
+class ragged_to_regular_tests(unittest.TestCase):
+    def test_ragged_to_regular(self):
+        ragged = np.array([1, 2, 3, 4, 5])
+        rowsize = [2, 1, 2]
+        expected = np.array([[1, 2], [3, np.nan], [4, 5]])
+
+        result = ragged_to_regular(ragged, rowsize)
+        self.assertTrue(np.all(np.isnan(result) == np.isnan(expected)))
+        self.assertTrue(
+            np.all(result[~np.isnan(result)] == expected[~np.isnan(expected)])
+        )
+
+        result = ragged_to_regular(
+            xr.DataArray(data=ragged), xr.DataArray(data=rowsize)
+        )
+        self.assertTrue(np.all(np.isnan(result) == np.isnan(expected)))
+        self.assertTrue(
+            np.all(result[~np.isnan(result)] == expected[~np.isnan(expected)])
+        )
+
+        result = ragged_to_regular(pd.Series(data=ragged), pd.Series(data=rowsize))
+        self.assertTrue(np.all(np.isnan(result) == np.isnan(expected)))
+        self.assertTrue(
+            np.all(result[~np.isnan(result)] == expected[~np.isnan(expected)])
+        )
+
+    def test_regular_to_ragged(self):
+        matrix = np.array([[1, 2], [3, np.nan], [4, 5]])
+        expected = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        expected_rowsize = np.array([2, 1, 2])
+
+        result, rowsize = regular_to_ragged(matrix)
+        self.assertTrue(np.all(result == expected))
+        self.assertTrue(np.all(rowsize == expected_rowsize))
+
+    def test_ragged_to_regular_roundtrip(self):
+        ragged = np.array([1, 2, 3, 4, 5])
+        rowsize = [2, 1, 2]
+        new_ragged, new_rowsize = regular_to_ragged(ragged_to_regular(ragged, rowsize))
+        self.assertTrue(np.all(new_ragged == ragged))
+        self.assertTrue(np.all(new_rowsize == rowsize))
 
 
 class velocity_from_position_tests(unittest.TestCase):

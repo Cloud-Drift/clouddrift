@@ -206,6 +206,74 @@ def chunk(
     return res
 
 
+def regular_to_ragged(array: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Convert a two-dimensional array to a ragged array. NaN values in the input array are
+    excluded from the output ragged array.
+
+    Parameters
+    ----------
+    array : np.ndarray
+        A two-dimensional array.
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray]
+        A tuple of the ragged array and the size of each row.
+
+    Examples
+    --------
+    >>> regular_to_ragged(np.array([[1, 2], [3, np.nan], [4, 5]]))
+    (array([1., 2., 3., 4., 5.]), array([2, 1, 2]))
+
+    See Also
+    --------
+    :func:`ragged_to_regular`
+    """
+    ragged = array.flatten()
+    return ragged[~np.isnan(ragged)], np.sum(~np.isnan(array), axis=1)
+
+
+def ragged_to_regular(
+    ragged: Union[np.ndarray, pd.Series, xr.DataArray],
+    rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
+) -> np.ndarray:
+    """Convert a ragged array to a two-dimensional array such that each contiguous segment
+    of a ragged array is a row in the two-dimensional array, and the remaining elements are
+    padded with NaNs.
+
+    Note: Although this function accepts parameters of type ``xarray.DataArray``,
+    passing NumPy arrays is recommended for performance reasons.
+
+    Parameters
+    ----------
+    ragged : np.ndarray or pd.Series or xr.DataArray
+        A ragged array.
+    rowsize : list or np.ndarray[int] or pd.Series or xr.DataArray[int]
+        The size of each row in the ragged array.
+
+    Returns
+    -------
+    np.ndarray
+        A two-dimensional array.
+
+    Examples
+    --------
+    >>> ragged_to_regular(np.array([1, 2, 3, 4, 5]), np.array([2, 1, 2]))
+    array([[ 1.,  2.],
+           [ 3., nan],
+           [ 4.,  5.]])
+
+    See Also
+    --------
+    :func:`regular_to_ragged`
+    """
+    res = np.nan * np.empty((len(rowsize), int(max(rowsize))), dtype=ragged.dtype)
+    unpacked = unpack_ragged(ragged, rowsize)
+    for n in range(len(rowsize)):
+        res[n, : int(rowsize[n])] = unpacked[n]
+    return res
+
+
 def segment(
     x: np.ndarray,
     tolerance: Union[float, np.timedelta64, timedelta, pd.Timedelta],
