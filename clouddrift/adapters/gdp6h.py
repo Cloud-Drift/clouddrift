@@ -439,6 +439,29 @@ def to_raggedarray(
     -------
     out : RaggedArray
         A RaggedArray instance of the requested dataset
+
+    Examples
+    --------
+
+    Invoke `to_raggedarray` without any arguments to download all drifter data
+    from the 6-hourly GDP feed:
+
+    >>> from clouddrift.adapters.gdp6h import to_raggedarray
+    >>> ra = to_raggedarray()
+
+    To download a random sample of 100 drifters, for example for development
+    or testing, use the `n_random_id` argument:
+
+    >>> ra = to_raggedarray(n_random_id=100)
+
+    To download a specific list of drifters, use the `drifter_ids` argument:
+
+    >>> ra = to_raggedarray(drifter_ids=[54375, 114956, 126934])
+
+    Finally, `to_raggedarray` returns a `RaggedArray` instance which provides
+    a convenience method to emit a `xarray.Dataset` instance:
+
+    >>> ds = ra.to_dataset()
     """
     ids = download(drifter_ids, n_random_id, GDP_DATA_URL)
 
