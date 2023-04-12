@@ -461,7 +461,7 @@ def to_raggedarray(
     Finally, `to_raggedarray` returns a `RaggedArray` instance which provides
     a convenience method to emit a `xarray.Dataset` instance:
 
-    >>> ds = ra.to_dataset()
+    >>> ds = ra.to_xarray()
     """
     ids = download(drifter_ids, n_random_id, GDP_DATA_URL)
 
