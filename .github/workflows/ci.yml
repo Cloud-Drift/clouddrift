@@ -1,4 +1,4 @@
-name: CI
+name: test
 
 # Controls when the workflow will run
 on:
@@ -13,21 +13,20 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  ci-pygtm:
-    name: 'test'
+  test:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest"]
-        python-version: ["3.9"]
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        python-version: ["3.9", "3.10", "3.11"]
     steps:
       - uses: actions/checkout@v3
       - uses: mamba-org/provision-with-micromamba@main
         with:
           environment-file: environment.yml
           environment-name: clouddrift
-      - name: Unit testing
+      - name: Testing
         shell: bash -l {0}
         run: |
               pip install coverage
