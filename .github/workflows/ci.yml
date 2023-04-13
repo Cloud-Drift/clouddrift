@@ -1,4 +1,4 @@
-name: test
+name: CI
 
 # Controls when the workflow will run
 on:
@@ -33,6 +33,7 @@ jobs:
               coverage run -m unittest discover -s tests -p "*.py"
               coverage xml
       - name: Upload coverage reports to Codecov
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.9'
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage.xml
