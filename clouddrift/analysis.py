@@ -5,7 +5,7 @@ import pandas as pd
 from concurrent import futures
 from datetime import timedelta
 import warnings
-from clouddrift.haversine import distance, bearing
+from clouddrift.haversine import distance, bearing, position_from_distance_and_bearing
 from clouddrift.dataformat import unpack_ragged
 
 
@@ -369,6 +369,89 @@ def segment(
             segment_sizes.append(segment(x[start:end], tolerance))
             start = end
         return np.concatenate(segment_sizes)
+
+
+def position_from_velocity(
+    u: np.ndarray,
+    v: np.ndarray,
+    time: np.ndarray,
+    x_origin: float,
+    y_origin: float,
+    coord_system: Optional[str] = "spherical",
+    difference_scheme: Optional[str] = "forward",
+    time_axis: Optional[int] = -1,
+) -> Tuple[xr.DataArray, xr.DataArray]:
+    """Compute position from arrays of velocities and time.
+
+    The units of the result are degrees if coord_system == "spherical"
+    (default), or meters if coord_system == "cartesian".
+
+    Parameters
+    ----------
+    u : np.ndarray
+        A two-dimensional array of eastward velocities.
+    v : np.ndarray
+        A two-dimensional array of northward velocities.
+    time : np.ndarray
+        A one-dimensional array of time values.
+    x_origin : float
+        The easting or longitude of the origin.
+    y_origin : float
+        The northing or latitude of the origin.
+    coord_system : str, optional
+        The coordinate system of the input. Can be "spherical" or "cartesian".
+        Default is "spherical".
+    difference_scheme : str, optional
+        The difference scheme to use for computing the position. Can be
+        "forward" or "backward". Default is "forward".
+    time_axis : int, optional
+        The axis of the time array. Default is -1.
+
+    Returns
+    -------
+    x : np.ndarray
+        A two-dimensional array of eastings or longitudes.
+    y : np.ndarray
+        A two-dimensional array of northings or latitudes.
+
+    See Also
+    --------
+    :func:`velocity_from_position`
+    """
+    x = np.zeros(u.shape, dtype=u.dtype)
+    y = np.zeros(v.shape, dtype=v.dtype)
+
+    dt = np.diff(time, axis=time_axis)
+
+    if difference_scheme == "forward":
+        x[1:] = np.cumsum(u[:-1] * dt, axis=time_axis)
+        y[1:] = np.cumsum(v[:-1] * dt, axis=time_axis)
+    elif difference_scheme == "backward":
+        x[1:] = np.cumsum(u[1:] * dt, axis=time_axis)
+        y[1:] = np.cumsum(v[1:] * dt, axis=time_axis)
+    elif difference_scheme == "centered":
+        x[1:] = np.cumsum(0.5 * (u[:-1] + u[1:]) * dt, axis=time_axis)
+        y[1:] = np.cumsum(0.5 * (v[:-1] + v[1:]) * dt, axis=time_axis)
+    else:
+        raise ValueError("Invalid difference scheme.")
+
+    if coord_system == "cartesian":
+        x += x_origin
+        y += y_origin
+    elif coord_system == "spherical":
+        dx = np.diff(x, axis=time_axis)
+        dy = np.diff(y, axis=time_axis)
+        distances = np.sqrt(dx**2 + dy**2)
+        bearings = np.arctan2(dy, dx)
+        x[0], y[0] = x_origin, y_origin
+        for n in range(len(distances)):
+            y[n + 1], x[n + 1] = position_from_distance_and_bearing(
+                y[n], x[n], distances[n], bearings[n]
+            )
+    else:
+        raise ValueError("Invalid coordinate system.")
+
+    return x, y
 
 
 def velocity_from_position(
