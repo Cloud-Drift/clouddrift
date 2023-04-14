@@ -401,18 +401,19 @@ def position_from_velocity(
     coord_system : str, optional
         The coordinate system of the input. Can be "spherical" or "cartesian".
         Default is "spherical".
-    difference_scheme : str, optional
+    integration_scheme : str, optional
         The difference scheme to use for computing the position. Can be
         "forward" or "backward". Default is "forward".
     time_axis : int, optional
-        The axis of the time array. Default is -1.
+        The axis of the time array. Default is -1, which corresponds to the
+        lst axis.
 
     Returns
     -------
     x : np.ndarray
-        A two-dimensional array of eastings or longitudes.
+        A two-dimensional array of zonal displacements or longitudes.
     y : np.ndarray
-        A two-dimensional array of northings or latitudes.
+        A two-dimensional array of meridional displacements or latitudes.
 
     See Also
     --------

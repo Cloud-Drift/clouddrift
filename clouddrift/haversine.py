@@ -69,7 +69,7 @@ def bearing(
     θ = atan2(cos φ1 ⋅ sin φ2 - sin φ1 ⋅ cos φ2 ⋅ cos Δλ, sin Δλ ⋅ cos φ2)
 
     where (φ, λ) is (lat, lon) and θ is bearing, all in radians.
-    Bearing is defined as zero toward East and increasing counter-clockwise.
+    Bearing is defined as zero toward East and positive counterclockwise.
 
     Args:
         lat1 (array_like): Latitudes of the first set of points, in degrees
@@ -125,7 +125,7 @@ def position_from_distance_and_bearing(
     λ2 = λ1 + atan2( sin θ ⋅ sin δ ⋅ cos φ1, cos δ − sin φ1 ⋅ sin φ2 )
 
     where (φ, λ) is (lat, lon) and θ is bearing, all in radians.
-    Bearing is defined as zero toward East and increasing counter-clockwise.
+    Bearing is defined as zero toward East and positive counterclockwise.
 
     Parameters
     ----------
