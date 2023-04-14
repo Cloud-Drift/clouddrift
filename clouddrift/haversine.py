@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Tuple
 import xarray as xr
 
 EARTH_RADIUS_METERS = 6.3781e6
@@ -109,3 +110,53 @@ def bearing(
     )
 
     return theta
+
+
+def position_from_distance_and_bearing(
+    lat: float, lon: float, distance: float, bearing: float
+) -> Tuple[float, float]:
+    """Return elementwise new position in degrees from arrays of latitude and
+    longitude in degrees, distance in meters, and bearing in radians, based on
+    the spherical law of cosines.
+
+    The formula is:
+
+    φ2 = asin( sin φ1 ⋅ cos δ + cos φ1 ⋅ sin δ ⋅ cos θ )
+    λ2 = λ1 + atan2( sin θ ⋅ sin δ ⋅ cos φ1, cos δ − sin φ1 ⋅ sin φ2 )
+
+    where (φ, λ) is (lat, lon) and θ is bearing, all in radians.
+    Bearing is defined as zero toward East and increasing counter-clockwise.
+
+    Parameters
+    ----------
+    lat : float
+        Latitude of the first set of points, in degrees
+    lon : float
+        Longitude of the first set of points, in degrees
+    distance : array_like
+        Distance in meters
+    bearing : array_like
+        Bearing angles in radians
+
+    Returns
+    -------
+    lat2 : array_like
+        Latitudes of the second set of points, in degrees
+    lon2 : array_like
+        Longitudes of the second set of points, in degrees
+    """
+    lat_rad = np.deg2rad(lat)
+    lon_rad = np.deg2rad(lon)
+
+    distance_rad = distance / EARTH_RADIUS_METERS
+
+    lat2_rad = np.arcsin(
+        np.sin(lat_rad) * np.cos(distance_rad)
+        + np.cos(lat_rad) * np.sin(distance_rad) * np.sin(bearing)
+    )
+    lon2_rad = lon_rad + np.arctan2(
+        np.cos(bearing) * np.sin(distance_rad) * np.cos(lat_rad),
+        np.cos(distance_rad) - np.sin(lat_rad) * np.sin(lat2_rad),
+    )
+
+    return np.rad2deg(lat2_rad), np.rad2deg(lon2_rad)
