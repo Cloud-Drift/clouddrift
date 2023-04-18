@@ -424,13 +424,13 @@ def position_from_velocity(
 
     dt = np.diff(time, axis=time_axis)
 
-    if difference_scheme == "forward":
+    if integration_scheme == "forward":
         x[1:] = np.cumsum(u[:-1] * dt, axis=time_axis)
         y[1:] = np.cumsum(v[:-1] * dt, axis=time_axis)
-    elif difference_scheme == "backward":
+    elif integration_scheme == "backward":
         x[1:] = np.cumsum(u[1:] * dt, axis=time_axis)
         y[1:] = np.cumsum(v[1:] * dt, axis=time_axis)
-    elif difference_scheme == "centered":
+    elif integration_scheme == "centered":
         x[1:] = np.cumsum(0.5 * (u[:-1] + u[1:]) * dt, axis=time_axis)
         y[1:] = np.cumsum(0.5 * (v[:-1] + v[1:]) * dt, axis=time_axis)
     else:
