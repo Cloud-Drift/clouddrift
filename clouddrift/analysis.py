@@ -279,53 +279,46 @@ def segment(
     tolerance: Union[float, np.timedelta64, timedelta, pd.Timedelta],
     rowsize: np.ndarray[int] = None,
 ) -> np.ndarray[int]:
-    """Segment an array into contiguous segments.
+    """Divide an array into segments.
 
     Parameters
     ----------
     x : list, np.ndarray, or xr.DataArray
-        An array to segment.
+        An array to split into segment.
     tolerance : float, np.timedelta64, timedelta, pd.Timedelta
-        The maximum signed difference between consecutive points in a segment.
+        The maximum signed difference between consecutive points in a segment. 
+        The array x will be segmented wherever differences exceed the tolerance.
     rowsize : np.ndarray[int], optional
-        The size of rows if x is a ragged array. If present, x will be
-        segmented both by gaps that exceed the tolerance, and by rows
+        The size of rows if x is originally a ragged array. If present, x will be
+        divided both by gaps that exceed the tolerance, and by the original rows
         of the ragged array.
 
     Returns
     -------
-    segment_sizes : np.ndarray[int]
-        An array of row-sizes that segment the input array into contiguous segments.
+    np.ndarray[int]
+        An array of row sizes that divides the input array into segments.
 
     Examples
     --------
 
     The simplest use of ``segment`` is to provide a tolerance value that is
-    used to segment an array into contiguous segments.
+    used to divide an array into segments.
 
     >>> x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
     >>> segment(x, 0.5)
     array([1, 3, 2, 4, 1])
 
-    If the array represents time and the tolerance is a timedelta,
-    the same logic applies.
-
-    >>> x = np.array([np.datetime64("2023-01-01"), np.datetime64("2023-01-02"),
-                      np.datetime64("2023-01-03"), np.datetime64("2023-02-01"),
-                      np.datetime64("2023-02-02")])
-    >>> segment(x, np.timedelta64(1, "D"))
-    np.array([3, 2])
-
-    If the array is already previously segmented (e.g. multiple trajectories
-    as a ragged array), then the ``rowsize`` argument can be used to preserve
-    the input segments.
-
+    If the array is already previously segmented (e.g. multiple rows in
+    a ragged array), then the ``rowsize`` argument can be used to preserve
+    the original segments.
+    
+    >>> x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
     >>> rowsize = [3, 2, 6]
     >>> segment(x, 0.5, rowsize)
     array([1, 2, 1, 1, 1, 4, 1])
 
-    The tolerance can also be negative. In this case, the segments are
-    determined by the gaps where the negative difference exceeds the negative
+    The tolerance can also be negative. In this case, the input array is 
+    segmented where the negative difference exceeds the negative
     value of the tolerance, i.e. where ``x[n+1] - x[n] < -tolerance``.
 
     >>> x = [0, 1, 2, 0, 1, 2]
@@ -340,6 +333,14 @@ def segment(
     >>> x = [1, 1, 2, 2, 1, 1, 2, 2]
     >>> segment(x, 0.5, rowsize=segment(x, -0.5))
     array([2, 2, 2, 2])
+
+    If the input array contains time objects, the tolerance must be a time interval.
+    
+    >>> x = np.array([np.datetime64("2023-01-01"), np.datetime64("2023-01-02"),
+                      np.datetime64("2023-01-03"), np.datetime64("2023-02-01"),
+                      np.datetime64("2023-02-02")])
+    >>> segment(x, np.timedelta64(1, "D"))
+    np.array([3, 2])
     """
 
     # for compatibility with datetime list or np.timedelta64 arrays
