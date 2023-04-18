@@ -284,7 +284,7 @@ def segment(
     Parameters
     ----------
     x : list, np.ndarray, or xr.DataArray
-        An array to split into segment.
+        An array to divide into segment.
     tolerance : float, np.timedelta64, timedelta, pd.Timedelta
         The maximum signed difference between consecutive points in a segment. 
         The array x will be segmented wherever differences exceed the tolerance.
