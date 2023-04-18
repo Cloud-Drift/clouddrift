@@ -5,6 +5,7 @@ from clouddrift.analysis import (
     ragged_to_regular,
     segment,
     subset,
+    position_from_velocity,
     velocity_from_position,
 )
 from clouddrift.haversine import EARTH_RADIUS_METERS
@@ -255,6 +256,60 @@ class ragged_to_regular_tests(unittest.TestCase):
         new_ragged, new_rowsize = regular_to_ragged(ragged_to_regular(ragged, rowsize))
         self.assertTrue(np.all(new_ragged == ragged))
         self.assertTrue(np.all(new_rowsize == rowsize))
+
+
+class position_from_velocity_tests(unittest.TestCase):
+    def setUp(self):
+        self.INPUT_SIZE = 100
+        self.lon = np.rad2deg(np.linspace(-np.pi, np.pi, self.INPUT_SIZE))
+        self.lat = np.linspace(0, 45, self.INPUT_SIZE)
+        # self.lat = np.zeros(self.lon.shape)
+        self.time = np.linspace(0, 1e7, self.INPUT_SIZE)
+        self.uf, self.vf = velocity_from_position(
+            self.lon, self.lat, self.time, difference_scheme="forward"
+        )
+        self.ub, self.vb = velocity_from_position(
+            self.lon, self.lat, self.time, difference_scheme="backward"
+        )
+        self.uc, self.vc = velocity_from_position(
+            self.lon, self.lat, self.time, difference_scheme="centered"
+        )
+
+    def test_velocity_position_roundtrip_forward(self):
+        lon, lat = position_from_velocity(
+            self.uf,
+            self.vf,
+            self.time,
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="forward",
+        )
+        self.assertTrue(np.allclose(lon, self.lon))
+        self.assertTrue(np.allclose(lat, self.lat))
+
+    def test_velocity_position_roundtrip_backward(self):
+        lon, lat = position_from_velocity(
+            self.ub,
+            self.vb,
+            self.time,
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="backward",
+        )
+        self.assertTrue(np.allclose(lon, self.lon))
+        self.assertTrue(np.allclose(lat, self.lat))
+
+    def test_velocity_position_roundtrip_centered(self):
+        lon, lat = position_from_velocity(
+            self.uc,
+            self.vc,
+            self.time,
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="centered",
+        )
+        self.assertTrue(np.allclose(lon, self.lon))
+        self.assertTrue(np.allclose(lat, self.lat))
 
 
 class velocity_from_position_tests(unittest.TestCase):
