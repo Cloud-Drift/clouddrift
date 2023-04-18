@@ -378,7 +378,7 @@ def position_from_velocity(
     x_origin: float,
     y_origin: float,
     coord_system: Optional[str] = "spherical",
-    difference_scheme: Optional[str] = "forward",
+    integration_scheme: Optional[str] = "forward",
     time_axis: Optional[int] = -1,
 ) -> Tuple[xr.DataArray, xr.DataArray]:
     """Compute position from arrays of velocities and time.
