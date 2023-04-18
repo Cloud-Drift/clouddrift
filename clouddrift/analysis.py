@@ -425,14 +425,14 @@ def position_from_velocity(
     dt = np.diff(time, axis=time_axis)
 
     if integration_scheme == "forward":
-        x[1:] = np.cumsum(u[:-1] * dt, axis=time_axis)
-        y[1:] = np.cumsum(v[:-1] * dt, axis=time_axis)
+        x[..., 1:] = np.cumsum(u[..., :-1] * dt, axis=time_axis)
+        y[..., 1:] = np.cumsum(v[..., :-1] * dt, axis=time_axis)
     elif integration_scheme == "backward":
-        x[1:] = np.cumsum(u[1:] * dt, axis=time_axis)
-        y[1:] = np.cumsum(v[1:] * dt, axis=time_axis)
+        x[..., 1:] = np.cumsum(u[1:] * dt, axis=time_axis)
+        y[..., 1:] = np.cumsum(v[1:] * dt, axis=time_axis)
     elif integration_scheme == "centered":
-        x[1:] = np.cumsum(0.5 * (u[:-1] + u[1:]) * dt, axis=time_axis)
-        y[1:] = np.cumsum(0.5 * (v[:-1] + v[1:]) * dt, axis=time_axis)
+        x[..., 1:] = np.cumsum(0.5 * (u[..., :-1] + u[..., 1:]) * dt, axis=time_axis)
+        y[..., 1:] = np.cumsum(0.5 * (v[..., :-1] + v[..., 1:]) * dt, axis=time_axis)
     else:
         raise ValueError("Invalid difference scheme.")
 
@@ -444,10 +444,10 @@ def position_from_velocity(
         dy = np.diff(y, axis=time_axis)
         distances = np.sqrt(dx**2 + dy**2)
         bearings = np.arctan2(dy, dx)
-        x[0], y[0] = x_origin, y_origin
+        x[..., 0], y[..., 0] = x_origin, y_origin
         for n in range(len(distances)):
-            y[n + 1], x[n + 1] = position_from_distance_and_bearing(
-                y[n], x[n], distances[n], bearings[n]
+            y[..., n + 1], x[..., n + 1] = position_from_distance_and_bearing(
+                y[..., n], x[..., n], distances[..., n], bearings[..., n]
             )
     else:
         raise ValueError("Invalid coordinate system.")
