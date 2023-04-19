@@ -616,10 +616,14 @@ def velocity_from_position(
 
         elif coord_system == "spherical":
             # Inner values
-            distances = distance(y_[..., :-2], x_[..., :-2], y_[..., 2:], x_[..., 2:])
-            bearings = bearing(y_[..., :-2], x_[..., :-2], y_[..., 2:], x_[..., 2:])
-            dx[..., 1:-1] = distances * np.cos(bearings) / 2
-            dy[..., 1:-1] = distances * np.sin(bearings) / 2
+            y1 = (y_[..., :-2] + y_[..., 1:-1]) / 2
+            x1 = (x_[..., :-2] + x_[..., 1:-1]) / 2
+            y2 = (y_[..., 2:] + y_[..., 1:-1]) / 2
+            x2 = (x_[..., 2:] + x_[..., 1:-1]) / 2
+            distances = distance(y1, x1, y2, x2)
+            bearings = bearing(y1, x1, y2, x2)
+            dx[..., 1:-1] = distances * np.cos(bearings)
+            dy[..., 1:-1] = distances * np.sin(bearings)
 
             # Boundary values
             distance1 = distance(y_[..., 0], x_[..., 0], y_[..., 1], x_[..., 1])
