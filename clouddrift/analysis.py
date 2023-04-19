@@ -105,22 +105,22 @@ def chunk(
     overlap: int = 0,
     align: str = "start",
 ) -> np.ndarray:
-    """Chunk an array ``x`` into equal-length chunks while respecting
-    the contiguous segments of the ragged array. The result is 2-dimensional
-    NumPy array of shape ``(num_chunks, length)``. The resulting number of chunks
-    is determined based on the length of ``x``, ``length``, and ``overlap``.
+    """Divide an array ``x`` into equal chunks of length ``length``. The result 
+    is a 2-dimensional NumPy array of shape ``(num_chunks, length)``. The resulting 
+    number of chunks is determined based on the length of ``x``, ``length``, 
+    and ``overlap``.
 
-    ``chunk`` is compatible with :func:`apply_ragged`, which allows you to chunk
-    a ragged array.
+    ``chunk`` can be combined with :func:`apply_ragged` in order to chunk a ragged 
+    array.
 
     Parameters
     ----------
     x : list or array-like
-        Array to split into chunks.
+        Array to divide into chunks.
     length : int
         The length of each chunk.
     overlap : int, optional
-        The number of overlapping points between chunks. The default is 0.
+        The number of overlapping array elements across chunks. The default is 0.
         Must be smaller than ``length``. For example, if ``length`` is 4 and
         ``overlap`` is 2, the chunks of ``[0, 1, 2, 3, 4, 5]`` will be
         ``np.array([[0, 1, 2, 3], [2, 3, 4, 5]])``. Negative overlap can be used
@@ -128,14 +128,13 @@ def chunk(
         is 2 and ``overlap`` is -1, the chunks of ``[0, 1, 2, 3, 4, 5]`` will
         be ``np.array([[0, 1], [3, 4]])``.
     align : str, optional ["start", "middle", "end"]
-        If the number of chunks (including or not overlap) is not a multiple of the
-        length of ``x`` and there is a reminder of N points, this parameter controls
-        which part of the array will be kept into the chunks. If ``align="start"``, the
-        points at the beginning of the array will be kept, and N points are discarded at
-        the end. If `align="middle"`, floor(N/2) and ceil(N/2) points will be respectively
-        discarded from the beginning and the end of the array. If ``align="end"``, the
-        points at the end of the array will be kept, and the `N` first points are discarded.
-        The default is "start".
+        If the remainder of the length of ``x`` divided by the chunk ``length`` is a number 
+        N different from zero, this parameter controls which part of the array will be kept 
+        into the chunks. If ``align="start"``, the elements at the beginning of the array 
+        will be part of the chunks and N points are discarded at the end. If `align="middle"`, 
+        floor(N/2) and ceil(N/2) elements will be discarded from the beginning and the end 
+        of the array, respectively. If ``align="end"``, the elements at the end of the array 
+        will be kept, and the `N` first elements are discarded. The default is "start".
 
     Returns
     -------
@@ -145,18 +144,18 @@ def chunk(
     Examples
     --------
 
-    Chunk a simple list; this will trim the end that exceeds the last chunk:
+    Chunk a simple list; this discards the end elements that exceed the last chunk:
 
     >>> chunk([1, 2, 3, 4, 5], 2)
     array([[1, 2],
            [3, 4]])
 
-    To trim the beginning of the array, use ``align="end"``:
+    To discard the starting elements of the array instead, use ``align="end"``:
     >>> chunk([1, 2, 3, 4, 5], 2, align="end")
     array([[2, 3],
            [4, 5]])
 
-    or to centered the chunks with respect to the array, use ``align="middle"``:
+    or to center the chunks by discarding both ends of the array, use ``align="middle"``:
     >>> chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, align="middle")
     array([[2, 3, 4],
            [5, 6, 7]])
@@ -169,10 +168,12 @@ def chunk(
            [3, 4],
            [4, 5]])
 
-    Use ``apply_ragged`` to chunk a ragged array; notice that you must pass the
-    array to chunk as an array-like, not a list:
+    Use ``apply_ragged`` to chunk a ragged array by providing the row sizes;
+    notice that you must pass the array to chunk as an array-like, not a list:
 
-    >>> apply_ragged(chunk, np.array([1, 2, 3, 4, 5]), rowsize=[2, 1, 2], 2)])
+    >>> x = np.array([1, 2, 3, 4, 5])
+    >>> rowsize = [2, 1, 2]
+    >>> apply_ragged(chunk, x, rowsize, 2)
     array([[1, 2],
            [4, 5]])
 
