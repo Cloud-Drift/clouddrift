@@ -50,16 +50,16 @@ def apply_ragged(
 
     Examples
     --------
+
+    Using ``velocity_from_position`` with ``apply_ragged``, calculate the velocities of
+    multiple particles, the coordinates of which are found in the ragged arrays x, y, and t
+    that share row sizes 2, 3, and 4:
+    
     >>> rowsize = [2, 3, 4]
     >>> x = np.array([1, 2, 10, 12, 14, 30, 33, 36, 39])
-    >>> y = np.arange(0, len(x))
+    >>> y = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8])
     >>> t = np.array([1, 2, 1, 2, 3, 1, 2, 3, 4])
-
-    Using ``velocity_from_position`` with ``apply_ragged``, the velocities of each trajectory
-    are obtained from the positions and time ragged arrays [x,y,t]. Note that the first trajectory
-    has 2 data points, the second has 3, and the third has 4:
-
-    >>> u1, v1 = apply_ragged(velocity_from_position, rowsize, [x, y, t], coord_system="cartesian")
+    >>> u1, v1 = apply_ragged(velocity_from_position, [x, y, t], rowsize, coord_system="cartesian")
     array([1., 1., 2., 2., 2., 3., 3., 3., 3.]),
     array([1., 1., 1., 1., 1., 1., 1., 1., 1.]))
 
