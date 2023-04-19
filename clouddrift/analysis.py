@@ -239,8 +239,10 @@ def ragged_to_regular(
     rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
 ) -> np.ndarray:
     """Convert a ragged array to a two-dimensional array such that each contiguous segment
-    of a ragged array is a row in the two-dimensional array, and the remaining elements are
-    padded with NaNs.
+    of a ragged array is a row in the two-dimensional array. Each row of the two-dimensional 
+    array is padded with NaNs as needed. The length of the first dimension of the output 
+    array is the length of ``rowsize``. The length of the second dimension is the maximum 
+    element of ``rowsize``.
 
     Note: Although this function accepts parameters of type ``xarray.DataArray``,
     passing NumPy arrays is recommended for performance reasons.
