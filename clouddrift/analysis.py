@@ -57,7 +57,7 @@ def apply_ragged(
 
     Using ``velocity_from_position`` with ``apply_ragged``, the velocities of each trajectory
     are obtained from the positions and time ragged arrays [x,y,t]. Note that the first trajectory
-    has 2 data points, the second has 3, and the third has 4.
+    has 2 data points, the second has 3, and the third has 4:
 
     >>> u1, v1 = apply_ragged(velocity_from_position, rowsize, [x, y, t], coord_system="cartesian")
     array([1., 1., 2., 2., 2., 3., 3., 3., 3.]),
@@ -155,7 +155,7 @@ def chunk(
     array([[2, 3],
            [4, 5]])
 
-    or to center the chunks by discarding both ends of the array, use ``align="middle"``:
+    To center the chunks by discarding both ends of the array, use ``align="middle"``:
     >>> chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, align="middle")
     array([[2, 3, 4],
            [5, 6, 7]])
@@ -303,7 +303,7 @@ def segment(
     --------
 
     The simplest use of ``segment`` is to provide a tolerance value that is
-    used to divide an array into segments.
+    used to divide an array into segments:
 
     >>> x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
     >>> segment(x, 0.5)
@@ -311,7 +311,7 @@ def segment(
 
     If the array is already previously segmented (e.g. multiple rows in
     a ragged array), then the ``rowsize`` argument can be used to preserve
-    the original segments.
+    the original segments:
     
     >>> x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
     >>> rowsize = [3, 2, 6]
@@ -320,7 +320,7 @@ def segment(
 
     The tolerance can also be negative. In this case, the input array is 
     segmented where the negative difference exceeds the negative
-    value of the tolerance, i.e. where ``x[n+1] - x[n] < -tolerance``.
+    value of the tolerance, i.e. where ``x[n+1] - x[n] < -tolerance``:
 
     >>> x = [0, 1, 2, 0, 1, 2]
     >>> segment(x, -0.5)
@@ -329,13 +329,13 @@ def segment(
     To segment an array for both positive and negative gaps, invoke the function
     twice, once for a positive tolerance and once for a negative tolerance.
     The result of the first invocation can be passed as the ``rowsize`` argument
-    to the first ``segment`` invocation.
+    to the first ``segment`` invocation:
 
     >>> x = [1, 1, 2, 2, 1, 1, 2, 2]
     >>> segment(x, 0.5, rowsize=segment(x, -0.5))
     array([2, 2, 2, 2])
 
-    If the input array contains time objects, the tolerance must be a time interval.
+    If the input array contains time objects, the tolerance must be a time interval:
     
     >>> x = np.array([np.datetime64("2023-01-01"), np.datetime64("2023-01-02"),
                       np.datetime64("2023-01-03"), np.datetime64("2023-02-01"),
