@@ -50,16 +50,16 @@ def apply_ragged(
 
     Examples
     --------
+
+    Using ``velocity_from_position`` with ``apply_ragged``, calculate the velocities of
+    multiple particles, the coordinates of which are found in the ragged arrays x, y, and t
+    that share row sizes 2, 3, and 4:
+
     >>> rowsize = [2, 3, 4]
     >>> x = np.array([1, 2, 10, 12, 14, 30, 33, 36, 39])
-    >>> y = np.arange(0, len(x))
+    >>> y = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8])
     >>> t = np.array([1, 2, 1, 2, 3, 1, 2, 3, 4])
-
-    Using ``velocity_from_position`` with ``apply_ragged``, the velocities of each trajectory
-    are obtained from the positions and time ragged arrays [x,y,t]. Note that the first trajectory
-    has 2 data points, the second has 3, and the third has 4.
-
-    >>> u1, v1 = apply_ragged(velocity_from_position, rowsize, [x, y, t], coord_system="cartesian")
+    >>> u1, v1 = apply_ragged(velocity_from_position, [x, y, t], rowsize, coord_system="cartesian")
     array([1., 1., 2., 2., 2., 3., 3., 3., 3.]),
     array([1., 1., 1., 1., 1., 1., 1., 1., 1.]))
 
@@ -105,22 +105,22 @@ def chunk(
     overlap: int = 0,
     align: str = "start",
 ) -> np.ndarray:
-    """Chunk an array ``x`` into equal-length chunks while respecting
-    the contiguous segments of the ragged array. The result is 2-dimensional
-    NumPy array of shape ``(num_chunks, length)``. The resulting number of chunks
-    is determined based on the length of ``x``, ``length``, and ``overlap``.
+    """Divide an array ``x`` into equal chunks of length ``length``. The result
+    is a 2-dimensional NumPy array of shape ``(num_chunks, length)``. The resulting
+    number of chunks is determined based on the length of ``x``, ``length``,
+    and ``overlap``.
 
-    ``chunk`` is compatible with :func:`apply_ragged`, which allows you to chunk
-    a ragged array.
+    ``chunk`` can be combined with :func:`apply_ragged` in order to chunk a ragged
+    array.
 
     Parameters
     ----------
     x : list or array-like
-        Array to split into chunks.
+        Array to divide into chunks.
     length : int
         The length of each chunk.
     overlap : int, optional
-        The number of overlapping points between chunks. The default is 0.
+        The number of overlapping array elements across chunks. The default is 0.
         Must be smaller than ``length``. For example, if ``length`` is 4 and
         ``overlap`` is 2, the chunks of ``[0, 1, 2, 3, 4, 5]`` will be
         ``np.array([[0, 1, 2, 3], [2, 3, 4, 5]])``. Negative overlap can be used
@@ -128,14 +128,13 @@ def chunk(
         is 2 and ``overlap`` is -1, the chunks of ``[0, 1, 2, 3, 4, 5]`` will
         be ``np.array([[0, 1], [3, 4]])``.
     align : str, optional ["start", "middle", "end"]
-        If the number of chunks (including or not overlap) is not a multiple of the
-        length of ``x`` and there is a reminder of N points, this parameter controls
-        which part of the array will be kept into the chunks. If ``align="start"``, the
-        points at the beginning of the array will be kept, and N points are discarded at
-        the end. If `align="middle"`, floor(N/2) and ceil(N/2) points will be respectively
-        discarded from the beginning and the end of the array. If ``align="end"``, the
-        points at the end of the array will be kept, and the `N` first points are discarded.
-        The default is "start".
+        If the remainder of the length of ``x`` divided by the chunk ``length`` is a number
+        N different from zero, this parameter controls which part of the array will be kept
+        into the chunks. If ``align="start"``, the elements at the beginning of the array
+        will be part of the chunks and N points are discarded at the end. If `align="middle"`,
+        floor(N/2) and ceil(N/2) elements will be discarded from the beginning and the end
+        of the array, respectively. If ``align="end"``, the elements at the end of the array
+        will be kept, and the `N` first elements are discarded. The default is "start".
 
     Returns
     -------
@@ -145,18 +144,18 @@ def chunk(
     Examples
     --------
 
-    Chunk a simple list; this will trim the end that exceeds the last chunk:
+    Chunk a simple list; this discards the end elements that exceed the last chunk:
 
     >>> chunk([1, 2, 3, 4, 5], 2)
     array([[1, 2],
            [3, 4]])
 
-    To trim the beginning of the array, use ``align="end"``:
+    To discard the starting elements of the array instead, use ``align="end"``:
     >>> chunk([1, 2, 3, 4, 5], 2, align="end")
     array([[2, 3],
            [4, 5]])
 
-    or to centered the chunks with respect to the array, use ``align="middle"``:
+    To center the chunks by discarding both ends of the array, use ``align="middle"``:
     >>> chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, align="middle")
     array([[2, 3, 4],
            [5, 6, 7]])
@@ -169,10 +168,12 @@ def chunk(
            [3, 4],
            [4, 5]])
 
-    Use ``apply_ragged`` to chunk a ragged array; notice that you must pass the
-    array to chunk as an array-like, not a list:
+    Use ``apply_ragged`` to chunk a ragged array by providing the row sizes;
+    notice that you must pass the array to chunk as an array-like, not a list:
 
-    >>> apply_ragged(chunk, np.array([1, 2, 3, 4, 5]), rowsize=[2, 1, 2], 2)])
+    >>> x = np.array([1, 2, 3, 4, 5])
+    >>> rowsize = [2, 1, 2]
+    >>> apply_ragged(chunk, x, rowsize, 2)
     array([[1, 2],
            [4, 5]])
 
@@ -238,8 +239,10 @@ def ragged_to_regular(
     rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
 ) -> np.ndarray:
     """Convert a ragged array to a two-dimensional array such that each contiguous segment
-    of a ragged array is a row in the two-dimensional array, and the remaining elements are
-    padded with NaNs.
+    of a ragged array is a row in the two-dimensional array. Each row of the two-dimensional
+    array is padded with NaNs as needed. The length of the first dimension of the output
+    array is the length of ``rowsize``. The length of the second dimension is the maximum
+    element of ``rowsize``.
 
     Note: Although this function accepts parameters of type ``xarray.DataArray``,
     passing NumPy arrays is recommended for performance reasons.
@@ -279,54 +282,47 @@ def segment(
     tolerance: Union[float, np.timedelta64, timedelta, pd.Timedelta],
     rowsize: np.ndarray[int] = None,
 ) -> np.ndarray[int]:
-    """Segment an array into contiguous segments.
+    """Divide an array into segments.
 
     Parameters
     ----------
     x : list, np.ndarray, or xr.DataArray
-        An array to segment.
+        An array to divide into segment.
     tolerance : float, np.timedelta64, timedelta, pd.Timedelta
         The maximum signed difference between consecutive points in a segment.
+        The array x will be segmented wherever differences exceed the tolerance.
     rowsize : np.ndarray[int], optional
-        The size of rows if x is a ragged array. If present, x will be
-        segmented both by gaps that exceed the tolerance, and by rows
+        The size of rows if x is originally a ragged array. If present, x will be
+        divided both by gaps that exceed the tolerance, and by the original rows
         of the ragged array.
 
     Returns
     -------
-    segment_sizes : np.ndarray[int]
-        An array of row-sizes that segment the input array into contiguous segments.
+    np.ndarray[int]
+        An array of row sizes that divides the input array into segments.
 
     Examples
     --------
 
     The simplest use of ``segment`` is to provide a tolerance value that is
-    used to segment an array into contiguous segments.
+    used to divide an array into segments:
 
     >>> x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
     >>> segment(x, 0.5)
     array([1, 3, 2, 4, 1])
 
-    If the array represents time and the tolerance is a timedelta,
-    the same logic applies.
+    If the array is already previously segmented (e.g. multiple rows in
+    a ragged array), then the ``rowsize`` argument can be used to preserve
+    the original segments:
 
-    >>> x = np.array([np.datetime64("2023-01-01"), np.datetime64("2023-01-02"),
-                      np.datetime64("2023-01-03"), np.datetime64("2023-02-01"),
-                      np.datetime64("2023-02-02")])
-    >>> segment(x, np.timedelta64(1, "D"))
-    np.array([3, 2])
-
-    If the array is already previously segmented (e.g. multiple trajectories
-    as a ragged array), then the ``rowsize`` argument can be used to preserve
-    the input segments.
-
+    >>> x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
     >>> rowsize = [3, 2, 6]
     >>> segment(x, 0.5, rowsize)
     array([1, 2, 1, 1, 1, 4, 1])
 
-    The tolerance can also be negative. In this case, the segments are
-    determined by the gaps where the negative difference exceeds the negative
-    value of the tolerance, i.e. where ``x[n+1] - x[n] < -tolerance``.
+    The tolerance can also be negative. In this case, the input array is
+    segmented where the negative difference exceeds the negative
+    value of the tolerance, i.e. where ``x[n+1] - x[n] < -tolerance``:
 
     >>> x = [0, 1, 2, 0, 1, 2]
     >>> segment(x, -0.5)
@@ -335,11 +331,19 @@ def segment(
     To segment an array for both positive and negative gaps, invoke the function
     twice, once for a positive tolerance and once for a negative tolerance.
     The result of the first invocation can be passed as the ``rowsize`` argument
-    to the first ``segment`` invocation.
+    to the first ``segment`` invocation:
 
     >>> x = [1, 1, 2, 2, 1, 1, 2, 2]
     >>> segment(x, 0.5, rowsize=segment(x, -0.5))
     array([2, 2, 2, 2])
+
+    If the input array contains time objects, the tolerance must be a time interval:
+
+    >>> x = np.array([np.datetime64("2023-01-01"), np.datetime64("2023-01-02"),
+                      np.datetime64("2023-01-03"), np.datetime64("2023-02-01"),
+                      np.datetime64("2023-02-02")])
+    >>> segment(x, np.timedelta64(1, "D"))
+    np.array([3, 2])
     """
 
     # for compatibility with datetime list or np.timedelta64 arrays
