@@ -263,7 +263,6 @@ class position_from_velocity_tests(unittest.TestCase):
         self.INPUT_SIZE = 100
         self.lon = np.rad2deg(np.linspace(-np.pi, np.pi, self.INPUT_SIZE))
         self.lat = np.linspace(0, 45, self.INPUT_SIZE)
-        # self.lat = np.zeros(self.lon.shape)
         self.time = np.linspace(0, 1e7, self.INPUT_SIZE)
         self.uf, self.vf = velocity_from_position(
             self.lon, self.lat, self.time, difference_scheme="forward"
@@ -308,8 +307,9 @@ class position_from_velocity_tests(unittest.TestCase):
             self.lat[0],
             integration_scheme="centered",
         )
-        self.assertTrue(np.allclose(lon, self.lon))
-        self.assertTrue(np.allclose(lat, self.lat))
+        # Centered scheme damps the 2dx waves so we need a looser tolerance.
+        self.assertTrue(np.allclose(lon, self.lon, atol=1e-2))
+        self.assertTrue(np.allclose(lat, self.lat, atol=1e-2))
 
 
 class velocity_from_position_tests(unittest.TestCase):
