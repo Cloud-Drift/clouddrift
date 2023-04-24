@@ -419,20 +419,39 @@ def position_from_velocity(
     --------
     :func:`velocity_from_position`
     """
-    x = np.zeros(u.shape, dtype=u.dtype)
-    y = np.zeros(v.shape, dtype=v.dtype)
+    # time_axis must be in valid range
+    if time_axis < -1 or time_axis > len(u.shape) - 1:
+        raise ValueError(
+            f"time_axis ({time_axis}) is outside of the valid range ([-1,"
+            f" {len(x.shape) - 1}])."
+        )
 
-    dt = np.diff(time, axis=time_axis)
+    # Nominal order of axes on input, i.e. (0, 1, 2, ..., N-1)
+    target_axes = list(range(len(u.shape)))
+
+    # If time_axis is not the last one, transpose the inputs
+    if time_axis != -1 and time_axis < len(u.shape) - 1:
+        target_axes.append(target_axes.pop(target_axes.index(time_axis)))
+
+    # Reshape the inputs to ensure the time axis is last (fast-varying)
+    u_ = np.transpose(u, target_axes)
+    v_ = np.transpose(v, target_axes)
+    time_ = np.transpose(time, target_axes)
+
+    x = np.zeros(u_.shape, dtype=u.dtype)
+    y = np.zeros(v_.shape, dtype=v.dtype)
+
+    dt = np.diff(time_)
 
     if integration_scheme == "forward":
-        x[..., 1:] = np.cumsum(u[..., :-1] * dt, axis=time_axis)
-        y[..., 1:] = np.cumsum(v[..., :-1] * dt, axis=time_axis)
+        x[..., 1:] = np.cumsum(u_[..., :-1] * dt, axis=-1)
+        y[..., 1:] = np.cumsum(v_[..., :-1] * dt, axis=-1)
     elif integration_scheme == "backward":
-        x[..., 1:] = np.cumsum(u[1:] * dt, axis=time_axis)
-        y[..., 1:] = np.cumsum(v[1:] * dt, axis=time_axis)
+        x[..., 1:] = np.cumsum(u_[1:] * dt, axis=-1)
+        y[..., 1:] = np.cumsum(v_[1:] * dt, axis=-1)
     elif integration_scheme == "centered":
-        x[..., 1:] = np.cumsum(0.5 * (u[..., :-1] + u[..., 1:]) * dt, axis=time_axis)
-        y[..., 1:] = np.cumsum(0.5 * (v[..., :-1] + v[..., 1:]) * dt, axis=time_axis)
+        x[..., 1:] = np.cumsum(0.5 * (u_[..., :-1] + u_[..., 1:]) * dt, axis=-1)
+        y[..., 1:] = np.cumsum(0.5 * (v_[..., :-1] + v_[..., 1:]) * dt, axis=-1)
     else:
         raise ValueError("Invalid difference scheme.")
 
@@ -440,19 +459,22 @@ def position_from_velocity(
         x += x_origin
         y += y_origin
     elif coord_system == "spherical":
-        dx = np.diff(x, axis=time_axis)
-        dy = np.diff(y, axis=time_axis)
+        dx = np.diff(x)
+        dy = np.diff(y)
         distances = np.sqrt(dx**2 + dy**2)
         bearings = np.arctan2(dy, dx)
         x[..., 0], y[..., 0] = x_origin, y_origin
-        for n in range(len(distances)):
+        for n in range(distances.shape[-1]):
             y[..., n + 1], x[..., n + 1] = position_from_distance_and_bearing(
                 y[..., n], x[..., n], distances[..., n], bearings[..., n]
             )
     else:
         raise ValueError("Invalid coordinate system.")
 
-    return x, y
+    if target_axes == list(range(len(u.shape))):
+        return x, y
+    else:
+        return np.transpose(x, target_axes), np.transpose(y, target_axes)
 
 
 def velocity_from_position(

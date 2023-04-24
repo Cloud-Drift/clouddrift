@@ -311,6 +311,35 @@ class position_from_velocity_tests(unittest.TestCase):
         self.assertTrue(np.allclose(lon, self.lon, atol=1e-2))
         self.assertTrue(np.allclose(lat, self.lat, atol=1e-2))
 
+    def test_time_axis(self):
+        uf = np.transpose(
+            np.reshape(np.tile(self.uf, 4), (2, 2, self.uf.size)), (0, 2, 1)
+        )
+        vf = np.transpose(
+            np.reshape(np.tile(self.vf, 4), (2, 2, self.vf.size)), (0, 2, 1)
+        )
+        time = np.transpose(
+            np.reshape(np.tile(self.time, 4), (2, 2, self.time.size)), (0, 2, 1)
+        )
+        expected_lon = np.transpose(
+            np.reshape(np.tile(self.lon, 4), (2, 2, self.lon.size)), (0, 2, 1)
+        )
+        expected_lat = np.transpose(
+            np.reshape(np.tile(self.lat, 4), (2, 2, self.lat.size)), (0, 2, 1)
+        )
+        lon, lat = position_from_velocity(
+            uf,
+            vf,
+            time,
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="forward",
+        )
+        self.assertTrue(np.allclose(lon, expected_lon))
+        self.assertTrue(np.allclose(lat, expected_lat))
+        self.assertTrue(np.all(lon.shape == expected_lon.shape))
+        self.assertTrue(np.all(lat.shape == expected_lat.shape))
+
 
 class velocity_from_position_tests(unittest.TestCase):
     def setUp(self):
