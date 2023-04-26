@@ -1,3 +1,4 @@
+from clouddrift import sphere
 import numpy as np
 from typing import Tuple
 import xarray as xr
@@ -141,9 +142,9 @@ def position_from_distance_and_bearing(
     Returns
     -------
     lat2 : array_like
-        Latitudes of the second set of points, in degrees
+        Latitudes of the second set of points, in degrees, in the range [-90, 90]
     lon2 : array_like
-        Longitudes of the second set of points, in degrees
+        Longitudes of the second set of points, in degrees, in the range [-180, 180]
     """
     lat_rad = np.deg2rad(lat)
     lon_rad = np.deg2rad(lon)
@@ -159,4 +160,4 @@ def position_from_distance_and_bearing(
         np.cos(distance_rad) - np.sin(lat_rad) * np.sin(lat2_rad),
     )
 
-    return np.rad2deg(lat2_rad), np.rad2deg(lon2_rad)
+    return np.rad2deg(lat2_rad), sphere.recast_lon(np.rad2deg(lon2_rad), -180)

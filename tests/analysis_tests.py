@@ -261,7 +261,9 @@ class ragged_to_regular_tests(unittest.TestCase):
 class position_from_velocity_tests(unittest.TestCase):
     def setUp(self):
         self.INPUT_SIZE = 100
-        self.lon = np.rad2deg(np.linspace(-np.pi, np.pi, self.INPUT_SIZE))
+        self.lon = np.rad2deg(
+            np.linspace(-np.pi, np.pi, self.INPUT_SIZE, endpoint=False)
+        )
         self.lat = np.linspace(0, 45, self.INPUT_SIZE)
         self.time = np.linspace(0, 1e7, self.INPUT_SIZE)
         self.uf, self.vf = velocity_from_position(
