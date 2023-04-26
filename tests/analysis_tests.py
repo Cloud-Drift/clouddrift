@@ -334,6 +334,7 @@ class position_from_velocity_tests(unittest.TestCase):
             self.lon[0],
             self.lat[0],
             integration_scheme="forward",
+            time_axis=1,
         )
         self.assertTrue(np.allclose(lon, expected_lon))
         self.assertTrue(np.allclose(lat, expected_lat))
