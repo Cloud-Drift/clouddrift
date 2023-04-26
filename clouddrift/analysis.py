@@ -381,23 +381,43 @@ def position_from_velocity(
     integration_scheme: Optional[str] = "forward",
     time_axis: Optional[int] = -1,
 ) -> Tuple[xr.DataArray, xr.DataArray]:
-    """Compute position from arrays of velocities and time.
+    """Compute positions from arrays of velocities and time and a pair of origin
+    coordinates.
 
-    The units of the result are degrees if coord_system == "spherical"
-    (default), or meters if coord_system == "cartesian".
+    The units of the result are degrees if ``coord_system == "spherical"`` (default).
+    If ``coord_system == "cartesian"``, the units of the result are equal to the
+    units of the input velocities multiplied by the units of the input time.
+    For example, if the input velocities are in meters per second and the input
+    time is in seconds, the units of the result will be meters.
+
+    Integration scheme can take one of three values:
+
+        1. "forward" (default): integration from x[i] to x[i+1] is performed
+            using the velocity at x[i].
+        2. "backward": integration from x[i] to x[i+1] is performed using the
+            velocity at x[i+1].
+        3. "centered": integration from x[i] to x[i+1] is performed using the
+            arithmetic average of the velocities at x[i] and x[i+1]. Note that
+            this method introduces some error due to the averaging.
+
+    u, v, and time can be multi-dimensional arrays. If the time axis, along
+    which the finite differencing is performed, is not the last one (i.e.
+    x.shape[-1]), use the ``time_axis`` optional argument to specify along which
+    axis should the differencing be done. ``x``, ``y``, and ``time`` must have
+    the same shape.
 
     Parameters
     ----------
     u : np.ndarray
-        A two-dimensional array of eastward velocities.
+        An array of eastward velocities.
     v : np.ndarray
-        A two-dimensional array of northward velocities.
+        An array of northward velocities.
     time : np.ndarray
-        A one-dimensional array of time values.
+        An array of time values.
     x_origin : float
-        The easting or longitude of the origin.
+        Zonal component of the origin.
     y_origin : float
-        The northing or latitude of the origin.
+        Meridional component of the origin.
     coord_system : str, optional
         The coordinate system of the input. Can be "spherical" or "cartesian".
         Default is "spherical".
@@ -411,9 +431,9 @@ def position_from_velocity(
     Returns
     -------
     x : np.ndarray
-        A two-dimensional array of zonal displacements or longitudes.
+        An array of zonal displacements or longitudes.
     y : np.ndarray
-        A two-dimensional array of meridional displacements or latitudes.
+        An array of meridional displacements or latitudes.
 
     See Also
     --------
@@ -453,7 +473,9 @@ def position_from_velocity(
         x[..., 1:] = np.cumsum(0.5 * (u_[..., :-1] + u_[..., 1:]) * dt, axis=-1)
         y[..., 1:] = np.cumsum(0.5 * (v_[..., :-1] + v_[..., 1:]) * dt, axis=-1)
     else:
-        raise ValueError("Invalid difference scheme.")
+        raise ValueError(
+            'integration_scheme must be "forward", "backward", or "centered".'
+        )
 
     if coord_system == "cartesian":
         x += x_origin
@@ -469,7 +491,7 @@ def position_from_velocity(
                 y[..., n], x[..., n], distances[..., n], bearings[..., n]
             )
     else:
-        raise ValueError("Invalid coordinate system.")
+        raise ValueError('coord_system must be "spherical" or "cartesian".')
 
     if target_axes == list(range(len(u.shape))):
         return x, y
@@ -496,9 +518,9 @@ def velocity_from_position(
     units of seconds, the resulting velocity is in the units of meters per
     second. Otherwise, if coord_system == "cartesian", the units of the
     resulting velocity correspond to the units of the input. For example,
-    if Easting and Northing are in the units of kilometers and time is in
-    the units of hours, the resulting velocity is in the units of kilometers
-    per hour.
+    if zonal and meridional displacements are in the units of kilometers and
+    time is in the units of hours, the resulting velocity is in the units of
+    kilometers per hour.
 
     x, y, and time can be multi-dimensional arrays. If the time axis, along
     which the finite differencing is performed, is not the last one (i.e.
@@ -524,8 +546,8 @@ def velocity_from_position(
     evaluated using the forward and backward difference scheme, respectively.
 
     Args:
-        x (array_like): An N-d array of x-positions (longitude in degrees or easting in any unit)
-        y (array_like): An N-d array of y-positions (latitude in degrees or northing in any unit)
+        x (array_like): An N-d array of x-positions (longitude in degrees or zonal displacement in any unit)
+        y (array_like): An N-d array of y-positions (latitude in degrees or meridional displacement in any unit)
         time (array_like): An N-d array of times as floating point values (in any unit)
         coord_system (str, optional): Coordinate system that x and y arrays are in; possible values are "spherical" (default) or "cartesian".
         difference_scheme (str, optional): Difference scheme to use; possible values are "forward", "backward", and "centered".
