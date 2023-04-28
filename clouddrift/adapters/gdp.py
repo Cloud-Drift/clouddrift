@@ -271,10 +271,19 @@ def drogue_presence(lost_time, time) -> bool:
 
 
 def rowsize(index: int, **kwargs) -> int:
-    return xr.open_dataset(
-        os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)),
-        decode_cf=False,
-        decode_times=False,
-        concat_characters=False,
-        decode_coords=False,
-    ).dims["obs"]
+    try:
+        return xr.open_dataset(
+            os.path.join(
+                kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)
+            ),
+            decode_cf=False,
+            decode_times=False,
+            concat_characters=False,
+            decode_coords=False,
+        ).dims["obs"]
+    except Exception as e:
+        print(
+            f"Error processing {os.path.join(kwargs['tmp_path'], kwargs['filename_pattern'].format(id=index))}"
+        )
+        print(str(e))
+        return 0
