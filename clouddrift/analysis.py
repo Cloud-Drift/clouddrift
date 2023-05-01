@@ -406,6 +406,13 @@ def position_from_velocity(
     axis should the differencing be done. ``x``, ``y``, and ``time`` must have
     the same shape.
 
+    This function will not do any special handling of longitude ranges. If the
+    integrated trajectory crosses the anti-meridian in either direction, the
+    longitude values will not be adjusted to stay in any specific range such
+    as [-180, 180] or [0, 360]. If you need your longitudes to be in a specific
+    range, recast the resulting longitude from this function using the function
+    :func:`clouddrift.sphere.recast_lon`.
+
     Parameters
     ----------
     u : np.ndarray
@@ -426,7 +433,7 @@ def position_from_velocity(
         "forward" or "backward". Default is "forward".
     time_axis : int, optional
         The axis of the time array. Default is -1, which corresponds to the
-        lst axis.
+        last axis.
 
     Returns
     -------
@@ -435,10 +442,76 @@ def position_from_velocity(
     y : np.ndarray
         An array of meridional displacements or latitudes.
 
+    Examples
+    --------
+
+    Simple integration on a plane, using the forward scheme by default:
+
+    >>> import numpy as np
+    >>> from clouddrift.analisys import position_from_velocity
+    >>> u = np.array([1., 2., 3., 4.])
+    >>> v = np.array([1., 1., 1., 1.])
+    >>> time = np.array([0., 1., 2., 3.])
+    >>> x, y = position_from_velocity(u, v, time, 0, 0, coord_system="cartesian")
+    >>> x
+    array([0., 1., 3., 6.])
+    >>> y
+    array([0., 1., 2., 3.])
+
+    As above, but using centered scheme:
+
+    >>> x, y = position_from_velocity(u, v, time, 0, 0, coord_system="cartesian", integration_scheme="centered")
+    >>> x
+    array([0., 1.5, 4., 7.5])
+    >>> y
+    array([0., 1., 2., 3.])
+
+    Simple integration on a sphere (default):
+
+    >>> u = np.array([1., 2., 3., 4.])
+    >>> v = np.array([1., 1., 1., 1.])
+    >>> time = np.array([0., 1., 2., 3.]) * 1e5
+    >>> x, y = position_from_velocity(u, v, time, 0, 0)
+    >>> x
+    array([0.        , 0.89839411, 2.69584476, 5.39367518])
+    >>> y
+    array([0.        , 0.89828369, 1.79601515, 2.69201609])
+
+    Integrating across the antimeridian and recasting longitude to the
+    [-180, 180] range:
+
+    >>> u = np.array([1., 1.])
+    >>> v = np.array([0., 0.])
+    >>> time = np.array([0, 1e5])
+    >>> x, y = position_from_velocity(u, v, time, 179.5, 0)
+    >>> x
+    array([179.5      , 180.3983205])
+    >>> y
+    array([0., 0.])
+
+    Use the ``clouddrift.sphere.recast_lon`` function to recast the longitudes
+    to the desired range:
+
+    >>> from clouddrift.sphere import recast_lon
+    >>> recast_lon(x, -180)
+    array([ 179.5      , -179.6016795])
+
+    Raises
+    ------
+    ValueError
+        If the input arrays do not have the same shape.
+        If the time axis is outside of the valid range ([-1, N-1]).
+        If the input coordinate system is not "spherical" or "cartesian".
+        If the input integration scheme is not "forward", "backward", or "centered"
+
     See Also
     --------
     :func:`velocity_from_position`
     """
+    # Positions and time arrays must have the same shape.
+    if not u.shape == v.shape == time.shape:
+        raise ValueError("u, v, and time must have the same shape.")
+
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(u.shape) - 1:
         raise ValueError(
@@ -545,16 +618,39 @@ def velocity_from_position(
     case of a centered difference scheme, the start and end boundary points are
     evaluated using the forward and backward difference scheme, respectively.
 
-    Args:
-        x (array_like): An N-d array of x-positions (longitude in degrees or zonal displacement in any unit)
-        y (array_like): An N-d array of y-positions (latitude in degrees or meridional displacement in any unit)
-        time (array_like): An N-d array of times as floating point values (in any unit)
-        coord_system (str, optional): Coordinate system that x and y arrays are in; possible values are "spherical" (default) or "cartesian".
-        difference_scheme (str, optional): Difference scheme to use; possible values are "forward", "backward", and "centered".
-        time_axis (int, optional): Axis along which to differentiate (default is -1)
+    Parameters
+    ----------
+    x : array_like
+        An N-d array of x-positions (longitude in degrees or zonal displacement in any unit)
+    y : array_like
+        An N-d array of y-positions (latitude in degrees or meridional displacement in any unit)
+    time : array_like
+        An N-d array of times as floating point values (in any unit)
+    coord_system : str, optional
+        Coordinate system that x and y arrays are in; possible values are "spherical" (default) or "cartesian".
+    difference_scheme : str, optional
+        Difference scheme to use; possible values are "forward", "backward", and "centered".
+    time_axis : int, optional)
+        Axis along which to differentiate (default is -1)
 
-    Returns:
-        out (Tuple[xr.DataArray[float], xr.DataArray[float]]): Arrays of x- and y-velocities
+    Returns
+    -------
+    u : np.ndarray
+        Zonal velocity
+    v : np.ndarray
+        Meridional velocity
+
+    Raises
+    ------
+    ValueError
+        If x, y, and time do not have the same shape.
+        If time_axis is outside of the valid range.
+        If coord_system is not "spherical" or "cartesian".
+        If difference_scheme is not "forward", "backward", or "centered".
+
+    See Also
+    --------
+    :function:`position_from_velocity`
     """
 
     # Positions and time arrays must have the same shape.
