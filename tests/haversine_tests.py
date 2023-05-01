@@ -87,7 +87,7 @@ class haversine_tests(unittest.TestCase):
                 position_from_distance_and_bearing(
                     0, 179.5, np.deg2rad(EARTH_RADIUS_METERS), 0
                 ),
-                (0, -179.5),
+                (0, 180.5),
             )
         )
 

@@ -1,4 +1,3 @@
-from clouddrift import sphere
 import numpy as np
 from typing import Tuple
 import xarray as xr
@@ -160,4 +159,4 @@ def position_from_distance_and_bearing(
         np.cos(distance_rad) - np.sin(lat_rad) * np.sin(lat2_rad),
     )
 
-    return np.rad2deg(lat2_rad), sphere.recast_lon(np.rad2deg(lon2_rad), -180)
+    return np.rad2deg(lat2_rad), np.rad2deg(lon2_rad)
