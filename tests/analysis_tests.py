@@ -276,6 +276,18 @@ class position_from_velocity_tests(unittest.TestCase):
             self.lon, self.lat, self.time, difference_scheme="centered"
         )
 
+    def test_result_has_same_size_as_input(self):
+        lon, lat = position_from_velocity(
+            self.uf,
+            self.vf,
+            self.time,
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="forward",
+        )
+        self.assertTrue(np.all(self.uf.shape == lon.shape))
+        self.assertTrue(np.all(self.uf.shape == lat.shape))
+
     def test_velocity_position_roundtrip_forward(self):
         lon, lat = position_from_velocity(
             self.uf,
@@ -343,6 +355,37 @@ class position_from_velocity_tests(unittest.TestCase):
         self.assertTrue(np.all(lon.shape == expected_lon.shape))
         self.assertTrue(np.all(lat.shape == expected_lat.shape))
 
+    def test_works_with_xarray(self):
+        lon, lat = position_from_velocity(
+            xr.DataArray(data=self.uf),
+            xr.DataArray(data=self.vf),
+            xr.DataArray(data=self.time),
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="forward",
+        )
+        self.assertTrue(np.allclose(lon, self.lon))
+        self.assertTrue(np.allclose(lat, self.lat))
+
+    def test_works_with_2d_array(self):
+        uf = np.reshape(np.tile(self.uf, 4), (4, self.uf.size))
+        vf = np.reshape(np.tile(self.vf, 4), (4, self.vf.size))
+        time = np.reshape(np.tile(self.time, 4), (4, self.time.size))
+        expected_lon = np.reshape(np.tile(self.lon, 4), (4, self.lon.size))
+        expected_lat = np.reshape(np.tile(self.lat, 4), (4, self.lat.size))
+        lon, lat = position_from_velocity(
+            uf,
+            vf,
+            time,
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="forward",
+        )
+        self.assertTrue(np.allclose(lon, expected_lon))
+        self.assertTrue(np.allclose(lat, expected_lat))
+        self.assertTrue(np.allclose(lon.shape, expected_lon.shape))
+        self.assertTrue(np.allclose(lon.shape, expected_lat.shape))
+
 
 class velocity_from_position_tests(unittest.TestCase):
     def setUp(self):
@@ -377,7 +420,7 @@ class velocity_from_position_tests(unittest.TestCase):
         self.assertTrue(np.all(np.isclose(self.ub, u_expected)))
         self.assertTrue(np.all(np.isclose(self.uc, u_expected)))
 
-    def test_works_with_dataarray(self):
+    def test_works_with_xarray(self):
         lon = xr.DataArray(data=self.lon, coords={"time": self.time})
         lat = xr.DataArray(data=self.lat, coords={"time": self.time})
         time = xr.DataArray(data=self.time, coords={"time": self.time})
