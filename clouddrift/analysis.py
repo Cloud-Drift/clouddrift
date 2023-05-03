@@ -407,7 +407,7 @@ def position_from_velocity(
     the same shape.
 
     This function will not do any special handling of longitude ranges. If the
-    integrated trajectory crosses the anti-meridian in either direction, the
+    integrated trajectory crosses the antimeridian (dateline) in either direction, the
     longitude values will not be adjusted to stay in any specific range such
     as [-180, 180] or [0, 360]. If you need your longitudes to be in a specific
     range, recast the resulting longitude from this function using the function
