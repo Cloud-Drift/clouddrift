@@ -477,8 +477,8 @@ def position_from_velocity(
     >>> y
     array([0.        , 0.89828369, 1.79601515, 2.69201609])
 
-    Integrating across the antimeridian and recasting longitude to the
-    [-180, 180] range:
+    Integrating across the antimeridian (dateline) by default does not
+    recast the resulting longitude:
 
     >>> u = np.array([1., 1.])
     >>> v = np.array([0., 0.])
