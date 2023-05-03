@@ -448,7 +448,7 @@ def position_from_velocity(
     Simple integration on a plane, using the forward scheme by default:
 
     >>> import numpy as np
-    >>> from clouddrift.analisys import position_from_velocity
+    >>> from clouddrift.analysis import position_from_velocity
     >>> u = np.array([1., 2., 3., 4.])
     >>> v = np.array([1., 1., 1., 1.])
     >>> time = np.array([0., 1., 2., 3.])
