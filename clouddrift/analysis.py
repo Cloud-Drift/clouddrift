@@ -422,9 +422,9 @@ def position_from_velocity(
     time : np.ndarray
         An array of time values.
     x_origin : float
-        Zonal component of the origin.
+        Origin x-coordinate or origin longitude.
     y_origin : float
-        Meridional component of the origin.
+        Origin y-coordinate or origin latitude.
     coord_system : str, optional
         The coordinate system of the input. Can be "spherical" or "cartesian".
         Default is "spherical".
