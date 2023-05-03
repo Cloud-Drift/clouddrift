@@ -550,10 +550,10 @@ def position_from_velocity(
             'integration_scheme must be "forward", "backward", or "centered".'
         )
 
-    if coord_system == "cartesian":
+    if coord_system.lower() == "cartesian":
         x += x_origin
         y += y_origin
-    elif coord_system == "spherical":
+    elif coord_system.lower() == "spherical":
         dx = np.diff(x)
         dy = np.diff(y)
         distances = np.sqrt(dx**2 + dy**2)
