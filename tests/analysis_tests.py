@@ -5,6 +5,7 @@ from clouddrift.analysis import (
     ragged_to_regular,
     segment,
     subset,
+    position_from_velocity,
     velocity_from_position,
 )
 from clouddrift.haversine import EARTH_RADIUS_METERS
@@ -257,6 +258,135 @@ class ragged_to_regular_tests(unittest.TestCase):
         self.assertTrue(np.all(new_rowsize == rowsize))
 
 
+class position_from_velocity_tests(unittest.TestCase):
+    def setUp(self):
+        self.INPUT_SIZE = 100
+        self.lon = np.rad2deg(
+            np.linspace(-np.pi, np.pi, self.INPUT_SIZE, endpoint=False)
+        )
+        self.lat = np.linspace(0, 45, self.INPUT_SIZE)
+        self.time = np.linspace(0, 1e7, self.INPUT_SIZE)
+        self.uf, self.vf = velocity_from_position(
+            self.lon, self.lat, self.time, difference_scheme="forward"
+        )
+        self.ub, self.vb = velocity_from_position(
+            self.lon, self.lat, self.time, difference_scheme="backward"
+        )
+        self.uc, self.vc = velocity_from_position(
+            self.lon, self.lat, self.time, difference_scheme="centered"
+        )
+
+    def test_result_has_same_size_as_input(self):
+        lon, lat = position_from_velocity(
+            self.uf,
+            self.vf,
+            self.time,
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="forward",
+        )
+        self.assertTrue(np.all(self.uf.shape == lon.shape))
+        self.assertTrue(np.all(self.uf.shape == lat.shape))
+
+    def test_velocity_position_roundtrip_forward(self):
+        lon, lat = position_from_velocity(
+            self.uf,
+            self.vf,
+            self.time,
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="forward",
+        )
+        self.assertTrue(np.allclose(lon, self.lon))
+        self.assertTrue(np.allclose(lat, self.lat))
+
+    def test_velocity_position_roundtrip_backward(self):
+        lon, lat = position_from_velocity(
+            self.ub,
+            self.vb,
+            self.time,
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="backward",
+        )
+        self.assertTrue(np.allclose(lon, self.lon))
+        self.assertTrue(np.allclose(lat, self.lat))
+
+    def test_velocity_position_roundtrip_centered(self):
+        lon, lat = position_from_velocity(
+            self.uc,
+            self.vc,
+            self.time,
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="centered",
+        )
+        # Centered scheme damps the 2dx waves so we need a looser tolerance.
+        self.assertTrue(np.allclose(lon, self.lon, atol=1e-2))
+        self.assertTrue(np.allclose(lat, self.lat, atol=1e-2))
+
+    def test_time_axis(self):
+        uf = np.transpose(
+            np.reshape(np.tile(self.uf, 4), (2, 2, self.uf.size)), (0, 2, 1)
+        )
+        vf = np.transpose(
+            np.reshape(np.tile(self.vf, 4), (2, 2, self.vf.size)), (0, 2, 1)
+        )
+        time = np.transpose(
+            np.reshape(np.tile(self.time, 4), (2, 2, self.time.size)), (0, 2, 1)
+        )
+        expected_lon = np.transpose(
+            np.reshape(np.tile(self.lon, 4), (2, 2, self.lon.size)), (0, 2, 1)
+        )
+        expected_lat = np.transpose(
+            np.reshape(np.tile(self.lat, 4), (2, 2, self.lat.size)), (0, 2, 1)
+        )
+        lon, lat = position_from_velocity(
+            uf,
+            vf,
+            time,
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="forward",
+            time_axis=1,
+        )
+        self.assertTrue(np.allclose(lon, expected_lon))
+        self.assertTrue(np.allclose(lat, expected_lat))
+        self.assertTrue(np.all(lon.shape == expected_lon.shape))
+        self.assertTrue(np.all(lat.shape == expected_lat.shape))
+
+    def test_works_with_xarray(self):
+        lon, lat = position_from_velocity(
+            xr.DataArray(data=self.uf),
+            xr.DataArray(data=self.vf),
+            xr.DataArray(data=self.time),
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="forward",
+        )
+        self.assertTrue(np.allclose(lon, self.lon))
+        self.assertTrue(np.allclose(lat, self.lat))
+
+    def test_works_with_2d_array(self):
+        uf = np.reshape(np.tile(self.uf, 4), (4, self.uf.size))
+        vf = np.reshape(np.tile(self.vf, 4), (4, self.vf.size))
+        time = np.reshape(np.tile(self.time, 4), (4, self.time.size))
+        expected_lon = np.reshape(np.tile(self.lon, 4), (4, self.lon.size))
+        expected_lat = np.reshape(np.tile(self.lat, 4), (4, self.lat.size))
+        lon, lat = position_from_velocity(
+            uf,
+            vf,
+            time,
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="forward",
+        )
+        self.assertTrue(np.allclose(lon, expected_lon))
+        self.assertTrue(np.allclose(lat, expected_lat))
+        self.assertTrue(np.allclose(lon.shape, expected_lon.shape))
+        self.assertTrue(np.allclose(lon.shape, expected_lat.shape))
+
+
 class velocity_from_position_tests(unittest.TestCase):
     def setUp(self):
         self.INPUT_SIZE = 100
@@ -290,7 +420,7 @@ class velocity_from_position_tests(unittest.TestCase):
         self.assertTrue(np.all(np.isclose(self.ub, u_expected)))
         self.assertTrue(np.all(np.isclose(self.uc, u_expected)))
 
-    def test_works_with_dataarray(self):
+    def test_works_with_xarray(self):
         lon = xr.DataArray(data=self.lon, coords={"time": self.time})
         lat = xr.DataArray(data=self.lat, coords={"time": self.time})
         time = xr.DataArray(data=self.time, coords={"time": self.time})

@@ -7,14 +7,14 @@ def recast_lon(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
 
     Parameters
     ----------
-    lon : np.ndarray
+    lon : np.ndarray or float
         An N-d array of longitudes in degrees
     lon0 : float, optional
         Starting longitude of the recasted range (default -180).
 
     Returns
     -------
-    np.ndarray
+    np.ndarray or float
         Converted longitudes in the range `[lon0, lon0+360]`
 
     Examples
@@ -43,9 +43,6 @@ def recast_lon(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
     --------
     :func:`recast_lon360`, :func:`recast_lon180`
     """
-    if np.isscalar(lon):
-        lon = np.array([lon])
-
     return np.mod(lon - lon0, 360) + lon0
 
 
