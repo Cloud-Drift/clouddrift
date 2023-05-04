@@ -391,7 +391,6 @@ class RaggedArray:
         """
 
         self.to_xarray().to_netcdf(filename)
-        return
 
     def to_parquet(self, filename: str):
         """Export ragged array object to a parquet archive.
@@ -400,4 +399,3 @@ class RaggedArray:
             filename (str): filename of the parquet archive of ragged arrays
         """
         ak.to_parquet(self.to_awkward(), filename)
-        return
