@@ -4,7 +4,7 @@ import os
 import xarray as xr
 import numpy as np
 from clouddrift import RaggedArray
-from clouddrift.dataformat import unpack_ragged
+from clouddrift.raggedarray import unpack_ragged
 import awkward as ak
 
 NETCDF_ARCHIVE = "test_archive.nc"
@@ -14,7 +14,7 @@ if __name__ == "__main__":
     unittest.main()
 
 
-class dataformat_tests(TestCase):
+class raggedarray_tests(TestCase):
     def setUp(self):
         """
         Create ragged array and output netCDF and Parquet file

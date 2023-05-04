@@ -6,7 +6,7 @@ from concurrent import futures
 from datetime import timedelta
 import warnings
 from clouddrift.haversine import distance, bearing, position_from_distance_and_bearing
-from clouddrift.dataformat import unpack_ragged
+from clouddrift.raggedarray import unpack_ragged
 
 
 def apply_ragged(

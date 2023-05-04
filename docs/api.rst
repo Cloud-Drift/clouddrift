@@ -33,17 +33,17 @@ Analysis
   :members:
   :undoc-members:
 
-Dataformat
-----------
-
-.. automodule:: clouddrift.dataformat
-  :members:
-  :undoc-members:
-
 Haversine
 ---------
 
 .. automodule:: clouddrift.haversine
+  :members:
+  :undoc-members:
+
+RaggedArray
+-----------
+
+.. automodule:: clouddrift.raggedarray
   :members:
   :undoc-members:
 

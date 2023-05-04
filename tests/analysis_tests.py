@@ -9,7 +9,7 @@ from clouddrift.analysis import (
     velocity_from_position,
 )
 from clouddrift.haversine import EARTH_RADIUS_METERS
-from clouddrift.dataformat import RaggedArray
+from clouddrift.raggedarray import RaggedArray
 import unittest
 import numpy as np
 import xarray as xr
