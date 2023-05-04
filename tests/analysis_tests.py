@@ -666,7 +666,6 @@ class subset_tests(unittest.TestCase):
 
 class unpack_ragged_tests(unittest.TestCase):
     def test_unpack_ragged(self):
-
         ds = sample_ragged_array().to_xarray()
 
         # Test unpacking into DataArrays
