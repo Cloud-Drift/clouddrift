@@ -6,7 +6,6 @@ from concurrent import futures
 from datetime import timedelta
 import warnings
 from clouddrift.haversine import distance, bearing, position_from_distance_and_bearing
-from clouddrift.raggedarray import unpack_ragged
 
 
 def apply_ragged(
@@ -909,3 +908,52 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
         ds["rowsize"].values[mask_traj] = [id_count[i] for i in ds.ID[mask_traj]]
         # apply the filtering for both dimensions
         return ds.isel({"traj": mask_traj, "obs": mask_obs})
+
+
+def unpack_ragged(
+    ragged_array: np.ndarray, rowsize: np.ndarray[int]
+) -> list[np.ndarray]:
+    """Unpack a ragged array into a list of regular arrays.
+
+    Unpacking a ``np.ndarray`` ragged array is about 2 orders of magnitude
+    faster than unpacking an ``xr.DataArray`` ragged array, so unless you need a
+    ``DataArray`` as the result, we recommend passing ``np.ndarray`` as input.
+
+    Parameters
+    ----------
+    ragged_array : array-like
+        A ragged_array to unpack
+    rowsize : array-like
+        An array of integers whose values is the size of each row in the ragged
+        array
+
+    Returns
+    -------
+    list
+        A list of array-likes with sizes that correspond to the values in
+        rowsize, and types that correspond to the type of ragged_array
+
+    Examples
+    --------
+
+    Unpacking longitude arrays from a ragged Xarray Dataset:
+
+    .. code-block:: python
+
+        lon = unpack_ragged(ds.lon, ds.rowsize) # return a list[xr.DataArray] (slower)
+        lon = unpack_ragged(ds.lon.values, ds.rowsize) # return a list[np.ndarray] (faster)
+
+    Looping over trajectories in a ragged Xarray Dataset to compute velocities
+    for each:
+
+    .. code-block:: python
+
+        for lon, lat, time in list(zip(
+            unpack_ragged(ds.lon.values, ds.rowsize),
+            unpack_ragged(ds.lat.values, ds.rowsize),
+            unpack_ragged(ds.time.values, ds.rowsize)
+        )):
+            u, v = velocity_from_position(lon, lat, time)
+    """
+    indices = np.insert(np.cumsum(np.array(rowsize)), 0, 0)
+    return [ragged_array[indices[n] : indices[n + 1]] for n in range(indices.size - 1)]
