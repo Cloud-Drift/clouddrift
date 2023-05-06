@@ -211,7 +211,7 @@ def prune(
     x: Union[list, np.ndarray],
     rowsize: Union[list, np.ndarray],
     minimum: float,
-) -> np.ndarray:
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Docstring
     """
