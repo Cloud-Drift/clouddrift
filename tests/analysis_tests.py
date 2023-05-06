@@ -1,6 +1,7 @@
 from clouddrift.analysis import (
     apply_ragged,
     chunk,
+    prune,
     regular_to_ragged,
     ragged_to_regular,
     segment,
@@ -134,6 +135,37 @@ class chunk_tests(unittest.TestCase):
         self.assertTrue(
             np.all(chunk(pd.Series(data=[1, 2, 3, 4]), 2) == np.array([[1, 2], [3, 4]]))
         )
+
+
+class prune_tests(unittest.TestCase):
+    def test_prune(self):
+        x = [1, 2, 3, 1, 2, 1, 2, 3, 4]
+        rowsize = [3, 2, 4]
+        minimum = 3
+
+        x_new, rowsize_new = prune(x, rowsize, minimum)
+        self.assertTrue(type(x_new) is np.ndarray)
+        self.assertTrue(type(rowsize_new) is np.ndarray)
+        np.testing.assert_almost_equal(x_new, [1, 2, 3, 1, 2, 3, 4])
+        np.testing.assert_almost_equal(rowsize_new, [3, 4])
+
+    def test_prune_all_longer(self):
+        x = [1, 2, 3, 1, 2, 1, 2, 3, 4]
+        rowsize = [3, 2, 4]
+        minimum = 1
+
+        x_new, rowsize_new = prune(x, rowsize, minimum)
+        np.testing.assert_almost_equal(x_new, x)
+        np.testing.assert_almost_equal(rowsize_new, rowsize)
+
+    def test_prune_all_smaller(self):
+        x = [1, 2, 3, 1, 2, 1, 2, 3, 4]
+        rowsize = [3, 2, 4]
+        minimum = 5
+
+        x_new, rowsize_new = prune(x, rowsize, minimum)
+        np.testing.assert_almost_equal(x_new, np.array([]))
+        np.testing.assert_almost_equal(rowsize_new, np.array([]))
 
 
 class segment_tests(unittest.TestCase):
