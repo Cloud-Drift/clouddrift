@@ -217,19 +217,19 @@ def prune(
     """
 
     x = apply_ragged(
-        lambda x, min_len: x if len(x) >= min_len else np.array([np.nan]),
+        lambda x, min_len: x if len(x) >= min_len else np.empty(0),
         np.array(x),
         rowsize,
         min_len=minimum,
     )
     rowsize = apply_ragged(
-        lambda x, min_len: x if x >= min_len else np.array([np.nan]),
+        lambda x, min_len: x if x >= min_len else np.empty(0),
         np.array(rowsize),
         np.ones_like(rowsize),
         min_len=minimum,
     )
 
-    return x[np.isfinite(x)], rowsize[np.isfinite(rowsize)]
+    return x, rowsize
 
 
 def regular_to_ragged(array: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
