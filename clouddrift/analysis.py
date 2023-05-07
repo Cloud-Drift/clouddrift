@@ -207,7 +207,7 @@ def chunk(
     return res
 
 
-def regular_to_ragged(array: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def regular_to_ragged(array: np.ndarray, fill_value: float = np.nan) -> tuple[np.ndarray, np.ndarray]:
     """Convert a two-dimensional array to a ragged array. NaN values in the input array are
     excluded from the output ragged array.
 
@@ -215,6 +215,8 @@ def regular_to_ragged(array: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     ----------
     array : np.ndarray
         A two-dimensional array.
+    fill_value : float, optional
+        Fill value to use to determine the bounds of contiguous segments.
 
     Returns
     -------
@@ -231,7 +233,11 @@ def regular_to_ragged(array: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     :func:`ragged_to_regular`
     """
     ragged = array.flatten()
-    return ragged[~np.isnan(ragged)], np.sum(~np.isnan(array), axis=1)
+    if np.isnan(fill_value):
+        valid = ~np.isnan(ragged)
+    else:
+        valid = ragged != fill_value
+    return ragged[valid], np.sum(valid, axis=1)
 
 
 def ragged_to_regular(
