@@ -208,17 +208,39 @@ def chunk(
 
 
 def prune(
-    x: Union[list, np.ndarray],
+    ragged: Union[list, np.ndarray],
     rowsize: Union[list, np.ndarray],
     minimum: float,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Docstring
+    """Within a ragged array, removes arrays less than a specified row size.
+    
+    Parameters
+    ----------
+    ragged : np.ndarray or pd.Series or xr.DataArray
+        A ragged array.
+    rowsize : list or np.ndarray[int] or pd.Series or xr.DataArray[int]
+        The size of each row in the input ragged array.
+    minimum : 
+        The minimum row size that will be kept.
+    
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray]
+        A tuple of ragged array and size of each row.     
+    
+    Examples
+    --------
+    >>> prune(np.array([1, 2, 3, 0, -1, -2]), np.array([3, 1, 2]),2)
+    (array([1, 2, 3, -1, -2]), array([3, 2]))
+
+    See Also
+    --------
+    :func:`segment`, `chunk`
     """
 
-    x = apply_ragged(
+    ragged = apply_ragged(
         lambda x, min_len: x if len(x) >= min_len else np.empty(0),
-        np.array(x),
+        np.array(ragged),
         rowsize,
         min_len=minimum,
     )
@@ -229,7 +251,7 @@ def prune(
         min_len=minimum,
     )
 
-    return x, rowsize
+    return ragged, rowsize
 
 
 def regular_to_ragged(array: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -679,7 +701,7 @@ def velocity_from_position(
 
     See Also
     --------
-    :function:`position_from_velocity`
+    :func:`position_from_velocity`
     """
 
     # Positions and time arrays must have the same shape.
