@@ -213,21 +213,21 @@ def prune(
     minimum: float,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Within a ragged array, removes arrays less than a specified row size.
-    
+
     Parameters
     ----------
     ragged : np.ndarray or pd.Series or xr.DataArray
         A ragged array.
     rowsize : list or np.ndarray[int] or pd.Series or xr.DataArray[int]
         The size of each row in the input ragged array.
-    minimum : 
+    minimum :
         The minimum row size that will be kept.
-    
+
     Returns
     -------
     tuple[np.ndarray, np.ndarray]
-        A tuple of ragged array and size of each row.     
-    
+        A tuple of ragged array and size of each row.
+
     Examples
     --------
     >>> prune(np.array([1, 2, 3, 0, -1, -2]), np.array([3, 1, 2]),2)
