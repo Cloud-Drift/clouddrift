@@ -5,7 +5,7 @@ instance.
 """
 
 import clouddrift.adapters.gdp as gdp
-from clouddrift.dataformat import RaggedArray
+from clouddrift.raggedarray import RaggedArray
 from datetime import datetime
 import numpy as np
 import urllib.request
