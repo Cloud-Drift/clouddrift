@@ -225,7 +225,16 @@ def regular_to_ragged(array: np.ndarray, fill_value: float = np.nan) -> tuple[np
 
     Examples
     --------
+    By default, NaN values found in the input regular array are excluded from
+    the output ragged array:
+
     >>> regular_to_ragged(np.array([[1, 2], [3, np.nan], [4, 5]]))
+    (array([1., 2., 3., 4., 5.]), array([2, 1, 2]))
+
+    Alternatively, if the regular array uses a different fill value, you can
+    specify it:
+
+    >>> regular_to_ragged(np.array([[1, 2], [3, -999], [4, 5]]), fill_value=-999)
     (array([1., 2., 3., 4., 5.]), array([2, 1, 2]))
 
     See Also
@@ -243,6 +252,7 @@ def regular_to_ragged(array: np.ndarray, fill_value: float = np.nan) -> tuple[np
 def ragged_to_regular(
     ragged: Union[np.ndarray, pd.Series, xr.DataArray],
     rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
+    fill_value: float = np.nan,
 ) -> np.ndarray:
     """Convert a ragged array to a two-dimensional array such that each contiguous segment
     of a ragged array is a row in the two-dimensional array. Each row of the two-dimensional
@@ -259,6 +269,9 @@ def ragged_to_regular(
         A ragged array.
     rowsize : list or np.ndarray[int] or pd.Series or xr.DataArray[int]
         The size of each row in the ragged array.
+    fill_value : float, optional
+        Fill value to use for the trailing elements of each row of the resulting
+        regular array.
 
     Returns
     -------
@@ -267,16 +280,24 @@ def ragged_to_regular(
 
     Examples
     --------
+    By default, the fill value is NaN:
+
     >>> ragged_to_regular(np.array([1, 2, 3, 4, 5]), np.array([2, 1, 2]))
     array([[ 1.,  2.],
            [ 3., nan],
            [ 4.,  5.]])
 
+    You can specify an alternative fill value:
+    >>> ragged_to_regular(np.array([1, 2, 3, 4, 5]), np.array([2, 1, 2]), fill_value=999)
+    array([[ 1.,    2.],
+           [ 3., -999.],
+           [ 4.,    5.]])
+
     See Also
     --------
     :func:`regular_to_ragged`
     """
-    res = np.nan * np.empty((len(rowsize), int(max(rowsize))), dtype=ragged.dtype)
+    res = fill_value * np.empty((len(rowsize), int(max(rowsize))), dtype=ragged.dtype)
     unpacked = unpack_ragged(ragged, rowsize)
     for n in range(len(rowsize)):
         res[n, : int(rowsize[n])] = unpacked[n]
