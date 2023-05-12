@@ -463,11 +463,11 @@ def to_raggedarray(
 
     >>> ds = ra.to_xarray()
 
-    To write the ragged-array dataset to a NetCDF file on disk, do
+    To write the ragged array dataset to a NetCDF file on disk, do
 
     >>> ds.to_netcdf("gdp6h.nc", format="NETCDF4")
 
-    Alternatively, to write the ragged-array to a Parquet file, first create
+    Alternatively, to write the ragged array to a Parquet file, first create
     it as an Awkward Array:
 
     >>> arr = ra.to_awkward()
