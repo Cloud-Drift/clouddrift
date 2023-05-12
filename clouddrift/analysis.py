@@ -234,7 +234,7 @@ def regular_to_ragged(
     (array([1., 2., 3., 4., 5.]), array([2, 1, 2]))
 
     Alternatively, a different fill value can be specified:
-    
+
     >>> regular_to_ragged(np.array([[1, 2], [3, -999], [4, 5]]), fill_value=-999)
     (array([1., 2., 3., 4., 5.]), array([2, 1, 2]))
 
