@@ -241,12 +241,11 @@ def regular_to_ragged(array: np.ndarray, fill_value: float = np.nan) -> tuple[np
     --------
     :func:`ragged_to_regular`
     """
-    ragged = array.flatten()
     if np.isnan(fill_value):
-        valid = ~np.isnan(ragged)
+        valid = ~np.isnan(array)
     else:
-        valid = ragged != fill_value
-    return ragged[valid], np.sum(valid, axis=1)
+        valid = array != fill_value
+    return array[valid], np.sum(valid, axis=1)
 
 
 def ragged_to_regular(
