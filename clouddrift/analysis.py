@@ -207,7 +207,9 @@ def chunk(
     return res
 
 
-def regular_to_ragged(array: np.ndarray, fill_value: float = np.nan) -> tuple[np.ndarray, np.ndarray]:
+def regular_to_ragged(
+    array: np.ndarray, fill_value: float = np.nan
+) -> tuple[np.ndarray, np.ndarray]:
     """Convert a two-dimensional array to a ragged array. NaN values in the input array are
     excluded from the output ragged array.
 
@@ -296,7 +298,7 @@ def ragged_to_regular(
     --------
     :func:`regular_to_ragged`
     """
-    res = fill_value * np.empty((len(rowsize), int(max(rowsize))), dtype=ragged.dtype)
+    res = fill_value * np.ones((len(rowsize), int(max(rowsize))), dtype=ragged.dtype)
     unpacked = unpack_ragged(ragged, rowsize)
     for n in range(len(rowsize)):
         res[n, : int(rowsize[n])] = unpacked[n]
