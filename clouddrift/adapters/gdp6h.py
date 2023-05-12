@@ -462,6 +462,16 @@ def to_raggedarray(
     a convenience method to emit a `xarray.Dataset` instance:
 
     >>> ds = ra.to_xarray()
+
+    To write the ragged array dataset to a NetCDF file on disk, do
+
+    >>> ds.to_netcdf("gdp6h.nc", format="NETCDF4")
+
+    Alternatively, to write the ragged array to a Parquet file, first create
+    it as an Awkward Array:
+
+    >>> arr = ra.to_awkward()
+    >>> arr.to_parquet("gdp6h.parquet")
     """
     ids = download(drifter_ids, n_random_id, GDP_DATA_URL)
 
