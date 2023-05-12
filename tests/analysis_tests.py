@@ -241,12 +241,29 @@ class ragged_to_regular_tests(unittest.TestCase):
             np.all(result[~np.isnan(result)] == expected[~np.isnan(expected)])
         )
 
+    def test_ragged_to_regular_fill_value(self):
+        ragged = np.array([1, 2, 3, 4, 5])
+        rowsize = [2, 1, 2]
+        expected = np.array([[1, 2], [3, -999], [4, 5]])
+
+        result = ragged_to_regular(ragged, rowsize, fill_value=-999)
+        self.assertTrue(np.all(result == expected))
+
     def test_regular_to_ragged(self):
-        matrix = np.array([[1, 2], [3, np.nan], [4, 5]])
+        regular = np.array([[1, 2], [3, np.nan], [4, 5]])
         expected = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
         expected_rowsize = np.array([2, 1, 2])
 
-        result, rowsize = regular_to_ragged(matrix)
+        result, rowsize = regular_to_ragged(regular)
+        self.assertTrue(np.all(result == expected))
+        self.assertTrue(np.all(rowsize == expected_rowsize))
+
+    def test_regular_to_ragged_fill_value(self):
+        regular = np.array([[1, 2], [3, -999], [4, 5]])
+        expected = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        expected_rowsize = np.array([2, 1, 2])
+
+        result, rowsize = regular_to_ragged(regular, fill_value=-999)
         self.assertTrue(np.all(result == expected))
         self.assertTrue(np.all(rowsize == expected_rowsize))
 
