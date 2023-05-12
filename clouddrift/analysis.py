@@ -206,14 +206,18 @@ def chunk(
     return res
 
 
-def regular_to_ragged(array: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    """Convert a two-dimensional array to a ragged array. NaN values in the input array are
+def regular_to_ragged(
+    array: np.ndarray, fill_value: float = np.nan
+) -> tuple[np.ndarray, np.ndarray]:
+    """Convert a two-dimensional array to a ragged array. Fill values in the input array are
     excluded from the output ragged array.
 
     Parameters
     ----------
     array : np.ndarray
         A two-dimensional array.
+    fill_value : float, optional
+        Fill value used to determine the bounds of contiguous segments.
 
     Returns
     -------
@@ -222,20 +226,32 @@ def regular_to_ragged(array: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
     Examples
     --------
+    By default, NaN values found in the input regular array are excluded from
+    the output ragged array:
+
     >>> regular_to_ragged(np.array([[1, 2], [3, np.nan], [4, 5]]))
+    (array([1., 2., 3., 4., 5.]), array([2, 1, 2]))
+
+    Alternatively, a different fill value can be specified:
+
+    >>> regular_to_ragged(np.array([[1, 2], [3, -999], [4, 5]]), fill_value=-999)
     (array([1., 2., 3., 4., 5.]), array([2, 1, 2]))
 
     See Also
     --------
     :func:`ragged_to_regular`
     """
-    ragged = array.flatten()
-    return ragged[~np.isnan(ragged)], np.sum(~np.isnan(array), axis=1)
+    if np.isnan(fill_value):
+        valid = ~np.isnan(array)
+    else:
+        valid = array != fill_value
+    return array[valid], np.sum(valid, axis=1)
 
 
 def ragged_to_regular(
     ragged: Union[np.ndarray, pd.Series, xr.DataArray],
     rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
+    fill_value: float = np.nan,
 ) -> np.ndarray:
     """Convert a ragged array to a two-dimensional array such that each contiguous segment
     of a ragged array is a row in the two-dimensional array. Each row of the two-dimensional
@@ -252,6 +268,9 @@ def ragged_to_regular(
         A ragged array.
     rowsize : list or np.ndarray[int] or pd.Series or xr.DataArray[int]
         The size of each row in the ragged array.
+    fill_value : float, optional
+        Fill value to use for the trailing elements of each row of the resulting
+        regular array.
 
     Returns
     -------
@@ -260,16 +279,24 @@ def ragged_to_regular(
 
     Examples
     --------
+    By default, the fill value used is NaN:
+
     >>> ragged_to_regular(np.array([1, 2, 3, 4, 5]), np.array([2, 1, 2]))
     array([[ 1.,  2.],
            [ 3., nan],
            [ 4.,  5.]])
 
+    You can specify an alternative fill value:
+    >>> ragged_to_regular(np.array([1, 2, 3, 4, 5]), np.array([2, 1, 2]), fill_value=999)
+    array([[ 1.,    2.],
+           [ 3., -999.],
+           [ 4.,    5.]])
+
     See Also
     --------
     :func:`regular_to_ragged`
     """
-    res = np.nan * np.empty((len(rowsize), int(max(rowsize))), dtype=ragged.dtype)
+    res = fill_value * np.ones((len(rowsize), int(max(rowsize))), dtype=ragged.dtype)
     unpacked = unpack_ragged(ragged, rowsize)
     for n in range(len(rowsize)):
         res[n, : int(rowsize[n])] = unpacked[n]
