@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, Union, Iterable
 import xarray as xr
 import pandas as pd
 from concurrent import futures
@@ -89,7 +89,8 @@ def apply_ragged(
     with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         res = executor.map(lambda x: func(*x, **kwargs), iter)
     # concatenate the outputs
-    res = list(res)
+    res = [item if isinstance(item, Iterable) else [item] for item in res]
+
     if isinstance(res[0], tuple):  # more than 1 parameter
         outputs = []
         for i in range(len(res[0])):
