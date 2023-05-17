@@ -209,8 +209,8 @@ def chunk(
 
 
 def prune(
-    ragged: Union[list, np.ndarray],
-    rowsize: Union[list, np.ndarray],
+    ragged: Union[list, np.ndarray, pd.Series, xr.DataArray],
+    rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
     min_rowsize: float,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Within a ragged array, removes arrays less than a specified row size.
