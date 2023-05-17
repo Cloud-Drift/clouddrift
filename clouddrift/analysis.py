@@ -6,7 +6,6 @@ from concurrent import futures
 from datetime import timedelta
 import warnings
 from clouddrift.haversine import distance, bearing, position_from_distance_and_bearing
-from clouddrift.dataformat import unpack_ragged
 
 
 def apply_ragged(
@@ -256,12 +255,19 @@ def prune(
 
 def regular_to_ragged(array: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Convert a two-dimensional array to a ragged array. NaN values in the input array are
+=======
+def regular_to_ragged(
+    array: np.ndarray, fill_value: float = np.nan
+) -> tuple[np.ndarray, np.ndarray]:
+    """Convert a two-dimensional array to a ragged array. Fill values in the input array are
     excluded from the output ragged array.
 
     Parameters
     ----------
     array : np.ndarray
         A two-dimensional array.
+    fill_value : float, optional
+        Fill value used to determine the bounds of contiguous segments.
 
     Returns
     -------
@@ -270,20 +276,32 @@ def regular_to_ragged(array: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
     Examples
     --------
+    By default, NaN values found in the input regular array are excluded from
+    the output ragged array:
+
     >>> regular_to_ragged(np.array([[1, 2], [3, np.nan], [4, 5]]))
+    (array([1., 2., 3., 4., 5.]), array([2, 1, 2]))
+
+    Alternatively, a different fill value can be specified:
+
+    >>> regular_to_ragged(np.array([[1, 2], [3, -999], [4, 5]]), fill_value=-999)
     (array([1., 2., 3., 4., 5.]), array([2, 1, 2]))
 
     See Also
     --------
     :func:`ragged_to_regular`
     """
-    ragged = array.flatten()
-    return ragged[~np.isnan(ragged)], np.sum(~np.isnan(array), axis=1)
+    if np.isnan(fill_value):
+        valid = ~np.isnan(array)
+    else:
+        valid = array != fill_value
+    return array[valid], np.sum(valid, axis=1)
 
 
 def ragged_to_regular(
     ragged: Union[np.ndarray, pd.Series, xr.DataArray],
     rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
+    fill_value: float = np.nan,
 ) -> np.ndarray:
     """Convert a ragged array to a two-dimensional array such that each contiguous segment
     of a ragged array is a row in the two-dimensional array. Each row of the two-dimensional
@@ -300,6 +318,9 @@ def ragged_to_regular(
         A ragged array.
     rowsize : list or np.ndarray[int] or pd.Series or xr.DataArray[int]
         The size of each row in the ragged array.
+    fill_value : float, optional
+        Fill value to use for the trailing elements of each row of the resulting
+        regular array.
 
     Returns
     -------
@@ -308,16 +329,24 @@ def ragged_to_regular(
 
     Examples
     --------
+    By default, the fill value used is NaN:
+
     >>> ragged_to_regular(np.array([1, 2, 3, 4, 5]), np.array([2, 1, 2]))
     array([[ 1.,  2.],
            [ 3., nan],
            [ 4.,  5.]])
 
+    You can specify an alternative fill value:
+    >>> ragged_to_regular(np.array([1, 2, 3, 4, 5]), np.array([2, 1, 2]), fill_value=999)
+    array([[ 1.,    2.],
+           [ 3., -999.],
+           [ 4.,    5.]])
+
     See Also
     --------
     :func:`regular_to_ragged`
     """
-    res = np.nan * np.empty((len(rowsize), int(max(rowsize))), dtype=ragged.dtype)
+    res = fill_value * np.ones((len(rowsize), int(max(rowsize))), dtype=ragged.dtype)
     unpacked = unpack_ragged(ragged, rowsize)
     for n in range(len(rowsize)):
         res[n, : int(rowsize[n])] = unpacked[n]
@@ -956,3 +985,52 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
         ds["rowsize"].values[mask_traj] = [id_count[i] for i in ds.ID[mask_traj]]
         # apply the filtering for both dimensions
         return ds.isel({"traj": mask_traj, "obs": mask_obs})
+
+
+def unpack_ragged(
+    ragged_array: np.ndarray, rowsize: np.ndarray[int]
+) -> list[np.ndarray]:
+    """Unpack a ragged array into a list of regular arrays.
+
+    Unpacking a ``np.ndarray`` ragged array is about 2 orders of magnitude
+    faster than unpacking an ``xr.DataArray`` ragged array, so unless you need a
+    ``DataArray`` as the result, we recommend passing ``np.ndarray`` as input.
+
+    Parameters
+    ----------
+    ragged_array : array-like
+        A ragged_array to unpack
+    rowsize : array-like
+        An array of integers whose values is the size of each row in the ragged
+        array
+
+    Returns
+    -------
+    list
+        A list of array-likes with sizes that correspond to the values in
+        rowsize, and types that correspond to the type of ragged_array
+
+    Examples
+    --------
+
+    Unpacking longitude arrays from a ragged Xarray Dataset:
+
+    .. code-block:: python
+
+        lon = unpack_ragged(ds.lon, ds.rowsize) # return a list[xr.DataArray] (slower)
+        lon = unpack_ragged(ds.lon.values, ds.rowsize) # return a list[np.ndarray] (faster)
+
+    Looping over trajectories in a ragged Xarray Dataset to compute velocities
+    for each:
+
+    .. code-block:: python
+
+        for lon, lat, time in list(zip(
+            unpack_ragged(ds.lon.values, ds.rowsize),
+            unpack_ragged(ds.lat.values, ds.rowsize),
+            unpack_ragged(ds.time.values, ds.rowsize)
+        )):
+            u, v = velocity_from_position(lon, lat, time)
+    """
+    indices = np.insert(np.cumsum(np.array(rowsize)), 0, 0)
+    return [ragged_array[indices[n] : indices[n + 1]] for n in range(indices.size - 1)]

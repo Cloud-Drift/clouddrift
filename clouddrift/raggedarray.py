@@ -1,3 +1,8 @@
+"""
+This module defines the RaggedArray class, which is the intermediate data
+structure used by CloudDrift to process custom Lagrangian datasets to Xarray
+Datasets and Awkward Arrays.
+"""
 import awkward as ak
 import xarray as xr
 import numpy as np
@@ -31,12 +36,17 @@ class RaggedArray:
     ):
         """Load a RaggedArray instance from an Awkward Array.
 
-        Args:
-            array (ak.Array): Awkward Array instance to load the data from
-            name_coords (list, optional): Names of the coordinate variables in the ragged arrays
+        Parameters
+        ----------
+        array : ak.Array
+            Awkward Array instance to load the data from
+        name_coords : list, optional
+            Names of the coordinate variables in the ragged arrays
 
-        Returns:
-            obj: RaggedArray instance
+        Returns
+        -------
+        RaggedArray
+            A RaggedArray instance
         """
         coords = {}
         metadata = {}
@@ -70,18 +80,27 @@ class RaggedArray:
         rowsize_func: Optional[Callable[[int], int]] = None,
         **kwargs,
     ):
-        """Generate ragged arrays archive from a list of trajectory files
+        """Generate a ragged array archive from a list of trajectory files
 
-        Args:
-            indices (list): identification numbers list to iterate
-            preprocess_func (Callable[[int], xr.Dataset]): returns a processed xarray Dataset from an identification number
-            name_coords (list): Name of the coordinate variables to include in the archive
-            name_meta (list, optional): Name of metadata variables to include in the archive (Defaults to [])
-            name_data (list, optional): Name of the data variables to include in the archive (Defaults to [])
-            rowsize_func (Optional[Callable[[int], int]], optional): returns the number of observations from an identification number (to speed up processing) (Defaults to None)
+        Parameters
+        ----------
+        indices : list
+            Identification numbers list to iterate
+        preprocess_func : Callable[[int], xr.Dataset]
+            Returns a processed xarray Dataset from an identification number
+        name_coords : list
+            Name of the coordinate variables to include in the archive
+        name_meta : list, optional
+            Name of metadata variables to include in the archive (Defaults to [])
+        name_data : list, optional
+            Name of the data variables to include in the archive (Defaults to [])
+        rowsize_func : Optional[Callable[[int], int]], optional
+            Returns the number of observations from an identification number (to speed up processing) (Defaults to None)
 
-        Returns:
-            obj: ragged array class object
+        Returns
+        -------
+        RaggedArray
+            A RaggedArray instance
         """
         # if no method is supplied, get the dimension from the preprocessing function
         rowsize_func = (
@@ -112,13 +131,17 @@ class RaggedArray:
     def from_netcdf(cls, filename: str):
         """Read a ragged arrays archive from a NetCDF file.
 
-        This is a thin wrapper around from_xarray().
+        This is a thin wrapper around ``from_xarray()``.
 
-        Args:
-            filename (str): filename of NetCDF archive
+        Parameters
+        ----------
+        filename : str
+            File name of the NetCDF archive to read.
 
-        Returns:
-            obj: ragged array class object
+        Returns
+        -------
+        RaggedArray
+            A ragged array instance
         """
         return cls.from_xarray(xr.open_dataset(filename))
 
@@ -126,14 +149,19 @@ class RaggedArray:
     def from_parquet(
         cls, filename: str, name_coords: Optional[list] = ["time", "lon", "lat", "ids"]
     ):
-        """Read a ragged arrays archive from a parquet file
+        """Read a ragged array from a parquet file.
 
-        Args:
-            filename (str): filename of parquet archive
-            name_coords (list, optional): Names of the coordinate variables in the ragged arrays
+        Parameters
+        ----------
+        filename : str
+            File name of the parquet archive to read.
+        name_coords : list, optional
+            Names of the coordinate variables in the ragged arrays
 
-        Returns:
-            obj: ragged array class object
+        Returns
+        -------
+        RaggedArray
+            A ragged array instance
         """
         return cls.from_awkward(ak.from_parquet(filename), name_coords)
 
@@ -141,13 +169,19 @@ class RaggedArray:
     def from_xarray(cls, ds: xr.Dataset, dim_traj: str = "traj", dim_obs: str = "obs"):
         """Populate a RaggedArray instance from an xarray Dataset instance.
 
-        Args:
-            ds (xarray.Dataset): xarray Dataset from which to load the RaggedArray
-            dim_traj (str, optional): Name of the trajectories dimension in the xarray Dataset
-            dim_obs (str, optional): Name of the observations dimension in the xarray Dataset
+        Parameters
+        ----------
+        ds : xr.Dataset
+            Xarray Dataset from which to load the RaggedArray
+        dim_traj : str, optional
+            Name of the trajectories dimension in the xarray Dataset
+        dim_obs : str, optional
+            Name of the observations dimension in the xarray Dataset
 
-        Returns:
-            res (RaggedArray): A RaggedArray instance
+        Returns
+        -------
+        RaggedArray
+            A RaggedArray instance
         """
         coords = {}
         metadata = {}
@@ -184,12 +218,18 @@ class RaggedArray:
     ) -> np.array:
         """Iterate through the files and evaluate the number of observations.
 
-        Args:
-            rowsize_func (Callable[[int], int]): returns number observations of a trajectory from its identification number
-            indices (list): identification numbers list to iterate
+        Parameters
+        ----------
+        rowsize_func : Callable[[int], int]]
+            Function that returns the number observations of a trajectory from
+            its identification number
+        indices : list
+            Identification numbers list to iterate
 
-        Returns:
-            np.array: number of observations of each trajectory
+        Returns
+        -------
+        np.ndarray
+            Number of observations of each trajectory
         """
         rowsize = np.zeros(len(indices), dtype="int")
 
@@ -206,16 +246,24 @@ class RaggedArray:
     def attributes(
         ds: xr.Dataset, name_coords: list, name_meta: list, name_data: list
     ) -> Tuple[dict, dict]:
-        """Returns the global attributes and the attributes of all variables (name_coords, name_meta, and name_data) from a xr.Dataset
+        """Return global attributes and the attributes of all variables
+        (name_coords, name_meta, and name_data) from an Xarray Dataset.
 
-        Args:
-            ds (xr.Dataset): _description_
-            name_coords (list): Name of the coordinate variables to include in the archive
-            name_meta (list): Name of metadata variables to include in the archive (Defaults to [])
-            name_data (list): Name of the data variables to include in the archive (Defaults to [])
+        Parameters
+        ----------
+        ds : xr.Dataset
+            _description_
+        name_coords : list
+            Name of the coordinate variables to include in the archive
+        name_meta : list, optional
+            Name of metadata variables to include in the archive (default is [])
+        name_data : list, optional
+            Name of the data variables to include in the archive (default is [])
 
-        Returns:
-            Tuple[dict, dict]: the global and variables attributes
+        Returns
+        -------
+        Tuple[dict, dict]
+            The global and variables attributes
         """
         attrs_global = ds.attrs
 
@@ -239,18 +287,29 @@ class RaggedArray:
         name_data: list,
         **kwargs,
     ) -> Tuple[dict, dict, dict]:
-        """Iterate through the files and fill for the ragged array associated with coordinates, and selected metadata and data variables.
+        """
+        Iterate through the files and fill for the ragged array associated
+        with coordinates, and selected metadata and data variables.
 
-        Args:
-            preprocess_func (Callable[[int], xr.Dataset]): returns a processed xarray Dataset from an identification number
-            indices (list): list of indices separating trajectory in the ragged arrays
-            rowsize (list): list of the number of observations per trajectory
-            name_coords (list): Name of the coordinate variables to include in the archive
-            name_meta (list, optional): Name of metadata variables to include in the archive (Defaults to [])
-            name_data (list, optional): Name of the data variables to include in the archive (Defaults to [])
+        Parameters
+        ----------
+        preprocess_func : Callable[[int], xr.Dataset]
+            Returns a processed xarray Dataset from an identification number.
+        indices : list
+            List of indices separating trajectory in the ragged arrays.
+        rowsize : list
+            List of the number of observations per trajectory.
+        name_coords : list
+            Name of the coordinate variables to include in the archive.
+        name_meta : list, optional
+            Name of metadata variables to include in the archive (Defaults to []).
+        name_data : list, optional
+            Name of the data variables to include in the archive (Defaults to []).
 
-        Returns:
-            Tuple[dict, dict, dict]: dictionaries containing numerical data and attributes of coordinates, metadata and data variables.
+        Returns
+        -------
+        Tuple[dict, dict, dict]
+            Dictionaries containing numerical data and attributes of coordinates, metadata and data variables.
         """
 
         # open one file to get dtype of variables
@@ -316,8 +375,10 @@ class RaggedArray:
     def to_xarray(self):
         """Convert ragged array object to a xarray Dataset.
 
-        Returns:
-            xr.Dataset: xarray Dataset containing the ragged arrays and their attributes
+        Returns
+        -------
+        xr.Dataset
+            Xarray Dataset containing the ragged arrays and their attributes
         """
 
         xr_coords = {}
@@ -336,8 +397,10 @@ class RaggedArray:
     def to_awkward(self):
         """Convert ragged array object to an Awkward Array.
 
-        Returns:
-            ak.Array: Awkward Array containing the ragged arrays and their attributes
+        Returns
+        -------
+        ak.Array
+            Awkward Array containing the ragged array and its attributes
         """
         index_traj = np.insert(np.cumsum(self.metadata["rowsize"]), 0, 0)
         offset = ak.index.Index64(index_traj)
@@ -384,69 +447,22 @@ class RaggedArray:
         )
 
     def to_netcdf(self, filename: str):
-        """Export ragged array object to a NetCDF archive.
+        """Export ragged array object to a NetCDF file.
 
-        Args:
-            filename (str): filename of the NetCDF archive of ragged arrays
+        Parameters
+        ----------
+        filename : str
+            Name of the NetCDF file to create.
         """
 
         self.to_xarray().to_netcdf(filename)
-        return
 
     def to_parquet(self, filename: str):
-        """Export ragged array object to a parquet archive.
+        """Export ragged array object to a parquet file.
 
-        Args:
-            filename (str): filename of the parquet archive of ragged arrays
+        Parameters
+        ----------
+        filename : str
+            Name of the parquet file to create.
         """
         ak.to_parquet(self.to_awkward(), filename)
-        return
-
-
-def unpack_ragged(
-    ragged_array: np.ndarray, rowsize: np.ndarray[int]
-) -> list[np.ndarray]:
-    """Unpack a ragged array into a list of regular arrays.
-
-    Unpacking a ``np.ndarray`` ragged array is about 2 orders of magnitude
-    faster than unpacking an ``xr.DataArray`` ragged array, so unless you need a
-    ``DataArray`` as the result, we recommend passing ``np.ndarray`` as input.
-
-    Parameters
-    ----------
-    ragged_array : array-like
-        A ragged_array to unpack
-    rowsize : array-like
-        An array of integers whose values is the size of each row in the ragged
-        array
-
-    Returns
-    -------
-    list
-        A list of array-likes with sizes that correspond to the values in
-        rowsize, and types that correspond to the type of ragged_array
-
-    Examples
-    --------
-
-    Unpacking longitude arrays from a ragged Xarray Dataset:
-
-    .. code-block:: python
-
-        lon = unpack_ragged(ds.lon, ds.rowsize) # return a list[xr.DataArray] (slower)
-        lon = unpack_ragged(ds.lon.values, ds.rowsize) # return a list[np.ndarray] (faster)
-
-    Looping over trajectories in a ragged Xarray Dataset to compute velocities
-    for each:
-
-    .. code-block:: python
-
-        for lon, lat, time in list(zip(
-            unpack_ragged(ds.lon.values, ds.rowsize),
-            unpack_ragged(ds.lat.values, ds.rowsize),
-            unpack_ragged(ds.time.values, ds.rowsize)
-        )):
-            u, v = velocity_from_position(lon, lat, time)
-    """
-    indices = np.insert(np.cumsum(np.array(rowsize)), 0, 0)
-    return [ragged_array[indices[n] : indices[n + 1]] for n in range(indices.size - 1)]
