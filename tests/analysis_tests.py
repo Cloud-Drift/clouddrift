@@ -2,11 +2,12 @@ from clouddrift.analysis import (
     apply_ragged,
     chunk,
     prune,
-    regular_to_ragged,
+    position_from_velocity,
     ragged_to_regular,
+    regular_to_ragged,
     segment,
     subset,
-    position_from_velocity,
+    unpack_ragged,
     velocity_from_position,
 )
 from clouddrift.haversine import EARTH_RADIUS_METERS
@@ -208,7 +209,7 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 2, 4]
         minimum = 3
 
-        for data in [x, pd.Series(data=x), xr.DataArray(data=x)]:
+        for data in [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]:
             x_new, rowsize_new = prune(data, rowsize, minimum)
             self.assertTrue(type(x_new) is np.ndarray)
             self.assertTrue(type(rowsize_new) is np.ndarray)
@@ -220,7 +221,7 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 2, 4]
         minimum = 1
 
-        for data in [x, pd.Series(data=x), xr.DataArray(data=x)]:
+        for data in [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]:
             x_new, rowsize_new = prune(data, rowsize, minimum)
             np.testing.assert_equal(x_new, data)
             np.testing.assert_equal(rowsize_new, rowsize)
@@ -230,7 +231,7 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 2, 4]
         minimum = 5
 
-        for data in [x, pd.Series(data=x), xr.DataArray(data=x)]:
+        for data in [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]:
             x_new, rowsize_new = prune(data, rowsize, minimum)
             np.testing.assert_equal(x_new, np.array([]))
             np.testing.assert_equal(rowsize_new, np.array([]))
@@ -240,10 +241,28 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 2, 4]
         minimum = 3
 
-        for data in [x, pd.Series(data=x), xr.DataArray(data=x)]:
+        for data in [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]:
             x_new, rowsize_new = prune(data, rowsize, minimum)
             np.testing.assert_equal(x_new, [1, 2, np.nan, 1, 2, np.nan, 4])
             np.testing.assert_equal(rowsize_new, [3, 4])
+
+    def test_prune_empty(self):
+        x = []
+        rowsize = []
+        minimum = 3
+
+        for data in [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]:
+            with self.assertRaises(IndexError):
+                x_new, rowsize_new = prune(data, rowsize, minimum)
+
+    def test_print_incompatible_rowsize(self):
+        x = [1, 2, 3, 1, 2]
+        rowsize = [3, 3]
+        minimum = 3
+
+        for data in [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]:
+            with self.assertRaises(ValueError):
+                x_new, rowsize_new = prune(data, rowsize, minimum)
 
 
 class segment_tests(unittest.TestCase):
