@@ -66,6 +66,8 @@ def apply_ragged(
     ------
     ValueError
         If the sum of ``rowsize`` does not equal the length of ``arrays``.
+    IndexError
+        If empty ``arrays``.
     """
     # make sure the arrays is iterable
     if type(arrays) not in [list, tuple]:
@@ -204,6 +206,60 @@ def chunk(
         start = end - overlap
 
     return res
+
+
+def prune(
+    ragged: Union[list, np.ndarray, pd.Series, xr.DataArray],
+    rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
+    min_rowsize: float,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Within a ragged array, removes arrays less than a specified row size.
+
+    Parameters
+    ----------
+    ragged : np.ndarray or pd.Series or xr.DataArray
+        A ragged array.
+    rowsize : list or np.ndarray[int] or pd.Series or xr.DataArray[int]
+        The size of each row in the input ragged array.
+    min_rowsize :
+        The minimum row size that will be kept.
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray]
+        A tuple of ragged array and size of each row.
+
+    Examples
+    --------
+    >>> prune(np.array([1, 2, 3, 0, -1, -2]), np.array([3, 1, 2]),2)
+    (array([1, 2, 3, -1, -2]), array([3, 2]))
+
+    Raises
+    ------
+    ValueError
+        If the sum of ``rowsize`` does not equal the length of ``arrays``.
+    IndexError
+        If empty ``ragged``.
+
+    See Also
+    --------
+    :func:`segment`, `chunk`
+    """
+
+    ragged = apply_ragged(
+        lambda x, min_len: x if len(x) >= min_len else [],
+        np.array(ragged),
+        rowsize,
+        min_len=min_rowsize,
+    )
+    rowsize = apply_ragged(
+        lambda x, min_len: x if x >= min_len else [],
+        np.array(rowsize),
+        np.ones_like(rowsize),
+        min_len=min_rowsize,
+    )
+
+    return ragged, rowsize
 
 
 def regular_to_ragged(
@@ -680,7 +736,7 @@ def velocity_from_position(
 
     See Also
     --------
-    :function:`position_from_velocity`
+    :func:`position_from_velocity`
     """
 
     # Positions and time arrays must have the same shape.
