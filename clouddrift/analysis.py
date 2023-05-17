@@ -66,6 +66,8 @@ def apply_ragged(
     ------
     ValueError
         If the sum of ``rowsize`` does not equal the length of ``arrays``.
+    IndexError
+        If empty ``arrays``.
     """
     # make sure the arrays is iterable
     if type(arrays) not in [list, tuple]:
@@ -231,6 +233,13 @@ def prune(
     --------
     >>> prune(np.array([1, 2, 3, 0, -1, -2]), np.array([3, 1, 2]),2)
     (array([1, 2, 3, -1, -2]), array([3, 2]))
+
+    Raises
+    ------
+    ValueError
+        If the sum of ``rowsize`` does not equal the length of ``arrays``.
+    IndexError
+        If empty ``ragged``.
 
     See Also
     --------
