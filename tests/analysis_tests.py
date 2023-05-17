@@ -212,8 +212,8 @@ class prune_tests(unittest.TestCase):
             x_new, rowsize_new = prune(data, rowsize, minimum)
             self.assertTrue(type(x_new) is np.ndarray)
             self.assertTrue(type(rowsize_new) is np.ndarray)
-            np.testing.assert_almost_equal(x_new, [1, 2, 3, 1, 2, 3, 4])
-            np.testing.assert_almost_equal(rowsize_new, [3, 4])
+            np.testing.assert_equal(x_new, [1, 2, 3, 1, 2, 3, 4])
+            np.testing.assert_equal(rowsize_new, [3, 4])
 
     def test_prune_all_longer(self):
         x = [1, 2, 3, 1, 2, 1, 2, 3, 4]
@@ -222,8 +222,8 @@ class prune_tests(unittest.TestCase):
 
         for data in [x, pd.Series(data=x), xr.DataArray(data=x)]:
             x_new, rowsize_new = prune(data, rowsize, minimum)
-            np.testing.assert_almost_equal(x_new, data)
-            np.testing.assert_almost_equal(rowsize_new, rowsize)
+            np.testing.assert_equal(x_new, data)
+            np.testing.assert_equal(rowsize_new, rowsize)
 
     def test_prune_all_smaller(self):
         x = [1, 2, 3, 1, 2, 1, 2, 3, 4]
@@ -232,8 +232,8 @@ class prune_tests(unittest.TestCase):
 
         for data in [x, pd.Series(data=x), xr.DataArray(data=x)]:
             x_new, rowsize_new = prune(data, rowsize, minimum)
-            np.testing.assert_almost_equal(x_new, np.array([]))
-            np.testing.assert_almost_equal(rowsize_new, np.array([]))
+            np.testing.assert_equal(x_new, np.array([]))
+            np.testing.assert_equal(rowsize_new, np.array([]))
 
     def test_prune_keep_nan(self):
         x = [1, 2, np.nan, 1, 2, 1, 2, np.nan, 4]
@@ -242,8 +242,8 @@ class prune_tests(unittest.TestCase):
 
         for data in [x, pd.Series(data=x), xr.DataArray(data=x)]:
             x_new, rowsize_new = prune(data, rowsize, minimum)
-            np.testing.assert_almost_equal(x_new, [1, 2, np.nan, 1, 2, np.nan, 4])
-            np.testing.assert_almost_equal(rowsize_new, [3, 4])
+            np.testing.assert_equal(x_new, [1, 2, np.nan, 1, 2, np.nan, 4])
+            np.testing.assert_equal(rowsize_new, [3, 4])
 
 
 class segment_tests(unittest.TestCase):
