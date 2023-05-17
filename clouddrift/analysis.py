@@ -253,9 +253,6 @@ def prune(
     return ragged, rowsize
 
 
-def regular_to_ragged(array: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    """Convert a two-dimensional array to a ragged array. NaN values in the input array are
-=======
 def regular_to_ragged(
     array: np.ndarray, fill_value: float = np.nan
 ) -> tuple[np.ndarray, np.ndarray]:
