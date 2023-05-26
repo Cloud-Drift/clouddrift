@@ -1,4 +1,5 @@
-from clouddrift.sphere import recast_lon, recast_lon180, recast_lon360
+from clouddrift import haversine
+from clouddrift.sphere import recast_lon, recast_lon180, recast_lon360, sphere_to_plane
 import unittest
 import numpy as np
 
@@ -76,3 +77,56 @@ class recast_longitude_tests(unittest.TestCase):
                 recast_lon(np.array([200.3, -200.2])), np.array([-159.7, 159.8])
             )
         )
+
+
+class sphere_to_plane_tests(unittest.TestCase):
+    def test_simple(self):
+        x, y = sphere_to_plane(np.array([0.0, 1.0]), np.array([0.0, 0.0]))
+        self.assertTrue(
+            np.allclose(x, np.array([0.0, np.deg2rad(haversine.EARTH_RADIUS_METERS)]))
+        )
+        self.assertTrue(np.allclose(y, np.zeros((2))))
+
+        x, y = sphere_to_plane(np.array([0.0, 0.0]), np.array([0.0, 1.0]))
+        self.assertTrue(
+            np.allclose(y, np.array([0.0, np.deg2rad(haversine.EARTH_RADIUS_METERS)]))
+        )
+        self.assertTrue(np.allclose(x, np.zeros((2))))
+
+    def test_with_origin(self):
+        x_origin = 1000
+        y_origin = 2000
+
+        x, y = sphere_to_plane(
+            np.array([0.0, 1.0]), np.array([0.0, 0.0]), x_origin, y_origin
+        )
+        self.assertTrue(
+            np.allclose(
+                x,
+                np.array(
+                    [x_origin, x_origin + np.deg2rad(haversine.EARTH_RADIUS_METERS)]
+                ),
+            )
+        )
+        self.assertTrue(np.allclose(y, np.array([y_origin, y_origin])))
+
+        x, y = sphere_to_plane(
+            np.array([0.0, 0.0]), np.array([0.0, 1.0]), x_origin, y_origin
+        )
+        self.assertTrue(
+            np.allclose(
+                y,
+                np.array(
+                    [y_origin, y_origin + np.deg2rad(haversine.EARTH_RADIUS_METERS)]
+                ),
+            )
+        )
+        self.assertTrue(np.allclose(x, np.array([x_origin, x_origin])))
+
+    def test_scalar_raises_error(self):
+        with self.assertRaises(AttributeError):
+            sphere_to_plane(0, 0)
+
+    def test_list_raises_error(self):
+        with self.assertRaises(AttributeError):
+            sphere_to_plane([0, 1], [0, 0])

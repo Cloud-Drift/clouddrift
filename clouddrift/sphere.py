@@ -125,9 +125,24 @@ def sphere_to_plane(
     -------
     Tuple[np.ndarray, np.ndarray]
         x- and y-coordinates of the tangent plane
+
+    Examples
+    --------
+    >>> sphere_to_plane(np.array([0., 1.]), np.array([0., 0.]))
+    (array([     0.        , 111318.84502145]), array([0., 0.]))
+
+    You can also specify an x and y origin:
+
+    >>> sphere_to_plane(np.array([0., 1.]), np.array([0., 0.]), x_origin=50, y_origin=150)
+    (array([5.00000000e+01, 1.11318845e+05]), array([150.,   0.]))
+
+    Raises
+    ------
+    AttributeError
+        If ``lon`` and ``lat`` are not NumPy arrays
     """
-    x = np.empty_like(lon)
-    y = np.empty_like(lat)
+    x = np.zeros(lon.shape, dtype=lon.dtype)
+    y = np.zeros(lat.shape, dtype=lat.dtype)
 
     distances = haversine.distance(
         lat[..., :-1], lon[..., :-1], lat[..., 1:], lon[..., 1:]
@@ -139,8 +154,10 @@ def sphere_to_plane(
     dx = distances * np.cos(bearings)
     dy = distances * np.sin(bearings)
 
-    x[..., 0], y[..., 0] = x_origin, y_origin
     x[..., 1:] = np.cumsum(dx, axis=-1)
     y[..., 1:] = np.cumsum(dy, axis=-1)
+
+    x += x_origin
+    y += y_origin
 
     return x, y
