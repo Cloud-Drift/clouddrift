@@ -141,8 +141,8 @@ def sphere_to_plane(
     AttributeError
         If ``lon`` and ``lat`` are not NumPy arrays
     """
-    x = np.zeros(lon.shape, dtype=lon.dtype)
-    y = np.zeros(lat.shape, dtype=lat.dtype)
+    x = np.zeros_like(lon)
+    y = np.zeros_like(lat)
 
     distances = haversine.distance(
         lat[..., :-1], lon[..., :-1], lat[..., 1:], lon[..., 1:]
