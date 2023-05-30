@@ -106,7 +106,7 @@ def recast_lon180(lon: np.ndarray) -> np.ndarray:
 
 
 def sphere_to_plane(
-    lon: np.ndarray, lat: np.ndarray, x_origin: float = 0, y_origin: float = 0
+    lon: np.ndarray, lat: np.ndarray, lon_origin: float = 0, lat_origin: float = 0
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Convert spherical coordinates to a tangent plane.
 
@@ -116,10 +116,10 @@ def sphere_to_plane(
         An N-d array of longitudes in degrees
     lat : np.ndarray
         An N-d array of latitudes in degrees
-    x_origin : float, optional
-        x-coordinate of the origin of the tangent plane, default 0
-    y_origin : float, optional
-        y-coordinate of the origin of the tangent plane, default 0
+    lon_origin : float, optional
+        Origin longitude of the tangent plane in degrees, default 0
+    lat_origin : float, optional
+        Origin latitude of the tangent plane in degrees, default 0
 
     Returns
     -------
@@ -138,11 +138,13 @@ def sphere_to_plane(
 
     Raises
     ------
-    AttributeError
+    TypeError
         If ``lon`` and ``lat`` are not NumPy arrays
     """
     x = np.zeros_like(lon)
     y = np.zeros_like(lat)
+
+    # TODO first element of x and y relative to origin
 
     distances = haversine.distance(
         lat[..., :-1], lon[..., :-1], lat[..., 1:], lon[..., 1:]
@@ -156,8 +158,5 @@ def sphere_to_plane(
 
     x[..., 1:] = np.cumsum(dx, axis=-1)
     y[..., 1:] = np.cumsum(dy, axis=-1)
-
-    x += x_origin
-    y += y_origin
 
     return x, y
