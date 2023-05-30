@@ -248,13 +248,13 @@ def prune(
     """
 
     ragged = apply_ragged(
-        lambda x, min_len: x if len(x) >= min_len else [],
+        lambda x, min_len: x if len(x) >= min_len else np.empty(0, dtype=x.dtype),
         np.array(ragged),
         rowsize,
         min_len=min_rowsize,
     )
     rowsize = apply_ragged(
-        lambda x, min_len: x if x >= min_len else [],
+        lambda x, min_len: x if x >= min_len else np.empty(0, dtype=x.dtype),
         np.array(rowsize),
         np.ones_like(rowsize),
         min_len=min_rowsize,

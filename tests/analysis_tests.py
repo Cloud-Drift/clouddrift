@@ -236,6 +236,29 @@ class prune_tests(unittest.TestCase):
             np.testing.assert_equal(x_new, np.array([]))
             np.testing.assert_equal(rowsize_new, np.array([]))
 
+    def test_prune_dates(self):
+        a = pd.date_range(
+            start=pd.to_datetime("1/1/2018"),
+            end=pd.to_datetime("1/03/2018"),
+        )
+
+        b = pd.date_range(
+            start=pd.to_datetime("1/1/2018"),
+            end=pd.to_datetime("1/05/2018"),
+        )
+
+        c = pd.date_range(
+            start=pd.to_datetime("1/1/2018"),
+            end=pd.to_datetime("1/08/2018"),
+        )
+
+        x = np.concatenate((a, b, c))
+        rowsize = [len(v) for v in [a, b, c]]
+
+        x_new, rowsize_new = prune(x, rowsize, 5)
+        np.testing.assert_equal(x_new, np.concatenate((b, c)))
+        np.testing.assert_equal(rowsize_new, [5, 8])
+
     def test_prune_keep_nan(self):
         x = [1, 2, np.nan, 1, 2, 1, 2, np.nan, 4]
         rowsize = [3, 2, 4]
