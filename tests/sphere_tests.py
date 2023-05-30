@@ -124,9 +124,9 @@ class sphere_to_plane_tests(unittest.TestCase):
         self.assertTrue(np.allclose(x, np.array([x_origin, x_origin])))
 
     def test_scalar_raises_error(self):
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(TypeError):
             sphere_to_plane(0, 0)
 
     def test_list_raises_error(self):
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(TypeError):
             sphere_to_plane([0, 1], [0, 0])
