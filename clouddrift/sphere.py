@@ -108,7 +108,19 @@ def recast_lon180(lon: np.ndarray) -> np.ndarray:
 def sphere_to_plane(
     lon: np.ndarray, lat: np.ndarray, lon_origin: float = 0, lat_origin: float = 0
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Convert spherical coordinates to a tangent plane.
+    """Convert spherical coordinates to a tangent (Cartesian) plane.
+
+    The arrays of input longitudes and latitudes are assumed to be following
+    a contiguous trajectory. The Cartesian coordinate of each successive point
+    is determined by following a great circle path from the previous point.
+    The Cartesian coordinate of the first point is determined by following a
+    great circle path from the origin, by default (0, 0).
+
+    This function uses 64-bit floats for all intermediate calculations,
+    regardless of the type of input arrays, to avoid loss of precision.
+
+    If projecting multiple trajectories onto the same plane, use
+    :func:`apply_ragged` for highest accuracy.
 
     Parameters
     ----------
@@ -142,10 +154,10 @@ def sphere_to_plane(
     TypeError
         If ``lon`` and ``lat`` are not NumPy arrays
     """
-    x = np.zeros_like(lon)
-    y = np.zeros_like(lat)
-    distances = np.zeros_like(lon)
-    bearings = np.zeros_like(lon)
+    x = np.empty(lon.shape, dtype=np.float64)
+    y = np.empty(lat.shape, dtype=np.float64)
+    distances = np.empty(lon.shape, dtype=np.float64)
+    bearings = np.empty(lon.shape, dtype=np.float64)
 
     # Distance and bearing of the starting point relative to the origin
     distances[0] = haversine.distance(lat_origin, lon_origin, lat[..., 0], lon[..., 0])

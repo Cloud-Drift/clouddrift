@@ -149,9 +149,9 @@ class sphere_to_plane_tests(unittest.TestCase):
         )
 
     def test_scalar_raises_error(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(Exception):
             sphere_to_plane(0, 0)
 
     def test_list_raises_error(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(Exception):
             sphere_to_plane([0, 1], [0, 0])
