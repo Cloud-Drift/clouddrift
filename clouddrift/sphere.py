@@ -105,6 +105,66 @@ def recast_lon180(lon: np.ndarray) -> np.ndarray:
     return recast_lon(lon, -180)
 
 
+def plane_to_sphere(
+    x: np.ndarray, y: np.ndarray, lon_origin: float = 0, lat_origin: float = 0
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Convert Cartesian coordinates on a plane to spherical coordinates.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        An N-d array of zonal displacements in meters
+    y : np.ndarray
+        An N-d array of meridional displacements in meters
+    lon_origin : float, optional
+        Origin longitude of the tangent plane in degrees, default 0
+    lat_origin : float, optional
+        Origin latitude of the tangent plane in degrees, default 0
+
+    Returns
+    -------
+    Tuple[np.ndarray, np.ndarray]
+        Longitude and latitude in degrees
+
+    Examples
+    --------
+    >>> plane_to_sphere(np.array([0., 0.]), np.array([0., 1000.]))
+    (array([0.00000000e+00, 5.50062664e-19]), array([0.       , 0.0089832]))
+
+    You can also specify an origin longitude and latitude:
+
+    >>> plane_to_sphere(np.array([0., 0.]), np.array([0., 1000.]), lon_origin=1, lat_origin=0)
+    (array([1., 1.]), array([0.       , 0.0089832]))
+
+    Raises
+    ------
+    AttributeError
+        If ``x`` and ``y`` are not NumPy arrays
+
+    See Also
+    --------
+    :func:`sphere_to_plane`
+    """
+    lon = np.empty(x.shape, dtype=np.float64)
+    lat = np.empty(y.shape, dtype=np.float64)
+
+    dx = np.diff(x, prepend=0)
+    dy = np.diff(y, prepend=0)
+
+    distances = np.sqrt(dx**2 + dy**2)
+    bearings = np.arctan2(dy, dx)
+
+    lat[..., 0], lon[..., 0] = haversine.position_from_distance_and_bearing(
+        lat_origin, lon_origin, distances[0], bearings[0]
+    )
+    for n in range(1, lon.shape[-1]):
+        lat[n], lon[n] = haversine.position_from_distance_and_bearing(
+            lat[n - 1], lon[n - 1], distances[n], bearings[n]
+        )
+
+    return lon, lat
+
+
 def sphere_to_plane(
     lon: np.ndarray, lat: np.ndarray, lon_origin: float = 0, lat_origin: float = 0
 ) -> Tuple[np.ndarray, np.ndarray]:
@@ -143,7 +203,7 @@ def sphere_to_plane(
     >>> sphere_to_plane(np.array([0., 1.]), np.array([0., 0.]))
     (array([     0.        , 111318.84502145]), array([0., 0.]))
 
-    You can also specify an x and y origin:
+    You can also specify an origin longitude and latitude:
 
     >>> sphere_to_plane(np.array([0., 1.]), np.array([0., 0.]), lon_origin=1, lat_origin=0)
     (array([-111318.84502145,       0.        ]),
@@ -151,8 +211,12 @@ def sphere_to_plane(
 
     Raises
     ------
-    TypeError
+    AttributeError
         If ``lon`` and ``lat`` are not NumPy arrays
+
+    See Also
+    --------
+    :func:`plane_to_sphere`
     """
     x = np.empty(lon.shape, dtype=np.float64)
     y = np.empty(lat.shape, dtype=np.float64)
