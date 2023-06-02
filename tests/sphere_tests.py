@@ -208,3 +208,15 @@ class sphere_to_plane_tests(unittest.TestCase):
     def test_list_raises_error(self):
         with self.assertRaises(Exception):
             sphere_to_plane([0, 1], [0, 0])
+
+
+class sphere_to_plane_roundtrip(unittest.TestCase):
+    def test_roundtrip(self):
+        expected_lon = 2 * np.cumsum(np.random.random((100)))
+        expected_lat = np.cumsum(np.random.random((100)))
+
+        x, y = sphere_to_plane(expected_lon, expected_lat)
+        lon, lat = plane_to_sphere(x, y)
+
+        self.assertTrue(np.allclose(lon, expected_lon))
+        self.assertTrue(np.allclose(lat, expected_lat))
