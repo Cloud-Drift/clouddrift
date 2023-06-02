@@ -94,34 +94,59 @@ class sphere_to_plane_tests(unittest.TestCase):
         self.assertTrue(np.allclose(x, np.zeros((2))))
 
     def test_with_origin(self):
-        x_origin = 1000
-        y_origin = 2000
+        lon_origin = 5
+        lat_origin = 0
+
+        ONE_DEGREE_METERS = np.deg2rad(haversine.EARTH_RADIUS_METERS)
 
         x, y = sphere_to_plane(
-            np.array([0.0, 1.0]), np.array([0.0, 0.0]), x_origin, y_origin
+            np.array([0.0, 1.0]), np.array([0.0, 0.0]), lon_origin, lat_origin
         )
         self.assertTrue(
             np.allclose(
                 x,
                 np.array(
-                    [x_origin, x_origin + np.deg2rad(haversine.EARTH_RADIUS_METERS)]
+                    [
+                        0 - lon_origin * ONE_DEGREE_METERS,
+                        ONE_DEGREE_METERS - lon_origin * ONE_DEGREE_METERS,
+                    ]
                 ),
             )
-        )
-        self.assertTrue(np.allclose(y, np.array([y_origin, y_origin])))
-
-        x, y = sphere_to_plane(
-            np.array([0.0, 0.0]), np.array([0.0, 1.0]), x_origin, y_origin
         )
         self.assertTrue(
             np.allclose(
                 y,
                 np.array(
-                    [y_origin, y_origin + np.deg2rad(haversine.EARTH_RADIUS_METERS)]
+                    [-lat_origin * ONE_DEGREE_METERS, -lat_origin * ONE_DEGREE_METERS]
                 ),
             )
         )
-        self.assertTrue(np.allclose(x, np.array([x_origin, x_origin])))
+
+        lon_origin = 0
+        lat_origin = 5
+
+        x, y = sphere_to_plane(
+            np.array([0.0, 0.0]), np.array([0.0, 1.0]), lon_origin, lat_origin
+        )
+        self.assertTrue(
+            np.allclose(
+                y,
+                np.array(
+                    [
+                        0 - lat_origin * ONE_DEGREE_METERS,
+                        ONE_DEGREE_METERS - lat_origin * ONE_DEGREE_METERS,
+                    ]
+                ),
+            )
+        )
+        self.assertTrue(
+            np.allclose(
+                x,
+                np.array(
+                    [-lon_origin * ONE_DEGREE_METERS, -lon_origin * ONE_DEGREE_METERS]
+                ),
+            )
+        )
 
     def test_scalar_raises_error(self):
         with self.assertRaises(TypeError):

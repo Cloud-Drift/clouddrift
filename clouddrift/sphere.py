@@ -133,8 +133,9 @@ def sphere_to_plane(
 
     You can also specify an x and y origin:
 
-    >>> sphere_to_plane(np.array([0., 1.]), np.array([0., 0.]), x_origin=50, y_origin=150)
-    (array([5.00000000e+01, 1.11318845e+05]), array([150.,   0.]))
+    >>> sphere_to_plane(np.array([0., 1.]), np.array([0., 0.]), lon_origin=1, lat_origin=0)
+    (array([-111318.84502145,       0.        ]),
+     array([1.36326267e-11, 1.36326267e-11]))
 
     Raises
     ------
@@ -143,20 +144,25 @@ def sphere_to_plane(
     """
     x = np.zeros_like(lon)
     y = np.zeros_like(lat)
+    distances = np.zeros_like(lon)
+    bearings = np.zeros_like(lon)
 
-    # TODO first element of x and y relative to origin
+    # Distance and bearing of the starting point relative to the origin
+    distances[0] = haversine.distance(lat_origin, lon_origin, lat[..., 0], lon[..., 0])
+    bearings[0] = haversine.bearing(lat_origin, lon_origin, lat[..., 0], lon[..., 0])
 
-    distances = haversine.distance(
+    # Distance and bearing of the remaining points
+    distances[1:] = haversine.distance(
         lat[..., :-1], lon[..., :-1], lat[..., 1:], lon[..., 1:]
     )
-    bearings = haversine.bearing(
+    bearings[1:] = haversine.bearing(
         lat[..., :-1], lon[..., :-1], lat[..., 1:], lon[..., 1:]
     )
 
     dx = distances * np.cos(bearings)
     dy = distances * np.sin(bearings)
 
-    x[..., 1:] = np.cumsum(dx, axis=-1)
-    y[..., 1:] = np.cumsum(dy, axis=-1)
+    x[..., :] = np.cumsum(dx, axis=-1)
+    y[..., :] = np.cumsum(dy, axis=-1)
 
     return x, y
