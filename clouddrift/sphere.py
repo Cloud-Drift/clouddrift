@@ -110,6 +110,19 @@ def plane_to_sphere(
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Convert Cartesian coordinates on a plane to spherical coordinates.
 
+    The arrays of input zonal and meridional displacements ``x`` and ``y`` are
+    assumed to follow a contiguous trajectory. The spherical coordinate of each
+    successive point is determined by following a great circle path from the
+    previous point. The spherical coordinate of the first point is determined by
+    following a great circle path from the origin, by default (0, 0).
+
+    This function uses 64-bit floats for all intermediate calculations,
+    regardless of the type of input arrays, to avoid loss of precision.
+    The output is thus also in 64-bit floats.
+
+    If projecting multiple trajectories onto the same plane, use
+    :func:`apply_ragged` for highest accuracy.
+
     Parameters
     ----------
     x : np.ndarray
@@ -148,18 +161,21 @@ def plane_to_sphere(
     lon = np.empty(x.shape, dtype=np.float64)
     lat = np.empty(y.shape, dtype=np.float64)
 
+    # Cartesian distances between each point
     dx = np.diff(x, prepend=0)
     dy = np.diff(y, prepend=0)
 
     distances = np.sqrt(dx**2 + dy**2)
     bearings = np.arctan2(dy, dx)
 
+    # Compute spherical coordinates following great circles between each
+    # successive point.
     lat[..., 0], lon[..., 0] = haversine.position_from_distance_and_bearing(
-        lat_origin, lon_origin, distances[0], bearings[0]
+        lat_origin, lon_origin, distances[..., 0], bearings[..., 0]
     )
     for n in range(1, lon.shape[-1]):
-        lat[n], lon[n] = haversine.position_from_distance_and_bearing(
-            lat[n - 1], lon[n - 1], distances[n], bearings[n]
+        lat[..., n], lon[..., n] = haversine.position_from_distance_and_bearing(
+            lat[..., n - 1], lon[..., n - 1], distances[..., n], bearings[..., n]
         )
 
     return lon, lat
@@ -178,6 +194,7 @@ def sphere_to_plane(
 
     This function uses 64-bit floats for all intermediate calculations,
     regardless of the type of input arrays, to avoid loss of precision.
+    The output is thus also in 64-bit floats.
 
     If projecting multiple trajectories onto the same plane, use
     :func:`apply_ragged` for highest accuracy.
