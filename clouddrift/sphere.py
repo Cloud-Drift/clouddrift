@@ -158,8 +158,8 @@ def plane_to_sphere(
     --------
     :func:`sphere_to_plane`
     """
-    lon = np.empty(x.shape, dtype=np.float64)
-    lat = np.empty(y.shape, dtype=np.float64)
+    lon = np.empty_like(x)
+    lat = np.empty_like(y)
 
     # Cartesian distances between each point
     dx = np.diff(x, prepend=0)
