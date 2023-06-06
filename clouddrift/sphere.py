@@ -116,9 +116,7 @@ def plane_to_sphere(
     previous point. The spherical coordinate of the first point is determined by
     following a great circle path from the origin, by default (0, 0).
 
-    This function uses 64-bit floats for all intermediate calculations,
-    regardless of the type of input arrays, to avoid loss of precision.
-    The output is thus also in 64-bit floats.
+    The output arrays have the same floating-point output type as the input.
 
     If projecting multiple trajectories onto the same plane, use
     :func:`apply_ragged` for highest accuracy.
@@ -136,8 +134,10 @@ def plane_to_sphere(
 
     Returns
     -------
-    Tuple[np.ndarray, np.ndarray]
-        Longitude and latitude in degrees
+    lon : np.ndarray
+        Longitude in degrees
+    lat : np.ndarray
+        Latitude in degrees
 
     Examples
     --------
@@ -192,9 +192,7 @@ def sphere_to_plane(
     The Cartesian coordinate of the first point is determined by following a
     great circle path from the origin, by default (0, 0).
 
-    This function uses 64-bit floats for all intermediate calculations,
-    regardless of the type of input arrays, to avoid loss of precision.
-    The output is thus also in 64-bit floats.
+    The output arrays have the same floating-point output type as the input.
 
     If projecting multiple trajectories onto the same plane, use
     :func:`apply_ragged` for highest accuracy.
@@ -212,8 +210,10 @@ def sphere_to_plane(
 
     Returns
     -------
-    Tuple[np.ndarray, np.ndarray]
-        x- and y-coordinates of the tangent plane
+    x : np.ndarray
+        x-coordinates on the tangent plane
+    y : np.ndarray
+        y-coordinates on the tangent plane
 
     Examples
     --------
@@ -237,8 +237,9 @@ def sphere_to_plane(
     """
     x = np.empty_like(lon)
     y = np.empty_like(lat)
-    distances = np.empty(lon.shape, dtype=np.float64)
-    bearings = np.empty(lon.shape, dtype=np.float64)
+
+    distances = np.empty_like(x)
+    bearings = np.empty_like(x)
 
     # Distance and bearing of the starting point relative to the origin
     distances[0] = haversine.distance(lat_origin, lon_origin, lat[..., 0], lon[..., 0])

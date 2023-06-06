@@ -129,10 +129,6 @@ class plane_to_sphere_tests(unittest.TestCase):
         with self.assertRaises(Exception):
             plane_to_sphere(0, 0)
 
-    def test_list_raises_error(self):
-        with self.assertRaises(Exception):
-            plane_to_sphere([0, 1], [0, 0])
-
 
 class sphere_to_plane_tests(unittest.TestCase):
     def test_simple(self):
@@ -204,10 +200,6 @@ class sphere_to_plane_tests(unittest.TestCase):
     def test_scalar_raises_error(self):
         with self.assertRaises(Exception):
             sphere_to_plane(0, 0)
-
-    def test_list_raises_error(self):
-        with self.assertRaises(Exception):
-            sphere_to_plane([0, 1], [0, 0])
 
 
 class sphere_to_plane_roundtrip(unittest.TestCase):
