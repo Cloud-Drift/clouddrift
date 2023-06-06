@@ -235,8 +235,8 @@ def sphere_to_plane(
     --------
     :func:`plane_to_sphere`
     """
-    x = np.empty(lon.shape, dtype=np.float64)
-    y = np.empty(lat.shape, dtype=np.float64)
+    x = np.empty_like(lon)
+    y = np.empty_like(lat)
     distances = np.empty(lon.shape, dtype=np.float64)
     bearings = np.empty(lon.shape, dtype=np.float64)
 
