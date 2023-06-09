@@ -20,13 +20,16 @@ classifiers = [
 ]
 
 dependencies = [
+    "aiohttp>=3.8.4",
+    "awkward>=2.0.0",
+    "fsspec>=2022.3.0",
+    "netcdf4>=1.6.4",
     "numpy>=1.22.4",
-    "xarray>=2022.3.0",
-    "netcdf4>=1.5.8",
     "pyarrow>=8.0.0",
     "tqdm>=4.64.0",
-    "fsspec>=2022.3.0",
-    "awkward>=2.0.0",
+    "requests>=2.31.0",
+    "xarray>=2023.5.0",
+    "zarr>=2.14.2",
 ]
 
 [project.urls]
