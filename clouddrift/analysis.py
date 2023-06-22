@@ -1,5 +1,5 @@
 """
-This module provides the common Lagrangian analysis and transformation
+This module provides common Lagrangian analysis and transformation
 functions.
 """
 
