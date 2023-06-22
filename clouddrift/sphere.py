@@ -1,3 +1,9 @@
+"""
+This module provides functions for calculations on the surface of a sphere,
+such as functions to recast longitude values to a desired range, as well as
+functions to project from tangent plane to sphere and vice versa.
+"""
+
 from clouddrift import haversine
 import numpy as np
 from typing import Optional, Tuple

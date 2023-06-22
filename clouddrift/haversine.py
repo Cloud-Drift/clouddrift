@@ -1,3 +1,9 @@
+"""
+This module provides various Haversine functions to compute distances and
+bearings from sets of spherical coordinates, as well as the inverse functions
+to compute coordinates from distances and bearings.
+"""
+
 import numpy as np
 from typing import Tuple
 import xarray as xr
@@ -17,14 +23,21 @@ def distance(
     where (φ, λ) is (lat, lon) in radians and r is the radius of the sphere in
     meters.
 
-    Args:
-        lat1 (array_like): Latitudes of the first set of points, in degrees
-        lon1 (array_like): Longitudes of the first set of points, in degrees
-        lat2 (array_like): Latitudes of the second set of points, in degrees
-        lon2 (array_like): Longitudes of the second set of points, in degrees
+    Parameters
+    ----------
+    lat1 : np.ndarray
+        Latitudes of the first set of points, in degrees
+    lon1 : np.ndarray
+        Longitudes of the first set of points, in degrees
+    lat2 : np.ndarray
+        Latitudes of the second set of points, in degrees
+    lon2 : np.ndarray
+        Longitudes of the second set of points, in degrees
 
-    Returns:
-        out (array_like): Great circle distance
+    Returns
+    -------
+    out : np.ndarray
+        Great circle distance
     """
 
     # Input coordinates are in degrees; convert to radians.
@@ -71,14 +84,21 @@ def bearing(
     where (φ, λ) is (lat, lon) and θ is bearing, all in radians.
     Bearing is defined as zero toward East and positive counterclockwise.
 
-    Args:
-        lat1 (array_like): Latitudes of the first set of points, in degrees
-        lon1 (array_like): Longitudes of the first set of points, in degrees
-        lat2 (array_like): Latitudes of the second set of points, in degrees
-        lon2 (array_like): Longitudes of the second set of points, in degrees
+    Parameters
+    ----------
+    lat1 : np.ndarray
+        Latitudes of the first set of points, in degrees
+    lon1 : np.ndarray
+        Longitudes of the first set of points, in degrees
+    lat2 : np.ndarray
+        Latitudes of the second set of points, in degrees
+    lon2 : np.ndarray
+        Longitudes of the second set of points, in degrees
 
-    Returns:
-        theta (array_like): Bearing angles in radians
+    Returns
+    -------
+    theta : np.ndarray
+        Bearing angles in radians
     """
 
     # Input coordinates are in degrees; convert to radians.
