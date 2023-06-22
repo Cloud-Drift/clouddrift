@@ -1,3 +1,8 @@
+"""
+This module provides common Lagrangian analysis and transformation
+functions.
+"""
+
 import numpy as np
 from typing import Optional, Tuple, Union, Iterable
 import xarray as xr
@@ -365,7 +370,7 @@ def segment(
     tolerance: Union[float, np.timedelta64, timedelta, pd.Timedelta],
     rowsize: np.ndarray[int] = None,
 ) -> np.ndarray[int]:
-    """Divide an array into segments.
+    """Divide an array into segments based on a tolerance value.
 
     Parameters
     ----------
