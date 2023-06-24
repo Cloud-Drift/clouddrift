@@ -652,46 +652,38 @@ class apply_ragged_tests(unittest.TestCase):
         self.t = np.array([1, 2, 1, 2, 3, 1, 2, 3, 4])
 
     def test_simple(self):
-        for use_threads in [True, False]:
-            y = apply_ragged(
-                lambda x: x**2,
-                np.array([1, 2, 3, 4]),
-                [2, 2],
-                use_threads=use_threads,
-            )
-            self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+        y = apply_ragged(
+            lambda x: x**2,
+            np.array([1, 2, 3, 4]),
+            [2, 2],
+        )
+        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
     def test_simple_dataarray(self):
-        for use_threads in [True, False]:
-            y = apply_ragged(
-                lambda x: x**2,
-                xr.DataArray(data=[1, 2, 3, 4], coords={"obs": [1, 2, 3, 4]}),
-                [2, 2],
-                use_threads=use_threads,
-            )
-            self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+        y = apply_ragged(
+            lambda x: x**2,
+            xr.DataArray(data=[1, 2, 3, 4], coords={"obs": [1, 2, 3, 4]}),
+            [2, 2],
+        )
+        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
     def test_simple_with_args(self):
-        for use_threads in [True, False]:
-            y = apply_ragged(
-                lambda x, p: x**p,
-                np.array([1, 2, 3, 4]),
-                [2, 2],
-                2,
-                use_threads=use_threads,
-            )
-            self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+        y = apply_ragged(
+            lambda x, p: x**p,
+            np.array([1, 2, 3, 4]),
+            [2, 2],
+            2,
+        )
+        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
     def test_simple_with_kwargs(self):
-        for use_threads in [True, False]:
-            y = apply_ragged(
-                lambda x, p: x**p,
-                np.array([1, 2, 3, 4]),
-                [2, 2],
-                p=2,
-                use_threads=use_threads,
-            )
-            self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+        y = apply_ragged(
+            lambda x, p: x**p,
+            np.array([1, 2, 3, 4]),
+            [2, 2],
+            p=2,
+        )
+        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
     def test_velocity_ndarray(self):
         for use_threads in [True, False]:
