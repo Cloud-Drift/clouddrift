@@ -13,6 +13,7 @@ def apply_ragged(
     arrays: list[np.ndarray],
     rowsize: list[int],
     *args: tuple,
+    use_threads: bool = True,
     max_workers: int = None,
     **kwargs: dict,
 ) -> Union[tuple[np.ndarray], np.ndarray]:
@@ -81,14 +82,17 @@ def apply_ragged(
     arrays = [unpack_ragged(arr, rowsize) for arr in arrays]
     iter = [[arrays[i][j] for i in range(len(arrays))] for j in range(len(arrays[0]))]
 
-    # combine other arguments
-    for arg in iter:
-        if args:
-            arg.append(*args)
+    # threads or processes
+    use_threads = True
+    if use_threads:
+        executor_type = futures.ThreadPoolExecutor
+    else:
+        executor_type = futures.ProcessPoolExecutor
 
     # parallel execution
-    with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        res = executor.map(lambda x: func(*x, **kwargs), iter)
+    with executor_type(max_workers=max_workers) as executor:
+        res = [executor.submit(func, *x, *args, **kwargs).result() for x in iter]
+
     # concatenate the outputs
     res = [item if isinstance(item, Iterable) else [item] for item in res]
 

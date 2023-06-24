@@ -652,60 +652,100 @@ class apply_ragged_tests(unittest.TestCase):
         self.t = np.array([1, 2, 1, 2, 3, 1, 2, 3, 4])
 
     def test_simple(self):
-        y = apply_ragged(lambda x: x**2, np.array([1, 2, 3, 4]), [2, 2])
-        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+        for use_threads in [True, False]:
+            y = apply_ragged(
+                lambda x: x**2,
+                np.array([1, 2, 3, 4]),
+                [2, 2],
+                use_threads=use_threads,
+            )
+            self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
     def test_simple_dataarray(self):
-        y = apply_ragged(
-            lambda x: x**2,
-            xr.DataArray(data=[1, 2, 3, 4], coords={"obs": [1, 2, 3, 4]}),
-            [2, 2],
-        )
-        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+        for use_threads in [True, False]:
+            y = apply_ragged(
+                lambda x: x**2,
+                xr.DataArray(data=[1, 2, 3, 4], coords={"obs": [1, 2, 3, 4]}),
+                [2, 2],
+                use_threads=use_threads,
+            )
+            self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
     def test_simple_with_args(self):
-        y = apply_ragged(lambda x, p: x**p, np.array([1, 2, 3, 4]), [2, 2], 2)
-        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+        for use_threads in [True, False]:
+            y = apply_ragged(
+                lambda x, p: x**p,
+                np.array([1, 2, 3, 4]),
+                [2, 2],
+                2,
+                use_threads=use_threads,
+            )
+            self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
     def test_simple_with_kwargs(self):
-        y = apply_ragged(lambda x, p: x**p, np.array([1, 2, 3, 4]), [2, 2], p=2)
-        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+        for use_threads in [True, False]:
+            y = apply_ragged(
+                lambda x, p: x**p,
+                np.array([1, 2, 3, 4]),
+                [2, 2],
+                p=2,
+                use_threads=use_threads,
+            )
+            self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
     def test_velocity_ndarray(self):
-        u, v = apply_ragged(
-            velocity_from_position,
-            [self.x, self.y, self.t],
-            self.rowsize,
-            coord_system="cartesian",
-        )
-        self.assertIsNone(
-            np.testing.assert_allclose(u, [1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0])
-        )
-        self.assertIsNone(
-            np.testing.assert_allclose(v, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
-        )
+        for use_threads in [True, False]:
+            u, v = apply_ragged(
+                velocity_from_position,
+                [self.x, self.y, self.t],
+                self.rowsize,
+                coord_system="cartesian",
+                use_threads=use_threads,
+            )
+            self.assertIsNone(
+                np.testing.assert_allclose(
+                    u, [1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0]
+                )
+            )
+            self.assertIsNone(
+                np.testing.assert_allclose(
+                    v, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+                )
+            )
 
     def test_velocity_dataarray(self):
-        u, v = apply_ragged(
-            velocity_from_position,
-            [
-                xr.DataArray(data=self.x),
-                xr.DataArray(data=self.y),
-                xr.DataArray(data=self.t),
-            ],
-            xr.DataArray(data=self.rowsize),
-            coord_system="cartesian",
-        )
-        self.assertIsNone(
-            np.testing.assert_allclose(u, [1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0])
-        )
-        self.assertIsNone(
-            np.testing.assert_allclose(v, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
-        )
+        for use_threads in [True, False]:
+            u, v = apply_ragged(
+                velocity_from_position,
+                [
+                    xr.DataArray(data=self.x),
+                    xr.DataArray(data=self.y),
+                    xr.DataArray(data=self.t),
+                ],
+                xr.DataArray(data=self.rowsize),
+                coord_system="cartesian",
+                use_threads=use_threads,
+            )
+            self.assertIsNone(
+                np.testing.assert_allclose(
+                    u, [1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0]
+                )
+            )
+            self.assertIsNone(
+                np.testing.assert_allclose(
+                    v, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+                )
+            )
 
     def test_bad_rowsize_raises(self):
         with self.assertRaises(ValueError):
-            y = apply_ragged(lambda x: x**2, np.array([1, 2, 3, 4]), [2])
+            for use_threads in [True, False]:
+                y = apply_ragged(
+                    lambda x: x**2,
+                    np.array([1, 2, 3, 4]),
+                    [2],
+                    use_threads=use_threads,
+                )
 
 
 class subset_tests(unittest.TestCase):
