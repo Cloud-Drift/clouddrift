@@ -83,7 +83,6 @@ def apply_ragged(
     iter = [[arrays[i][j] for i in range(len(arrays))] for j in range(len(arrays[0]))]
 
     # threads or processes
-    use_threads = True
     if use_threads:
         executor_type = futures.ThreadPoolExecutor
     else:
