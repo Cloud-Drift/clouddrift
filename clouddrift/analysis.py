@@ -89,8 +89,9 @@ def apply_ragged(
         executor_type = futures.ProcessPoolExecutor
 
     # parallel execution
-    with executor_type(max_workers=max_workers) as executor:
-        res = [executor.submit(func, *x, *args, **kwargs).result() for x in iter]
+    with executor_type as executor:
+        res = [executor.submit(func, *x, *args, **kwargs) for x in iter]
+    res = [r.result() for r in res]
 
     # concatenate the outputs
     res = [item if isinstance(item, Iterable) else [item] for item in res]
