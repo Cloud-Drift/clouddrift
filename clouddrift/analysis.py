@@ -991,7 +991,7 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
         ds_sub = ds.isel({"traj": mask_traj, "obs": mask_obs})
         # update the rowsize
         id_count = np.bincount(ds_sub.ids)
-        ds_sub["rowsize"].values = [id_count[i] for i in ds_sub.ID]
+        ds_sub["rowsize"].values = np.take(id_count, ds_sub.ID)
         return ds_sub
 
 
