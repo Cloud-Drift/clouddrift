@@ -991,11 +991,13 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
         warnings.warn("No data matches the criteria; returning an empty dataset.")
         return xr.Dataset()
     else:
-        # update rowsize
-        id_count = np.bincount(ds.ids[mask_obs])
-        ds["rowsize"].values[mask_traj] = [id_count[i] for i in ds.ID[mask_traj]]
+        # subset
+        ds_sub = ds.isel({"traj": mask_traj, "obs": mask_obs})
+        # update the rowsize
+        id_count = np.bincount(ds_sub.ids)
+        ds_sub["rowsize"].values = [id_count[i] for i in ds_sub.ID]
         # apply the filtering for both dimensions
-        return ds.isel({"traj": mask_traj, "obs": mask_obs})
+        return ds_sub
 
 
 def unpack_ragged(
