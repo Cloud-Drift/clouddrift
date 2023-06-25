@@ -1,4 +1,12 @@
-from clouddrift.sphere import recast_lon, recast_lon180, recast_lon360, distance, bearing, position_from_distance_and_bearing, EARTH_RADIUS_METERS
+from clouddrift.sphere import (
+    recast_lon,
+    recast_lon180,
+    recast_lon360,
+    distance,
+    bearing,
+    position_from_distance_and_bearing,
+    EARTH_RADIUS_METERS,
+)
 import unittest
 import numpy as np
 
@@ -7,6 +15,7 @@ if __name__ == "__main__":
     unittest.main()
 
 one_degree_meters = 2 * np.pi * EARTH_RADIUS_METERS / 360
+
 
 class recast_longitude_tests(unittest.TestCase):
     def test_same_shape(self):
