@@ -5,7 +5,7 @@ import pandas as pd
 from concurrent import futures
 from datetime import timedelta
 import warnings
-from clouddrift.haversine import distance, bearing, position_from_distance_and_bearing
+from clouddrift.sphere import distance, bearing, position_from_distance_and_bearing
 
 
 def apply_ragged(
