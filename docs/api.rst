@@ -40,13 +40,6 @@ Datasets
   :members:
   :undoc-members:
 
-Haversine
----------
-
-.. automodule:: clouddrift.haversine
-  :members:
-  :undoc-members:
-
 RaggedArray
 -----------
 
