@@ -712,6 +712,11 @@ class subset_tests(unittest.TestCase):
     def setUp(self):
         self.ds = sample_ragged_array().to_xarray()
 
+    def test_ds_unmodified(self):
+        ds_original = self.ds.copy(deep=True)
+        ds_sub = subset(self.ds, {"test": True})
+        xr.testing.assert_equal(ds_original, self.ds)
+
     def test_equal(self):
         ds_sub = subset(self.ds, {"test": True})
         self.assertEqual(len(ds_sub.ID), 2)
