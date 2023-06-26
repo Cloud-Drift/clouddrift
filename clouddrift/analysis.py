@@ -944,17 +944,27 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
 
     Examples
     --------
-    Criteria are combined on any data or metadata variables part of the Dataset.
+    Criteria are combined on any data or metadata variables part of the Dataset. The following examples are based on the GDP dataset.
 
-    To subset between a range of values:
-    >>> subset(ds, {"lon": (min_lon, max_lon), "lat": (min_lat, max_lat)})
-    >>> subset(ds, {"time": (min_time, max_time)})
+    Retrieve a region, like the Gulf of Mexico, using ranges of latitude and longitude:
+    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)})
 
-    To select multiples values:
-    >>> subset(ds, {"ID": [1, 2, 3]})
-
-    To select a specific value:
+    Retrieve drogued trajectory segments:
     >>> subset(ds, {"drogue_status": True})
+
+    Retrieve trajectory segments with temperature higher than 25°C (303.15K):
+    >>> subset(ds, {"sst": (303.15, np.inf)})
+
+    Retrieve specific drifters from their IDs:
+    >>> subset(ds, {"ID": [2578, 2582, 2583]})
+
+    Retrieve a specific time period:
+    >>> subset(ds, {"time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))})
+
+    Note: To subset time variable, the range has to be defined as a function type of the variable. By default, `xarray` uses `np.datetime64` to represent datetime data. If the datetime data is a `datetime.datetime`, or `pd.Timestamp`, the range would have to be define accordingly.
+
+    Those criteria can also be combined:
+    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78), "drogue_status": True, "sst": (303.15, np.inf), "time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))})
 
     Raises
     ------
