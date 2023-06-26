@@ -1005,8 +1005,7 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
         # apply the filtering for both dimensions
         ds_sub = ds.isel({"traj": mask_traj, "obs": mask_obs})
         # update the rowsize
-        id_count = np.bincount(ds_sub.ids)
-        ds_sub["rowsize"].values = np.take(id_count, ds_sub.ID)
+        ds_sub["rowsize"].values = segment(ds_sub.ids, 0.5)
         return ds_sub
 
 
