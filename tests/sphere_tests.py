@@ -223,13 +223,13 @@ class sphere_to_plane_tests(unittest.TestCase):
     def test_simple(self):
         x, y = sphere_to_plane(np.array([0.0, 1.0]), np.array([0.0, 0.0]))
         self.assertTrue(
-            np.allclose(x, np.array([0.0, np.deg2rad(haversine.EARTH_RADIUS_METERS)]))
+            np.allclose(x, np.array([0.0, np.deg2rad(EARTH_RADIUS_METERS)]))
         )
         self.assertTrue(np.allclose(y, np.zeros((2))))
 
         x, y = sphere_to_plane(np.array([0.0, 0.0]), np.array([0.0, 1.0]))
         self.assertTrue(
-            np.allclose(y, np.array([0.0, np.deg2rad(haversine.EARTH_RADIUS_METERS)]))
+            np.allclose(y, np.array([0.0, np.deg2rad(EARTH_RADIUS_METERS)]))
         )
         self.assertTrue(np.allclose(x, np.zeros((2))))
 

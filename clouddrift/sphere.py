@@ -349,11 +349,11 @@ def plane_to_sphere(
 
     # Compute spherical coordinates following great circles between each
     # successive point.
-    lat[..., 0], lon[..., 0] = haversine.position_from_distance_and_bearing(
+    lat[..., 0], lon[..., 0] = position_from_distance_and_bearing(
         lat_origin, lon_origin, distances[..., 0], bearings[..., 0]
     )
     for n in range(1, lon.shape[-1]):
-        lat[..., n], lon[..., n] = haversine.position_from_distance_and_bearing(
+        lat[..., n], lon[..., n] = position_from_distance_and_bearing(
             lat[..., n - 1], lon[..., n - 1], distances[..., n], bearings[..., n]
         )
 
@@ -421,16 +421,12 @@ def sphere_to_plane(
     bearings = np.empty_like(x)
 
     # Distance and bearing of the starting point relative to the origin
-    distances[0] = haversine.distance(lat_origin, lon_origin, lat[..., 0], lon[..., 0])
-    bearings[0] = haversine.bearing(lat_origin, lon_origin, lat[..., 0], lon[..., 0])
+    distances[0] = distance(lat_origin, lon_origin, lat[..., 0], lon[..., 0])
+    bearings[0] = bearing(lat_origin, lon_origin, lat[..., 0], lon[..., 0])
 
     # Distance and bearing of the remaining points
-    distances[1:] = haversine.distance(
-        lat[..., :-1], lon[..., :-1], lat[..., 1:], lon[..., 1:]
-    )
-    bearings[1:] = haversine.bearing(
-        lat[..., :-1], lon[..., :-1], lat[..., 1:], lon[..., 1:]
-    )
+    distances[1:] = distance(lat[..., :-1], lon[..., :-1], lat[..., 1:], lon[..., 1:])
+    bearings[1:] = bearing(lat[..., :-1], lon[..., :-1], lat[..., 1:], lon[..., 1:])
 
     dx = distances * np.cos(bearings)
     dy = distances * np.sin(bearings)
