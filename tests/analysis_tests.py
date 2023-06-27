@@ -17,6 +17,7 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 from datetime import datetime, timedelta
+from concurrent import futures
 
 
 if __name__ == "__main__":
@@ -686,13 +687,13 @@ class apply_ragged_tests(unittest.TestCase):
         self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
     def test_velocity_ndarray(self):
-        for use_threads in [True, False]:
+        for executor in [futures.ThreadPoolExecutor(), futures.ProcessPoolExecutor()]:
             u, v = apply_ragged(
                 velocity_from_position,
                 [self.x, self.y, self.t],
                 self.rowsize,
                 coord_system="cartesian",
-                use_threads=use_threads,
+                executor=executor,
             )
             self.assertIsNone(
                 np.testing.assert_allclose(
@@ -706,7 +707,7 @@ class apply_ragged_tests(unittest.TestCase):
             )
 
     def test_velocity_dataarray(self):
-        for use_threads in [True, False]:
+        for executor in [futures.ThreadPoolExecutor(), futures.ProcessPoolExecutor()]:
             u, v = apply_ragged(
                 velocity_from_position,
                 [
@@ -716,7 +717,7 @@ class apply_ragged_tests(unittest.TestCase):
                 ],
                 xr.DataArray(data=self.rowsize),
                 coord_system="cartesian",
-                use_threads=use_threads,
+                executor=executor,
             )
             self.assertIsNone(
                 np.testing.assert_allclose(

@@ -13,8 +13,7 @@ def apply_ragged(
     arrays: list[np.ndarray],
     rowsize: list[int],
     *args: tuple,
-    use_threads: bool = True,
-    max_workers: int = None,
+    executor: futures.Executor = futures.ThreadPoolExecutor(max_workers=None),
     **kwargs: dict,
 ) -> Union[tuple[np.ndarray], np.ndarray]:
     """Apply a function to a ragged array.
@@ -82,15 +81,8 @@ def apply_ragged(
     arrays = [unpack_ragged(arr, rowsize) for arr in arrays]
     iter = [[arrays[i][j] for i in range(len(arrays))] for j in range(len(arrays[0]))]
 
-    # threads or processes
-    if use_threads:
-        executor_type = futures.ThreadPoolExecutor
-    else:
-        executor_type = futures.ProcessPoolExecutor
-
     # parallel execution
-    with executor_type(max_workers=max_workers) as executor:
-        res = [executor.submit(func, *x, *args, **kwargs) for x in iter]
+    res = [executor.submit(func, *x, *args, **kwargs) for x in iter]
     res = [r.result() for r in res]
 
     # concatenate the outputs
