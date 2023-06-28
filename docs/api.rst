@@ -33,10 +33,10 @@ Analysis
   :members:
   :undoc-members:
 
-Haversine
----------
+Datasets
+--------
 
-.. automodule:: clouddrift.haversine
+.. automodule:: clouddrift.datasets
   :members:
   :undoc-members:
 

@@ -1,3 +1,8 @@
+"""
+This module provides common Lagrangian analysis and transformation
+functions.
+"""
+
 import numpy as np
 from typing import Optional, Tuple, Union, Iterable
 import xarray as xr
@@ -5,7 +10,7 @@ import pandas as pd
 from concurrent import futures
 from datetime import timedelta
 import warnings
-from clouddrift.haversine import distance, bearing, position_from_distance_and_bearing
+from clouddrift.sphere import distance, bearing, position_from_distance_and_bearing
 
 
 def apply_ragged(
@@ -366,7 +371,7 @@ def segment(
     tolerance: Union[float, np.timedelta64, timedelta, pd.Timedelta],
     rowsize: np.ndarray[int] = None,
 ) -> np.ndarray[int]:
-    """Divide an array into segments.
+    """Divide an array into segments based on a tolerance value.
 
     Parameters
     ----------
@@ -945,17 +950,27 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
 
     Examples
     --------
-    Criteria are combined on any data or metadata variables part of the Dataset.
+    Criteria are combined on any data or metadata variables part of the Dataset. The following examples are based on the GDP dataset.
 
-    To subset between a range of values:
-    >>> subset(ds, {"lon": (min_lon, max_lon), "lat": (min_lat, max_lat)})
-    >>> subset(ds, {"time": (min_time, max_time)})
+    Retrieve a region, like the Gulf of Mexico, using ranges of latitude and longitude:
+    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)})
 
-    To select multiples values:
-    >>> subset(ds, {"ID": [1, 2, 3]})
-
-    To select a specific value:
+    Retrieve drogued trajectory segments:
     >>> subset(ds, {"drogue_status": True})
+
+    Retrieve trajectory segments with temperature higher than 25°C (303.15K):
+    >>> subset(ds, {"sst": (303.15, np.inf)})
+
+    Retrieve specific drifters from their IDs:
+    >>> subset(ds, {"ID": [2578, 2582, 2583]})
+
+    Retrieve a specific time period:
+    >>> subset(ds, {"time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))})
+
+    Note: To subset time variable, the range has to be defined as a function type of the variable. By default, `xarray` uses `np.datetime64` to represent datetime data. If the datetime data is a `datetime.datetime`, or `pd.Timestamp`, the range would have to be define accordingly.
+
+    Those criteria can also be combined:
+    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78), "drogue_status": True, "sst": (303.15, np.inf), "time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))})
 
     Raises
     ------
@@ -988,11 +1003,12 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
         warnings.warn("No data matches the criteria; returning an empty dataset.")
         return xr.Dataset()
     else:
-        # update rowsize
-        id_count = np.bincount(ds.ids[mask_obs])
-        ds["rowsize"].values[mask_traj] = [id_count[i] for i in ds.ID[mask_traj]]
         # apply the filtering for both dimensions
-        return ds.isel({"traj": mask_traj, "obs": mask_obs})
+        ds_sub = ds.isel({"traj": mask_traj, "obs": mask_obs})
+        # update the rowsize
+        id_count = np.bincount(ds_sub.ids)
+        ds_sub["rowsize"].values = np.take(id_count, ds_sub.ID)
+        return ds_sub
 
 
 def unpack_ragged(
