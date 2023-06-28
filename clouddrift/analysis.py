@@ -22,9 +22,13 @@ def apply_ragged(
     indicated by row sizes ``rowsize``. The output of ``func`` will be
     concatenated into a single ragged array.
 
-    This function uses ``concurrent.futures.ThreadPoolExecutor`` to run ``func``
-    in multiple threads. The number of threads can be controlled by the
-    ``max_workers`` argument, which is passed down to ``ThreadPoolExecutor``.
+    By default this function uses ``concurrent.futures.ThreadPoolExecutor`` to
+    run ``func`` in multiple threads. The number of threads can be controlled by
+    passing the ``max_workers`` argument to the executor instance passed to
+    ``apply_ragged``. Alternatively, you can pass the ``concurrent.futures.ProcessPoolExecutor``
+    instance to use processes instead. Passing alternative (3rd party library)
+    concurrent executors may work if they follow the same executor interface as
+    that of ``concurrent.futures``, however this has not been tested yet.
 
     Parameters
     ----------
@@ -36,9 +40,10 @@ def apply_ragged(
         List of integers specifying the number of data points in each row.
     *args : tuple
         Additional arguments to pass to ``func``.
-    max_workers : int, optional
-        Number of threads to use. If None, the number of threads will be equal
-        to the ``max_workers`` default value of ``concurrent.futures.ThreadPoolExecutor``.
+    executor : concurrent.futures.Executor, optional
+        Executor to use for concurrent execution. Default is ``ThreadPoolExecutor``
+        with the default number of ``max_workers``.
+        Another supported option is ``ProcessPoolExecutor``.
     **kwargs : dict
         Additional keyword arguments to pass to ``func``.
 
