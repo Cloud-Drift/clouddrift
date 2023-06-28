@@ -18,7 +18,7 @@ def apply_ragged(
     arrays: list[np.ndarray],
     rowsize: list[int],
     *args: tuple,
-    max_workers: int = None,
+    executor: futures.Executor = futures.ThreadPoolExecutor(max_workers=None),
     **kwargs: dict,
 ) -> Union[tuple[np.ndarray], np.ndarray]:
     """Apply a function to a ragged array.
@@ -27,9 +27,13 @@ def apply_ragged(
     indicated by row sizes ``rowsize``. The output of ``func`` will be
     concatenated into a single ragged array.
 
-    This function uses ``concurrent.futures.ThreadPoolExecutor`` to run ``func``
-    in multiple threads. The number of threads can be controlled by the
-    ``max_workers`` argument, which is passed down to ``ThreadPoolExecutor``.
+    By default this function uses ``concurrent.futures.ThreadPoolExecutor`` to
+    run ``func`` in multiple threads. The number of threads can be controlled by
+    passing the ``max_workers`` argument to the executor instance passed to
+    ``apply_ragged``. Alternatively, you can pass the ``concurrent.futures.ProcessPoolExecutor``
+    instance to use processes instead. Passing alternative (3rd party library)
+    concurrent executors may work if they follow the same executor interface as
+    that of ``concurrent.futures``, however this has not been tested yet.
 
     Parameters
     ----------
@@ -41,9 +45,10 @@ def apply_ragged(
         List of integers specifying the number of data points in each row.
     *args : tuple
         Additional arguments to pass to ``func``.
-    max_workers : int, optional
-        Number of threads to use. If None, the number of threads will be equal
-        to the ``max_workers`` default value of ``concurrent.futures.ThreadPoolExecutor``.
+    executor : concurrent.futures.Executor, optional
+        Executor to use for concurrent execution. Default is ``ThreadPoolExecutor``
+        with the default number of ``max_workers``.
+        Another supported option is ``ProcessPoolExecutor``.
     **kwargs : dict
         Additional keyword arguments to pass to ``func``.
 
@@ -86,14 +91,10 @@ def apply_ragged(
     arrays = [unpack_ragged(arr, rowsize) for arr in arrays]
     iter = [[arrays[i][j] for i in range(len(arrays))] for j in range(len(arrays[0]))]
 
-    # combine other arguments
-    for arg in iter:
-        if args:
-            arg.append(*args)
-
     # parallel execution
-    with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        res = executor.map(lambda x: func(*x, **kwargs), iter)
+    res = [executor.submit(func, *x, *args, **kwargs) for x in iter]
+    res = [r.result() for r in res]
+
     # concatenate the outputs
     res = [item if isinstance(item, Iterable) else [item] for item in res]
 
