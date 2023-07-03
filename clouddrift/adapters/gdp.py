@@ -20,7 +20,7 @@ GDP_COORDS = [
 
 GDP_METADATA = [
     "ID",
-    "rowsize",
+    "count",
     "WMO",
     "expno",
     "deploy_date",
@@ -270,7 +270,7 @@ def drogue_presence(lost_time, time) -> bool:
         return time < lost_time
 
 
-def rowsize(index: int, **kwargs) -> int:
+def count(index: int, **kwargs) -> int:
     try:
         return xr.open_dataset(
             os.path.join(
