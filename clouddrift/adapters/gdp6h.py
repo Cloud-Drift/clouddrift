@@ -416,7 +416,14 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds.attrs = attrs
 
     # rename variables
-    ds = ds.rename_vars({"longitude": "lon", "latitude": "lat", "rowsize": "count"})
+    ds = ds.rename_vars({"longitude": "lon", "latitude": "lat"})
+
+    if "rowsize" in ds.variables:
+        ds = ds.rename_vars({"rowsize": "count"})
+    else:
+        warnings.warn(
+            "Variable rowsize not found in upstream GDP data; has it been renamed?"
+        )
 
     return ds
 
