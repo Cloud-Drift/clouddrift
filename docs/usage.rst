@@ -160,8 +160,78 @@ Attributes: (12/16)
 
 You see that we now have a subset of the original dataset, with 5 trajectories
 and a total of 13612 observations.
-This subset is small enough to work with easily and quickly for demonstration
+This subset is small enough to quickly and easily work with for demonstration
 purposes.
+Let's see how we can compute the mean and maximum velocities of each trajectory.
+To start, we'll need to obtain the velocities over all trajectory times.
+Although the GDP dataset already comes with velocity variables, we won't use
+them here so that we can learn how to compute them ourselves from positions.
+``clouddrift`` provides the ``velocity_from_position`` function that allows you
+to do just that.
+
+>>> from clouddrift.analysis import velocity_from_position
+
+At a minimum ``velocity_from_position`` requires three input parameters:
+consecutive x- and y-coordinates and time, so we could do:
+
+>>> u, v = velocity_from_position(ds_sub.lon, ds_sub.lat, ds_sub.time)
+
+``velocity_from_position`` returns two arrays, ``u`` and ``v``, which are the
+zonal and meridional velocities, respectively.
+By default, it assumes that the coordinates are in degrees, and it handles the
+great circle path calculation and longitude wraparound under the hood.
+However, recall that ``ds_sub.lon``, ``ds_sub.lat``, and ``ds_sub.time`` are
+ragged arrays, so we need a different approach to calculate velocities while
+respecting the trajectory boundaries.
+For this, we can use the ``ragged_apply`` function, which applies a function
+to each trajectory in a ragged array, and returns the concatenated result.
+
+>>> from clouddrift.analysis import apply_ragged
+>>> u, v = apply_ragged(velocity_from_position, [ds_sub.lon, ds_sub.lat, ds_sub.time], ds_sub.rowsize)
+
+``u`` and ``v`` here are still ragged arrays, which means that the five
+contiguous trajectories are concatenated into 1-dimensional arrays.
+
+Now, let's compute the velocity magnitude in meters per second.
+The time in this dataset is loaded in nanoseconds by default:
+
+>>> ds_sub.time.values
+array(['2005-04-15T20:00:00.000000000', '2005-04-15T21:00:00.000000000',
+       '2005-04-15T22:00:00.000000000', ...,
+       '2005-10-02T03:00:00.000000000', '2005-10-02T04:00:00.000000000',
+       '2005-10-02T05:00:00.000000000'], dtype='datetime64[ns]')
+
+So, to obtain the velocity magnitude in meters per second, we'll need to
+multiply our velocities by ``1e9``.
+
+>>> velocity_magnitude = np.sqrt(u**2 + v**2) * 1e9
+>>> velocity_magnitude
+array([0.28053388, 0.6164632 , 0.89032112, ..., 0.2790803 , 0.20095603,
+       0.20095603])
+
+>>> velocity_magnitude.mean(), velocity_magnitude.max()
+(0.22115242718877506, 1.6958275672626286)
+
+However, these aren't the results we are looking for! Recall that we have the
+velocity magnitude of five different trajectories concatenated into one array.
+This means that we need to use ``apply_ragged`` again to compute the mean and
+maximum values:
+
+>>> apply_ragged(np.mean, [velocity_magnitude], ds_sub.rowsize)
+array([0.32865148, 0.17752435, 0.1220523 , 0.13281067, 0.14041268])
+>>> apply_ragged(np.max, [velocity_magnitude], ds_sub.rowsize)
+array([1.69582757, 1.36804354, 0.97343434, 0.60353528, 1.05044213])
+
+And there you go! We used ``clouddrift`` to:
+
+#. Load a real-world Lagrangian dataset from the cloud;
+#. Subset the dataset by trajectory IDs;
+#. Compute the velocity vectors and their magnitudes for each trajectory;
+#. Compute the mean and maximum velocity magnitudes for each trajectory.
+
+``clouddrift`` offers many more functions for common Lagrangian analysis tasks.
+Please explore the `API <https://cloud-drift.github.io/clouddrift/api.html>`_
+to learn about other functions and how to use them.
 
 Adapting custom Lagrangian datasets into ragged arrays
 ------------------------------------------------------
