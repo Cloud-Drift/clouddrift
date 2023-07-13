@@ -19,7 +19,7 @@ import clouddrift
 # -- Project information -----------------------------------------------------
 
 project = "CloudDrift"
-copyright = "2022, CloudDrift"
+copyright = "2022-2023, CloudDrift"
 author = "Philippe Miron"
 
 # -- General configuration ---------------------------------------------------
