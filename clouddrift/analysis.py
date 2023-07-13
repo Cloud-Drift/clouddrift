@@ -977,6 +977,18 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
     ValueError
         If one of the variable in a criterion is not found in the Dataset
     """
+    # Normally we expect the ragged-array dataset to have a "count" variable.
+    # However, some datasets may have a "rowsize" variable instead, e.g. if they
+    # have not gotten up to speed with our new convention. We check for both.
+    if "count" in ds.variables:
+        count_var = "count"
+    elif "rowsize" in ds.variables:
+        count_var = "rowsize"
+    else:
+        raise ValueError(
+            "Ragged-array Dataset ds must have a 'count' or 'rowsize' variable."
+        )
+
     mask_traj = xr.DataArray(data=np.ones(ds.dims["traj"], dtype="bool"), dims=["traj"])
     mask_obs = xr.DataArray(data=np.ones(ds.dims["obs"], dtype="bool"), dims=["obs"])
 
@@ -990,7 +1002,7 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
             raise ValueError(f"Unknown variable '{key}'.")
 
     # remove data when trajectories are filtered
-    traj_idx = np.insert(np.cumsum(ds["count"].values), 0, 0)
+    traj_idx = np.insert(np.cumsum(ds[count_var].values), 0, 0)
     for i in np.where(~mask_traj)[0]:
         mask_obs[slice(traj_idx[i], traj_idx[i + 1])] = False
 
@@ -1006,7 +1018,7 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
         # apply the filtering for both dimensions
         ds_sub = ds.isel({"traj": mask_traj, "obs": mask_obs})
         # update the count
-        ds_sub["count"].values = segment(
+        ds_sub[count_var].values = segment(
             ds_sub.ids, 0.5, count=segment(ds_sub.ids, -0.5)
         )
         return ds_sub
