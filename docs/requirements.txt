@@ -1,2 +1,2 @@
 sphinx
-pydata_sphinx_theme
+sphinx-book-theme
