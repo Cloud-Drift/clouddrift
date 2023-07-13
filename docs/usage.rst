@@ -107,8 +107,61 @@ Doing common analysis tasks on ragged arrays
 
 Now that we have a ragged-array dataset loaded as an Xarray ``Dataset`` instance,
 let's do some common analysis tasks on it.
+Our dataset is on a remote server and fairly large (a dozen GB or so), so let's
+first subset it to several trajectories so that we can more easily work with it.
+The variable ``ID`` is the unique identifier for each trajectory:
 
-TODO
+>>> ds.ID[:10].values
+array([2578, 2582, 2583, 2592, 2612, 2613, 2622, 2623, 2931, 2932])
+
+>>> from clouddrift.analysis import subset
+
+``subset`` allows you to subset a ragged array by some criterion.
+In this case, we will subset it by the ``ID`` variable:
+
+>>> ds_sub = subset(ds, {"ID": list(ds.ID[:5])})
+>>> ds_sub
+<xarray.Dataset>
+Dimensions:                (traj: 5, obs: 13612)
+Coordinates:
+    ids                    (obs) int64 2578 2578 2578 2578 ... 2612 2612 2612
+    lat                    (obs) float32 ...
+    lon                    (obs) float32 ...
+    time                   (obs) datetime64[ns] ...
+Dimensions without coordinates: traj, obs
+Data variables: (12/55)
+    BuoyTypeManufacturer   (traj) |S20 ...
+    BuoyTypeSensorArray    (traj) |S20 ...
+    CurrentProgram         (traj) float64 ...
+    DeployingCountry       (traj) |S20 ...
+    DeployingShip          (traj) |S20 ...
+    DeploymentComments     (traj) |S20 ...
+    ...                     ...
+    sst1                   (obs) float64 ...
+    sst2                   (obs) float64 ...
+    typebuoy               (traj) |S10 ...
+    typedeath              (traj) int8 ...
+    ve                     (obs) float32 ...
+    vn                     (obs) float32 ...
+Attributes: (12/16)
+    Conventions:       CF-1.6
+    acknowledgement:   Elipot, Shane; Sykulski, Adam; Lumpkin, Rick; Centurio...
+    contributor_name:  NOAA Global Drifter Program
+    contributor_role:  Data Acquisition Center
+    date_created:      2022-12-09T06:02:29.684949
+    doi:               10.25921/x46c-3620
+    ...                ...
+    processing_level:  Level 2 QC by GDP drifter DAC
+    publisher_email:   aoml.dftr@noaa.gov
+    publisher_name:    GDP Drifter DAC
+    publisher_url:     https://www.aoml.noaa.gov/phod/gdp
+    summary:           Global Drifter Program hourly data
+    title:             Global Drifter Program hourly drifting buoy collection
+
+You see that we now have a subset of the original dataset, with 5 trajectories
+and a total of 13612 observations.
+This subset is small enough to work with easily and quickly for demonstration
+purposes.
 
 Adapting custom Lagrangian datasets into ragged arrays
 ------------------------------------------------------
