@@ -1,21 +1,70 @@
 """
 This module defines functions used to adapt the MOSAiC sea-ice drift dataset as
 a ragged-array dataset.
+
+The dataset is hosted at https://doi.org/10.18739/A2KP7TS83.
+
+Example
+-------
+>>> from clouddrift.adapters import mosaic
+>>> ds = mosaic.to_xarray()
 """
 from concurrent.futures import ThreadPoolExecutor
+import numpy as np
 import pandas as pd
 import requests
 from tqdm import tqdm
+import xarray as xr
 import xml.etree.ElementTree as ET
 
 
-def get_metadata() -> str:
-    """Get the MOSAiC metadata as an XML string.
-    Pass this string to other get_* functions to extract the data you need.
-    """
-    url = "https://arcticdata.io/metacat/d1/mn/v2/object/doi:10.18739/A2KP7TS83"
-    r = requests.get(url)
-    return r.content
+def get_dataframes() -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Get the MOSAiC data (obs dimension in the target Dataset) and metadata
+    (traj dimension in the target dataset ) as pandas DataFrames."""
+    xml = get_repository_metadata()
+    filenames, urls = get_file_urls(xml)
+    exclude_patterns = ["site_buoy_summary", "buoy_list"]
+    data_filenames = [
+        f for f in filenames if not any([s in f for s in exclude_patterns])
+    ]
+    data_urls = [
+        f
+        for n, f in enumerate(urls)
+        if not any([s in filenames[n] for s in exclude_patterns])
+    ]
+    sensor_ids = [f.split("_")[-1].rstrip(".csv") for f in data_filenames]
+    sensor_list_url = urls[
+        filenames.index([f for f in filenames if "buoy_list" in f].pop())
+    ]
+    sensors = pd.read_csv(sensor_list_url)
+
+    # Sort the urls by the order of sensor IDs in the sensor list
+    order_index = {id: n for n, id in enumerate(sensors["Sensor ID"])}
+    sorted_indices = sorted(
+        range(len(sensor_ids)), key=lambda k: order_index[sensor_ids[k]]
+    )
+    sorted_data_urls = [data_urls[i] for i in sorted_indices]
+
+    with ThreadPoolExecutor() as executor:
+        dfs = tqdm(
+            executor.map(pd.read_csv, sorted_data_urls),
+            total=len(sorted_data_urls),
+            desc="Downloading data",
+            ncols=80,
+        )
+
+    obs_df = pd.concat(dfs)
+
+    # Use the index of the concatenated DataFrame to determine the count/rowsize
+    zero_indices = [n for n, val in enumerate(list(obs_df.index)) if val == 0]
+    sensors["count"] = np.diff(zero_indices + [len(obs_df)])
+
+    # Make the time column the index of the DataFrame, which will make it a
+    # coordinate in the xarray Dataset.
+    obs_df.set_index("datetime", inplace=True)
+    sensors.set_index("Sensor ID", inplace=True)
+
+    return obs_df, sensors
 
 
 def get_file_urls(xml: str) -> list[str]:
@@ -30,24 +79,25 @@ def get_file_urls(xml: str) -> list[str]:
             "./dataset/dataTable/physical/distribution/online/url"
         )
     ]
-    return [{"filename": f, "url": u} for f, u in zip(filenames, urls)]
+    return filenames, urls
 
 
-def get_dataframe() -> pd.DataFrame:
-    """Get the MOSAiC data as a pandas DataFrame."""
-    xml = get_metadata()
-    urls = [
-        f["url"]
-        for f in get_file_urls(xml)
-        if "site_buoy_summary" not in f["filename"] and "buoy_list" not in f["filename"]
-    ]
-    with ThreadPoolExecutor() as executor:
-        dfs = tqdm(
-            executor.map(pd.read_csv, urls),
-            total=len(urls),
-            desc="Downloading data",
-            ncols=80,
-        )
-    # TODO collect ids from filenames
-    # TODO insert ids as a column
-    return pd.concat(dfs)
+def get_repository_metadata() -> str:
+    """Get the MOSAiC repository metadata as an XML string.
+    Pass this string to other get_* functions to extract the data you need.
+    """
+    url = "https://arcticdata.io/metacat/d1/mn/v2/object/doi:10.18739/A2KP7TS83"
+    r = requests.get(url)
+    return r.content
+
+
+def to_xarray():
+    """Return the MOSAiC data as an ragged-array Xarray Dataset."""
+    obs_df, traj_df = get_dataframes()
+    obs_ds = obs_df.to_xarray()
+    traj_ds = traj_df.to_xarray()
+    ds = xr.merge([obs_ds, traj_ds])
+    ds = ds.rename_dims({"datetime": "obs", "Sensor ID": "traj"}).rename_vars(
+        {"datetime": "time", "Sensor ID": "id"}
+    )
+    return ds
