@@ -94,9 +94,7 @@ def get_repository_metadata() -> str:
 def to_xarray():
     """Return the MOSAiC data as an ragged-array Xarray Dataset."""
     obs_df, traj_df = get_dataframes()
-    obs_ds = obs_df.to_xarray()
-    traj_ds = traj_df.to_xarray()
-    ds = xr.merge([obs_ds, traj_ds])
+    ds = xr.merge([obs_df.to_xarray(), traj_df.to_xarray()])
     ds = ds.rename_dims({"datetime": "obs", "Sensor ID": "traj"}).rename_vars(
         {"datetime": "time", "Sensor ID": "id"}
     )
