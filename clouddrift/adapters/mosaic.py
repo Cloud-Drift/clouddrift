@@ -93,9 +93,26 @@ def get_repository_metadata() -> str:
 
 def to_xarray():
     """Return the MOSAiC data as an ragged-array Xarray Dataset."""
+
+    # Download the data and metadata as pandas DataFrames.
     obs_df, traj_df = get_dataframes()
+
+    # Dates and datetimes are strings; convert them to datetime64 instances
+    # for compatibility with CloudDrift's analysis functions.
+    obs_df.index = pd.to_datetime(obs_df.index)
+    for col in [
+        "Deployment Date",
+        "Deployment Datetime",
+        "First Data Datetime",
+        "Last Data Datetime",
+    ]:
+        traj_df[col] = pd.to_datetime(traj_df[col])
+
+    # Merge into an Xarray Dataset and rename the dimensions and variables to
+    # follow the CloudDrift convention.
     ds = xr.merge([obs_df.to_xarray(), traj_df.to_xarray()])
     ds = ds.rename_dims({"datetime": "obs", "Sensor ID": "traj"}).rename_vars(
         {"datetime": "time", "Sensor ID": "id"}
     )
+
     return ds
