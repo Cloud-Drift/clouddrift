@@ -50,7 +50,7 @@ def anatrans(
     m0 = len(x)
 
     # remove mean
-    x = x - np.mean(x)
+    x -= np.mean(x)
 
     # apply boundary conditions
     if boundary == "mirror":
