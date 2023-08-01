@@ -20,11 +20,14 @@ def anatrans(
     Parameters
     ----------
     x : np.ndarray
+        Real- or complex-valued signal
     boundary : str, optional ["mirror", "zeros", "periodic"]
+        Boundary condition to use; default "mirror".
 
     Returns
     -------
     z : np.ndarray
+        Analytic transform of the input signal
 
     Examples
     --------
