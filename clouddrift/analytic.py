@@ -13,7 +13,7 @@ def anatrans(
     x: Union[list, np.ndarray, xr.DataArray, pd.Series],
     boundary: Optional[str] = "mirror",
 ) -> np.ndarray:
-    """returns the analytic part of a real-valued signal or of a complex-valued
+    """Return the analytic part of a real-valued signal or of a complex-valued
     signal. To obtain the anti-analytic part of a complex-valued signal apply anatrans
     to the conjugate of the input. Anatrans removes the mean of the input signals.
 
