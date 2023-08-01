@@ -5,7 +5,7 @@ instance.
 """
 
 import clouddrift.adapters.gdp as gdp
-from clouddrift.dataformat import RaggedArray
+from clouddrift.raggedarray import RaggedArray
 from datetime import datetime
 import numpy as np
 import urllib.request
@@ -486,6 +486,13 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     # rename variables
     ds = ds.rename_vars({"longitude": "lon", "latitude": "lat"})
 
+    if "rowsize" in ds.variables:
+        ds = ds.rename_vars({"rowsize": "count"})
+    else:
+        warnings.warn(
+            "Variable rowsize not found in upstream GDP data; has it been renamed?"
+        )
+
     return ds
 
 
@@ -540,6 +547,16 @@ def to_raggedarray(
     a convenience method to emit a `xarray.Dataset` instance:
 
     >>> ds = ra.to_xarray()
+
+    To write the ragged array dataset to a NetCDF file on disk, do
+
+    >>> ds.to_netcdf("gdp1h.nc", format="NETCDF4")
+
+    Alternatively, to write the ragged array to a Parquet file, first create
+    it as an Awkward Array:
+
+    >>> arr = ra.to_awkward()
+    >>> arr.to_parquet("gdp1h.parquet")
     """
     ids = download(drifter_ids, n_random_id, url)
 
@@ -556,7 +573,7 @@ def to_raggedarray(
         name_coords=gdp.GDP_COORDS,
         name_meta=gdp.GDP_METADATA,
         name_data=GDP_DATA,
-        rowsize_func=gdp.rowsize,
+        count_func=gdp.count,
         filename_pattern=filename_pattern,
         tmp_path=GDP_TMP_PATH,
     )

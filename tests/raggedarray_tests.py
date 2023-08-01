@@ -4,7 +4,6 @@ import os
 import xarray as xr
 import numpy as np
 from clouddrift import RaggedArray
-from clouddrift.dataformat import unpack_ragged
 import awkward as ak
 
 NETCDF_ARCHIVE = "test_archive.nc"
@@ -14,14 +13,14 @@ if __name__ == "__main__":
     unittest.main()
 
 
-class dataformat_tests(TestCase):
+class raggedarray_tests(TestCase):
     def setUp(self):
         """
         Create ragged array and output netCDF and Parquet file
         """
         self.drifter_id = [1, 2, 3]
-        self.rowsize = [10, 8, 2]
-        self.nb_obs = np.sum(self.rowsize)
+        self.count = [10, 8, 2]
+        self.nb_obs = np.sum(self.count)
         self.nb_traj = len(self.drifter_id)
         self.attrs_global = {
             "title": "test trajectories",
@@ -31,17 +30,17 @@ class dataformat_tests(TestCase):
 
         # append xr.Dataset to a list
         list_ds = []
-        for i in range(0, len(self.rowsize)):
+        for i in range(0, len(self.count)):
             xr_coords = {}
             for var in ["lon", "lat", "time"]:
                 xr_coords[var] = (
                     ["obs"],
-                    np.random.rand(self.rowsize[i]),
+                    np.random.rand(self.count[i]),
                     {"long_name": f"variable {var}", "units": "-"},
                 )
             xr_coords["ids"] = (
                 ["obs"],
-                np.ones(self.rowsize[i], dtype="int") * self.drifter_id[i],
+                np.ones(self.count[i], dtype="int") * self.drifter_id[i],
                 {"long_name": f"variable ids", "units": "-"},
             )
 
@@ -51,14 +50,14 @@ class dataformat_tests(TestCase):
                 [self.drifter_id[i]],
                 {"long_name": f"variable ID", "units": "-"},
             )
-            xr_data["rowsize"] = (
+            xr_data["count"] = (
                 ["traj"],
-                [self.rowsize[i]],
-                {"long_name": f"variable rowsize", "units": "-"},
+                [self.count[i]],
+                {"long_name": f"variable count", "units": "-"},
             )
             xr_data["temp"] = (
                 ["obs"],
-                np.random.rand(self.rowsize[i]),
+                np.random.rand(self.count[i]),
                 {"long_name": f"variable temp", "units": "-"},
             )
 
@@ -71,7 +70,7 @@ class dataformat_tests(TestCase):
             [0, 1, 2],
             lambda i: list_ds[i],
             self.variables_coords,
-            ["ID", "rowsize"],
+            ["ID", "count"],
             ["temp"],
         )
 
@@ -179,20 +178,3 @@ class dataformat_tests(TestCase):
         """
         ds = RaggedArray.from_parquet(PARQUET_ARCHIVE)
         self.compare_awkward_array(ds.to_awkward())
-
-    def test_unpack_ragged(self):
-        ds = self.ra.to_xarray()
-
-        # Test unpacking into DataArrays
-        lon = unpack_ragged(ds.lon, ds.rowsize)
-
-        self.assertTrue(type(lon) is list)
-        self.assertTrue(np.all([type(a) is xr.DataArray for a in lon]))
-        self.assertTrue(np.all([lon[n].size == ds.rowsize[n] for n in range(len(lon))]))
-
-        # Test unpacking into np.ndarrays
-        lon = unpack_ragged(ds.lon.values, ds.rowsize)
-
-        self.assertTrue(type(lon) is list)
-        self.assertTrue(np.all([type(a) is np.ndarray for a in lon]))
-        self.assertTrue(np.all([lon[n].size == ds.rowsize[n] for n in range(len(lon))]))

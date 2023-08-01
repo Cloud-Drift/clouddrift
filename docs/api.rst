@@ -26,6 +26,13 @@ GDP (6-hourly)
   :members:
   :undoc-members:
 
+MOSAiC
+^^^^^^
+
+.. automodule:: clouddrift.adapters.mosaic
+  :members:
+  :undoc-members:
+
 Analysis
 --------
 
@@ -33,17 +40,17 @@ Analysis
   :members:
   :undoc-members:
 
-Dataformat
-----------
+Datasets
+--------
 
-.. automodule:: clouddrift.dataformat
+.. automodule:: clouddrift.datasets
   :members:
   :undoc-members:
 
-Haversine
----------
+RaggedArray
+-----------
 
-.. automodule:: clouddrift.haversine
+.. automodule:: clouddrift.raggedarray
   :members:
   :undoc-members:
 
