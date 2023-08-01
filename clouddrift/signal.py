@@ -72,10 +72,10 @@ def analytic_transform(
         z = np.fft.fft(x)
 
     m = len(x)
-    
+
     # zero negative frequencies
     if m % 2 == 0:
-        z[int(m / 2 + 2) - 1 : int(m + 1) + 1] = 0  
+        z[int(m / 2 + 2) - 1 : int(m + 1) + 1] = 0
     else:
         z[int((m + 3) / 2) - 1 : int(m + 1) + 1] = 0
 
