@@ -60,3 +60,10 @@ Sphere
 .. automodule:: clouddrift.sphere
   :members:
   :undoc-members:
+
+Signal
+---------
+
+.. automodule:: clouddrift.signal
+  :members:
+  :undoc-members:
