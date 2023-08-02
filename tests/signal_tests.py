@@ -1,5 +1,6 @@
 from clouddrift.signal import (
     analytic_transform,
+    rotary_transform,
 )
 import numpy as np
 import unittest
@@ -52,6 +53,12 @@ def test_analytic_transform_list(self):
     self.assertTrue(np.allclose(x - np.mean(x), np.real(z)))
 
 
+def test_analytic_transform_array(self):
+    x = np.random.rand(99)
+    z = analytic_transform(x)
+    self.assertTrue(np.allclose(x - np.mean(x), np.real(z)))
+
+
 def test_analytic_transform_pandas(self):
     x = pd.Series(data=np.random.rand(99))
     z = analytic_transform(x)
@@ -62,3 +69,31 @@ def test_analytic_transform_xarray(self):
     x = xr.DataArray(data=np.random.rand(99))
     z = analytic_transform(x)
     self.assertTrue(np.allclose(x - np.mean(x), np.real(z)))
+
+
+def test_rotary_transform_array(self):
+    u = np.random.rand(99)
+    v = np.random.rand(99)
+    zp, zn = rotary_transform(u, v)
+    self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn)))
+
+
+def test_rotary_transform_list(self):
+    u = list(np.random.rand(99))
+    v = list(np.random.rand(99))
+    zp, zn = rotary_transform(u, v)
+    self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn)))
+
+
+def test_rotary_transform_pandas(self):
+    u = pd.Series(data=np.random.rand(99))
+    v = pd.Series(data=np.random.rand(99))
+    zp, zn = rotary_transform(u, v)
+    self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn)))
+
+
+def test_rotary_transform_xarray(self):
+    u = xr.DataArray(data=np.random.rand(99))
+    v = xr.DataArray(data=np.random.rand(99))
+    zp, zn = rotary_transform(u, v)
+    self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn)))

@@ -86,3 +86,70 @@ def analytic_transform(
     z = z[int(m0 + 1) - 1 : int(2 * m0 + 1) - 1]
 
     return z
+
+
+def rotary_transform(
+    u: Union[list, np.ndarray, xr.DataArray, pd.Series],
+    v: Union[list, np.ndarray, xr.DataArray, pd.Series],
+    boundary: Optional[str] = "mirror",
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Returns time-domain rotary components time series (zp,zn) from Cartesian components time series (u,v).
+    Note that zp and zn are both analytic time series which implies that the complex-valued time series
+    u+1j*v is recovered by zp+np.conj(zn). The mean of the original complex signal is split evenly between
+    the two rotary components.
+
+    if up is the analytic transform of u, and vp the analytic transform of v, then the counterclockwise and
+    clockwise components are defined by zp = 0.5*(up+1j*vp), zp = 0.5*(up-1j*vp).
+    See as an example Lilly and Olhede (2010), doi: 10.1109/TSP.2009.2031729.
+
+    Parameters
+    ----------
+    u : np.ndarray
+        Real-valued signal, first Cartesian component (zonal, east-west)
+    v : np.ndarray
+        Real-valued signal, second Cartesian component (meridional, north-south)
+    boundary : str, optional ["mirror", "zeros", "periodic"] optionally specifies the
+    boundary condition to be imposed at the edges of the time series for the underlying analytic
+    transform. Default is "mirror".
+
+    Returns
+    -------
+    zp : np.ndarray
+        Time-domain complex-valued positive (counterclockwise) rotary component.
+    zn : np.ndarray
+        Time-domain complex-valued negative (clockwise) rotary component.
+
+    Examples
+    --------
+
+    To obtain the rotary components of a real-valued signal:
+    >>> zp, zn = rotary_transform(u,v)
+
+    Raises
+    ------
+    ValueError
+        If the input arrays do not have the same shape.
+
+    See Also
+    --------
+    :func:`analytic_transform`
+    """
+    # to implement: input one complex argument instead of two real arguments
+    # u and v arrays must have the same shape or list length.
+    if type(u) == list and type(v) == list:
+        if not len(u) == len(v):
+            raise ValueError("u and v must have the same length.")
+    else:
+        if not u.shape == v.shape:
+            raise ValueError("u and v must have the same shape.")
+
+    # convert to numpy in case input is xarray DataArray
+    if type(u) == xr.DataArray:
+        muv = (np.mean(u) + 1j * np.mean(v)).to_numpy()
+    else:
+        muv = np.mean(u) + 1j * np.mean(v)
+
+    up = analytic_transform(u, boundary=boundary)
+    vp = analytic_transform(v, boundary=boundary)
+
+    return 0.5 * (up + 1j * vp) + 0.5 * muv, 0.5 * (up - 1j * vp) + 0.5 * np.conj(muv)
