@@ -7,3 +7,4 @@ import clouddrift.adapters
 import clouddrift.analysis
 import clouddrift.haversine
 import clouddrift.sphere
+import clouddrift.signal
