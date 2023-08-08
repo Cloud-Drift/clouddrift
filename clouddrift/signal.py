@@ -13,7 +13,7 @@ def analytic_transform(
     x: Union[list, np.ndarray, xr.DataArray, pd.Series],
     boundary: Optional[str] = "mirror",
 ) -> np.ndarray:
-    """returns the analytic part of a real-valued signal or of a complex-valued
+    """Return the analytic part of a real-valued signal or of a complex-valued
     signal. To obtain the anti-analytic part of a complex-valued signal apply analytic_transform
     to the conjugate of the input. Analytic_transform removes the mean of the input signals.
 
@@ -143,11 +143,10 @@ def rotary_transform(
         if not u.shape == v.shape:
             raise ValueError("u and v must have the same shape.")
 
-    # convert to numpy in case input is xarray DataArray
-    if type(u) == xr.DataArray:
-        muv = (np.mean(u) + 1j * np.mean(v)).to_numpy()
-    else:
-        muv = np.mean(u) + 1j * np.mean(v)
+    muv = np.mean(u) + 1j * np.mean(v)
+
+    if muv == xr.DataArray:
+        muv = muv.to_numpy()
 
     up = analytic_transform(u, boundary=boundary)
     vp = analytic_transform(v, boundary=boundary)
