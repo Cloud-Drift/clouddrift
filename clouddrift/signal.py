@@ -98,7 +98,7 @@ def rotary_transform(
     u+1j*v is recovered by zp+np.conj(zn). The mean of the original complex signal is split evenly between
     the two rotary components.
 
-    if up is the analytic transform of u, and vp the analytic transform of v, then the counterclockwise and
+    If up is the analytic transform of u, and vp the analytic transform of v, then the counterclockwise and
     clockwise components are defined by zp = 0.5*(up+1j*vp), zp = 0.5*(up-1j*vp).
     See as an example Lilly and Olhede (2010), doi: 10.1109/TSP.2009.2031729.
 
