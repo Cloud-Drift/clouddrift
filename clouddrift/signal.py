@@ -5,12 +5,11 @@ This module provides signal processing functions.
 import numpy as np
 from typing import Optional, Tuple, Union
 import xarray as xr
-import pandas as pd
 import warnings
 
 
 def analytic_transform(
-    x: Union[list, np.ndarray, xr.DataArray, pd.Series],
+    x: Union[list, np.ndarray, xr.DataArray],
     boundary: Optional[str] = "mirror",
 ) -> np.ndarray:
     """Return the analytic part of a real-valued signal or of a complex-valued
@@ -89,8 +88,8 @@ def analytic_transform(
 
 
 def rotary_transform(
-    u: Union[list, np.ndarray, xr.DataArray, pd.Series],
-    v: Union[list, np.ndarray, xr.DataArray, pd.Series],
+    u: Union[list, np.ndarray, xr.DataArray],
+    v: Union[list, np.ndarray, xr.DataArray],
     boundary: Optional[str] = "mirror",
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Return time-domain rotary components time series (zp,zn) from Cartesian components time series (u,v).
