@@ -9,7 +9,7 @@ import warnings
 
 
 def analytic_transform(
-    x: Union[list, np.ndarray, xr.DataArray],
+    x: Union[np.ndarray, xr.DataArray],
     boundary: Optional[str] = "mirror",
 ) -> np.ndarray:
     """Return the analytic part of a real-valued signal or of a complex-valued
@@ -88,8 +88,8 @@ def analytic_transform(
 
 
 def rotary_transform(
-    u: Union[list, np.ndarray, xr.DataArray],
-    v: Union[list, np.ndarray, xr.DataArray],
+    u: Union[np.ndarray, xr.DataArray],
+    v: Union[np.ndarray, xr.DataArray],
     boundary: Optional[str] = "mirror",
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Return time-domain rotary components time series (zp,zn) from Cartesian components time series (u,v).
@@ -134,13 +134,9 @@ def rotary_transform(
     :func:`analytic_transform`
     """
     # to implement: input one complex argument instead of two real arguments
-    # u and v arrays must have the same shape or list length.
-    if type(u) == list and type(v) == list:
-        if not len(u) == len(v):
-            raise ValueError("u and v must have the same length.")
-    else:
-        if not u.shape == v.shape:
-            raise ValueError("u and v must have the same shape.")
+    # u and v arrays must have the same shape.
+    if not u.shape == v.shape:
+        raise ValueError("u and v must have the same shape.")
 
     muv = np.mean(u) + 1j * np.mean(v)
 

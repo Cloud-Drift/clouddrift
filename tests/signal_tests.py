@@ -47,12 +47,6 @@ def test_analytic_transform_boundary(self):
     self.assertTrue(np.allclose(x - np.mean(x), np.real(z3)))
 
 
-def test_analytic_transform_list(self):
-    x = list(np.random.rand(99))
-    z = analytic_transform(x)
-    self.assertTrue(np.allclose(x - np.mean(x), np.real(z)))
-
-
 def test_analytic_transform_array(self):
     x = np.random.rand(99)
     z = analytic_transform(x)
@@ -68,13 +62,6 @@ def test_analytic_transform_xarray(self):
 def test_rotary_transform_array(self):
     u = np.random.rand(99)
     v = np.random.rand(99)
-    zp, zn = rotary_transform(u, v)
-    self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn)))
-
-
-def test_rotary_transform_list(self):
-    u = list(np.random.rand(99))
-    v = list(np.random.rand(99))
     zp, zn = rotary_transform(u, v)
     self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn)))
 
