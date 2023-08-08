@@ -93,7 +93,7 @@ def rotary_transform(
     v: Union[list, np.ndarray, xr.DataArray, pd.Series],
     boundary: Optional[str] = "mirror",
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Returns time-domain rotary components time series (zp,zn) from Cartesian components time series (u,v).
+    """Return time-domain rotary components time series (zp,zn) from Cartesian components time series (u,v).
     Note that zp and zn are both analytic time series which implies that the complex-valued time series
     u+1j*v is recovered by zp+np.conj(zn). The mean of the original complex signal is split evenly between
     the two rotary components.
