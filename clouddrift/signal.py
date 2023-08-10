@@ -11,6 +11,7 @@ import warnings
 def analytic_transform(
     x: Union[np.ndarray, xr.DataArray],
     boundary: Optional[str] = "mirror",
+    time_axis: Optional[int] = -1,
 ) -> np.ndarray:
     """Return the analytic part of a real-valued signal or of a complex-valued
     signal. To obtain the anti-analytic part of a complex-valued signal apply analytic_transform
@@ -49,6 +50,13 @@ def analytic_transform(
     ValueError
         If ``boundary not in ["mirror", "zeros", "periodic"]``.
     """
+    # time_axis must be in valid range
+    if time_axis < -1 or time_axis > len(u.shape) - 1:
+        raise ValueError(
+            f"time_axis ({time_axis}) is outside of the valid range ([-1,"
+            f" {len(x.shape) - 1}])."
+        )
+    # to continue following Milan's code
     # assume unidimensional input; add dimension option
     m0 = len(x)
 
