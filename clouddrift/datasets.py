@@ -2,6 +2,8 @@
 This module provides functions to easily access ragged-array datasets.
 """
 
+from clouddrift import adapters
+import os
 import xarray as xr
 
 
@@ -23,7 +25,8 @@ def gdp1h() -> xr.Dataset:
     Examples
     --------
     >>> from clouddrift.datasets import gdp1h
-    >>> gdp1h()
+    >>> ds = gdp1h()
+    >>> ds
     <xarray.Dataset>
     Dimensions:                (traj: 17324, obs: 165754333)
     Coordinates:
@@ -85,7 +88,8 @@ def gdp6h() -> xr.Dataset:
     Examples
     --------
     >>> from clouddrift.datasets import gdp6h
-    >>> gdp6h()
+    >>> ds = gdp6h()
+    >>> ds
     <xarray.Dataset>
     Dimensions:                (traj: 26843, obs: 44544647)
     Coordinates:
@@ -129,3 +133,68 @@ def gdp6h() -> xr.Dataset:
     """
     url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/gdp_jul22_ragged_6h.nc#mode=bytes"
     return xr.open_dataset(url)
+
+
+def mosaic() -> xr.Dataset:
+    """Returns the MOSAiC sea-ice drift dataset as an Xarray dataset.
+
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access.
+
+    The upstream data is available at https://arcticdata.io/catalog/view/doi:10.18739/A2KP7TS83.
+
+    Reference: Angela Bliss, Jennifer Hutchings, Philip Anderson, Philipp Anhaus,
+    Hans Jakob Belter, Jørgen Berge, Vladimir Bessonov, Bin Cheng, Sylvia Cole,
+    Dave Costa, Finlo Cottier, Christopher J Cox, Pedro R De La Torre, Dmitry V Divine,
+    Gilbert Emzivat, Ying-Chih Fang, Steven Fons, Michael Gallagher, Maxime Geoffrey,
+    Mats A Granskog, ... Guangyu Zuo. (2022). Sea ice drift tracks from the Distributed
+    Network of autonomous buoys deployed during the Multidisciplinary drifting Observatory
+    for the Study of Arctic Climate (MOSAiC) expedition 2019 - 2021. Arctic Data Center.
+    doi:10.18739/A2KP7TS83.
+
+    Returns
+    -------
+    xarray.Dataset
+        MOSAiC sea-ice drift dataset as a ragged array
+
+    Examples
+    --------
+    >>> from clouddrift.datasets import mosaic
+    >>> ds = mosaic()
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:                     (obs: 1926226, traj: 216)
+    Coordinates:
+        time                        (obs) datetime64[ns] ...
+        id                          (traj) object ...
+    Dimensions without coordinates: obs, traj
+    Data variables: (12/19)
+        latitude                    (obs) float64 ...
+        longitude                   (obs) float64 ...
+        Deployment Leg              (traj) int64 ...
+        DN Station ID               (traj) object ...
+        IMEI                        (traj) object ...
+        Deployment Date             (traj) datetime64[ns] ...
+        ...                          ...
+        Buoy Type                   (traj) object ...
+        Manufacturer                (traj) object ...
+        Model                       (traj) object ...
+        PI                          (traj) object ...
+        Data Authors                (traj) object ...
+        count                       (traj) int64 ...
+    """
+    clouddrift_path = (
+        os.path.expanduser("~/.clouddrift")
+        if not os.getenv("CLOUDDRIFT_PATH")
+        else os.getenv("CLOUDDRIFT_PATH")
+    )
+    mosaic_path = f"{clouddrift_path}/data/mosaic.nc"
+    if not os.path.exists(mosaic_path):
+        print(f"{mosaic_path} not found; download from upstream repository.")
+        ds = adapters.mosaic.to_xarray()
+        os.makedirs(os.path.dirname(mosaic_path), exist_ok=True)
+        ds.to_netcdf(mosaic_path)
+    else:
+        ds = xr.open_dataset(mosaic_path)
+    return ds

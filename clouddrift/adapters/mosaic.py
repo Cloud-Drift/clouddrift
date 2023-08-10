@@ -4,6 +4,15 @@ a ragged-array dataset.
 
 The dataset is hosted at https://doi.org/10.18739/A2KP7TS83.
 
+Reference: Angela Bliss, Jennifer Hutchings, Philip Anderson, Philipp Anhaus,
+Hans Jakob Belter, Jørgen Berge, Vladimir Bessonov, Bin Cheng, Sylvia Cole,
+Dave Costa, Finlo Cottier, Christopher J Cox, Pedro R De La Torre, Dmitry V Divine,
+Gilbert Emzivat, Ying-Chih Fang, Steven Fons, Michael Gallagher, Maxime Geoffrey,
+Mats A Granskog, ... Guangyu Zuo. (2022). Sea ice drift tracks from the Distributed
+Network of autonomous buoys deployed during the Multidisciplinary drifting Observatory
+for the Study of Arctic Climate (MOSAiC) expedition 2019 - 2021. Arctic Data Center.
+doi:10.18739/A2KP7TS83.
+
 Example
 -------
 >>> from clouddrift.adapters import mosaic
@@ -114,5 +123,18 @@ def to_xarray():
     ds = ds.rename_dims({"datetime": "obs", "Sensor ID": "traj"}).rename_vars(
         {"datetime": "time", "Sensor ID": "id"}
     )
+
+    # Set variable attributes
+    ds["longitude"].attrs = {
+        "long_name": "longitude",
+        "standard_name": "longitude",
+        "units": "degrees_east",
+    }
+
+    ds["latitude"].attrs = {
+        "long_name": "latitude",
+        "standard_name": "latitude",
+        "units": "degrees_north",
+    }
 
     return ds

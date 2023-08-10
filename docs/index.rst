@@ -19,6 +19,7 @@ Getting started
 
 * :doc:`install`
 * :doc:`usage`
+* :doc:`datasets`
 
 .. toctree::
    :hidden:
@@ -27,6 +28,7 @@ Getting started
 
    install
    usage
+   datasets
 
 Reference
 ---------
