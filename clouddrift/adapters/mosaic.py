@@ -115,4 +115,17 @@ def to_xarray():
         {"datetime": "time", "Sensor ID": "id"}
     )
 
+    # Set variable attributes
+    ds["longitude"].attrs = {
+        "long_name": "longitude",
+        "standard_name": "longitude",
+        "units": "degrees_east",
+    }
+
+    ds["latitude"].attrs = {
+        "long_name": "latitude",
+        "standard_name": "latitude",
+        "units": "degrees_north",
+    }
+
     return ds
