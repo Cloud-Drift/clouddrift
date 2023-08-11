@@ -720,7 +720,7 @@ def velocity_from_position(
         Coordinate system that x and y arrays are in; possible values are "spherical" (default) or "cartesian".
     difference_scheme : str, optional
         Difference scheme to use; possible values are "forward", "backward", and "centered".
-    time_axis : int, optional)
+    time_axis : int, optional
         Axis along which to differentiate (default is -1)
 
     Returns
