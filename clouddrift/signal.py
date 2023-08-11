@@ -23,6 +23,8 @@ def analytic_transform(
         Real- or complex-valued signal
     boundary : str, optional ["mirror", "zeros", "periodic"] optionally specifies the
     boundary condition to be imposed at the edges of the time series. Default is "mirror".
+    time_axis : int, optional)
+        Axis along which time is (default is -1)
 
     Returns
     -------
@@ -51,54 +53,68 @@ def analytic_transform(
         If ``boundary not in ["mirror", "zeros", "periodic"]``.
     """
     # time_axis must be in valid range
-    if time_axis < -1 or time_axis > len(u.shape) - 1:
+    if time_axis < -1 or time_axis > len(x.shape) - 1:
         raise ValueError(
             f"time_axis ({time_axis}) is outside of the valid range ([-1,"
             f" {len(x.shape) - 1}])."
         )
-    # to continue following Milan's code
-    # assume unidimensional input; add dimension option
-    m0 = len(x)
 
-    # remove mean
-    x = x - np.mean(x)
+    # Reshape the inputs to ensure the time axis is last (fast-varying)
+    # should we add a condition to skip if time_axis=-1 or time_axis == len(x.shape)-1
+    # do we need to copy x here? does it matter for memory and performance?
+    if time_axis != -1 and time_axis != len(x.shape) - 1:
+        x_ = np.swapaxes(x,time_axis,-1)
+    else:
+        x_ = x
+
+    # time dimension length
+    N = np.shape(x_)[-1]
+
+    # subtract mean along time axis (-1); do I need to tile?
+    x_ -= np.tile(np.expand_dims(np.mean(x_,axis=-1),axis=-1),(1,N))
 
     # apply boundary conditions
     if boundary == "mirror":
-        x = np.concatenate((np.flip(x), x, np.flip(x)))
+        x_ = np.concatenate((np.flip(x_,axis=-1), x_, np.flip(x_,axis=-1)),axis=-1)
     elif boundary == "zeros":
-        x = np.concatenate((np.zeros_like(x), x, np.zeros_like(x)))
+        x_ = np.concatenate((np.zeros_like(x_), x_, np.zeros_like(x_)),axis=-1)
     elif boundary == "periodic":
-        x = np.concatenate((x, x, x))
+        x_ = np.concatenate((x_, x_, x_),axis=-1)
     else:
         raise ValueError("boundary must be one of 'mirror', 'align', or 'zeros'.")
 
-    if np.isrealobj(x):
-        z = 2 * np.fft.fft(x)
+    if np.isrealobj(x_):
+        # fft should be taken along last axis
+        z = 2 * np.fft.fft(x_)
     else:
-        z = np.fft.fft(x)
+        z = np.fft.fft(x_)
 
-    m = len(x)
+    # time dimension of extended time series
+    M = np.shape(x_)[-1]
 
     # zero negative frequencies
-    if m % 2 == 0:
-        z[int(m / 2 + 2) - 1 : int(m + 1) + 1] = 0
+    if M % 2 == 0:
+        z[...,int(M / 2 + 2) - 1 : int(M + 1) + 1] = 0
     else:
-        z[int((m + 3) / 2) - 1 : int(m + 1) + 1] = 0
+        z[...,int((M + 3) / 2) - 1 : int(M + 1) + 1] = 0
 
-    # inverse Fourier transform
+    # inverse Fourier transform along last axis
     z = np.fft.ifft(z)
 
     # return central part
-    z = z[int(m0 + 1) - 1 : int(2 * m0 + 1) - 1]
+    z = z[...,int(N + 1) - 1 : int(2 * N + 1) - 1]
 
-    return z
-
+    # return after reorganizing the axes
+    if time_axis != -1 and time_axis != len(x.shape) - 1:
+        return np.swapaxes(z,time_axis,-1)
+    else:
+        return z
 
 def rotary_transform(
     u: Union[np.ndarray, xr.DataArray],
     v: Union[np.ndarray, xr.DataArray],
     boundary: Optional[str] = "mirror",
+    time_axis: Optional[int] = -1,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Return time-domain rotary components time series (zp,zn) from Cartesian components time series (u,v).
     Note that zp and zn are both analytic time series which implies that the complex-valued time series
@@ -146,12 +162,22 @@ def rotary_transform(
     if not u.shape == v.shape:
         raise ValueError("u and v must have the same shape.")
 
-    muv = np.mean(u) + 1j * np.mean(v)
+    # time_axis must be in valid range
+    if time_axis < -1 or time_axis > len(u.shape) - 1:
+        raise ValueError(
+            f"time_axis ({time_axis}) is outside of the valid range ([-1,"
+            f" {len(x.shape) - 1}])."
+        )
+
+    muv = np.mean(u,axis=time_axis,keepdims=True) + 1j * np.mean(v,axis=time_axis,keepdims=True)
 
     if muv == xr.DataArray:
         muv = muv.to_numpy()
 
-    up = analytic_transform(u, boundary=boundary)
-    vp = analytic_transform(v, boundary=boundary)
+    up = analytic_transform(u, boundary=boundary,time_axis=time_axis)
+    vp = analytic_transform(v, boundary=boundary,time_axis=time_axis)
 
-    return 0.5 * (up + 1j * vp) + 0.5 * muv, 0.5 * (up - 1j * vp) + 0.5 * np.conj(muv)
+    zp = 0.5 * (up + 1j * vp) + 0.5 * muv
+    zn = 0.5 * (up - 1j * vp) + 0.5 * np.conj(muv)
+    
+    return zp, zn
