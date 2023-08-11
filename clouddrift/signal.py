@@ -43,9 +43,14 @@ def analytic_transform(
     >>> zp = analytic_transform(z)
     >>> zn = analytic_transform(np.conj(z))
 
-    To specify that a periodic boundary condition should be used
+    To specify that a periodic boundary condition should be used:
     >>> x = np.random.rand(99)
     >>> z = analytic_transform(x,boundary="periodic")
+
+    To specify that the time axis is along the first axis, and apply
+    zero boundary conditions:
+    >>> x = np.random.rand(100,99)
+    >>> z = analytic_transform(x,time_axis=0,boundary="zeros")
 
     Raises
     ------
@@ -134,6 +139,8 @@ def rotary_transform(
     boundary : str, optional ["mirror", "zeros", "periodic"] optionally specifies the
     boundary condition to be imposed at the edges of the time series for the underlying analytic
     transform. Default is "mirror".
+    time_axis : int, optional)
+        Axis along which time is (default is -1)
 
     Returns
     -------
@@ -146,7 +153,15 @@ def rotary_transform(
     --------
 
     To obtain the rotary components of a real-valued signal:
+    >>> u = np.random.rand(99)
+    >>> v = np.random.rand(99)
     >>> zp, zn = rotary_transform(u,v)
+
+    To specify that the time axis is along the first axis, and apply
+    zero boundary conditions:
+    >>> u = np.random.rand(100,99)
+    >>> v = np.random.rand(100,99)
+    >>> zp, zn = rotary_transform(u,v,time_axis=0,boundary="zeros")
 
     Raises
     ------
