@@ -68,23 +68,23 @@ def analytic_transform(
     # should we add a condition to skip if time_axis=-1 or time_axis == len(x.shape)-1
     # do we need to copy x here? does it matter for memory and performance?
     if time_axis != -1 and time_axis != len(x.shape) - 1:
-        x_ = np.swapaxes(x, time_axis, -1)
+        x_ = np.swapaxes(x,time_axis,-1)
     else:
         x_ = x
 
     # time dimension length
     N = np.shape(x_)[-1]
 
-    # subtract mean along time axis (-1); do I need to tile?
-    x_ -= np.tile(np.expand_dims(np.mean(x_, axis=-1), axis=-1), (1, N))
+    # subtract mean along time axis (-1); this seems the simplest
+    x_ -= np.mean(x_,axis=-1,keepdims=True)
 
     # apply boundary conditions
     if boundary == "mirror":
-        x_ = np.concatenate((np.flip(x_, axis=-1), x_, np.flip(x_, axis=-1)), axis=-1)
+        x_ = np.concatenate((np.flip(x_,axis=-1), x_, np.flip(x_,axis=-1)),axis=-1)
     elif boundary == "zeros":
-        x_ = np.concatenate((np.zeros_like(x_), x_, np.zeros_like(x_)), axis=-1)
+        x_ = np.concatenate((np.zeros_like(x_), x_, np.zeros_like(x_)),axis=-1)
     elif boundary == "periodic":
-        x_ = np.concatenate((x_, x_, x_), axis=-1)
+        x_ = np.concatenate((x_, x_, x_),axis=-1)
     else:
         raise ValueError("boundary must be one of 'mirror', 'align', or 'zeros'.")
 
@@ -99,22 +99,21 @@ def analytic_transform(
 
     # zero negative frequencies
     if M % 2 == 0:
-        z[..., int(M / 2 + 2) - 1 : int(M + 1) + 1] = 0
+        z[...,int(M / 2 + 2) - 1 : int(M + 1) + 1] = 0
     else:
-        z[..., int((M + 3) / 2) - 1 : int(M + 1) + 1] = 0
+        z[...,int((M + 3) / 2) - 1 : int(M + 1) + 1] = 0
 
     # inverse Fourier transform along last axis
     z = np.fft.ifft(z)
 
     # return central part
-    z = z[..., int(N + 1) - 1 : int(2 * N + 1) - 1]
+    z = z[...,int(N + 1) - 1 : int(2 * N + 1) - 1]
 
     # return after reorganizing the axes
     if time_axis != -1 and time_axis != len(x.shape) - 1:
-        return np.swapaxes(z, time_axis, -1)
+        return np.swapaxes(z,time_axis,-1)
     else:
         return z
-
 
 def rotary_transform(
     u: Union[np.ndarray, xr.DataArray],
@@ -139,9 +138,10 @@ def rotary_transform(
         Real-valued signal, second Cartesian component (meridional, north-south)
     boundary : str, optional ["mirror", "zeros", "periodic"] optionally specifies the
     boundary condition to be imposed at the edges of the time series for the underlying analytic
-    transform. Default is "mirror".
-    time_axis : int, optional)
-        Axis along which time is (default is -1)
+    transform. Default is "mirror"
+    time_axis : int, optional
+        The axis of the time array. Default is -1, which corresponds to the
+        last axis.
 
     Returns
     -------
@@ -182,20 +182,18 @@ def rotary_transform(
     if time_axis < -1 or time_axis > len(u.shape) - 1:
         raise ValueError(
             f"time_axis ({time_axis}) is outside of the valid range ([-1,"
-            f" {len(x.shape) - 1}])."
+            f" {len(u.shape) - 1}])."
         )
 
-    muv = np.mean(u, axis=time_axis, keepdims=True) + 1j * np.mean(
-        v, axis=time_axis, keepdims=True
-    )
+    muv = np.mean(u,axis=time_axis,keepdims=True) + 1j * np.mean(v,axis=time_axis,keepdims=True)
 
     if muv == xr.DataArray:
         muv = muv.to_numpy()
 
-    up = analytic_transform(u, boundary=boundary, time_axis=time_axis)
-    vp = analytic_transform(v, boundary=boundary, time_axis=time_axis)
+    up = analytic_transform(u, boundary=boundary,time_axis=time_axis)
+    vp = analytic_transform(v, boundary=boundary,time_axis=time_axis)
 
     zp = 0.5 * (up + 1j * vp) + 0.5 * muv
     zn = 0.5 * (up - 1j * vp) + 0.5 * np.conj(muv)
-
+    
     return zp, zn
