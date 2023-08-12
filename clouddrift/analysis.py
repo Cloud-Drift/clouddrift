@@ -614,9 +614,9 @@ def position_from_velocity(
 
     # If time_axis is not the last one, swap axes
     if time_axis != -1 and time_axis < len(u.shape) - 1:
-        u_ = np.swapaxes(u, time_axis < -1)
-        v_ = np.swapaxes(v, time_axis < -1)
-        time_ = np.swapaxes(time, time_axis < -1)
+        u_ = np.swapaxes(u, time_axis , -1)
+        v_ = np.swapaxes(v, time_axis , -1)
+        time_ = np.swapaxes(time, time_axis , -1)
     else:
         u_ = u
         v_ = v
@@ -755,9 +755,9 @@ def velocity_from_position(
 
     # If time_axis is not the last one, swap axes
     if time_axis != -1 and time_axis < len(x.shape) - 1:
-        x_ = np.swapaxes(x, time_axis < -1)
-        y_ = np.swapaxes(y, time_axis < -1)
-        time_ = np.swapaxes(time, time_axis < -1)
+        x_ = np.swapaxes(x, time_axis, -1)
+        y_ = np.swapaxes(y, time_axis, -1)
+        time_ = np.swapaxes(time, time_axis, -1)
     else:
         x_ = x
         y_ = y
