@@ -658,7 +658,7 @@ def position_from_velocity(
         raise ValueError('coord_system must be "spherical" or "cartesian".')
 
     # this was tested before, should we save that test to reuse here?
-    if time_axis != -1 and time_axis != len(x.shape) - 1:
+    if time_axis != -1 and time_axis != len(u.shape) - 1:
         return np.swapaxes(x, time_axis, -1), np.swapaxes(x, time_axis, -1)
     else:
         return x, y
@@ -754,7 +754,7 @@ def velocity_from_position(
         )
 
     # If time_axis is not the last one, swap axes
-    if time_axis != -1 and time_axis < len(u.shape) - 1:
+    if time_axis != -1 and time_axis < len(x.shape) - 1:
         x_ = np.swapaxes(x, time_axis < -1)
         y_ = np.swapaxes(y, time_axis < -1)
         time_ = np.swapaxes(time, time_axis < -1)
