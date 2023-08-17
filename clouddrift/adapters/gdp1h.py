@@ -486,13 +486,6 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     # rename variables
     ds = ds.rename_vars({"longitude": "lon", "latitude": "lat"})
 
-    if "rowsize" in ds.variables:
-        ds = ds.rename_vars({"rowsize": "count"})
-    else:
-        warnings.warn(
-            "Variable rowsize not found in upstream GDP data; has it been renamed?"
-        )
-
     return ds
 
 
@@ -573,7 +566,7 @@ def to_raggedarray(
         name_coords=gdp.GDP_COORDS,
         name_meta=gdp.GDP_METADATA,
         name_data=GDP_DATA,
-        count_func=gdp.count,
+        rowsize_func=gdp.rowsize,
         filename_pattern=filename_pattern,
         tmp_path=GDP_TMP_PATH,
     )
