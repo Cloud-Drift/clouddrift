@@ -21,10 +21,12 @@ def analytic_transform(
     ----------
     x : np.ndarray
         Real- or complex-valued signal
-    boundary : str, optional ["mirror", "zeros", "periodic"] optionally specifies the
-    boundary condition to be imposed at the edges of the time series. Default is "mirror".
-    time_axis : int, optional)
-        Axis along which time is (default is -1)
+    boundary : str, optional
+        The boundary condition to be imposed at the edges of the time series.
+        Allowed values are "mirror", "zeros", and "periodic".
+        Default is "mirror".
+    time_axis : int, optional
+        Axis on which the time is defined (default is -1)
 
     Returns
     -------
@@ -45,12 +47,12 @@ def analytic_transform(
 
     To specify that a periodic boundary condition should be used:
     >>> x = np.random.rand(99)
-    >>> z = analytic_transform(x,boundary="periodic")
+    >>> z = analytic_transform(x, boundary="periodic")
 
-    To specify that the time axis is along the first axis, and apply
+    To specify that the time axis is along the first axis and apply
     zero boundary conditions:
-    >>> x = np.random.rand(100,99)
-    >>> z = analytic_transform(x,time_axis=0,boundary="zeros")
+    >>> x = np.random.rand(100, 99)
+    >>> z = analytic_transform(x, time_axis=0, boundary="zeros")
 
     Raises
     ------
@@ -64,9 +66,8 @@ def analytic_transform(
             f" {len(x.shape) - 1}])."
         )
 
-    # Reshape the inputs to ensure the time axis is last (fast-varying)
-    # should we add a condition to skip if time_axis=-1 or time_axis == len(x.shape)-1
-    # do we need to copy x here? does it matter for memory and performance?
+    # Swap the axis to make the time axis last (fast-varying).
+    # np.swapaxes returns a view to the input array, so no copy is made.
     if time_axis != -1 and time_axis != len(x.shape) - 1:
         x_ = np.swapaxes(x, time_axis, -1)
     else:
@@ -137,9 +138,10 @@ def rotary_transform(
         Real-valued signal, first Cartesian component (zonal, east-west)
     v : np.ndarray
         Real-valued signal, second Cartesian component (meridional, north-south)
-    boundary : str, optional ["mirror", "zeros", "periodic"] optionally specifies the
-    boundary condition to be imposed at the edges of the time series for the underlying analytic
-    transform. Default is "mirror"
+    boundary : str, optional
+        The boundary condition to be imposed at the edges of the time series.
+        Allowed values are "mirror", "zeros", and "periodic".
+        Default is "mirror".
     time_axis : int, optional
         The axis of the time array. Default is -1, which corresponds to the
         last axis.
