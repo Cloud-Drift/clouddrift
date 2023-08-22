@@ -76,8 +76,9 @@ def analytic_transform(
     # time dimension length
     N = np.shape(x_)[-1]
 
-    # subtract mean along time axis (-1); this seems the simplest
-    x_ -= np.mean(x_, axis=-1, keepdims=True)
+    # Subtract mean along time axis (-1); convert to np.array for compatibility
+    # with xarray.DataArray.
+    x_ -= np.array(np.mean(x_, axis=-1, keepdims=True))
 
     # apply boundary conditions
     if boundary == "mirror":
