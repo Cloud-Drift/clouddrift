@@ -102,6 +102,8 @@ def analytic_transform(
     # zero negative frequencies
     if M % 2 == 0:
         z[..., int(M / 2 + 2) - 1 : int(M + 1) + 1] = 0
+        # divide Nyquist component by 2 in even case
+        z[..., int(M / 2 + 1) - 1] = z[..., int(M / 2 + 1) - 1] / 2
     else:
         z[..., int((M + 3) / 2) - 1 : int(M + 1) + 1] = 0
 

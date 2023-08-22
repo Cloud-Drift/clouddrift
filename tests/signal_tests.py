@@ -19,7 +19,7 @@ class analytic_transform_tests(unittest.TestCase):
     def test_real_even(self):
         x = np.random.rand(100)
         z = analytic_transform(x)
-        self.assertTrue(np.allclose(x - np.mean(x), z.real, atol=1e-1))
+        self.assertTrue(np.allclose(x - np.mean(x), z.real))
 
     def test_imag_odd(self):
         z = np.random.rand(99) + 1j * np.random.rand(99)
@@ -31,13 +31,7 @@ class analytic_transform_tests(unittest.TestCase):
         z = np.random.rand(100) + 1j * np.random.rand(100)
         zp = analytic_transform(z)
         zn = analytic_transform(np.conj(z))
-        self.assertTrue(
-            np.allclose(
-                z - np.mean(z, keepdims=True),
-                zp + np.conj(zn),
-                atol=1e-1,
-            )
-        )
+        self.assertTrue(np.allclose(z - np.mean(z, keepdims=True), zp + np.conj(zn)))
 
     def test_boundary(self):
         x = np.random.rand(99)
