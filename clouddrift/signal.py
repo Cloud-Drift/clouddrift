@@ -78,26 +78,26 @@ def analytic_transform(
 
     # Subtract mean along time axis (-1); convert to np.array for compatibility
     # with xarray.DataArray.
-    x_ -= np.array(np.mean(x_, axis=-1, keepdims=True))
+    xa = x_ - np.array(np.mean(x_, axis=-1, keepdims=True))
 
     # apply boundary conditions
     if boundary == "mirror":
-        x_ = np.concatenate((np.flip(x_, axis=-1), x_, np.flip(x_, axis=-1)), axis=-1)
+        xa = np.concatenate((np.flip(xa, axis=-1), xa, np.flip(xa, axis=-1)), axis=-1)
     elif boundary == "zeros":
-        x_ = np.concatenate((np.zeros_like(x_), x_, np.zeros_like(x_)), axis=-1)
+        xa = np.concatenate((np.zeros_like(xa), xa, np.zeros_like(xa)), axis=-1)
     elif boundary == "periodic":
-        x_ = np.concatenate((x_, x_, x_), axis=-1)
+        xa = np.concatenate((xa, xa, xa), axis=-1)
     else:
         raise ValueError("boundary must be one of 'mirror', 'align', or 'zeros'.")
 
-    if np.isrealobj(x_):
+    if np.isrealobj(xa):
         # fft should be taken along last axis
-        z = 2 * np.fft.fft(x_)
+        z = 2 * np.fft.fft(xa)
     else:
-        z = np.fft.fft(x_)
+        z = np.fft.fft(xa)
 
     # time dimension of extended time series
-    M = np.shape(x_)[-1]
+    M = np.shape(xa)[-1]
 
     # zero negative frequencies
     if M % 2 == 0:
@@ -195,7 +195,7 @@ def rotary_transform(
         v, axis=time_axis, keepdims=True
     )
 
-    if muv == xr.DataArray:
+    if type(muv) == xr.DataArray:
         muv = muv.to_numpy()
 
     up = analytic_transform(u, boundary=boundary, time_axis=time_axis)
