@@ -62,16 +62,16 @@ class rotary_transform_tests(unittest.TestCase):
         u = np.random.random((9))
         v = np.random.random((9))
         zp, zn = rotary_transform(u, v)
-        self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn), atol=0.1, rtol=0))
+        self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn)))
 
     def test_ndarray(self):
         u = np.random.rand(99, 10, 101)
         v = np.random.rand(99, 10, 101)
         zp, zn = rotary_transform(u, v)
-        self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn), atol=0.1, rtol=0))
+        self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn)))
 
     def test_xarray(self):
         u = xr.DataArray(data=np.random.rand(99))
         v = xr.DataArray(data=np.random.rand(99))
         zp, zn = rotary_transform(u, v)
-        self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn), atol=0.1, rtol=0))
+        self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn)))
