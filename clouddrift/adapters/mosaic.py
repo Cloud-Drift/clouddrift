@@ -66,7 +66,7 @@ def get_dataframes() -> tuple[pd.DataFrame, pd.DataFrame]:
 
     # Use the index of the concatenated DataFrame to determine the count/rowsize
     zero_indices = [n for n, val in enumerate(list(obs_df.index)) if val == 0]
-    sensors["count"] = np.diff(zero_indices + [len(obs_df)])
+    sensors["rowsize"] = np.diff(zero_indices + [len(obs_df)])
 
     # Make the time column the index of the DataFrame, which will make it a
     # coordinate in the xarray Dataset.
