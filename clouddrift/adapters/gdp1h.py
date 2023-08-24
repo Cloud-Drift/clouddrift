@@ -312,12 +312,30 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         },
         "deploy_lon": {"long_name": "Deployment longitude", "units": "degrees_east"},
         "deploy_lat": {"long_name": "Deployment latitude", "units": "degrees_north"},
-        "end_date": {
-            "long_name": "End date and time",
+        "start_date": {
+            "long_name": "First good date and time derived by DAC quality control",
             "units": "seconds since 1970-01-01 00:00:00",
         },
-        "end_lon": {"long_name": "End latitude", "units": "degrees_north"},
-        "end_lat": {"long_name": "End longitude", "units": "degrees_east"},
+        "start_lon": {
+            "long_name": "First good longitude derived by DAC quality control",
+            "units": "degrees_east",
+        },
+        "start_lat": {
+            "long_name": "Last good latitude derived by DAC quality control",
+            "units": "degrees_north",
+        },
+        "end_date": {
+            "long_name": "Last good date and time derived by DAC quality control",
+            "units": "seconds since 1970-01-01 00:00:00",
+        },
+        "end_lon": {
+            "long_name": "Last good longitude derived by DAC quality control",
+            "units": "degrees_east",
+        },
+        "end_lat": {
+            "long_name": "Last good latitude derived by DAC quality control",
+            "units": "degrees_north",
+        },
         "drogue_lost_date": {
             "long_name": "Date and time of drogue loss",
             "units": "seconds since 1970-01-01 00:00:00",
