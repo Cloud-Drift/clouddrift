@@ -52,7 +52,7 @@ def download(
         URL from which to download the data (Default: GDP_DATA_URL). Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL.
     tmp_path : str, optional
         Path to the directory where the individual NetCDF files are stored
-        (default varies on OS; /tmp/clouddrift/gdp6h on Linux)
+        (default varies depending on operating system; /tmp/clouddrift/gdp6h on Linux)
 
     Returns
     -------
