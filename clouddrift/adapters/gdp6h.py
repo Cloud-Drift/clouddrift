@@ -440,7 +440,7 @@ def to_raggedarray(
         Randomly select n_random_id drifter NetCDF files
     tmp_path : str, optional
         Path to the directory where the individual NetCDF files are stored
-        (default /tmp/clouddrift/gdp6h)
+        (default varies depending on operating system; /tmp/clouddrift/gdp6h on Linux)
 
     Returns
     -------
