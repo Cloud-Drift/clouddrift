@@ -515,7 +515,7 @@ def to_raggedarray(
         Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL.
     tmp_path : str, optional
         Path to the directory where the individual NetCDF files are stored
-        (default /tmp/clouddrift/gdp)
+        (default varies depending on operating system; /tmp/clouddrift/gdp on Linux)
 
     Returns
     -------
