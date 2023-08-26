@@ -6,7 +6,7 @@ import numpy as np
 from typing import Optional, Tuple, Union
 import xarray as xr
 import warnings
-from math import gamma
+from math import gamma, lgamma
 
 
 def morsewave(
@@ -129,6 +129,26 @@ def morsefreq(
     return fm, fe, fi
 
 
+def morseafun(
+    ga: Union[np.ndarray, list],
+    be: Union[np.ndarray, list],
+    k: Optional[np.int64] = 1,
+    norm: Optional[str] = "bandpass",
+) -> float:
+    if norm == "energy":
+        r = (2 * be + 1) / ga
+        a = (2 * np.pi * ga * (2**r) * np.exp(lgamma(k) - lgamma(k + r + 1))) ** 0.5
+    elif norm == "bandpass":
+        om, _, _ = morsefreq(ga, be)
+        a = np.where(be == 0, 2, 2 / (np.exp(be * np.log(om) - om**ga)))
+    else:
+        raise ValueError(
+            "Normalization option (norm) must be one of 'energy' or 'bandpass'."
+        )
+
+    return a
+
+
 def _gamma(
     x: Union[np.ndarray, list],
 ) -> np.ndarray:
@@ -138,4 +158,17 @@ def _gamma(
     y = np.zeros_like(x)
     for i in range(0, len(x)):
         y[i] = gamma(x[i])
+    return y
+
+
+# this maybe not useful
+def _lgamma(
+    x: Union[np.ndarray, list],
+) -> np.ndarray:
+    """
+    Returns an array of gamma function values. Wrapper for math.gamma.
+    """
+    y = np.zeros_like(x)
+    for i in range(0, len(x)):
+        y[i] = lgamma(x[i])
     return y
