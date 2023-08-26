@@ -10,8 +10,10 @@ if __name__ == "__main__":
 
 
 class morsefreq_tests(unittest.TestCase):
-    self.assertTrue(True)
+    def test_morsefreq(self):
+        self.assertTrue(True)
 
 
 class morsewave_tests(unittest.TestCase):
-    self.assertTrue(True)
+    def test_morsewave(self):
+        self.assertTrue(True)
