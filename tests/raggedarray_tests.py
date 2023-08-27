@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
 
 class raggedarray_tests(TestCase):
-    def setUp(self):
+    def setUpClass(self):
         """
         Create ragged array and output netCDF and Parquet file
         """
@@ -78,7 +78,7 @@ class raggedarray_tests(TestCase):
         self.ra.to_netcdf(NETCDF_ARCHIVE)
         self.ra.to_parquet(PARQUET_ARCHIVE)
 
-    def tearDown(self):
+    def tearDownClass(self):
         """
         Clean up saved archives
         """
