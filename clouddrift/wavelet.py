@@ -10,11 +10,11 @@ from math import gamma, lgamma
 
 
 def morsewave(
-    n: np.int64,
-    ga: np.float64,
-    be: np.float64,
-    fs: Union[np.ndarray, list],
-    k: Optional[np.int64] = 1,
+    n: int,
+    ga: float,
+    be: float,
+    fs: np.ndarray,
+    k: Optional[int] = 1,
     norm: Optional[str] = "bandpass",
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -24,9 +24,9 @@ def morsewave(
     ----------
     n: int
        Length of the wavelet.
-    ga: np.float64
+    ga: float
        Gamma parameter of the wavelet.
-    be: np.float64
+    be: float
        Beta parameter of the wavelet.
     fs: np.ndarray
        The radian frequencies at which the Fourier transform of the wavelets
@@ -78,8 +78,8 @@ def morsewave(
 
 
 def morsefreq(
-    ga: Union[np.ndarray, list],
-    be: Union[np.ndarray, list],
+    ga: Union[np.ndarray, float],
+    be: Union[np.ndarray, float],
 ) -> Tuple[float, float, float]:
     """
     Frequency measures for generalized Morse wavelets. This functions calculates
@@ -98,9 +98,9 @@ def morsefreq(
 
     Parameters
     ----------
-    ga: np.ndarray
+    ga: np.ndarray or float
        Gamma parameter of the wavelet.
-    be: np.ndarray
+    be: np.ndarray or float
        Beta parameter of the wavelet.
 
     Returns
@@ -112,12 +112,7 @@ def morsefreq(
     fi: np.ndarray
         The instantaneous frequency at the wavelet center.
     """
-
-    ## if be is not zero:
-    # fm = np.exp((1/ga)*(np.log(be)-np.log(ga)))
-    ## if be is zero:
-    # fm = np.log(2)**(1/ga)
-    # is this the better way to do this? I get a warning because it seems to calculate both
+    # add test for type and shape in case of ndarray
     fm = np.where(
         be == 0, np.log(2) ** (1 / ga), np.exp((1 / ga) * (np.log(be) - np.log(ga)))
     )
@@ -130,11 +125,12 @@ def morsefreq(
 
 
 def morseafun(
-    ga: Union[np.ndarray, list],
-    be: Union[np.ndarray, list],
+    ga: Union[np.ndarray, float],
+    be: Union[np.ndarray, float],
     k: Optional[np.int64] = 1,
     norm: Optional[str] = "bandpass",
 ) -> float:
+    # add test for type and shape in case of ndarray
     if norm == "energy":
         r = (2 * be + 1) / ga
         a = (2 * np.pi * ga * (2**r) * np.exp(lgamma(k) - lgamma(k + r + 1))) ** 0.5
@@ -150,25 +146,39 @@ def morseafun(
 
 
 def _gamma(
-    x: Union[np.ndarray, list],
+    x: Union[np.ndarray, float],
 ) -> np.ndarray:
     """
-    Returns an array of gamma function values. Wrapper for math.gamma.
+    Returns gamma function values. Wrapper for math.gamma which is
+    needed for array inputs.
     """
-    y = np.zeros_like(x)
-    for i in range(0, len(x)):
-        y[i] = gamma(x[i])
+    # add test for type and shape in case of ndarray?
+    if type(x) is np.ndarray:
+        n = len(x)
+        y = np.zeros_like(x)
+        for i in range(0, n):
+            y[i] = gamma(x[i])
+    else:
+        y = gamma(x)
+
     return y
 
 
 # this maybe not useful
 def _lgamma(
-    x: Union[np.ndarray, list],
+    x: Union[np.ndarray, float],
 ) -> np.ndarray:
     """
-    Returns an array of gamma function values. Wrapper for math.gamma.
+    Returns logarithm of gamma function values. Wrapper for math.lgamma which is
+    needed for array inputs.
     """
-    y = np.zeros_like(x)
-    for i in range(0, len(x)):
-        y[i] = lgamma(x[i])
+    # add test for type and shape in case of ndarray?
+    if type(x) is np.ndarray:
+        n = len(x)
+        y = np.zeros_like(x)
+        for i in range(0, n):
+            y[i] = lgamma(x[i])
+    else:
+        y = lgamma(x)
+
     return y
