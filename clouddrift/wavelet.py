@@ -54,6 +54,7 @@ def morsewave(
     # wavelet frequencies
     fo, _, _ = morsefreq(ga, be)
     fact = fs.flatten() / fo
+    # om first dim is n points, second dim is frequencies
     om = 2 * np.pi * np.expand_dims(np.linspace(0, 1 - 1 / n, n), axis=-1) / fact
 
     if norm == "energy":
@@ -71,16 +72,60 @@ def morsewave(
 
     # to do: psizero[0] = 0.5*psizero[0] but am not sure how
     # to do: replace NaN with zeros in psizero
-    psi = psizero
 
-    # to be continued
+    # to do, derive second family wavelet, here do first family
+    # spectral domain wavelet
+    psif = _morsewave_first_family(fact, n, ga, be, om, psizero, k=k, norm=norm)
+    # center wavelet, see jlab
+    # ommat=vrep(vrep(om,size(X,3),3),size(X,2),2);
+    # Xr=X.*rot(ommat.*(N+1)/2*fact); %ensures wavelets are centered
+    # time domain wavelet
+    psi = np.fft.ifft(psif, axis=0)
+
     return psi, psif
+
+
+def _morsewave_first_family(
+    fact: np.ndarray,
+    n: int,
+    ga: float,
+    be: float,
+    om: np.ndarray,
+    psizero: np.ndarray,
+    k: Optional[int] = 1,
+    norm: Optional[str] = "bandpass",
+) -> np.ndarray:
+    """
+    Derive first family wavelet
+    """
+    r = (2 * be + 1) / ga
+    c = r - 1
+    L = np.zeros_like(om)
+    psif = np.zeros(
+        (np.shape(psizero)[0], np.shape(psizero)[1], k)
+    )  # len is like np.shape()[0]
+
+    for i in np.arange(0, k):
+        if norm == "energy":
+            A = morseafun(k + 1, ga, be, norm=norm)
+            coeff = np.sqrt(1 / fact) * A
+        elif norm == "bandpass":
+            if be == 0:
+                coeff = 1
+            else:
+                coeff = np.sqrt(np.exp(_lgamma(r) + _lgamma(k + 1) - _lgamma(k + r)))
+
+        index = slice(1, int(np.round(n / 2)))  # how to define indices?
+        L[index, :] = _laguerre(2 * om[index, :] ** ga, k, c)
+        psif[:, :, i] = coeff * psizero * L
+
+    return psif
 
 
 def morsefreq(
     ga: Union[np.ndarray, float],
     be: Union[np.ndarray, float],
-) -> Tuple[float, float, float]:
+) -> Union[Tuple[np.ndarray], Tuple[float]]:
     """
     Frequency measures for generalized Morse wavelets. This functions calculates
     three different measures of the frequency of the lowest-order generalized Morse
@@ -154,10 +199,11 @@ def _gamma(
     """
     # add test for type and shape in case of ndarray?
     if type(x) is np.ndarray:
-        n = len(x)
-        y = np.zeros_like(x)
-        for i in range(0, n):
-            y[i] = gamma(x[i])
+        x_ = x.flatten()
+        y = np.zeros_like(x_)
+        for i in range(0, np.size(x)):
+            y[i] = gamma(x_[i])
+        y = np.reshape(y, np.shape(x))
     else:
         y = gamma(x)
 
@@ -181,4 +227,19 @@ def _lgamma(
     else:
         y = lgamma(x)
 
+    return y
+
+
+def _laguerre(
+    x: Union[np.ndarray, float],
+    k: float,
+    c: float,
+) -> np.ndarray:
+    """
+    Generalized Laguerre polynomials
+    """
+    y = np.zeros_like(x)
+    for i in np.arange(0, k + 1):
+        fact = np.exp(_lgamma(k + c + 1) - _lgamma(c + i + 1) - _lgamma(k - i + 1))
+        y = y + (-1) ** i * fact * x**i / _gamma(i + 1)
     return y
