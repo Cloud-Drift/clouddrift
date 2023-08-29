@@ -9,6 +9,75 @@ import warnings
 from math import gamma, lgamma
 
 
+def wavetrans(
+    x: np.ndarray,
+    psi: np.ndarray,
+    boundary: Optional[str] = "mirror",
+    order_axis: Optional[int] = 0,
+    time_axis: Optional[int] = 1,
+    f_axis: Optional[int] = 2,
+) -> np.ndarray:
+    """
+    Continuous wavelet transform.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Real- or complex-valued signal
+    psi : np.ndarray
+        A suite of Morse wavelets as returned by function morsewave. The dimensions
+        of the suite of Morse wavelets must be (f_order, f_axis, time_axis).
+    boundary : str, optional
+        The boundary condition to be imposed at the edges of the time series.
+        Allowed values are "mirror", "zeros", and "periodic".
+        Default is "mirror".
+    order_axis : int, optional
+        Axis of psi for the order of the wavelets (default is first or 0)
+    f_axis : int, optional
+        Axis of psi for the frequencies of the wavelet (default is second or 1)
+    time_axis : int, optional
+        Axis on which the time is defined for x and psi (default is last or -1)
+
+    Returns
+    -------
+    w : np.ndarray
+        Time-domain wavelet transforms. w shape will be ((series_orders), f_order, f_axis, time_axis).
+
+    Examples
+    --------
+    To write.
+
+    Raises
+    ------
+    ValueError
+        If the time axis is outside of the valid range ([-1, N-1]).
+        If the shape of time axis is different for input and wavelet.
+        If ``boundary not in ["mirror", "zeros", "periodic"]``.
+
+    See Also
+    --------
+    :func:`morsewave`, `morsefreq`
+    """
+    # test on shape of input x and psi
+    # time_axis must be in valid range
+    if time_axis < -1 or time_axis > len(x.shape) - 1:
+        raise ValueError(
+            f"time_axis ({time_axis}) is outside of the valid range ([-1,"
+            f" {len(x.shape) - 1}])."
+        )
+    # Positions and time arrays must have the same shape.
+    if not x.shape[time_axis] == psi.shape[time_axis]:
+        raise ValueError("x and psi time axes must have the same length.")
+
+    # initialization: output will be ((x_orders),f_order, f_axis, time_axis)
+    w = np.tile(
+        np.expand_dims(np.zeros_like(x), (-3, -2)),
+        (1, np.shape(psi)[-3], np.shape(psi)[-2], 1),
+    )
+
+    return w
+
+
 def morsewave(
     n: int,
     ga: float,
@@ -47,6 +116,14 @@ def morsewave(
         Time-domain wavelets. psi will be of shape (n,np.size(fs),k).
     psif: np.ndarray
         Frequency-domain wavelets. psif will be of shape (n,np.size(fs),k).
+
+    Examples
+    --------
+    To write.
+
+    See Also
+    --------
+    :func:`wavetrans`, `morsefreq`
     """
     # initialization
     psi = np.zeros((n, k, len(fs)), dtype="cdouble")
@@ -101,9 +178,10 @@ def morsewave(
             psif[:, :, i] = psif_tmp
             psi[:, :, i] = psi_tmp
 
-    # reorder dimension to follow jlab
-    psi = np.swapaxes(psi, -2, -1)
-    psif = np.swapaxes(psif, -2, -1)
+    # reorder dimension to be (order, frequency, time steps)
+    # enforce length 1 for first axis is k=1 (no squeezing)
+    psi = np.moveaxis(psi, [0, 1, 2], [2, 0, 1])
+    psif = np.moveaxis(psif, [0, 1, 2], [2, 0, 1])
     return psi, psif
 
 
@@ -176,6 +254,14 @@ def morsefreq(
         The "energy" frequency.
     fi: np.ndarray
         The instantaneous frequency at the wavelet center.
+
+    Examples
+    --------
+    To write.
+
+    See Also
+    --------
+    :func:`morsewave`
     """
     # add test for type and shape in case of ndarray
     fm = np.where(

@@ -1,4 +1,5 @@
 from clouddrift.wavelet import (
+    wavetrans,
     morsewave,
     morsefreq,
     morseafun,
@@ -10,6 +11,28 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class wavetrans_tests(unittest.TestCase):
+    def test_wavetrans_boundary(self):
+        # to write
+        self.assertTrue(True)
+
+    def test_wavetrans_complex(self):
+        # to write
+        self.assertTrue(True)
+
+    def test_wavetrans_sizes(self):
+        # to write
+        self.assertTrue(True)
+
+    def test_wavetrans_centered(self):
+        # to write
+        self.assertTrue(True)
+
+    def test_wavetrans_data(self):
+        # to write
+        self.assertTrue(True)
+
+
 class morsewave_tests(unittest.TestCase):
     def test_morsewave_unitenergy(self):
         fs = 2 * np.pi / np.logspace(np.log10(5), np.log10(40))
@@ -18,9 +41,7 @@ class morsewave_tests(unittest.TestCase):
         k = 2
         n = 1023
         psi, _ = morsewave(n, ga, be, fs, k=k, norm="energy")
-        nrg = np.sum(np.abs(psi[:, :, 0]) ** 2, axis=0)
-        self.assertTrue(np.allclose(1, nrg, atol=1e-4))
-        nrg = np.sum(np.abs(psi[:, :, 1]) ** 2, axis=0)
+        nrg = np.sum(np.abs(psi) ** 2, axis=-1)
         self.assertTrue(np.allclose(1, nrg, atol=1e-4))
 
 
