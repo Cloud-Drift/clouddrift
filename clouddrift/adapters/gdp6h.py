@@ -35,7 +35,10 @@ GDP_DATA = [
 
 
 def download(
-    drifter_ids: list = None, n_random_id: int = None, url: str = GDP_DATA_URL
+    drifter_ids: list = None,
+    n_random_id: int = None,
+    url: str = GDP_DATA_URL,
+    tmp_path: str = GDP_TMP_PATH,
 ):
     """Download individual NetCDF files from the AOML server.
 
@@ -47,6 +50,9 @@ def download(
         Randomly select n_random_id drifter IDs to download (Default: None)
     url : str
         URL from which to download the data (Default: GDP_DATA_URL). Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL.
+    tmp_path : str, optional
+        Path to the directory where the individual NetCDF files are stored
+        (default varies depending on operating system; /tmp/clouddrift/gdp6h on Linux)
 
     Returns
     -------
@@ -54,10 +60,10 @@ def download(
         List of retrived drifters
     """
 
-    print(f"Downloading GDP 6-hourly data to {GDP_TMP_PATH}...")
+    print(f"Downloading GDP 6-hourly data to {tmp_path}...")
 
     # Create a temporary directory if doesn't already exists.
-    os.makedirs(GDP_TMP_PATH, exist_ok=True)
+    os.makedirs(tmp_path, exist_ok=True)
 
     pattern = "drifter_[0-9]*.nc"
     directory_list = [
@@ -95,10 +101,7 @@ def download(
                 executor.map(
                     gdp.fetch_netcdf,
                     drifter_urls,
-                    [
-                        os.path.join(GDP_TMP_PATH, os.path.basename(f))
-                        for f in drifter_urls
-                    ],
+                    [os.path.join(tmp_path, os.path.basename(f)) for f in drifter_urls],
                 ),
                 total=len(drifter_urls),
                 desc="Downloading files",
@@ -424,6 +427,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
 def to_raggedarray(
     drifter_ids: Optional[list[int]] = None,
     n_random_id: Optional[int] = None,
+    tmp_path: Optional[str] = GDP_TMP_PATH,
 ) -> RaggedArray:
     """Download and process individual GDP 6-hourly files and return a
     RaggedArray instance with the data.
@@ -434,6 +438,9 @@ def to_raggedarray(
         List of drifters to retrieve (Default: all)
     n_random_id : list[int], optional
         Randomly select n_random_id drifter NetCDF files
+    tmp_path : str, optional
+        Path to the directory where the individual NetCDF files are stored
+        (default varies depending on operating system; /tmp/clouddrift/gdp6h on Linux)
 
     Returns
     -------
@@ -473,7 +480,7 @@ def to_raggedarray(
     >>> arr = ra.to_awkward()
     >>> arr.to_parquet("gdp6h.parquet")
     """
-    ids = download(drifter_ids, n_random_id, GDP_DATA_URL)
+    ids = download(drifter_ids, n_random_id, GDP_DATA_URL, tmp_path)
 
     return RaggedArray.from_files(
         indices=ids,
@@ -483,5 +490,5 @@ def to_raggedarray(
         name_data=GDP_DATA,
         rowsize_func=gdp.rowsize,
         filename_pattern="drifter_{id}.nc",
-        tmp_path=GDP_TMP_PATH,
+        tmp_path=tmp_path,
     )

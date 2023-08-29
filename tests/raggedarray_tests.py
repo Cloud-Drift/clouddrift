@@ -51,10 +51,10 @@ class raggedarray_tests(TestCase):
                 [self.drifter_id[i]],
                 {"long_name": f"variable ID", "units": "-"},
             )
-            xr_data["count"] = (
+            xr_data["rowsize"] = (
                 ["traj"],
                 [self.count[i]],
-                {"long_name": f"variable count", "units": "-"},
+                {"long_name": f"variable rowsize", "units": "-"},
             )
             xr_data["temp"] = (
                 ["obs"],
@@ -71,7 +71,7 @@ class raggedarray_tests(TestCase):
             [0, 1, 2],
             lambda i: list_ds[i],
             self.variables_coords,
-            ["ID", "count"],
+            ["ID", "rowsize"],
             ["temp"],
         )
 
