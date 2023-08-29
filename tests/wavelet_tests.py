@@ -21,8 +21,16 @@ class wavetrans_tests(unittest.TestCase):
         self.assertTrue(True)
 
     def test_wavetrans_sizes(self):
-        # to write
-        self.assertTrue(True)
+        n = 1023
+        m = 10
+        k = 2
+        fs = 2 * np.pi * np.array([0.1, 0.2, 0.3])
+        ga = 3
+        be = 4
+        x = np.random.random((m, n))
+        psi, _ = morsewave(n, ga, be, fs, k=k)
+        w = wavetrans(x, psi)
+        self.assertTrue(np.shape(w) == (m, k, len(fs), n))
 
     def test_wavetrans_centered(self):
         # to write

@@ -12,10 +12,11 @@ from math import gamma, lgamma
 def wavetrans(
     x: np.ndarray,
     psi: np.ndarray,
+    norm: Optional[str] = "bandpass",
     boundary: Optional[str] = "mirror",
-    order_axis: Optional[int] = 0,
-    time_axis: Optional[int] = 1,
-    f_axis: Optional[int] = 2,
+    time_axis: Optional[int] = -1,
+    f_axis: Optional[int] = -2,
+    order_axis: Optional[int] = -3,
 ) -> np.ndarray:
     """
     Continuous wavelet transform.
@@ -23,10 +24,12 @@ def wavetrans(
     Parameters
     ----------
     x : np.ndarray
-        Real- or complex-valued signal
+        Real- or complex-valued signals
     psi : np.ndarray
         A suite of Morse wavelets as returned by function morsewave. The dimensions
-        of the suite of Morse wavelets must be (f_order, f_axis, time_axis).
+        of the suite of Morse wavelets typically are typically (f_order, f_axis, time_axis).
+        The time axis of the wavelets must be the last one and matches the length of the time axis of x.
+        The normalization of the wavelets is assumed to be "bandpassed", if not use kwarg norm="energy".
     boundary : str, optional
         The boundary condition to be imposed at the edges of the time series.
         Allowed values are "mirror", "zeros", and "periodic".
@@ -36,12 +39,13 @@ def wavetrans(
     f_axis : int, optional
         Axis of psi for the frequencies of the wavelet (default is second or 1)
     time_axis : int, optional
-        Axis on which the time is defined for x and psi (default is last or -1)
+        Axis on which the time is defined for x (default is last, or -1). The time axis of the
+        wavelets must be last.
 
     Returns
     -------
     w : np.ndarray
-        Time-domain wavelet transforms. w shape will be ((series_orders), f_order, f_axis, time_axis).
+        Time-domain wavelet transforms. w shape will be ((series_orders), order, f_axis, time_axis).
 
     Examples
     --------
@@ -66,14 +70,60 @@ def wavetrans(
             f" {len(x.shape) - 1}])."
         )
     # Positions and time arrays must have the same shape.
-    if not x.shape[time_axis] == psi.shape[time_axis]:
+    if x.shape[time_axis] != psi.shape[-1]:
         raise ValueError("x and psi time axes must have the same length.")
 
+    psi_ = np.moveaxis(psi, [f_axis, order_axis], [-2, -3])
+
     # initialization: output will be ((x_orders),f_order, f_axis, time_axis)
-    w = np.tile(
-        np.expand_dims(np.zeros_like(x), (-3, -2)),
+    # w = np.tile(
+    #     np.expand_dims(np.zeros_like(x), (-3, -2)),
+    #     (1, np.shape(psi)[-3], np.shape(psi)[-2], 1),
+    # )
+
+    # if x is of dimension 1 we need to expand
+    if np.ndim(x) < 2:
+        x_ = np.expand_dims(x, axis=0)
+    else:
+        x_ = np.moveaxis(x, time_axis, -1)
+
+    if ~np.all(np.isreal(x)):
+        if norm == "energy":
+            x_ = x_ / np.sqrt(2)
+        elif norm == "bandpass":
+            x_ = x_ / 2
+
+    # to do: add detrending option by default?
+
+    # danger zone, use different letters from jlab: n is their time length
+    n = np.shape(x_)[-1]
+    # numbers of orders and frequencies of wavelet
+    # these are actually not needed
+    # k, l, _ = np.shape(psi)
+
+    # here we assume that wavelet and data have exactly the same number of data points;
+    # to do: include case wavelet is shorter or longer
+
+    # take fft along axis = -1
+    psif = np.fft.fft(psi)
+    om = 2 * np.pi * np.linspace(0, 1 - 1 / n, n)
+    if n % 2 == 0:
+        psif = psif * np.exp(1j * -om * (n + 1) / 2) * np.sign(np.pi - om)
+    else:
+        psif = psif * np.exp(1j * -om * (n + 1) / 2)
+
+    # here I should be able to automate the tiling without assuming extra dimensions of psi
+    X_ = np.tile(
+        np.expand_dims(np.fft.fft(x_), (-3, -2)),
         (1, np.shape(psi)[-3], np.shape(psi)[-2], 1),
     )
+
+    w = np.fft.ifft(X_ * np.conj(psif))
+
+    if np.all(np.isreal(x)):
+        w = np.real(w)
+    # should we squeeze w? probably
+    w = np.squeeze(w)
 
     return w
 
