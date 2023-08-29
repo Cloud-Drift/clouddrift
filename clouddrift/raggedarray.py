@@ -325,7 +325,10 @@ class RaggedArray:
 
         metadata = {}
         for var in name_meta:
-            metadata[var] = np.zeros(nb_traj, dtype=ds[var].dtype)
+            try:
+                metadata[var] = np.zeros(nb_traj, dtype=ds[var].dtype)
+            except KeyError:
+                warnings.warn(f"Variable {var} requested but not found; skipping.")
 
         data = {}
         for var in name_data:
@@ -350,7 +353,12 @@ class RaggedArray:
                     coords[var][oid : oid + size] = ds[var].data
 
                 for var in name_meta:
-                    metadata[var][i] = ds[var][0].data
+                    try:
+                        metadata[var][i] = ds[var][0].data
+                    except KeyError:
+                        warnings.warn(
+                            f"Variable {var} requested but not found; skipping."
+                        )
 
                 for var in name_data:
                     if var in ds.keys():
