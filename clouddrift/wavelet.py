@@ -30,7 +30,8 @@ def morsewave(
        Beta parameter of the wavelet.
     fs: np.ndarray
        The radian frequencies at which the Fourier transform of the wavelets
-       reach their maximum amplitudes.
+       reach their maximum amplitudes. fs is between 0 and 2 * np.pi * 0.5,
+       the normalized Nyquist radian frequency.
     k: int
         Wavelet order, default is 1.
     norm:  str, optional
@@ -48,45 +49,66 @@ def morsewave(
         Frequency-domain wavelets. psif will be of shape (n,np.size(fs),k).
     """
     # initialization
-    psi = np.zeros((n, len(fs), k))
-    psif = np.zeros((n, len(fs), k))
+    psi = np.zeros((n, k, len(fs)), dtype="cdouble")
+    psif = np.zeros((n, k, len(fs)), dtype="cdouble")
 
-    # wavelet frequencies
+    # call to morsewave take only ga and be as float, no array
     fo, _, _ = morsefreq(ga, be)
-    fact = fs.flatten() / fo
-    # om first dim is n points, second dim is frequencies
-    om = 2 * np.pi * np.expand_dims(np.linspace(0, 1 - 1 / n, n), axis=-1) / fact
+    for i in range(0, len(fs)):
+        psi_tmp = np.zeros((n, k), dtype="cdouble")
+        psif_tmp = np.zeros((n, k), dtype="cdouble")
 
-    if norm == "energy":
-        psizero0 = np.exp(-(om**ga))
-        psizero1 = np.exp(be * np.log(om) - om**ga)
-        psizero = np.where(be == 0, psizero0, psizero1)
-    elif norm == "bandpass":
-        psizero0 = 2 * np.exp(-(om**ga))
-        psizero1 = 2 * np.exp(-be * np.log(fo) + fo**ga + be * np.log(om) - om**ga)
-        psizero = np.where(be == 0, psizero0, psizero1)
-    else:
-        raise ValueError(
-            "Normalization option (norm) must be one of 'energy' or 'bandpass'."
-        )
+        # wavelet frequencies
+        fact = np.abs(fs[i]) / fo
+        # om first dim is n points
+        om = 2 * np.pi * np.linspace(0, 1 - 1 / n, n) / fact
+        if norm == "energy":
+            if be == 0:
+                psizero = np.exp(-(om**ga))
+            else:
+                psizero = np.exp(be * np.log(om) - om**ga)
+            # psizero = np.where(be == 0, psizero0, psizero1)
+        elif norm == "bandpass":
+            if be == 0:
+                psizero = 2 * np.exp(-(om**ga))
+            else:
+                psizero = 2 * np.exp(
+                    -be * np.log(fo) + fo**ga + be * np.log(om) - om**ga
+                )
+            # psizero = np.where(be == 0, psizero0, psizero1)
+        else:
+            raise ValueError(
+                "Normalization option (norm) must be one of 'energy' or 'bandpass'."
+            )
+        psizero[0] = 0.5 * psizero[0]
+        # to do: replace NaN with zeros in psizero
+        psizero = np.nan_to_num(psizero, copy=False, nan=0.0)
+        # to do, derive second family wavelet, here do first family
+        # spectral domain wavelet
+        psif_tmp = _morsewave_first_family(fact, n, ga, be, om, psizero, k=k, norm=norm)
+        psif_tmp = np.nan_to_num(psif_tmp, posinf=0, neginf=0)
+        # shape of psif_tmp is points, order
+        # center wavelet
+        ommat = np.tile(np.expand_dims(om, -1), (k))
+        psif_tmp = psif_tmp * np.exp(1j * ommat * (n + 1) / 2 * fact)
+        # time domain wavelet
+        psi_tmp = np.fft.ifft(psif_tmp, axis=0)
+        if fs[i] < 0:
+            psi[:, :, i] = np.conj(psi_tmp)
+            psif_tmp[1:-1, :] = np.flip(psif_tmp[1:-1, :], axis=0)
+            psif[:, :, i] = psif_tmp
+        else:
+            psif[:, :, i] = psif_tmp
+            psi[:, :, i] = psi_tmp
 
-    # to do: psizero[0] = 0.5*psizero[0] but am not sure how
-    # to do: replace NaN with zeros in psizero
-
-    # to do, derive second family wavelet, here do first family
-    # spectral domain wavelet
-    psif = _morsewave_first_family(fact, n, ga, be, om, psizero, k=k, norm=norm)
-    # center wavelet, see jlab
-    # ommat=vrep(vrep(om,size(X,3),3),size(X,2),2);
-    # Xr=X.*rot(ommat.*(N+1)/2*fact); %ensures wavelets are centered
-    # time domain wavelet
-    psi = np.fft.ifft(psif, axis=0)
-
+    # reorder dimension to follow jlab
+    psi = np.swapaxes(psi, -2, -1)
+    psif = np.swapaxes(psif, -2, -1)
     return psi, psif
 
 
 def _morsewave_first_family(
-    fact: np.ndarray,
+    fact: float,
     n: int,
     ga: float,
     be: float,
@@ -100,26 +122,24 @@ def _morsewave_first_family(
     """
     r = (2 * be + 1) / ga
     c = r - 1
-    L = np.zeros_like(om)
-    psif = np.zeros(
-        (np.shape(psizero)[0], np.shape(psizero)[1], k)
-    )  # len is like np.shape()[0]
+    L = np.zeros_like(om, dtype="float")
+    psif1 = np.zeros((np.shape(psizero)[0], k))
 
     for i in np.arange(0, k):
         if norm == "energy":
-            A = morseafun(k + 1, ga, be, norm=norm)
+            A = morseafun(ga, be, k=i + 1, norm=norm)
             coeff = np.sqrt(1 / fact) * A
         elif norm == "bandpass":
-            if be == 0:
-                coeff = 1
+            if be != 0:
+                coeff = np.sqrt(np.exp(_lgamma(r) + _lgamma(i + 1) - _lgamma(i + r)))
             else:
-                coeff = np.sqrt(np.exp(_lgamma(r) + _lgamma(k + 1) - _lgamma(k + r)))
+                coeff = 1
 
-        index = slice(1, int(np.round(n / 2)))  # how to define indices?
-        L[index, :] = _laguerre(2 * om[index, :] ** ga, k, c)
-        psif[:, :, i] = coeff * psizero * L
+        index = slice(0, int(np.round(n / 2)))  # how to define indices?
+        L[index] = _laguerre(2 * om[index] ** ga, i, c)
+        psif1[:, i] = coeff * psizero * L
 
-    return psif
+    return psif1
 
 
 def morsefreq(
@@ -178,7 +198,7 @@ def morseafun(
     # add test for type and shape in case of ndarray
     if norm == "energy":
         r = (2 * be + 1) / ga
-        a = (2 * np.pi * ga * (2**r) * np.exp(lgamma(k) - lgamma(k + r + 1))) ** 0.5
+        a = (2 * np.pi * ga * (2**r) * np.exp(_lgamma(k) - _lgamma(k + r - 1))) ** 0.5
     elif norm == "bandpass":
         om, _, _ = morsefreq(ga, be)
         a = np.where(be == 0, 2, 2 / (np.exp(be * np.log(om) - om**ga)))
@@ -200,7 +220,7 @@ def _gamma(
     # add test for type and shape in case of ndarray?
     if type(x) is np.ndarray:
         x_ = x.flatten()
-        y = np.zeros_like(x_)
+        y = np.zeros_like(x_, dtype="float")
         for i in range(0, np.size(x)):
             y[i] = gamma(x_[i])
         y = np.reshape(y, np.shape(x))
@@ -220,10 +240,11 @@ def _lgamma(
     """
     # add test for type and shape in case of ndarray?
     if type(x) is np.ndarray:
-        n = len(x)
-        y = np.zeros_like(x)
-        for i in range(0, n):
-            y[i] = lgamma(x[i])
+        x_ = x.flatten()
+        y = np.zeros_like(x_, dtype="float")
+        for i in range(0, np.size(x)):
+            y[i] = lgamma(x_[i])
+        y = np.reshape(y, np.shape(x))
     else:
         y = lgamma(x)
 
@@ -238,7 +259,7 @@ def _laguerre(
     """
     Generalized Laguerre polynomials
     """
-    y = np.zeros_like(x)
+    y = np.zeros_like(x, dtype="float")
     for i in np.arange(0, k + 1):
         fact = np.exp(_lgamma(k + c + 1) - _lgamma(c + i + 1) - _lgamma(k - i + 1))
         y = y + (-1) ** i * fact * x**i / _gamma(i + 1)

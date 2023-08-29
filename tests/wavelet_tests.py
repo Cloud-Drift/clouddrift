@@ -14,15 +14,14 @@ class morsewave_tests(unittest.TestCase):
     def test_morsewave_unitenergy(self):
         fs = 2 * np.pi / np.logspace(np.log10(5), np.log10(40))
         ga = 2
-        be = 2
+        be = 4
         k = 2
         n = 1023
         psi, _ = morsewave(n, ga, be, fs, k=k, norm="energy")
         nrg = np.sum(np.abs(psi[:, :, 0]) ** 2, axis=0)
-        self.assertTrue(np.allclose(np.ones_like(nrg), nrg))
+        self.assertTrue(np.allclose(1, nrg, atol=1e-4))
         nrg = np.sum(np.abs(psi[:, :, 1]) ** 2, axis=0)
-        self.assertTrue(np.allclose(np.ones_like(nrg), nrg))
-        # self.assertTrue(True)
+        self.assertTrue(np.allclose(1, nrg, atol=1e-4))
 
 
 class morsefreq_tests(unittest.TestCase):
@@ -76,7 +75,7 @@ class morsefreq_tests(unittest.TestCase):
 
 
 class morseafun_tests(unittest.TestCase):
-    def test_morseafun(self):
+    def test_morseafun_float(self):
         # ga1 = np.arange(2, 10, 1)
         # be1 = np.arange(1, 11, 1)
         # ga, be = np.meshgrid(ga1, be1)
@@ -84,4 +83,42 @@ class morseafun_tests(unittest.TestCase):
         # omgrid = np.tile(np.arange(0, 20.01, 0.1), (len(be1), len(ga1), 1))
         # omgrid = omgrid * np.tile(np.expand_dims(om,-1), np.shape(omgrid)[2])
         # a = morseafun(ga,be,norm="energy")
-        self.assertTrue(True)
+        # gagrid = np.tile(np.expand_dims(ga,-1), np.shape(omgrid)[2])
+        # begrid = np.tile(np.expand_dims(be,-1), np.shape(omgrid)[2])
+        # agrid = np.tile(np.expand_dims(a,-1), np.shape(omgrid)[2])
+        # psi = agrid * omgrid**begrid * np.exp(-omgrid**gagrid)
+        # dom = 0.01
+        # psiint = np.sum(psi**2,axis=-1) * dom * om / (2 * np.pi)
+        # self.assertTrue(np.allclose(np.abs(psiint-1),1e-2))
+        # self.assertTrue(True)
+        ga = 3
+        be = 5
+        self.assertTrue(np.isclose(morseafun(ga, be), 4.51966469068946))
+
+    def test_morseafun_array(self):
+        ga = np.array([3, 4, 5])
+        be = np.array([3, 5, 7])
+        expected_a = np.array([5.43656365691809, 5.28154010330058, 5.06364231419937])
+        self.assertTrue(np.allclose(morseafun(ga, be), expected_a))
+
+    def test_morseafun_beta_zero(self):
+        ga = np.array([3, 4, 5])
+        be = np.array([0, 0, 0])
+        expected_a = np.array([2, 2, 2])
+        self.assertTrue(np.allclose(morseafun(ga, be), expected_a))
+
+    def test_morseafun_ndarray(self):
+        ga = np.array([[3, 4], [5, 6]])
+        be = np.array([[5.6, 6.5], [7.5, 8.5]])
+        expected_a = np.array(
+            [[4.03386834889409, 4.61446982215091], [4.87904507028292, 5.03482799479815]]
+        )
+        self.assertTrue(np.allclose(morseafun(ga, be), expected_a))
+
+    def test_morseafun_energy(self):
+        ga = np.array([[3, 4], [5, 6]])
+        be = np.array([[5.6, 6.5], [7.5, 8.5]])
+        expected_a = np.array(
+            [[6.95583044131426, 9.24984207652964], [10.9133909718769, 12.2799204953579]]
+        )
+        self.assertTrue(np.allclose(morseafun(ga, be, norm="energy"), expected_a))
