@@ -81,7 +81,7 @@ def morsewave(
                 "Normalization option (norm) must be one of 'energy' or 'bandpass'."
             )
         psizero[0] = 0.5 * psizero[0]
-        # to do: replace NaN with zeros in psizero
+        # Replace NaN with zeros in psizero
         psizero = np.nan_to_num(psizero, copy=False, nan=0.0)
         # to do, derive second family wavelet, here do first family
         # spectral domain wavelet
