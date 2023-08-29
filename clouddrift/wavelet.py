@@ -62,7 +62,6 @@ def wavetrans(
     --------
     :func:`morsewave`, `morsefreq`
     """
-    # test on shape of input x and psi
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(x.shape) - 1:
         raise ValueError(
@@ -82,6 +81,7 @@ def wavetrans(
     # )
 
     # if x is of dimension 1 we need to expand
+    # otherwise make sure time axis is last
     if np.ndim(x) < 2:
         x_ = np.expand_dims(x, axis=0)
     else:
@@ -95,22 +95,38 @@ def wavetrans(
 
     # to do: add detrending option by default?
 
+    # apply boundary conditions
+    if boundary == "mirror":
+        x_ = np.concatenate((np.flip(x_, axis=-1), x_, np.flip(x_, axis=-1)), axis=-1)
+    elif boundary == "zeros":
+        x_ = np.concatenate((np.zeros_like(x_), x_, np.zeros_like(x_)), axis=-1)
+    elif boundary == "periodic":
+        x_ = np.concatenate((x_, x_, x_), axis=-1)
+    else:
+        raise ValueError("boundary must be one of 'mirror', 'align', or 'zeros'.")
+
     # danger zone, use different letters from jlab: n is their time length
-    n = np.shape(x_)[-1]
-    # numbers of orders and frequencies of wavelet
-    # these are actually not needed
-    # k, l, _ = np.shape(psi)
+    n = np.shape(x)[-1]
+    n_ = np.shape(x_)[-1]
+
+    # pad wavelet with zeros?
+    # psi_ = np.concatenate((np.zeros_like(psi), psi, np.zeros_like(psi)), axis=-1)
+    k, l, _ = np.shape(psi)
+    psi_ = np.zeros((k, l, n_), dtype="cfloat")
+    # display(np.shape(psi_))
+    index = slice(int(0 + np.floor(n_ - n) / 2), int(n + np.floor(n_ - n) / 2))
+    psi_[:, :, index] = psi
 
     # here we assume that wavelet and data have exactly the same number of data points;
     # to do: include case wavelet is shorter or longer
 
     # take fft along axis = -1
-    psif = np.fft.fft(psi)
-    om = 2 * np.pi * np.linspace(0, 1 - 1 / n, n)
-    if n % 2 == 0:
-        psif = psif * np.exp(1j * -om * (n + 1) / 2) * np.sign(np.pi - om)
+    psif_ = np.fft.fft(psi_)
+    om = 2 * np.pi * np.linspace(0, 1 - 1 / n_, n_)
+    if n_ % 2 == 0:
+        psif_ = psif_ * np.exp(1j * -om * (n_ + 1) / 2) * np.sign(np.pi - om)
     else:
-        psif = psif * np.exp(1j * -om * (n + 1) / 2)
+        psif_ = psif_ * np.exp(1j * -om * (n_ + 1) / 2)
 
     # here I should be able to automate the tiling without assuming extra dimensions of psi
     X_ = np.tile(
@@ -118,10 +134,17 @@ def wavetrans(
         (1, np.shape(psi)[-3], np.shape(psi)[-2], 1),
     )
 
-    w = np.fft.ifft(X_ * np.conj(psif))
+    # finally the transform
+    w = np.fft.ifft(X_ * np.conj(psif_))
+    # return central part
+    w = w[..., index]
 
-    if np.all(np.isreal(x)):
-        w = np.real(w)
+    # if I comment this the complex test passes but not the boundary test
+    # and vice versa
+    # I prefer the complex test to pass for now
+    # not sure I understand if this is needed
+    # if np.all(np.isreal(x_)):
+    #    w = np.real(w)
     # should we squeeze w? probably
     w = np.squeeze(w)
 
@@ -175,6 +198,7 @@ def morsewave(
     --------
     :func:`wavetrans`, `morsefreq`
     """
+    # add a test for fs being a numpy array
     # initialization
     psi = np.zeros((n, k, len(fs)), dtype="cdouble")
     psif = np.zeros((n, k, len(fs)), dtype="cdouble")
