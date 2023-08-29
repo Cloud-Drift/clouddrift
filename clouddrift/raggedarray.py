@@ -410,7 +410,7 @@ class RaggedArray:
         ak.Array
             Awkward Array containing the ragged array and its attributes
         """
-        index_traj = np.insert(np.cumsum(self.metadata["count"]), 0, 0)
+        index_traj = np.insert(np.cumsum(self.metadata["rowsize"]), 0, 0)
         offset = ak.index.Index64(index_traj)
 
         data = []
