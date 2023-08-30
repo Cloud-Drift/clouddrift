@@ -621,26 +621,33 @@ class velocity_from_position_tests(unittest.TestCase):
         self.assertTrue(np.all(vf.shape == expected_vf.shape))
 
     def test_time_axis(self):
-        lon = np.transpose(
-            np.reshape(np.tile(self.lon, 4), (2, 2, self.lon.size)), (0, 2, 1)
-        )
-        lat = np.transpose(
-            np.reshape(np.tile(self.lat, 4), (2, 2, self.lat.size)), (0, 2, 1)
-        )
-        time = np.transpose(
-            np.reshape(np.tile(self.time, 4), (2, 2, self.time.size)), (0, 2, 1)
-        )
-        expected_uf = np.transpose(
-            np.reshape(np.tile(self.uf, 4), (2, 2, self.uf.size)), (0, 2, 1)
-        )
-        expected_vf = np.transpose(
-            np.reshape(np.tile(self.vf, 4), (2, 2, self.vf.size)), (0, 2, 1)
-        )
-        uf, vf = velocity_from_position(lon, lat, time, time_axis=1)
-        self.assertTrue(np.all(uf == expected_uf))
-        self.assertTrue(np.all(vf == expected_vf))
-        self.assertTrue(np.all(uf.shape == expected_uf.shape))
-        self.assertTrue(np.all(vf.shape == expected_vf.shape))
+
+        lon = np.reshape(np.tile(self.lon, 6), (2, 3, self.lon.size))
+        lat = np.reshape(np.tile(self.lat, 6), (2, 3, self.lat.size))
+        time = np.reshape(np.tile(self.time, 6), (2, 3, self.time.size))
+        expected_uf = np.reshape(np.tile(self.uf, 6), (2, 3, self.uf.size))
+        expected_vf = np.reshape(np.tile(self.vf, 6), (2, 3, self.vf.size))
+
+        for time_axis in [0, 1, 2]:
+
+            # Pass inputs with swapped axes and differentiate along that time
+            # axis.
+            uf, vf = velocity_from_position(
+                np.swapaxes(lon, time_axis, -1),
+                np.swapaxes(lat, time_axis, -1),
+                np.swapaxes(time, time_axis, -1),
+                time_axis=time_axis,
+            )
+
+            # Swap axes back to compare with the expected result.
+            self.assertTrue(np.all(np.swapaxes(uf, time_axis, -1) == expected_uf))
+            self.assertTrue(np.all(np.swapaxes(vf, time_axis, -1) == expected_vf))
+            self.assertTrue(
+                np.all(np.swapaxes(uf, time_axis, -1).shape == expected_uf.shape)
+            )
+            self.assertTrue(
+                np.all(np.swapaxes(vf, time_axis, -1).shape == expected_uf.shape)
+            )
 
 
 class apply_ragged_tests(unittest.TestCase):
