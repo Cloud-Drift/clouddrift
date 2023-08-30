@@ -612,17 +612,15 @@ def position_from_velocity(
             f" {len(x.shape) - 1}])."
         )
 
-    # Nominal order of axes on input, i.e. (0, 1, 2, ..., N-1)
-    target_axes = list(range(len(u.shape)))
-
-    # If time_axis is not the last one, transpose the inputs
-    if time_axis != -1 and time_axis < len(u.shape) - 1:
-        target_axes.append(target_axes.pop(target_axes.index(time_axis)))
-
-    # Reshape the inputs to ensure the time axis is last (fast-varying)
-    u_ = np.transpose(u, target_axes)
-    v_ = np.transpose(v, target_axes)
-    time_ = np.transpose(time, target_axes)
+    # Swap axes so that we can differentiate along the last axis.
+    # This is a syntax convenience rather than memory access optimization:
+    # np.swapaxes returns a view of the array, not a copy, if the input is a
+    # NumPy array. Otherwise, it returns a copy. For readability, introduce new
+    # variable names so that we can more easily differentiate between the
+    # original arrays and those with swapped axes.
+    u_ = np.swapaxes(u, time_axis, -1)
+    v_ = np.swapaxes(v, time_axis, -1)
+    time_ = np.swapaxes(time, time_axis, -1)
 
     x = np.zeros(u_.shape, dtype=u.dtype)
     y = np.zeros(v_.shape, dtype=v.dtype)
@@ -659,10 +657,7 @@ def position_from_velocity(
     else:
         raise ValueError('coord_system must be "spherical" or "cartesian".')
 
-    if target_axes == list(range(len(u.shape))):
-        return x, y
-    else:
-        return np.transpose(x, target_axes), np.transpose(y, target_axes)
+    return np.swapaxes(x, time_axis, -1), np.swapaxes(y, time_axis, -1)
 
 
 def velocity_from_position(
@@ -754,17 +749,15 @@ def velocity_from_position(
             f" {len(x.shape) - 1}])."
         )
 
-    # Nominal order of axes on input, i.e. (0, 1, 2, ..., N-1)
-    target_axes = list(range(len(x.shape)))
-
-    # If time_axis is not the last one, transpose the inputs
-    if time_axis != -1 and time_axis < len(x.shape) - 1:
-        target_axes.append(target_axes.pop(target_axes.index(time_axis)))
-
-    # Reshape the inputs to ensure the time axis is last (fast-varying)
-    x_ = np.transpose(x, target_axes)
-    y_ = np.transpose(y, target_axes)
-    time_ = np.transpose(time, target_axes)
+    # Swap axes so that we can differentiate along the last axis.
+    # This is a syntax convenience rather than memory access optimization:
+    # np.swapaxes returns a view of the array, not a copy, if the input is a
+    # NumPy array. Otherwise, it returns a copy. For readability, introduce new
+    # variable names so that we can more easily differentiate between the
+    # original arrays and those with swapped axes.
+    x_ = np.swapaxes(x, time_axis, -1)
+    y_ = np.swapaxes(y, time_axis, -1)
+    time_ = np.swapaxes(time, time_axis, -1)
 
     dx = np.empty(x_.shape)
     dy = np.empty(y_.shape)
@@ -873,10 +866,11 @@ def velocity_from_position(
             'difference_scheme must be "forward", "backward", or "centered".'
         )
 
-    if target_axes == list(range(len(x.shape))):
-        return dx / dt, dy / dt
-    else:
-        return np.transpose(dx / dt, target_axes), np.transpose(dy / dt, target_axes)
+    # This should avoid an array copy when returning the result
+    dx /= dt
+    dy /= dt
+
+    return np.swapaxes(dx, time_axis, -1), np.swapaxes(dy, time_axis, -1)
 
 
 def mask_var(
