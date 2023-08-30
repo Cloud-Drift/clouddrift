@@ -132,6 +132,14 @@ class morsefreq_tests(unittest.TestCase):
         self.assertTrue(np.isclose(fi, expected_fi))
 
 
+class morsespace_tests(unittest.TestCase):
+    def test_morsespace_high(self):
+        self.assertTrue(True)
+
+    def test_morsespace_low(self):
+        self.assertTrue(True)
+
+
 class morseafun_tests(unittest.TestCase):
     def test_morseafun_float(self):
         # ga1 = np.arange(2, 10, 1)

@@ -349,6 +349,103 @@ def morsefreq(
     return fm, fe, fi
 
 
+def morsespace(
+    ga: Union[np.ndarray, float],
+    be: Union[np.ndarray, float],
+    n: int,
+    low: Optional[float] = 5,
+    high: Optional[float] = 0.1,
+    d: Optional[int] = 4,
+    eta: Optional[float] = 0.1,
+) -> np.ndarray:
+    """
+    Returns logarithmically-spaced frequencies for generalized Morse wavelets.
+
+    Parameters
+    ----------
+    ga: np.ndarray or float
+       Gamma parameter of the wavelet.
+    be: np.ndarray or float
+       Beta parameter of the wavelet.
+    n:
+    high:
+    low:
+    d:
+    eta:
+
+    Returns
+    -------
+    fs: np.ndarray
+
+    """
+    p, _, _ = morseprops(ga, be)
+
+    _high = _morsehigh(ga, be, high)
+    high_ = np.min(np.append(_high, np.pi))
+
+    _low = 2 * np.sqrt(2) * p * low / n
+    low_ = np.max(np.append(_low, 0))
+
+    r = 1 + 1 / (d * p)
+    m = np.floor(np.log10(high_ / low_) / np.log10(r))
+    fs = high_ * np.ones(int(m + 1)) / r ** np.arange(0, m + 1)
+
+    return fs
+
+
+def _morsehigh(
+    ga: Union[np.ndarray, float],
+    be: Union[np.ndarray, float],
+    eta: float,
+) -> Union[np.ndarray, float]:
+    """
+    High-frequency cutoff of the generalized Morse wavelets.
+    ga and be should be of the same length.
+    """
+    m = 10000
+    omhigh = np.linspace(0, np.pi, m)
+    f = np.zeros_like(ga, dtype="float")
+
+    for i in range(0, len(ga)):
+        fm, _, _ = morsefreq(ga[i], be[i])
+        om = fm * np.pi / omhigh
+        lnpsi1 = be[i] / ga[i] * np.log(np.exp(1) * ga[i] / be[i])
+        lnpsi2 = be[i] * np.log(om) - om ** ga[i]
+        lnpsi = lnpsi1 + lnpsi2
+        index = np.nonzero(np.log(eta) - lnpsi < 0)[0][0]
+        f[i] = omhigh[index]
+
+    return f
+
+
+def morseprops(
+    ga: Union[np.ndarray, float],
+    be: Union[np.ndarray, float],
+) -> Union[Tuple[np.ndarray], Tuple[float]]:
+    """
+    Properties of the demodulated generalized Morse wavelets.
+
+    Parameters
+    ----------
+    ga: np.ndarray or float
+       Gamma parameter of the wavelet.
+    be: np.ndarray or float
+       Beta parameter of the wavelet.
+
+    Returns
+    -------
+    p: np.ndarray or float
+    skew: np.ndarray or float
+    kurt: np.ndarray or float
+    """
+    # test common size? or could be broadcasted
+    p = np.sqrt(ga * be)
+    skew = ga - 3 / p
+    kurt = 3 - skew**2 - 2 / p**2
+
+    return p, skew, kurt
+
+
 def morseafun(
     ga: Union[np.ndarray, float],
     be: Union[np.ndarray, float],
