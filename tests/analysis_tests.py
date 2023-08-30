@@ -525,7 +525,6 @@ class position_from_velocity_tests(unittest.TestCase):
         self.assertTrue(np.allclose(lon.shape, expected_lat.shape))
 
     def test_time_axis(self):
-
         uf = np.reshape(np.tile(self.uf, 6), (2, 3, self.uf.size))
         vf = np.reshape(np.tile(self.vf, 6), (2, 3, self.vf.size))
         time = np.reshape(np.tile(self.time, 6), (2, 3, self.time.size))
@@ -533,7 +532,6 @@ class position_from_velocity_tests(unittest.TestCase):
         expected_lat = np.reshape(np.tile(self.lat, 6), (2, 3, self.lat.size))
 
         for time_axis in [0, 1, 2]:
-
             # Pass inputs with swapped axes and differentiate along that time
             # axis.
             lon, lat = position_from_velocity(
@@ -623,7 +621,6 @@ class velocity_from_position_tests(unittest.TestCase):
         self.assertTrue(np.all(vf.shape == expected_vf.shape))
 
     def test_time_axis(self):
-
         lon = np.reshape(np.tile(self.lon, 6), (2, 3, self.lon.size))
         lat = np.reshape(np.tile(self.lat, 6), (2, 3, self.lat.size))
         time = np.reshape(np.tile(self.time, 6), (2, 3, self.time.size))
@@ -631,7 +628,6 @@ class velocity_from_position_tests(unittest.TestCase):
         expected_vf = np.reshape(np.tile(self.vf, 6), (2, 3, self.vf.size))
 
         for time_axis in [0, 1, 2]:
-
             # Pass inputs with swapped axes and differentiate along that time
             # axis.
             uf, vf = velocity_from_position(
