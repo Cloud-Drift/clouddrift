@@ -6,10 +6,11 @@ and six-hourly (``clouddrift.adapters.gdp6h``) GDP modules.
 """
 
 import numpy as np
+import os
 import pandas as pd
 import xarray as xr
 import urllib.request
-import os
+import warnings
 
 GDP_VERSION = "2.00"
 
@@ -26,6 +27,9 @@ GDP_METADATA = [
     "deploy_date",
     "deploy_lat",
     "deploy_lon",
+    "start_date",
+    "start_lat",
+    "start_lon",
     "end_date",
     "end_lat",
     "end_lon",
@@ -161,6 +165,8 @@ def fetch_netcdf(url: str, file: str):
     """
     if not os.path.isfile(file):
         urllib.request.urlretrieve(url, file)
+    else:
+        warnings.warn(f"{file} already exists; skip download.")
 
 
 def decode_date(t):

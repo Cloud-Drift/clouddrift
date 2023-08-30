@@ -14,7 +14,8 @@ if __name__ == "__main__":
 
 
 class raggedarray_tests(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(self):
         """
         Create ragged array and output netCDF and Parquet file
         """
@@ -50,10 +51,10 @@ class raggedarray_tests(TestCase):
                 [self.drifter_id[i]],
                 {"long_name": f"variable ID", "units": "-"},
             )
-            xr_data["count"] = (
+            xr_data["rowsize"] = (
                 ["traj"],
                 [self.count[i]],
-                {"long_name": f"variable count", "units": "-"},
+                {"long_name": f"variable rowsize", "units": "-"},
             )
             xr_data["temp"] = (
                 ["obs"],
@@ -70,7 +71,7 @@ class raggedarray_tests(TestCase):
             [0, 1, 2],
             lambda i: list_ds[i],
             self.variables_coords,
-            ["ID", "count"],
+            ["ID", "rowsize"],
             ["temp"],
         )
 
@@ -78,7 +79,8 @@ class raggedarray_tests(TestCase):
         self.ra.to_netcdf(NETCDF_ARCHIVE)
         self.ra.to_parquet(PARQUET_ARCHIVE)
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(self):
         """
         Clean up saved archives
         """
