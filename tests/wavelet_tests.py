@@ -15,7 +15,7 @@ class wavetrans_tests(unittest.TestCase):
     def test_wavetrans_boundary(self):
         n = 1023
         fs = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
-        psi, psif = morsewave(n, 2, 4, fs, k=1, norm="bandpass")
+        psi, psif = morsewave(n, 2, 4, fs, order=1, norm="bandpass")
         x = np.random.random((n))
         w1 = wavetrans(x - np.mean(x), psi, boundary="mirror")
         w2 = wavetrans(x - np.mean(x), psi, boundary="periodic")
@@ -31,7 +31,7 @@ class wavetrans_tests(unittest.TestCase):
     def test_wavetrans_complex(self):
         n = 1023
         fs = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
-        psi, psif = morsewave(n, 2, 4, fs, k=1, norm="bandpass")
+        psi, psif = morsewave(n, 2, 4, fs, order=1, norm="bandpass")
         x = np.random.random((n))
         y = np.random.random((n))
         wx = wavetrans(x, psi, boundary="mirror", norm="bandpass")
@@ -46,20 +46,20 @@ class wavetrans_tests(unittest.TestCase):
     def test_wavetrans_sizes(self):
         n = 1023
         m = 10
-        k = 2
+        order = 2
         fs = 2 * np.pi * np.array([0.1, 0.2, 0.3])
         ga = 3
         be = 4
         x = np.random.random((m, n))
-        psi, _ = morsewave(n, ga, be, fs, k=k)
+        psi, _ = morsewave(n, ga, be, fs, order=order)
         w = wavetrans(x, psi)
-        self.assertTrue(np.shape(w) == (m, k, len(fs), n))
+        self.assertTrue(np.shape(w) == (m, order, len(fs), n))
 
     def test_wavetrans_centered(self):
         J = 10
         ao = np.logspace(np.log10(5), np.log10(40), J) / 100
         x = np.zeros(2**10)
-        psi, _ = morsewave(len(x), 2, 4, ao, k=1)
+        psi, _ = morsewave(len(x), 2, 4, ao, order=1)
         x[2**9] = 1
         y = wavetrans(x, psi)
         m = np.argmax(np.abs(y), axis=-1)
@@ -75,9 +75,9 @@ class morsewave_tests(unittest.TestCase):
         fs = 2 * np.pi / np.logspace(np.log10(5), np.log10(40))
         ga = 2
         be = 4
-        k = 2
+        order = 2
         n = 1023
-        psi, _ = morsewave(n, ga, be, fs, k=k, norm="energy")
+        psi, _ = morsewave(n, ga, be, fs, order=order, norm="energy")
         nrg = np.sum(np.abs(psi) ** 2, axis=-1)
         self.assertTrue(np.allclose(1, nrg, atol=1e-4))
 
