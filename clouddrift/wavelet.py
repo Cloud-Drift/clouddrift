@@ -283,7 +283,7 @@ def _morsewave_first_family(
     """
     r = (2 * be + 1) / ga
     c = r - 1
-    L = np.zeros_like(norm_rad_freq, dtype="float")
+    L = np.zeros_like(norm_rad_freq, dtype=np.float64)
     wavefft1 = np.zeros((np.shape(wavezero)[0], order))
 
     for i in np.arange(0, order):
