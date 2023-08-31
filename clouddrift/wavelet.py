@@ -74,12 +74,6 @@ def wavetrans(
 
     wave_ = np.moveaxis(wave, [freq_axis, order_axis], [-2, -3])
 
-    # initialization: output will be ((x_orders),f_order, freq_axis, time_axis)
-    # w = np.tile(
-    #     np.expand_dims(np.zeros_like(x), (-3, -2)),
-    #     (1, np.shape(wave)[-3], np.shape(wave)[-2], 1),
-    # )
-
     # if x is of dimension 1 we need to expand
     # otherwise make sure time axis is last
     if np.ndim(x) < 2:
@@ -93,63 +87,52 @@ def wavetrans(
         elif norm == "bandpass":
             x_ /= 2
 
-    # to do: add detrending option by default?
+    # to do: add detrending option by default
 
     # apply boundary conditions
     if boundary == "mirror":
         x_ = np.concatenate((np.flip(x_, axis=-1), x_, np.flip(x_, axis=-1)), axis=-1)
     elif boundary == "zeros":
         x_ = np.concatenate((np.zeros_like(x_), x_, np.zeros_like(x_)), axis=-1)
-    elif boundary == "periodic":
+    elif boundary == "periodic":  # JML: this not needed in this case you just want n
         x_ = np.concatenate((x_, x_, x_), axis=-1)
     else:
         raise ValueError("boundary must be one of 'mirror', 'align', or 'zeros'.")
 
-    # danger zone, use different letters from jlab: n is their time length
     time_length = np.shape(x)[-1]
     time_length_ = np.shape(x_)[-1]
 
-    # pad wavelet with zeros?
-    # wave_ = np.concatenate((np.zeros_like(wave), wave, np.zeros_like(wave)), axis=-1)
+    # pad wavelet with zeros: JML ok
     order_length, freq_length, _ = np.shape(wave)
-    wave_ = np.zeros((order_length, freq_length, time_length_), dtype="cfloat")
-    # display(np.shape(wave_))
+    _wave = np.zeros((order_length, freq_length, time_length_), dtype=np.cdouble)
+ 
     index = slice(
         int(np.floor(time_length_ - time_length) / 2),
         int(time_length + np.floor(time_length_ - time_length) / 2),
     )
-    wave_[:, :, index] = wave
-
-    # here we assume that wavelet and data have exactly the same number of data points;
-    # to do: include case wavelet is shorter or longer
+    _wave[:, :, index] = wave_
 
     # take fft along axis = -1
-    wavefft_ = np.fft.fft(wave_)
+    _wavefft = np.fft.fft(_wave)
     om = 2 * np.pi * np.linspace(0, 1 - 1 / time_length_, time_length_)
     if time_length_ % 2 == 0:
-        wavefft_ = (
-            wavefft_ * np.exp(1j * -om * (time_length_ + 1) / 2) * np.sign(np.pi - om)
+        _wavefft = (
+            _wavefft * np.exp(1j * -om * (time_length_ + 1) / 2) * np.sign(np.pi - om)
         )
     else:
-        wavefft_ = wavefft_ * np.exp(1j * -om * (time_length_ + 1) / 2)
+        _wavefft = _wavefft * np.exp(1j * -om * (time_length_ + 1) / 2)
 
-    # here I should be able to automate the tiling without assuming extra dimensions of wave
+    # here we should be able to automate the tiling without assuming extra dimensions of wave
     X_ = np.tile(
         np.expand_dims(np.fft.fft(x_), (-3, -2)),
         (1, order_length, freq_length, 1),
     )
-    # finally the transform
-    wtx = np.fft.ifft(X_ * np.conj(wavefft_))
-    # return central part
+    
+    # finally the transform; return precision of input `x``; central part only
+    complex_dtype = np.cdouble if x.dtype == np.single else np.csingle
+    wtx = np.fft.ifft(X_ * np.conj(_wavefft)).astype(complex_dtype)
     wtx = wtx[..., index]
-
-    # if I comment this the complex test passes but not the boundary test
-    # and vice versa
-    # I prefer the complex test to pass for now
-    # not sure I understand if this is needed
-    # if np.all(np.isreal(x_)):
-    #    wtx = np.real(wtx)
-    # should we squeeze wtx? probably
+    # remove extra dimensions
     wtx = np.squeeze(wtx)
 
     return wtx
@@ -204,14 +187,14 @@ def morsewave(
     """
     # add a test for rad_freq being a numpy array
     # initialization
-    wave = np.zeros((n, order, len(rad_freq)), dtype=np.complex128)
-    wavefft = np.zeros((n, order, len(rad_freq)), dtype=np.complex128)
+    wave = np.zeros((n, order, len(rad_freq)), dtype=np.cdouble)
+    wavefft = np.zeros((n, order, len(rad_freq)), dtype=np.cdouble)
 
     # call to morsewave take only ga and be as float, no array
     fo, _, _ = morsefreq(ga, be)
     for i in range(len(rad_freq)):
-        wave_tmp = np.zeros((n, order), dtype=np.complex128)
-        wavefft_tmp = np.zeros((n, order), dtype=np.complex128)
+        wave_tmp = np.zeros((n, order), dtype=np.cdouble)
+        wavefft_tmp = np.zeros((n, order), dtype=np.cdouble)
 
         # wavelet frequencies
         fact = np.abs(rad_freq[i]) / fo
@@ -221,8 +204,7 @@ def morsewave(
             if be == 0:
                 wavezero = np.exp(-(norm_rad_freq**ga))
             else:
-                wavezero = np.exp(be * np.log(norm_rad_freq) - norm_rad_freq**ga)
-            # wavezero = np.where(be == 0, wavezero0, wavezero1)
+                wavezero = np.exp(be * np.log(norm_rad_freq) - norm_rad_freq**ga)            
         elif norm == "bandpass":
             if be == 0:
                 wavezero = 2 * np.exp(-(norm_rad_freq**ga))
@@ -233,7 +215,6 @@ def morsewave(
                     + be * np.log(norm_rad_freq)
                     - norm_rad_freq**ga
                 )
-            # wavezero = np.where(be == 0, wavezero0, wavezero1)
         else:
             raise ValueError(
                 "Normalization option (norm) must be one of 'energy' or 'bandpass'."
@@ -241,8 +222,7 @@ def morsewave(
         wavezero[0] = 0.5 * wavezero[0]
         # Replace NaN with zeros in wavezero
         wavezero = np.nan_to_num(wavezero, copy=False, nan=0.0)
-        # to do, derive second family wavelet, here do first family
-        # spectral domain wavelet
+        # second family is never used
         wavefft_tmp = _morsewave_first_family(
             fact, n, ga, be, norm_rad_freq, wavezero, order=order, norm=norm
         )
@@ -262,7 +242,7 @@ def morsewave(
             wave[:, :, i] = wave_tmp
 
     # reorder dimension to be (order, frequency, time steps)
-    # enforce length 1 for first axis is order=1 (no squeezing)
+    # enforce length 1 for first axis if order=1 (no squeezing)
     wave = np.moveaxis(wave, [0, 1, 2], [2, 0, 1])
     wavefft = np.moveaxis(wavefft, [0, 1, 2], [2, 0, 1])
     return wave, wavefft
@@ -279,7 +259,7 @@ def _morsewave_first_family(
     norm: Optional[str] = "bandpass",
 ) -> np.ndarray:
     """
-    Derive first family wavelet
+    Derive first family wavelet. Internal use only.
     """
     r = (2 * be + 1) / ga
     c = r - 1
@@ -385,6 +365,10 @@ def morsespace(
     Returns
     -------
     rad_freq: np.ndarray
+
+    Examples
+    --------
+    To write.
 
     """
     p, _, _ = morseprops(ga, be)
