@@ -15,7 +15,7 @@ def wavetrans(
     norm: Optional[str] = "bandpass",
     boundary: Optional[str] = "mirror",
     time_axis: Optional[int] = -1,
-    f_axis: Optional[int] = -2,
+    freq_axis: Optional[int] = -2,
     order_axis: Optional[int] = -3,
 ) -> np.ndarray:
     """
@@ -27,7 +27,7 @@ def wavetrans(
         Real- or complex-valued signals
     psi : np.ndarray
         A suite of Morse wavelets as returned by function morsewave. The dimensions
-        of the suite of Morse wavelets are typically (f_order, f_axis, time_axis).
+        of the suite of Morse wavelets are typically (f_order, freq_axis, time_axis).
         The time axis of the wavelets must be the last one and matches the length of the time axis of x.
         The normalization of the wavelets is assumed to be "bandpassed", if not use kwarg norm="energy".
     boundary : str, optional
@@ -36,7 +36,7 @@ def wavetrans(
         Default is "mirror".
     order_axis : int, optional
         Axis of psi for the order of the wavelets (default is first or 0)
-    f_axis : int, optional
+    freq_axis : int, optional
         Axis of psi for the frequencies of the wavelet (default is second or 1)
     time_axis : int, optional
         Axis on which the time is defined for x (default is last, or -1). The time axis of the
@@ -45,7 +45,7 @@ def wavetrans(
     Returns
     -------
     wt : np.ndarray
-        Time-domain wavelet transforms. w shape will be ((series_orders), order, f_axis, time_axis).
+        Time-domain wavelet transforms. w shape will be ((series_orders), order, freq_axis, time_axis).
 
     Examples
     --------
@@ -72,9 +72,9 @@ def wavetrans(
     if x.shape[time_axis] != psi.shape[-1]:
         raise ValueError("x and psi time axes must have the same length.")
 
-    psi_ = np.moveaxis(psi, [f_axis, order_axis], [-2, -3])
+    psi_ = np.moveaxis(psi, [freq_axis, order_axis], [-2, -3])
 
-    # initialization: output will be ((x_orders),f_order, f_axis, time_axis)
+    # initialization: output will be ((x_orders),f_order, freq_axis, time_axis)
     # w = np.tile(
     #     np.expand_dims(np.zeros_like(x), (-3, -2)),
     #     (1, np.shape(psi)[-3], np.shape(psi)[-2], 1),
