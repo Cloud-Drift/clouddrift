@@ -14,8 +14,8 @@ if __name__ == "__main__":
 class wavetrans_tests(unittest.TestCase):
     def test_wavetrans_boundary(self):
         n = 1023
-        fs = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
-        wave, wavef = morsewave(n, 2, 4, fs, order=1, norm="bandpass")
+        rad_freq = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
+        wave, wavef = morsewave(n, 2, 4, rad_freq, order=1, norm="bandpass")
         x = np.random.random((n))
         w1 = wavetrans(x - np.mean(x), wave, boundary="mirror")
         w2 = wavetrans(x - np.mean(x), wave, boundary="periodic")
@@ -30,8 +30,8 @@ class wavetrans_tests(unittest.TestCase):
 
     def test_wavetrans_complex(self):
         n = 1023
-        fs = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
-        wave, wavef = morsewave(n, 2, 4, fs, order=1, norm="bandpass")
+        rad_freq = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
+        wave, wavef = morsewave(n, 2, 4, rad_freq, order=1, norm="bandpass")
         x = np.random.random((n))
         y = np.random.random((n))
         wx = wavetrans(x, wave, boundary="mirror", norm="bandpass")
@@ -47,13 +47,13 @@ class wavetrans_tests(unittest.TestCase):
         n = 1023
         m = 10
         order = 2
-        fs = 2 * np.pi * np.array([0.1, 0.2, 0.3])
+        rad_freq = 2 * np.pi * np.array([0.1, 0.2, 0.3])
         ga = 3
         be = 4
         x = np.random.random((m, n))
-        wave, _ = morsewave(n, ga, be, fs, order=order)
+        wave, _ = morsewave(n, ga, be, rad_freq, order=order)
         w = wavetrans(x, wave)
-        self.assertTrue(np.shape(w) == (m, order, len(fs), n))
+        self.assertTrue(np.shape(w) == (m, order, len(rad_freq), n))
 
     def test_wavetrans_centered(self):
         J = 10
@@ -72,12 +72,12 @@ class wavetrans_tests(unittest.TestCase):
 
 class morsewave_tests(unittest.TestCase):
     def test_morsewave_unitenergy(self):
-        fs = 2 * np.pi / np.logspace(np.log10(5), np.log10(40))
+        rad_freq = 2 * np.pi / np.logspace(np.log10(5), np.log10(40))
         ga = 2
         be = 4
         order = 2
         n = 1023
-        wave, _ = morsewave(n, ga, be, fs, order=order, norm="energy")
+        wave, _ = morsewave(n, ga, be, rad_freq, order=order, norm="energy")
         nrg = np.sum(np.abs(wave) ** 2, axis=-1)
         self.assertTrue(np.allclose(1, nrg, atol=1e-4))
 

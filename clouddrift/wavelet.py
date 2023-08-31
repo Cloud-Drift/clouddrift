@@ -44,8 +44,8 @@ def wavetrans(
 
     Returns
     -------
-    wt : np.ndarray
-        Time-domain wavelet transforms. w shape will be ((series_orders), order, freq_axis, time_axis).
+    wtx : np.ndarray
+        Time-domain wavelet transforms of input x. w shape will be ((series_orders), order, freq_axis, time_axis).
 
     Examples
     --------
@@ -124,14 +124,14 @@ def wavetrans(
     # to do: include case wavelet is shorter or longer
 
     # take fft along axis = -1
-    wavef_ = np.fft.fft(wave_)
+    wavefft_ = np.fft.fft(wave_)
     om = 2 * np.pi * np.linspace(0, 1 - 1 / time_length_, time_length_)
     if time_length_ % 2 == 0:
-        wavef_ = (
-            wavef_ * np.exp(1j * -om * (time_length_ + 1) / 2) * np.sign(np.pi - om)
+        wavefft_ = (
+            wavefft_ * np.exp(1j * -om * (time_length_ + 1) / 2) * np.sign(np.pi - om)
         )
     else:
-        wavef_ = wavef_ * np.exp(1j * -om * (time_length_ + 1) / 2)
+        wavefft_ = wavefft_ * np.exp(1j * -om * (time_length_ + 1) / 2)
 
     # here I should be able to automate the tiling without assuming extra dimensions of wave
     X_ = np.tile(
@@ -139,27 +139,27 @@ def wavetrans(
         (1, order_length, freq_length, 1),
     )
     # finally the transform
-    wt = np.fft.ifft(X_ * np.conj(wavef_))
+    wtx = np.fft.ifft(X_ * np.conj(wavefft_))
     # return central part
-    wt = wt[..., index]
+    wtx = wtx[..., index]
 
     # if I comment this the complex test passes but not the boundary test
     # and vice versa
     # I prefer the complex test to pass for now
     # not sure I understand if this is needed
     # if np.all(np.isreal(x_)):
-    #    w = np.real(w)
-    # should we squeeze w? probably
-    wt = np.squeeze(wt)
+    #    wtx = np.real(wtx)
+    # should we squeeze wtx? probably
+    wtx = np.squeeze(wtx)
 
-    return wt
+    return wtx
 
 
 def morsewave(
     n: int,
     ga: float,
     be: float,
-    fs: np.ndarray,
+    rad_freq: np.ndarray,
     order: Optional[int] = 1,
     norm: Optional[str] = "bandpass",
 ) -> Tuple[np.ndarray, np.ndarray]:
@@ -174,25 +174,25 @@ def morsewave(
        Gamma parameter of the wavelet.
     be: float
        Beta parameter of the wavelet.
-    fs: np.ndarray
+    rad_freq: np.ndarray
        The radian frequencies at which the Fourier transform of the wavelets
-       reach their maximum amplitudes. fs is between 0 and 2 * np.pi * 0.5,
+       reach their maximum amplitudes. rad_freq is between 0 and 2 * np.pi * 0.5,
        the normalized Nyquist radian frequency.
     order: int
         Wavelet order, default is 1.
     norm:  str, optional
        Normalization for the wavelets. Default is "bandpass".
        "bandpass" uses "bandpass normalization", meaning that the FFT of the wavelet
-       has a peak value of 2 for all frequencies fs. "energy" uses the unit
+       has a peak value of 2 for all frequencies rad_freq. "energy" uses the unit
        energy normalization. The time-domain wavelet energy np.sum(np.abs(wave)**2)
        is then always unity.
 
     Returns
     -------
     wave : np.ndarray
-        Time-domain wavelets. wave will be of shape (n,np.size(fs),k).
-    wavef: np.ndarray
-        Frequency-domain wavelets. wavef will be of shape (n,np.size(fs),k).
+        Time-domain wavelets. wave will be of shape (n,np.size(rad_freq),k).
+    wavefft: np.ndarray
+        Frequency-domain wavelets. wavefft will be of shape (n,np.size(rad_freq),k).
 
     Examples
     --------
@@ -202,19 +202,19 @@ def morsewave(
     --------
     :func:`wavetrans`, `morsefreq`
     """
-    # add a test for fs being a numpy array
+    # add a test for rad_freq being a numpy array
     # initialization
-    wave = np.zeros((n, order, len(fs)), dtype="cdouble")
-    wavef = np.zeros((n, order, len(fs)), dtype="cdouble")
+    wave = np.zeros((n, order, len(rad_freq)), dtype="cdouble")
+    wavefft = np.zeros((n, order, len(rad_freq)), dtype="cdouble")
 
     # call to morsewave take only ga and be as float, no array
     fo, _, _ = morsefreq(ga, be)
-    for i in range(0, len(fs)):
+    for i in range(0, len(rad_freq)):
         wave_tmp = np.zeros((n, order), dtype="cdouble")
-        wavef_tmp = np.zeros((n, order), dtype="cdouble")
+        wavefft_tmp = np.zeros((n, order), dtype="cdouble")
 
         # wavelet frequencies
-        fact = np.abs(fs[i]) / fo
+        fact = np.abs(rad_freq[i]) / fo
         # om first dim is n points
         om = 2 * np.pi * np.linspace(0, 1 - 1 / n, n) / fact
         if norm == "energy":
@@ -240,29 +240,29 @@ def morsewave(
         wavezero = np.nan_to_num(wavezero, copy=False, nan=0.0)
         # to do, derive second family wavelet, here do first family
         # spectral domain wavelet
-        wavef_tmp = _morsewave_first_family(
+        wavefft_tmp = _morsewave_first_family(
             fact, n, ga, be, om, wavezero, order=order, norm=norm
         )
-        wavef_tmp = np.nan_to_num(wavef_tmp, posinf=0, neginf=0)
-        # shape of wavef_tmp is points, order
+        wavefft_tmp = np.nan_to_num(wavefft_tmp, posinf=0, neginf=0)
+        # shape of wavefft_tmp is points, order
         # center wavelet
         ommat = np.tile(np.expand_dims(om, -1), (order))
-        wavef_tmp = wavef_tmp * np.exp(1j * ommat * (n + 1) / 2 * fact)
+        wavefft_tmp = wavefft_tmp * np.exp(1j * ommat * (n + 1) / 2 * fact)
         # time domain wavelet
-        wave_tmp = np.fft.ifft(wavef_tmp, axis=0)
-        if fs[i] < 0:
+        wave_tmp = np.fft.ifft(wavefft_tmp, axis=0)
+        if rad_freq[i] < 0:
             wave[:, :, i] = np.conj(wave_tmp)
-            wavef_tmp[1:-1, :] = np.flip(wavef_tmp[1:-1, :], axis=0)
-            wavef[:, :, i] = wavef_tmp
+            wavefft_tmp[1:-1, :] = np.flip(wavefft_tmp[1:-1, :], axis=0)
+            wavefft[:, :, i] = wavefft_tmp
         else:
-            wavef[:, :, i] = wavef_tmp
+            wavefft[:, :, i] = wavefft_tmp
             wave[:, :, i] = wave_tmp
 
     # reorder dimension to be (order, frequency, time steps)
     # enforce length 1 for first axis is order=1 (no squeezing)
     wave = np.moveaxis(wave, [0, 1, 2], [2, 0, 1])
-    wavef = np.moveaxis(wavef, [0, 1, 2], [2, 0, 1])
-    return wave, wavef
+    wavefft = np.moveaxis(wavefft, [0, 1, 2], [2, 0, 1])
+    return wave, wavefft
 
 
 def _morsewave_first_family(
@@ -281,7 +281,7 @@ def _morsewave_first_family(
     r = (2 * be + 1) / ga
     c = r - 1
     L = np.zeros_like(om, dtype="float")
-    wavef1 = np.zeros((np.shape(wavezero)[0], order))
+    wavefft1 = np.zeros((np.shape(wavezero)[0], order))
 
     for i in np.arange(0, order):
         if norm == "energy":
@@ -295,9 +295,9 @@ def _morsewave_first_family(
 
         index = slice(0, int(np.round(n / 2)))  # how to define indices?
         L[index] = _laguerre(2 * om[index] ** ga, i, c)
-        wavef1[:, i] = coeff * wavezero * L
+        wavefft1[:, i] = coeff * wavezero * L
 
-    return wavef1
+    return wavefft1
 
 
 def morsefreq(
@@ -381,7 +381,7 @@ def morsespace(
 
     Returns
     -------
-    fs: np.ndarray
+    rad_freq: np.ndarray
 
     """
     p, _, _ = morseprops(ga, be)
@@ -394,9 +394,9 @@ def morsespace(
 
     r = 1 + 1 / (d * p)
     m = np.floor(np.log10(high_ / low_) / np.log10(r))
-    fs = high_ * np.ones(int(m + 1)) / r ** np.arange(0, m + 1)
+    rad_freq = high_ * np.ones(int(m + 1)) / r ** np.arange(0, m + 1)
 
-    return fs
+    return rad_freq
 
 
 def _morsehigh(
