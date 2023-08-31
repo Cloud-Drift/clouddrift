@@ -105,7 +105,7 @@ def wavetrans(
     # pad wavelet with zeros: JML ok
     order_length, freq_length, _ = np.shape(wave)
     _wave = np.zeros((order_length, freq_length, time_length_), dtype=np.cdouble)
- 
+
     index = slice(
         int(np.floor(time_length_ - time_length) / 2),
         int(time_length + np.floor(time_length_ - time_length) / 2),
@@ -127,7 +127,7 @@ def wavetrans(
         np.expand_dims(np.fft.fft(x_), (-3, -2)),
         (1, order_length, freq_length, 1),
     )
-    
+
     # finally the transform; return precision of input `x``; central part only
     complex_dtype = np.cdouble if x.dtype == np.single else np.csingle
     wtx = np.fft.ifft(X_ * np.conj(_wavefft)).astype(complex_dtype)
@@ -204,7 +204,7 @@ def morsewave(
             if be == 0:
                 wavezero = np.exp(-(norm_rad_freq**ga))
             else:
-                wavezero = np.exp(be * np.log(norm_rad_freq) - norm_rad_freq**ga)            
+                wavezero = np.exp(be * np.log(norm_rad_freq) - norm_rad_freq**ga)
         elif norm == "bandpass":
             if be == 0:
                 wavezero = 2 * np.exp(-(norm_rad_freq**ga))
