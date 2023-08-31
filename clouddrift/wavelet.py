@@ -215,20 +215,23 @@ def morsewave(
 
         # wavelet frequencies
         fact = np.abs(rad_freq[i]) / fo
-        # om first dim is n points
-        om = 2 * np.pi * np.linspace(0, 1 - 1 / n, n) / fact
+        # norm_rad_freq first dim is n points
+        norm_rad_freq = 2 * np.pi * np.linspace(0, 1 - 1 / n, n) / fact
         if norm == "energy":
             if be == 0:
-                wavezero = np.exp(-(om**ga))
+                wavezero = np.exp(-(norm_rad_freq**ga))
             else:
-                wavezero = np.exp(be * np.log(om) - om**ga)
+                wavezero = np.exp(be * np.log(norm_rad_freq) - norm_rad_freq**ga)
             # wavezero = np.where(be == 0, wavezero0, wavezero1)
         elif norm == "bandpass":
             if be == 0:
-                wavezero = 2 * np.exp(-(om**ga))
+                wavezero = 2 * np.exp(-(norm_rad_freq**ga))
             else:
                 wavezero = 2 * np.exp(
-                    -be * np.log(fo) + fo**ga + be * np.log(om) - om**ga
+                    -be * np.log(fo)
+                    + fo**ga
+                    + be * np.log(norm_rad_freq)
+                    - norm_rad_freq**ga
                 )
             # wavezero = np.where(be == 0, wavezero0, wavezero1)
         else:
@@ -241,13 +244,13 @@ def morsewave(
         # to do, derive second family wavelet, here do first family
         # spectral domain wavelet
         wavefft_tmp = _morsewave_first_family(
-            fact, n, ga, be, om, wavezero, order=order, norm=norm
+            fact, n, ga, be, norm_rad_freq, wavezero, order=order, norm=norm
         )
         wavefft_tmp = np.nan_to_num(wavefft_tmp, posinf=0, neginf=0)
         # shape of wavefft_tmp is points, order
         # center wavelet
-        ommat = np.tile(np.expand_dims(om, -1), (order))
-        wavefft_tmp = wavefft_tmp * np.exp(1j * ommat * (n + 1) / 2 * fact)
+        norm_rad_freq_mat = np.tile(np.expand_dims(norm_rad_freq, -1), (order))
+        wavefft_tmp = wavefft_tmp * np.exp(1j * norm_rad_freq_mat * (n + 1) / 2 * fact)
         # time domain wavelet
         wave_tmp = np.fft.ifft(wavefft_tmp, axis=0)
         if rad_freq[i] < 0:
@@ -270,7 +273,7 @@ def _morsewave_first_family(
     n: int,
     ga: float,
     be: float,
-    om: np.ndarray,
+    norm_rad_freq: np.ndarray,
     wavezero: np.ndarray,
     order: Optional[int] = 1,
     norm: Optional[str] = "bandpass",
@@ -280,7 +283,7 @@ def _morsewave_first_family(
     """
     r = (2 * be + 1) / ga
     c = r - 1
-    L = np.zeros_like(om, dtype="float")
+    L = np.zeros_like(norm_rad_freq, dtype="float")
     wavefft1 = np.zeros((np.shape(wavezero)[0], order))
 
     for i in np.arange(0, order):
@@ -294,7 +297,7 @@ def _morsewave_first_family(
                 coeff = 1
 
         index = slice(0, int(np.round(n / 2)))  # how to define indices?
-        L[index] = _laguerre(2 * om[index] ** ga, i, c)
+        L[index] = _laguerre(2 * norm_rad_freq[index] ** ga, i, c)
         wavefft1[:, i] = coeff * wavezero * L
 
     return wavefft1
@@ -465,8 +468,8 @@ def morseafun(
             2 * np.pi * ga * (2**r) * np.exp(_lgamma(order) - _lgamma(order + r - 1))
         ) ** 0.5
     elif norm == "bandpass":
-        om, _, _ = morsefreq(ga, be)
-        a = np.where(be == 0, 2, 2 / (np.exp(be * np.log(om) - om**ga)))
+        fm, _, _ = morsefreq(ga, be)
+        a = np.where(be == 0, 2, 2 / (np.exp(be * np.log(fm) - fm**ga)))
     else:
         raise ValueError(
             "Normalization option (norm) must be one of 'energy' or 'bandpass'."
