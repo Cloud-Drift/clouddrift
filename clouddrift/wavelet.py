@@ -11,7 +11,7 @@ from math import gamma, lgamma
 
 def wavetrans(
     x: np.ndarray,
-    psi: np.ndarray,
+    wave: np.ndarray,
     norm: Optional[str] = "bandpass",
     boundary: Optional[str] = "mirror",
     time_axis: Optional[int] = -1,
@@ -25,7 +25,7 @@ def wavetrans(
     ----------
     x : np.ndarray
         Real- or complex-valued signals
-    psi : np.ndarray
+    wave : np.ndarray
         A suite of Morse wavelets as returned by function morsewave. The dimensions
         of the suite of Morse wavelets are typically (f_order, freq_axis, time_axis).
         The time axis of the wavelets must be the last one and matches the length of the time axis of x.
@@ -35,9 +35,9 @@ def wavetrans(
         Allowed values are "mirror", "zeros", and "periodic".
         Default is "mirror".
     order_axis : int, optional
-        Axis of psi for the order of the wavelets (default is first or 0)
+        Axis of wave for the order of the wavelets (default is first or 0)
     freq_axis : int, optional
-        Axis of psi for the frequencies of the wavelet (default is second or 1)
+        Axis of wave for the frequencies of the wavelet (default is second or 1)
     time_axis : int, optional
         Axis on which the time is defined for x (default is last, or -1). The time axis of the
         wavelets must be last.
@@ -69,15 +69,15 @@ def wavetrans(
             f" {len(x.shape) - 1}])."
         )
     # Positions and time arrays must have the same shape.
-    if x.shape[time_axis] != psi.shape[-1]:
-        raise ValueError("x and psi time axes must have the same length.")
+    if x.shape[time_axis] != wave.shape[-1]:
+        raise ValueError("x and wave time axes must have the same length.")
 
-    psi_ = np.moveaxis(psi, [freq_axis, order_axis], [-2, -3])
+    wave_ = np.moveaxis(wave, [freq_axis, order_axis], [-2, -3])
 
     # initialization: output will be ((x_orders),f_order, freq_axis, time_axis)
     # w = np.tile(
     #     np.expand_dims(np.zeros_like(x), (-3, -2)),
-    #     (1, np.shape(psi)[-3], np.shape(psi)[-2], 1),
+    #     (1, np.shape(wave)[-3], np.shape(wave)[-2], 1),
     # )
 
     # if x is of dimension 1 we need to expand
@@ -110,34 +110,36 @@ def wavetrans(
     time_length_ = np.shape(x_)[-1]
 
     # pad wavelet with zeros?
-    # psi_ = np.concatenate((np.zeros_like(psi), psi, np.zeros_like(psi)), axis=-1)
-    order_length, freq_length, _ = np.shape(psi)
-    psi_ = np.zeros((order_length, freq_length, time_length_), dtype="cfloat")
-    # display(np.shape(psi_))
+    # wave_ = np.concatenate((np.zeros_like(wave), wave, np.zeros_like(wave)), axis=-1)
+    order_length, freq_length, _ = np.shape(wave)
+    wave_ = np.zeros((order_length, freq_length, time_length_), dtype="cfloat")
+    # display(np.shape(wave_))
     index = slice(
         int(0 + np.floor(time_length_ - time_length) / 2),
         int(time_length + np.floor(time_length_ - time_length) / 2),
     )
-    psi_[:, :, index] = psi
+    wave_[:, :, index] = wave
 
     # here we assume that wavelet and data have exactly the same number of data points;
     # to do: include case wavelet is shorter or longer
 
     # take fft along axis = -1
-    psif_ = np.fft.fft(psi_)
+    wavef_ = np.fft.fft(wave_)
     om = 2 * np.pi * np.linspace(0, 1 - 1 / time_length_, time_length_)
     if time_length_ % 2 == 0:
-        psif_ = psif_ * np.exp(1j * -om * (time_length_ + 1) / 2) * np.sign(np.pi - om)
+        wavef_ = (
+            wavef_ * np.exp(1j * -om * (time_length_ + 1) / 2) * np.sign(np.pi - om)
+        )
     else:
-        psif_ = psif_ * np.exp(1j * -om * (time_length_ + 1) / 2)
+        wavef_ = wavef_ * np.exp(1j * -om * (time_length_ + 1) / 2)
 
-    # here I should be able to automate the tiling without assuming extra dimensions of psi
+    # here I should be able to automate the tiling without assuming extra dimensions of wave
     X_ = np.tile(
         np.expand_dims(np.fft.fft(x_), (-3, -2)),
         (1, order_length, freq_length, 1),
     )
     # finally the transform
-    wt = np.fft.ifft(X_ * np.conj(psif_))
+    wt = np.fft.ifft(X_ * np.conj(wavef_))
     # return central part
     wt = wt[..., index]
 
@@ -182,15 +184,15 @@ def morsewave(
        Normalization for the wavelets. Default is "bandpass".
        "bandpass" uses "bandpass normalization", meaning that the FFT of the wavelet
        has a peak value of 2 for all frequencies fs. "energy" uses the unit
-       energy normalization. The time-domain wavelet energy np.sum(np.abs(psi)**2)
+       energy normalization. The time-domain wavelet energy np.sum(np.abs(wave)**2)
        is then always unity.
 
     Returns
     -------
-    psi : np.ndarray
-        Time-domain wavelets. psi will be of shape (n,np.size(fs),k).
-    psif: np.ndarray
-        Frequency-domain wavelets. psif will be of shape (n,np.size(fs),k).
+    wave : np.ndarray
+        Time-domain wavelets. wave will be of shape (n,np.size(fs),k).
+    wavef: np.ndarray
+        Frequency-domain wavelets. wavef will be of shape (n,np.size(fs),k).
 
     Examples
     --------
@@ -202,14 +204,14 @@ def morsewave(
     """
     # add a test for fs being a numpy array
     # initialization
-    psi = np.zeros((n, order, len(fs)), dtype="cdouble")
-    psif = np.zeros((n, order, len(fs)), dtype="cdouble")
+    wave = np.zeros((n, order, len(fs)), dtype="cdouble")
+    wavef = np.zeros((n, order, len(fs)), dtype="cdouble")
 
     # call to morsewave take only ga and be as float, no array
     fo, _, _ = morsefreq(ga, be)
     for i in range(0, len(fs)):
-        psi_tmp = np.zeros((n, order), dtype="cdouble")
-        psif_tmp = np.zeros((n, order), dtype="cdouble")
+        wave_tmp = np.zeros((n, order), dtype="cdouble")
+        wavef_tmp = np.zeros((n, order), dtype="cdouble")
 
         # wavelet frequencies
         fact = np.abs(fs[i]) / fo
@@ -217,48 +219,50 @@ def morsewave(
         om = 2 * np.pi * np.linspace(0, 1 - 1 / n, n) / fact
         if norm == "energy":
             if be == 0:
-                psizero = np.exp(-(om**ga))
+                wavezero = np.exp(-(om**ga))
             else:
-                psizero = np.exp(be * np.log(om) - om**ga)
-            # psizero = np.where(be == 0, psizero0, psizero1)
+                wavezero = np.exp(be * np.log(om) - om**ga)
+            # wavezero = np.where(be == 0, wavezero0, wavezero1)
         elif norm == "bandpass":
             if be == 0:
-                psizero = 2 * np.exp(-(om**ga))
+                wavezero = 2 * np.exp(-(om**ga))
             else:
-                psizero = 2 * np.exp(
+                wavezero = 2 * np.exp(
                     -be * np.log(fo) + fo**ga + be * np.log(om) - om**ga
                 )
-            # psizero = np.where(be == 0, psizero0, psizero1)
+            # wavezero = np.where(be == 0, wavezero0, wavezero1)
         else:
             raise ValueError(
                 "Normalization option (norm) must be one of 'energy' or 'bandpass'."
             )
-        psizero[0] = 0.5 * psizero[0]
-        # Replace NaN with zeros in psizero
-        psizero = np.nan_to_num(psizero, copy=False, nan=0.0)
+        wavezero[0] = 0.5 * wavezero[0]
+        # Replace NaN with zeros in wavezero
+        wavezero = np.nan_to_num(wavezero, copy=False, nan=0.0)
         # to do, derive second family wavelet, here do first family
         # spectral domain wavelet
-        psif_tmp = _morsewave_first_family(fact, n, ga, be, om, psizero, order=order, norm=norm)
-        psif_tmp = np.nan_to_num(psif_tmp, posinf=0, neginf=0)
-        # shape of psif_tmp is points, order
+        wavef_tmp = _morsewave_first_family(
+            fact, n, ga, be, om, wavezero, order=order, norm=norm
+        )
+        wavef_tmp = np.nan_to_num(wavef_tmp, posinf=0, neginf=0)
+        # shape of wavef_tmp is points, order
         # center wavelet
         ommat = np.tile(np.expand_dims(om, -1), (order))
-        psif_tmp = psif_tmp * np.exp(1j * ommat * (n + 1) / 2 * fact)
+        wavef_tmp = wavef_tmp * np.exp(1j * ommat * (n + 1) / 2 * fact)
         # time domain wavelet
-        psi_tmp = np.fft.ifft(psif_tmp, axis=0)
+        wave_tmp = np.fft.ifft(wavef_tmp, axis=0)
         if fs[i] < 0:
-            psi[:, :, i] = np.conj(psi_tmp)
-            psif_tmp[1:-1, :] = np.flip(psif_tmp[1:-1, :], axis=0)
-            psif[:, :, i] = psif_tmp
+            wave[:, :, i] = np.conj(wave_tmp)
+            wavef_tmp[1:-1, :] = np.flip(wavef_tmp[1:-1, :], axis=0)
+            wavef[:, :, i] = wavef_tmp
         else:
-            psif[:, :, i] = psif_tmp
-            psi[:, :, i] = psi_tmp
+            wavef[:, :, i] = wavef_tmp
+            wave[:, :, i] = wave_tmp
 
     # reorder dimension to be (order, frequency, time steps)
     # enforce length 1 for first axis is order=1 (no squeezing)
-    psi = np.moveaxis(psi, [0, 1, 2], [2, 0, 1])
-    psif = np.moveaxis(psif, [0, 1, 2], [2, 0, 1])
-    return psi, psif
+    wave = np.moveaxis(wave, [0, 1, 2], [2, 0, 1])
+    wavef = np.moveaxis(wavef, [0, 1, 2], [2, 0, 1])
+    return wave, wavef
 
 
 def _morsewave_first_family(
@@ -267,7 +271,7 @@ def _morsewave_first_family(
     ga: float,
     be: float,
     om: np.ndarray,
-    psizero: np.ndarray,
+    wavezero: np.ndarray,
     order: Optional[int] = 1,
     norm: Optional[str] = "bandpass",
 ) -> np.ndarray:
@@ -277,7 +281,7 @@ def _morsewave_first_family(
     r = (2 * be + 1) / ga
     c = r - 1
     L = np.zeros_like(om, dtype="float")
-    psif1 = np.zeros((np.shape(psizero)[0], order))
+    wavef1 = np.zeros((np.shape(wavezero)[0], order))
 
     for i in np.arange(0, order):
         if norm == "energy":
@@ -291,9 +295,9 @@ def _morsewave_first_family(
 
         index = slice(0, int(np.round(n / 2)))  # how to define indices?
         L[index] = _laguerre(2 * om[index] ** ga, i, c)
-        psif1[:, i] = coeff * psizero * L
+        wavef1[:, i] = coeff * wavezero * L
 
-    return psif1
+    return wavef1
 
 
 def morsefreq(
@@ -411,10 +415,10 @@ def _morsehigh(
     for i in range(0, len(ga)):
         fm, _, _ = morsefreq(ga[i], be[i])
         om = fm * np.pi / omhigh
-        lnpsi1 = be[i] / ga[i] * np.log(np.exp(1) * ga[i] / be[i])
-        lnpsi2 = be[i] * np.log(om) - om ** ga[i]
-        lnpsi = lnpsi1 + lnpsi2
-        index = np.nonzero(np.log(eta) - lnpsi < 0)[0][0]
+        lnwave1 = be[i] / ga[i] * np.log(np.exp(1) * ga[i] / be[i])
+        lnwave2 = be[i] * np.log(om) - om ** ga[i]
+        lnwave = lnwave1 + lnwave2
+        index = np.nonzero(np.log(eta) - lnwave < 0)[0][0]
         f[i] = omhigh[index]
 
     return f
@@ -457,7 +461,9 @@ def morseafun(
     # add test for type and shape in case of ndarray
     if norm == "energy":
         r = (2 * be + 1) / ga
-        a = (2 * np.pi * ga * (2**r) * np.exp(_lgamma(order) - _lgamma(order + r - 1))) ** 0.5
+        a = (
+            2 * np.pi * ga * (2**r) * np.exp(_lgamma(order) - _lgamma(order + r - 1))
+        ) ** 0.5
     elif norm == "bandpass":
         om, _, _ = morsefreq(ga, be)
         a = np.where(be == 0, 2, 2 / (np.exp(be * np.log(om) - om**ga)))

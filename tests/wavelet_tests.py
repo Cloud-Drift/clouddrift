@@ -15,11 +15,11 @@ class wavetrans_tests(unittest.TestCase):
     def test_wavetrans_boundary(self):
         n = 1023
         fs = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
-        psi, psif = morsewave(n, 2, 4, fs, order=1, norm="bandpass")
+        wave, wavef = morsewave(n, 2, 4, fs, order=1, norm="bandpass")
         x = np.random.random((n))
-        w1 = wavetrans(x - np.mean(x), psi, boundary="mirror")
-        w2 = wavetrans(x - np.mean(x), psi, boundary="periodic")
-        w3 = wavetrans(x - np.mean(x), psi, boundary="zeros")
+        w1 = wavetrans(x - np.mean(x), wave, boundary="mirror")
+        w2 = wavetrans(x - np.mean(x), wave, boundary="periodic")
+        w3 = wavetrans(x - np.mean(x), wave, boundary="zeros")
         s = slice(int(n / 4 - 1), int(n / 4 - 1 + n / 2))
         # not sure why the real part only succeeds
         self.assertTrue(np.allclose(np.real(w1[..., s]), np.real(w2[..., s])))
@@ -31,13 +31,13 @@ class wavetrans_tests(unittest.TestCase):
     def test_wavetrans_complex(self):
         n = 1023
         fs = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
-        psi, psif = morsewave(n, 2, 4, fs, order=1, norm="bandpass")
+        wave, wavef = morsewave(n, 2, 4, fs, order=1, norm="bandpass")
         x = np.random.random((n))
         y = np.random.random((n))
-        wx = wavetrans(x, psi, boundary="mirror", norm="bandpass")
-        wy = wavetrans(y, psi, boundary="mirror", norm="bandpass")
-        wp = wavetrans(x + 1j * y, psi, boundary="mirror", norm="bandpass")
-        wn = wavetrans(x - 1j * y, psi, boundary="mirror", norm="bandpass")
+        wx = wavetrans(x, wave, boundary="mirror", norm="bandpass")
+        wy = wavetrans(y, wave, boundary="mirror", norm="bandpass")
+        wp = wavetrans(x + 1j * y, wave, boundary="mirror", norm="bandpass")
+        wn = wavetrans(x - 1j * y, wave, boundary="mirror", norm="bandpass")
         wp2 = 0.5 * (wx + 1j * wy)
         wn2 = 0.5 * (wx - 1j * wy)
         self.assertTrue(np.allclose(wp, wp2, atol=1e-6))
@@ -51,17 +51,17 @@ class wavetrans_tests(unittest.TestCase):
         ga = 3
         be = 4
         x = np.random.random((m, n))
-        psi, _ = morsewave(n, ga, be, fs, order=order)
-        w = wavetrans(x, psi)
+        wave, _ = morsewave(n, ga, be, fs, order=order)
+        w = wavetrans(x, wave)
         self.assertTrue(np.shape(w) == (m, order, len(fs), n))
 
     def test_wavetrans_centered(self):
         J = 10
         ao = np.logspace(np.log10(5), np.log10(40), J) / 100
         x = np.zeros(2**10)
-        psi, _ = morsewave(len(x), 2, 4, ao, order=1)
+        wave, _ = morsewave(len(x), 2, 4, ao, order=1)
         x[2**9] = 1
-        y = wavetrans(x, psi)
+        y = wavetrans(x, wave)
         m = np.argmax(np.abs(y), axis=-1)
         self.assertTrue(np.allclose(m, 2**9))
 
@@ -77,8 +77,8 @@ class morsewave_tests(unittest.TestCase):
         be = 4
         order = 2
         n = 1023
-        psi, _ = morsewave(n, ga, be, fs, order=order, norm="energy")
-        nrg = np.sum(np.abs(psi) ** 2, axis=-1)
+        wave, _ = morsewave(n, ga, be, fs, order=order, norm="energy")
+        nrg = np.sum(np.abs(wave) ** 2, axis=-1)
         self.assertTrue(np.allclose(1, nrg, atol=1e-4))
 
 
@@ -152,10 +152,10 @@ class morseafun_tests(unittest.TestCase):
         # gagrid = np.tile(np.expand_dims(ga,-1), np.shape(omgrid)[2])
         # begrid = np.tile(np.expand_dims(be,-1), np.shape(omgrid)[2])
         # agrid = np.tile(np.expand_dims(a,-1), np.shape(omgrid)[2])
-        # psi = agrid * omgrid**begrid * np.exp(-omgrid**gagrid)
+        # wave = agrid * omgrid**begrid * np.exp(-omgrid**gagrid)
         # dom = 0.01
-        # psiint = np.sum(psi**2,axis=-1) * dom * om / (2 * np.pi)
-        # self.assertTrue(np.allclose(np.abs(psiint-1),1e-2))
+        # waveint = np.sum(wave**2,axis=-1) * dom * om / (2 * np.pi)
+        # self.assertTrue(np.allclose(np.abs(waveint-1),1e-2))
         # self.assertTrue(True)
         ga = 3
         be = 5
