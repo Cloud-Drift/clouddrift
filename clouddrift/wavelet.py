@@ -89,9 +89,9 @@ def wavetrans(
 
     if ~np.all(np.isreal(x)):
         if norm == "energy":
-            x_ = x_ / np.sqrt(2)
+            x_ /= np.sqrt(2)
         elif norm == "bandpass":
-            x_ = x_ / 2
+            x_ /= 2
 
     # to do: add detrending option by default?
 
