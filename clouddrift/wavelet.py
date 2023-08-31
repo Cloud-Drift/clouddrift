@@ -204,14 +204,14 @@ def morsewave(
     """
     # add a test for rad_freq being a numpy array
     # initialization
-    wave = np.zeros((n, order, len(rad_freq)), dtype="cdouble")
-    wavefft = np.zeros((n, order, len(rad_freq)), dtype="cdouble")
+    wave = np.zeros((n, order, len(rad_freq)), dtype=np.complex128)
+    wavefft = np.zeros((n, order, len(rad_freq)), dtype=np.complex128)
 
     # call to morsewave take only ga and be as float, no array
     fo, _, _ = morsefreq(ga, be)
-    for i in range(0, len(rad_freq)):
-        wave_tmp = np.zeros((n, order), dtype="cdouble")
-        wavefft_tmp = np.zeros((n, order), dtype="cdouble")
+    for i in range(len(rad_freq)):
+        wave_tmp = np.zeros((n, order), dtype=np.complex128)
+        wavefft_tmp = np.zeros((n, order), dtype=np.complex128)
 
         # wavelet frequencies
         fact = np.abs(rad_freq[i]) / fo
