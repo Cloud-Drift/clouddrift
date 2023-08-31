@@ -115,7 +115,7 @@ def wavetrans(
     wave_ = np.zeros((order_length, freq_length, time_length_), dtype="cfloat")
     # display(np.shape(wave_))
     index = slice(
-        int(0 + np.floor(time_length_ - time_length) / 2),
+        int(np.floor(time_length_ - time_length) / 2),
         int(time_length + np.floor(time_length_ - time_length) / 2),
     )
     wave_[:, :, index] = wave
