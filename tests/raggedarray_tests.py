@@ -20,8 +20,8 @@ class raggedarray_tests(TestCase):
         Create ragged array and output netCDF and Parquet file
         """
         self.drifter_id = [1, 2, 3]
-        self.count = [10, 8, 2]
-        self.nb_obs = np.sum(self.count)
+        self.rowsize = [10, 8, 2]
+        self.nb_obs = np.sum(self.rowsize)
         self.nb_traj = len(self.drifter_id)
         self.attrs_global = {
             "title": "test trajectories",
@@ -31,17 +31,17 @@ class raggedarray_tests(TestCase):
 
         # append xr.Dataset to a list
         list_ds = []
-        for i in range(0, len(self.count)):
+        for i in range(0, len(self.rowsize)):
             xr_coords = {}
             for var in ["lon", "lat", "time"]:
                 xr_coords[var] = (
                     ["obs"],
-                    np.random.rand(self.count[i]),
+                    np.random.rand(self.rowsize[i]),
                     {"long_name": f"variable {var}", "units": "-"},
                 )
             xr_coords["ids"] = (
                 ["obs"],
-                np.ones(self.count[i], dtype="int") * self.drifter_id[i],
+                np.ones(self.rowsize[i], dtype="int") * self.drifter_id[i],
                 {"long_name": f"variable ids", "units": "-"},
             )
 
@@ -53,12 +53,12 @@ class raggedarray_tests(TestCase):
             )
             xr_data["rowsize"] = (
                 ["traj"],
-                [self.count[i]],
+                [self.rowsize[i]],
                 {"long_name": f"variable rowsize", "units": "-"},
             )
             xr_data["temp"] = (
                 ["obs"],
-                np.random.rand(self.count[i]),
+                np.random.rand(self.rowsize[i]),
                 {"long_name": f"variable temp", "units": "-"},
             )
 
