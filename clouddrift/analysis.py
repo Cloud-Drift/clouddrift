@@ -997,9 +997,9 @@ def subset(
 
     for key in criteria.keys():
         if key in ds:
-            if ds[key].dims == ("traj",):
+            if ds[key].dims == (traj_dim_name,):
                 mask_traj = np.logical_and(mask_traj, mask_var(ds[key], criteria[key]))
-            elif ds[key].dims == ("obs",):
+            elif ds[key].dims == (obs_dim_name,):
                 mask_obs = np.logical_and(mask_obs, mask_var(ds[key], criteria[key]))
         else:
             raise ValueError(f"Unknown variable '{key}'.")
