@@ -8,6 +8,7 @@ from clouddrift.sphere import (
     bearing,
     position_from_distance_and_bearing,
     sphere_to_threedim,
+    threedim_to_sphere,
     EARTH_RADIUS_METERS,
 )
 import unittest
@@ -305,15 +306,43 @@ class sphere_to_plane_roundtrip(unittest.TestCase):
 
 
 class sphere_to_threedim_tests(unittest.TestCase):
-    def test_sphere_to_3d(self):
+    def test_sphere_to_threedim(self):
         lon = np.array([0, 90, 0, -90, 0]).astype(np.double)
         lat = np.array([0, 0, 45, 45, -90]).astype(np.double)
         x, y, z = sphere_to_threedim(lon, lat, earth_radius=1)
-        x_expected = np.array([1, 0, np.sqrt(2) / 2, 0, 0]).astype(np.double)
-        y_expected = np.array([0, 1, 0, -np.sqrt(2) / 2, 0]).astype(np.double)
-        z_expected = np.array([0, 0, np.sqrt(2) / 2, np.sqrt(2) / 2, -1]).astype(
-            np.double
-        )
-        self.assertTrue(np.allclose(x, x_expected,atol=1e-6))
-        self.assertTrue(np.allclose(y, y_expected,atol=1e-6))
-        self.assertTrue(np.allclose(z, z_expected,atol=1e-6))
+        x_expected = np.array([1, 0, np.sqrt(2) / 2, 0, 0])
+        y_expected = np.array([0, 1, 0, -np.sqrt(2) / 2, 0])
+        z_expected = np.array([0, 0, np.sqrt(2) / 2, np.sqrt(2) / 2, -1])
+        self.assertTrue(np.allclose(x, x_expected, atol=1e-6))
+        self.assertTrue(np.allclose(y, y_expected, atol=1e-6))
+        self.assertTrue(np.allclose(z, z_expected, atol=1e-6))
+
+    def test_sphere_to_threedim_invert(self):
+        lon = np.random.uniform(size=100) * 360
+        lat = np.random.uniform(size=100) * 180 - 90
+        x, y, z = sphere_to_threedim(lon, lat)
+        lon2, lat2 = threedim_to_sphere(x, y, z)
+        self.assertTrue(np.allclose(lon, np.mod(lon2, 360)))
+        self.assertTrue(np.allclose(lat, lat2))
+
+
+class threedim_to_sphere_tests(unittest.TestCase):
+    def test_threedim_to_sphere(self):
+        x = EARTH_RADIUS_METERS * np.array([1, 0, -1, 0, 0, 0])
+        y = EARTH_RADIUS_METERS * np.array([0, 1, 0, -1, 0, 0])
+        z = EARTH_RADIUS_METERS * np.array([0, 0, 0, 0, 1, -1])
+        lon_expected = np.array([0, 90, 180, -90, 0, 0])
+        lat_expected = np.array([0, 0, 0, 0, 90, -90])
+        lon, lat = threedim_to_sphere(x, y, z)
+        self.assertTrue(np.allclose(lon, lon_expected))
+        self.assertTrue(np.allclose(lat, lat_expected))
+
+    def test_threedim_to_sphere_invert(self):
+        x = np.random.random(size=100)
+        y = np.random.random(size=100)
+        z = np.random.random(size=100)
+        lon, lat = threedim_to_sphere(x, y, z)
+        x2, y2, z2 = sphere_to_threedim(lon, lat, earth_radius=1)
+        self.assertTrue(np.allclose(x, x2))
+        self.assertTrue(np.allclose(y, y2))
+        self.assertTrue(np.allclose(z, z2))

@@ -444,34 +444,47 @@ def sphere_to_threedim(
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Converts latitude and longitude into 3D Cartesian coordinates.
 
-    If converting multiple trajectories, use
-    :func:`apply_ragged` for highest accuracy.
+    The Cartesian coordinate system is a right-handed system whose
+    origin lies at the center of the sphere.  It is oriented with the
+    Z-axis passing through the poles and the X-axis passing through
+    the point lon = 0, lat = 0. This function is inverted by `threedim_to_sphere`.
 
     Parameters
     ----------
     lon : np.ndarray
-        An N-d array of longitudes in degrees
+        An N-d array of longitudes in degrees.
     lat : np.ndarray
-        An N-d array of latitudes in degrees
+        An N-d array of latitudes in degrees.
     earth_radius: float, optional
-        The radius of the Earth in meters. Default is EARTH_RADIUS_METERS = 6.3781e6
+        The radius of the Earth in meters. Default is EARTH_RADIUS_METERS = 6.3781e6.
 
     Returns
     -------
     x : np.ndarray
-        x-coordinates in 3D
+        x-coordinates in 3D in meters.
     y : np.ndarray
-        y-coordinates in 3D
+        y-coordinates in 3D in meters.
     z : np.ndarray
-        z-coordinates in 3D
+        z-coordinates in 3D in meters.
 
     Examples
     --------
+    >>> sphere_to_threedim(np.array([0, 45]),np.array([0, 45]))
+    (array([6378100., 3189050.]),
+    array([      0., 3189050.]),
+    array([      0.        , 4509997.76108592]))
+
+    >>> sphere_to_threedim(np.array([0, 45, 90]),np.array([0, 90, 180]),earth_radius=1)
+    (array([ 1.00000000e+00,  4.32978028e-17, -6.12323400e-17]),
+    array([ 0.00000000e+00,  4.32978028e-17, -1.00000000e+00]),
+    array([0.0000000e+00, 1.0000000e+00, 1.2246468e-16]))
+
+    >>> x, y, z = sphere_to_threedim(np.array([0,5]),np.array([0,5]))
 
     Raises
     ------
     AttributeError
-        If ``lon`` and ``lat`` are not NumPy arrays
+        If ``lon`` and ``lat`` are not NumPy arrays.
 
     See Also
     --------
@@ -490,56 +503,63 @@ def sphere_to_threedim(
 
 
 def threedim_to_sphere(
-    lon: np.ndarray,
-    lat: np.ndarray,
-    earth_radius: Optional[float] = EARTH_RADIUS_METERS,
+    x: np.ndarray,
+    y: np.ndarray,
+    z: np.ndarray,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Converts 3D Cartesian coordinates to latitude and longitude.
 
-    If converting multiple trajectories, use
-    :func:`apply_ragged` for highest accuracy.
+    The Cartesian coordinate system is a right-handed system whose
+    origin lies at the center of the sphere.  It is oriented with the
+    Z-axis passing through the poles and the X-axis passing through
+    the point lon = 0, lat = 0. This function is inverted by `sphere_to_threedim`.
 
     Parameters
     -------
     x : np.ndarray
-        x-coordinates in 3D
+        x-coordinates in 3D.
     y : np.ndarray
-        y-coordinates in 3D
+        y-coordinates in 3D.
     z : np.ndarray
-        z-coordinates in 3D
-    earth_radius: float, optional
-        The radius of the Earth in meters. Default is EARTH_RADIUS_METERS = 6.3781e6
+        z-coordinates in 3D.
 
     Returns
     ----------
     lon : np.ndarray
-        An N-d array of longitudes in degrees
+        An N-d array of longitudes in degrees in range [-180, 180].
     lat : np.ndarray
-        An N-d array of latitudes in degrees
+        An N-d array of latitudes in degrees.
 
     Examples
     --------
+    >>> x = EARTH_RADIUS_METERS * np.cos(45 * np.pi / 180)
+    >>> y = EARTH_RADIUS_METERS * np.cos(45 * np.pi / 180)
+    >>> z = 0 * x
+    >>> threedim_to_sphere(x, y, z)
+    (44.99999999999985, 0.0)
 
-    To write.
+    `threedim_to_sphere` can invert `sphere_to_threedim`:
+
+    >>> x, y, z = sphere_to_threedim(np.array([45]),np.array(0))
+    >>> threedim_to_sphere(x, y, z)
+    (array([45.]), array([0.]))
 
     Raises
     ------
     AttributeError
-        If ``lon`` and ``lat`` are not NumPy arrays
+        If ``x``, ``y``, and ``z`` are not NumPy arrays.
 
     See Also
     --------
     :func:`sphere_to_threedim`
     """
+
     R = np.sqrt(np.abs(x) ** 2 + np.abs(y) ** 2 + np.abs(z) ** 2)
     x /= R
     y /= R
     z /= R
 
-    phi = np.asin(z)
-    th = np.imlog(x + np.sqrt(-1) * y)
-
-    lat = phi * 180 / n.pi
-    lon = th * 180 / np.pi
+    lon = recast_lon180(np.imag(np.log((x + 1j * y)))) * 180 / np.pi
+    lat = np.arcsin(z) * 180 / np.pi
 
     return lon, lat
