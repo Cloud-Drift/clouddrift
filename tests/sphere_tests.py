@@ -7,6 +7,7 @@ from clouddrift.sphere import (
     distance,
     bearing,
     position_from_distance_and_bearing,
+    sphere_to_threedim,
     EARTH_RADIUS_METERS,
 )
 import unittest
@@ -301,3 +302,18 @@ class sphere_to_plane_roundtrip(unittest.TestCase):
 
         self.assertTrue(np.allclose(lon, expected_lon))
         self.assertTrue(np.allclose(lat, expected_lat))
+
+
+class sphere_to_threedim_tests(unittest.TestCase):
+    def test_sphere_to_3d(self):
+        lon = np.array([0, 90, 0, -90, 0]).astype(np.double)
+        lat = np.array([0, 0, 45, 45, -90]).astype(np.double)
+        x, y, z = sphere_to_threedim(lon, lat, earth_radius=1)
+        x_expected = np.array([1, 0, np.sqrt(2) / 2, 0, 0]).astype(np.double)
+        y_expected = np.array([0, 1, 0, -np.sqrt(2) / 2, 0]).astype(np.double)
+        z_expected = np.array([0, 0, np.sqrt(2) / 2, np.sqrt(2) / 2, -1]).astype(
+            np.double
+        )
+        self.assertTrue(np.allclose(x, x_expected,atol=1e-6))
+        self.assertTrue(np.allclose(y, y_expected,atol=1e-6))
+        self.assertTrue(np.allclose(z, z_expected,atol=1e-6))

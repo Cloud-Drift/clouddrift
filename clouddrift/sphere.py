@@ -435,3 +435,111 @@ def sphere_to_plane(
     y[..., :] = np.cumsum(dy, axis=-1)
 
     return x, y
+
+
+def sphere_to_threedim(
+    lon: np.ndarray,
+    lat: np.ndarray,
+    earth_radius: Optional[float] = EARTH_RADIUS_METERS,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Converts latitude and longitude into 3D Cartesian coordinates.
+
+    If converting multiple trajectories, use
+    :func:`apply_ragged` for highest accuracy.
+
+    Parameters
+    ----------
+    lon : np.ndarray
+        An N-d array of longitudes in degrees
+    lat : np.ndarray
+        An N-d array of latitudes in degrees
+    earth_radius: float, optional
+        The radius of the Earth in meters. Default is EARTH_RADIUS_METERS = 6.3781e6
+
+    Returns
+    -------
+    x : np.ndarray
+        x-coordinates in 3D
+    y : np.ndarray
+        y-coordinates in 3D
+    z : np.ndarray
+        z-coordinates in 3D
+
+    Examples
+    --------
+
+    Raises
+    ------
+    AttributeError
+        If ``lon`` and ``lat`` are not NumPy arrays
+
+    See Also
+    --------
+    :func:`threedim_to_sphere`
+    """
+
+    x = earth_radius * np.cos(lat * np.pi / 180) * np.cos(lon * np.pi / 180)
+    y = earth_radius * np.cos(lat * np.pi / 180) * np.sin(lon * np.pi / 180)
+    z = earth_radius * np.sin(lat * np.pi / 180)
+
+    x = np.nan_to_num(x, posinf=np.nan, neginf=np.nan)
+    y = np.nan_to_num(y, posinf=np.nan, neginf=np.nan)
+    z = np.nan_to_num(z, posinf=np.nan, neginf=np.nan)
+
+    return x, y, z
+
+
+def threedim_to_sphere(
+    lon: np.ndarray,
+    lat: np.ndarray,
+    earth_radius: Optional[float] = EARTH_RADIUS_METERS,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Converts 3D Cartesian coordinates to latitude and longitude.
+
+    If converting multiple trajectories, use
+    :func:`apply_ragged` for highest accuracy.
+
+    Parameters
+    -------
+    x : np.ndarray
+        x-coordinates in 3D
+    y : np.ndarray
+        y-coordinates in 3D
+    z : np.ndarray
+        z-coordinates in 3D
+    earth_radius: float, optional
+        The radius of the Earth in meters. Default is EARTH_RADIUS_METERS = 6.3781e6
+
+    Returns
+    ----------
+    lon : np.ndarray
+        An N-d array of longitudes in degrees
+    lat : np.ndarray
+        An N-d array of latitudes in degrees
+
+    Examples
+    --------
+
+    To write.
+
+    Raises
+    ------
+    AttributeError
+        If ``lon`` and ``lat`` are not NumPy arrays
+
+    See Also
+    --------
+    :func:`sphere_to_threedim`
+    """
+    R = np.sqrt(np.abs(x) ** 2 + np.abs(y) ** 2 + np.abs(z) ** 2)
+    x /= R
+    y /= R
+    z /= R
+
+    phi = np.asin(z)
+    th = np.imlog(x + np.sqrt(-1) * y)
+
+    lat = phi * 180 / n.pi
+    lon = th * 180 / np.pi
+
+    return lon, lat
