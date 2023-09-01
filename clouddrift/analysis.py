@@ -16,7 +16,7 @@ from clouddrift.sphere import distance, bearing, position_from_distance_and_bear
 def apply_ragged(
     func: callable,
     arrays: list[np.ndarray],
-    count: list[int],
+    rowsize: list[int],
     *args: tuple,
     executor: futures.Executor = futures.ThreadPoolExecutor(max_workers=None),
     **kwargs: dict,
@@ -24,7 +24,7 @@ def apply_ragged(
     """Apply a function to a ragged array.
 
     The function ``func`` will be applied to each contiguous row of ``arrays`` as
-    indicated by row sizes ``count``. The output of ``func`` will be
+    indicated by row sizes ``rowsize``. The output of ``func`` will be
     concatenated into a single ragged array.
 
     By default this function uses ``concurrent.futures.ThreadPoolExecutor`` to
@@ -41,7 +41,7 @@ def apply_ragged(
         Function to apply to each row of each ragged array in ``arrays``.
     arrays : list[np.ndarray] or np.ndarray
         An array or a list of arrays to apply ``func`` to.
-    count : list
+    rowsize : list
         List of integers specifying the number of data points in each row.
     *args : tuple
         Additional arguments to pass to ``func``.
@@ -64,31 +64,31 @@ def apply_ragged(
     multiple particles, the coordinates of which are found in the ragged arrays x, y, and t
     that share row sizes 2, 3, and 4:
 
-    >>> count = [2, 3, 4]
+    >>> rowsize = [2, 3, 4]
     >>> x = np.array([1, 2, 10, 12, 14, 30, 33, 36, 39])
     >>> y = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8])
     >>> t = np.array([1, 2, 1, 2, 3, 1, 2, 3, 4])
-    >>> u1, v1 = apply_ragged(velocity_from_position, [x, y, t], count, coord_system="cartesian")
+    >>> u1, v1 = apply_ragged(velocity_from_position, [x, y, t], rowsize, coord_system="cartesian")
     array([1., 1., 2., 2., 2., 3., 3., 3., 3.]),
     array([1., 1., 1., 1., 1., 1., 1., 1., 1.]))
 
     Raises
     ------
     ValueError
-        If the sum of ``count`` does not equal the length of ``arrays``.
+        If the sum of ``rowsize`` does not equal the length of ``arrays``.
     IndexError
         If empty ``arrays``.
     """
     # make sure the arrays is iterable
     if type(arrays) not in [list, tuple]:
         arrays = [arrays]
-    # validate count
+    # validate rowsize
     for arr in arrays:
-        if not sum(count) == len(arr):
-            raise ValueError("The sum of count must equal the length of arr.")
+        if not sum(rowsize) == len(arr):
+            raise ValueError("The sum of rowsize must equal the length of arr.")
 
     # split the array(s) into trajectories
-    arrays = [unpack_ragged(arr, count) for arr in arrays]
+    arrays = [unpack_ragged(arr, rowsize) for arr in arrays]
     iter = [[arrays[i][j] for i in range(len(arrays))] for j in range(len(arrays[0]))]
 
     # parallel execution
@@ -180,8 +180,8 @@ def chunk(
     notice that you must pass the array to chunk as an array-like, not a list:
 
     >>> x = np.array([1, 2, 3, 4, 5])
-    >>> count = [2, 1, 2]
-    >>> apply_ragged(chunk, x, count, 2)
+    >>> rowsize = [2, 1, 2]
+    >>> apply_ragged(chunk, x, rowsize, 2)
     array([[1, 2],
            [4, 5]])
 
@@ -217,8 +217,8 @@ def chunk(
 
 def prune(
     ragged: Union[list, np.ndarray, pd.Series, xr.DataArray],
-    count: Union[list, np.ndarray, pd.Series, xr.DataArray],
-    min_count: float,
+    rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
+    min_rowsize: float,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Within a ragged array, removes arrays less than a specified row size.
 
@@ -226,9 +226,9 @@ def prune(
     ----------
     ragged : np.ndarray or pd.Series or xr.DataArray
         A ragged array.
-    count : list or np.ndarray[int] or pd.Series or xr.DataArray[int]
+    rowsize : list or np.ndarray[int] or pd.Series or xr.DataArray[int]
         The size of each row in the input ragged array.
-    min_count :
+    min_rowsize :
         The minimum row size that will be kept.
 
     Returns
@@ -244,7 +244,7 @@ def prune(
     Raises
     ------
     ValueError
-        If the sum of ``count`` does not equal the length of ``arrays``.
+        If the sum of ``rowsize`` does not equal the length of ``arrays``.
     IndexError
         If empty ``ragged``.
 
@@ -256,17 +256,17 @@ def prune(
     ragged = apply_ragged(
         lambda x, min_len: x if len(x) >= min_len else np.empty(0, dtype=x.dtype),
         np.array(ragged),
-        count,
-        min_len=min_count,
+        rowsize,
+        min_len=min_rowsize,
     )
-    count = apply_ragged(
+    rowsize = apply_ragged(
         lambda x, min_len: x if x >= min_len else np.empty(0, dtype=x.dtype),
-        np.array(count),
-        np.ones_like(count),
-        min_len=min_count,
+        np.array(rowsize),
+        np.ones_like(rowsize),
+        min_len=min_rowsize,
     )
 
-    return ragged, count
+    return ragged, rowsize
 
 
 def regular_to_ragged(
@@ -313,14 +313,14 @@ def regular_to_ragged(
 
 def ragged_to_regular(
     ragged: Union[np.ndarray, pd.Series, xr.DataArray],
-    count: Union[list, np.ndarray, pd.Series, xr.DataArray],
+    rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
     fill_value: float = np.nan,
 ) -> np.ndarray:
     """Convert a ragged array to a two-dimensional array such that each contiguous segment
     of a ragged array is a row in the two-dimensional array. Each row of the two-dimensional
     array is padded with NaNs as needed. The length of the first dimension of the output
-    array is the length of ``count``. The length of the second dimension is the maximum
-    element of ``count``.
+    array is the length of ``rowsize``. The length of the second dimension is the maximum
+    element of ``rowsize``.
 
     Note: Although this function accepts parameters of type ``xarray.DataArray``,
     passing NumPy arrays is recommended for performance reasons.
@@ -329,7 +329,7 @@ def ragged_to_regular(
     ----------
     ragged : np.ndarray or pd.Series or xr.DataArray
         A ragged array.
-    count : list or np.ndarray[int] or pd.Series or xr.DataArray[int]
+    rowsize : list or np.ndarray[int] or pd.Series or xr.DataArray[int]
         The size of each row in the ragged array.
     fill_value : float, optional
         Fill value to use for the trailing elements of each row of the resulting
@@ -359,17 +359,17 @@ def ragged_to_regular(
     --------
     :func:`regular_to_ragged`
     """
-    res = fill_value * np.ones((len(count), int(max(count))), dtype=ragged.dtype)
-    unpacked = unpack_ragged(ragged, count)
-    for n in range(len(count)):
-        res[n, : int(count[n])] = unpacked[n]
+    res = fill_value * np.ones((len(rowsize), int(max(rowsize))), dtype=ragged.dtype)
+    unpacked = unpack_ragged(ragged, rowsize)
+    for n in range(len(rowsize)):
+        res[n, : int(rowsize[n])] = unpacked[n]
     return res
 
 
 def segment(
     x: np.ndarray,
     tolerance: Union[float, np.timedelta64, timedelta, pd.Timedelta],
-    count: np.ndarray[int] = None,
+    rowsize: np.ndarray[int] = None,
 ) -> np.ndarray[int]:
     """Divide an array into segments based on a tolerance value.
 
@@ -380,7 +380,7 @@ def segment(
     tolerance : float, np.timedelta64, timedelta, pd.Timedelta
         The maximum signed difference between consecutive points in a segment.
         The array x will be segmented wherever differences exceed the tolerance.
-    count : np.ndarray[int], optional
+    rowsize : np.ndarray[int], optional
         The size of rows if x is originally a ragged array. If present, x will be
         divided both by gaps that exceed the tolerance, and by the original rows
         of the ragged array.
@@ -401,12 +401,12 @@ def segment(
     array([1, 3, 2, 4, 1])
 
     If the array is already previously segmented (e.g. multiple rows in
-    a ragged array), then the ``count`` argument can be used to preserve
+    a ragged array), then the ``rowsize`` argument can be used to preserve
     the original segments:
 
     >>> x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
-    >>> count = [3, 2, 6]
-    >>> segment(x, 0.5, count)
+    >>> rowsize = [3, 2, 6]
+    >>> segment(x, 0.5, rowsize)
     array([1, 2, 1, 1, 1, 4, 1])
 
     The tolerance can also be negative. In this case, the input array is
@@ -419,11 +419,11 @@ def segment(
 
     To segment an array for both positive and negative gaps, invoke the function
     twice, once for a positive tolerance and once for a negative tolerance.
-    The result of the first invocation can be passed as the ``count`` argument
+    The result of the first invocation can be passed as the ``rowsize`` argument
     to the first ``segment`` invocation:
 
     >>> x = [1, 1, 2, 2, 1, 1, 2, 2]
-    >>> segment(x, 0.5, count=segment(x, -0.5))
+    >>> segment(x, 0.5, rowsize=segment(x, -0.5))
     array([2, 2, 2, 2])
 
     If the input array contains time objects, the tolerance must be a time interval:
@@ -444,7 +444,7 @@ def segment(
     else:
         positive_tol = tolerance >= 0
 
-    if count is None:
+    if rowsize is None:
         if positive_tol:
             exceeds_tolerance = np.diff(x) > tolerance
         else:
@@ -453,11 +453,11 @@ def segment(
         segment_sizes = np.append(segment_sizes, len(x) - np.sum(segment_sizes))
         return segment_sizes
     else:
-        if not sum(count) == len(x):
-            raise ValueError("The sum of count must equal the length of x.")
+        if not sum(rowsize) == len(x):
+            raise ValueError("The sum of rowsize must equal the length of x.")
         segment_sizes = []
         start = 0
-        for r in count:
+        for r in rowsize:
             end = start + int(r)
             segment_sizes.append(segment(x[start:end], tolerance))
             start = end
@@ -1029,7 +1029,9 @@ def subset(
         return ds_sub
 
 
-def unpack_ragged(ragged_array: np.ndarray, count: np.ndarray[int]) -> list[np.ndarray]:
+def unpack_ragged(
+    ragged_array: np.ndarray, rowsize: np.ndarray[int]
+) -> list[np.ndarray]:
     """Unpack a ragged array into a list of regular arrays.
 
     Unpacking a ``np.ndarray`` ragged array is about 2 orders of magnitude
@@ -1040,7 +1042,7 @@ def unpack_ragged(ragged_array: np.ndarray, count: np.ndarray[int]) -> list[np.n
     ----------
     ragged_array : array-like
         A ragged_array to unpack
-    count : array-like
+    rowsize : array-like
         An array of integers whose values is the size of each row in the ragged
         array
 
@@ -1048,7 +1050,7 @@ def unpack_ragged(ragged_array: np.ndarray, count: np.ndarray[int]) -> list[np.n
     -------
     list
         A list of array-likes with sizes that correspond to the values in
-        count, and types that correspond to the type of ragged_array
+        rowsize, and types that correspond to the type of ragged_array
 
     Examples
     --------
@@ -1057,8 +1059,8 @@ def unpack_ragged(ragged_array: np.ndarray, count: np.ndarray[int]) -> list[np.n
 
     .. code-block:: python
 
-        lon = unpack_ragged(ds.lon, ds["count"]) # return a list[xr.DataArray] (slower)
-        lon = unpack_ragged(ds.lon.values, ds["count"]) # return a list[np.ndarray] (faster)
+        lon = unpack_ragged(ds.lon, ds["rowsize"]) # return a list[xr.DataArray] (slower)
+        lon = unpack_ragged(ds.lon.values, ds["rowsize"]) # return a list[np.ndarray] (faster)
 
     Looping over trajectories in a ragged Xarray Dataset to compute velocities
     for each:
@@ -1066,11 +1068,11 @@ def unpack_ragged(ragged_array: np.ndarray, count: np.ndarray[int]) -> list[np.n
     .. code-block:: python
 
         for lon, lat, time in list(zip(
-            unpack_ragged(ds.lon.values, ds["count"]),
-            unpack_ragged(ds.lat.values, ds["count"]),
-            unpack_ragged(ds.time.values, ds["count"])
+            unpack_ragged(ds.lon.values, ds["rowsize"]),
+            unpack_ragged(ds.lat.values, ds["rowsize"]),
+            unpack_ragged(ds.time.values, ds["rowsize"])
         )):
             u, v = velocity_from_position(lon, lat, time)
     """
-    indices = np.insert(np.cumsum(np.array(count)), 0, 0)
+    indices = np.insert(np.cumsum(np.array(rowsize)), 0, 0)
     return [ragged_array[indices[n] : indices[n + 1]] for n in range(indices.size - 1)]

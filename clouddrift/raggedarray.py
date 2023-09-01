@@ -77,7 +77,7 @@ class RaggedArray:
         name_coords: list,
         name_meta: Optional[list] = [],
         name_data: Optional[list] = [],
-        count_func: Optional[Callable[[int], int]] = None,
+        rowsize_func: Optional[Callable[[int], int]] = None,
         **kwargs,
     ):
         """Generate a ragged array archive from a list of trajectory files
@@ -94,7 +94,7 @@ class RaggedArray:
             Name of metadata variables to include in the archive (Defaults to [])
         name_data : list, optional
             Name of the data variables to include in the archive (Defaults to [])
-        count_func : Optional[Callable[[int], int]], optional
+        rowsize_func : Optional[Callable[[int], int]], optional
             Returns the number of observations from an identification number (to speed up processing) (Defaults to None)
 
         Returns
@@ -103,16 +103,16 @@ class RaggedArray:
             A RaggedArray instance
         """
         # if no method is supplied, get the dimension from the preprocessing function
-        count_func = (
-            count_func
-            if count_func
+        rowsize_func = (
+            rowsize_func
+            if rowsize_func
             else lambda i, **kwargs: preprocess_func(i, **kwargs).dims["obs"]
         )
-        count = cls.number_of_observations(count_func, indices, **kwargs)
+        rowsize = cls.number_of_observations(rowsize_func, indices, **kwargs)
         coords, metadata, data = cls.allocate(
             preprocess_func,
             indices,
-            count,
+            rowsize,
             name_coords,
             name_meta,
             name_data,
@@ -214,13 +214,13 @@ class RaggedArray:
 
     @staticmethod
     def number_of_observations(
-        count_func: Callable[[int], int], indices: list, **kwargs
+        rowsize_func: Callable[[int], int], indices: list, **kwargs
     ) -> np.array:
         """Iterate through the files and evaluate the number of observations.
 
         Parameters
         ----------
-        count_func : Callable[[int], int]]
+        rowsize_func : Callable[[int], int]]
             Function that returns the number observations of a trajectory from
             its identification number
         indices : list
@@ -231,7 +231,7 @@ class RaggedArray:
         np.ndarray
             Number of observations of each trajectory
         """
-        count = np.zeros(len(indices), dtype="int")
+        rowsize = np.zeros(len(indices), dtype="int")
 
         for i, index in tqdm(
             enumerate(indices),
@@ -239,8 +239,8 @@ class RaggedArray:
             desc="Retrieving the number of obs",
             ncols=80,
         ):
-            count[i] = count_func(index, **kwargs)
-        return count
+            rowsize[i] = rowsize_func(index, **kwargs)
+        return rowsize
 
     @staticmethod
     def attributes(
@@ -281,7 +281,7 @@ class RaggedArray:
     def allocate(
         preprocess_func: Callable[[int], xr.Dataset],
         indices: list,
-        count: list,
+        rowsize: list,
         name_coords: list,
         name_meta: list,
         name_data: list,
@@ -297,7 +297,7 @@ class RaggedArray:
             Returns a processed xarray Dataset from an identification number.
         indices : list
             List of indices separating trajectory in the ragged arrays.
-        count : list
+        rowsize : list
             List of the number of observations per trajectory.
         name_coords : list
             Name of the coordinate variables to include in the archive.
@@ -314,9 +314,9 @@ class RaggedArray:
 
         # open one file to get dtype of variables
         ds = preprocess_func(indices[0], **kwargs)
-        nb_traj = len(count)
-        nb_obs = np.sum(count).astype("int")
-        index_traj = np.insert(np.cumsum(count), 0, 0)
+        nb_traj = len(rowsize)
+        nb_obs = np.sum(rowsize).astype("int")
+        index_traj = np.insert(np.cumsum(rowsize), 0, 0)
 
         # allocate memory
         coords = {}
@@ -346,7 +346,7 @@ class RaggedArray:
             ncols=80,
         ):
             with preprocess_func(index, **kwargs) as ds:
-                size = count[i]
+                size = rowsize[i]
                 oid = index_traj[i]
 
                 for var in name_coords:
