@@ -922,10 +922,22 @@ def mask_var(
     return mask
 
 
-def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
+def subset(
+    ds: xr.Dataset,
+    criteria: dict,
+    id_var_name: str = "ID",
+    rowsize_var_name: str = "rowsize",
+    traj_dim_name: str = "traj",
+    obs_dim_name: str = "obs",
+) -> xr.Dataset:
     """Subset the dataset as a function of one or many criteria. The criteria are
     passed as a dictionary, where a variable to subset is assigned to either a
     range (valuemin, valuemax), a list [value1, value2, valueN], or a single value.
+
+    This function relies on specific names of the dataset dimensions and the
+    rowsize variables. The default expected values are listed in the Parameters
+    section, however, if your dataset uses different names for these dimensions
+    and variables, you can specify them using the optional arguments.
 
     Parameters
     ----------
@@ -933,6 +945,14 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
         Lagrangian dataset stored in two-dimensional or ragged array format
     criteria : dict
         dictionary containing the variables and the ranges/values to subset
+    id_var_name : str, optional
+        Name of the variable containing the ID of the trajectories (default is "ID")
+    rowsize_var_name : str, optional
+        Name of the variable containing the number of observations per trajectory (default is "rowsize")
+    traj_dim_name : str, optional
+        Name of the trajectory dimension (default is "traj")
+    obs_dim_name : str, optional
+        Name of the observation dimension (default is "obs")
 
     Returns
     -------
@@ -968,36 +988,32 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
     ValueError
         If one of the variable in a criterion is not found in the Dataset
     """
-    # Here we allow both the CloudDrift ("rowsize") and CF ("count") conventions.
-    if "count" in ds.variables:
-        rowsize_var = "count"
-    elif "rowsize" in ds.variables:
-        rowsize_var = "rowsize"
-    else:
-        raise ValueError(
-            "Ragged-array Dataset ds must have a 'count' or 'rowsize' variable."
-        )
-
-    mask_traj = xr.DataArray(data=np.ones(ds.dims["traj"], dtype="bool"), dims=["traj"])
-    mask_obs = xr.DataArray(data=np.ones(ds.dims["obs"], dtype="bool"), dims=["obs"])
+    mask_traj = xr.DataArray(
+        data=np.ones(ds.dims[traj_dim_name], dtype="bool"), dims=[traj_dim_name]
+    )
+    mask_obs = xr.DataArray(
+        data=np.ones(ds.dims[obs_dim_name], dtype="bool"), dims=[obs_dim_name]
+    )
 
     for key in criteria.keys():
         if key in ds:
-            if ds[key].dims == ("traj",):
+            if ds[key].dims == (traj_dim_name,):
                 mask_traj = np.logical_and(mask_traj, mask_var(ds[key], criteria[key]))
-            elif ds[key].dims == ("obs",):
+            elif ds[key].dims == (obs_dim_name,):
                 mask_obs = np.logical_and(mask_obs, mask_var(ds[key], criteria[key]))
         else:
             raise ValueError(f"Unknown variable '{key}'.")
 
     # remove data when trajectories are filtered
-    traj_idx = np.insert(np.cumsum(ds[rowsize_var].values), 0, 0)
+    traj_idx = np.insert(np.cumsum(ds[rowsize_var_name].values), 0, 0)
     for i in np.where(~mask_traj)[0]:
         mask_obs[slice(traj_idx[i], traj_idx[i + 1])] = False
 
     # remove trajectory completely filtered in mask_obs
+    ids = np.repeat(ds[id_var_name].values, ds[rowsize_var_name].values)
+    ids_with_mask_obs = ids[mask_obs]
     mask_traj = np.logical_and(
-        mask_traj, np.in1d(ds["ID"], np.unique(ds["ids"].isel({"obs": mask_obs})))
+        mask_traj, np.in1d(ds[id_var_name], np.unique(ids_with_mask_obs))
     )
 
     if not any(mask_traj):
@@ -1005,10 +1021,9 @@ def subset(ds: xr.Dataset, criteria: dict) -> xr.Dataset:
         return xr.Dataset()
     else:
         # apply the filtering for both dimensions
-        ds_sub = ds.isel({"traj": mask_traj, "obs": mask_obs})
-        # update the rowsize
-        ds_sub[rowsize_var].values = segment(
-            ds_sub.ids, 0.5, rowsize=segment(ds_sub.ids, -0.5)
+        ds_sub = ds.isel({traj_dim_name: mask_traj, obs_dim_name: mask_obs})
+        _, ds_sub[rowsize_var_name].values = np.unique(
+            ids_with_mask_obs, return_counts=True
         )
         return ds_sub
 
