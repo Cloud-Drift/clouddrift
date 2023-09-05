@@ -437,18 +437,18 @@ def sphere_to_plane(
     return x, y
 
 
-def earthsphere_to_cartesian(
+def sphere_to_cartesian(
     lon: np.ndarray,
     lat: np.ndarray,
-    earth_radius: Optional[float] = EARTH_RADIUS_METERS,
+    radius: Optional[float] = EARTH_RADIUS_METERS,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Converts latitude and longitude on the spherical Earth to
-     Cartesian coordinates in three dimensions.
+    """Converts latitude and longitude on a spherical body to
+     three-dimensional Cartesian coordinates.
 
     The Cartesian coordinate system is a right-handed system whose
-    origin lies at the center of the spherical Earth.  It is oriented with the
+    origin lies at the center of a sphere.  It is oriented with the
     Z-axis passing through the poles and the X-axis passing through
-    the point lon = 0, lat = 0. This function is inverted by `cartesian_to_sphericalearth`.
+    the point lon = 0, lat = 0. This function is inverted by `cartesian_to_sphere`.
 
     Parameters
     ----------
@@ -456,8 +456,9 @@ def earthsphere_to_cartesian(
         An N-d array of longitudes in degrees.
     lat : np.ndarray
         An N-d array of latitudes in degrees.
-    earth_radius: float, optional
-        The radius of the Earth in meters. Default is EARTH_RADIUS_METERS = 6.3781e6.
+    radius: float, optional
+        The radius of the spherical body in meters. The default assumes the Earth with
+        EARTH_RADIUS_METERS = 6.3781e6.
 
     Returns
     -------
@@ -470,17 +471,17 @@ def earthsphere_to_cartesian(
 
     Examples
     --------
-    >>> earthsphere_to_cartesian(np.array([0, 45]),np.array([0, 45]))
+    >>> sphere_to_cartesian(np.array([0, 45]),np.array([0, 45]))
     (array([6378100., 3189050.]),
     array([      0., 3189050.]),
     array([      0.        , 4509997.76108592]))
 
-    >>> earthsphere_to_cartesian(np.array([0, 45, 90]),np.array([0, 90, 180]),earth_radius=1)
+    >>> sphere_to_cartesian(np.array([0, 45, 90]),np.array([0, 90, 180]),radius=1)
     (array([ 1.00000000e+00,  4.32978028e-17, -6.12323400e-17]),
     array([ 0.00000000e+00,  4.32978028e-17, -1.00000000e+00]),
     array([0.0000000e+00, 1.0000000e+00, 1.2246468e-16]))
 
-    >>> x, y, z = earthsphere_to_cartesian(np.array([0,5]),np.array([0,5]))
+    >>> x, y, z = sphere_to_cartesian(np.array([0,5]),np.array([0,5]))
 
     Raises
     ------
@@ -489,32 +490,29 @@ def earthsphere_to_cartesian(
 
     See Also
     --------
-    :func:`cartesian_to_earthsphere`
+    :func:`cartesian_to_sphere`
     """
+    lonr, latr = np.deg2rad(lon), np.deg2rad(lat)
 
-    x = earth_radius * np.cos(lat * np.pi / 180) * np.cos(lon * np.pi / 180)
-    y = earth_radius * np.cos(lat * np.pi / 180) * np.sin(lon * np.pi / 180)
-    z = earth_radius * np.sin(lat * np.pi / 180)
-
-    x = np.nan_to_num(x, posinf=np.nan, neginf=np.nan)
-    y = np.nan_to_num(y, posinf=np.nan, neginf=np.nan)
-    z = np.nan_to_num(z, posinf=np.nan, neginf=np.nan)
+    x = radius * np.cos(latr) * np.cos(lonr)
+    y = radius * np.cos(latr) * np.sin(lonr)
+    z = radius * np.sin(latr)
 
     return x, y, z
 
 
-def cartesian_to_earthsphere(
+def cartesian_to_sphere(
     x: np.ndarray,
     y: np.ndarray,
     z: np.ndarray,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Converts Cartesian threedimensional coordinates to latitude and longitude on the
-    spherical Earth.
+    """Converts Cartesian three-dimensional coordinates to latitude and longitude on a
+    spherical body.
 
     The Cartesian coordinate system is a right-handed system whose
     origin lies at the center of the sphere.  It is oriented with the
     Z-axis passing through the poles and the X-axis passing through
-    the point lon = 0, lat = 0. This function is inverted by `earthsphere_to_cartesian`.
+    the point lon = 0, lat = 0. This function is inverted by `sphere_to_cartesian`.
 
     Parameters
     -------
@@ -534,16 +532,16 @@ def cartesian_to_earthsphere(
 
     Examples
     --------
-    >>> x = EARTH_RADIUS_METERS * np.cos(45 * np.pi / 180)
-    >>> y = EARTH_RADIUS_METERS * np.cos(45 * np.pi / 180)
+    >>> x = EARTH_RADIUS_METERS * np.cos(np.deg2rad(45))
+    >>> y = EARTH_RADIUS_METERS * np.cos(np.deg2rad(45))
     >>> z = 0 * x
-    >>> cartesian_to_earthsphere(x, y, z)
+    >>> cartesian_to_sphere(x, y, z)
     (44.99999999999985, 0.0)
 
-    `cartesian_to_earthsphere` is inverted by `earthsphere_to_cartesian`:
+    `cartesian_to_sphere` is inverted by `sphere_to_cartesian`:
 
-    >>> x, y, z = earthsphere_to_cartesian(np.array([45]),np.array(0))
-    >>> cartesian_to_earthsphere(x, y, z)
+    >>> x, y, z = sphere_to_cartesian(np.array([45]),np.array(0))
+    >>> cartesian_to_sphere(x, y, z)
     (array([45.]), array([0.]))
 
     Raises
@@ -553,15 +551,15 @@ def cartesian_to_earthsphere(
 
     See Also
     --------
-    :func:`earthsphere_to_cartesian`
+    :func:`sphere_to_cartesian`
     """
 
-    R = np.sqrt(np.abs(x) ** 2 + np.abs(y) ** 2 + np.abs(z) ** 2)
+    R = np.sqrt(x**2 + y**2 + z**2)
     x /= R
     y /= R
     z /= R
 
-    lon = recast_lon180(np.imag(np.log((x + 1j * y)))) * 180 / np.pi
-    lat = np.arcsin(z) * 180 / np.pi
+    lon = recast_lon180(np.rad2deg(np.imag(np.log((x + 1j * y)))))
+    lat = np.rad2deg(np.arcsin(z))
 
     return lon, lat
