@@ -36,6 +36,9 @@ class recast_longitude_tests(unittest.TestCase):
             np.testing.assert_allclose(recast_lon180(np.array([200])), np.array([-160]))
         )
         self.assertIsNone(
+            np.testing.assert_allclose(recast_lon180(np.array([180])), np.array([-180]))
+        )
+        self.assertIsNone(
             np.testing.assert_allclose(recast_lon360(np.array([200])), np.array([200]))
         )
         self.assertIsNone(
@@ -51,6 +54,11 @@ class recast_longitude_tests(unittest.TestCase):
         self.assertIsNone(
             np.testing.assert_allclose(
                 recast_lon(np.array([200]), -200), np.array([-160])
+            )
+        )
+        self.assertIsNone(
+            np.testing.assert_allclose(
+                recast_lon(np.array([180]), -180), np.array([-180])
             )
         )
 

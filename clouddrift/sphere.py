@@ -195,20 +195,23 @@ def recast_lon(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
     Returns
     -------
     np.ndarray or float
-        Converted longitudes in the range `[lon0, lon0+360]`
+        Converted longitudes in the range `[lon0, lon0+360[`
 
     Examples
     --------
 
     By default, ``recast_lon`` converts longitude values to the range
-    `[-180, 180]`:
+    `[-180, 180[`:
 
     >>> recast_lon(200)
     -160
+    
+    >>> recast_lon(180)
+    -180
 
     The range of the output longitude is controlled by ``lon0``.
     For example, with ``lon0 = 0``, the longitude values are converted to the
-    range `[0, 360]`.
+    range `[0, 360[`.
 
     >>> recast_lon(200, -180)
     -160
@@ -227,7 +230,7 @@ def recast_lon(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
 
 
 def recast_lon360(lon: np.ndarray) -> np.ndarray:
-    """Recast (convert) longitude values to the range `[0, 360]`.
+    """Recast (convert) longitude values to the range `[0, 360[`.
     This is a convenience wrapper around :func:`recast_lon` with ``lon0 = 0``.
 
     Parameters
@@ -238,7 +241,7 @@ def recast_lon360(lon: np.ndarray) -> np.ndarray:
     Returns
     -------
     np.ndarray
-        Converted longitudes in the range `[0, 360]`
+        Converted longitudes in the range `[0, 360[`
 
     Examples
     --------
@@ -256,7 +259,7 @@ def recast_lon360(lon: np.ndarray) -> np.ndarray:
 
 
 def recast_lon180(lon: np.ndarray) -> np.ndarray:
-    """Recast (convert) longitude values to the range `[-180, 180]`.
+    """Recast (convert) longitude values to the range `[-180, 180[`.
     This is a convenience wrapper around :func:`recast_lon` with ``lon0 = -180``.
 
     Parameters
@@ -267,7 +270,7 @@ def recast_lon180(lon: np.ndarray) -> np.ndarray:
     Returns
     -------
     np.ndarray
-        Converted longitudes in the range `[-180, 180]`
+        Converted longitudes in the range `[-180, 180[`
 
     Examples
     --------
