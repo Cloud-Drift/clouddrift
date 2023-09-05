@@ -205,7 +205,7 @@ def recast_lon(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
 
     >>> recast_lon(200)
     -160
-    
+
     >>> recast_lon(180)
     -180
 
