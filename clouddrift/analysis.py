@@ -1011,9 +1011,9 @@ def subset(
 
     # remove trajectory completely filtered in mask_obs
     ids = np.repeat(ds[id_var_name].values, ds[rowsize_var_name].values)
-    unique_ids_with_mask_obs = np.unique(ids[mask_obs])
+    ids_with_mask_obs = ids[mask_obs]
     mask_traj = np.logical_and(
-        mask_traj, np.in1d(ds[id_var_name], unique_ids_with_mask_obs)
+        mask_traj, np.in1d(ds[id_var_name], np.unique(ids_with_mask_obs))
     )
 
     if not any(mask_traj):
@@ -1022,9 +1022,8 @@ def subset(
     else:
         # apply the filtering for both dimensions
         ds_sub = ds.isel({traj_dim_name: mask_traj, obs_dim_name: mask_obs})
-        # FIXME
-        ds_sub[rowsize_var_name].values = segment(
-            ds_sub.ids, 0.5, count=segment(ds_sub.ids, -0.5)
+        _, ds_sub[rowsize_var_name].values = np.unique(
+            ids_with_mask_obs, return_counts=True
         )
         return ds_sub
 
