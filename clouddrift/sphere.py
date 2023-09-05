@@ -195,20 +195,23 @@ def recast_lon(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
     Returns
     -------
     np.ndarray or float
-        Converted longitudes in the range `[lon0, lon0+360]`
+        Converted longitudes in the range `[lon0, lon0+360[`
 
     Examples
     --------
 
     By default, ``recast_lon`` converts longitude values to the range
-    `[-180, 180]`:
+    `[-180, 180[`:
 
     >>> recast_lon(200)
     -160
 
+    >>> recast_lon(180)
+    -180
+
     The range of the output longitude is controlled by ``lon0``.
     For example, with ``lon0 = 0``, the longitude values are converted to the
-    range `[0, 360]`.
+    range `[0, 360[`.
 
     >>> recast_lon(200, -180)
     -160
@@ -227,7 +230,7 @@ def recast_lon(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
 
 
 def recast_lon360(lon: np.ndarray) -> np.ndarray:
-    """Recast (convert) longitude values to the range `[0, 360]`.
+    """Recast (convert) longitude values to the range `[0, 360[`.
     This is a convenience wrapper around :func:`recast_lon` with ``lon0 = 0``.
 
     Parameters
@@ -238,7 +241,7 @@ def recast_lon360(lon: np.ndarray) -> np.ndarray:
     Returns
     -------
     np.ndarray
-        Converted longitudes in the range `[0, 360]`
+        Converted longitudes in the range `[0, 360[`
 
     Examples
     --------
@@ -256,7 +259,7 @@ def recast_lon360(lon: np.ndarray) -> np.ndarray:
 
 
 def recast_lon180(lon: np.ndarray) -> np.ndarray:
-    """Recast (convert) longitude values to the range `[-180, 180]`.
+    """Recast (convert) longitude values to the range `[-180, 180[`.
     This is a convenience wrapper around :func:`recast_lon` with ``lon0 = -180``.
 
     Parameters
@@ -267,7 +270,7 @@ def recast_lon180(lon: np.ndarray) -> np.ndarray:
     Returns
     -------
     np.ndarray
-        Converted longitudes in the range `[-180, 180]`
+        Converted longitudes in the range `[-180, 180[`
 
     Examples
     --------
@@ -435,3 +438,131 @@ def sphere_to_plane(
     y[..., :] = np.cumsum(dy, axis=-1)
 
     return x, y
+
+
+def sphere_to_cartesian(
+    lon: np.ndarray,
+    lat: np.ndarray,
+    radius: Optional[float] = EARTH_RADIUS_METERS,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Converts latitude and longitude on a spherical body to
+     three-dimensional Cartesian coordinates.
+
+    The Cartesian coordinate system is a right-handed system whose
+    origin lies at the center of a sphere.  It is oriented with the
+    Z-axis passing through the poles and the X-axis passing through
+    the point lon = 0, lat = 0. This function is inverted by `cartesian_to_sphere`.
+
+    Parameters
+    ----------
+    lon : np.ndarray
+        An N-d array of longitudes in degrees.
+    lat : np.ndarray
+        An N-d array of latitudes in degrees.
+    radius: float, optional
+        The radius of the spherical body in meters. The default assumes the Earth with
+        EARTH_RADIUS_METERS = 6.3781e6.
+
+    Returns
+    -------
+    x : np.ndarray
+        x-coordinates in 3D in meters.
+    y : np.ndarray
+        y-coordinates in 3D in meters.
+    z : np.ndarray
+        z-coordinates in 3D in meters.
+
+    Examples
+    --------
+    >>> sphere_to_cartesian(np.array([0, 45]),np.array([0, 45]))
+    (array([6378100., 3189050.]),
+    array([      0., 3189050.]),
+    array([      0.        , 4509997.76108592]))
+
+    >>> sphere_to_cartesian(np.array([0, 45, 90]),np.array([0, 90, 180]),radius=1)
+    (array([ 1.00000000e+00,  4.32978028e-17, -6.12323400e-17]),
+    array([ 0.00000000e+00,  4.32978028e-17, -1.00000000e+00]),
+    array([0.0000000e+00, 1.0000000e+00, 1.2246468e-16]))
+
+    >>> x, y, z = sphere_to_cartesian(np.array([0,5]),np.array([0,5]))
+
+    Raises
+    ------
+    AttributeError
+        If ``lon`` and ``lat`` are not NumPy arrays.
+
+    See Also
+    --------
+    :func:`cartesian_to_sphere`
+    """
+    lonr, latr = np.deg2rad(lon), np.deg2rad(lat)
+
+    x = radius * np.cos(latr) * np.cos(lonr)
+    y = radius * np.cos(latr) * np.sin(lonr)
+    z = radius * np.sin(latr)
+
+    return x, y, z
+
+
+def cartesian_to_sphere(
+    x: np.ndarray,
+    y: np.ndarray,
+    z: np.ndarray,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Converts Cartesian three-dimensional coordinates to latitude and longitude on a
+    spherical body.
+
+    The Cartesian coordinate system is a right-handed system whose
+    origin lies at the center of the sphere.  It is oriented with the
+    Z-axis passing through the poles and the X-axis passing through
+    the point lon = 0, lat = 0. This function is inverted by `sphere_to_cartesian`.
+
+    Parameters
+    -------
+    x : np.ndarray
+        x-coordinates in 3D.
+    y : np.ndarray
+        y-coordinates in 3D.
+    z : np.ndarray
+        z-coordinates in 3D.
+
+    Returns
+    ----------
+    lon : np.ndarray
+        An N-d array of longitudes in degrees in range [-180, 180].
+    lat : np.ndarray
+        An N-d array of latitudes in degrees.
+
+    Examples
+    --------
+    >>> x = EARTH_RADIUS_METERS * np.cos(np.deg2rad(45))
+    >>> y = EARTH_RADIUS_METERS * np.cos(np.deg2rad(45))
+    >>> z = 0 * x
+    >>> cartesian_to_sphere(x, y, z)
+    (44.99999999999985, 0.0)
+
+    `cartesian_to_sphere` is inverted by `sphere_to_cartesian`:
+
+    >>> x, y, z = sphere_to_cartesian(np.array([45]),np.array(0))
+    >>> cartesian_to_sphere(x, y, z)
+    (array([45.]), array([0.]))
+
+    Raises
+    ------
+    AttributeError
+        If ``x``, ``y``, and ``z`` are not NumPy arrays.
+
+    See Also
+    --------
+    :func:`sphere_to_cartesian`
+    """
+
+    R = np.sqrt(x**2 + y**2 + z**2)
+    x /= R
+    y /= R
+    z /= R
+
+    lon = recast_lon180(np.rad2deg(np.imag(np.log((x + 1j * y)))))
+    lat = np.rad2deg(np.arcsin(z))
+
+    return lon, lat
