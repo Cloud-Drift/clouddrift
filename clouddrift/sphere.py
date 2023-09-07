@@ -440,7 +440,7 @@ def sphere_to_plane(
     return x, y
 
 
-def sphere_to_cartesian(
+def spherical_to_cartesian(
     lon: np.ndarray,
     lat: np.ndarray,
     radius: Optional[float] = EARTH_RADIUS_METERS,
@@ -451,7 +451,7 @@ def sphere_to_cartesian(
     The Cartesian coordinate system is a right-handed system whose
     origin lies at the center of a sphere.  It is oriented with the
     Z-axis passing through the poles and the X-axis passing through
-    the point lon = 0, lat = 0. This function is inverted by `cartesian_to_sphere`.
+    the point lon = 0, lat = 0. This function is inverted by `cartesian_to_spherical`.
 
     Parameters
     ----------
@@ -474,17 +474,17 @@ def sphere_to_cartesian(
 
     Examples
     --------
-    >>> sphere_to_cartesian(np.array([0, 45]),np.array([0, 45]))
+    >>> spherical_to_cartesian(np.array([0, 45]),np.array([0, 45]))
     (array([6378100., 3189050.]),
     array([      0., 3189050.]),
     array([      0.        , 4509997.76108592]))
 
-    >>> sphere_to_cartesian(np.array([0, 45, 90]),np.array([0, 90, 180]),radius=1)
+    >>> spherical_to_cartesian(np.array([0, 45, 90]),np.array([0, 90, 180]),radius=1)
     (array([ 1.00000000e+00,  4.32978028e-17, -6.12323400e-17]),
     array([ 0.00000000e+00,  4.32978028e-17, -1.00000000e+00]),
     array([0.0000000e+00, 1.0000000e+00, 1.2246468e-16]))
 
-    >>> x, y, z = sphere_to_cartesian(np.array([0,5]),np.array([0,5]))
+    >>> x, y, z = spherical_to_cartesian(np.array([0,5]),np.array([0,5]))
 
     Raises
     ------
@@ -493,7 +493,7 @@ def sphere_to_cartesian(
 
     See Also
     --------
-    :func:`cartesian_to_sphere`
+    :func:`cartesian_to_spherical`
     """
     lonr, latr = np.deg2rad(lon), np.deg2rad(lat)
 
@@ -504,7 +504,7 @@ def sphere_to_cartesian(
     return x, y, z
 
 
-def cartesian_to_sphere(
+def cartesian_to_spherical(
     x: np.ndarray,
     y: np.ndarray,
     z: np.ndarray,
@@ -515,7 +515,7 @@ def cartesian_to_sphere(
     The Cartesian coordinate system is a right-handed system whose
     origin lies at the center of the sphere.  It is oriented with the
     Z-axis passing through the poles and the X-axis passing through
-    the point lon = 0, lat = 0. This function is inverted by `sphere_to_cartesian`.
+    the point lon = 0, lat = 0. This function is inverted by `spherical_to_cartesian`.
 
     Parameters
     -------
@@ -538,13 +538,13 @@ def cartesian_to_sphere(
     >>> x = EARTH_RADIUS_METERS * np.cos(np.deg2rad(45))
     >>> y = EARTH_RADIUS_METERS * np.cos(np.deg2rad(45))
     >>> z = 0 * x
-    >>> cartesian_to_sphere(x, y, z)
+    >>> cartesian_to_spherical(x, y, z)
     (44.99999999999985, 0.0)
 
-    `cartesian_to_sphere` is inverted by `sphere_to_cartesian`:
+    `cartesian_to_spherical` is inverted by `spherical_to_cartesian`:
 
-    >>> x, y, z = sphere_to_cartesian(np.array([45]),np.array(0))
-    >>> cartesian_to_sphere(x, y, z)
+    >>> x, y, z = spherical_to_cartesian(np.array([45]),np.array(0))
+    >>> cartesian_to_spherical(x, y, z)
     (array([45.]), array([0.]))
 
     Raises
@@ -554,7 +554,7 @@ def cartesian_to_sphere(
 
     See Also
     --------
-    :func:`sphere_to_cartesian`
+    :func:`spherical_to_cartesian`
     """
 
     R = np.sqrt(x**2 + y**2 + z**2)
