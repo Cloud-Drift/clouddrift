@@ -482,14 +482,14 @@ def morse_space(
     """
     gamma_ = np.array([gamma])
     beta_ = np.array([beta])
-    p, _, _ = morseprops(gamma_, beta_)
+    p, _, _ = morse_properties(gamma_, beta_)
 
     _high = _morsehigh(gamma_, beta_, high)
     high_ = np.min(np.append(_high, np.pi))
 
     _low = 2 * np.sqrt(2) * p * low / length
     low_ = np.max(np.append(_low, 0))
-
+    print([high_,low_])
     r = 1 + 1 / (density * p)
     m = np.floor(np.log10(high_ / low_) / np.log10(r))
     radian_frequency = high_ * np.ones(int(m + 1)) / r ** np.arange(0, m + 1)
@@ -553,7 +553,7 @@ def morse_properties(
     """
     # test common size? or could be broadcasted
     width = np.sqrt(gamma * beta)
-    skew = gamma - 3 / p
+    skew = gamma - 3 / width
     kurt = 3 - skew**2 - 2 / width**2
 
     return width, skew, kurt
