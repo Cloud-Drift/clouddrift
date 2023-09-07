@@ -1,6 +1,6 @@
 from clouddrift.wavelet import (
-    wavetrans,
-    morsewave,
+    wavelet_transform,
+    morse_wavelet,
     morsefreq,
     morseafun,
 )
@@ -11,16 +11,18 @@ if __name__ == "__main__":
     unittest.main()
 
 
-class wavetrans_tests(unittest.TestCase):
-    def test_wavetrans_boundary(self):
-        n = 1023
-        rad_freq = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
-        wave, wavef = morsewave(n, 2, 4, rad_freq, order=1, norm="bandpass")
-        x = np.random.random((n))
-        w1 = wavetrans(x - np.mean(x), wave, boundary="mirror")
-        w2 = wavetrans(x - np.mean(x), wave, boundary="periodic")
-        w3 = wavetrans(x - np.mean(x), wave, boundary="zeros")
-        s = slice(int(n / 4 - 1), int(n / 4 - 1 + n / 2))
+class wavelet_transform_tests(unittest.TestCase):
+    def test_wavelet_transform_boundary(self):
+        length = 1023
+        radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
+        wave, wavef = morse_wavelet(
+            length, 2, 4, radian_frequency, order=1, normalization="bandpass"
+        )
+        x = np.random.random((length))
+        w1 = wavelet_transform(x - np.mean(x), wave, boundary="mirror")
+        w2 = wavelet_transform(x - np.mean(x), wave, boundary="periodic")
+        w3 = wavelet_transform(x - np.mean(x), wave, boundary="zeros")
+        s = slice(int(length / 4 - 1), int(length / 4 - 1 + length / 2))
         # not sure why the real part only succeeds
         self.assertTrue(np.allclose(np.real(w1[..., s]), np.real(w2[..., s])))
         self.assertTrue(np.allclose(np.real(w1[..., s]), np.real(w3[..., s])))
@@ -28,65 +30,85 @@ class wavetrans_tests(unittest.TestCase):
         # self.assertTrue(np.allclose(np.abs(w1[..., s]), np.abs(w2[..., s])), atol=1e-2)
         # self.assertTrue(np.allclose(np.abs(w1[..., s]), np.abs(w3[..., s])), atol=1e-2)
 
-    def test_wavetrans_complex(self):
-        n = 1023
-        rad_freq = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
-        wave, wavef = morsewave(n, 2, 4, rad_freq, order=1, norm="bandpass")
-        x = np.random.random((n))
-        y = np.random.random((n))
-        wx = wavetrans(x, wave, boundary="mirror", norm="bandpass")
-        wy = wavetrans(y, wave, boundary="mirror", norm="bandpass")
-        wp = wavetrans(x + 1j * y, wave, boundary="mirror", norm="bandpass")
-        wn = wavetrans(x - 1j * y, wave, boundary="mirror", norm="bandpass")
+    def test_wavelet_transform_complex(self):
+        length = 1023
+        radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
+        wave, wavef = morse_wavelet(
+            length, 2, 4, radian_frequency, order=1, normalization="bandpass"
+        )
+        x = np.random.random((length))
+        y = np.random.random((length))
+        wx = wavelet_transform(x, wave, boundary="mirror", normalization="bandpass")
+        wy = wavelet_transform(y, wave, boundary="mirror", normalization="bandpass")
+        wp = wavelet_transform(
+            x + 1j * y, wave, boundary="mirror", normalization="bandpass"
+        )
+        wn = wavelet_transform(
+            x - 1j * y, wave, boundary="mirror", normalization="bandpass"
+        )
         wp2 = 0.5 * (wx + 1j * wy)
         wn2 = 0.5 * (wx - 1j * wy)
         self.assertTrue(np.allclose(wp, wp2, atol=1e-6))
         self.assertTrue(np.allclose(wn, wn2, atol=1e-6))
 
-    def test_wavetrans_sizes(self):
-        n = 1023
+    def test_wavelet_transform_size(self):
+        length = 1023
         m = 10
         order = 2
-        rad_freq = 2 * np.pi * np.array([0.1, 0.2, 0.3])
-        ga = 3
-        be = 4
-        x = np.random.random((m, n))
-        wave, _ = morsewave(n, ga, be, rad_freq, order=order)
-        w = wavetrans(x, wave)
-        self.assertTrue(np.shape(w) == (m, order, len(rad_freq), n))
+        radian_frequency = 2 * np.pi * np.array([0.1, 0.2, 0.3])
+        gamma = 3
+        beta = 4
+        x = np.random.random((m, m * 2, length))
+        wave, _ = morse_wavelet(length, gamma, beta, radian_frequency, order=order)
+        w = wavelet_transform(x, wave)
+        self.assertTrue(np.shape(w) == (m, m * 2, order, len(radian_frequency), length))
 
-    def test_wavetrans_centered(self):
+    def test_wavelet_transform_size_axis(self):
+        length = 1023
+        m = 10
+        order = 2
+        radian_frequency = 2 * np.pi * np.array([0.1, 0.2, 0.3])
+        gamma = 3
+        beta = 4
+        x = np.random.random((length, m, int(m / 2)))
+        wave, _ = morse_wavelet(length, gamma, beta, radian_frequency, order=order)
+        w = wavelet_transform(x, wave, time_axis=0)
+        self.assertTrue(np.shape(w) == (length, m, m / 2, order, len(radian_frequency)))
+
+    def test_wavelet_transform_centered(self):
         J = 10
         ao = np.logspace(np.log10(5), np.log10(40), J) / 100
         x = np.zeros(2**10)
-        wave, _ = morsewave(len(x), 2, 4, ao, order=1)
+        wave, _ = morse_wavelet(len(x), 2, 4, ao, order=1)
         x[2**9] = 1
-        y = wavetrans(x, wave)
+        y = wavelet_transform(x, wave)
         m = np.argmax(np.abs(y), axis=-1)
         self.assertTrue(np.allclose(m, 2**9))
 
-    def test_wavetrans_data(self):
+    def test_wavelet_transform_data(self):
         # to write
         self.assertTrue(True)
 
 
-class morsewave_tests(unittest.TestCase):
-    def test_morsewave_unitenergy(self):
-        rad_freq = 2 * np.pi / np.logspace(np.log10(5), np.log10(40))
-        ga = 2
-        be = 4
+class morse_wavelet_tests(unittest.TestCase):
+    def test_morse_wavelet_unitenergy(self):
+        radian_frequency = 2 * np.pi / np.logspace(np.log10(5), np.log10(40))
+        gamma = 2
+        beta = 4
         order = 2
-        n = 1023
-        wave, _ = morsewave(n, ga, be, rad_freq, order=order, norm="energy")
+        length = 1023
+        wave, _ = morse_wavelet(
+            length, gamma, beta, radian_frequency, order=order, normalization="energy"
+        )
         nrg = np.sum(np.abs(wave) ** 2, axis=-1)
         self.assertTrue(np.allclose(1, nrg, atol=1e-4))
 
 
 class morsefreq_tests(unittest.TestCase):
     def test_morsefreq_array(self):
-        ga = np.array([[3, 10, 20], [4, 4, 4]])
-        be = np.array([[50, 100, 200], [150, 250, 300]])
-        fm, fe, fi = morsefreq(ga, be)
+        gamma = np.array([[3, 10, 20], [4, 4, 4]])
+        beta = np.array([[50, 100, 200], [150, 250, 300]])
+        fm, fe, fi = morsefreq(gamma, beta)
         expected_fm = np.array(
             [
                 [2.55436477464518, 1.25892541179417, 1.12201845430196],
@@ -110,9 +132,9 @@ class morsefreq_tests(unittest.TestCase):
         self.assertTrue(np.allclose(fi, expected_fi))
 
     def test_morsefreq_float(self):
-        ga = 3
-        be = 50
-        fm, fe, fi = morsefreq(ga, be)
+        gamma = 3
+        beta = 50
+        fm, fe, fi = morsefreq(gamma, beta)
         expected_fm = 2.55436477464518
         expected_fe = 2.55439315237839
         expected_fi = 2.55447823649861
@@ -121,9 +143,9 @@ class morsefreq_tests(unittest.TestCase):
         self.assertTrue(np.isclose(fi, expected_fi))
 
     def test_morsefreq_beta_zero(self):
-        ga = 3
-        be = 0
-        fm, fe, fi = morsefreq(ga, be)
+        gamma = 3
+        beta = 0
+        fm, fe, fi = morsefreq(gamma, beta)
         expected_fm = 0.884997044500518
         expected_fe = 0.401190287437665
         expected_fi = 0.505468088156089
@@ -142,49 +164,51 @@ class morsespace_tests(unittest.TestCase):
 
 class morseafun_tests(unittest.TestCase):
     def test_morseafun_float(self):
-        # ga1 = np.arange(2, 10, 1)
-        # be1 = np.arange(1, 11, 1)
-        # ga, be = np.meshgrid(ga1, be1)
-        # om, _, _ = morsefreq(ga, be)
-        # omgrid = np.tile(np.arange(0, 20.01, 0.1), (len(be1), len(ga1), 1))
+        # gamma1 = np.arange(2, 10, 1)
+        # beta1 = np.arange(1, 11, 1)
+        # gamma, beta = np.meshgrid(gamma1, beta1)
+        # om, _, _ = morsefreq(gamma, beta)
+        # omgrid = np.tile(np.arange(0, 20.01, 0.1), (len(beta1), len(gamma1), 1))
         # omgrid = omgrid * np.tile(np.expand_dims(om,-1), np.shape(omgrid)[2])
-        # a = morseafun(ga,be,norm="energy")
-        # gagrid = np.tile(np.expand_dims(ga,-1), np.shape(omgrid)[2])
-        # begrid = np.tile(np.expand_dims(be,-1), np.shape(omgrid)[2])
+        # a = morseafun(gamma,beta,normalization="energy")
+        # gammagrid = np.tile(np.expand_dims(gamma,-1), np.shape(omgrid)[2])
+        # betagrid = np.tile(np.expand_dims(beta,-1), np.shape(omgrid)[2])
         # agrid = np.tile(np.expand_dims(a,-1), np.shape(omgrid)[2])
-        # wave = agrid * omgrid**begrid * np.exp(-omgrid**gagrid)
+        # wave = agrid * omgrid**betagrid * np.exp(-omgrid**gammagrid)
         # dom = 0.01
         # waveint = np.sum(wave**2,axis=-1) * dom * om / (2 * np.pi)
         # self.assertTrue(np.allclose(np.abs(waveint-1),1e-2))
         # self.assertTrue(True)
-        ga = 3
-        be = 5
-        self.assertTrue(np.isclose(morseafun(ga, be), 4.51966469068946))
+        gamma = 3
+        beta = 5
+        self.assertTrue(np.isclose(morseafun(gamma, beta), 4.51966469068946))
 
     def test_morseafun_array(self):
-        ga = np.array([3, 4, 5])
-        be = np.array([3, 5, 7])
+        gamma = np.array([3, 4, 5])
+        beta = np.array([3, 5, 7])
         expected_a = np.array([5.43656365691809, 5.28154010330058, 5.06364231419937])
-        self.assertTrue(np.allclose(morseafun(ga, be), expected_a))
+        self.assertTrue(np.allclose(morseafun(gamma, beta), expected_a))
 
     def test_morseafun_beta_zero(self):
-        ga = np.array([3, 4, 5])
-        be = np.array([0, 0, 0])
+        gamma = np.array([3, 4, 5])
+        beta = np.array([0, 0, 0])
         expected_a = np.array([2, 2, 2])
-        self.assertTrue(np.allclose(morseafun(ga, be), expected_a))
+        self.assertTrue(np.allclose(morseafun(gamma, beta), expected_a))
 
     def test_morseafun_ndarray(self):
-        ga = np.array([[3, 4], [5, 6]])
-        be = np.array([[5.6, 6.5], [7.5, 8.5]])
+        gamma = np.array([[3, 4], [5, 6]])
+        beta = np.array([[5.6, 6.5], [7.5, 8.5]])
         expected_a = np.array(
             [[4.03386834889409, 4.61446982215091], [4.87904507028292, 5.03482799479815]]
         )
-        self.assertTrue(np.allclose(morseafun(ga, be), expected_a))
+        self.assertTrue(np.allclose(morseafun(gamma, beta), expected_a))
 
     def test_morseafun_energy(self):
-        ga = np.array([[3, 4], [5, 6]])
-        be = np.array([[5.6, 6.5], [7.5, 8.5]])
+        gamma = np.array([[3, 4], [5, 6]])
+        beta = np.array([[5.6, 6.5], [7.5, 8.5]])
         expected_a = np.array(
             [[6.95583044131426, 9.24984207652964], [10.9133909718769, 12.2799204953579]]
         )
-        self.assertTrue(np.allclose(morseafun(ga, be, norm="energy"), expected_a))
+        self.assertTrue(
+            np.allclose(morseafun(gamma, beta, normalization="energy"), expected_a)
+        )
