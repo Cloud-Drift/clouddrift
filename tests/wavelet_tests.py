@@ -159,10 +159,13 @@ class morse_freq_tests(unittest.TestCase):
 class morse_space_tests(unittest.TestCase):
     def test_morse_space_high(self):
         self.assertTrue(True)
+
     # to write
     def test_morse_space_low(self):
         self.assertTrue(True)
+
     # to write
+
 
 class morse_properties_tests(unittest.TestCase):
     def test_morse_properties(self):
@@ -174,9 +177,11 @@ class morse_properties_tests(unittest.TestCase):
         # wavelet = morse_wavelet(length,gamma,beta,fm*dt)
         # t = np.arange(0,np.shape(wavelet)[-1])*dt
         # t -= np.mean(t)
-        # width, skew, kurt = morse_properties(gamma, beta)        
+        # width, skew, kurt = morse_properties(gamma, beta)
         self.assertTrue(True)
+
     # to write
+
 
 class morse_amplitude_tests(unittest.TestCase):
     def test_morse_amplitude_float(self):
