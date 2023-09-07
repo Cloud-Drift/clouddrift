@@ -1,8 +1,10 @@
 from clouddrift.wavelet import (
     wavelet_transform,
     morse_wavelet,
-    morsefreq,
-    morseafun,
+    morse_freq,
+    morse_amplitude,
+    morse_space,
+    morse_properties,
 )
 import numpy as np
 import unittest
@@ -104,11 +106,11 @@ class morse_wavelet_tests(unittest.TestCase):
         self.assertTrue(np.allclose(1, nrg, atol=1e-4))
 
 
-class morsefreq_tests(unittest.TestCase):
-    def test_morsefreq_array(self):
+class morse_freq_tests(unittest.TestCase):
+    def test_morse_freq_array(self):
         gamma = np.array([[3, 10, 20], [4, 4, 4]])
         beta = np.array([[50, 100, 200], [150, 250, 300]])
-        fm, fe, fi = morsefreq(gamma, beta)
+        fm, fe, fi = morse_freq(gamma, beta)
         expected_fm = np.array(
             [
                 [2.55436477464518, 1.25892541179417, 1.12201845430196],
@@ -131,10 +133,10 @@ class morsefreq_tests(unittest.TestCase):
         self.assertTrue(np.allclose(fe, expected_fe))
         self.assertTrue(np.allclose(fi, expected_fi))
 
-    def test_morsefreq_float(self):
+    def test_morse_freq_float(self):
         gamma = 3
         beta = 50
-        fm, fe, fi = morsefreq(gamma, beta)
+        fm, fe, fi = morse_freq(gamma, beta)
         expected_fm = 2.55436477464518
         expected_fe = 2.55439315237839
         expected_fi = 2.55447823649861
@@ -142,10 +144,10 @@ class morsefreq_tests(unittest.TestCase):
         self.assertTrue(np.isclose(fe, expected_fe))
         self.assertTrue(np.isclose(fi, expected_fi))
 
-    def test_morsefreq_beta_zero(self):
+    def test_morse_freq_beta_zero(self):
         gamma = 3
         beta = 0
-        fm, fe, fi = morsefreq(gamma, beta)
+        fm, fe, fi = morse_freq(gamma, beta)
         expected_fm = 0.884997044500518
         expected_fe = 0.401190287437665
         expected_fi = 0.505468088156089
@@ -154,23 +156,37 @@ class morsefreq_tests(unittest.TestCase):
         self.assertTrue(np.isclose(fi, expected_fi))
 
 
-class morsespace_tests(unittest.TestCase):
-    def test_morsespace_high(self):
+class morse_space_tests(unittest.TestCase):
+    def test_morse_space_high(self):
         self.assertTrue(True)
-
-    def test_morsespace_low(self):
+    # to write
+    def test_morse_space_low(self):
         self.assertTrue(True)
+    # to write
 
+class morse_properties_tests(unittest.TestCase):
+    def test_morse_properties(self):
+        # gamma = 5
+        # beta = 6
+        # length = 512*4
+        # fm, _, _ = morse_freq(gamma,beta)
+        # dt = 1/20
+        # wavelet = morse_wavelet(length,gamma,beta,fm*dt)
+        # t = np.arange(0,np.shape(wavelet)[-1])*dt
+        # t -= np.mean(t)
+        # width, skew, kurt = morse_properties(gamma, beta)        
+        self.assertTrue(True)
+    # to write
 
-class morseafun_tests(unittest.TestCase):
-    def test_morseafun_float(self):
+class morse_amplitude_tests(unittest.TestCase):
+    def test_morse_amplitude_float(self):
         # gamma1 = np.arange(2, 10, 1)
         # beta1 = np.arange(1, 11, 1)
         # gamma, beta = np.meshgrid(gamma1, beta1)
-        # om, _, _ = morsefreq(gamma, beta)
+        # om, _, _ = morse_freq(gamma, beta)
         # omgrid = np.tile(np.arange(0, 20.01, 0.1), (len(beta1), len(gamma1), 1))
         # omgrid = omgrid * np.tile(np.expand_dims(om,-1), np.shape(omgrid)[2])
-        # a = morseafun(gamma,beta,normalization="energy")
+        # a = morse_amplitude(gamma,beta,normalization="energy")
         # gammagrid = np.tile(np.expand_dims(gamma,-1), np.shape(omgrid)[2])
         # betagrid = np.tile(np.expand_dims(beta,-1), np.shape(omgrid)[2])
         # agrid = np.tile(np.expand_dims(a,-1), np.shape(omgrid)[2])
@@ -181,34 +197,36 @@ class morseafun_tests(unittest.TestCase):
         # self.assertTrue(True)
         gamma = 3
         beta = 5
-        self.assertTrue(np.isclose(morseafun(gamma, beta), 4.51966469068946))
+        self.assertTrue(np.isclose(morse_amplitude(gamma, beta), 4.51966469068946))
 
-    def test_morseafun_array(self):
+    def test_morse_amplitude_array(self):
         gamma = np.array([3, 4, 5])
         beta = np.array([3, 5, 7])
         expected_a = np.array([5.43656365691809, 5.28154010330058, 5.06364231419937])
-        self.assertTrue(np.allclose(morseafun(gamma, beta), expected_a))
+        self.assertTrue(np.allclose(morse_amplitude(gamma, beta), expected_a))
 
-    def test_morseafun_beta_zero(self):
+    def test_morse_amplitude_beta_zero(self):
         gamma = np.array([3, 4, 5])
         beta = np.array([0, 0, 0])
         expected_a = np.array([2, 2, 2])
-        self.assertTrue(np.allclose(morseafun(gamma, beta), expected_a))
+        self.assertTrue(np.allclose(morse_amplitude(gamma, beta), expected_a))
 
-    def test_morseafun_ndarray(self):
+    def test_morse_amplitude_ndarray(self):
         gamma = np.array([[3, 4], [5, 6]])
         beta = np.array([[5.6, 6.5], [7.5, 8.5]])
         expected_a = np.array(
             [[4.03386834889409, 4.61446982215091], [4.87904507028292, 5.03482799479815]]
         )
-        self.assertTrue(np.allclose(morseafun(gamma, beta), expected_a))
+        self.assertTrue(np.allclose(morse_amplitude(gamma, beta), expected_a))
 
-    def test_morseafun_energy(self):
+    def test_morse_amplitude_energy(self):
         gamma = np.array([[3, 4], [5, 6]])
         beta = np.array([[5.6, 6.5], [7.5, 8.5]])
         expected_a = np.array(
             [[6.95583044131426, 9.24984207652964], [10.9133909718769, 12.2799204953579]]
         )
         self.assertTrue(
-            np.allclose(morseafun(gamma, beta, normalization="energy"), expected_a)
+            np.allclose(
+                morse_amplitude(gamma, beta, normalization="energy"), expected_a
+            )
         )

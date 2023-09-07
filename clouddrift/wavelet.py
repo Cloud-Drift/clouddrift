@@ -84,7 +84,7 @@ def wavelet_transform(
 
     See Also
     --------
-    :func:`morse_wavelet`, `morse_frequency`
+    :func:`morse_wavelet`, `morse_freq`
     """
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(x.shape) - 1:
@@ -175,54 +175,69 @@ def morse_wavelet(
     normalization: Optional[str] = "bandpass",
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Generalized Morse wavelets of Olhede and Walden (2002).
+    Compute the generalized Morse wavelets of Olhede and Walden (2002).
 
     Parameters
     ----------
     length: int
-       Length of the wavelet.
+       Length of the wavelets.
     gamma: float
-       Gamma parameter of the wavelet.
+       Gamma parameter of the wavelets.
     beta: float
-       Beta parameter of the wavelet.
+       Beta parameter of the wavelets.
     radian_frequency: np.ndarray
        The radian frequencies at which the Fourier transform of the wavelets
        reach their maximum amplitudes. radian_frequency is between 0 and 2 * np.pi * 0.5,
        the normalized Nyquist radian frequency.
-    order: int
-        Wavelet order, default is 1.
+    order: int, optional
+        Order of wavelets, default is 1.
     normalization: str, optional
-       Normalization for the wavelets. Default is "bandpass".
-       "bandpass" uses "bandpass normalization", meaning that the FFT of the wavelet
-       has a peak value of 2 for all frequencies radian_frequency. "energy" uses the unit
-       energy normalization. The time-domain wavelet energy np.sum(np.abs(wave)**2)
-       is then always unity.
+       Normalization for the ``wavelet`` output. By default it is assumed to be ``"bandpass"``
+       which uses a bandpass normalization, meaning that the FFT of the wavelets
+       have peak value of 2 for all central frequencies ``radian_frequency``. The other option is ``"energy"``
+       which uses the unit energy normalization. In this last case the time-domain wavelet
+       energies ``np.sum(np.abs(wave)**2)`` are always unity.
 
     Returns
     -------
-    wave : np.ndarray
-        Time-domain wavelets. wave will be of shape (length,np.size(radian_frequency),k).
-    wavefft: np.ndarray
-        Frequency-domain wavelets. wavefft will be of shape (length,np.size(radian_frequency),k).
+    wavelet : np.ndarray
+        Time-domain wavelets. ``wavelet`` will be of shape (length,np.size(radian_frequency),order).
+    wavelet_fft: np.ndarray
+        Frequency-domain wavelets. ``wavelet_fft`` will be of shape (length,np.size(radian_frequency),order).
 
     Examples
     --------
-    To write.
+
+    Compute a Morse wavelet with gamma parameter 3, beta parameter 4, at radian frequency 0.2 cycles per unit time:
+
+    >>> wavelet, wavelet_fft = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2]))
+    >>> np.shape(wavelet)
+    (1, 1, 1024)
+
+    Compute a suite of Morse wavelets with gamma parameter 3, beta parameter 4, up to order 3,
+    at radian frequencies 0.2 and 0.3 cycles per unit time:
+
+    >>> wavelet, wavelet_fft = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2, 2*np.pi*0.3]), order=3)
+    >>> np.shape(wavelet)
+    (3, 3, 1024)
+
+    Compute a Morse wavelet specifying an energy normalization :
+    >>> wavelet, wavelet_fft = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2]), normalization=energy)
 
     See Also
     --------
-    :func:`wavelet_transform`, `morsefreq`
+    :func:`wavelet_transform`, `morse_freq`
     """
-    # add a test for radian_frequency being a numpy array
+    # ad test for radian_frequency being a numpy array
     # initialization
-    wave = np.zeros((length, order, len(radian_frequency)), dtype=np.cdouble)
-    wavefft = np.zeros((length, order, len(radian_frequency)), dtype=np.cdouble)
+    wavelet = np.zeros((length, order, len(radian_frequency)), dtype=np.cdouble)
+    waveletfft = np.zeros((length, order, len(radian_frequency)), dtype=np.cdouble)
 
     # call to morse_wavelet take only gamma and be as float, no array
-    fo, _, _ = morsefreq(gamma, beta)
+    fo, _, _ = morse_freq(gamma, beta)
     for i in range(len(radian_frequency)):
-        wave_tmp = np.zeros((length, order), dtype=np.cdouble)
-        wavefft_tmp = np.zeros((length, order), dtype=np.cdouble)
+        wavelet_tmp = np.zeros((length, order), dtype=np.cdouble)
+        waveletfft_tmp = np.zeros((length, order), dtype=np.cdouble)
 
         # wavelet frequencies
         fact = np.abs(radian_frequency[i]) / fo
@@ -232,17 +247,17 @@ def morse_wavelet(
         )
         if normalization == "energy":
             if beta == 0:
-                wavezero = np.exp(-(norm_radian_frequency**gamma))
+                waveletzero = np.exp(-(norm_radian_frequency**gamma))
             else:
-                wavezero = np.exp(
+                waveletzero = np.exp(
                     beta * np.log(norm_radian_frequency)
                     - norm_radian_frequency**gamma
                 )
         elif normalization == "bandpass":
             if beta == 0:
-                wavezero = 2 * np.exp(-(norm_radian_frequency**gamma))
+                waveletzero = 2 * np.exp(-(norm_radian_frequency**gamma))
             else:
-                wavezero = 2 * np.exp(
+                waveletzero = 2 * np.exp(
                     -beta * np.log(fo)
                     + fo**gamma
                     + beta * np.log(norm_radian_frequency)
@@ -252,43 +267,43 @@ def morse_wavelet(
             raise ValueError(
                 "Normalization option (norm) must be one of 'energy' or 'bandpass'."
             )
-        wavezero[0] = 0.5 * wavezero[0]
-        # Replace NaN with zeros in wavezero
-        wavezero = np.nan_to_num(wavezero, copy=False, nan=0.0)
+        waveletzero[0] = 0.5 * waveletzero[0]
+        # Replace NaN with zeros in waveletzero
+        waveletzero = np.nan_to_num(waveletzero, copy=False, nan=0.0)
         # second family is never used
-        wavefft_tmp = _morse_wavelet_first_family(
+        waveletfft_tmp = _morse_wavelet_first_family(
             fact,
             gamma,
             beta,
             norm_radian_frequency,
-            wavezero,
+            waveletzero,
             order=order,
             normalization=normalization,
         )
-        wavefft_tmp = np.nan_to_num(wavefft_tmp, posinf=0, neginf=0)
-        # shape of wavefft_tmp is points, order
+        waveletfft_tmp = np.nan_to_num(waveletfft_tmp, posinf=0, neginf=0)
+        # shape of waveletfft_tmp is points, order
         # center wavelet
         norm_radian_frequency_mat = np.tile(
             np.expand_dims(norm_radian_frequency, -1), (order)
         )
-        wavefft_tmp = wavefft_tmp * np.exp(
+        waveletfft_tmp = waveletfft_tmp * np.exp(
             1j * norm_radian_frequency_mat * (length + 1) / 2 * fact
         )
-        # time domain wavelet
-        wave_tmp = np.fft.ifft(wavefft_tmp, axis=0)
+        # time domain waveletlet
+        wavelet_tmp = np.fft.ifft(waveletfft_tmp, axis=0)
         if radian_frequency[i] < 0:
-            wave[:, :, i] = np.conj(wave_tmp)
-            wavefft_tmp[1:-1, :] = np.flip(wavefft_tmp[1:-1, :], axis=0)
-            wavefft[:, :, i] = wavefft_tmp
+            wavelet[:, :, i] = np.conj(wavelet_tmp)
+            waveletfft_tmp[1:-1, :] = np.flip(waveletfft_tmp[1:-1, :], axis=0)
+            waveletfft[:, :, i] = waveletfft_tmp
         else:
-            wavefft[:, :, i] = wavefft_tmp
-            wave[:, :, i] = wave_tmp
+            waveletfft[:, :, i] = waveletfft_tmp
+            wavelet[:, :, i] = wavelet_tmp
 
     # reorder dimension to be (order, frequency, time steps)
     # enforce length 1 for first axis if order=1 (no squeezing)
-    wave = np.moveaxis(wave, [0, 1, 2], [2, 0, 1])
-    wavefft = np.moveaxis(wavefft, [0, 1, 2], [2, 0, 1])
-    return wave, wavefft
+    wavelet = np.moveaxis(wavelet, [0, 1, 2], [2, 0, 1])
+    waveletfft = np.moveaxis(waveletfft, [0, 1, 2], [2, 0, 1])
+    return wavelet, waveletfft
 
 
 def _morse_wavelet_first_family(
@@ -310,7 +325,7 @@ def _morse_wavelet_first_family(
 
     for i in np.arange(0, order):
         if normalization == "energy":
-            A = morseafun(gamma, beta, order=i + 1, normalization=normalization)
+            A = morse_amplitude(gamma, beta, order=i + 1, normalization=normalization)
             coeff = np.sqrt(1 / fact) * A
         elif normalization == "bandpass":
             if beta != 0:
@@ -327,19 +342,19 @@ def _morse_wavelet_first_family(
     return wavefft1
 
 
-def morsefreq(
+def morse_freq(
     gamma: Union[np.ndarray, float],
     beta: Union[np.ndarray, float],
 ) -> Union[Tuple[np.ndarray], Tuple[float]]:
     """
     Frequency measures for generalized Morse wavelets. This functions calculates
-    three different measures of the frequency of the lowest-order generalized Morse
-    wavelet specified by parameters gamma (gamma) and beta (beta).
+    three different measures fm, fe, and fi of the frequency of the lowest-order generalized Morse
+    wavelet specified by parameters ``gamma`` and ``beta``.
 
-    Note that all frequency quantities here are *radian* as in cos(omega t)and not
+    Note that all frequency quantities here are in *radian* as in cos(f t) and not
     cyclic as in np.cos(2 np.pi f t).
 
-    For be=0, the "wavelet" becomes an analytic lowpass filter, and fm
+    For ``beta=0``, the corresponding wavelet becomes an analytic lowpass filter, and fm
     is not defined in the usual way.  Instead, fm is defined as the point
     at which the filter has decayed to one-half of its peak power.
 
@@ -349,28 +364,47 @@ def morsefreq(
     Parameters
     ----------
     gamma: np.ndarray or float
-       Gamma parameter of the wavelet.
+       Gamma parameter of the wavelets.
     beta: np.ndarray or float
-       Beta parameter of the wavelet.
+       Beta parameter of the wavelets.
 
     Returns
     -------
     fm: np.ndarray
         The modal or peak frequency.
     fe: np.ndarray
-        The "energy" frequency.
+        The energy frequency.
     fi: np.ndarray
-        The instantaneous frequency at the wavelet center.
+        The instantaneous frequency at the wavelets' centers.
 
     Examples
     --------
-    To write.
+
+    >>> fm, fe, fi = morse_freq(3,4)
+
+    >>> morse_freq(3,4)
+    (array(1.10064242), 1.1025129235952809, 1.1077321674324723)
+
+    >>> morse_freq(3,np.array([10,20,30]))
+    (array([1.49380158, 1.88207206, 2.15443469]),
+    array([1.49421505, 1.88220264, 2.15450116]),
+    array([1.49543843, 1.88259299, 2.15470024]))
+
+    >>> morse_freq(np.array([3,4,5]),np.array([10,20,30]))
+    (array([1.49380158, 1.49534878, 1.43096908]),
+    array([1.49421505, 1.49080278, 1.4262489 ]),
+    array([1.49543843, 1.48652036, 1.42163583]))
+
+    >>> morse_freq(np.array([3,4,5]),10)
+    (array([1.49380158, 1.25743343, 1.14869835]),
+    array([1.49421505, 1.25000964, 1.13759731]),
+    array([1.49543843, 1.24350315, 1.12739747]))
 
     See Also
     --------
-    :func:`morse_wavelet`
+    :func:`morse_wavelet`, `morse_amplitude`
     """
-    # add test for type and shape in case of ndarray
+    # add test for type and shape in case of ndarray?
     fm = np.where(
         beta == 0,
         np.log(2) ** (1 / gamma),
@@ -389,48 +423,74 @@ def morsefreq(
     return fm, fe, fi
 
 
-def morsespace(
-    gamma: Union[np.ndarray, float],
-    beta: Union[np.ndarray, float],
-    n: int,
+def morse_space(
+    gamma: float,
+    beta: float,
+    length: int,
     low: Optional[float] = 5,
     high: Optional[float] = 0.1,
-    d: Optional[int] = 4,
+    density: Optional[int] = 4,
     eta: Optional[float] = 0.1,
 ) -> np.ndarray:
     """
-    Returns logarithmically-spaced frequencies for generalized Morse wavelets.
+    Compute logarithmically-spaced frequencies for generalized Morse wavelets
+    with parameters gamma and beta. See Lilly (2016) for calculation details.
+
+    #Default settings to compute the frequencies can be changed by passing optional
+    #arguments ``low``, ``high``, ``eta``, and ``density``. See below.
 
     Parameters
     ----------
-    gamma: np.ndarray or float
-       Gamma parameter of the wavelet.
-    beta: np.ndarray or float
-       Beta parameter of the wavelet.
-    n:
-    high:
-    low:
-    d:
-    eta:
+    gamma: float
+       Gamma parameter of the Morse wavelets.
+    beta: float
+       Beta parameter of the Morse wavelets.
+    length: int
+        Length of the Morse wavelets and input signals.
+    # high: float, optional.
+    #     High-frequency cutoff. Default is 0.1.
+    # low: float, optional.
+    #     Low-frequency cutoff. Default is 5.
+    # density: int, optional
+    #     The optional argument ``density`` controls the number of points in the frequency
+    #     array. Higher values of ``density`` mean more overlap in the frequency
+    #     domain. When ``density=1``, the peak of one wavelet is located at the
+    #     half-power points of the adjacent wavelet. The default ``density=4`` means
+    #     that four other wavelets will occur between the peak of one wavelet and
+    #     its half-power point.
+    # eta:
+    #     Threshold ``eta`` is a number between zero and one specifying the ratio of
+    #     a frequency-domain wavelet at the Nyquist frequency to its peak value.
+    #     Default is 0.1.
 
     Returns
     -------
     radian_frequency: np.ndarray
+        Logarithmically-spaced frequencies in radians cycles per unit time,
+        sorted in descending order.
 
     Examples
     --------
-    To write.
+    Generate a frequency array for the generalized Morse wavelet
+    with parameters gamma=3 and beta=5 for a time series of length n=1024:
 
+    >>> radian_frequency = morse_space(3,5,1024)
+
+     See Also
+    --------
+    :func:`morse_wavelet`, `morse_freq`, `morse_properties`.
     """
-    p, _, _ = morseprops(gamma, beta)
+    gamma_ = np.array([gamma])
+    beta_ = np.array([beta])
+    p, _, _ = morseprops(gamma_, beta_)
 
-    _high = _morsehigh(gamma, beta, high)
+    _high = _morsehigh(gamma_, beta_, high)
     high_ = np.min(np.append(_high, np.pi))
 
-    _low = 2 * np.sqrt(2) * p * low / n
+    _low = 2 * np.sqrt(2) * p * low / length
     low_ = np.max(np.append(_low, 0))
 
-    r = 1 + 1 / (d * p)
+    r = 1 + 1 / (density * p)
     m = np.floor(np.log10(high_ / low_) / np.log10(r))
     radian_frequency = high_ * np.ones(int(m + 1)) / r ** np.arange(0, m + 1)
 
@@ -438,20 +498,20 @@ def morsespace(
 
 
 def _morsehigh(
-    gamma: Union[np.ndarray, float],
-    beta: Union[np.ndarray, float],
+    gamma: np.ndarray,
+    beta: np.ndarray,
     eta: float,
 ) -> Union[np.ndarray, float]:
     """
     High-frequency cutoff of the generalized Morse wavelets.
-    gamma and be should be of the same length.
+    gamma and be should be arrays of the same length. Internal use only.
     """
     m = 10000
     omhigh = np.linspace(0, np.pi, m)
     f = np.zeros_like(gamma, dtype="float")
 
     for i in range(0, len(gamma)):
-        fm, _, _ = morsefreq(gamma[i], beta[i])
+        fm, _, _ = morse_freq(gamma[i], beta[i])
         om = fm * np.pi / omhigh
         lnwave1 = beta[i] / gamma[i] * np.log(np.exp(1) * gamma[i] / beta[i])
         lnwave2 = beta[i] * np.log(om) - om ** gamma[i]
@@ -462,44 +522,84 @@ def _morsehigh(
     return f
 
 
-def morseprops(
+def morse_properties(
     gamma: Union[np.ndarray, float],
     beta: Union[np.ndarray, float],
 ) -> Union[Tuple[np.ndarray], Tuple[float]]:
     """
-    Properties of the demodulated generalized Morse wavelets.
+    Calculate the properties of the demodulated generalized Morse wavelets.
+    See Lilly and Olhede (2008b) for details.
 
     Parameters
     ----------
     gamma: np.ndarray or float
-       Gamma parameter of the wavelet.
+       Gamma parameter of the wavelets.
     beta: np.ndarray or float
-       Beta parameter of the wavelet.
+       Beta parameter of the wavelets.
 
     Returns
     -------
-    p: np.ndarray or float
+    width: np.ndarray or float
+        Dimensionless time-domain window width of the wavelets.
     skew: np.ndarray or float
+        Imaginary part of normalized third moment of the time-domain demodulate,
+        or 'demodulate skewness'.
     kurt: np.ndarray or float
+        Normalized fourth moment of the time-domain demodulate,
+        or 'demodulate kurtosis'.
+    See Also
+    --------
+    :func:`morse_wavelet`, `morse_freq`, `morse_amplitude`, `morse_space`.
     """
     # test common size? or could be broadcasted
-    p = np.sqrt(gamma * beta)
+    width = np.sqrt(gamma * beta)
     skew = gamma - 3 / p
-    kurt = 3 - skew**2 - 2 / p**2
+    kurt = 3 - skew**2 - 2 / width**2
 
-    return p, skew, kurt
+    return width, skew, kurt
 
 
-def morseafun(
+def morse_amplitude(
     gamma: Union[np.ndarray, float],
     beta: Union[np.ndarray, float],
     order: Optional[np.int64] = 1,
     normalization: Optional[str] = "bandpass",
 ) -> float:
+    """
+    Calculate the amplitude coefficient of the generalized Morse wavelets.
+    By default, the amplitude is calculated such that the maximum of the
+    frequency-domain wavelet is equal to 2, which is the bandpass normalization.
+    Optionally, specify ``normalization="energy"`` in order to return the coefficient
+    giving the wavelets unit energies. See Lilly and Olhede (2009) for details.
+
+    Parameters
+    ----------
+    gamma: np.ndarray or float
+       Gamma parameter of the wavelets.
+    beta: np.ndarray or float
+       Beta parameter of the wavelets.
+    order: int, optional
+        Order of wavelets, default is 1.
+    normalization: str, optional
+       Normalization for the wavelets. By default it is assumed to be ``"bandpass"``
+       which uses a bandpass normalization, meaning that the FFT of the wavelets
+       have peak value of 2 for all central frequencies ``radian_frequency``. The other option is ``"energy"``
+       which uses the unit energy normalization. In this last case the time-domain wavelet
+       energies ``np.sum(np.abs(wave)**2)`` are always unity.
+
+    Returns
+    -------
+    amp: np.ndarray or float
+        The amplitude coefficient of the wavelets.
+
+    See Also
+    --------
+    :func:`morse_wavelet`, `morse_freq`, `morse_props`, `morse_space`.
+    """
     # add test for type and shape in case of ndarray
     if normalization == "energy":
         r = (2 * beta + 1) / gamma
-        a = (
+        amp = (
             2
             * np.pi
             * gamma
@@ -507,14 +607,14 @@ def morseafun(
             * np.exp(_lgamma(order) - _lgamma(order + r - 1))
         ) ** 0.5
     elif normalization == "bandpass":
-        fm, _, _ = morsefreq(gamma, beta)
-        a = np.where(beta == 0, 2, 2 / (np.exp(beta * np.log(fm) - fm**gamma)))
+        fm, _, _ = morse_freq(gamma, beta)
+        amp = np.where(beta == 0, 2, 2 / (np.exp(beta * np.log(fm) - fm**gamma)))
     else:
         raise ValueError(
-            "Normalization option (norm) must be one of 'energy' or 'bandpass'."
+            "Normalization option (normalization) must be one of 'energy' or 'bandpass'."
         )
 
-    return a
+    return amp
 
 
 # def _gamma(
