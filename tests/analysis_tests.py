@@ -526,6 +526,24 @@ class position_from_velocity_tests(unittest.TestCase):
         self.assertTrue(np.allclose(lon.shape, expected_lon.shape))
         self.assertTrue(np.allclose(lon.shape, expected_lat.shape))
 
+    def test_works_with_2d_uv_1d_time(self):
+        uf = np.reshape(np.tile(self.uf, 4), (4, self.uf.size))
+        vf = np.reshape(np.tile(self.vf, 4), (4, self.vf.size))
+        expected_lon = np.reshape(np.tile(self.lon, 4), (4, self.lon.size))
+        expected_lat = np.reshape(np.tile(self.lat, 4), (4, self.lat.size))
+        lon, lat = position_from_velocity(
+            uf,
+            vf,
+            self.time,
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="forward",
+        )
+        self.assertTrue(np.allclose(lon, expected_lon))
+        self.assertTrue(np.allclose(lat, expected_lat))
+        self.assertTrue(np.allclose(lon.shape, expected_lon.shape))
+        self.assertTrue(np.allclose(lon.shape, expected_lat.shape))
+
     def test_time_axis(self):
         uf = np.reshape(np.tile(self.uf, 6), (2, 3, self.uf.size))
         vf = np.reshape(np.tile(self.vf, 6), (2, 3, self.vf.size))
@@ -617,6 +635,17 @@ class velocity_from_position_tests(unittest.TestCase):
         expected_uf = np.reshape(np.tile(self.uf, 4), (2, 2, self.uf.size))
         expected_vf = np.reshape(np.tile(self.vf, 4), (2, 2, self.vf.size))
         uf, vf = velocity_from_position(lon, lat, time)
+        self.assertTrue(np.all(uf == expected_uf))
+        self.assertTrue(np.all(vf == expected_vf))
+        self.assertTrue(np.all(uf.shape == expected_uf.shape))
+        self.assertTrue(np.all(vf.shape == expected_vf.shape))
+
+    def test_works_with_3d_positions_1d_time(self):
+        lon = np.reshape(np.tile(self.lon, 4), (2, 2, self.lon.size))
+        lat = np.reshape(np.tile(self.lat, 4), (2, 2, self.lat.size))
+        expected_uf = np.reshape(np.tile(self.uf, 4), (2, 2, self.uf.size))
+        expected_vf = np.reshape(np.tile(self.vf, 4), (2, 2, self.vf.size))
+        uf, vf = velocity_from_position(lon, lat, self.time)
         self.assertTrue(np.all(uf == expected_uf))
         self.assertTrue(np.all(vf == expected_vf))
         self.assertTrue(np.all(uf.shape == expected_uf.shape))

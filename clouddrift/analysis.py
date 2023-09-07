@@ -592,8 +592,9 @@ def position_from_velocity(
     Raises
     ------
     ValueError
-        If the input arrays do not have the same shape.
+        If u and v do not have the same shape.
         If the time axis is outside of the valid range ([-1, N-1]).
+        If lengths of x, y, and time along time_axis are not equal.
         If the input coordinate system is not "spherical" or "cartesian".
         If the input integration scheme is not "forward", "backward", or "centered"
 
@@ -601,15 +602,24 @@ def position_from_velocity(
     --------
     :func:`velocity_from_position`
     """
-    # Positions and time arrays must have the same shape.
-    if not u.shape == v.shape == time.shape:
-        raise ValueError("u, v, and time must have the same shape.")
+    # Velocity arrays must have the same shape.
+    # Although the exception would be raised further down in the function,
+    # we do the check here for a clearer error message.
+    if not u.shape == u.shape:
+        raise ValueError("u and v must have the same shape.")
 
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(u.shape) - 1:
         raise ValueError(
             f"time_axis ({time_axis}) is outside of the valid range ([-1,"
             f" {len(x.shape) - 1}])."
+        )
+
+    # Input arrays must have the same length along the time axis.
+    if not u.shape[time_axis] == v.shape[time_axis] == time.shape[time_axis]:
+        raise ValueError(
+            f"u, v, and time must have the same length along the time axis "
+            f"({time_axis})."
         )
 
     # Swap axes so that we can differentiate along the last axis.
@@ -728,8 +738,9 @@ def velocity_from_position(
     Raises
     ------
     ValueError
-        If x, y, and time do not have the same shape.
+        If x and y do not have the same shape.
         If time_axis is outside of the valid range.
+        If lengths of x, y, and time along time_axis are not equal.
         If coord_system is not "spherical" or "cartesian".
         If difference_scheme is not "forward", "backward", or "centered".
 
@@ -738,15 +749,24 @@ def velocity_from_position(
     :func:`position_from_velocity`
     """
 
-    # Positions and time arrays must have the same shape.
-    if not x.shape == y.shape == time.shape:
-        raise ValueError("x, y, and time must have the same shape.")
+    # Position arrays must have the same shape.
+    # Although the exception would be raised further down in the function,
+    # we do the check here for a clearer error message.
+    if not x.shape == y.shape:
+        raise ValueError("x and y arrays must have the same shape.")
 
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(x.shape) - 1:
         raise ValueError(
             f"time_axis ({time_axis}) is outside of the valid range ([-1,"
             f" {len(x.shape) - 1}])."
+        )
+
+    # Input arrays must have the same length along the time axis.
+    if not x.shape[time_axis] == y.shape[time_axis] == time.shape[time_axis]:
+        raise ValueError(
+            f"x, y, and time must have the same length along the time axis "
+            f"({time_axis})."
         )
 
     # Swap axes so that we can differentiate along the last axis.
