@@ -436,8 +436,8 @@ def morse_space(
     Compute logarithmically-spaced frequencies for generalized Morse wavelets
     with parameters gamma and beta. See Lilly (2016) for calculation details.
 
-    #Default settings to compute the frequencies can be changed by passing optional
-    #arguments ``low``, ``high``, ``eta``, and ``density``. See below.
+    Default settings to compute the frequencies can be changed by passing optional
+    arguments ``lowset``, ``highset``, and ``density``.
 
     Parameters
     ----------
@@ -460,10 +460,6 @@ def morse_space(
         half-power points of the adjacent wavelet. The default ``density=4`` means
         that four other wavelets will occur between the peak of one wavelet and
         its half-power point.
-    eta:
-        Threshold ``eta`` is a number between zero and one specifying the ratio of
-        a frequency-domain wavelet at the Nyquist frequency to its peak value.
-        Default is 0.1.
 
     Returns
     -------
