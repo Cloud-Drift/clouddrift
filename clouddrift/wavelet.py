@@ -246,9 +246,9 @@ def morse_wavelet(
             2 * np.pi * np.linspace(0, 1 - 1 / length, length) / fact
         )
         if normalization == "energy":
-            if beta == 0:
-                waveletzero = np.exp(-(norm_radian_frequency**gamma))
-            else:
+            #if beta == 0:
+            #    waveletzero = np.exp(-(norm_radian_frequency**gamma))
+            #else:
                 waveletzero = np.exp(
                     beta * np.log(norm_radian_frequency)
                     - norm_radian_frequency**gamma
@@ -451,7 +451,7 @@ def morse_space(
         Value set for high-frequency cutoff. The first value is a threshold value, the second
         value is the Highest absolute frequency. Default is (0.1, np.pi).
     lowset: tuple of floats, optional.
-        Value set for for low-frequency cutoff. The first value is the packing number, the
+        Value set for low-frequency cutoff. The first value is the packing number, the
         second value is the absolute lowest frequency. Default is (5, 0).
     density: int, optional
         The optional argument ``density`` controls the number of points in the frequency
