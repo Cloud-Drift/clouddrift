@@ -427,8 +427,8 @@ def morse_space(
     gamma: float,
     beta: float,
     length: int,
-    low: Optional[float] = 5,
-    high: Optional[float] = 0.1,
+    highset: Optional[Tuple[float]] = (0.1, np.pi),
+    lowset: Optional[Tuple[float]] = (5, 0),
     density: Optional[int] = 4,
     eta: Optional[float] = 0.1,
 ) -> np.ndarray:
@@ -447,21 +447,23 @@ def morse_space(
        Beta parameter of the Morse wavelets.
     length: int
         Length of the Morse wavelets and input signals.
-    # high: float, optional.
-    #     High-frequency cutoff. Default is 0.1.
-    # low: float, optional.
-    #     Low-frequency cutoff. Default is 5.
-    # density: int, optional
-    #     The optional argument ``density`` controls the number of points in the frequency
-    #     array. Higher values of ``density`` mean more overlap in the frequency
-    #     domain. When ``density=1``, the peak of one wavelet is located at the
-    #     half-power points of the adjacent wavelet. The default ``density=4`` means
-    #     that four other wavelets will occur between the peak of one wavelet and
-    #     its half-power point.
-    # eta:
-    #     Threshold ``eta`` is a number between zero and one specifying the ratio of
-    #     a frequency-domain wavelet at the Nyquist frequency to its peak value.
-    #     Default is 0.1.
+    highset: tuple of floats, optional.
+        Value set for high-frequency cutoff. The first value is a threshold value, the second
+        value is the Highest absolute frequency. Default is (0.1, np.pi).
+    lowset: tuple of floats, optional.
+        Value set for for low-frequency cutoff. The first value is the packing number, the
+        second value is the absolute lowest frequency. Default is (5, 0).
+    density: int, optional
+        The optional argument ``density`` controls the number of points in the frequency
+        array. Higher values of ``density`` mean more overlap in the frequency
+        domain. When ``density=1``, the peak of one wavelet is located at the
+        half-power points of the adjacent wavelet. The default ``density=4`` means
+        that four other wavelets will occur between the peak of one wavelet and
+        its half-power point.
+    eta:
+        Threshold ``eta`` is a number between zero and one specifying the ratio of
+        a frequency-domain wavelet at the Nyquist frequency to its peak value.
+        Default is 0.1.
 
     Returns
     -------
@@ -476,21 +478,25 @@ def morse_space(
 
     >>> radian_frequency = morse_space(3,5,1024)
 
+    >>> radian_frequency = morse_space(3,5,1024,highset=(0.2,np.pi),lowset=(5,0))
+
+    >>> radian_frequency = morse_space(3,5,1024,highset=(0.2,np.pi),lowset=(5,0),density=10)
+
      See Also
     --------
     :func:`morse_wavelet`, `morse_freq`, `morse_properties`.
     """
     gamma_ = np.array([gamma])
     beta_ = np.array([beta])
-    p, _, _ = morse_properties(gamma_, beta_)
+    width, _, _ = morse_properties(gamma_, beta_)
 
-    _high = _morsehigh(gamma_, beta_, high)
-    high_ = np.min(np.append(_high, np.pi))
+    _high = _morsehigh(gamma_, beta_, highset[0])
+    high_ = np.min(np.append(_high, highset[1]))
 
-    _low = 2 * np.sqrt(2) * p * low / length
-    low_ = np.max(np.append(_low, 0))
-    print([high_,low_])
-    r = 1 + 1 / (density * p)
+    low = 2 * np.sqrt(2) * width * lowset[0] / length
+    low_ = np.max(np.append(low, lowset[1]))
+    print([high_, low_])
+    r = 1 + 1 / (density * width)
     m = np.floor(np.log10(high_ / low_) / np.log10(r))
     radian_frequency = high_ * np.ones(int(m + 1)) / r ** np.arange(0, m + 1)
 
