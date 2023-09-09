@@ -413,7 +413,6 @@ def morse_space(
     highset: Optional[Tuple[float]] = (0.1, np.pi),
     lowset: Optional[Tuple[float]] = (5, 0),
     density: Optional[int] = 4,
-    eta: Optional[float] = 0.1,
 ) -> np.ndarray:
     """
     Compute logarithmically-spaced frequencies for generalized Morse wavelets
