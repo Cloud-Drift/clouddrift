@@ -602,47 +602,6 @@ def morse_amplitude(
     return amp
 
 
-# def _gamma(
-#    x: Union[np.ndarray, float],
-# ) -> np.ndarray:
-#    """
-#    Returns gamma function values. Wrapper for math.gamma which is
-#    needed for array inputs.
-#    """
-#    # add test for type and shape in case of ndarray?
-#    if type(x) is np.ndarray:
-#        x_ = x.flatten()
-#        y = np.zeros_like(x_, dtype="float")
-#        for i in range(0, np.size(x)):
-#            y[i] = math.gamma(x_[i])
-#        y = np.reshape(y, np.shape(x))
-#    else:
-#        y = math.gamma(x)
-#
-#    return y
-
-
-# this maybe not useful
-# def _lgamma(
-#    x: Union[np.ndarray, float],
-# ) -> np.ndarray:
-#    """
-#    Returns logarithm of gamma function values. Wrapper for math.lgamma which is
-#    needed for array inputs.
-#    """
-#    # add test for type and shape in case of ndarray?
-#    if type(x) is np.ndarray:
-#        x_ = x.flatten()
-#        y = np.zeros_like(x_, dtype="float")
-#        for i in range(0, np.size(x)):
-#            y[i] = math.lgamma(x_[i])
-#        y = np.reshape(y, np.shape(x))
-#    else:
-#        y = math.lgamma(x)
-#
-#    return y
-
-
 def _laguerre(
     x: Union[np.ndarray, float],
     k: float,
