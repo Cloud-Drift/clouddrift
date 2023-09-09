@@ -419,7 +419,7 @@ def morse_space(
     with parameters gamma and beta. See Lilly (2016) for calculation details.
 
     Default settings to compute the frequencies can be changed by passing optional
-    arguments ``lowset``, ``highset``, and ``density``.
+    arguments ``lowset``, ``highset``, and ``density``. See below.
 
     Parameters
     ----------

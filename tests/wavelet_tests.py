@@ -191,6 +191,7 @@ class morse_freq_tests(unittest.TestCase):
 
 class morse_space_tests(unittest.TestCase):
     def test_morse_space_high(self):
+        # here we are not testing the morse_space function
         gamma = np.array([3])
         beta = np.array([4])
         eta = 0.1
@@ -203,9 +204,8 @@ class morse_space_tests(unittest.TestCase):
         )
 
     def test_morse_space_low(self):
-        self.assertTrue(True)
-
     # to write; requires morsebox: Heisenberg time-frequency box for generalized Morse wavelets.
+        self.assertTrue(True)
 
 
 class morse_properties_tests(unittest.TestCase):
