@@ -32,12 +32,6 @@ def wavelet_transform(
         length of the time axis of x. The other dimensions (axes) of the wavelets (orders and frequencies) are
         typically organized as orders, frequencies, and time, unless specified by optional arguments freq_axis and order_axis.
         The normalization of the wavelets is assumed to be "bandpass", if not use kwarg normalization="energy", see ``morse_wavelet``.
-    normalization: str, optional
-       Normalization for the ``wavelet`` input. By default it is assumed to be ``"bandpass"``
-       which uses a bandpass normalization, meaning that the FFT of the wavelets
-       have peak value of 2 for all central frequencies. The other option is ``"energy"``
-       which uses the unit energy normalization. In this last case the time-domain wavelet
-       energies ``np.sum(np.abs(wave)**2)`` are always unity. See ``morse_wavelet``.
     boundary : str, optional
         The boundary condition to be imposed at the edges of the input signal ``x``.
         Allowed values are ``"mirror"``, ``"zeros"``, and ``"periodic"``. Default is ``"mirror"``.
@@ -70,11 +64,6 @@ def wavelet_transform(
     >>> wavelet, _ = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2]))
     >>> wtx = wavelet_transform(x, wavelet,time_axis=0)
 
-    If the wavelet was generated with ``morse_wavelet`` with the ``"energy"`` normalization, this must be specified with ``wavelet_transform`` as well:
-    >>> x = np.random.random(1024)
-    >>> wavelet, _ = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2]), normalization="energy")
-    >>> wtx = wavelet_transform(x, wavelet, normalization="energy")
-
     Raises
     ------
     ValueError
@@ -105,23 +94,18 @@ def wavelet_transform(
     else:
         x_ = np.moveaxis(x, time_axis, -1)
 
-    if ~np.all(np.isreal(x)):
-        if normalization == "energy":
-            x_ /= np.sqrt(2)
-        elif normalization == "bandpass":
-            x_ /= 2
-
-    # to do: add detrending option by default
+    # add detrending option?
 
     # apply boundary conditions
     if boundary == "mirror":
         x_ = np.concatenate((np.flip(x_, axis=-1), x_, np.flip(x_, axis=-1)), axis=-1)
     elif boundary == "zeros":
         x_ = np.concatenate((np.zeros_like(x_), x_, np.zeros_like(x_)), axis=-1)
-    elif boundary == "periodic":  # JML: this not needed in this case you just want n
-        x_ = np.concatenate((x_, x_, x_), axis=-1)
+    elif boundary == "periodic":
+        # x_ = np.concatenate((x_, x_, x_), axis=-1) # JML: this not needed
+        x_ = x_
     else:
-        raise ValueError("boundary must be one of 'mirror', 'align', or 'zeros'.")
+        raise ValueError("boundary must be one of 'mirror', 'zeros', or 'periodic'.")
 
     time_length = np.shape(x)[time_axis]
     time_length_ = np.shape(x_)[-1]
@@ -194,8 +178,8 @@ def morse_wavelet(
     normalization: str, optional
        Normalization for the ``wavelet`` output. By default it is assumed to be ``"bandpass"``
        which uses a bandpass normalization, meaning that the FFT of the wavelets
-       have peak value of 2 for all central frequencies ``radian_frequency``. The other option is ``"energy"``
-       which uses the unit energy normalization. In this last case the time-domain wavelet
+       have peak value of 2 for all central frequencies ``radian_frequency``. The other option is
+       ``"energy"``which uses the unit energy normalization. In this last case, the time-domain wavelet
        energies ``np.sum(np.abs(wave)**2)`` are always unity.
 
     Returns
@@ -246,13 +230,12 @@ def morse_wavelet(
             2 * np.pi * np.linspace(0, 1 - 1 / length, length) / fact
         )
         if normalization == "energy":
-            #if beta == 0:
+            # if beta == 0:
             #    waveletzero = np.exp(-(norm_radian_frequency**gamma))
-            #else:
-                waveletzero = np.exp(
-                    beta * np.log(norm_radian_frequency)
-                    - norm_radian_frequency**gamma
-                )
+            # else:
+            waveletzero = np.exp(
+                beta * np.log(norm_radian_frequency) - norm_radian_frequency**gamma
+            )
         elif normalization == "bandpass":
             if beta == 0:
                 waveletzero = 2 * np.exp(-(norm_radian_frequency**gamma))

@@ -29,8 +29,6 @@ class wavelet_transform_tests(unittest.TestCase):
         self.assertTrue(np.allclose(np.real(w1[..., s]), np.real(w2[..., s])))
         self.assertTrue(np.allclose(np.real(w1[..., s]), np.real(w3[..., s])))
         self.assertTrue(np.allclose(np.real(w2[..., s]), np.real(w3[..., s])))
-        # self.assertTrue(np.allclose(np.abs(w1[..., s]), np.abs(w2[..., s])), atol=1e-2)
-        # self.assertTrue(np.allclose(np.abs(w1[..., s]), np.abs(w3[..., s])), atol=1e-2)
 
     def test_wavelet_transform_complex(self):
         length = 1023
@@ -40,13 +38,17 @@ class wavelet_transform_tests(unittest.TestCase):
         )
         x = np.random.random((length))
         y = np.random.random((length))
-        wx = wavelet_transform(x, wave, boundary="mirror", normalization="bandpass")
-        wy = wavelet_transform(y, wave, boundary="mirror", normalization="bandpass")
+        wx = wavelet_transform(x, wave, boundary="mirror")
+        wy = wavelet_transform(y, wave, boundary="mirror")
         wp = wavelet_transform(
-            x + 1j * y, wave, boundary="mirror", normalization="bandpass"
+            x + 1j * y,
+            0.5 * wave,
+            boundary="mirror",
         )
         wn = wavelet_transform(
-            x - 1j * y, wave, boundary="mirror", normalization="bandpass"
+            x - 1j * y,
+            0.5 * wave,
+            boundary="mirror",
         )
         wp2 = 0.5 * (wx + 1j * wy)
         wn2 = 0.5 * (wx - 1j * wy)
@@ -87,9 +89,39 @@ class wavelet_transform_tests(unittest.TestCase):
         m = np.argmax(np.abs(y), axis=-1)
         self.assertTrue(np.allclose(m, 2**9))
 
-    def test_wavelet_transform_data(self):
-        # to write
-        self.assertTrue(True)
+    def test_wavelet_transform_data_real(self):
+        t = np.arange(0, 1000)
+        dt = np.diff(t[0:2])
+        f = 0.2
+        omega = dt * 2 * np.pi * f
+        a = 1
+        x = a * np.cos(2 * np.pi * t * f)
+        z = a * np.exp(1j * 2 * np.pi * t * f) + a / 2 * np.exp(-1j * 2 * np.pi * t * f)
+        gamma = 3
+        beta = 10
+        waveletb, _ = morse_wavelet(
+            np.shape(t)[0], gamma, beta, omega, normalization="bandpass"
+        )
+        # wavelete, _ = morse_wavelet(np.shape(t)[0],gamma,beta,omega,normalization="energy")
+        wtxb = wavelet_transform(x, waveletb, boundary="mirror")
+        # wtxe = wavelet_transform(x,wavelete,boundary="mirror")
+        self.assertTrue(np.isclose(np.var(wtxb), 2 * np.var(x), rtol=1e-1))
+
+    def test_wavelet_transform_data_complex(self):
+        t = np.arange(0, 1000)
+        dt = np.diff(t[0:2])
+        f = 0.2
+        omega = dt * 2 * np.pi * f
+        a = 1
+        z = a * np.exp(1j * 2 * np.pi * t * f) + a / 2 * np.exp(-1j * 2 * np.pi * t * f)
+        gamma = 3
+        beta = 10
+        waveletb, _ = morse_wavelet(
+            np.shape(t)[0], gamma, beta, omega, normalization="bandpass"
+        )
+        wtzb = wavelet_transform(z, 0.5 * waveletb, boundary="mirror")
+        wtzcb = wavelet_transform(np.conj(z), 0.5 * waveletb, boundary="mirror")
+        self.assertTrue(np.isclose(np.var(z), np.var(wtzb) + np.var(wtzcb), rtol=1e-1))
 
 
 class morse_wavelet_tests(unittest.TestCase):
@@ -185,23 +217,8 @@ class morse_properties_tests(unittest.TestCase):
 
 class morse_amplitude_tests(unittest.TestCase):
     def test_morse_amplitude_float(self):
-        # gamma1 = np.arange(2, 10, 1)
-        # beta1 = np.arange(1, 11, 1)
-        # gamma, beta = np.meshgrid(gamma1, beta1)
-        # om, _, _ = morse_freq(gamma, beta)
-        # omgrid = np.tile(np.arange(0, 20.01, 0.1), (len(beta1), len(gamma1), 1))
-        # omgrid = omgrid * np.tile(np.expand_dims(om,-1), np.shape(omgrid)[2])
-        # a = morse_amplitude(gamma,beta,normalization="energy")
-        # gammagrid = np.tile(np.expand_dims(gamma,-1), np.shape(omgrid)[2])
-        # betagrid = np.tile(np.expand_dims(beta,-1), np.shape(omgrid)[2])
-        # agrid = np.tile(np.expand_dims(a,-1), np.shape(omgrid)[2])
-        # wave = agrid * omgrid**betagrid * np.exp(-omgrid**gammagrid)
-        # dom = 0.01
-        # waveint = np.sum(wave**2,axis=-1) * dom * om / (2 * np.pi)
-        # self.assertTrue(np.allclose(np.abs(waveint-1),1e-2))
-        # self.assertTrue(True)
-        gamma = 3
-        beta = 5
+        gamma = 3.0
+        beta = 5.0
         self.assertTrue(np.isclose(morse_amplitude(gamma, beta), 4.51966469068946))
 
     def test_morse_amplitude_array(self):
