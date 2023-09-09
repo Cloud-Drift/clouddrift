@@ -538,7 +538,7 @@ def morse_properties(
     """
     # test common size? or could be broadcasted
     width = np.sqrt(gamma * beta)
-    skew = gamma - 3 / width
+    skew = (gamma - 3) / width
     kurt = 3 - skew**2 - 2 / width**2
 
     return width, skew, kurt

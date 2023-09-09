@@ -5,6 +5,7 @@ from clouddrift.wavelet import (
     morse_amplitude,
     morse_space,
     morse_properties,
+    _morsehigh,
 )
 import numpy as np
 import unittest
@@ -190,29 +191,35 @@ class morse_freq_tests(unittest.TestCase):
 
 class morse_space_tests(unittest.TestCase):
     def test_morse_space_high(self):
-        self.assertTrue(True)
+        gamma = np.array([3])
+        beta = np.array([4])
+        eta = 0.1
+        fhigh = _morsehigh(gamma, beta, eta)
+        _, waveletfft = morse_wavelet(10000, gamma, beta, fhigh)
+        self.assertTrue(
+            np.isclose(
+                np.abs(0.5 * waveletfft[0, 0, int(10000 / 2) - 1]), eta, atol=1e-3
+            )
+        )
 
-    # to write
     def test_morse_space_low(self):
         self.assertTrue(True)
 
-    # to write
+    # to write; requires morsebox: Heisenberg time-frequency box for generalized Morse wavelets.
 
 
 class morse_properties_tests(unittest.TestCase):
     def test_morse_properties(self):
-        # gamma = 5
-        # beta = 6
-        # length = 512*4
-        # fm, _, _ = morse_freq(gamma,beta)
-        # dt = 1/20
-        # wavelet = morse_wavelet(length,gamma,beta,fm*dt)
-        # t = np.arange(0,np.shape(wavelet)[-1])*dt
-        # t -= np.mean(t)
-        # width, skew, kurt = morse_properties(gamma, beta)
-        self.assertTrue(True)
-
-    # to write
+        gamma = 5
+        beta = 6
+        expected = np.array([5.47722557505166, 0.365148371670111, 2.8])
+        width, skew, kurt = morse_properties(gamma, beta)
+        self.assertTrue(np.allclose(expected, np.array([width, skew, kurt])))
+        gamma = 2
+        beta = 4
+        expected = np.array([2.82842712474619, -0.353553390593274, 2.625])
+        width, skew, kurt = morse_properties(gamma, beta)
+        self.assertTrue(np.allclose(expected, np.array([width, skew, kurt])))
 
 
 class morse_amplitude_tests(unittest.TestCase):
