@@ -12,7 +12,6 @@ from scipy.special import gamma as _gamma, gammaln as _lgamma
 def wavelet_transform(
     x: np.ndarray,
     wavelet: np.ndarray,
-    normalization: Optional[str] = "bandpass",
     boundary: Optional[str] = "mirror",
     time_axis: Optional[int] = -1,
     freq_axis: Optional[int] = -2,
