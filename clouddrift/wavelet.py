@@ -9,6 +9,173 @@ import warnings
 from scipy.special import gamma as _gamma, gammaln as _lgamma
 
 
+def morse_wavelet_transform(
+    x: np.ndarray,
+    gamma: float,
+    beta: float,
+    radian_frequency: np.ndarray,
+    complex: Optional[bool] = False,
+    order: Optional[int] = 1,
+    normalization: Optional[str] = "bandpass",
+    boundary: Optional[str] = "mirror",
+    time_axis: Optional[int] = -1,
+) -> Union[Tuple[np.ndarray], np.ndarray]:
+    """
+    Apply a continuous wavelet transform to an input signal at specified frequencies
+    using generalized Morse wavelets.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Real- or complex-valued signals.
+    gamma: float
+       Gamma parameter of the Morse wavelets.
+    beta: float
+       Beta parameter of the Morse wavelets.
+    radian_frequency: np.ndarray
+       An array of radian frequencies at which the Fourier transform of the wavelets
+       reach their maximum amplitudes. radian_frequency is between 0 and 2 * np.pi * 0.5,
+       the normalized Nyquist radian frequency.
+    complex: boolean, optional
+        Specify explicitely if the input signal ``x`` is a complex signal. Default is False which
+        means that the input is real but that is not explicitely tested by the function.
+        This choice affects the outputs and their interpretation. See examples below.
+    time_axis : int, optional
+        Axis on which the time is defined for input ``x`` (default is last, or -1). Note that the time axis of the
+        wavelets must be last.
+    normalization: str, optional
+       Normalization for the ``wavelet`` output. By default it is assumed to be ``"bandpass"``
+       which uses a bandpass normalization, meaning that the FFT of the wavelets
+       have peak value of 2 for all central frequencies ``radian_frequency``. However, if the
+       optional argument ``complex=True`` is specified, the wavelets will be divided by 2 so that
+       the total variance of the input complex signal is equal to the sum of the variances of the
+       returned analytic (positive) and anti-analiyic (negative) parts. See examples below.
+       The other option is ``"energy"``which uses the unit energy normalization. In this last case, the time-domain wavelet
+       energies ``np.sum(np.abs(wave)**2)`` are always unity.
+    boundary : str, optional
+        The boundary condition to be imposed at the edges of the input signal ``x``.
+        Allowed values are ``"mirror"``, ``"zeros"``, and ``"periodic"``. Default is ``"mirror"``.
+    order: int, optional
+        Order of wavelets, default is 1.
+
+    Returns
+    -------
+    If the input signal is real as specificied by ``complex=False``:
+
+    wtx : np.ndarray
+        Time-domain wavelet transform of input ``x``. The axes of ``wtx`` will be organized as (x axes), orders, frequencies, time
+        unless ``time_axis`` is different from last (-1) in which case it will be moved back to its original position within the axes of ``x``.
+
+    If the input signal is complex as specificied by ``complex=True``:
+
+    wtx_p: np.array
+        Time-domain positive wavelet transform of input ``x``.
+    wtx_n: np.array
+        Time-domain negative wavelet transform of input ``x``.
+
+    Examples
+    --------
+    Apply a wavelet transform with a Morse wavelet with gamma parameter 3, beta parameter 4,
+    at radian frequency 0.2 cycles per unit time:
+
+    >>> x = np.random.random(1024)
+    >>> wtx = morse_wavelet_transform(x, 3, 4, np.array([2*np.pi*0.2]))
+
+    Apply a wavelet transform with a Morse wavelet with gamma parameter 3, beta parameter 4,
+    for a complex input signal at radian frequency 0.2 cycles per unit time. This case returns the
+    analytic and anti-analytic components:
+
+    >>> z = np.random.random(1024) + 1j*np.random.random(1024)
+    >>> wtz_p, wtz_n = morse_wavelet_transform(z, 3, 4, np.array([2*np.pi*0.2]), complex=True)
+
+    The same result as above can be otained by applying the Morse transform on the real and imaginary
+    component of z and recombining the results as follows for the "bandpass" normalization:
+    >>> wtz_real = morse_wavelet_transform(np.real(z)), 3, 4, np.array([2*np.pi*0.2]))
+    >>> wtz_imag = morse_wavelet_transform(np.imag(z)), 3, 4, np.array([2*np.pi*0.2]))
+    >>> wtz_p, wtz_n = (wtz_real + 1j*wtz_imag) / 2, (wtz_real - 1j*wtz_imag) / 2
+
+    For the "energy" normalization, the analytic and anti-analytic components are obtained as follows
+    with this alternative method:
+    >>> wtz_real = morse_wavelet_transform(np.real(z)), 3, 4, np.array([2*np.pi*0.2]))
+    >>> wtz_imag = morse_wavelet_transform(np.imag(z)), 3, 4, np.array([2*np.pi*0.2]))
+    >>> wtz_p, wtz_n = (wtz_real + 1j*wtz_imag) / np.sqrt(2), (wtz_real - 1j*wtz_imag) / np.sqrt(2)
+
+    The input signal can have an arbitrary number of dimensions but its ``time_axis`` must be
+    specified if it is not the last:
+
+    >>> x = np.random.random((1024,10,15))
+    >>> wtx = morse_wavelet_transform(x, 3, 4, np.array([2*np.pi*0.2]), time_axis=0)
+
+    The default way to handle the boundary conditions is to mirror the ends points
+    but this can be changed by specifying the chosen boundary method:
+
+    >>> x = np.random.random((10,15,1024))
+    >>> wtx = morse_wavelet_transform(x, 3, 4, np.array([2*np.pi*0.2]), boundary="periodic")
+
+    This function can be used to complete a time-frequency analysis of the input signal by specifying
+    a range of randian frequencies using the ``morse_space`` function as an example:
+
+    >>> x = np.random.random(1024)
+    >>> gamma = 3
+    >>> beta = 4
+    >>> radian_frequency = morse_space(gamma, beta, np.shape(x)[0])
+    >>> wtx = morse_wavelet_transform(x, gamma, beta, radian_frequency)
+
+
+    Raises
+    ------
+    ValueError
+        If the time axis is outside of the valid range ([-1, np.ndim(x)-1]).
+        If boundary optional argument is not in ["mirror", "zeros", "periodic"]``.
+        If normalization optional argument is not in ["bandpass", "energy"]``.
+
+    See Also
+    --------
+    :func:`morse_wavelet`, `wavelet_transform`, `morse_space`
+
+    """
+    # time_axis must be in valid range
+    if time_axis < -1 or time_axis > len(x.shape) - 1:
+        raise ValueError(
+            f"time_axis ({time_axis}) is outside of the valid range ([-1,"
+            f" {len(x.shape) - 1}])."
+        )
+    # generate the wavelet
+    wavelet, _ = morse_wavelet(
+        np.shape(x)[time_axis],
+        gamma,
+        beta,
+        radian_frequency,
+        normalization=normalization,
+        order=order,
+    )
+
+    # apply the wavelet transform, distinguish complex and real cases
+    if complex:  # np.all(np.isreal(x))
+        # imaginary case, divide by 2 the wavelet and return analytic and anti-analytic
+        if normalization == "bandpass":
+            wtx_p = wavelet_transform(
+                0.5 * x, wavelet, boundary="mirror", time_axis=time_axis
+            )
+            wtx_n = wavelet_transform(
+                np.conj(0.5 * x), wavelet, boundary="mirror", time_axis=time_axis
+            )
+        elif normalization == "energy":
+            wtx_p = wavelet_transform(
+                x / np.sqrt(2), wavelet, boundary="mirror", time_axis=time_axis
+            )
+            wtx_n = wavelet_transform(
+                np.conj(x / np.sqrt(2)), wavelet, boundary="mirror", time_axis=time_axis
+            )
+        wtx = (wtx_p, wtx_n)
+
+    else:
+        # real case
+        wtx = wavelet_transform(x, wavelet, boundary=boundary, time_axis=time_axis)
+
+    return wtx
+
+
 def wavelet_transform(
     x: np.ndarray,
     wavelet: np.ndarray,
@@ -206,6 +373,11 @@ def morse_wavelet(
 
     Compute a Morse wavelet specifying an energy normalization :
     >>> wavelet, wavelet_fft = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2]), normalization=energy)
+
+    Raises
+    ------
+    ValueError
+        If normalization optional argument is not in ["bandpass", "energy"]``.
 
     See Also
     --------

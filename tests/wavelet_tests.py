@@ -1,4 +1,5 @@
 from clouddrift.wavelet import (
+    morse_wavelet_transform,
     wavelet_transform,
     morse_wavelet,
     morse_freq,
@@ -12,6 +13,84 @@ import unittest
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class morse_wavelet_transform_tests(unittest.TestCase):
+    def test_morse_wavelet_transform_real(self):
+        length = 1023
+        radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
+        x = np.random.random((length))
+        wtx = morse_wavelet_transform(x, 3, 10, radian_frequency)
+        wavelet, _ = morse_wavelet(length, 3, 10, radian_frequency)
+        wtx2 = wavelet_transform(x, wavelet)
+        self.assertTrue(np.allclose(wtx, wtx2))
+
+    def test_morse_wavelet_transform_complex(self):
+        length = 1023
+        radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
+        x = np.random.random((length)) + 1j * np.random.random((length))
+        wtx_p, wtx_n = morse_wavelet_transform(x, 3, 10, radian_frequency, complex=True)
+        wavelet, _ = morse_wavelet(length, 3, 10, radian_frequency)
+        wtx2 = wavelet_transform(x, wavelet)
+        wtx3 = wavelet_transform(np.conj(x), wavelet)
+        self.assertTrue(np.allclose(wtx_p, 0.5 * wtx2))
+        self.assertTrue(np.allclose(wtx_n, 0.5 * wtx3))
+
+    def test_morse_wavelet_transform_rotary_bandpass(self):
+        length = 1023
+        radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
+        x = np.random.random((length))
+        y = np.random.random((length))
+        z = x + 1j * y
+        wtx = morse_wavelet_transform(x, 3, 10, radian_frequency, complex=False)
+        wty = morse_wavelet_transform(y, 3, 10, radian_frequency, complex=False)
+        wp = 0.5 * (wtx + 1j * wty)
+        wn = 0.5 * (wtx - 1j * wty)
+        wp2, _ = morse_wavelet_transform(z, 3, 10, radian_frequency, complex=True)
+        wn2, _ = morse_wavelet_transform(
+            np.conj(z), 3, 10, radian_frequency, complex=True
+        )
+        self.assertTrue(np.allclose(wp, wp2))
+        self.assertTrue(np.allclose(wn, wn2))
+
+    def test_morse_wavelet_transform_rotary_energy(self):
+        length = 1023
+        radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
+        x = np.random.random((length))
+        y = np.random.random((length))
+        z = x + 1j * y
+        wtx = morse_wavelet_transform(
+            x, 3, 10, radian_frequency, complex=False, normalization="energy"
+        )
+        wty = morse_wavelet_transform(
+            y, 3, 10, radian_frequency, complex=False, normalization="energy"
+        )
+        wp = (wtx + 1j * wty) / np.sqrt(2)
+        wn = (wtx - 1j * wty) / np.sqrt(2)
+        wp2, _ = morse_wavelet_transform(
+            z, 3, 10, radian_frequency, complex=True, normalization="energy"
+        )
+        wn2, _ = morse_wavelet_transform(
+            np.conj(z), 3, 10, radian_frequency, complex=True, normalization="energy"
+        )
+        self.assertTrue(np.allclose(wp, wp2))
+        self.assertTrue(np.allclose(wn, wn2))
+
+    def test_morse_wavelet_transform_cos(self):
+        f = 0.2
+        t = np.arange(0, 1024)
+        x = np.cos(2 * np.pi * t * f)
+        wtx = morse_wavelet_transform(x, 3, 10, 2 * np.pi * np.array([f]))
+        self.assertTrue(np.isclose(np.var(x), 0.5 * np.var(wtx), atol=1e-2))
+
+    def test_morse_wavelet_transform_exp(self):
+        f = 0.2
+        t = np.arange(0, 1024)
+        x = np.exp(1j * 2 * np.pi * t * f)
+        wtp, wtn = morse_wavelet_transform(
+            x, 3, 10, 2 * np.pi * np.array([f]), complex=True
+        )
+        self.assertTrue(np.isclose(np.var(x), np.var(wtp) + np.var(wtn), atol=1e-2))
 
 
 class wavelet_transform_tests(unittest.TestCase):
@@ -204,7 +283,7 @@ class morse_space_tests(unittest.TestCase):
         )
 
     def test_morse_space_low(self):
-    # to write; requires morsebox: Heisenberg time-frequency box for generalized Morse wavelets.
+        # to write; requires morsebox: Heisenberg time-frequency box for generalized Morse wavelets.
         self.assertTrue(True)
 
 
