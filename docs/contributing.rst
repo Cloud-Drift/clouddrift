@@ -25,7 +25,8 @@ We also welcome contributions to improving the documentation of the project. To 
 .. code-block:: console
 
   conda install sphinx
-  pip install pydata-sphinx-theme
+  pip install sphinx_book_theme
+  pip install sphinx-copybutton
 
 Then, from the ``clouddrift/docs`` directory, run
 

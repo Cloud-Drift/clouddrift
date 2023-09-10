@@ -518,7 +518,7 @@ def cartesian_to_spherical(
     the point lon = 0, lat = 0. This function is inverted by `spherical_to_cartesian`.
 
     Parameters
-    -------
+    ----------
     x : np.ndarray
         x-coordinates in 3D.
     y : np.ndarray
@@ -527,7 +527,7 @@ def cartesian_to_spherical(
         z-coordinates in 3D.
 
     Returns
-    ----------
+    -------
     lon : np.ndarray
         An N-d array of longitudes in degrees in range [-180, 180].
     lat : np.ndarray
