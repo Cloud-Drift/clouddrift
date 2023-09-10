@@ -4,7 +4,7 @@ from clouddrift.wavelet import (
     morse_wavelet,
     morse_freq,
     morse_amplitude,
-    morse_space,
+    morse_logspace_freq,
     morse_properties,
     _morsehigh,
 )
@@ -268,9 +268,9 @@ class morse_freq_tests(unittest.TestCase):
         self.assertTrue(np.isclose(fi, expected_fi))
 
 
-class morse_space_tests(unittest.TestCase):
-    def test_morse_space_high(self):
-        # here we are not testing the morse_space function
+class morse_logspace_freq_tests(unittest.TestCase):
+    def test_morse_logspace_freq_high(self):
+        # here we are not testing the morse_logspace_freq function
         gamma = np.array([3])
         beta = np.array([4])
         eta = 0.1
@@ -282,7 +282,7 @@ class morse_space_tests(unittest.TestCase):
             )
         )
 
-    def test_morse_space_low(self):
+    def test_morse_logspace_freq_low(self):
         # to write; requires morsebox: Heisenberg time-frequency box for generalized Morse wavelets.
         self.assertTrue(True)
 

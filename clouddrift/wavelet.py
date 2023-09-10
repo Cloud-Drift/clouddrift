@@ -21,8 +21,10 @@ def morse_wavelet_transform(
     time_axis: Optional[int] = -1,
 ) -> Union[Tuple[np.ndarray], np.ndarray]:
     """
-    Apply a continuous wavelet transform to an input signal at specified frequencies
-    using generalized Morse wavelets.
+    Apply a continuous wavelet transform to an input signal using the generalized Morse 
+    wavelets of Olhede and Walden (2002). The wavelet transform is normalized differently
+    for complex-valued input than for real-valued input, and this in turns depends on whether the 
+    optional argument ``normalization`` is set to ``"bandpass"`` or ``"energy"`` normalizations.
 
     Parameters
     ----------
@@ -34,17 +36,17 @@ def morse_wavelet_transform(
        Beta parameter of the Morse wavelets.
     radian_frequency: np.ndarray
        An array of radian frequencies at which the Fourier transform of the wavelets
-       reach their maximum amplitudes. radian_frequency is between 0 and 2 * np.pi * 0.5,
+       reach their maximum amplitudes. ``radian_frequency`` is between 0 and 2 * np.pi * 0.5,
        the normalized Nyquist radian frequency.
     complex: boolean, optional
         Specify explicitely if the input signal ``x`` is a complex signal. Default is False which
         means that the input is real but that is not explicitely tested by the function.
-        This choice affects the outputs and their interpretation. See examples below.
+        This choice affects the normalization of the outputs and their interpretation. 
+        See examples below.
     time_axis : int, optional
-        Axis on which the time is defined for input ``x`` (default is last, or -1). Note that the time axis of the
-        wavelets must be last.
+        Axis on which the time is defined for input ``x`` (default is last, or -1).
     normalization: str, optional
-       Normalization for the ``wavelet`` output. By default it is assumed to be ``"bandpass"``
+       Normalization for the wavelet transforms. By default it is assumed to be ``"bandpass"``
        which uses a bandpass normalization, meaning that the FFT of the wavelets
        have peak value of 2 for all central frequencies ``radian_frequency``. However, if the
        optional argument ``complex=True`` is specified, the wavelets will be divided by 2 so that
@@ -113,14 +115,13 @@ def morse_wavelet_transform(
     >>> wtx = morse_wavelet_transform(x, 3, 4, np.array([2*np.pi*0.2]), boundary="periodic")
 
     This function can be used to complete a time-frequency analysis of the input signal by specifying
-    a range of randian frequencies using the ``morse_space`` function as an example:
+    a range of randian frequencies using the ``morse_logspace_freq`` function as an example:
 
     >>> x = np.random.random(1024)
     >>> gamma = 3
     >>> beta = 4
-    >>> radian_frequency = morse_space(gamma, beta, np.shape(x)[0])
+    >>> radian_frequency = morse_logspace_freq(gamma, beta, np.shape(x)[0])
     >>> wtx = morse_wavelet_transform(x, gamma, beta, radian_frequency)
-
 
     Raises
     ------
@@ -131,7 +132,7 @@ def morse_wavelet_transform(
 
     See Also
     --------
-    :func:`morse_wavelet`, `wavelet_transform`, `morse_space`
+    :func:`morse_wavelet`, `wavelet_transform`, `morse_logspace_freq`
 
     """
     # time_axis must be in valid range
@@ -186,7 +187,7 @@ def wavelet_transform(
 ) -> np.ndarray:
     """
     Apply a continuous wavelet transform to an input signal using an input wavelet
-    function. Such wavelet can be provided by the function `morse_wavelet`.
+    function. Such wavelet can be provided by the function ``morse_wavelet``.
 
     Parameters
     ----------
@@ -239,7 +240,7 @@ def wavelet_transform(
 
     See Also
     --------
-    :func:`morse_wavelet`, `morse_freq`
+    :func:`morse_wavelet`, `morse_wavelet_transform`, `morse_freq`
     """
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(x.shape) - 1:
@@ -381,7 +382,7 @@ def morse_wavelet(
 
     See Also
     --------
-    :func:`wavelet_transform`, `morse_freq`
+    :func:`wavelet_transform`, `morse_wavelet_transform`, `morse_freq`, `morse_logspace_freq`, `morse_amplitude`, `morse_properties`
     """
     # ad test for radian_frequency being a numpy array
     # initialization
@@ -470,7 +471,7 @@ def _morse_wavelet_first_family(
     normalization: Optional[str] = "bandpass",
 ) -> np.ndarray:
     """
-    Derive first family wavelet. Internal use only.
+    Derive first family of Morse wavelets. Internal use only.
     """
     r = (2 * beta + 1) / gamma
     c = r - 1
@@ -509,8 +510,8 @@ def morse_freq(
     cyclic as in np.cos(2 np.pi f t).
 
     For ``beta=0``, the corresponding wavelet becomes an analytic lowpass filter, and fm
-    is not defined in the usual way.  Instead, fm is defined as the point
-    at which the filter has decayed to one-half of its peak power.
+    is not defined in the usual way but as the point at which the filter has decayed 
+    to one-half of its peak power.
 
     For details see Lilly and Olhede (2009).  Higher-order properties of analytic
     wavelets.  IEEE Trans. Sig. Proc., 57 (1), 146--160.
@@ -577,7 +578,7 @@ def morse_freq(
     return fm, fe, fi
 
 
-def morse_space(
+def morse_logspace_freq(
     gamma: float,
     beta: float,
     length: int,
@@ -587,7 +588,10 @@ def morse_space(
 ) -> np.ndarray:
     """
     Compute logarithmically-spaced frequencies for generalized Morse wavelets
-    with parameters gamma and beta. See Lilly (2016) for calculation details.
+    with parameters gamma and beta. This is a useful function to obtain the frequencies
+    needed for time-frequency analyses using wavelets. If ``radian_frequencies`` is the 
+    output, ``np.log(radian_frequencies)`` is uniformly spaced, following convention 
+    for wavelet analysis. See Lilly (2017) for calculation details.
 
     Default settings to compute the frequencies can be changed by passing optional
     arguments ``lowset``, ``highset``, and ``density``. See below.
@@ -601,15 +605,25 @@ def morse_space(
     length: int
         Length of the Morse wavelets and input signals.
     highset: tuple of floats, optional.
-        Value set for high-frequency cutoff. The first value is a threshold value, the second
-        value is the Highest absolute frequency. Default is (0.1, np.pi).
+        Tuple of values (eta, high) used for high-frequency cutoff calculation. The highest 
+        frequency is set to be the minimum of a specified value and a cutoff frequency 
+        based on a Nyquist overlap condition: the highest frequency is the minimum of 
+        the specified value high, and the largest frequency for which the wavelet will 
+        satisfy the threshold level eta. Here eta be a number between zero and one 
+        specifying the ratio of a frequency-domain wavelet at the Nyquist frequency 
+        to its peak value. Default is (eta, high) = (0.1, np.pi).
     lowset: tuple of floats, optional.
-        Value set for low-frequency cutoff. The first value is the packing number, the
-        second value is the absolute lowest frequency. Default is (5, 0).
+        Tupe of values (P, low) set used for low-frequency cutoff calculation based on an 
+        endpoint overlap condition. The lowest frequency is set such that the lowest-frequency
+        wavelet will reach some number P, called the packing number, times its central window 
+        width at the ends of the time series. A choice of P=1 corresponds to  roughly 95% of 
+        the time-domain wavelet energy being contained within the time series endpoints for 
+        a wavelet at the center of the domain. The second value of the tuple is the absolute
+        lowest frequency. Default is (P, low) = (5, 0).
     density: int, optional
-        The optional argument ``density`` controls the number of points in the frequency
+        This optional argument controls the number of points in the returned frequency
         array. Higher values of ``density`` mean more overlap in the frequency
-        domain. When ``density=1``, the peak of one wavelet is located at the
+        domain between transforms. When ``density=1``, the peak of one wavelet is located at the
         half-power points of the adjacent wavelet. The default ``density=4`` means
         that four other wavelets will occur between the peak of one wavelet and
         its half-power point.
@@ -625,11 +639,11 @@ def morse_space(
     Generate a frequency array for the generalized Morse wavelet
     with parameters gamma=3 and beta=5 for a time series of length n=1024:
 
-    >>> radian_frequency = morse_space(3,5,1024)
+    >>> radian_frequency = morse_logspace_freq(3,5,1024)
 
-    >>> radian_frequency = morse_space(3,5,1024,highset=(0.2,np.pi),lowset=(5,0))
+    >>> radian_frequency = morse_logspace_freq(3,5,1024,highset=(0.2,np.pi),lowset=(5,0))
 
-    >>> radian_frequency = morse_space(3,5,1024,highset=(0.2,np.pi),lowset=(5,0),density=10)
+    >>> radian_frequency = morse_logspace_freq(3,5,1024,highset=(0.2,np.pi),lowset=(5,0),density=10)
 
      See Also
     --------
@@ -644,7 +658,7 @@ def morse_space(
 
     low = 2 * np.sqrt(2) * width * lowset[0] / length
     low_ = np.max(np.append(low, lowset[1]))
-    print([high_, low_])
+
     r = 1 + 1 / (density * width)
     m = np.floor(np.log10(high_ / low_) / np.log10(r))
     radian_frequency = high_ * np.ones(int(m + 1)) / r ** np.arange(0, m + 1)
@@ -704,7 +718,7 @@ def morse_properties(
         or 'demodulate kurtosis'.
     See Also
     --------
-    :func:`morse_wavelet`, `morse_freq`, `morse_amplitude`, `morse_space`.
+    :func:`morse_wavelet`, `morse_freq`, `morse_amplitude`, `morse_logspace_freq`.
     """
     # test common size? or could be broadcasted
     width = np.sqrt(gamma * beta)
@@ -749,7 +763,7 @@ def morse_amplitude(
 
     See Also
     --------
-    :func:`morse_wavelet`, `morse_freq`, `morse_props`, `morse_space`.
+    :func:`morse_wavelet`, `morse_freq`, `morse_props`, `morse_logspace_freq`.
     """
     # add test for type and shape in case of ndarray
     if normalization == "energy":
