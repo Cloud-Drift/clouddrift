@@ -21,9 +21,9 @@ def morse_wavelet_transform(
     time_axis: Optional[int] = -1,
 ) -> Union[Tuple[np.ndarray], np.ndarray]:
     """
-    Apply a continuous wavelet transform to an input signal using the generalized Morse 
+    Apply a continuous wavelet transform to an input signal using the generalized Morse
     wavelets of Olhede and Walden (2002). The wavelet transform is normalized differently
-    for complex-valued input than for real-valued input, and this in turns depends on whether the 
+    for complex-valued input than for real-valued input, and this in turns depends on whether the
     optional argument ``normalization`` is set to ``"bandpass"`` or ``"energy"`` normalizations.
 
     Parameters
@@ -41,7 +41,7 @@ def morse_wavelet_transform(
     complex: boolean, optional
         Specify explicitely if the input signal ``x`` is a complex signal. Default is False which
         means that the input is real but that is not explicitely tested by the function.
-        This choice affects the normalization of the outputs and their interpretation. 
+        This choice affects the normalization of the outputs and their interpretation.
         See examples below.
     time_axis : int, optional
         Axis on which the time is defined for input ``x`` (default is last, or -1).
@@ -510,7 +510,7 @@ def morse_freq(
     cyclic as in np.cos(2 np.pi f t).
 
     For ``beta=0``, the corresponding wavelet becomes an analytic lowpass filter, and fm
-    is not defined in the usual way but as the point at which the filter has decayed 
+    is not defined in the usual way but as the point at which the filter has decayed
     to one-half of its peak power.
 
     For details see Lilly and Olhede (2009).  Higher-order properties of analytic
@@ -589,8 +589,8 @@ def morse_logspace_freq(
     """
     Compute logarithmically-spaced frequencies for generalized Morse wavelets
     with parameters gamma and beta. This is a useful function to obtain the frequencies
-    needed for time-frequency analyses using wavelets. If ``radian_frequencies`` is the 
-    output, ``np.log(radian_frequencies)`` is uniformly spaced, following convention 
+    needed for time-frequency analyses using wavelets. If ``radian_frequencies`` is the
+    output, ``np.log(radian_frequencies)`` is uniformly spaced, following convention
     for wavelet analysis. See Lilly (2017) for calculation details.
 
     Default settings to compute the frequencies can be changed by passing optional
@@ -605,19 +605,19 @@ def morse_logspace_freq(
     length: int
         Length of the Morse wavelets and input signals.
     highset: tuple of floats, optional.
-        Tuple of values (eta, high) used for high-frequency cutoff calculation. The highest 
-        frequency is set to be the minimum of a specified value and a cutoff frequency 
-        based on a Nyquist overlap condition: the highest frequency is the minimum of 
-        the specified value high, and the largest frequency for which the wavelet will 
-        satisfy the threshold level eta. Here eta be a number between zero and one 
-        specifying the ratio of a frequency-domain wavelet at the Nyquist frequency 
+        Tuple of values (eta, high) used for high-frequency cutoff calculation. The highest
+        frequency is set to be the minimum of a specified value and a cutoff frequency
+        based on a Nyquist overlap condition: the highest frequency is the minimum of
+        the specified value high, and the largest frequency for which the wavelet will
+        satisfy the threshold level eta. Here eta be a number between zero and one
+        specifying the ratio of a frequency-domain wavelet at the Nyquist frequency
         to its peak value. Default is (eta, high) = (0.1, np.pi).
     lowset: tuple of floats, optional.
-        Tupe of values (P, low) set used for low-frequency cutoff calculation based on an 
+        Tupe of values (P, low) set used for low-frequency cutoff calculation based on an
         endpoint overlap condition. The lowest frequency is set such that the lowest-frequency
-        wavelet will reach some number P, called the packing number, times its central window 
-        width at the ends of the time series. A choice of P=1 corresponds to  roughly 95% of 
-        the time-domain wavelet energy being contained within the time series endpoints for 
+        wavelet will reach some number P, called the packing number, times its central window
+        width at the ends of the time series. A choice of P=1 corresponds to  roughly 95% of
+        the time-domain wavelet energy being contained within the time series endpoints for
         a wavelet at the center of the domain. The second value of the tuple is the absolute
         lowest frequency. Default is (P, low) = (5, 0).
     density: int, optional
