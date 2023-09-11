@@ -327,7 +327,7 @@ def morse_wavelet(
     normalization: Optional[str] = "bandpass",
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compute the generalized Morse wavelets of Olhede and Walden (2002).
+    Compute the generalized Morse wavelets of Olhede and Walden (2002), doi: 10.1109/TSP.2002.804066.
 
     Parameters
     ----------
@@ -514,8 +514,7 @@ def morse_freq(
     is not defined in the usual way but as the point at which the filter has decayed
     to one-half of its peak power.
 
-    For details see Lilly and Olhede (2009).  Higher-order properties of analytic
-    wavelets.  IEEE Trans. Sig. Proc., 57 (1), 146--160.
+    For details see Lilly and Olhede (2009), doi: 10.1109/TSP.2008.2007607.
 
     Parameters
     ----------
@@ -592,7 +591,7 @@ def morse_logspace_freq(
     with parameters gamma and beta. This is a useful function to obtain the frequencies
     needed for time-frequency analyses using wavelets. If ``radian_frequencies`` is the
     output, ``np.log(radian_frequencies)`` is uniformly spaced, following convention
-    for wavelet analysis. See Lilly (2017) for calculation details.
+    for wavelet analysis. See Lilly (2017), doi: 10.1098/rspa.2016.0776.
 
     Default settings to compute the frequencies can be changed by passing optional
     arguments ``lowset``, ``highset``, and ``density``. See below.
@@ -698,7 +697,7 @@ def morse_properties(
 ) -> Union[Tuple[np.ndarray], Tuple[float]]:
     """
     Calculate the properties of the demodulated generalized Morse wavelets.
-    See Lilly and Olhede (2008b) for details.
+    See Lilly and Olhede (2009), doi: 10.1109/TSP.2008.2007607.
 
     Parameters
     ----------
@@ -740,7 +739,7 @@ def morse_amplitude(
     By default, the amplitude is calculated such that the maximum of the
     frequency-domain wavelet is equal to 2, which is the bandpass normalization.
     Optionally, specify ``normalization="energy"`` in order to return the coefficient
-    giving the wavelets unit energies. See Lilly and Olhede (2009) for details.
+    giving the wavelets unit energies. See Lilly and Olhede (2009), doi doi: 10.1109/TSP.2008.2007607.
 
     Parameters
     ----------
