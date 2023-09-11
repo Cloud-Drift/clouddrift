@@ -181,7 +181,7 @@ def morse_wavelet_transform(
             wtx_n = wavelet_transform(
                 np.conj(x / np.sqrt(2)), wavelet, boundary="mirror", time_axis=time_axis
             )
-        wtx = (wtx_p, wtx_n)
+        wtx = wtx_p, wtx_n
 
     else:
         # real case
@@ -415,9 +415,6 @@ def morse_wavelet(
             2 * np.pi * np.linspace(0, 1 - 1 / length, length) / fact
         )
         if normalization == "energy":
-            # if beta == 0:
-            #    waveletzero = np.exp(-(norm_radian_frequency**gamma))
-            # else:
             waveletzero = np.exp(
                 beta * np.log(norm_radian_frequency) - norm_radian_frequency**gamma
             )
