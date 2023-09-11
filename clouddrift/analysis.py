@@ -159,11 +159,13 @@ def chunk(
            [3, 4]])
 
     To discard the starting elements of the array instead, use ``align="end"``:
+
     >>> chunk([1, 2, 3, 4, 5], 2, align="end")
     array([[2, 3],
            [4, 5]])
 
     To center the chunks by discarding both ends of the array, use ``align="middle"``:
+
     >>> chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, align="middle")
     array([[2, 3, 4],
            [5, 6, 7]])
@@ -350,6 +352,7 @@ def ragged_to_regular(
            [ 4.,  5.]])
 
     You can specify an alternative fill value:
+
     >>> ragged_to_regular(np.array([1, 2, 3, 4, 5]), np.array([2, 1, 2]), fill_value=999)
     array([[ 1.,    2.],
            [ 3., -999.],
