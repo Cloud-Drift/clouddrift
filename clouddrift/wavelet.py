@@ -12,7 +12,7 @@ jLab is licensed under the Creative Commons Attribution-Noncommercial-ShareAlike
 License (https://creativecommons.org/licenses/by-nc-sa/4.0/). The code that is
 directly translated from jLab/jWavelet is licensed under the same license.
 Any other code that is added to this module and that is specific to Python and
-not the MATLAB implementation os licensed under CloudDrift's MIT license.
+not the MATLAB implementation is licensed under CloudDrift's MIT license.
 """
 
 import numpy as np
