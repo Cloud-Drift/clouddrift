@@ -286,6 +286,23 @@ class morse_logspace_freq_tests(unittest.TestCase):
         # to write; requires morsebox: Heisenberg time-frequency box for generalized Morse wavelets.
         self.assertTrue(True)
 
+    def test_morse_logspace_freq_values(self):
+        fs = morse_logspace_freq(3, 10, 1024)
+        self.assertTrue(
+            np.allclose(
+                fs[[0, -1]], np.array([2.26342969061515, 0.0761392757859202]), atol=1e-5
+            )
+        )
+        fs = morse_logspace_freq(
+            3, 10, 1024, highset=(0.3, np.pi), lowset=(5, 0), density=10
+        )
+        self.assertTrue(
+            np.allclose(
+                fs[[0, -1]], np.array([2.45100152921832, 0.0759779680679649]), atol=1e-5
+            )
+        )
+        self.assertTrue(np.shape(fs)[0] == 193)
+
 
 class morse_properties_tests(unittest.TestCase):
     def test_morse_properties(self):
