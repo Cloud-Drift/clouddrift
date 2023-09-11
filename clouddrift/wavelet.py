@@ -280,8 +280,7 @@ def wavelet_transform(
     elif boundary == "zeros":
         x_ = np.concatenate((np.zeros_like(x_), x_, np.zeros_like(x_)), axis=-1)
     elif boundary == "periodic":
-        # x_ = np.concatenate((x_, x_, x_), axis=-1) # JML: this not needed
-        x_ = x_
+        pass
     else:
         raise ValueError("boundary must be one of 'mirror', 'zeros', or 'periodic'.")
 
@@ -413,19 +412,21 @@ def morse_wavelet(
             2 * np.pi * np.linspace(0, 1 - 1 / length, length) / fact
         )
         if normalization == "energy":
-            waveletzero = np.exp(
-                beta * np.log(norm_radian_frequency) - norm_radian_frequency**gamma
-            )
+            with np.errstate(divide = 'ignore'):
+                waveletzero = np.exp(
+                    beta * np.log(norm_radian_frequency) - norm_radian_frequency**gamma
+                )
         elif normalization == "bandpass":
             if beta == 0:
                 waveletzero = 2 * np.exp(-(norm_radian_frequency**gamma))
             else:
-                waveletzero = 2 * np.exp(
-                    -beta * np.log(fo)
-                    + fo**gamma
-                    + beta * np.log(norm_radian_frequency)
-                    - norm_radian_frequency**gamma
-                )
+                with np.errstate(divide = 'ignore'):
+                    waveletzero = 2 * np.exp(
+                        -beta * np.log(fo)
+                        + fo**gamma
+                        + beta * np.log(norm_radian_frequency)
+                        - norm_radian_frequency**gamma
+                    )
         else:
             raise ValueError(
                 "Normalization option (norm) must be one of 'energy' or 'bandpass'."
