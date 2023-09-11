@@ -64,3 +64,6 @@ html_theme_options = {
         "image_dark": "logo.png",
     }
 }
+
+# sphinx-copybutton settings
+copybutton_exclude = ".linenos, .gp"  # don't copy prompts or line numbers
