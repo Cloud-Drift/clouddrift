@@ -8,3 +8,4 @@ import clouddrift.analysis
 import clouddrift.datasets
 import clouddrift.sphere
 import clouddrift.signal
+import clouddrift.wavelet
