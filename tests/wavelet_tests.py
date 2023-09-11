@@ -26,7 +26,7 @@ class morse_wavelet_transform_tests(unittest.TestCase):
         self.assertTrue(np.allclose(wtx, wtx2))
 
     def test_morse_wavelet_transform_complex(self):
-        length = 1023
+        length = 1024
         radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
         x = np.random.random((length)) + 1j * np.random.random((length))
         wtx_p, wtx_n = morse_wavelet_transform(x, 3, 10, radian_frequency, complex=True)
@@ -37,7 +37,7 @@ class morse_wavelet_transform_tests(unittest.TestCase):
         self.assertTrue(np.allclose(wtx_n, 0.5 * wtx3))
 
     def test_morse_wavelet_transform_rotary_bandpass(self):
-        length = 1023
+        length = 2048
         radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
         x = np.random.random((length))
         y = np.random.random((length))
@@ -78,7 +78,7 @@ class morse_wavelet_transform_tests(unittest.TestCase):
 
     def test_morse_wavelet_transform_cos(self):
         f = 0.2
-        t = np.arange(0, 1024)
+        t = np.arange(0, 1000)
         x = np.cos(2 * np.pi * t * f)
         wtx = morse_wavelet_transform(x, 3, 10, 2 * np.pi * np.array([f]))
         self.assertTrue(np.isclose(np.var(x), 0.5 * np.var(wtx), atol=1e-2))
@@ -95,7 +95,7 @@ class morse_wavelet_transform_tests(unittest.TestCase):
 
 class wavelet_transform_tests(unittest.TestCase):
     def test_wavelet_transform_boundary(self):
-        length = 1023
+        length = 2001
         radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
         wave, wavef = morse_wavelet(
             length, 2, 4, radian_frequency, order=1, normalization="bandpass"
@@ -111,7 +111,7 @@ class wavelet_transform_tests(unittest.TestCase):
         self.assertTrue(np.allclose(np.real(w2[..., s]), np.real(w3[..., s])))
 
     def test_wavelet_transform_complex(self):
-        length = 1023
+        length = 1000
         radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
         wave, wavef = morse_wavelet(
             length, 2, 4, radian_frequency, order=1, normalization="bandpass"
@@ -136,7 +136,7 @@ class wavelet_transform_tests(unittest.TestCase):
         self.assertTrue(np.allclose(wn, wn2, atol=1e-6))
 
     def test_wavelet_transform_size(self):
-        length = 1023
+        length = 2046
         m = 10
         order = 2
         radian_frequency = 2 * np.pi * np.array([0.1, 0.2, 0.3])
@@ -148,7 +148,7 @@ class wavelet_transform_tests(unittest.TestCase):
         self.assertTrue(np.shape(w) == (m, m * 2, order, len(radian_frequency), length))
 
     def test_wavelet_transform_size_axis(self):
-        length = 1023
+        length = 1024
         m = 10
         order = 2
         radian_frequency = 2 * np.pi * np.array([0.1, 0.2, 0.3])
@@ -210,7 +210,7 @@ class morse_wavelet_tests(unittest.TestCase):
         gamma = 2
         beta = 4
         order = 2
-        length = 1023
+        length = 1000
         wave, _ = morse_wavelet(
             length, gamma, beta, radian_frequency, order=order, normalization="energy"
         )

@@ -49,7 +49,7 @@ def morse_wavelet_transform(
        Beta parameter of the Morse wavelets.
     radian_frequency: np.ndarray
        An array of radian frequencies at which the Fourier transform of the wavelets
-       reach their maximum amplitudes. ``radian_frequency`` is between 0 and 2 * np.pi * 0.5,
+       reach their maximum amplitudes. ``radian_frequency`` is typically between 0 and 2 * np.pi * 0.5,
        the normalized Nyquist radian frequency.
     complex: boolean, optional
         Specify explicitely if the input signal ``x`` is a complex signal. Default is False which
@@ -165,7 +165,7 @@ def morse_wavelet_transform(
     )
 
     # apply the wavelet transform, distinguish complex and real cases
-    if complex:  # np.all(np.isreal(x))
+    if complex:
         # imaginary case, divide by 2 the wavelet and return analytic and anti-analytic
         if normalization == "bandpass":
             wtx_p = wavelet_transform(
@@ -274,7 +274,7 @@ def wavelet_transform(
     else:
         x_ = np.moveaxis(x, time_axis, -1)
 
-    # add detrending option?
+    # add detrending option eventually
 
     # apply boundary conditions
     if boundary == "mirror":
