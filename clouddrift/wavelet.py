@@ -1,6 +1,18 @@
 """
 This module provides functions for computing wavelet transforms and time-frequency analyses,
 notably using generalized Morse wavelets.
+
+The Python code in this module was translated from the MATLAB implementation
+by J. M. Lilly in the jWavelet module of jLab (http://jmlilly.net/code.html).
+
+Lilly, J. M. (2021), jLab: A data analysis package for Matlab, v.1.7.1,
+doi:10.5281/zenodo.4547006, http://www.jmlilly.net/software.
+
+jLab is licensed under the Creative Commons Attribution-Noncommercial-ShareAlike
+License (https://creativecommons.org/licenses/by-nc-sa/4.0/). The code that is
+directly translated from jLab/jWavelet is licensed under the same license.
+Any other code that is added to this module and that is specific to Python and
+not the MATLAB implementation os licensed under CloudDrift's MIT license.
 """
 
 import numpy as np
