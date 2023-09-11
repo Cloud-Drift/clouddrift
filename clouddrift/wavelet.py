@@ -1,5 +1,6 @@
 """
-This module provides wavelet functions.
+This module provides functions for computing wavelet transforms and time-frequency analyses,
+notably using generalized Morse wavelets.
 """
 
 import numpy as np
