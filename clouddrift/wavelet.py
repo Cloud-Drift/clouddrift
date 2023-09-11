@@ -17,8 +17,6 @@ not the MATLAB implementation is licensed under CloudDrift's MIT license.
 
 import numpy as np
 from typing import Optional, Tuple, Union
-import xarray as xr
-import warnings
 from scipy.special import gamma as _gamma, gammaln as _lgamma
 
 
