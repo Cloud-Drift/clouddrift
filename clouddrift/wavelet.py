@@ -412,15 +412,16 @@ def morse_wavelet(
             2 * np.pi * np.linspace(0, 1 - 1 / length, length) / fact
         )
         if normalization == "energy":
-            with np.errstate(divide = 'ignore'):
+            with np.errstate(divide="ignore"):
                 waveletzero = np.exp(
-                    beta * np.log(norm_radian_frequency) - norm_radian_frequency**gamma
+                    beta * np.log(norm_radian_frequency)
+                    - norm_radian_frequency**gamma
                 )
         elif normalization == "bandpass":
             if beta == 0:
                 waveletzero = 2 * np.exp(-(norm_radian_frequency**gamma))
             else:
-                with np.errstate(divide = 'ignore'):
+                with np.errstate(divide="ignore"):
                     waveletzero = 2 * np.exp(
                         -beta * np.log(fo)
                         + fo**gamma
