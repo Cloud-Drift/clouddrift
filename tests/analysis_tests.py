@@ -35,7 +35,7 @@ def sample_ragged_array() -> RaggedArray:
         [True, False, False, False],
     ]
     rowsize = [len(x) for x in longitude]
-    ids = [[d]*rowsize[i] for i,d in enumerate(drifter_id)]
+    ids = [[d] * rowsize[i] for i, d in enumerate(drifter_id)]
     nb_obs = np.sum(rowsize)
     nb_traj = len(drifter_id)
     attrs_global = {
