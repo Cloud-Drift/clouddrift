@@ -14,6 +14,11 @@ There are a few ways to retrieve the data, but all typically require time-consum
 
 CloudDrift goals are to *simplify* the necessary steps to get started with the GDP dataset or any Lagrangian datasets, and to provide a cloud-ready library to *accelerate* Lagrangian analysis.
 
+.. image:: img/ragged_array.png
+  :width: 800
+  :align: center
+  :alt: Ragged array schematic
+
 Getting started
 ---------------
 

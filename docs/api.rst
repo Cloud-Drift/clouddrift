@@ -38,7 +38,22 @@ Analysis
 
 .. automodule:: clouddrift.analysis
   :members:
+  :exclude-members: chunk
   :undoc-members:
+  
+  .. autofunction:: chunk
+    
+    .. image:: img/chunk.png
+      :width: 800
+      :align: center
+      :alt: chunk schematic
+    
+    Combined with :func:`clouddrift.analysis.apply_ragged`, :func:`clouddrift.analysis.chunk` can be used to divide a ragged array into equal chunks.
+    
+    .. image:: img/chunk_ragged.png
+      :width: 800
+      :align: center
+      :alt: ragged array chunk schematic
 
 Datasets
 --------
