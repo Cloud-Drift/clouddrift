@@ -76,7 +76,7 @@ def morse_wavelet_transform(
     If the input signal is real as specificied by ``complex=False``:
 
     wtx : np.ndarray
-        Time-domain wavelet transform of input ``x``. The axes of ``wtx`` will be organized as (x axes), orders, frequencies, time
+        Time-domain wavelet transform of input ``x``. The axes of ``wtx`` will be organized as (x axes), time, frequencies, orders
         unless ``time_axis`` is different from last (-1) in which case it will be moved back to its original position within the axes of ``x``.
 
     If the input signal is complex as specificied by ``complex=True``:
@@ -224,7 +224,7 @@ def wavelet_transform(
     Returns
     -------
     wtx : np.ndarray
-        Time-domain wavelet transform of input ``x``. The axes of ``wtx`` will be organized as (x axes), orders, frequencies, time
+        Time-domain wavelet transform of input ``x``. The axes of ``wtx`` will be organized as (x axes), time, frequencies, orders
         unless ``time_axis`` is different from last (-1) in which case it will be moved back to its original position within the axes of ``x``.
 
     Examples
@@ -319,10 +319,20 @@ def wavelet_transform(
     complex_dtype = np.cdouble if x.dtype == np.single else np.csingle
     wtx = np.fft.ifft(X_ * np.conj(_wavelet_fft)).astype(complex_dtype)
     wtx = wtx[..., index]
-    # remove extra dimensions
+
+    # reorder as ((shape of x),length, freq_axis, order_axis) = ((shape of x),-3,-2,-1)
+    wtx = np.moveaxis(wtx, [-1], [-3])  # move length to -3
+    wtx = np.moveaxis(wtx, [-2], [-1])  # move order to -1
+
+    # reposition the time axis if needed which should be in position -3
+    if time_axis != -1:
+        wtx = np.moveaxis(wtx, -3, time_axis)
+        print("time axis is" + str(time_axis))
+    else:
+        pass
+
+    # remove extra dimensions if needed
     wtx = np.squeeze(wtx)
-    # reposition the time axis: should I add a condition to do so only if time_axis!=-1? works anyway
-    wtx = np.moveaxis(wtx, -1, time_axis)
 
     return wtx
 
