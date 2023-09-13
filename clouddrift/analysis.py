@@ -1045,9 +1045,10 @@ def subset(
     else:
         # apply the filtering for both dimensions
         ds_sub = ds.isel({traj_dim_name: mask_traj, obs_dim_name: mask_obs})
-        _, ds_sub[rowsize_var_name].values = np.unique(
-            ids_with_mask_obs, return_counts=True
+        _, unique_idx, sorted_rowsize = np.unique(
+            ids_with_mask_obs, return_index=True, return_counts=True
         )
+        ds_sub[rowsize_var_name].values = sorted_rowsize[np.argsort(unique_idx)]
         return ds_sub
 
 
