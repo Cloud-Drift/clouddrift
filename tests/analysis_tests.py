@@ -28,14 +28,14 @@ def sample_ragged_array() -> RaggedArray:
     drifter_id = [1, 3, 2]
     longitude = [[-121, -111, 51, 61, 71], [103, 113], [12, 22, 32, 42]]
     latitude = [[-90, -45, 45, 90, 0], [10, 20], [10, 20, 30, 40]]
-    rowsize = [len(x) for x in longitude]
     t = [[1, 2, 3, 4, 5], [4, 5], [2, 3, 4, 5]]
-    ids = [[1, 1, 1, 1, 1], [3, 3], [2, 2, 2, 2]]
     test = [
         [True, True, True, False, False],
         [False, False],
         [True, False, False, False],
     ]
+    rowsize = [len(x) for x in longitude]
+    ids = [[d]*rowsize[i] for i,d in enumerate(drifter_id)]
     nb_obs = np.sum(rowsize)
     nb_traj = len(drifter_id)
     attrs_global = {
