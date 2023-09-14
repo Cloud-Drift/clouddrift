@@ -936,7 +936,9 @@ def mask_var(
     """
     if isinstance(criterion, tuple):  # min/max defining range
         mask = np.logical_and(var >= criterion[0], var <= criterion[1])
-    elif isinstance(criterion, list):  # select multiple values
+    elif isinstance(
+        criterion, (list, np.ndarray, xr.DataArray)
+    ):  # select multiple values
         # Ensure we define the mask as boolean, otherwise it will inherit
         # the dtype of the variable which may be a string, object, or other.
         mask = xr.zeros_like(var, dtype=bool)

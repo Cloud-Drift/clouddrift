@@ -858,6 +858,15 @@ class subset_tests(unittest.TestCase):
         ds_sub = subset(ds_str, {"ID": list(ds_str["ID"].values[:2])})
         self.assertTrue(ds_sub["ID"].size == 2)
 
+    def test_arraylike_criterion(self):
+        # DataArray
+        ds_sub = subset(self.ds, {"ID": self.ds["ID"][:2]})
+        self.assertTrue(ds_sub["ID"].size == 2)
+
+        # NumPy array
+        ds_sub = subset(self.ds, {"ID": self.ds["ID"][:2].values})
+        self.assertTrue(ds_sub["ID"].size == 2)
+
 
 class unpack_ragged_tests(unittest.TestCase):
     def test_unpack_ragged(self):
