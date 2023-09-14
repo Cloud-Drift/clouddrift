@@ -48,6 +48,8 @@ jobs:
   test-built-dist:
     needs: build-artifacts
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - uses: actions/setup-python@v4
         name: Install Python
@@ -70,8 +72,6 @@ jobs:
         if: github.event_name == 'push'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          user: __token__
-          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
           verbose: true
 
@@ -79,6 +79,8 @@ jobs:
     needs: test-built-dist
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - uses: actions/download-artifact@v3
         with:
@@ -87,6 +89,4 @@ jobs:
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
           verbose: true
