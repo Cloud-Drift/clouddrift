@@ -897,7 +897,8 @@ def velocity_from_position(
 
 
 def mask_var(
-    var: xr.DataArray, criterion: Union[tuple, list, bool, float, int]
+    var: xr.DataArray,
+    criterion: Union[tuple, list, np.ndarray, xr.DataArray, bool, float, int],
 ) -> xr.DataArray:
     """Return the mask of a subset of the data matching a test criterion.
 
@@ -905,10 +906,10 @@ def mask_var(
     ----------
     var : xr.DataArray
         DataArray to be subset by the criterion
-    criterion : Union[tuple, list, bool, float, int]
+    criterion : array-like
         The criterion can take three forms:
         - tuple: (min, max) defining a range
-        - list: [value1, value2, valueN] defining multiples values
+        - list, np.ndarray, or xr.DataArray: An array-like defining multiples values
         - scalar: value defining a single value
 
     Examples
@@ -936,8 +937,12 @@ def mask_var(
     """
     if isinstance(criterion, tuple):  # min/max defining range
         mask = np.logical_and(var >= criterion[0], var <= criterion[1])
-    elif isinstance(criterion, list):  # select multiple values
-        mask = xr.zeros_like(var)
+    elif isinstance(
+        criterion, (list, np.ndarray, xr.DataArray)
+    ):  # select multiple values
+        # Ensure we define the mask as boolean, otherwise it will inherit
+        # the dtype of the variable which may be a string, object, or other.
+        mask = xr.zeros_like(var, dtype=bool)
         for v in criterion:
             mask = np.logical_or(mask, var == v)
     else:  # select one specific value
@@ -1001,7 +1006,10 @@ def subset(
     Retrieve a specific time period:
     >>> subset(ds, {"time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))})
 
-    Note: To subset time variable, the range has to be defined as a function type of the variable. By default, `xarray` uses `np.datetime64` to represent datetime data. If the datetime data is a `datetime.datetime`, or `pd.Timestamp`, the range would have to be define accordingly.
+    Note that to subset time variable, the range has to be defined as a function
+    type of the variable. By default, ``xarray`` uses ``np.datetime64`` to
+    represent datetime data. If the datetime data is a ``datetime.datetime``, or
+    ``pd.Timestamp``, the range would have to be defined accordingly.
 
     Those criteria can also be combined:
     >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78), "drogue_status": True, "sst": (303.15, np.inf), "time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))})
