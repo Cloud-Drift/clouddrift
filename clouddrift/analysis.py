@@ -1003,7 +1003,10 @@ def subset(
     Retrieve a specific time period:
     >>> subset(ds, {"time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))})
 
-    Note: To subset time variable, the range has to be defined as a function type of the variable. By default, `xarray` uses `np.datetime64` to represent datetime data. If the datetime data is a `datetime.datetime`, or `pd.Timestamp`, the range would have to be define accordingly.
+    Note that to subset time variable, the range has to be defined as a function
+    type of the variable. By default, ``xarray`` uses ``np.datetime64`` to
+    represent datetime data. If the datetime data is a ``datetime.datetime``, or
+    ``pd.Timestamp``, the range would have to be defined accordingly.
 
     Those criteria can also be combined:
     >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78), "drogue_status": True, "sst": (303.15, np.inf), "time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))})
