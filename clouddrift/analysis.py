@@ -897,7 +897,8 @@ def velocity_from_position(
 
 
 def mask_var(
-    var: xr.DataArray, criterion: Union[tuple, list, bool, float, int]
+    var: xr.DataArray,
+    criterion: Union[tuple, list, np.ndarray, xr.DataArray, bool, float, int],
 ) -> xr.DataArray:
     """Return the mask of a subset of the data matching a test criterion.
 
@@ -905,10 +906,10 @@ def mask_var(
     ----------
     var : xr.DataArray
         DataArray to be subset by the criterion
-    criterion : Union[tuple, list, bool, float, int]
+    criterion : array-like
         The criterion can take three forms:
         - tuple: (min, max) defining a range
-        - list: [value1, value2, valueN] defining multiples values
+        - list, np.ndarray, or xr.DataArray: An array-like defining multiples values
         - scalar: value defining a single value
 
     Examples
