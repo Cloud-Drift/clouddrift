@@ -1040,8 +1040,9 @@ def subset(
         mask_obs[slice(traj_idx[i], traj_idx[i + 1])] = False
 
     # remove trajectory completely filtered in mask_obs
-    ids = np.repeat(ds[id_var_name].values, ds[rowsize_var_name].values)
-    ids_with_mask_obs = ids[mask_obs]
+    ids_with_mask_obs = np.repeat(ds[id_var_name].values, ds[rowsize_var_name].values)[
+        mask_obs
+    ]
     mask_traj = np.logical_and(
         mask_traj, np.in1d(ds[id_var_name], np.unique(ids_with_mask_obs))
     )
