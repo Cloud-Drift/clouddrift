@@ -118,8 +118,7 @@ def chunk(
     number of chunks is determined based on the length of ``x``, ``length``,
     and ``overlap``.
 
-    ``chunk`` can be combined with :func:`apply_ragged` in order to chunk a ragged
-    array.
+    ``chunk`` can be combined with :func:`apply_ragged` to chunk a ragged array.
 
     Parameters
     ----------
