@@ -118,17 +118,7 @@ def chunk(
     number of chunks is determined based on the length of ``x``, ``length``,
     and ``overlap``.
 
-    .. image:: img/chunk.png
-      :width: 800
-      :align: center
-      :alt: chunk schematic
-
     ``chunk`` can be combined with :func:`apply_ragged` to chunk a ragged array.
-
-    .. image:: img/chunk_ragged.png
-      :width: 800
-      :align: center
-      :alt: ragged array chunk schematic
 
     Parameters
     ----------
