@@ -79,12 +79,12 @@ def morse_wavelet_transform(
         Time-domain wavelet transform of input ``x``. The axes of ``wtx`` will be organized as (x axes), time, frequencies, orders
         unless ``time_axis`` is different from last (-1) in which case it will be moved back to its original position within the axes of ``x``.
 
-    If the input signal is complex as specificied by ``complex=True``:
+    If the input signal is complex as specificied by ``complex=True``, a tuple is returned:
 
     wtx_p: np.array
-        Time-domain positive wavelet transform of input ``x``.
+        Time-domain positive wavelet transform of input ``x``, with axes organized as in the ``complex=False`` case.
     wtx_n: np.array
-        Time-domain negative wavelet transform of input ``x``.
+        Time-domain negative wavelet transform of input ``x``, with axes organized as in the ``complex=False`` case.
 
     Examples
     --------
@@ -261,7 +261,7 @@ def wavelet_transform(
         )
     # Positions and time arrays must have the same shape.
     if x.shape[time_axis] != wavelet.shape[-1]:
-        raise ValueError("x and wave time axes must have the same length.")
+        raise ValueError("x and wavelet time axes must have the same length.")
 
     wavelet_ = np.moveaxis(wavelet, [freq_axis, order_axis], [-2, -3])
 
@@ -324,7 +324,7 @@ def wavelet_transform(
     wtx = np.moveaxis(wtx, [-1], [-3])  # move length to -3
     wtx = np.moveaxis(wtx, [-2], [-1])  # move order to -1
     
-    # reposition the time axis if needed which should be in position -3
+    # reposition the time axis if needed from axis -3
     if time_axis != -1:
         wtx = np.moveaxis(wtx, -3, time_axis)
     else:
