@@ -12,7 +12,17 @@ The `Global Drifter Program (GDP) <https://www.aoml.noaa.gov/phod/gdp/>`_ of the
 
 There are a few ways to retrieve the data, but all typically require time-consuming preprocessing steps in order to prepare the data for analysis. As an example, the datasets can be retrieved through an `ERDDAP server <https://data.pmel.noaa.gov/generic/erddap/tabledap/gdp_hourly_velocities.html>`_, but requests are limited in size. The latest `6-hourly dataset <https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/netcdf/>`_ is distributed as a collection of thousands of individual NetCDF files or as a series of `ASCII files <https://www.aoml.noaa.gov/phod/gdp/>`_. Until recently, the `hourly dataset <https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netcdf/>`_ was distributed as a collection of individual NetCDF files (17,324 for version 1.04c) but is now distributed by NOAA NCEI as a `single NetCDF file <https://doi.org/10.25921/x46c-3620>`_ containing a series of ragged arrays, thanks to the work of CloudDrift. A single file simplifies data distribution, decreases metadata redundancies, and efficiently stores a Lagrangian data collection of uneven lengths.
 
-CloudDrift goals are to *simplify* the necessary steps to get started with the GDP dataset or any Lagrangian datasets, and to provide a cloud-ready library to *accelerate* Lagrangian analysis.
+CloudDrift's analysis functions are centered around the ragged-array data
+structure:
+
+.. image:: img/ragged_array.png
+  :width: 800
+  :align: center
+  :alt: Ragged array schematic
+
+CloudDrift's goals are to simplify the necessary steps to get started with
+Lagrangian datasets and to provide a cloud-ready library to accelerate
+Lagrangian analysis.
 
 Getting started
 ---------------

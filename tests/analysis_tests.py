@@ -25,19 +25,17 @@ if __name__ == "__main__":
 
 
 def sample_ragged_array() -> RaggedArray:
-    drifter_id = [1, 2, 3]
-    rowsize = [5, 4, 2]
-    longitude = [[-121, -111, 51, 61, 71], [12, 22, 32, 42], [103, 113]]
-    latitude = [[-90, -45, 45, 90, 0], [10, 20, 30, 40], [10, 20]]
-    t = [[1, 2, 3, 4, 5], [2, 3, 4, 5], [4, 5]]
-    ids = [[1, 1, 1, 1, 1], [2, 2, 2, 2], [3, 3]]
+    drifter_id = [1, 3, 2]
+    longitude = [[-121, -111, 51, 61, 71], [103, 113], [12, 22, 32, 42]]
+    latitude = [[-90, -45, 45, 90, 0], [10, 20], [10, 20, 30, 40]]
+    t = [[1, 2, 3, 4, 5], [4, 5], [2, 3, 4, 5]]
     test = [
         [True, True, True, False, False],
-        [True, False, False, False],
         [False, False],
+        [True, False, False, False],
     ]
-    nb_obs = np.sum(rowsize)
-    nb_traj = len(drifter_id)
+    rowsize = [len(x) for x in longitude]
+    ids = [[d] * rowsize[i] for i, d in enumerate(drifter_id)]
     attrs_global = {
         "title": "test trajectories",
         "history": "version xyz",
@@ -800,10 +798,12 @@ class subset_tests(unittest.TestCase):
         self.assertTrue(
             all(ds_sub.lon[slice(traj_idx[0], traj_idx[1])] == [51, 61, 71])
         )
+
+        self.assertTrue(all(ds_sub.lon[slice(traj_idx[1], traj_idx[2])] == [103, 113]))
+
         self.assertTrue(
-            all(ds_sub.lon[slice(traj_idx[1], traj_idx[2])] == [12, 22, 32, 42])
+            all(ds_sub.lon[slice(traj_idx[2], traj_idx[3])] == [12, 22, 32, 42])
         )
-        self.assertTrue(all(ds_sub.lon[slice(traj_idx[2], traj_idx[3])] == [103, 113]))
 
         # negative range
         ds_sub = subset(self.ds, {"lon": (-180, 0)})
@@ -837,6 +837,35 @@ class subset_tests(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             subset(self.ds, {"lon": (0, 180), "a": (0, 10)})
+
+    def test_ragged_array_with_id_as_str(self):
+        ds_str = self.ds.copy()
+        ds_str["ID"].values = ds_str["ID"].astype(str)
+
+        ds_sub = subset(ds_str, {"ID": ds_str["ID"].values[0]})
+        self.assertTrue(ds_sub["ID"].size == 1)
+
+        ds_sub = subset(ds_str, {"ID": list(ds_str["ID"].values[:2])})
+        self.assertTrue(ds_sub["ID"].size == 2)
+
+    def test_ragged_array_with_id_as_object(self):
+        ds_str = self.ds.copy()
+        ds_str["ID"].values = ds_str["ID"].astype(object)
+
+        ds_sub = subset(ds_str, {"ID": ds_str["ID"].values[0]})
+        self.assertTrue(ds_sub["ID"].size == 1)
+
+        ds_sub = subset(ds_str, {"ID": list(ds_str["ID"].values[:2])})
+        self.assertTrue(ds_sub["ID"].size == 2)
+
+    def test_arraylike_criterion(self):
+        # DataArray
+        ds_sub = subset(self.ds, {"ID": self.ds["ID"][:2]})
+        self.assertTrue(ds_sub["ID"].size == 2)
+
+        # NumPy array
+        ds_sub = subset(self.ds, {"ID": self.ds["ID"][:2].values})
+        self.assertTrue(ds_sub["ID"].size == 2)
 
 
 class unpack_ragged_tests(unittest.TestCase):
