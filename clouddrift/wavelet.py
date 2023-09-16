@@ -181,9 +181,14 @@ def morse_wavelet_transform(
             )
         wtx = wtx_p, wtx_n
 
-    else:
+    elif ~complex:
         # real case
         wtx = wavelet_transform(x, wavelet, boundary=boundary, time_axis=time_axis)
+
+    else:
+        raise ValueError(
+            "`complex` optional argument must be boolean 'True' or 'False'"
+        )
 
     return wtx
 
@@ -323,7 +328,7 @@ def wavelet_transform(
     # reorder as ((shape of x),length, freq_axis, order_axis) = ((shape of x),-3,-2,-1)
     wtx = np.moveaxis(wtx, [-1], [-3])  # move length to -3
     wtx = np.moveaxis(wtx, [-2], [-1])  # move order to -1
-    
+
     # reposition the time axis if needed from axis -3
     if time_axis != -1:
         wtx = np.moveaxis(wtx, -3, time_axis)

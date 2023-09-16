@@ -145,15 +145,21 @@ class wavelet_transform_tests(unittest.TestCase):
         x = np.random.random((m, m * 2, length))
         wavelet, _ = morse_wavelet(length, gamma, beta, radian_frequency, order=order)
         wtx = wavelet_transform(x, wavelet)
-        self.assertTrue(np.shape(wtx) == (m, m * 2, length, len(radian_frequency), order))
+        self.assertTrue(
+            np.shape(wtx) == (m, m * 2, length, len(radian_frequency), order)
+        )
         x = np.random.random((length, m, m * 2))
         wavelet, _ = morse_wavelet(length, gamma, beta, radian_frequency, order=order)
         wtx = wavelet_transform(x, wavelet, time_axis=0)
-        self.assertTrue(np.shape(wtx) == (length, m, m * 2, len(radian_frequency), order))
+        self.assertTrue(
+            np.shape(wtx) == (length, m, m * 2, len(radian_frequency), order)
+        )
         x = np.random.random((m, length, m * 2))
         wavelet, _ = morse_wavelet(length, gamma, beta, radian_frequency, order=order)
         wtx = wavelet_transform(x, wavelet, time_axis=1)
-        self.assertTrue(np.shape(wtx) == (m, length, m * 2, len(radian_frequency), order))
+        self.assertTrue(
+            np.shape(wtx) == (m, length, m * 2, len(radian_frequency), order)
+        )
 
     def test_wavelet_transform_size_axis(self):
         length = 1024
