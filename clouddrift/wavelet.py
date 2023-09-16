@@ -323,11 +323,10 @@ def wavelet_transform(
     # reorder as ((shape of x),length, freq_axis, order_axis) = ((shape of x),-3,-2,-1)
     wtx = np.moveaxis(wtx, [-1], [-3])  # move length to -3
     wtx = np.moveaxis(wtx, [-2], [-1])  # move order to -1
-
+    
     # reposition the time axis if needed which should be in position -3
     if time_axis != -1:
         wtx = np.moveaxis(wtx, -3, time_axis)
-        print("time axis is" + str(time_axis))
     else:
         pass
 
