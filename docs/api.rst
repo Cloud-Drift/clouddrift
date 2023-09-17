@@ -83,3 +83,10 @@ Signal
 .. automodule:: clouddrift.signal
   :members:
   :undoc-members:
+
+Wavelet
+---------
+
+.. automodule:: clouddrift.wavelet
+  :members:
+  :undoc-members:
