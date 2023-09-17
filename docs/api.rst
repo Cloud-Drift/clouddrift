@@ -71,21 +71,21 @@ RaggedArray
   :undoc-members:
 
 Sphere
----------
+------
 
 .. automodule:: clouddrift.sphere
   :members:
   :undoc-members:
 
 Signal
----------
+------
 
 .. automodule:: clouddrift.signal
   :members:
   :undoc-members:
 
 Wavelet
----------
+-------
 
 .. automodule:: clouddrift.wavelet
   :members:
