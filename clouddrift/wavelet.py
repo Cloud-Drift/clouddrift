@@ -725,7 +725,7 @@ def morse_properties(
     kurt: np.ndarray or float
         Normalized fourth moment of the time-domain demodulate,
         or 'demodulate kurtosis'.
-    
+
     See Also
     --------
     :func:`morse_wavelet`, `morse_freq`, `morse_amplitude`, `morse_logspace_freq`.
