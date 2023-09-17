@@ -654,7 +654,7 @@ def morse_logspace_freq(
 
     >>> radian_frequency = morse_logspace_freq(3,5,1024,highset=(0.2,np.pi),lowset=(5,0),density=10)
 
-     See Also
+    See Also
     --------
     :func:`morse_wavelet`, `morse_freq`, `morse_properties`.
     """
@@ -725,6 +725,7 @@ def morse_properties(
     kurt: np.ndarray or float
         Normalized fourth moment of the time-domain demodulate,
         or 'demodulate kurtosis'.
+
     See Also
     --------
     :func:`morse_wavelet`, `morse_freq`, `morse_amplitude`, `morse_logspace_freq`.
