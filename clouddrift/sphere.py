@@ -621,7 +621,7 @@ def cartesian_to_tangentplane(
 
     See Also
     --------
-
+    :func:`tangentplane_to_cartesian`
     """
     if np.any(latitude < -90) or np.any(latitude > 90):
         warnings.warn("Input latitude outside of range [-90,90].")
@@ -629,8 +629,12 @@ def cartesian_to_tangentplane(
     phi = np.radians(latitude)
     theta = np.radians(longitude)
     u_projected = v * np.cos(theta) - u * np.sin(theta)
-    v_projected = w * np.cos(phi) - u * np.sin(phi)
-    # JML says vh = w.*cos(phi)-u.*cos(theta).*sin(phi)-v.*sin(theta).*sin(phi) but vh=w./cos(phi) is the same?
+    v_projected = (
+        w * np.cos(phi)
+        - u * np.cos(theta) * np.sin(phi)
+        - v * np.sin(theta) * np.sin(phi)
+    )
+    # JML says vh = w.*cos(phi)-u.*cos(theta).*sin(phi)-v.*sin(theta).*sin(phi) but vh=w./cos(phi) is the same
     return u_projected, v_projected
 
 
@@ -679,9 +683,13 @@ def tangentplane_to_cartesian(
     --------
     >>> u, v, w = tangentplane_to_cartesian(1, 1, 45, 90)
 
+    Notes
+    -----
+    This function is inverted by `cartesian_to_tangetplane`.
+
     See Also
     --------
-
+    :func:`cartesian_to_tangentplane`
     """
     if np.any(latitude < -90) or np.any(latitude > 90):
         warnings.warn("Input latitude outside of range [-90,90].")
