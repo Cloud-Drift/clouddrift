@@ -386,7 +386,8 @@ class RaggedArray:
         Parameters
         ----------
         cast_to_float32 : bool, optional
-            Cast all variables to float32 (default is True)
+            Cast all float64 variables to float32 (default is True). This option aims at
+            minimizing the size of the xarray dataset.
 
         Returns
         -------
