@@ -9,6 +9,9 @@ from clouddrift.sphere import (
     position_from_distance_and_bearing,
     spherical_to_cartesian,
     cartesian_to_spherical,
+    tangentplane_to_cartesian,
+    cartesian_to_tangentplane,
+    coriolis_frequency,
     EARTH_RADIUS_METERS,
 )
 import unittest
@@ -354,3 +357,73 @@ class cartesian_to_spherical_tests(unittest.TestCase):
         self.assertTrue(np.allclose(x, x2))
         self.assertTrue(np.allclose(y, y2))
         self.assertTrue(np.allclose(z, z2))
+
+
+class cartesian_to_tangentplane_tests(unittest.TestCase):
+    def test_cartesian_to_tangentplane_values(self):
+        up, vp = cartesian_to_tangentplane(1.0, 1.0, 1.0, 0.0, 0.0)
+        self.assertTrue(np.allclose((up, vp), (1.0, 1.0)))
+        up, vp = cartesian_to_tangentplane(1.0, 1.0, 1.0, 90.0, 0.0)
+        self.assertTrue(np.allclose((up, vp), (-1.0, 1.0)))
+        up, vp = cartesian_to_tangentplane(1.0, 1.0, 1.0, 180.0, 0.0)
+        self.assertTrue(np.allclose((up, vp), (-1.0, 1.0)))
+        up, vp = cartesian_to_tangentplane(1.0, 1.0, 1.0, 270.0, 0.0)
+        self.assertTrue(np.allclose((up, vp), (1.0, 1.0)))
+        up, vp = cartesian_to_tangentplane(1.0, 1.0, 1.0, 0.0, 90.0)
+        self.assertTrue(np.allclose((up, vp), (1.0, -1.0)))
+        up, vp = cartesian_to_tangentplane(1.0, 1.0, 1.0, 0.0, -90.0)
+        self.assertTrue(np.allclose((up, vp), (1.0, 1.0)))
+
+    def test_cartesian_to_tangentplane_warning(self):
+        with self.assertWarns(Warning):
+            cartesian_to_tangentplane(1, 1, 1, 0, 91)
+        with self.assertWarns(Warning):
+            cartesian_to_tangentplane(1, 1, 1, 0, -91)
+
+
+class tangentplane_to_cartesian_tests(unittest.TestCase):
+    def test_tangentplane_to_cartesian_values(self):
+        uvw = tangentplane_to_cartesian(1, 1, 0, 0)
+        self.assertTrue(np.allclose(uvw, (0, 1, 1)))
+        uvw = tangentplane_to_cartesian(1, 1, 90, 0)
+        self.assertTrue(np.allclose(uvw, (-1, 0, 1)))
+        uvw = tangentplane_to_cartesian(1, 1, 180, 0)
+        self.assertTrue(np.allclose(uvw, (0, -1, 1)))
+        uvw = tangentplane_to_cartesian(1, 1, 270, 0)
+        self.assertTrue(np.allclose(uvw, (1, 0, 1)))
+        uvw = tangentplane_to_cartesian(1, 1, 0, 90)
+        self.assertTrue(np.allclose(uvw, (-1, 1, 0)))
+        uvw = tangentplane_to_cartesian(1, 1, 0, -90)
+        self.assertTrue(np.allclose(uvw, (1, 1, 0)))
+
+    def test_tangentplane_to_cartesian_inverse(self):
+        u, v, w = tangentplane_to_cartesian(1, 1, 45, 45)
+        self.assertTrue(np.allclose((1, 1), cartesian_to_tangentplane(u, v, w, 45, 45)))
+
+    def test_tangentplane_to_cartesian_warning(self):
+        with self.assertWarns(Warning):
+            tangentplane_to_cartesian(1, 1, 0, 91)
+        with self.assertWarns(Warning):
+            tangentplane_to_cartesian(1, 1, 0, -91)
+
+
+class coriolis_frequency_tests(unittest.TestCase):
+    def test_coriolis_frequency_values(self):
+        f = coriolis_frequency(np.array([-90, -60, -30, 0, 45, 90]))
+        f_expected = np.array(
+            [
+                -0.000145842318,
+                -0.000126303152,
+                -7.2921159e-05,
+                0,
+                0.000103126092,
+                0.000145842318,
+            ]
+        )
+        self.assertTrue(np.allclose(f, f_expected))
+
+    def test_coriolis_frequency_warning(self):
+        with self.assertWarns(Warning):
+            coriolis_frequency(91)
+        with self.assertWarns(Warning):
+            coriolis_frequency(-91)
