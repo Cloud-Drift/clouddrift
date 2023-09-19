@@ -374,12 +374,6 @@ class cartesian_to_tangentplane_tests(unittest.TestCase):
         up, vp = cartesian_to_tangentplane(1.0, 1.0, 1.0, 0.0, -90.0)
         self.assertTrue(np.allclose((up, vp), (1.0, 1.0)))
 
-    def test_cartesian_to_tangentplane_warning(self):
-        with self.assertWarns(Warning):
-            cartesian_to_tangentplane(1, 1, 1, 0, 91)
-        with self.assertWarns(Warning):
-            cartesian_to_tangentplane(1, 1, 1, 0, -91)
-
 
 class tangentplane_to_cartesian_tests(unittest.TestCase):
     def test_tangentplane_to_cartesian_values(self):
@@ -399,12 +393,6 @@ class tangentplane_to_cartesian_tests(unittest.TestCase):
     def test_tangentplane_to_cartesian_inverse(self):
         u, v, w = tangentplane_to_cartesian(1, 1, 45, 45)
         self.assertTrue(np.allclose((1, 1), cartesian_to_tangentplane(u, v, w, 45, 45)))
-
-    def test_tangentplane_to_cartesian_warning(self):
-        with self.assertWarns(Warning):
-            tangentplane_to_cartesian(1, 1, 0, 91)
-        with self.assertWarns(Warning):
-            tangentplane_to_cartesian(1, 1, 0, -91)
 
 
 class coriolis_frequency_tests(unittest.TestCase):

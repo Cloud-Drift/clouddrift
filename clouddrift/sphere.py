@@ -689,9 +689,6 @@ def tangentplane_to_cartesian(
     --------
     :func:`cartesian_to_tangentplane`
     """
-    if np.any(latitude < -90) or np.any(latitude > 90):
-        warnings.warn("Input latitude outside of range [-90,90].")
-
     phi = np.radians(latitude)
     theta = np.radians(longitude)
     u = -up * np.sin(theta) - vp * np.sin(phi) * np.cos(theta)
@@ -728,8 +725,5 @@ def coriolis_frequency(
 
     """
     f = 2 * EARTH_ROTATION_RATE * np.sin(np.radians(latitude))
-
-    if np.any(latitude < -90) or np.any(latitude > 90):
-        warnings.warn("Input latitudes outside of range [-90,90].")
 
     return f
