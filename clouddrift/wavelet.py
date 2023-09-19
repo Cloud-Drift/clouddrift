@@ -704,10 +704,11 @@ def _morsehigh(
 
     for i in range(0, len(gamma)):
         fm, _, _ = morse_freq(gamma[i], beta[i])
-        om = fm * np.pi / omhigh
-        lnwave1 = beta[i] / gamma[i] * np.log(np.exp(1) * gamma[i] / beta[i])
-        lnwave2 = beta[i] * np.log(om) - om ** gamma[i]
-        lnwave = lnwave1 + lnwave2
+        with np.errstate(all="ignore"):
+            om = fm * np.pi / omhigh
+            lnwave1 = beta[i] / gamma[i] * np.log(np.exp(1) * gamma[i] / beta[i])
+            lnwave2 = beta[i] * np.log(om) - om ** gamma[i]
+            lnwave = lnwave1 + lnwave2
         index = np.nonzero(np.log(eta) - lnwave < 0)[0][0]
         f[i] = omhigh[index]
 
