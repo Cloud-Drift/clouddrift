@@ -64,6 +64,33 @@ GDP_METADATA = [
 ]
 
 
+def cast_float64_variables_to_float32(
+    ds: xr.Dataset, variables_to_skip: list[str] = ["time", "lat", "lon"]
+) -> xr.Dataset:
+    """Cast all float64 variables except ``variables_to_skip`` to float32.
+    Extra precision from float64 is not needed and takes up memory and disk
+    space.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Dataset to modify
+    variables_to_skip : list[str]
+        List of variables to skip; default is ["time", "lat", "lon"].
+
+    Returns
+    -------
+    ds : xr.Dataset
+        Modified dataset
+    """
+    for var in ds.variables:
+        if var in variables_to_skip:
+            continue
+        if ds[var].dtype == "float64":
+            ds[var] = ds[var].astype("float32")
+    return ds
+
+
 def parse_directory_file(filename: str) -> pd.DataFrame:
     """Read a GDP directory file that contains metadata of drifter releases.
 

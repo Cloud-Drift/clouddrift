@@ -406,17 +406,7 @@ class RaggedArray:
         for var in self.data.keys():
             xr_data[var] = (["obs"], self.data[var], self.attrs_variables[var])
 
-        ds = xr.Dataset(coords=xr_coords, data_vars=xr_data, attrs=self.attrs_global)
-
-        # If any of the upstream floating-point data is double, cast to float.
-        if cast_to_float32:
-            for var in ds.variables:
-                if var == "time":
-                    continue
-                if ds[var].dtype == "float64":
-                    ds[var] = ds[var].astype("float32")
-
-        return ds
+        return xr.Dataset(coords=xr_coords, data_vars=xr_data, attrs=self.attrs_global)
 
     def to_awkward(self):
         """Convert ragged array object to an Awkward Array.

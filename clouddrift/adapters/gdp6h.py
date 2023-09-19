@@ -421,6 +421,9 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     # rename variables
     ds = ds.rename_vars({"longitude": "lon", "latitude": "lat"})
 
+    # Cast float64 variables to float32 to reduce memory footprint.
+    ds = gdp.cast_float64_variables_to_float32(ds)
+
     return ds
 
 
