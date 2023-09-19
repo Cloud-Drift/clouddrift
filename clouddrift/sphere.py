@@ -709,13 +709,13 @@ def coriolis_frequency(
 
     Parameters
     ----------
-        latitude : float or np.ndarray
-            Latitude in degrees.
+    latitude : float or np.ndarray
+        Latitude in degrees.
 
     Returns
     ------
-        f : float or np.ndarray
-            Signed Coriolis frequency in radian per seconds.
+    f : float or np.ndarray
+        Signed Coriolis frequency in radian per seconds.
 
     Raises
     ------
