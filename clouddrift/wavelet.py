@@ -40,7 +40,8 @@ def morse_wavelet_transform(
     Parameters
     ----------
     x : np.ndarray
-        Real- or complex-valued signals.
+        Real- or complex-valued signals. The time axis is assumed to be the last. If not, specify optional
+        argument `time_axis`.
     gamma: float
        Gamma parameter of the Morse wavelets.
     beta: float
@@ -69,22 +70,23 @@ def morse_wavelet_transform(
         The boundary condition to be imposed at the edges of the input signal ``x``.
         Allowed values are ``"mirror"``, ``"zeros"``, and ``"periodic"``. Default is ``"mirror"``.
     order: int, optional
-        Order of wavelets, default is 1.
+        Order of Morse wavelets, default is 1.
 
     Returns
     -------
     If the input signal is real as specificied by ``complex=False``:
 
     wtx : np.ndarray
-        Time-domain wavelet transform of input ``x``. The axes of ``wtx`` will be organized as (x axes), time, frequencies, orders
-        unless ``time_axis`` is different from last (-1) in which case it will be moved back to its original position within the axes of ``x``.
+        Time-domain wavelet transform of input ``x`` with shape ((x shape), frequencies, orders).
 
     If the input signal is complex as specificied by ``complex=True``, a tuple is returned:
 
     wtx_p: np.array
-        Time-domain positive wavelet transform of input ``x``, with axes organized as in the ``complex=False`` case.
+        Time-domain positive wavelet transform of input ``x`` with shape ((x shape), frequencies, orders),
+        but with dimensions of length 1 removed (squeezed).
     wtx_n: np.array
-        Time-domain negative wavelet transform of input ``x``, with axes organized as in the ``complex=False`` case.
+        Time-domain negative wavelet transform of input ``x`` with shape ((x shape), frequencies, orders),
+        but with dimensions of length 1 removed (squeezed).
 
     Examples
     --------
@@ -125,7 +127,7 @@ def morse_wavelet_transform(
     >>> x = np.random.random((10,15,1024))
     >>> wtx = morse_wavelet_transform(x, 3, 4, np.array([2*np.pi*0.2]), boundary="periodic")
 
-    This function can be used to complete a time-frequency analysis of the input signal by specifying
+    This function can be used to conduct a time-frequency analysis of the input signal by specifying
     a range of randian frequencies using the ``morse_logspace_freq`` function as an example:
 
     >>> x = np.random.random(1024)
@@ -229,8 +231,8 @@ def wavelet_transform(
     Returns
     -------
     wtx : np.ndarray
-        Time-domain wavelet transform of input ``x``. The axes of ``wtx`` will be organized as (x axes), time, frequencies, orders
-        unless ``time_axis`` is different from last (-1) in which case it will be moved back to its original position within the axes of ``x``.
+        Time-domain wavelet transform of ``x`` with shape ((x shape), frequencies, orders)
+        but with dimensions of length 1 removed (squeezed).
 
     Examples
     --------
@@ -332,8 +334,6 @@ def wavelet_transform(
     # reposition the time axis if needed from axis -3
     if time_axis != -1:
         wtx = np.moveaxis(wtx, -3, time_axis)
-    else:
-        pass
 
     # remove extra dimensions if needed
     wtx = np.squeeze(wtx)
@@ -376,9 +376,9 @@ def morse_wavelet(
     Returns
     -------
     wavelet : np.ndarray
-        Time-domain wavelets. ``wavelet`` will be of shape (length,np.size(radian_frequency),order).
+        Time-domain wavelets with shape (order, radian_frequency, length).
     wavelet_fft: np.ndarray
-        Frequency-domain wavelets. ``wavelet_fft`` will be of shape (length,np.size(radian_frequency),order).
+        Frequency-domain wavelets with shape (order, radian_frequency, length).
 
     Examples
     --------
@@ -394,7 +394,7 @@ def morse_wavelet(
 
     >>> wavelet, wavelet_fft = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2, 2*np.pi*0.3]), order=3)
     >>> np.shape(wavelet)
-    (3, 3, 1024)
+    (3, 2, 1024)
 
     Compute a Morse wavelet specifying an energy normalization :
     >>> wavelet, wavelet_fft = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2]), normalization=energy)
