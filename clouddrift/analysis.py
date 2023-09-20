@@ -469,6 +469,9 @@ def segment(
 def rowsize_to_index(rowsize: Union[list, np.ndarray, xr.DataArray]) -> np.ndarray:
     """Convert a list of row sizes to a list of indices.
 
+    This function is typically used to obtain the indices of data rows organized
+    in a ragged array.
+    
     Parameters
     ----------
     rowsize : list or np.ndarray or xr.DataArray
@@ -481,8 +484,11 @@ def rowsize_to_index(rowsize: Union[list, np.ndarray, xr.DataArray]) -> np.ndarr
 
     Examples
     --------
-    >>> rowsize_to_index([2, 1, 3])
-    array([0, 2, 3, 6])
+
+    To obtain the indices within a ragged array of three consecutive rows of sizes 100, 202, and 53:
+    
+    >>> rowsize_to_index([100, 202, 53])
+    array([0, 100, 302, 355])
     """
     return np.cumsum(np.insert(np.array(rowsize), 0, 0))
 
