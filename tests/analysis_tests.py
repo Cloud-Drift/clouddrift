@@ -738,6 +738,23 @@ class apply_ragged_tests(unittest.TestCase):
                 )
             )
 
+    def test_with_rows(self):
+        y = apply_ragged(
+            lambda x: x**2,
+            np.array([1, 2, 3, 4]),
+            [2, 2],
+            rows=0,
+        )
+        self.assertTrue(np.all(y == np.array([1, 4])))
+
+        y = apply_ragged(
+            lambda x: x**2,
+            np.array([1, 2, 3, 4]),
+            [2, 2],
+            rows=[0, 1],
+        )
+        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+
     def test_velocity_dataarray(self):
         for executor in [futures.ThreadPoolExecutor(), futures.ProcessPoolExecutor()]:
             u, v = apply_ragged(
@@ -888,4 +905,34 @@ class unpack_ragged_tests(unittest.TestCase):
         self.assertTrue(np.all([type(a) is np.ndarray for a in lon]))
         self.assertTrue(
             np.all([lon[n].size == ds["rowsize"][n] for n in range(len(lon))])
+        )
+
+    def test_unpack_ragged_rows(self):
+        ds = sample_ragged_array().to_xarray()
+        x = ds.lon.values
+        rowsize = ds.rowsize.values
+
+        self.assertTrue(
+            all(
+                np.array_equal(a, b)
+                for a, b in zip(
+                    unpack_ragged(x, rowsize, None), unpack_ragged(x, rowsize)
+                )
+            )
+        )
+        self.assertTrue(
+            all(
+                np.array_equal(a, b)
+                for a, b in zip(
+                    unpack_ragged(x, rowsize, 0), unpack_ragged(x, rowsize)[:1]
+                )
+            )
+        )
+        self.assertTrue(
+            all(
+                np.array_equal(a, b)
+                for a, b in zip(
+                    unpack_ragged(x, rowsize, [0, 1]), unpack_ragged(x, rowsize)[:2]
+                )
+            )
         )
