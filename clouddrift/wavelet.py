@@ -77,15 +77,16 @@ def morse_wavelet_transform(
     If the input signal is real as specificied by ``complex=False``:
 
     wtx : np.ndarray
-        Time-domain wavelet transform of input ``x`` with shape ((x shape), frequencies, orders).
+        Time-domain wavelet transform of input ``x`` with shape ((x shape without time_axis), orders, frequencies, time_axis)
+        but with dimensions of length 1 removed (squeezed).
 
     If the input signal is complex as specificied by ``complex=True``, a tuple is returned:
 
     wtx_p: np.array
-        Time-domain positive wavelet transform of input ``x`` with shape ((x shape), frequencies, orders),
+        Time-domain positive wavelet transform of input ``x`` with shape ((x shape without time_axis), frequencies, orders),
         but with dimensions of length 1 removed (squeezed).
     wtx_n: np.array
-        Time-domain negative wavelet transform of input ``x`` with shape ((x shape), frequencies, orders),
+        Time-domain negative wavelet transform of input ``x`` with shape ((x shape without time_axis), frequencies, orders),
         but with dimensions of length 1 removed (squeezed).
 
     Examples
@@ -135,6 +136,7 @@ def morse_wavelet_transform(
     >>> beta = 4
     >>> radian_frequency = morse_logspace_freq(gamma, beta, np.shape(x)[0])
     >>> wtx = morse_wavelet_transform(x, gamma, beta, radian_frequency)
+
 
     Raises
     ------
@@ -214,9 +216,9 @@ def wavelet_transform(
     wavelet : np.ndarray
         A suite of time-domain wavelets, typically returned by the function ``morse_wavelet``.
         The length of the time axis of the wavelets must be the last one and matches the
-        length of the time axis of x. The other dimensions (axes) of the wavelets (orders and frequencies) are
+        length of the time axis of x. The other dimensions (axes) of the wavelets (such as orders and frequencies) are
         typically organized as orders, frequencies, and time, unless specified by optional arguments freq_axis and order_axis.
-        The normalization of the wavelets is assumed to be "bandpass", if not use kwarg normalization="energy", see ``morse_wavelet``.
+        The normalization of the wavelets is assumed to be "bandpass", if not, use kwarg normalization="energy", see ``morse_wavelet``.
     boundary : str, optional
         The boundary condition to be imposed at the edges of the input signal ``x``.
         Allowed values are ``"mirror"``, ``"zeros"``, and ``"periodic"``. Default is ``"mirror"``.
@@ -231,7 +233,7 @@ def wavelet_transform(
     Returns
     -------
     wtx : np.ndarray
-        Time-domain wavelet transform of ``x`` with shape ((x shape), frequencies, orders)
+        Time-domain wavelet transform of ``x`` with shape ((x shape without time_axis), orders, frequencies, time_axis)
         but with dimensions of length 1 removed (squeezed).
 
     Examples
@@ -327,13 +329,9 @@ def wavelet_transform(
     wtx = np.fft.ifft(X_ * np.conj(_wavelet_fft)).astype(complex_dtype)
     wtx = wtx[..., index]
 
-    # reorder as ((shape of x),length, freq_axis, order_axis) = ((shape of x),-3,-2,-1)
-    wtx = np.moveaxis(wtx, [-1], [-3])  # move length to -3
-    wtx = np.moveaxis(wtx, [-2], [-1])  # move order to -1
-
-    # reposition the time axis if needed from axis -3
+    # reposition the time axis if needed from axis -1
     if time_axis != -1:
-        wtx = np.moveaxis(wtx, -3, time_axis)
+        wtx = np.moveaxis(wtx, -1, time_axis)
 
     # remove extra dimensions if needed
     wtx = np.squeeze(wtx)
@@ -397,7 +395,7 @@ def morse_wavelet(
     (3, 2, 1024)
 
     Compute a Morse wavelet specifying an energy normalization :
-    >>> wavelet, wavelet_fft = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2]), normalization=energy)
+    >>> wavelet, wavelet_fft = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2]), normalization="energy")
 
     Raises
     ------
@@ -482,6 +480,7 @@ def morse_wavelet(
     # enforce length 1 for first axis if order=1 (no squeezing)
     wavelet = np.moveaxis(wavelet, [0, 1, 2], [2, 0, 1])
     waveletfft = np.moveaxis(waveletfft, [0, 1, 2], [2, 0, 1])
+
     return wavelet, waveletfft
 
 
