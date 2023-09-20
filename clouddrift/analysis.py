@@ -466,6 +466,27 @@ def segment(
         return np.concatenate(segment_sizes)
 
 
+def rowsize_to_index(rowsize: Union[list, np.ndarray, xr.DataArray]) -> np.ndarray:
+    """Convert a list of row sizes to a list of indices.
+
+    Parameters
+    ----------
+    rowsize : list or np.ndarray or xr.DataArray
+        A list of row sizes.
+
+    Returns
+    -------
+    np.ndarray
+        A list of indices.
+
+    Examples
+    --------
+    >>> rowsize_to_index([2, 1, 3])
+    array([0, 2, 3, 6])
+    """
+    return np.cumsum(np.insert(np.array(rowsize), 0, 0))
+
+
 def position_from_velocity(
     u: np.ndarray,
     v: np.ndarray,
@@ -1035,7 +1056,7 @@ def subset(
             raise ValueError(f"Unknown variable '{key}'.")
 
     # remove data when trajectories are filtered
-    traj_idx = np.insert(np.cumsum(ds[rowsize_var_name].values), 0, 0)
+    traj_idx = rowsize_to_index(ds[rowsize_var_name].values)
     for i in np.where(~mask_traj)[0]:
         mask_obs[slice(traj_idx[i], traj_idx[i + 1])] = False
 
@@ -1105,5 +1126,5 @@ def unpack_ragged(
         )):
             u, v = velocity_from_position(lon, lat, time)
     """
-    indices = np.insert(np.cumsum(np.array(rowsize)), 0, 0)
+    indices = rowsize_to_index(rowsize)
     return [ragged_array[indices[n] : indices[n + 1]] for n in range(indices.size - 1)]
