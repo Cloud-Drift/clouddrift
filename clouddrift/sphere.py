@@ -643,7 +643,7 @@ def tangentplane_to_cartesian(
     latitude: Union[float, np.ndarray],
 ) -> Union[Tuple[float], Tuple[np.ndarray]]:
     """
-    Return the three-dimensional Cartesian components of a vector conatined in
+    Return the three-dimensional Cartesian components of a vector contained in
     a  plane tangent to a spherical Earth.
 
     The Cartesian coordinate system is a right-handed system whose
