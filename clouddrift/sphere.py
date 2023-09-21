@@ -602,7 +602,6 @@ def cartesian_to_tangentplane(
 
     Returns
     -------
-
         up: float or np.ndarray
             First component of projected vector on tangent plane (positive eastward).
         vp: float or np.ndarray
