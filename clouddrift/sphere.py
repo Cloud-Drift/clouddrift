@@ -5,10 +5,13 @@ functions to project from tangent plane to sphere and vice versa.
 """
 
 import numpy as np
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 import xarray as xr
+import warnings
 
 EARTH_RADIUS_METERS = 6.3781e6
+EARTH_DAY_SECONDS = 86164.091
+EARTH_ROTATION_RATE = 2 * np.pi / EARTH_DAY_SECONDS
 
 
 def distance(
@@ -566,3 +569,156 @@ def cartesian_to_spherical(
     lat = np.rad2deg(np.arcsin(z))
 
     return lon, lat
+
+
+def cartesian_to_tangentplane(
+    u: Union[float, np.ndarray],
+    v: Union[float, np.ndarray],
+    w: Union[float, np.ndarray],
+    longitude: Union[float, np.ndarray],
+    latitude: Union[float, np.ndarray],
+) -> Union[Tuple[float], Tuple[np.ndarray]]:
+    """
+    Project a three-dimensional Cartesian vector on a plane tangent to
+    a spherical Earth.
+
+    The Cartesian coordinate system is a right-handed system whose
+    origin lies at the center of a sphere.  It is oriented with the
+    Z-axis passing through the north pole at lat = 90, the X-axis passing through
+    the point lon = 0, lat = 0, and the Y-axis passing through the point lon = 90,
+    lat = 0.
+
+    Parameters
+    ----------
+        u : float or np.ndarray
+            First component of Cartesian vector.
+        v : float or np.ndarray
+            Second component of Cartesian vector.
+        w : float or np.ndarray
+            Third component of Cartesian vector.
+        longitude : float or np.ndarray
+            Longitude in degrees of tangent point of plane.
+        latitude : float or np.ndarray
+            Latitude in degrees of tangent point of plane.
+
+    Returns
+    -------
+        up: float or np.ndarray
+            First component of projected vector on tangent plane (positive eastward).
+        vp: float or np.ndarray
+            Second component of projected vector on tangent plane (positive northward).
+
+    Raises
+    ------
+    Warning
+        Raised if the input latitude is not in the expected range [-90, 90].
+
+    Examples
+    --------
+    >>> u, v = cartesian_to_tangentplane(1, 1, 1, 45, 90)
+
+    See Also
+    --------
+    :func:`tangentplane_to_cartesian`
+    """
+    if np.any(latitude < -90) or np.any(latitude > 90):
+        warnings.warn("Input latitude outside of range [-90,90].")
+
+    phi = np.radians(latitude)
+    theta = np.radians(longitude)
+    u_projected = v * np.cos(theta) - u * np.sin(theta)
+    v_projected = (
+        w * np.cos(phi)
+        - u * np.cos(theta) * np.sin(phi)
+        - v * np.sin(theta) * np.sin(phi)
+    )
+    # JML says vh = w.*cos(phi)-u.*cos(theta).*sin(phi)-v.*sin(theta).*sin(phi) but vh=w./cos(phi) is the same
+    return u_projected, v_projected
+
+
+def tangentplane_to_cartesian(
+    up: Union[float, np.ndarray],
+    vp: Union[float, np.ndarray],
+    longitude: Union[float, np.ndarray],
+    latitude: Union[float, np.ndarray],
+) -> Union[Tuple[float], Tuple[np.ndarray]]:
+    """
+    Return the three-dimensional Cartesian components of a vector contained in
+    a plane tangent to a spherical Earth.
+
+    The Cartesian coordinate system is a right-handed system whose
+    origin lies at the center of a sphere.  It is oriented with the
+    Z-axis passing through the north pole at lat = 90, the X-axis passing through
+    the point lon = 0, lat = 0, and the Y-axis passing through the point lon = 90,
+    lat = 0.
+
+    Parameters
+    ----------
+        up: float or np.ndarray
+            First component of vector on tangent plane (positive eastward).
+        vp: float or np.ndarray
+            Second component of vector on tangent plane (positive northward).
+        longitude : float or np.ndarray
+            Longitude in degrees of tangent point of plane.
+        latitude : float or np.ndarray
+            Latitude in degrees of tangent point of plane.
+
+    Returns
+    -------
+        u : float or np.ndarray
+            First component of Cartesian vector.
+        v : float or np.ndarray
+            Second component of Cartesian vector.
+        w : float or np.ndarray
+            Third component of Cartesian vector.
+
+    Examples
+    --------
+    >>> u, v, w = tangentplane_to_cartesian(1, 1, 45, 90)
+
+    Notes
+    -----
+    This function is inverted by `cartesian_to_tangetplane`.
+
+    See Also
+    --------
+    :func:`cartesian_to_tangentplane`
+    """
+    phi = np.radians(latitude)
+    theta = np.radians(longitude)
+    u = -up * np.sin(theta) - vp * np.sin(phi) * np.cos(theta)
+    v = up * np.cos(theta) - vp * np.sin(phi) * np.sin(theta)
+    w = vp * np.cos(phi)
+
+    return u, v, w
+
+
+def coriolis_frequency(
+    latitude: Union[float, np.ndarray],
+) -> Union[float, np.ndarray]:
+    """
+    Return the Coriolis frequency or commonly known `f` parameter in geophysical fluid dynamics.
+
+    Parameters
+    ----------
+    latitude : float or np.ndarray
+        Latitude in degrees.
+
+    Returns
+    ------
+    f : float or np.ndarray
+        Signed Coriolis frequency in radian per seconds.
+
+    Raises
+    ------
+    Warning
+        Raised if the input latitudes are not in the expected range [-90, 90].
+
+    Examples
+    --------
+    >>> f = coriolis_frequency(np.array([0, 45, 90]))
+
+    """
+    f = 2 * EARTH_ROTATION_RATE * np.sin(np.radians(latitude))
+
+    return f
