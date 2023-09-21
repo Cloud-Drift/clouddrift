@@ -1151,7 +1151,7 @@ def unpack_ragged(
         )):
             u, v = velocity_from_position(lon, lat, time)
     """
-    indices = np.insert(np.cumsum(np.array(rowsize)), 0, 0)
+    indices = rowsize_to_index(rowsize)
 
     if rows is None:
         rows = range(indices.size - 1)
