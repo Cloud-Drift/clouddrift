@@ -5,6 +5,7 @@ from clouddrift.analysis import (
     position_from_velocity,
     ragged_to_regular,
     regular_to_ragged,
+    rowsize_to_index,
     segment,
     subset,
     unpack_ragged,
@@ -888,4 +889,15 @@ class unpack_ragged_tests(unittest.TestCase):
         self.assertTrue(np.all([type(a) is np.ndarray for a in lon]))
         self.assertTrue(
             np.all([lon[n].size == ds["rowsize"][n] for n in range(len(lon))])
+        )
+
+
+class rowsize_to_index_tests(unittest.TestCase):
+    def test_rowsize_to_index(self):
+        rowsize = [2, 3, 4]
+        expected = np.array([0, 2, 5, 9])
+        self.assertTrue(np.all(rowsize_to_index(rowsize) == expected))
+        self.assertTrue(np.all(rowsize_to_index(np.array(rowsize)) == expected))
+        self.assertTrue(
+            np.all(rowsize_to_index(xr.DataArray(data=rowsize)) == expected)
         )
