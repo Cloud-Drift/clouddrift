@@ -10,7 +10,8 @@ import xarray as xr
 import warnings
 
 EARTH_RADIUS_METERS = 6.3781e6
-EARTH_ROTATION_RATE = 7.2921159e-5
+EARTH_DAY_SECONDS = 86164.091
+EARTH_ROTATION_RATE = 2 * np.pi / EARTH_DAY_SECONDS
 
 
 def distance(
