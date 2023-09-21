@@ -644,7 +644,7 @@ def tangentplane_to_cartesian(
 ) -> Union[Tuple[float], Tuple[np.ndarray]]:
     """
     Return the three-dimensional Cartesian components of a vector contained in
-    a  plane tangent to a spherical Earth.
+    a plane tangent to a spherical Earth.
 
     The Cartesian coordinate system is a right-handed system whose
     origin lies at the center of a sphere.  It is oriented with the
