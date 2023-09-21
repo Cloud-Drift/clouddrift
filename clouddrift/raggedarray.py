@@ -381,8 +381,14 @@ class RaggedArray:
             if key not in self.attrs_variables:
                 self.attrs_variables[key] = {}
 
-    def to_xarray(self):
+    def to_xarray(self, cast_to_float32: bool = True):
         """Convert ragged array object to a xarray Dataset.
+
+        Parameters
+        ----------
+        cast_to_float32 : bool, optional
+            Cast all float64 variables to float32 (default is True). This option aims at
+            minimizing the size of the xarray dataset.
 
         Returns
         -------
