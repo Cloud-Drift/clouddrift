@@ -672,11 +672,6 @@ def tangentplane_to_cartesian(
         w : float or np.ndarray
             Third component of Cartesian vector.
 
-    Raises
-    ------
-    Warning
-        Raised if the input latitude is not in the expected range [-90, 90].
-
     Examples
     --------
     >>> u, v, w = tangentplane_to_cartesian(1, 1, 45, 90)
