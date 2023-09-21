@@ -5,6 +5,7 @@ from clouddrift.analysis import (
     position_from_velocity,
     ragged_to_regular,
     regular_to_ragged,
+    rowsize_to_index,
     segment,
     subset,
     unpack_ragged,

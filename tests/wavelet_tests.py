@@ -143,9 +143,23 @@ class wavelet_transform_tests(unittest.TestCase):
         gamma = 3
         beta = 4
         x = np.random.random((m, m * 2, length))
-        wave, _ = morse_wavelet(length, gamma, beta, radian_frequency, order=order)
-        w = wavelet_transform(x, wave)
-        self.assertTrue(np.shape(w) == (m, m * 2, order, len(radian_frequency), length))
+        wavelet, _ = morse_wavelet(length, gamma, beta, radian_frequency, order=order)
+        wtx = wavelet_transform(x, wavelet)
+        self.assertTrue(
+            np.shape(wtx) == (m, m * 2, order, len(radian_frequency), length)
+        )
+        x = np.random.random((length, m, m * 2))
+        wavelet, _ = morse_wavelet(length, gamma, beta, radian_frequency, order=order)
+        wtx = wavelet_transform(x, wavelet, time_axis=0)
+        self.assertTrue(
+            np.shape(wtx) == (length, m, m * 2, order, len(radian_frequency))
+        )
+        x = np.random.random((m, length, m * 2))
+        wavelet, _ = morse_wavelet(length, gamma, beta, radian_frequency, order=order)
+        wtx = wavelet_transform(x, wavelet, time_axis=1)
+        self.assertTrue(
+            np.shape(wtx) == (m, length, m * 2, order, len(radian_frequency))
+        )
 
     def test_wavelet_transform_size_axis(self):
         length = 1024
@@ -163,9 +177,9 @@ class wavelet_transform_tests(unittest.TestCase):
         J = 10
         ao = np.logspace(np.log10(5), np.log10(40), J) / 100
         x = np.zeros(2**10)
-        wave, _ = morse_wavelet(len(x), 2, 4, ao, order=1)
+        wavelet, _ = morse_wavelet(len(x), 2, 4, ao, order=1)
         x[2**9] = 1
-        y = wavelet_transform(x, wave)
+        y = wavelet_transform(x, wavelet)
         m = np.argmax(np.abs(y), axis=-1)
         self.assertTrue(np.allclose(m, 2**9))
 
@@ -182,9 +196,7 @@ class wavelet_transform_tests(unittest.TestCase):
         waveletb, _ = morse_wavelet(
             np.shape(t)[0], gamma, beta, omega, normalization="bandpass"
         )
-        # wavelete, _ = morse_wavelet(np.shape(t)[0],gamma,beta,omega,normalization="energy")
         wtxb = wavelet_transform(x, waveletb, boundary="mirror")
-        # wtxe = wavelet_transform(x,wavelete,boundary="mirror")
         self.assertTrue(np.isclose(np.var(wtxb), 2 * np.var(x), rtol=1e-1))
 
     def test_wavelet_transform_data_complex(self):

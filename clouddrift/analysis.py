@@ -479,6 +479,33 @@ def segment(
         return np.concatenate(segment_sizes)
 
 
+def rowsize_to_index(rowsize: Union[list, np.ndarray, xr.DataArray]) -> np.ndarray:
+    """Convert a list of row sizes to a list of indices.
+
+    This function is typically used to obtain the indices of data rows organized
+    in a ragged array.
+
+    Parameters
+    ----------
+    rowsize : list or np.ndarray or xr.DataArray
+        A list of row sizes.
+
+    Returns
+    -------
+    np.ndarray
+        A list of indices.
+
+    Examples
+    --------
+
+    To obtain the indices within a ragged array of three consecutive rows of sizes 100, 202, and 53:
+
+    >>> rowsize_to_index([100, 202, 53])
+    array([0, 100, 302, 355])
+    """
+    return np.cumsum(np.insert(np.array(rowsize), 0, 0))
+
+
 def position_from_velocity(
     u: np.ndarray,
     v: np.ndarray,
@@ -1048,7 +1075,7 @@ def subset(
             raise ValueError(f"Unknown variable '{key}'.")
 
     # remove data when trajectories are filtered
-    traj_idx = np.insert(np.cumsum(ds[rowsize_var_name].values), 0, 0)
+    traj_idx = rowsize_to_index(ds[rowsize_var_name].values)
     for i in np.where(~mask_traj)[0]:
         mask_obs[slice(traj_idx[i], traj_idx[i + 1])] = False
 
