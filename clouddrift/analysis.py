@@ -471,7 +471,7 @@ def rowsize_to_index(rowsize: Union[list, np.ndarray, xr.DataArray]) -> np.ndarr
 
     This function is typically used to obtain the indices of data rows organized
     in a ragged array.
-    
+
     Parameters
     ----------
     rowsize : list or np.ndarray or xr.DataArray
@@ -486,7 +486,7 @@ def rowsize_to_index(rowsize: Union[list, np.ndarray, xr.DataArray]) -> np.ndarr
     --------
 
     To obtain the indices within a ragged array of three consecutive rows of sizes 100, 202, and 53:
-    
+
     >>> rowsize_to_index([100, 202, 53])
     array([0, 100, 302, 355])
     """
