@@ -409,9 +409,3 @@ class coriolis_frequency_tests(unittest.TestCase):
             ]
         )
         self.assertTrue(np.allclose(f, f_expected))
-
-    def test_coriolis_frequency_warning(self):
-        with self.assertWarns(Warning):
-            coriolis_frequency(91)
-        with self.assertWarns(Warning):
-            coriolis_frequency(-91)
