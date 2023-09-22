@@ -756,6 +756,21 @@ class apply_ragged_tests(unittest.TestCase):
         )
         self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
+    def test_with_axis(self):
+        x = np.arange((6)).reshape((3, 2))
+        func = lambda x: x**2
+        rowsize = [2, 1]
+        y = apply_ragged(func, x, rowsize, axis=0)
+        self.assertTrue(np.all(y == apply_ragged(func, x, rowsize)))
+
+        with self.assertRaises(ValueError):
+            y = apply_ragged(func, x.T, rowsize, axis=0)
+
+        rowsize = [1, 1]
+        y0 = apply_ragged(func, x.T, [1, 1], axis=0)
+        y1 = apply_ragged(func, x, [1, 1], axis=1)
+        self.assertTrue(np.all(y0 == y1.T))
+
     def test_velocity_dataarray(self):
         for executor in [futures.ThreadPoolExecutor(), futures.ProcessPoolExecutor()]:
             u, v = apply_ragged(

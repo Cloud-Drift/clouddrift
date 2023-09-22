@@ -19,6 +19,7 @@ def apply_ragged(
     rowsize: list[int],
     *args: tuple,
     rows: Union[int, Iterable[int]] = None,
+    axis: int = 0,
     executor: futures.Executor = futures.ThreadPoolExecutor(max_workers=None),
     **kwargs: dict,
 ) -> Union[tuple[np.ndarray], np.ndarray]:
@@ -49,6 +50,9 @@ def apply_ragged(
     rows : int or Iterable[int], optional
         The row(s) of the ragged array to apply ``func`` to. If ``rows`` is
         ``None`` (default), then ``func`` will be applied to all rows.
+    axis : int, optional
+        The axis along which to unpack the input ragged array(s) and concatenate
+        the outputs of ``func`` before returning the result. Default is 0.
     executor : concurrent.futures.Executor, optional
         Executor to use for concurrent execution. Default is ``ThreadPoolExecutor``
         with the default number of ``max_workers``.
@@ -97,11 +101,11 @@ def apply_ragged(
         arrays = [arrays]
     # validate rowsize
     for arr in arrays:
-        if not sum(rowsize) == len(arr):
+        if not sum(rowsize) == arr.shape[axis]:
             raise ValueError("The sum of rowsize must equal the length of arr.")
 
     # split the array(s) into trajectories
-    arrays = [unpack_ragged(arr, rowsize, rows) for arr in arrays]
+    arrays = [unpack_ragged(arr, rowsize, rows, axis) for arr in arrays]
     iter = [[arrays[i][j] for i in range(len(arrays))] for j in range(len(arrays[0]))]
 
     # parallel execution
@@ -114,10 +118,10 @@ def apply_ragged(
     if isinstance(res[0], tuple):  # more than 1 parameter
         outputs = []
         for i in range(len(res[0])):
-            outputs.append(np.concatenate([r[i] for r in res]))
+            outputs.append(np.concatenate([r[i] for r in res], axis=axis))
         return tuple(outputs)
     else:
-        return np.concatenate(res)
+        return np.concatenate(res, axis=axis)
 
 
 def chunk(
@@ -1104,6 +1108,7 @@ def unpack_ragged(
     ragged_array: np.ndarray,
     rowsize: np.ndarray[int],
     rows: Union[int, Iterable[int]] = None,
+    axis: int = 0,
 ) -> list[np.ndarray]:
     """Unpack a ragged array into a list of regular arrays.
 
@@ -1120,6 +1125,8 @@ def unpack_ragged(
         array
     rows : int or Iterable[int], optional
         A row or list of rows to unpack. Default is None, which unpacks all rows.
+    axis : int, optional
+        The axis along which to unpack the ragged array. Default is 0.
 
     Returns
     -------
@@ -1158,6 +1165,6 @@ def unpack_ragged(
     if isinstance(rows, int):
         rows = [rows]
 
-    unpacked = np.split(ragged_array, indices[1:-1])
+    unpacked = np.split(ragged_array, indices[1:-1], axis=axis)
 
     return [unpacked[i] for i in rows]
