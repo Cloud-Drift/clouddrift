@@ -18,6 +18,7 @@ def apply_ragged(
     arrays: list[np.ndarray],
     rowsize: list[int],
     *args: tuple,
+    rows: Union[int, Iterable[int]] = None,
     executor: futures.Executor = futures.ThreadPoolExecutor(max_workers=None),
     **kwargs: dict,
 ) -> Union[tuple[np.ndarray], np.ndarray]:
@@ -45,6 +46,9 @@ def apply_ragged(
         List of integers specifying the number of data points in each row.
     *args : tuple
         Additional arguments to pass to ``func``.
+    rows : int or Iterable[int], optional
+        The row(s) of the ragged array to apply ``func`` to. If ``rows`` is
+        ``None`` (default), then ``func`` will be applied to all rows.
     executor : concurrent.futures.Executor, optional
         Executor to use for concurrent execution. Default is ``ThreadPoolExecutor``
         with the default number of ``max_workers``.
@@ -72,6 +76,15 @@ def apply_ragged(
     array([1., 1., 2., 2., 2., 3., 3., 3., 3.]),
     array([1., 1., 1., 1., 1., 1., 1., 1., 1.]))
 
+    To apply ``func`` to only a subset of rows, use the ``rows`` argument:
+
+    >>> u1, v1 = apply_ragged(velocity_from_position, [x, y, t], rowsize, rows=0, coord_system="cartesian")
+    array([1., 1.]),
+    array([1., 1.]))
+    >>> u1, v1 = apply_ragged(velocity_from_position, [x, y, t], rowsize, rows=[0, 1], coord_system="cartesian")
+    array([1., 1., 2., 2., 2.]),
+    array([1., 1., 1., 1., 1.]))
+
     Raises
     ------
     ValueError
@@ -88,7 +101,7 @@ def apply_ragged(
             raise ValueError("The sum of rowsize must equal the length of arr.")
 
     # split the array(s) into trajectories
-    arrays = [unpack_ragged(arr, rowsize) for arr in arrays]
+    arrays = [unpack_ragged(arr, rowsize, rows) for arr in arrays]
     iter = [[arrays[i][j] for i in range(len(arrays))] for j in range(len(arrays[0]))]
 
     # parallel execution
@@ -464,6 +477,33 @@ def segment(
             segment_sizes.append(segment(x[start:end], tolerance))
             start = end
         return np.concatenate(segment_sizes)
+
+
+def rowsize_to_index(rowsize: Union[list, np.ndarray, xr.DataArray]) -> np.ndarray:
+    """Convert a list of row sizes to a list of indices.
+
+    This function is typically used to obtain the indices of data rows organized
+    in a ragged array.
+
+    Parameters
+    ----------
+    rowsize : list or np.ndarray or xr.DataArray
+        A list of row sizes.
+
+    Returns
+    -------
+    np.ndarray
+        A list of indices.
+
+    Examples
+    --------
+
+    To obtain the indices within a ragged array of three consecutive rows of sizes 100, 202, and 53:
+
+    >>> rowsize_to_index([100, 202, 53])
+    array([0, 100, 302, 355])
+    """
+    return np.cumsum(np.insert(np.array(rowsize), 0, 0))
 
 
 def position_from_velocity(
@@ -1035,7 +1075,7 @@ def subset(
             raise ValueError(f"Unknown variable '{key}'.")
 
     # remove data when trajectories are filtered
-    traj_idx = np.insert(np.cumsum(ds[rowsize_var_name].values), 0, 0)
+    traj_idx = rowsize_to_index(ds[rowsize_var_name].values)
     for i in np.where(~mask_traj)[0]:
         mask_obs[slice(traj_idx[i], traj_idx[i + 1])] = False
 
@@ -1061,7 +1101,9 @@ def subset(
 
 
 def unpack_ragged(
-    ragged_array: np.ndarray, rowsize: np.ndarray[int]
+    ragged_array: np.ndarray,
+    rowsize: np.ndarray[int],
+    rows: Union[int, Iterable[int]] = None,
 ) -> list[np.ndarray]:
     """Unpack a ragged array into a list of regular arrays.
 
@@ -1076,6 +1118,8 @@ def unpack_ragged(
     rowsize : array-like
         An array of integers whose values is the size of each row in the ragged
         array
+    rows : int or Iterable[int], optional
+        A row or list of rows to unpack. Default is None, which unpacks all rows.
 
     Returns
     -------
@@ -1092,6 +1136,8 @@ def unpack_ragged(
 
         lon = unpack_ragged(ds.lon, ds["rowsize"]) # return a list[xr.DataArray] (slower)
         lon = unpack_ragged(ds.lon.values, ds["rowsize"]) # return a list[np.ndarray] (faster)
+        first_lon = unpack_ragged(ds.lon.values, ds["rowsize"], rows=0) # return only the first row
+        first_two_lons = unpack_ragged(ds.lon.values, ds["rowsize"], rows=[0, 1]) # return first two rows
 
     Looping over trajectories in a ragged Xarray Dataset to compute velocities
     for each:
@@ -1105,5 +1151,11 @@ def unpack_ragged(
         )):
             u, v = velocity_from_position(lon, lat, time)
     """
-    indices = np.insert(np.cumsum(np.array(rowsize)), 0, 0)
-    return [ragged_array[indices[n] : indices[n + 1]] for n in range(indices.size - 1)]
+    indices = rowsize_to_index(rowsize)
+
+    if rows is None:
+        rows = range(indices.size - 1)
+    if isinstance(rows, int):
+        rows = [rows]
+
+    return [ragged_array[indices[n] : indices[n + 1]] for n in rows]

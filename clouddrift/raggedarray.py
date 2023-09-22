@@ -4,6 +4,7 @@ structure used by CloudDrift to process custom Lagrangian datasets to Xarray
 Datasets and Awkward Arrays.
 """
 import awkward as ak
+from clouddrift.analysis import rowsize_to_index
 import xarray as xr
 import numpy as np
 from collections.abc import Callable
@@ -316,7 +317,7 @@ class RaggedArray:
         ds = preprocess_func(indices[0], **kwargs)
         nb_traj = len(rowsize)
         nb_obs = np.sum(rowsize).astype("int")
-        index_traj = np.insert(np.cumsum(rowsize), 0, 0)
+        index_traj = rowsize_to_index(rowsize)
 
         # allocate memory
         coords = {}
@@ -380,8 +381,14 @@ class RaggedArray:
             if key not in self.attrs_variables:
                 self.attrs_variables[key] = {}
 
-    def to_xarray(self):
+    def to_xarray(self, cast_to_float32: bool = True):
         """Convert ragged array object to a xarray Dataset.
+
+        Parameters
+        ----------
+        cast_to_float32 : bool, optional
+            Cast all float64 variables to float32 (default is True). This option aims at
+            minimizing the size of the xarray dataset.
 
         Returns
         -------
@@ -410,7 +417,7 @@ class RaggedArray:
         ak.Array
             Awkward Array containing the ragged array and its attributes
         """
-        index_traj = np.insert(np.cumsum(self.metadata["rowsize"]), 0, 0)
+        index_traj = rowsize_to_index(self.metadata["rowsize"])
         offset = ak.index.Index64(index_traj)
 
         data = []
