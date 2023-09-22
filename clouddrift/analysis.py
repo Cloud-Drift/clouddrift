@@ -1158,4 +1158,6 @@ def unpack_ragged(
     if isinstance(rows, int):
         rows = [rows]
 
-    return [ragged_array[indices[n] : indices[n + 1]] for n in rows]
+    unpacked = np.split(ragged_array, indices[1:-1])
+
+    return [unpacked[i] for i in rows]
