@@ -705,7 +705,7 @@ def coriolis_frequency(
         Latitude in degrees.
 
     Returns
-    ------
+    -------
     f : float or np.ndarray
         Signed Coriolis frequency in radian per seconds.
 
