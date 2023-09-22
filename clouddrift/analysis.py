@@ -15,8 +15,8 @@ from clouddrift.sphere import distance, bearing, position_from_distance_and_bear
 
 def apply_ragged(
     func: callable,
-    arrays: list[np.ndarray],
-    rowsize: list[int],
+    arrays: Union[list[Union[np.ndarray, xr.DataArray]], np.ndarray, xr.DataArray],
+    rowsize: Union[list[int], np.ndarray[int], xr.DataArray],
     *args: tuple,
     rows: Union[int, Iterable[int]] = None,
     axis: int = 0,
@@ -28,6 +28,9 @@ def apply_ragged(
     The function ``func`` will be applied to each contiguous row of ``arrays`` as
     indicated by row sizes ``rowsize``. The output of ``func`` will be
     concatenated into a single ragged array.
+
+    You can pass ``arrays`` as NumPy arrays or xarray DataArrays, however,
+    the result will always be a NumPy array.
 
     By default this function uses ``concurrent.futures.ThreadPoolExecutor`` to
     run ``func`` in multiple threads. The number of threads can be controlled by
@@ -41,9 +44,9 @@ def apply_ragged(
     ----------
     func : callable
         Function to apply to each row of each ragged array in ``arrays``.
-    arrays : list[np.ndarray] or np.ndarray
+    arrays : list[np.ndarray] or np.ndarray or xr.DataArray
         An array or a list of arrays to apply ``func`` to.
-    rowsize : list
+    rowsize : list[int] or np.ndarray[int] or xr.DataArray[int]
         List of integers specifying the number of data points in each row.
     *args : tuple
         Additional arguments to pass to ``func``.
@@ -105,23 +108,47 @@ def apply_ragged(
             raise ValueError("The sum of rowsize must equal the length of arr.")
 
     # split the array(s) into trajectories
-    arrays = [unpack_ragged(arr, rowsize, rows, axis) for arr in arrays]
+    arrays = [unpack_ragged(np.array(arr), rowsize, rows, axis) for arr in arrays]
     iter = [[arrays[i][j] for i in range(len(arrays))] for j in range(len(arrays[0]))]
 
     # parallel execution
     res = [executor.submit(func, *x, *args, **kwargs) for x in iter]
     res = [r.result() for r in res]
 
-    # concatenate the outputs
+    # Concatenate the outputs.
+
+    # The following wraps items in a list if they are not already iterable.
     res = [item if isinstance(item, Iterable) else [item] for item in res]
 
+    # np.concatenate can concatenate along non-zero axis iff the length of
+    # arrays to be concatenated is > 1. If the length is 1, for example in the
+    # case of func that reduces over the non-ragged axis, we can only
+    # concatenate along axis 0.
     if isinstance(res[0], tuple):  # more than 1 parameter
         outputs = []
-        for i in range(len(res[0])):
-            outputs.append(np.concatenate([r[i] for r in res], axis=axis))
+        for i in range(len(res[0])):  # iterate over each result variable
+            # If we have multiple outputs and func is a reduction function,
+            # we now here have a list of scalars. We need to wrap them in a
+            # list to concatenate them.
+            result = [r[i] if isinstance(r[i], Iterable) else [r[i]] for r in res]
+            if len(result[0]) > 1:
+                # Arrays to concatenate are longer than 1 element, so we can
+                # concatenate along the non-zero axis.
+                outputs.append(np.concatenate(result, axis=axis))
+            else:
+                # Arrays to concatenate are 1 element long, so we can only
+                # concatenate along axis 0.
+                outputs.append(np.concatenate(result))
         return tuple(outputs)
     else:
-        return np.concatenate(res, axis=axis)
+        if len(res[0]) > 1:
+            # Arrays to concatenate are longer than 1 element, so we can
+            # concatenate along the non-zero axis.
+            return np.concatenate(res, axis=axis)
+        else:
+            # Arrays to concatenate are 1 element long, so we can only
+            # concatenate along axis 0.
+            return np.concatenate(res)
 
 
 def chunk(
