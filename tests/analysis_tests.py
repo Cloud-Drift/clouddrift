@@ -719,26 +719,6 @@ class apply_ragged_tests(unittest.TestCase):
         )
         self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
-    def test_velocity_ndarray(self):
-        for executor in [futures.ThreadPoolExecutor(), futures.ProcessPoolExecutor()]:
-            u, v = apply_ragged(
-                velocity_from_position,
-                [self.x, self.y, self.t],
-                self.rowsize,
-                coord_system="cartesian",
-                executor=executor,
-            )
-            self.assertIsNone(
-                np.testing.assert_allclose(
-                    u, [1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0]
-                )
-            )
-            self.assertIsNone(
-                np.testing.assert_allclose(
-                    v, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-                )
-            )
-
     def test_with_rows(self):
         y = apply_ragged(
             lambda x: x**2,
@@ -770,6 +750,26 @@ class apply_ragged_tests(unittest.TestCase):
         y0 = apply_ragged(func, x.T, [1, 1], axis=0)
         y1 = apply_ragged(func, x, [1, 1], axis=1)
         self.assertTrue(np.all(y0 == y1.T))
+
+    def test_velocity_ndarray(self):
+        for executor in [futures.ThreadPoolExecutor(), futures.ProcessPoolExecutor()]:
+            u, v = apply_ragged(
+                velocity_from_position,
+                [self.x, self.y, self.t],
+                self.rowsize,
+                coord_system="cartesian",
+                executor=executor,
+            )
+            self.assertIsNone(
+                np.testing.assert_allclose(
+                    u, [1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0]
+                )
+            )
+            self.assertIsNone(
+                np.testing.assert_allclose(
+                    v, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+                )
+            )
 
     def test_velocity_dataarray(self):
         for executor in [futures.ThreadPoolExecutor(), futures.ProcessPoolExecutor()]:
