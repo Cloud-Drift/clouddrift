@@ -11,7 +11,15 @@ from concurrent import futures
 from datetime import timedelta
 import warnings
 from clouddrift.sphere import distance, bearing, position_from_distance_and_bearing
-
+from clouddrift.sphere import (
+    coriolis_frequency,
+    spherical_to_cartesian,
+    cartesian_to_spherical,
+    cartesian_to_tangentplane,
+    recast_lon360,
+)
+from clouddrift.wavelet import morse_logspace_freq, morse_wavelet, wavelet_transform
+from scipy.interpolate import interp1d
 
 def apply_ragged(
     func: callable,
@@ -1159,3 +1167,97 @@ def unpack_ragged(
         rows = [rows]
 
     return [ragged_array[indices[n] : indices[n + 1]] for n in rows]
+
+
+def extract_inertial_from_position(
+    time: np.ndarray,
+    lon: np.ndarray,
+    lat: np.ndarray,
+    p: int,
+    omega: Optional[np.ndarray] = 0.0,
+) -> np.ndarray:
+    """Extract inertial oscillation from consecutive geographical displacements.
+
+
+    Parameters
+    ----------
+    time : array-like
+        time of data points. unidimensional array input.
+    lon : array-like
+        longitude as a function of time.
+    lat : array-like
+        latitude as a function of time.
+    p: int
+        Duration of wavelet (or inverse bandwidth) used to extract oscillation, P>=1.
+    omega:
+        Inertial frequency shift.
+
+    Returns
+    -------
+    lonres:
+    latres:
+    z:
+    f:
+
+    Examples
+    --------
+
+    References
+    ----------
+    """
+    # initialization
+    z = np.zeros_like(lat)
+    omega = np.zeros_like(lat)
+    lonhat = np.zeros_like(lat)
+    lathat = np.zeros_like(lat)
+
+    # time interval of data in seconds? This drives me nuts
+    dt = np.diff(time)[0] / np.timedelta64(1000000000, 'ns')
+    
+    # Coriolis frequencies
+    print(type(lat))
+    cor_freq = np.abs(coriolis_frequency(lat) - omega)
+    cor_freq_max = np.max(cor_freq * 1.05)
+    cor_freq_min = np.max([np.min(cor_freq * 0.95),2 * np.pi / (dt * np.shape(time)[0])])
+
+    print(cor_freq_min)
+    print(cor_freq_max)
+    
+    # wavelet parameters
+    gamma = 3
+    D = 16
+    beta = p**2 / gamma
+    radian_frequency = morse_logspace_freq(
+        gamma, beta, np.shape(time)[0], (0.05, cor_freq_max * dt), (5, cor_freq_min * dt), D
+    )
+
+    # wavelet transform on a sphere: (spheretrans)
+    # convert lat/lon to x, y , z
+    # unwrap longitude first?
+    lon_unwrapped = np.unwrap(recast_lon360(lon),period=360)
+    x, y, z = spherical_to_cartesian(lon_unwrapped, lat)
+    # wavelet transform of x, y, z
+    wavelet, _ = morse_wavelet(np.shape(x)[0], gamma, beta, radian_frequency)
+    wx = wavelet_transform(x, wavelet)
+    wy = wavelet_transform(y, wavelet)
+    wz = wavelet_transform(z, wavelet)
+    # x, y, z minus the transform back to lat/lon
+    lonnew, latnew = cartesian_to_spherical(
+        x - np.real(wx), y - np.real(wy), z - np.real(wz)
+    )
+    # back to tangent plane
+    wxh, wyh = cartesian_to_tangentplane(wx, wy, wz, lonnew, latnew)
+    print(np.shape(radian_frequency))
+    # positive and negative wavelet transforms: why this sqrt(2)?
+    wp = (wxh + 1j * wyh) / np.sqrt(2)
+    wn = (wxh - 1j * wyh) / np.sqrt(2)
+
+    f = np.abs(coriolis_frequency(lat))+omega*np.sign(lat)
+
+    # this to change: interpolate to get an index
+    findexing = interp1d(radian_frequency/dt,np.arange(1,np.shape(radian_frequency)[0]+1),kind='nearest')
+    f_index = findexing(f)
+
+    #np.unravel_index
+
+    return wp, wn
