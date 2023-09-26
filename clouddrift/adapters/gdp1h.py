@@ -19,7 +19,7 @@ import warnings
 import xarray as xr
 
 
-GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netcdf/"
+GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.01/netcdf/"
 GDP_DATA_URL_EXPERIMENTAL = (
     "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental/"
 )
@@ -547,7 +547,7 @@ def to_raggedarray(
     --------
 
     Invoke `to_raggedarray` without any arguments to download all drifter data
-    from the 2.00 GDP feed:
+    from the 2.01 GDP feed:
 
     >>> from clouddrift.adapters.gdp1h import to_raggedarray
     >>> ra = to_raggedarray()

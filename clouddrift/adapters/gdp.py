@@ -12,7 +12,7 @@ import xarray as xr
 import urllib.request
 import warnings
 
-GDP_VERSION = "2.00"
+GDP_VERSION = "2.01"
 
 GDP_COORDS = [
     "ids",
