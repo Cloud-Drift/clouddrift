@@ -8,7 +8,7 @@ import xarray as xr
 
 
 def gdp1h() -> xr.Dataset:
-    """Returns the latest version of the NOAA Global Drifter Program (GDP) hourly 
+    """Returns the latest version of the NOAA Global Drifter Program (GDP) hourly
     dataset as an Xarray dataset.
 
     The data is accessed from zarr archive hosted on a public AWS S3 bucket accessible at
@@ -66,7 +66,7 @@ def gdp1h() -> xr.Dataset:
     """
     url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/latest/gdp-v2.01.zarr"
     return xr.open_dataset(url, engine="zarr")
-    
+
 
 def gdp6h() -> xr.Dataset:
     """Returns the NOAA Global Drifter Program (GDP) 6-hourly dataset as an
