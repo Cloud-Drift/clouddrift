@@ -8,14 +8,12 @@ import xarray as xr
 
 
 def gdp1h() -> xr.Dataset:
-    """Returns the NOAA Global Drifter Program (GDP) hourly dataset as an Xarray
-    dataset.
+    """Returns the latest version of the NOAA Global Drifter Program (GDP) hourly 
+    dataset as an Xarray dataset.
 
-    The data is accessed from a public AWS S3 bucket accessible at
-    https://registry.opendata.aws/noaa-oar-hourly-gdp/. This dataset includes
-    corrections and additional metadata since the original submission of the
-    dataset to NCEI (accessible via https://doi.org/10.25921/x46c-3620). We
-    recommend using this dataset over the one distributed via NCEI.
+    The data is accessed from zarr archive hosted on a public AWS S3 bucket accessible at
+    https://registry.opendata.aws/noaa-oar-hourly-gdp/. Original data source from NOAA NCEI
+    is https://doi.org/10.25921/x46c-3620).
 
     Returns
     -------
@@ -28,23 +26,21 @@ def gdp1h() -> xr.Dataset:
     >>> ds = gdp1h()
     >>> ds
     <xarray.Dataset>
-    Dimensions:                (traj: 17324, obs: 165754333)
+    Dimensions:                (traj: 19396, obs: 197214787)
     Coordinates:
         ids                    (obs) int64 ...
-        lat                    (obs) float32 ...
-        lon                    (obs) float32 ...
         time                   (obs) datetime64[ns] ...
     Dimensions without coordinates: traj, obs
-    Data variables: (12/55)
+    Data variables: (12/60)
         BuoyTypeManufacturer   (traj) |S20 ...
         BuoyTypeSensorArray    (traj) |S20 ...
-        CurrentProgram         (traj) float64 ...
+        CurrentProgram         (traj) float32 ...
         DeployingCountry       (traj) |S20 ...
         DeployingShip          (traj) |S20 ...
         DeploymentComments     (traj) |S20 ...
         ...                     ...
-        sst1                   (obs) float64 ...
-        sst2                   (obs) float64 ...
+        start_lat              (traj) float32 ...
+        start_lon              (traj) float32 ...
         typebuoy               (traj) |S10 ...
         typedeath              (traj) int8 ...
         ve                     (obs) float32 ...
@@ -54,7 +50,7 @@ def gdp1h() -> xr.Dataset:
         acknowledgement:   Elipot, Shane; Sykulski, Adam; Lumpkin, Rick; Centurio...
         contributor_name:  NOAA Global Drifter Program
         contributor_role:  Data Acquisition Center
-        date_created:      2022-12-09T06:02:29.684949
+        date_created:      2023-09-08T17:05:12.130123
         doi:               10.25921/x46c-3620
         ...                ...
         processing_level:  Level 2 QC by GDP drifter DAC
@@ -68,9 +64,9 @@ def gdp1h() -> xr.Dataset:
     --------
     :func:`gdp6h`
     """
-    url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/latest/gdp_v2.00.zarr"
+    url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/latest/gdp-v2.01.zarr"
     return xr.open_dataset(url, engine="zarr")
-
+    
 
 def gdp6h() -> xr.Dataset:
     """Returns the NOAA Global Drifter Program (GDP) 6-hourly dataset as an
