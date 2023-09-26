@@ -30,7 +30,11 @@ def apply_ragged(
     concatenated into a single ragged array.
 
     You can pass ``arrays`` as NumPy arrays or xarray DataArrays, however,
-    the result will always be a NumPy array.
+    the result will always be a NumPy array. Passing ``rows`` as an integer or
+    a sequence of integers will make ``apply_ragged`` process and return only
+    those specific rows, and otherwise, all rows in the input ragged array will
+    be processed. Further, you can use the ``axis`` parameter to specify the
+    ragged axis of the input array(s) (default is 0).
 
     By default this function uses ``concurrent.futures.ThreadPoolExecutor`` to
     run ``func`` in multiple threads. The number of threads can be controlled by
@@ -54,8 +58,7 @@ def apply_ragged(
         The row(s) of the ragged array to apply ``func`` to. If ``rows`` is
         ``None`` (default), then ``func`` will be applied to all rows.
     axis : int, optional
-        The axis along which to unpack the input ragged array(s) and concatenate
-        the outputs of ``func`` before returning the result. Default is 0.
+        The ragged axis of the input arrays. Default is 0.
     executor : concurrent.futures.Executor, optional
         Executor to use for concurrent execution. Default is ``ThreadPoolExecutor``
         with the default number of ``max_workers``.
