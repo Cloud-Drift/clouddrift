@@ -709,11 +709,6 @@ def coriolis_frequency(
     f : float or np.ndarray
         Signed Coriolis frequency in radian per seconds.
 
-    Raises
-    ------
-    Warning
-        Raised if the input latitudes are not in the expected range [-90, 90].
-
     Examples
     --------
     >>> f = coriolis_frequency(np.array([0, 45, 90]))
