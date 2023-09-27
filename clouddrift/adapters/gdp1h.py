@@ -18,6 +18,7 @@ import os
 import warnings
 import xarray as xr
 
+GDP_VERSION = "2.01"
 
 GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.01/netcdf/"
 GDP_DATA_URL_EXPERIMENTAL = (
@@ -482,7 +483,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     # global attributes
     attrs = {
         "title": "Global Drifter Program hourly drifting buoy collection",
-        "history": f"version {gdp.GDP_VERSION}. Metadata from dirall.dat and deplog.dat",
+        "history": f"version {GDP_VERSION}. Metadata from dirall.dat and deplog.dat",
         "Conventions": "CF-1.6",
         "date_created": datetime.now().isoformat(),
         "publisher_name": "GDP Drifter DAC",
