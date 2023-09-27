@@ -81,7 +81,7 @@ def download(
 
     if url == GDP_DATA_URL:
         pattern = "drifter_hourly_[0-9]*.nc"
-        filename_pattern = "drifter_{id}.nc"
+        filename_pattern = "drifter_hourly_{id}.nc"
     elif url == GDP_DATA_URL_EXPERIMENTAL:
         pattern = "drifter_hourly_[0-9]*.nc"
         filename_pattern = "drifter_hourly_{id}.nc"
@@ -586,7 +586,7 @@ def to_raggedarray(
     ids = download(drifter_ids, n_random_id, url, tmp_path)
 
     if url == GDP_DATA_URL:
-        filename_pattern = "drifter_{id}.nc"
+        filename_pattern = "drifter_hourly_{id}.nc"
     elif url == GDP_DATA_URL_EXPERIMENTAL:
         filename_pattern = "drifter_hourly_{id}.nc"
     else:
