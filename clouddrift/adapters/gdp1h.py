@@ -80,7 +80,7 @@ def download(
     os.makedirs(tmp_path, exist_ok=True)
 
     if url == GDP_DATA_URL:
-        pattern = "drifter_[0-9]*.nc"
+        pattern = "drifter_hourly_[0-9]*.nc"
         filename_pattern = "drifter_{id}.nc"
     elif url == GDP_DATA_URL_EXPERIMENTAL:
         pattern = "drifter_hourly_[0-9]*.nc"
