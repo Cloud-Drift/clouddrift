@@ -25,6 +25,7 @@ GDP_DATA_URL_EXPERIMENTAL = (
     "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental/"
 )
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
+GDP_TMP_PATH_EXPERIMENTAL = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp_exp")
 GDP_DATA = [
     "lon",
     "lat",
@@ -52,7 +53,7 @@ def download(
     drifter_ids: list = None,
     n_random_id: int = None,
     url: str = GDP_DATA_URL,
-    tmp_path: str = GDP_TMP_PATH,
+    tmp_path: str = None,
 ):
     """Download individual NetCDF files from the AOML server.
 
@@ -75,8 +76,8 @@ def download(
     """
 
     # adjust the tmp_path if using the experimental source
-    if url == GDP_DATA_URL_EXPERIMENTAL and tmp_path == GDP_TMP_PATH:
-        tmp_path += "_experimental"
+    if tmp_path is None:
+        tmp_path = GDP_TMP_PATH if url == GDP_DATA_URL else GDP_TMP_PATH_EXPERIMENTAL
 
     print(f"Downloading GDP hourly data from {url} to {tmp_path}...")
 
@@ -589,8 +590,8 @@ def to_raggedarray(
     """
 
     # adjust the tmp_path if using the experimental source
-    if url == GDP_DATA_URL_EXPERIMENTAL and tmp_path == GDP_TMP_PATH:
-        tmp_path += "_experimental"
+    if tmp_path is None:
+        tmp_path = GDP_TMP_PATH if url == GDP_DATA_URL else GDP_TMP_PATH_EXPERIMENTAL
 
     ids = download(drifter_ids, n_random_id, url, tmp_path)
 
