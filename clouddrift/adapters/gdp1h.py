@@ -74,6 +74,10 @@ def download(
         List of retrieved drifters
     """
 
+    # adjust the tmp_path if using the experimental source
+    if url == GDP_DATA_URL_EXPERIMENTAL and tmp_path == GDP_TMP_PATH:
+        tmp_path += "_experimental"
+
     print(f"Downloading GDP hourly data from {url} to {tmp_path}...")
 
     # Create a temporary directory if doesn't already exists.
@@ -583,6 +587,11 @@ def to_raggedarray(
     >>> arr = ra.to_awkward()
     >>> arr.to_parquet("gdp1h.parquet")
     """
+
+    # adjust the tmp_path if using the experimental source
+    if url == GDP_DATA_URL_EXPERIMENTAL and tmp_path == GDP_TMP_PATH:
+        tmp_path += "_experimental"
+
     ids = download(drifter_ids, n_random_id, url, tmp_path)
 
     if url == GDP_DATA_URL:
