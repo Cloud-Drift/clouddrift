@@ -526,7 +526,7 @@ def to_raggedarray(
     drifter_ids: Optional[list[int]] = None,
     n_random_id: Optional[int] = None,
     url: Optional[str] = GDP_DATA_URL,
-    tmp_path: Optional[str] = GDP_TMP_PATH,
+    tmp_path: Optional[str] = None,
 ) -> RaggedArray:
     """Download and process individual GDP hourly files and return a RaggedArray
     instance with the data.
