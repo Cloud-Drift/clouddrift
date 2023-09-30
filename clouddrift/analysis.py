@@ -1178,23 +1178,24 @@ def extract_inertial_from_position(
     delta_time: Optional[float] = 3600.0,
     omega: Optional[Union[float, np.ndarray]] = 0.0,
 ) -> np.ndarray:
-    """Extract inertial oscillations from consecutive geographical displacements.
+    """Extract inertial oscillations from consecutive geographical positions.
 
     This function acts by performing a time-frequency analysis of horizontal displacements
     with analytic Morse wavelets. It extracts the portion of the wavelet transform signal
-    that follows as a function of time the negative of the Coriolis frequency, potentially
-    shifted by frequency `omega`.
+    that follows the inertial frequency (opposite of Coriolis frequency) as a function of time, 
+    potentially shifted by frequency `omega`.
 
     Parameters
     ----------
     longitude : array-like
-        Longitude as a function of time. Unidimensional array input.
+        Longitude sequence. Unidimensional array input.
     latitude : array-like
-        Latitude as a function of time. Unidimensional array input.
-    p   : float
-        Duration of wavelet (or inverse bandwidth) used to extract oscillations, P>=1.
+        Latitude sequence. Unidimensional array input.
+    p : float
+        Duration of wavelet (or inverse bandwidth) used to extract oscillations, p
+        must be one or larger.
     delta_time : array-like
-        The constant time interval between data points in seconds. Default is 3600.
+        The constant time interval between data points in seconds. Default is 3600 s.
     omega: Optional, float or array-like
         Relative vorticity adding to the local Coriolis frequency. If "f" is the Coriolis
         frequency then "f" + omega will be the effective Coriolis frequency as defined by Kunze (1985).
@@ -1203,13 +1204,19 @@ def extract_inertial_from_position(
 
     Returns
     -------
-    z: array-like
+    xy : array-like
         Relative displacement in kilometers from inertial oscillations. The real and
-        imaginary parts of z are the zonal and meridional displacements, respectively.
+        imaginary parts of xy are the zonal and meridional displacements, respectively.
+    longitude_corrected : float or np.ndarray
+        Longitude corrected for zonal displacement in degrees.
+    latitude_corrected : float or np.ndarray
+        Latitude corrected for meridional displacement in degrees.
 
     Examples
     --------
-    >>> z = extract_inertial_from_position(time, lon, lat, p=4.5)
+    To extract displacements from inertial oscillations from sequences of longitude
+    and latitude values, expecting that at least of 4.5 oscillations occur along the sequence.
+    >>> xy, longitude_corrected, latitude_corrected = extract_inertial_from_position(longitude, latitude, p=4.5)
 
     References
     ----------
@@ -1371,7 +1378,7 @@ def correct_position_for_displacement(
         * x
         / (1e-3 * EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
     )
-    # ?
+    
     latitude_corrected = latitude - latitudehat
     longitude_corrected = recast_lon360(
         np.degrees(np.angle(np.exp(1j * np.radians(longitude - longitudehat))))
