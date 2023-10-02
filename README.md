@@ -115,7 +115,7 @@ Start by reading the [documentation](https://cloud-drift.github.io/clouddrift).
 
 Example Jupyter notebooks that showcase the library, as well as scripts
 to process various Lagrangian datasets, can be found in
-[clouddrift-examples](https://github.com/Cloud-Drift/clouddrift-examples).
+[clouddrift-examples](https://github.com/Cloud-Drift/clouddrift-examples), [gdp-get-started](https://github.com/Cloud-Drift/gdp-get-started), [mosaic-get-started](https://github.com/Cloud-Drift/mosaic-get-started), or [a demo for the EarthCube community workshop 2023](https://github.com/Cloud-Drift/e3-comm-workshop-2023).
 
 ## Found an issue or need help?
 

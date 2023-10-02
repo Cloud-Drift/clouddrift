@@ -720,6 +720,58 @@ class apply_ragged_tests(unittest.TestCase):
         )
         self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
+    def test_with_rows(self):
+        y = apply_ragged(
+            lambda x: x**2,
+            np.array([1, 2, 3, 4]),
+            [2, 2],
+            rows=0,
+        )
+        self.assertTrue(np.all(y == np.array([1, 4])))
+
+        y = apply_ragged(
+            lambda x: x**2,
+            np.array([1, 2, 3, 4]),
+            [2, 2],
+            rows=[0, 1],
+        )
+        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
+
+    def test_with_axis(self):
+        # Test that axis=0 is the default.
+        x = np.arange((6)).reshape((3, 2))
+        func = lambda x: x**2
+        rowsize = [2, 1]
+        y = apply_ragged(func, x, rowsize, axis=0)
+        self.assertTrue(np.all(y == apply_ragged(func, x, rowsize)))
+
+        # Test that the rowsize is checked against the correct axis.
+        with self.assertRaises(ValueError):
+            y = apply_ragged(func, x.T, rowsize, axis=0)
+
+        # Test that applying an element-wise function on a 2-d array over
+        # ragged axis 1 is th same as applying it to the transpose over ragged
+        # axis 0.
+        rowsize = [1, 1]
+        y0 = apply_ragged(func, x.T, rowsize, axis=0)
+        y1 = apply_ragged(func, x, rowsize, axis=1)
+        self.assertTrue(np.all(y0 == y1.T))
+
+        # Test that axis=1 works with reduction over the non-ragged axis.
+        y = apply_ragged(np.sum, x, rowsize, axis=1)
+        self.assertTrue(np.all(y == np.sum(x, axis=0)))
+
+        # Test that the same works with xr.DataArray as input
+        # (this did not work before the axis feature was added).
+        y = apply_ragged(np.sum, xr.DataArray(data=x), rowsize, axis=1)
+        self.assertTrue(np.all(y == np.sum(x, axis=0)))
+
+        # Test that axis works for multiple outputs:
+        func = lambda x: (np.mean(x), np.std(x))
+        y = apply_ragged(func, x, rowsize, axis=1)
+        self.assertTrue(np.all(y[0] == np.mean(x, axis=0)))
+        self.assertTrue(np.all(y[1] == np.std(x, axis=0)))
+
     def test_velocity_ndarray(self):
         for executor in [futures.ThreadPoolExecutor(), futures.ProcessPoolExecutor()]:
             u, v = apply_ragged(
@@ -739,23 +791,6 @@ class apply_ragged_tests(unittest.TestCase):
                     v, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
                 )
             )
-
-    def test_with_rows(self):
-        y = apply_ragged(
-            lambda x: x**2,
-            np.array([1, 2, 3, 4]),
-            [2, 2],
-            rows=0,
-        )
-        self.assertTrue(np.all(y == np.array([1, 4])))
-
-        y = apply_ragged(
-            lambda x: x**2,
-            np.array([1, 2, 3, 4]),
-            [2, 2],
-            rows=[0, 1],
-        )
-        self.assertTrue(np.all(y == np.array([1, 4, 9, 16])))
 
     def test_velocity_dataarray(self):
         for executor in [futures.ThreadPoolExecutor(), futures.ProcessPoolExecutor()]:
