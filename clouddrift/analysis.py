@@ -1438,7 +1438,6 @@ def corrected_positions_from_displacements(
         / (1e-3 * EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
     )
 
-
     latitude_corrected = latitude - latitudehat
     longitude_corrected = recast_lon360(
         np.degrees(np.angle(np.exp(1j * np.radians(longitude - longitudehat))))
