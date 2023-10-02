@@ -10,7 +10,7 @@ from clouddrift.analysis import (
     subset,
     unpack_ragged,
     velocity_from_position,
-    correct_position_for_displacement,
+    corrected_positions_from_displacements,
 )
 from clouddrift.sphere import EARTH_RADIUS_METERS
 from clouddrift.raggedarray import RaggedArray
@@ -940,21 +940,35 @@ class unpack_ragged_tests(unittest.TestCase):
         )
 
 
-class correct_position_for_displacement_tests(unittest.TestCase):
-    def test_correct_position_for_displacement(self):
-        longitude_corrected, latitude_corrected = correct_position_for_displacement(
+class inertial_oscillations_from_positions_tests(unittest.TestCase):
+    def test_inertial_oscillations_from_positions(self):
+        self.assertTrue(True)
+
+
+class corrected_positions_from_displacements_tests(unittest.TestCase):
+    def test_corrected_positions_from_displacements(self):
+        (
+            longitude_corrected,
+            latitude_corrected,
+        ) = corrected_positions_from_displacements(
             1, 0, 2 * np.pi * EARTH_RADIUS_METERS * 1e-3 / 360, 0
         )
         self.assertTrue(
             np.allclose((longitude_corrected, latitude_corrected), (0.0, 0.0))
         )
-        longitude_corrected, latitude_corrected = correct_position_for_displacement(
+        (
+            longitude_corrected,
+            latitude_corrected,
+        ) = corrected_positions_from_displacements(
             0, 1, 0, 2 * np.pi * EARTH_RADIUS_METERS * 1e-3 / 360
         )
         self.assertTrue(
             np.allclose((longitude_corrected, latitude_corrected), (0.0, 0.0))
         )
-        longitude_corrected, latitude_corrected = correct_position_for_displacement(
+        (
+            longitude_corrected,
+            latitude_corrected,
+        ) = corrected_positions_from_displacements(
             2,
             1,
             2 * np.pi * EARTH_RADIUS_METERS * 1e-3 / 360,

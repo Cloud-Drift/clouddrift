@@ -1171,19 +1171,19 @@ def unpack_ragged(
     return [ragged_array[indices[n] : indices[n + 1]] for n in rows]
 
 
-def extract_inertial_from_position(
+def inertial_oscillations_from_positions(
     longitude: np.ndarray,
     latitude: np.ndarray,
-    p: int,
-    delta_time: Optional[float] = 3600.0,
-    omega: Optional[Union[float, np.ndarray]] = 0.0,
+    wavelet_duration: float,
+    time_step: Optional[float] = 3600.0,
+    relative_vorticity: Optional[Union[float, np.ndarray]] = 0.0,
 ) -> np.ndarray:
     """Extract inertial oscillations from consecutive geographical positions.
 
     This function acts by performing a time-frequency analysis of horizontal displacements
     with analytic Morse wavelets. It extracts the portion of the wavelet transform signal
-    that follows the inertial frequency (opposite of Coriolis frequency) as a function of time, 
-    potentially shifted by frequency `omega`.
+    that follows the inertial frequency (opposite of Coriolis frequency) as a function of time,
+    potentially shifted shifted in frequency by a measure of relative vorticity.
 
     Parameters
     ----------
@@ -1191,14 +1191,15 @@ def extract_inertial_from_position(
         Longitude sequence. Unidimensional array input.
     latitude : array-like
         Latitude sequence. Unidimensional array input.
-    p : float
-        Duration of wavelet (or inverse bandwidth) used to extract oscillations, p
-        must be one or larger.
-    delta_time : array-like
-        The constant time interval between data points in seconds. Default is 3600 s.
-    omega: Optional, float or array-like
+    wavelet_duration : float
+        Duration of wavelet filter used to extract oscillations. This argument corresponds to the
+        number of oscillations of the wavelet in the time domain, it must be equal to 1 or larger.
+        A larger wavelet duration corresponds to a narrower filtering in the frequency domain.
+    time_step : float
+        The constant time interval between data points in seconds. Default is 3600.
+    relative_vorticity: Optional, float or array-like
         Relative vorticity adding to the local Coriolis frequency. If "f" is the Coriolis
-        frequency then "f" + omega will be the effective Coriolis frequency as defined by Kunze (1985).
+        frequency then "f" + `relative_vorticity` will be the effective Coriolis frequency as defined by Kunze (1985).
         Positive values correspond to cyclonic vorticity, irrespectively of the latitudes of the data
         points.
 
@@ -1230,12 +1231,12 @@ def extract_inertial_from_position(
     # initialization: what shall we return?
     # inertialextract returns lon and lat after subtraction of the inertial oscillations
     # and the horizontal inertial displacement in kilometers
-    if isinstance(omega, float):
-        omega = omega * np.ones_like(longitude)
-    elif isinstance(omega, np.ndarray):
-        if not omega.shape == longitude.shape:
+    if isinstance(relative_vorticity, float):
+        relative_vorticity = relative_vorticity * np.ones_like(longitude)
+    elif isinstance(relative_vorticity, np.ndarray):
+        if not relative_vorticity.shape == longitude.shape:
             raise ValueError(
-                "omega must be a float or the same shape as time, lon, and lat."
+                "relative_vorticity must be a float or the same shape as time, lon, and lat."
             )
 
     # convert time interval of data in seconds
@@ -1244,13 +1245,20 @@ def extract_inertial_from_position(
     # wavelet parameters
     gamma = 3
     density = 16  # JML uses 16
-    beta = p**2 / gamma
+    beta = wavelet_duration**2 / gamma
+
+    if isinstance(latitude, xr.DataArray):
+        latitude = latitude.to_numpy()
+    if isinstance(longitude, xr.DataArray):
+        longitude = longitude.to_numpy()
 
     # Instantaneous absolute frequency of oscillations along trajectory in radian per second
-    cor_freq = np.abs(coriolis_frequency(latitude) + omega * np.sign(latitude))
+    cor_freq = np.abs(
+        coriolis_frequency(latitude) + relative_vorticity * np.sign(latitude)
+    )
     cor_freq_max = np.max(cor_freq * 1.05)
     cor_freq_min = np.max(
-        [np.min(cor_freq * 0.95), 2 * np.pi / (delta_time * data_length)]
+        [np.min(cor_freq * 0.95), 2 * np.pi / (time_step * data_length)]
     )
 
     # logarithmically distributed frequencies for wavelet analysis
@@ -1258,8 +1266,8 @@ def extract_inertial_from_position(
         gamma,
         beta,
         data_length,
-        (0.05, cor_freq_max * delta_time),
-        (5, cor_freq_min * delta_time),
+        (0.05, cor_freq_max * time_step),
+        (5, cor_freq_min * time_step),
         density,
     )  # frequencies in radian per unit time
 
@@ -1277,6 +1285,18 @@ def extract_inertial_from_position(
     wz = wavelet_transform(z, wavelet)
 
     # x, y, z minus the transforms converted back to lat and lon
+    # dum = np.broadcast(x,wx)
+    # out1 = np.empty(dum.shape)
+    # out1.flat = [u-np.real(v) for (u,v) in dum]
+    # dum = np.broadcast(y,wy)
+    # out2 = np.empty(dum.shape)
+    # out2.flat = [u-np.real(v) for (u,v) in dum]
+    # dum = np.broadcast(z,wz)
+    # out3 = np.empty(dum.shape)
+    # out3.flat = [u-np.real(v) for (u,v) in dum]
+    # longitude_new, latitude_new = cartesian_to_spherical(
+    #     out1, out2, out3
+    # )
     longitude_new, latitude_new = cartesian_to_spherical(
         x - np.real(wx), y - np.real(wy), z - np.real(wz)
     )
@@ -1290,8 +1310,8 @@ def extract_inertial_from_position(
 
     # find the values of radian_frequency/dt that most closely match cor_freq
     # is there a better way to do this?
-    index = [
-        np.argmin(np.abs(cor_freq[i] - radian_frequency / delta_time))
+    frequency_bins = [
+        np.argmin(np.abs(cor_freq[i] - radian_frequency / time_step))
         for i in np.arange(0, data_length)
     ]
 
@@ -1299,38 +1319,38 @@ def extract_inertial_from_position(
     # extract the values of wp and wn at the calculated index as a function of time
     # positive is anticyclonic (inertial) in the southern hemisphere
     # negative is anticyclonic (inertial) in the northern hemisphere
-    wp = wp[index, list(range(0, data_length))]
-    wn = wn[index, list(range(0, data_length))]
+    wp = wp[frequency_bins, list(range(0, data_length))]
+    wn = wn[frequency_bins, list(range(0, data_length))]
 
     # need an index of northen latitude points and index of
     # southern latitude points
-    index_north = latitude >= 0
+    north = latitude >= 0
 
     # initialize the zonal and meridional components of inertial displacements
     wxhat = np.zeros_like(latitude).astype(np.complex64)
     wyhat = np.zeros_like(latitude).astype(np.complex64)
     # equations are x+ = 0.5*(z+ + z-) and y+ = -0.5*1j*(z+ - z-)?
-    if any(index_north):
-        wxhat[index_north] = wn[index_north] / np.sqrt(2)
-        wyhat[index_north] = 1j * wn[index_north] / np.sqrt(2)
-    if any(~index_north):
-        wxhat[~index_north] = wp[~index_north] / np.sqrt(2)
-        wyhat[~index_north] = -1j * wp[~index_north] / np.sqrt(2)
+    if any(north):
+        wxhat[north] = wn[north] / np.sqrt(2)
+        wyhat[north] = 1j * wn[north] / np.sqrt(2)
+    if any(~north):
+        wxhat[~north] = wp[~north] / np.sqrt(2)
+        wyhat[~north] = -1j * wp[~north] / np.sqrt(2)
 
     # inertial displacement in kilometers
     xhat = 1e-3 * np.real(wxhat)
     yhat = 1e-3 * np.real(wyhat)
-    zhat = xhat + 1j * yhat
+    xy = xhat + 1j * yhat
 
     # longitude and latitude after removing oscillations
-    longitude_cor, latitude_cor = correct_position_for_displacement(
+    longitude_cor, latitude_cor = corrected_positions_from_displacements(
         longitude, latitude, xhat, yhat
     )
 
-    return zhat, longitude_cor, latitude_cor
+    return xy, longitude_cor, latitude_cor
 
 
-def correct_position_for_displacement(
+def corrected_positions_from_displacements(
     longitude: Union[float, np.ndarray],
     latitude: Union[float, np.ndarray],
     x: Union[float, np.ndarray],
@@ -1378,7 +1398,7 @@ def correct_position_for_displacement(
         * x
         / (1e-3 * EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
     )
-    
+
     latitude_corrected = latitude - latitudehat
     longitude_corrected = recast_lon360(
         np.degrees(np.angle(np.exp(1j * np.radians(longitude - longitudehat))))
