@@ -1366,8 +1366,8 @@ def inertial_oscillations_from_positions(
     north = latitude >= 0
 
     # initialize the zonal and meridional components of inertial displacements
-    wxhat = np.zeros_like(latitude).astype(np.complex64)
-    wyhat = np.zeros_like(latitude).astype(np.complex64)
+    wxhat = np.zeros_like(latitude, dtype=np.complex64)
+    wyhat = np.zeros_like(latitude, dtype=np.complex64)
     # equations are x+ = 0.5*(z+ + z-) and y+ = -0.5*1j*(z+ - z-)?
     if any(north):
         wxhat[north] = wn[north] / np.sqrt(2)
