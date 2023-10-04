@@ -1351,7 +1351,7 @@ def inertial_oscillations_from_positions(
     # is there a better way to do this?
     frequency_bins = [
         np.argmin(np.abs(cor_freq[i] - radian_frequency / time_step))
-        for i in np.arange(0, data_length)
+        for i in range(data_length)
     ]
 
     # get the transform at the inertial and "anti-inertial" frequencies
