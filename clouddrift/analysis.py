@@ -1271,7 +1271,7 @@ def inertial_oscillations_from_positions(
     # inertialextract returns lon and lat after subtraction of the inertial oscillations
     # and the horizontal inertial displacement in kilometers
     if isinstance(relative_vorticity, float):
-        relative_vorticity = relative_vorticity * np.ones_like(longitude)
+        relative_vorticity = np.full_like(longitude, relative_vorticity)
     elif isinstance(relative_vorticity, np.ndarray):
         if not relative_vorticity.shape == longitude.shape:
             raise ValueError(
