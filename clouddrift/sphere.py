@@ -705,14 +705,9 @@ def coriolis_frequency(
         Latitude in degrees.
 
     Returns
-    ------
+    -------
     f : float or np.ndarray
         Signed Coriolis frequency in radian per seconds.
-
-    Raises
-    ------
-    Warning
-        Raised if the input latitudes are not in the expected range [-90, 90].
 
     Examples
     --------
