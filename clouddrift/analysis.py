@@ -1267,7 +1267,6 @@ def inertial_oscillations_from_positions(
     # length of data sequence
     data_length = longitude.shape[0]
 
-    # initialization: what shall we return?
     # inertialextract returns lon and lat after subtraction of the inertial oscillations
     # and the horizontal inertial displacement in kilometers
     if isinstance(relative_vorticity, float):
@@ -1277,9 +1276,6 @@ def inertial_oscillations_from_positions(
             raise ValueError(
                 "relative_vorticity must be a float or the same shape as time, lon, and lat."
             )
-
-    # convert time interval of data in seconds
-    # dt = np.diff(time)[0] / np.timedelta64(1000000000, "ns")  # seconds no unit
 
     # wavelet parameters
     gamma = 3
@@ -1310,7 +1306,7 @@ def inertial_oscillations_from_positions(
         density,
     )  # frequencies in radian per unit time
 
-    # wavelet transform on a sphere: (spheretrans in jLab)
+    # wavelet transform on a sphere
     # unwrap longitude recasted in [0,360)
     longitude_unwrapped = np.unwrap(recast_lon360(longitude), period=360)
 
@@ -1361,14 +1357,14 @@ def inertial_oscillations_from_positions(
     wp = wp[frequency_bins, list(range(0, data_length))]
     wn = wn[frequency_bins, list(range(0, data_length))]
 
-    # need an index of northen latitude points and index of
+    # index of northen latitude points and index of
     # southern latitude points
     north = latitude >= 0
 
     # initialize the zonal and meridional components of inertial displacements
     wxhat = np.zeros_like(latitude, dtype=np.complex64)
     wyhat = np.zeros_like(latitude, dtype=np.complex64)
-    # equations are x+ = 0.5*(z+ + z-) and y+ = -0.5*1j*(z+ - z-)?
+    # equations are x+ = 0.5*(z+ + z-) and y+ = -0.5*1j*(z+ - z-)
     if any(north):
         wxhat[north] = wn[north] / np.sqrt(2)
         wyhat[north] = 1j * wn[north] / np.sqrt(2)
@@ -1376,9 +1372,9 @@ def inertial_oscillations_from_positions(
         wxhat[~north] = wp[~north] / np.sqrt(2)
         wyhat[~north] = -1j * wp[~north] / np.sqrt(2)
 
-    # inertial displacement in kilometers
-    xhat = 1e-3 * np.real(wxhat)
-    yhat = 1e-3 * np.real(wyhat)
+    # inertial displacement in meters
+    xhat = np.real(wxhat)
+    yhat = np.real(wyhat)
     xy = xhat + 1j * yhat
 
     # longitude and latitude after removing oscillations
@@ -1409,9 +1405,9 @@ def corrected_positions_from_displacements(
     latitude : float or np.ndarray
         Latitude in degrees.
     x : float or np.ndarray
-        Zonal displacement in kilometers.
+        Zonal displacement in meters.
     y : float or np.ndarray
-        Meridional displacement in kilometers.
+        Meridional displacement in meters.
 
     Returns
     ------
@@ -1425,17 +1421,17 @@ def corrected_positions_from_displacements(
     Correct the geographical position (longitude=1, latitude=0) for a displacement of 1/360-th of the
     perimeter of the Earth in kilometers:
     >>> from clouddrift.sphere import EARTH_RADIUS_METERS
-    >>> correct_position_for_displacement(1,0,2 * np.pi * EARTH_RADIUS_METERS * 1e-3 / 360,0)
+    >>> correct_position_for_displacement(1,0,2 * np.pi * EARTH_RADIUS_METERS / 360,0)
     (0.0, 0.0)
 
     """
     # latitudinal and longitudinal displacements
-    latitudehat = 360 / (2 * np.pi) * y / (1e-3 * EARTH_RADIUS_METERS)
+    latitudehat = 360 / (2 * np.pi) * y / EARTH_RADIUS_METERS
     longitudehat = (
         360
         / (2 * np.pi)
         * x
-        / (1e-3 * EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
+        / (EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
     )
 
     latitude_corrected = latitude - latitudehat
