@@ -4,7 +4,7 @@ structure used by CloudDrift to process custom Lagrangian datasets to Xarray
 Datasets and Awkward Arrays.
 """
 import awkward as ak
-from clouddrift.analysis import rowsize_to_index
+from clouddrift.ragged import rowsize_to_index
 import xarray as xr
 import numpy as np
 from collections.abc import Callable

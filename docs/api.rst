@@ -14,8 +14,9 @@ Auto-generated summary of CloudDrift's API. For more details and examples, refer
     adapters.gdp1h
     adapters.gdp6h
     adapters.mosaic
-    analysis
     datasets
+    kinematics
+    ragged
     raggedarray
     signal
     sphere
