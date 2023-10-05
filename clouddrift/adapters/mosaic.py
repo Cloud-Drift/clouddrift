@@ -124,11 +124,6 @@ def to_xarray():
         {"datetime": "time", "Sensor ID": "id"}
     )
 
-    # Convert float64 variables to float32 to save space.
-    for var in ds.variables:
-        if ds[var].dtype == "float64":
-            ds[var] = ds[var].astype("float32")
-
     # Set variable attributes
     ds["longitude"].attrs = {
         "long_name": "longitude",
