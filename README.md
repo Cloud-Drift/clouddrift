@@ -124,7 +124,7 @@ If you would like to propose an idea for a new feature or contribute your own
 implementation, please follow these steps:
 
 1. Open a new issue to discuss your proposal.
-2. Once we agree on the general way forward, fork the repository and create a
+2. Once we agree on a general way forward, fork the repository and create a
    new branch for your contribution.
 3. Write your code and tests. Please follow the same style as the rest of the
    codebase and ensure that all new functionality is covered by your tests.
