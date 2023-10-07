@@ -123,16 +123,16 @@ We welcome contributions from the community.
 If you would like to propose an idea for a new feature or contribute your own
 implementation, please follow these steps:
 
-1. Open a new issue to discuss your proposal.
-2. Once we agree on a general way forward, fork the repository and create a
-   new branch for your contribution.
-3. Write your code and tests. Please follow the same style as the rest of the
+1. Open a new [issue](https://github.com/Cloud-Drift/clouddrift/issues) to discuss your proposal.
+2. Once we agree on a general way forward, [fork the repository](https://docs.github.com/en/github-ae@latest/get-started/quickstart/fork-a-repo) and [create a
+   new branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository) for your contribution.
+3. Write your code and [tests](https://docs.github.com/en/actions/automating-builds-and-tests). Please follow the same style as the rest of the
    codebase and ensure that all new functionality is covered by your tests.
 4. Open a pull request and request a review.
 
 The scope of CloudDrift includes:
 
-* Working with contiguous ragged-array data easier; for example, see the
+* Working with contiguous ragged-array data; for example, see the
   [`clouddrift.ragged`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.ragged.html) module.
 * Common scientific analysis of Lagrangian data, oceanographic or otherwise;
   for example, see the
