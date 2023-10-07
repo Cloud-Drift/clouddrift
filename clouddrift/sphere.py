@@ -1,7 +1,5 @@
 """
-This module provides functions for calculations on the surface of a sphere,
-such as functions to recast longitude values to a desired range, as well as
-functions to project from tangent plane to sphere and vice versa.
+This module provides functions for spherical geometry calculations.
 """
 
 import numpy as np

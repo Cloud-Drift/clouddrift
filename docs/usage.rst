@@ -98,8 +98,8 @@ Frozen({'traj': 17324, 'obs': 165754333})
 The ``traj`` dimension has 17324 elements, which is the number of individual
 trajectories in the dataset.
 The sum of their lengths equals the length of the ``obs`` dimension.
-Internally, these dimensions, their lengths, and the ``count`` (or ``rowsize``)
-variables are used internally to make CloudDrift's analysis functions aware of
+Internally, these dimensions, their lengths, and the ``rowsize``
+variable are used internally to make CloudDrift's analysis functions aware of
 the bounds of each contiguous array within the ragged-array data structure.
 
 Doing common analysis tasks on ragged arrays
@@ -114,7 +114,7 @@ The variable ``ID`` is the unique identifier for each trajectory:
 >>> ds.ID[:10].values
 array([2578, 2582, 2583, 2592, 2612, 2613, 2622, 2623, 2931, 2932])
 
->>> from clouddrift.analysis import subset
+>>> from clouddrift.ragged import subset
 
 ``subset`` allows you to subset a ragged array by some criterion.
 In this case, we will subset it by the ``ID`` variable:
@@ -166,10 +166,10 @@ Let's see how we can compute the mean and maximum velocities of each trajectory.
 To start, we'll need to obtain the velocities over all trajectory times.
 Although the GDP dataset already comes with velocity variables, we won't use
 them here so that we can learn how to compute them ourselves from positions.
-``clouddrift`` provides the ``velocity_from_position`` function that allows you
-to do just that.
+``clouddrift``'s ``kinematics`` module provides the ``velocity_from_position``
+function that allows you to do just that.
 
->>> from clouddrift.analysis import velocity_from_position
+>>> from clouddrift.kinematics import velocity_from_position
 
 At a minimum ``velocity_from_position`` requires three input parameters:
 consecutive x- and y-coordinates and time, so we could do:
@@ -186,7 +186,7 @@ respecting the trajectory boundaries.
 For this, we can use the ``ragged_apply`` function, which applies a function
 to each trajectory in a ragged array, and returns the concatenated result.
 
->>> from clouddrift.analysis import apply_ragged
+>>> from clouddrift.ragged import apply_ragged
 >>> u, v = apply_ragged(velocity_from_position, [ds_sub.lon, ds_sub.lat, ds_sub.time], ds_sub.rowsize)
 
 ``u`` and ``v`` here are still ragged arrays, which means that the five
