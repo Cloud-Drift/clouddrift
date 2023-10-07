@@ -1,5 +1,5 @@
 """
-Transormational and inquiry functions for ragged arrays.
+Transformational and inquiry functions for ragged arrays.
 """
 
 import numpy as np
