@@ -189,12 +189,7 @@ def inertial_oscillations_from_positions(
     yhat = np.real(wyhat)
     xy = xhat + 1j * yhat
 
-    # longitude and latitude after removing oscillations
-    longitude_cor, latitude_cor = residual_positions_from_displacements(
-        longitude, latitude, xhat, yhat
-    )
-
-    return xy, longitude_cor, latitude_cor
+    return xy
 
 
 def residual_positions_from_displacements(
