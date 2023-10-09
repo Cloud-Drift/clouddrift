@@ -12,8 +12,6 @@ import xarray as xr
 import urllib.request
 import warnings
 
-GDP_VERSION = "2.00"
-
 GDP_COORDS = [
     "ids",
     "time",

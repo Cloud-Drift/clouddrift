@@ -18,12 +18,14 @@ import os
 import warnings
 import xarray as xr
 
+GDP_VERSION = "2.01"
 
-GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netcdf/"
+GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.01/netcdf/"
 GDP_DATA_URL_EXPERIMENTAL = (
     "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental/"
 )
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
+GDP_TMP_PATH_EXPERIMENTAL = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp_exp")
 GDP_DATA = [
     "lon",
     "lat",
@@ -51,7 +53,7 @@ def download(
     drifter_ids: list = None,
     n_random_id: int = None,
     url: str = GDP_DATA_URL,
-    tmp_path: str = GDP_TMP_PATH,
+    tmp_path: str = None,
 ):
     """Download individual NetCDF files from the AOML server.
 
@@ -70,8 +72,12 @@ def download(
     Returns
     -------
     out : list
-        List of retrived drifters
+        List of retrieved drifters
     """
+
+    # adjust the tmp_path if using the experimental source
+    if tmp_path is None:
+        tmp_path = GDP_TMP_PATH if url == GDP_DATA_URL else GDP_TMP_PATH_EXPERIMENTAL
 
     print(f"Downloading GDP hourly data from {url} to {tmp_path}...")
 
@@ -79,8 +85,8 @@ def download(
     os.makedirs(tmp_path, exist_ok=True)
 
     if url == GDP_DATA_URL:
-        pattern = "drifter_[0-9]*.nc"
-        filename_pattern = "drifter_{id}.nc"
+        pattern = "drifter_hourly_[0-9]*.nc"
+        filename_pattern = "drifter_hourly_{id}.nc"
     elif url == GDP_DATA_URL_EXPERIMENTAL:
         pattern = "drifter_hourly_[0-9]*.nc"
         filename_pattern = "drifter_hourly_{id}.nc"
@@ -482,7 +488,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     # global attributes
     attrs = {
         "title": "Global Drifter Program hourly drifting buoy collection",
-        "history": f"version {gdp.GDP_VERSION}. Metadata from dirall.dat and deplog.dat",
+        "history": f"version {GDP_VERSION}. Metadata from dirall.dat and deplog.dat",
         "Conventions": "CF-1.6",
         "date_created": datetime.now().isoformat(),
         "publisher_name": "GDP Drifter DAC",
@@ -520,7 +526,7 @@ def to_raggedarray(
     drifter_ids: Optional[list[int]] = None,
     n_random_id: Optional[int] = None,
     url: Optional[str] = GDP_DATA_URL,
-    tmp_path: Optional[str] = GDP_TMP_PATH,
+    tmp_path: Optional[str] = None,
 ) -> RaggedArray:
     """Download and process individual GDP hourly files and return a RaggedArray
     instance with the data.
@@ -547,7 +553,7 @@ def to_raggedarray(
     --------
 
     Invoke `to_raggedarray` without any arguments to download all drifter data
-    from the 2.00 GDP feed:
+    from the 2.01 GDP feed:
 
     >>> from clouddrift.adapters.gdp1h import to_raggedarray
     >>> ra = to_raggedarray()
@@ -582,10 +588,15 @@ def to_raggedarray(
     >>> arr = ra.to_awkward()
     >>> arr.to_parquet("gdp1h.parquet")
     """
+
+    # adjust the tmp_path if using the experimental source
+    if tmp_path is None:
+        tmp_path = GDP_TMP_PATH if url == GDP_DATA_URL else GDP_TMP_PATH_EXPERIMENTAL
+
     ids = download(drifter_ids, n_random_id, url, tmp_path)
 
     if url == GDP_DATA_URL:
-        filename_pattern = "drifter_{id}.nc"
+        filename_pattern = "drifter_hourly_{id}.nc"
     elif url == GDP_DATA_URL_EXPERIMENTAL:
         filename_pattern = "drifter_hourly_{id}.nc"
     else:
