@@ -22,7 +22,7 @@ from clouddrift.wavelet import morse_logspace_freq, morse_wavelet, wavelet_trans
 def inertial_oscillations_from_positions(
     longitude: np.ndarray,
     latitude: np.ndarray,
-    wavelet_duration: float,
+    relative_bandwidth: float,
     time_step: Optional[float] = 3600.0,
     relative_vorticity: Optional[Union[float, np.ndarray]] = 0.0,
 ) -> np.ndarray:
@@ -39,10 +39,10 @@ def inertial_oscillations_from_positions(
         Longitude sequence. Unidimensional array input.
     latitude : array-like
         Latitude sequence. Unidimensional array input.
-    wavelet_duration : float
-        Duration of wavelet filter used to extract oscillations. This argument corresponds to the
-        number of oscillations of the wavelet in the time domain, it must be equal to 1 or larger.
-        A larger wavelet duration corresponds to a narrower filtering in the frequency domain.
+    relative_bandwidth : float
+        Bandwidth of the frequency-domain equivalent filter for the extraction of the inertial
+        oscillations; a number less or equal to one which is a fraction of the inertial frequency.
+        A value of 0.1 leads to a bandpass filter equivalent of +/- 10 percent of the inertial frequency.
     time_step : float
         The constant time interval between data points in seconds. Default is 3600.
     relative_vorticity: Optional, float or array-like
@@ -60,8 +60,8 @@ def inertial_oscillations_from_positions(
     Examples
     --------
     To extract displacements from inertial oscillations from sequences of longitude
-    and latitude values, expecting that at least of 4.5 oscillations occur along the sequence.
-    >>> xy = extract_inertial_from_position(longitude, latitude, p=4.5)
+    and latitude values, for an equivalent 20 percent bandpass filter.
+    >>> xy = extract_inertial_from_position(longitude, latitude, 0.2)
 
     Next, the residual positions from the inertial displacements can be obtained with another function:
     >>> residual_longitudes, residual_latitudes = residual_positions_from_displacements(longitude, latitude, np.real(xy), np.imag(xy))
@@ -89,9 +89,10 @@ def inertial_oscillations_from_positions(
                 "relative_vorticity must be a float or the same shape as time, lon, and lat."
             )
 
-    # wavelet parameters
-    gamma = 3
-    density = 16  # JML uses 16
+    # wavelet parameters are gamma and beta
+    gamma = 3  # symmetric wavelet
+    density = 16  # results relative insensitive to this parameter
+    wavelet_duration = 1 / np.abs(relative_bandwidth)  # P parameter
     beta = wavelet_duration**2 / gamma
 
     if isinstance(latitude, xr.DataArray):
