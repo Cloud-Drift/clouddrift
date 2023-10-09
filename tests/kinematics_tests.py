@@ -1,5 +1,5 @@
 from clouddrift.kinematics import (
-    corrected_positions_from_displacements,
+    residual_positions_from_displacements,
     position_from_velocity,
     velocity_from_position,
 )
@@ -82,38 +82,44 @@ class inertial_oscillations_from_positions_tests(unittest.TestCase):
         raise NotImplementedError()
 
 
-class corrected_positions_from_displacements_tests(unittest.TestCase):
-    def test_corrected_positions_from_displacements(self):
+class residual_positions_from_displacements_tests(unittest.TestCase):
+    def test_residual_positions_from_displacements(self):
         (
-            longitude_corrected,
-            latitude_corrected,
-        ) = corrected_positions_from_displacements(
-            1, 0, 2 * np.pi * EARTH_RADIUS_METERS * 1e-3 / 360, 0
-        )
-        self.assertTrue(
-            np.allclose((longitude_corrected, latitude_corrected), (0.0, 0.0))
-        )
-        (
-            longitude_corrected,
-            latitude_corrected,
-        ) = corrected_positions_from_displacements(
-            0, 1, 0, 2 * np.pi * EARTH_RADIUS_METERS * 1e-3 / 360
-        )
-        self.assertTrue(
-            np.allclose((longitude_corrected, latitude_corrected), (0.0, 0.0))
-        )
-        (
-            longitude_corrected,
-            latitude_corrected,
-        ) = corrected_positions_from_displacements(
-            2,
-            1,
-            2 * np.pi * EARTH_RADIUS_METERS * 1e-3 / 360,
-            2 * np.pi * EARTH_RADIUS_METERS * 1e-3 / 360,
+            residual_longitude,
+            residual_latitude,
+        ) = residual_positions_from_displacements(
+            1, 0, 2 * np.pi * EARTH_RADIUS_METERS / 360, 0
         )
         self.assertTrue(
             np.allclose(
-                (longitude_corrected, latitude_corrected), (1.0, 0.0), atol=1e-3
+                (np.mod(residual_longitude, 360.0), residual_latitude), (0.0, 0.0)
+            )
+        )
+        (
+            residual_longitude,
+            residual_latitude,
+        ) = residual_positions_from_displacements(
+            0, 1, 0, 2 * np.pi * EARTH_RADIUS_METERS / 360
+        )
+        self.assertTrue(
+            np.allclose(
+                (np.mod(residual_longitude, 360.0), residual_latitude), (0.0, 0.0)
+            )
+        )
+        (
+            residual_longitude,
+            residual_latitude,
+        ) = residual_positions_from_displacements(
+            2,
+            1,
+            2 * np.pi * EARTH_RADIUS_METERS / 360,
+            2 * np.pi * EARTH_RADIUS_METERS / 360,
+        )
+        self.assertTrue(
+            np.allclose(
+                (np.mod(residual_longitude, 360.0), residual_latitude),
+                (1.0, 0.0),
+                atol=1e-3,
             )
         )
 

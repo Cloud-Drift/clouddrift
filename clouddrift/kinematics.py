@@ -56,16 +56,19 @@ def inertial_oscillations_from_positions(
     xy : array-like
         Relative displacement in kilometers from inertial oscillations. The real and
         imaginary parts of xy are the zonal and meridional displacements, respectively.
-    longitude_corrected : float or np.ndarray
-        Longitude corrected for zonal displacement in degrees.
-    latitude_corrected : float or np.ndarray
-        Latitude corrected for meridional displacement in degrees.
 
     Examples
     --------
     To extract displacements from inertial oscillations from sequences of longitude
     and latitude values, expecting that at least of 4.5 oscillations occur along the sequence.
-    >>> xy, longitude_corrected, latitude_corrected = extract_inertial_from_position(longitude, latitude, p=4.5)
+    >>> xy = extract_inertial_from_position(longitude, latitude, p=4.5)
+
+    Next, the residual positions from the inertial displacements can be obtained with another function:
+    >>> residual_longitudes, residual_latitudes = residual_positions_from_displacements(longitude, latitude, np.real(xy), np.imag(xy))
+
+    See Also
+    --------
+    :func:`residual_positions_from_displacements`
 
     References
     ----------
@@ -187,25 +190,25 @@ def inertial_oscillations_from_positions(
     xy = xhat + 1j * yhat
 
     # longitude and latitude after removing oscillations
-    longitude_cor, latitude_cor = corrected_positions_from_displacements(
+    longitude_cor, latitude_cor = residual_positions_from_displacements(
         longitude, latitude, xhat, yhat
     )
 
     return xy, longitude_cor, latitude_cor
 
 
-def corrected_positions_from_displacements(
+def residual_positions_from_displacements(
     longitude: Union[float, np.ndarray],
     latitude: Union[float, np.ndarray],
     x: Union[float, np.ndarray],
     y: Union[float, np.ndarray],
 ) -> Union[Tuple[float], Tuple[np.ndarray]]:
     """
-    Return the longitude and latitude along a trajectory on the spherical Earth
+    Return residual longitudes and latitudes along a trajectory on the spherical Earth
     after correcting for zonal and meridional displacements x and y in kilometers.
 
     This is applicable as an example when one seeks to correct a trajectory for
-    horizontal oscillations.
+    horizontal oscillations due to inertial motions, tides, etc.
 
     Parameters
     ----------
@@ -220,17 +223,17 @@ def corrected_positions_from_displacements(
 
     Returns
     ------
-    longitude_corrected : float or np.ndarray
-        Longitude corrected for zonal displacement in degrees.
-    latitude_corrected : float or np.ndarray
-        Latitude corrected for meridional displacement in degrees.
+    residual_longitude : float or np.ndarray
+        Residual longitude after correcting for zonal displacement, in degrees.
+    residual_latitude : float or np.ndarray
+        Residual latitude after correcting for meridional displacement, in degrees.
 
     Examples
     --------
-    Correct the geographical position (longitude=1, latitude=0) for a displacement of 1/360-th of the
-    perimeter of the Earth in kilometers:
+    Obtain the new geographical position for a displacement of 1/360-th of the
+    perimeter of the Earth from original position (longitude,latitude) = (1,0):
     >>> from clouddrift.sphere import EARTH_RADIUS_METERS
-    >>> correct_position_for_displacement(1,0,2 * np.pi * EARTH_RADIUS_METERS / 360,0)
+    >>> residual_positions_from_displacements(1,0,2 * np.pi * EARTH_RADIUS_METERS / 360,0)
     (0.0, 0.0)
 
     """
@@ -240,12 +243,12 @@ def corrected_positions_from_displacements(
         360 / (2 * np.pi) * x / (EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
     )
 
-    latitude_corrected = latitude - latitudehat
-    longitude_corrected = recast_lon360(
+    residual_latitude = latitude - latitudehat
+    residual_longitude = recast_lon360(
         np.degrees(np.angle(np.exp(1j * np.radians(longitude - longitudehat))))
     )
 
-    return longitude_corrected, latitude_corrected
+    return residual_longitude, residual_latitude
 
 
 def position_from_velocity(
