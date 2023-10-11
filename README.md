@@ -16,6 +16,44 @@ It is funded by [NSF EarthCube](https://www.earthcube.org/info) through the
 Read the [documentation](https://cloud-drift.github.io/clouddrift) or explore
 the [Jupyter Notebook Examples](https://github.com/Cloud-Drift/clouddrift-examples).
 
+## Using CloudDrift
+
+Start by reading the [documentation](https://cloud-drift.github.io/clouddrift).
+
+Example Jupyter notebooks that showcase the library, as well as scripts
+to process various Lagrangian datasets, can be found in
+[clouddrift-examples](https://github.com/Cloud-Drift/clouddrift-examples), [gdp-get-started](https://github.com/Cloud-Drift/gdp-get-started), [mosaic-get-started](https://github.com/Cloud-Drift/mosaic-get-started), or [a demo for the EarthCube community workshop 2023](https://github.com/Cloud-Drift/e3-comm-workshop-2023).
+
+## Contributing and scope
+
+We welcome contributions from the community.
+If you would like to propose an idea for a new feature or contribute your own
+implementation, please follow these steps:
+
+1. Open a new [issue](https://github.com/Cloud-Drift/clouddrift/issues) to discuss your proposal.
+2. Once we agree on a general way forward, [fork the repository](https://docs.github.com/en/github-ae@latest/get-started/quickstart/fork-a-repo) and [create a
+   new branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository) for your contribution.
+3. Write your code and [tests](https://docs.github.com/en/actions/automating-builds-and-tests). Please follow the same style as the rest of the
+   codebase and ensure that all new functionality is covered by your tests.
+4. Open a pull request and request a review.
+
+The scope of CloudDrift includes:
+
+* Working with contiguous ragged-array data; for example, see the
+  [`clouddrift.ragged`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.ragged.html) module.
+* Common scientific analysis of Lagrangian data, oceanographic or otherwise;
+  for example, see the
+  [`clouddrift.kinematics`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.kinematics.html),
+  [`clouddrift.signal`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.signal.html), and
+  [`clouddrift.wavelet`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.wavelet.html) modules.
+* Processing existing Lagrangian datasets into a common data structure and format;
+  for example, see the [`clouddrift.adapters.mosaic`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.adapters.mosaic.html) module.
+* Making cloud-optimized ragged-array datasets easily accessible; for example,
+  see the [`clouddrift.datasets`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.datasets.html) module.
+
+If you have an idea that does not fit into the scope of CloudDrift but you think
+it should, please open an issue to discuss it.
+
 ## Getting started
 
 ### Install CloudDrift
@@ -108,44 +146,6 @@ dependencies first.
 Please let us know by opening an
 [issue](https://github.com/Cloud-Drift/clouddrift/issues/new) and we will do our
 best to help you.
-
-## Using CloudDrift
-
-Start by reading the [documentation](https://cloud-drift.github.io/clouddrift).
-
-Example Jupyter notebooks that showcase the library, as well as scripts
-to process various Lagrangian datasets, can be found in
-[clouddrift-examples](https://github.com/Cloud-Drift/clouddrift-examples), [gdp-get-started](https://github.com/Cloud-Drift/gdp-get-started), [mosaic-get-started](https://github.com/Cloud-Drift/mosaic-get-started), or [a demo for the EarthCube community workshop 2023](https://github.com/Cloud-Drift/e3-comm-workshop-2023).
-
-## Contributing and scope
-
-We welcome contributions from the community.
-If you would like to propose an idea for a new feature or contribute your own
-implementation, please follow these steps:
-
-1. Open a new [issue](https://github.com/Cloud-Drift/clouddrift/issues) to discuss your proposal.
-2. Once we agree on a general way forward, [fork the repository](https://docs.github.com/en/github-ae@latest/get-started/quickstart/fork-a-repo) and [create a
-   new branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository) for your contribution.
-3. Write your code and [tests](https://docs.github.com/en/actions/automating-builds-and-tests). Please follow the same style as the rest of the
-   codebase and ensure that all new functionality is covered by your tests.
-4. Open a pull request and request a review.
-
-The scope of CloudDrift includes:
-
-* Working with contiguous ragged-array data; for example, see the
-  [`clouddrift.ragged`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.ragged.html) module.
-* Common scientific analysis of Lagrangian data, oceanographic or otherwise;
-  for example, see the
-  [`clouddrift.kinematics`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.kinematics.html),
-  [`clouddrift.signal`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.signal.html), and
-  [`clouddrift.wavelet`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.wavelet.html) modules.
-* Processing existing Lagrangian datasets into a common data structure and format;
-  for example, see the [`clouddrift.adapters.mosaic`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.adapters.mosaic.html) module.
-* Making cloud-optimized ragged-array datasets easily accessible; for example,
-  see the [`clouddrift.datasets`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.datasets.html) module.
-
-If you have an idea that does not fit into the scope of CloudDrift but you think
-it should, please open an issue to discuss it.
 
 ## Found an issue or need help?
 
