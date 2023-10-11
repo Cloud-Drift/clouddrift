@@ -10,7 +10,6 @@ from clouddrift.ragged import (
     unpack,
 )
 from clouddrift.raggedarray import RaggedArray
-from clouddrift.sphere import EARTH_RADIUS_METERS
 import unittest
 import numpy as np
 import xarray as xr

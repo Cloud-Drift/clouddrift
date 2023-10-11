@@ -1,4 +1,5 @@
 from clouddrift.kinematics import (
+    residual_positions_from_displacements,
     position_from_velocity,
     velocity_from_position,
 )
@@ -7,7 +8,6 @@ from clouddrift.raggedarray import RaggedArray
 import unittest
 import numpy as np
 import xarray as xr
-from concurrent import futures
 
 
 if __name__ == "__main__":
@@ -75,6 +75,53 @@ def sample_ragged_array() -> RaggedArray:
     )
 
     return ra
+
+
+class inertial_oscillations_from_positions_tests(unittest.TestCase):
+    def test_inertial_oscillations_from_positions(self):
+        raise NotImplementedError()
+
+
+class residual_positions_from_displacements_tests(unittest.TestCase):
+    def test_residual_positions_from_displacements(self):
+        (
+            residual_longitude,
+            residual_latitude,
+        ) = residual_positions_from_displacements(
+            1, 0, 2 * np.pi * EARTH_RADIUS_METERS / 360, 0
+        )
+        self.assertTrue(
+            np.allclose(
+                (np.mod(residual_longitude, 360.0), residual_latitude), (0.0, 0.0)
+            )
+        )
+        (
+            residual_longitude,
+            residual_latitude,
+        ) = residual_positions_from_displacements(
+            0, 1, 0, 2 * np.pi * EARTH_RADIUS_METERS / 360
+        )
+        self.assertTrue(
+            np.allclose(
+                (np.mod(residual_longitude, 360.0), residual_latitude), (0.0, 0.0)
+            )
+        )
+        (
+            residual_longitude,
+            residual_latitude,
+        ) = residual_positions_from_displacements(
+            2,
+            1,
+            2 * np.pi * EARTH_RADIUS_METERS / 360,
+            2 * np.pi * EARTH_RADIUS_METERS / 360,
+        )
+        self.assertTrue(
+            np.allclose(
+                (np.mod(residual_longitude, 360.0), residual_latitude),
+                (1.0, 0.0),
+                atol=1e-3,
+            )
+        )
 
 
 class position_from_velocity_tests(unittest.TestCase):

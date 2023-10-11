@@ -3,7 +3,7 @@ Transformational and inquiry functions for ragged arrays.
 """
 
 import numpy as np
-from typing import Tuple, Union, Iterable
+from typing import Iterable, Tuple, Union
 import xarray as xr
 import pandas as pd
 from concurrent import futures
