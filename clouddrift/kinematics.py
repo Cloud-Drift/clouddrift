@@ -60,7 +60,7 @@ def inertial_oscillations_from_positions(
     Examples
     --------
     To extract displacements from inertial oscillations from sequences of longitude
-    and latitude values, for an equivalent 20 percent bandpass filter.
+    and latitude values, equivalent to bandpass around 20 percent of the local inertial frequency:
     >>> xy = extract_inertial_from_position(longitude, latitude, 0.2)
 
     Next, the residual positions from the inertial displacements can be obtained with another function:
@@ -79,8 +79,6 @@ def inertial_oscillations_from_positions(
     # length of data sequence
     data_length = longitude.shape[0]
 
-    # inertialextract returns lon and lat after subtraction of the inertial oscillations
-    # and the horizontal inertial displacement in kilometers
     if isinstance(relative_vorticity, float):
         relative_vorticity = np.full_like(longitude, relative_vorticity)
     elif isinstance(relative_vorticity, np.ndarray):
