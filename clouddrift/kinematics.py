@@ -18,6 +18,7 @@ from clouddrift.sphere import (
 )
 from clouddrift.wavelet import morse_logspace_freq, morse_wavelet, wavelet_transform
 
+
 def inertial_oscillations_from_positions(
     longitude: np.ndarray,
     latitude: np.ndarray,
@@ -187,7 +188,8 @@ def inertial_oscillations_from_positions(
     yhat = np.real(wyhat)
     xy = xhat + 1j * yhat
 
-    return xy    
+    return xy
+
 
 def residual_positions_from_displacements(
     longitude: Union[float, np.ndarray],
@@ -241,6 +243,7 @@ def residual_positions_from_displacements(
     )
 
     return residual_longitude, residual_latitude
+
 
 def position_from_velocity(
     u: np.ndarray,
