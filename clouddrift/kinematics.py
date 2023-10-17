@@ -54,7 +54,7 @@ def inertial_oscillations_from_positions(
     Returns
     -------
     xy : array-like
-        Relative displacement in kilometers from inertial oscillations. The real and
+        Relative displacement in meters from inertial oscillations. The real and
         imaginary parts of xy are the zonal and meridional displacements, respectively.
 
     Examples
@@ -130,19 +130,6 @@ def inertial_oscillations_from_positions(
     wy = wavelet_transform(y, wavelet)
     wz = wavelet_transform(z, wavelet)
 
-    # x, y, z minus the transforms converted back to lat and lon
-    # dum = np.broadcast(x,wx)
-    # out1 = np.empty(dum.shape)
-    # out1.flat = [u-np.real(v) for (u,v) in dum]
-    # dum = np.broadcast(y,wy)
-    # out2 = np.empty(dum.shape)
-    # out2.flat = [u-np.real(v) for (u,v) in dum]
-    # dum = np.broadcast(z,wz)
-    # out3 = np.empty(dum.shape)
-    # out3.flat = [u-np.real(v) for (u,v) in dum]
-    # longitude_new, latitude_new = cartesian_to_spherical(
-    #     out1, out2, out3
-    # )
     longitude_new, latitude_new = cartesian_to_spherical(
         x - np.real(wx), y - np.real(wy), z - np.real(wz)
     )
@@ -155,7 +142,6 @@ def inertial_oscillations_from_positions(
     wn = (wxh - 1j * wyh) / np.sqrt(2)
 
     # find the values of radian_frequency/dt that most closely match cor_freq
-    # is there a better way to do this?
     frequency_bins = [
         np.argmin(np.abs(cor_freq[i] - radian_frequency / time_step))
         for i in range(data_length)
@@ -165,8 +151,8 @@ def inertial_oscillations_from_positions(
     # extract the values of wp and wn at the calculated index as a function of time
     # positive is anticyclonic (inertial) in the southern hemisphere
     # negative is anticyclonic (inertial) in the northern hemisphere
-    wp = wp[frequency_bins, list(range(0, data_length))]
-    wn = wn[frequency_bins, list(range(0, data_length))]
+    wp = wp[frequency_bins, np.arange(0, data_length)]
+    wn = wn[frequency_bins, np.arange(0, data_length)]
 
     # index of northen latitude points and index of
     # southern latitude points
@@ -199,7 +185,7 @@ def residual_positions_from_displacements(
 ) -> Union[Tuple[float], Tuple[np.ndarray]]:
     """
     Return residual longitudes and latitudes along a trajectory on the spherical Earth
-    after correcting for zonal and meridional displacements x and y in kilometers.
+    after correcting for zonal and meridional displacements x and y in meters.
 
     This is applicable as an example when one seeks to correct a trajectory for
     horizontal oscillations due to inertial motions, tides, etc.
@@ -225,7 +211,7 @@ def residual_positions_from_displacements(
     Examples
     --------
     Obtain the new geographical position for a displacement of 1/360-th of the
-    perimeter of the Earth from original position (longitude,latitude) = (1,0):
+    circumference of the Earth from original position (longitude,latitude) = (1,0):
     >>> from clouddrift.sphere import EARTH_RADIUS_METERS
     >>> residual_positions_from_displacements(1,0,2 * np.pi * EARTH_RADIUS_METERS / 360,0)
     (0.0, 0.0)
