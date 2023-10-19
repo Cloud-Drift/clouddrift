@@ -106,15 +106,37 @@ class residual_positions_from_displacements_tests(unittest.TestCase):
 class inertial_oscillations_from_positions_tests(unittest.TestCase):
     def setUp(self):
         self.INPUT_SIZE = 1440
-        self.lon = np.linspace(0, 45, self.INPUT_SIZE)
-        self.lat = np.linspace(40, 45, self.INPUT_SIZE)
+        self.longitude = np.linspace(0, 45, self.INPUT_SIZE)
+        self.latitude = np.linspace(40, 45, self.INPUT_SIZE)
+        self.relative_vorticity = 0.1 * coriolis_frequency(self.latitude)
 
     def test_result_has_same_size_as_input(self):
         x, y = inertial_oscillations_from_positions(
-            self.lon, self.lat, relative_bandwidth=0.10, time_step=3600
+            self.longitude, self.latitude, relative_bandwidth=0.10, time_step=3600
         )
-        self.assertTrue(np.all(self.lon.shape == x.shape))
-        self.assertTrue(np.all(self.lon.shape == y.shape))
+        self.assertTrue(np.all(self.longitude.shape == x.shape))
+        self.assertTrue(np.all(self.longitude.shape == y.shape))
+
+    def test_relative_vorticity(self):
+        x, y = inertial_oscillations_from_positions(
+            self.longitude,
+            self.latitude,
+            relative_bandwidth=0.10,
+            time_step=3600,
+            relative_vorticity=self.relative_vorticity,
+        )
+        self.assertTrue(np.all(self.longitude.shape == x.shape))
+        self.assertTrue(np.all(self.longitude.shape == y.shape))
+
+    def test_time_step(self):
+        x, y = inertial_oscillations_from_positions(
+            self.longitude,
+            self.latitude,
+            relative_bandwidth=0.10,
+            time_step=60 * 20,
+        )
+        self.assertTrue(np.all(self.longitude.shape == x.shape))
+        self.assertTrue(np.all(self.longitude.shape == y.shape))
 
     def test_simulation_case(self):
         lat0 = 30
