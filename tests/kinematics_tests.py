@@ -1,6 +1,7 @@
 from clouddrift.kinematics import (
     position_from_velocity,
     velocity_from_position,
+    residual_positions_from_displacements
 )
 from clouddrift.sphere import EARTH_RADIUS_METERS
 from clouddrift.raggedarray import RaggedArray
@@ -75,6 +76,27 @@ def sample_ragged_array() -> RaggedArray:
     )
 
     return ra
+
+class residual_positions_from_displacements_tests(unittest.TestCase):
+    def setUp(self):
+        self.INPUT_SIZE = 100
+        self.lon = np.rad2deg(
+            np.linspace(-np.pi, np.pi, self.INPUT_SIZE, endpoint=False)
+        )
+        self.lat = np.linspace(0, 45, self.INPUT_SIZE)
+        self.x = np.random.rand(self.INPUT_SIZE)
+        self.y = np.random.rand(self.INPUT_SIZE)
+
+    def test_result_has_same_size_as_input(self):
+        lon, lat = residual_positions_from_displacements(
+            self.lon, self.lat, self.x, self.y
+        )
+        self.assertTrue(np.all(self.lon.shape == lon.shape))
+        self.assertTrue(np.all(self.lon.shape == lat.shape))
+                
+    def test_simple_case(self):
+        lon, lat = residual_positions_from_displacements(1,0,2 * np.pi * EARTH_RADIUS_METERS / 360,0)
+        self.assertTrue(np.isclose((np.mod(lon,360), lat), (0, 0)).all())    
 
 
 class position_from_velocity_tests(unittest.TestCase):
