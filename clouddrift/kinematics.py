@@ -53,18 +53,19 @@ def inertial_oscillations_from_positions(
 
     Returns
     -------
-    xy : array-like
-        Relative displacement in meters from inertial oscillations. The real and
-        imaginary parts of xy are the zonal and meridional displacements, respectively.
+    xhat : array-like
+        Zonal relative displacement in meters from inertial oscillations.
+    yhat : array-like
+        Meridional relative displacement in meters from inertial oscillations.
 
     Examples
     --------
     To extract displacements from inertial oscillations from sequences of longitude
     and latitude values, equivalent to bandpass around 20 percent of the local inertial frequency:
-    >>> xy = extract_inertial_from_position(longitude, latitude, 0.2)
+    >>> xhat, yhat = extract_inertial_from_position(longitude, latitude, 0.2)
 
     Next, the residual positions from the inertial displacements can be obtained with another function:
-    >>> residual_longitudes, residual_latitudes = residual_positions_from_displacements(longitude, latitude, np.real(xy), np.imag(xy))
+    >>> residual_longitudes, residual_latitudes = residual_positions_from_displacements(longitude, latitude, xhat, yhat)
 
     See Also
     --------
@@ -126,9 +127,9 @@ def inertial_oscillations_from_positions(
 
     # wavelet transform of x, y, z
     wavelet, _ = morse_wavelet(data_length, gamma, beta, radian_frequency)
-    wx = wavelet_transform(x, wavelet)
-    wy = wavelet_transform(y, wavelet)
-    wz = wavelet_transform(z, wavelet)
+    wx = wavelet_transform(x, wavelet, boundary="periodic")
+    wy = wavelet_transform(y, wavelet, boundary="periodic")
+    wz = wavelet_transform(z, wavelet, boundary="periodic")
 
     longitude_new, latitude_new = cartesian_to_spherical(
         x - np.real(wx), y - np.real(wy), z - np.real(wz)
@@ -172,9 +173,8 @@ def inertial_oscillations_from_positions(
     # inertial displacement in meters
     xhat = np.real(wxhat)
     yhat = np.real(wyhat)
-    xy = xhat + 1j * yhat
 
-    return xy
+    return xhat, yhat
 
 
 def residual_positions_from_displacements(
