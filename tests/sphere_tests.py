@@ -17,6 +17,7 @@ from clouddrift.sphere import (
 )
 import unittest
 import numpy as np
+import xarray as xr
 
 ONE_DEGREE_METERS = np.deg2rad(EARTH_RADIUS_METERS)
 
@@ -36,6 +37,16 @@ class cumulative_distance_tests(unittest.TestCase):
             np.allclose(
                 cumulative_distance(np.array([0, 1, 2]), np.array([0, 1, 2])),
                 np.array([0.0, 157424.62387233, 314825.27182116]),
+            )
+        )
+
+    def test_cumulative_distance_dataarray(self):
+        self.assertTrue(
+            np.allclose(
+                cumulative_distance([0, 1, 2], [0, 1, 2]),
+                cumulative_distance(
+                    xr.DataArray(data=[0, 1, 2]), xr.DataArray(data=[0, 1, 2])
+                ),
             )
         )
 
