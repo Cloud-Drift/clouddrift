@@ -98,9 +98,6 @@ def inertial_oscillations_from_positions(
     if not isinstance(relative_bandwidth, float):
         raise ValueError("relative_bandwidth must be a float.")
 
-    if not isinstance(time_step, float):
-        raise ValueError("time_step must be a float.")
-
     if not relative_bandwidth <= 1:
         raise ValueError("relative_bandwidth must be less or equal to one.")
 
