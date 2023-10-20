@@ -12,6 +12,7 @@ from clouddrift.sphere import (
     tangentplane_to_cartesian,
     cartesian_to_tangentplane,
     coriolis_frequency,
+    cumulative_distance,
     EARTH_RADIUS_METERS,
 )
 import unittest
@@ -22,6 +23,20 @@ ONE_DEGREE_METERS = np.deg2rad(EARTH_RADIUS_METERS)
 if __name__ == "__main__":
     unittest.main()
 
+class cumulative_distance_tests(unittest.TestCase):
+    def test_output_shape(self):
+        self.assertTrue(
+            cumulative_distance(np.array([0, 1, 2]), np.array([0, 1, 2])).shape
+            == np.zeros(3).shape
+        )
+
+    def test_values_cumulative_distance(self):
+        self.assertTrue(
+            np.allclose(
+                cumulative_distance(np.array([0, 1, 2]), np.array([0, 1, 2])),
+                np.array([0.0, 157424.62387233, 314825.27182116]),
+            )
+        )
 
 class recast_longitude_tests(unittest.TestCase):
     def test_same_shape(self):

@@ -11,6 +11,41 @@ EARTH_RADIUS_METERS = 6.3781e6
 EARTH_DAY_SECONDS = 86164.091
 EARTH_ROTATION_RATE = 2 * np.pi / EARTH_DAY_SECONDS
 
+def cumulative_distance(longitude: np.ndarray, latitude: np.ndarray) -> np.ndarray:
+    """Return the cumulative great circle distance in meters along a sequence of geographical locations.
+
+    Parameters
+    ----------
+    latitude : np.ndarray
+        Latitude sequence, in degrees.
+    longitude : np.ndarray
+        Longitude sequence, in degrees.
+
+    Returns
+    -------
+    out : np.ndarray
+        Cumulative distance.
+
+    See Also
+    --------
+    :func:`distance`
+
+    Examples
+    --------
+
+    Calculate the cumulative distance in meters along a path of three points:
+    >>> cumulative_distance(np.array([0, 1, 2]), np.array([0, 1, 2]))
+    array([     0.        , 157424.62387233, 314825.27182116])
+
+    """
+    return np.cumsum(
+        np.concatenate(
+            (
+                [0.0],
+                distance(latitude[0:-1], longitude[0:-1], latitude[1:], longitude[1:]),
+            )
+        )
+    )
 
 def distance(
     lat1: np.ndarray, lon1: np.ndarray, lat2: np.ndarray, lon2: np.ndarray
