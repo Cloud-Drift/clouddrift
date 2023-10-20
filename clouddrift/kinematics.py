@@ -67,12 +67,19 @@ def inertial_oscillations_from_positions(
     Next, the residual positions from the inertial displacements can be obtained with another function:
     >>> residual_longitudes, residual_latitudes = residual_positions_from_displacements(longitude, latitude, xhat, yhat)
 
+    Raises
+    ------
+    ValueError
+        If longitude and latitude arrays do not have the same shape.
+        If relative_vorticity is an array and does not have the same shape as longitude and latitude.
+        If relative_bandwidth is not a float.
+        If time_step is not a float.
+        If relative_bandwidth is not less or equal to one.
+
     See Also
     --------
-    :func:`residual_positions_from_displacements`
+    :func:`residual_positions_from_displacements`, `wavelet_transform`, `morse_wavelet`
 
-    References
-    ----------
     """
     if longitude.shape != latitude.shape:
         raise ValueError("longitude and latitude arrays must have the same shape.")
@@ -85,8 +92,17 @@ def inertial_oscillations_from_positions(
     elif isinstance(relative_vorticity, np.ndarray):
         if not relative_vorticity.shape == longitude.shape:
             raise ValueError(
-                "relative_vorticity must be a float or the same shape as time, lon, and lat."
+                "relative_vorticity must be a float or the same shape as longitude and latitude."
             )
+
+    if not isinstance(relative_bandwidth, float):
+        raise ValueError("relative_bandwidth must be a float.")
+
+    if not isinstance(time_step, float):
+        raise ValueError("time_step must be a float.")
+
+    if not relative_bandwidth <= 1:
+        raise ValueError("relative_bandwidth must be less or equal to one.")
 
     # wavelet parameters are gamma and beta
     gamma = 3  # symmetric wavelet
@@ -216,8 +232,16 @@ def residual_positions_from_displacements(
     >>> residual_positions_from_displacements(1,0,2 * np.pi * EARTH_RADIUS_METERS / 360,0)
     (0.0, 0.0)
 
+    Raises
+    ------
+    ValueError
+        If longitude, latitude, x, and y do not have the same shape.
+
     """
-    # latitudinal and longitudinal displacements
+
+    if not longitude.shape == latitude.shape == x.shape == y.shape:
+        raise ValueError("longitude, latitude, x, and y must have the same shape.")
+
     latitudehat = 360 / (2 * np.pi) * y / EARTH_RADIUS_METERS
     longitudehat = (
         360 / (2 * np.pi) * x / (EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
