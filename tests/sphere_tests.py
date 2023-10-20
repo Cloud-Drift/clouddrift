@@ -23,6 +23,7 @@ ONE_DEGREE_METERS = np.deg2rad(EARTH_RADIUS_METERS)
 if __name__ == "__main__":
     unittest.main()
 
+
 class cumulative_distance_tests(unittest.TestCase):
     def test_output_shape(self):
         self.assertTrue(
@@ -37,6 +38,7 @@ class cumulative_distance_tests(unittest.TestCase):
                 np.array([0.0, 157424.62387233, 314825.27182116]),
             )
         )
+
 
 class recast_longitude_tests(unittest.TestCase):
     def test_same_shape(self):

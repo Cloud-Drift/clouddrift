@@ -11,6 +11,7 @@ EARTH_RADIUS_METERS = 6.3781e6
 EARTH_DAY_SECONDS = 86164.091
 EARTH_ROTATION_RATE = 2 * np.pi / EARTH_DAY_SECONDS
 
+
 def cumulative_distance(longitude: np.ndarray, latitude: np.ndarray) -> np.ndarray:
     """Return the cumulative great circle distance in meters along a sequence of geographical locations.
 
@@ -46,6 +47,7 @@ def cumulative_distance(longitude: np.ndarray, latitude: np.ndarray) -> np.ndarr
             )
         )
     )
+
 
 def distance(
     lat1: np.ndarray, lon1: np.ndarray, lat2: np.ndarray, lon2: np.ndarray
