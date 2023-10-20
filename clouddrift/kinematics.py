@@ -138,9 +138,9 @@ def inertial_oscillations_from_positions(
 
     # wavelet transform of x, y, z
     wavelet, _ = morse_wavelet(data_length, gamma, beta, radian_frequency)
-    wx = wavelet_transform(x, wavelet, boundary="periodic")
-    wy = wavelet_transform(y, wavelet, boundary="periodic")
-    wz = wavelet_transform(z, wavelet, boundary="periodic")
+    wx = wavelet_transform(x, wavelet, boundary="mirror")
+    wy = wavelet_transform(y, wavelet, boundary="mirror")
+    wz = wavelet_transform(z, wavelet, boundary="mirror")
 
     longitude_new, latitude_new = cartesian_to_spherical(
         x - np.real(wx), y - np.real(wy), z - np.real(wz)
