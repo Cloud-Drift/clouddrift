@@ -228,17 +228,7 @@ def residual_positions_from_displacements(
     >>> from clouddrift.sphere import EARTH_RADIUS_METERS
     >>> residual_positions_from_displacements(1,0,2 * np.pi * EARTH_RADIUS_METERS / 360,0)
     (0.0, 0.0)
-
-    Raises
-    ------
-    ValueError
-        If longitude, latitude, x, and y do not have the same shape.
-
     """
-
-    if not longitude.shape == latitude.shape == x.shape == y.shape:
-        raise ValueError("longitude, latitude, x, and y must have the same shape.")
-
     latitudehat = 360 / (2 * np.pi) * y / EARTH_RADIUS_METERS
     longitudehat = (
         360 / (2 * np.pi) * x / (EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
