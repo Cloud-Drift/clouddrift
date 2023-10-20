@@ -62,9 +62,11 @@ def inertial_oscillations_from_positions(
     --------
     To extract displacements from inertial oscillations from sequences of longitude
     and latitude values, equivalent to bandpass around 20 percent of the local inertial frequency:
+
     >>> xhat, yhat = extract_inertial_from_position(longitude, latitude, 0.2)
 
     Next, the residual positions from the inertial displacements can be obtained with another function:
+
     >>> residual_longitudes, residual_latitudes = residual_positions_from_displacements(longitude, latitude, xhat, yhat)
 
     Raises
@@ -168,8 +170,7 @@ def inertial_oscillations_from_positions(
     wp = wp[frequency_bins, np.arange(0, data_length)]
     wn = wn[frequency_bins, np.arange(0, data_length)]
 
-    # index of northen latitude points and index of
-    # southern latitude points
+    # indices of northern latitude points
     north = latitude >= 0
 
     # initialize the zonal and meridional components of inertial displacements
@@ -225,13 +226,14 @@ def residual_positions_from_displacements(
     --------
     Obtain the new geographical position for a displacement of 1/360-th of the
     circumference of the Earth from original position (longitude,latitude) = (1,0):
+
     >>> from clouddrift.sphere import EARTH_RADIUS_METERS
     >>> residual_positions_from_displacements(1,0,2 * np.pi * EARTH_RADIUS_METERS / 360,0)
     (0.0, 0.0)
     """
-    latitudehat = 360 / (2 * np.pi) * y / EARTH_RADIUS_METERS
+    latitudehat = 180 / np.pi * y / EARTH_RADIUS_METERS
     longitudehat = (
-        360 / (2 * np.pi) * x / (EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
+        180 / np.pi * x / (EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
     )
 
     residual_latitude = latitude - latitudehat
