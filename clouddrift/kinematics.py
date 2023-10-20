@@ -74,9 +74,8 @@ def inertial_oscillations_from_positions(
     ValueError
         If longitude and latitude arrays do not have the same shape.
         If relative_vorticity is an array and does not have the same shape as longitude and latitude.
-        If relative_bandwidth is not a float.
         If time_step is not a float.
-        If relative_bandwidth is not less or equal to one.
+        If the absolute value of relative_bandwidth is not in the range (0,1].
 
     See Also
     --------
@@ -97,11 +96,9 @@ def inertial_oscillations_from_positions(
                 "relative_vorticity must be a float or the same shape as longitude and latitude."
             )
 
-    if not isinstance(relative_bandwidth, float):
-        raise ValueError("relative_bandwidth must be a float.")
-
-    if not relative_bandwidth <= 1:
-        raise ValueError("relative_bandwidth must be less or equal to one.")
+    if not 0 < np.abs(relative_bandwidth) <= 1:
+        raise ValueError("relative_bandwidth must be in the (0, 1]) range")
+        
 
     # wavelet parameters are gamma and beta
     gamma = 3  # symmetric wavelet
