@@ -98,7 +98,6 @@ def inertial_oscillations_from_positions(
 
     if not 0 < np.abs(relative_bandwidth) <= 1:
         raise ValueError("relative_bandwidth must be in the (0, 1]) range")
-        
 
     # wavelet parameters are gamma and beta
     gamma = 3  # symmetric wavelet
