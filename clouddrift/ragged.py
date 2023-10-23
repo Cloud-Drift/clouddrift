@@ -580,18 +580,23 @@ def subset(
     Criteria are combined on any data or metadata variables part of the Dataset. The following examples are based on the GDP dataset.
 
     Retrieve a region, like the Gulf of Mexico, using ranges of latitude and longitude:
+
     >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)})
 
     Retrieve drogued trajectory segments:
+
     >>> subset(ds, {"drogue_status": True})
 
     Retrieve trajectory segments with temperature higher than 25°C (303.15K):
+
     >>> subset(ds, {"sst": (303.15, np.inf)})
 
     Retrieve specific drifters from their IDs:
+
     >>> subset(ds, {"ID": [2578, 2582, 2583]})
 
     Retrieve a specific time period:
+
     >>> subset(ds, {"time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))})
 
     Note that to subset time variable, the range has to be defined as a function
@@ -600,6 +605,7 @@ def subset(
     ``pd.Timestamp``, the range would have to be defined accordingly.
 
     Those criteria can also be combined:
+
     >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78), "drogue_status": True, "sst": (303.15, np.inf), "time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))})
 
     Raises
