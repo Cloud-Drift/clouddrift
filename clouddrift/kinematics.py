@@ -435,3 +435,138 @@ def velocity_from_position(
     dy /= dt
 
     return np.swapaxes(dx, time_axis, -1), np.swapaxes(dy, time_axis, -1)
+
+
+def spin(
+    u: np.ndarray,
+    v: np.ndarray,
+    x: np.ndarray,
+    y: np.ndarray,
+    coord_system: Optional[str] = "spherical",
+    difference_scheme: Optional[str] = "forward",
+    axis: Optional[int] = -1,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Compute spin from velocities and positions.
+
+    TODO docstring
+    """
+    if not u.shape == v.shape or not x.shape == y.shape:
+        raise ValueError("u and v, and x and y arrays must have the same shape.")
+
+    # axis must be in valid range
+    if axis < -1 or axis > len(x.shape) - 1:
+        raise ValueError(
+            f"axis ({axis}) is outside of the valid range ([-1,"
+            f" {len(x.shape) - 1}])."
+        )
+
+    # Swap axes so that we can differentiate along the last axis.
+    # This is a syntax convenience rather than memory access optimization:
+    # np.swapaxes returns a view of the array, not a copy, if the input is a
+    # NumPy array. Otherwise, it returns a copy.
+    u = np.swapaxes(u, axis, -1)
+    v = np.swapaxes(v, axis, -1)
+    x = np.swapaxes(x, axis, -1)
+    y = np.swapaxes(y, axis, -1)
+
+    du = np.empty(u.shape)
+    dv = np.empty(v.shape)
+    dx = np.empty(x.shape)
+    dy = np.empty(y.shape)
+
+    if difference_scheme == "forward":
+        # Velocity
+        du[..., :-1] = np.diff(u)
+        du[..., -1] = du[..., -2]
+        dv[..., :-1] = np.diff(v)
+        dv[..., -1] = dv[..., -2]
+
+        # Space
+        if coord_system == "cartesian":
+            dx[..., :-1] = np.diff(x)
+            dx[..., -1] = dx[..., -2]
+            dy[..., :-1] = np.diff(y)
+            dy[..., -1] = dy[..., -2]
+        elif coord_system == "spherical":
+            distances = distance(y[..., :-1], x[..., :-1], y[..., 1:], x[..., 1:])
+            bearings = bearing(y[..., :-1], x[..., :-1], y[..., 1:], x[..., 1:])
+            dx[..., :-1] = distances * np.cos(bearings)
+            dx[..., -1] = dx[..., -2]
+            dy[..., :-1] = distances * np.sin(bearings)
+            dy[..., -1] = dy[..., -2]
+        else:
+            raise ValueError('coord_system must be "spherical" or "cartesian".')
+
+    elif difference_scheme == "backward":
+        # Velocity
+        du[..., 1:] = np.diff(u)
+        du[..., 0] = du[..., 1]
+        dv[..., 1:] = np.diff(v)
+        dv[..., 0] = dv[..., 1]
+
+        # Space
+        if coord_system == "cartesian":
+            dx[..., 1:] = np.diff(x)
+            dx[..., 0] = dx[..., 1]
+            dy[..., 1:] = np.diff(y)
+            dy[..., 0] = dy[..., 1]
+        elif coord_system == "spherical":
+            distances = distance(y[..., :-1], x[..., :-1], y[..., 1:], x[..., 1:])
+            bearings = bearing(y[..., :-1], x[..., :-1], y[..., 1:], x[..., 1:])
+            dx[..., 1:] = distances * np.cos(bearings)
+            dx[..., 0] = dx[..., 1]
+            dy[..., 1:] = distances * np.sin(bearings)
+            dy[..., 0] = dy[..., 1]
+        else:
+            raise ValueError('coord_system must be "spherical" or "cartesian".')
+
+    elif difference_scheme == "centered":
+        # Velocity
+        du[..., 1:-1] = (u[..., 2:] - u[..., :-2]) / 2
+        du[..., 0] = u[..., 1] - u[..., 0]
+        du[..., -1] = u[..., -1] - u[..., -2]
+        dv[..., 1:-1] = (v[..., 2:] - v[..., :-2]) / 2
+        dv[..., 0] = v[..., 1] - v[..., 0]
+        dv[..., -1] = v[..., -1] - v[..., -2]
+
+        # Space
+        if coord_system == "cartesian":
+            dx[..., 1:-1] = (x[..., 2:] - x[..., :-2]) / 2
+            dx[..., 0] = x[..., 1] - x[..., 0]
+            dx[..., -1] = x[..., -1] - x[..., -2]
+            dy[..., 1:-1] = (y[..., 2:] - y[..., :-2]) / 2
+            dy[..., 0] = y[..., 1] - y[..., 0]
+            dy[..., -1] = y[..., -1] - y[..., -2]
+
+        elif coord_system == "spherical":
+            # Inner values
+            y1 = (y[..., :-2] + y[..., 1:-1]) / 2
+            x1 = (x[..., :-2] + x[..., 1:-1]) / 2
+            y2 = (y[..., 2:] + y[..., 1:-1]) / 2
+            x2 = (x[..., 2:] + x[..., 1:-1]) / 2
+            distances = distance(y1, x1, y2, x2)
+            bearings = bearing(y1, x1, y2, x2)
+            dx[..., 1:-1] = distances * np.cos(bearings)
+            dy[..., 1:-1] = distances * np.sin(bearings)
+
+            # Boundary values
+            distance1 = distance(y[..., 0], x[..., 0], y[..., 1], x[..., 1])
+            bearing1 = bearing(y[..., 0], x[..., 0], y[..., 1], x[..., 1])
+            dx[..., 0] = distance1 * np.cos(bearing1)
+            dy[..., 0] = distance1 * np.sin(bearing1)
+            distance2 = distance(y[..., -2], x[..., -2], y[..., -1], x[..., -1])
+            bearing2 = bearing(y[..., -2], x[..., -2], y[..., -1], x[..., -1])
+            dx[..., -1] = distance2 * np.cos(bearing2)
+            dy[..., -1] = distance2 * np.sin(bearing2)
+
+        else:
+            raise ValueError('coord_system must be "spherical" or "cartesian".')
+
+    else:
+        raise ValueError(
+            'difference_scheme must be "forward", "backward", or "centered".'
+        )
+
+    s = dv / dx - du / dy
+
+    return np.swapaxes(s, axis, -1)
