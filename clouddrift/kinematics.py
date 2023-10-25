@@ -3,9 +3,241 @@ Functions for kinematic computations.
 """
 
 import numpy as np
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 import xarray as xr
-from clouddrift.sphere import distance, bearing, position_from_distance_and_bearing
+from clouddrift.sphere import (
+    EARTH_RADIUS_METERS,
+    bearing,
+    cartesian_to_spherical,
+    cartesian_to_tangentplane,
+    coriolis_frequency,
+    distance,
+    position_from_distance_and_bearing,
+    recast_lon360,
+    spherical_to_cartesian,
+)
+from clouddrift.wavelet import morse_logspace_freq, morse_wavelet, wavelet_transform
+
+
+def inertial_oscillations_from_positions(
+    longitude: np.ndarray,
+    latitude: np.ndarray,
+    relative_bandwidth: float,
+    time_step: Optional[float] = 3600.0,
+    relative_vorticity: Optional[Union[float, np.ndarray]] = 0.0,
+) -> np.ndarray:
+    """Extract inertial oscillations from consecutive geographical positions.
+
+    This function acts by performing a time-frequency analysis of horizontal displacements
+    with analytic Morse wavelets. It extracts the portion of the wavelet transform signal
+    that follows the inertial frequency (opposite of Coriolis frequency) as a function of time,
+    potentially shifted in frequency by a measure of relative vorticity.
+
+    Parameters
+    ----------
+    longitude : array-like
+        Longitude sequence. Unidimensional array input.
+    latitude : array-like
+        Latitude sequence. Unidimensional array input.
+    relative_bandwidth : float
+        Bandwidth of the frequency-domain equivalent filter for the extraction of the inertial
+        oscillations; a number less or equal to one which is a fraction of the inertial frequency.
+        A value of 0.1 leads to a bandpass filter equivalent of +/- 10 percent of the inertial frequency.
+    time_step : float
+        The constant time interval between data points in seconds. Default is 3600.
+    relative_vorticity: Optional, float or array-like
+        Relative vorticity adding to the local Coriolis frequency. If "f" is the Coriolis
+        frequency then "f" + `relative_vorticity` will be the effective Coriolis frequency as defined by Kunze (1985).
+        Positive values correspond to cyclonic vorticity, irrespectively of the latitudes of the data
+        points.
+
+    Returns
+    -------
+    xhat : array-like
+        Zonal relative displacement in meters from inertial oscillations.
+    yhat : array-like
+        Meridional relative displacement in meters from inertial oscillations.
+
+    Examples
+    --------
+    To extract displacements from inertial oscillations from sequences of longitude
+    and latitude values, equivalent to bandpass around 20 percent of the local inertial frequency:
+
+    >>> xhat, yhat = extract_inertial_from_position(longitude, latitude, 0.2)
+
+    Next, the residual positions from the inertial displacements can be obtained with another function:
+
+    >>> residual_longitudes, residual_latitudes = residual_positions_from_displacements(longitude, latitude, xhat, yhat)
+
+    Raises
+    ------
+    ValueError
+        If longitude and latitude arrays do not have the same shape.
+        If relative_vorticity is an array and does not have the same shape as longitude and latitude.
+        If time_step is not a float.
+        If the absolute value of relative_bandwidth is not in the range (0,1].
+
+    See Also
+    --------
+    :func:`residual_positions_from_displacements`, `wavelet_transform`, `morse_wavelet`
+
+    """
+    if longitude.shape != latitude.shape:
+        raise ValueError("longitude and latitude arrays must have the same shape.")
+
+    # length of data sequence
+    data_length = longitude.shape[0]
+
+    if isinstance(relative_vorticity, float):
+        relative_vorticity = np.full_like(longitude, relative_vorticity)
+    elif isinstance(relative_vorticity, np.ndarray):
+        if not relative_vorticity.shape == longitude.shape:
+            raise ValueError(
+                "relative_vorticity must be a float or the same shape as longitude and latitude."
+            )
+
+    if not 0 < np.abs(relative_bandwidth) <= 1:
+        raise ValueError("relative_bandwidth must be in the (0, 1]) range")
+
+    # wavelet parameters are gamma and beta
+    gamma = 3  # symmetric wavelet
+    density = 16  # results relative insensitive to this parameter
+    wavelet_duration = 1 / np.abs(relative_bandwidth)  # P parameter
+    beta = wavelet_duration**2 / gamma
+
+    if isinstance(latitude, xr.DataArray):
+        latitude = latitude.to_numpy()
+    if isinstance(longitude, xr.DataArray):
+        longitude = longitude.to_numpy()
+
+    # Instantaneous absolute frequency of oscillations along trajectory in radian per second
+    cor_freq = np.abs(
+        coriolis_frequency(latitude) + relative_vorticity * np.sign(latitude)
+    )
+    cor_freq_max = np.max(cor_freq * 1.05)
+    cor_freq_min = np.max(
+        [np.min(cor_freq * 0.95), 2 * np.pi / (time_step * data_length)]
+    )
+
+    # logarithmically distributed frequencies for wavelet analysis
+    radian_frequency = morse_logspace_freq(
+        gamma,
+        beta,
+        data_length,
+        (0.05, cor_freq_max * time_step),
+        (5, cor_freq_min * time_step),
+        density,
+    )  # frequencies in radian per unit time
+
+    # wavelet transform on a sphere
+    # unwrap longitude recasted in [0,360)
+    longitude_unwrapped = np.unwrap(recast_lon360(longitude), period=360)
+
+    # convert lat/lon to Cartesian coordinates x, y , z
+    x, y, z = spherical_to_cartesian(longitude_unwrapped, latitude)
+
+    # wavelet transform of x, y, z
+    wavelet, _ = morse_wavelet(data_length, gamma, beta, radian_frequency)
+    wx = wavelet_transform(x, wavelet, boundary="mirror")
+    wy = wavelet_transform(y, wavelet, boundary="mirror")
+    wz = wavelet_transform(z, wavelet, boundary="mirror")
+
+    longitude_new, latitude_new = cartesian_to_spherical(
+        x - np.real(wx), y - np.real(wy), z - np.real(wz)
+    )
+
+    # convert transforms to horizontal displacements on tangent plane
+    wxh, wyh = cartesian_to_tangentplane(wx, wy, wz, longitude_new, latitude_new)
+
+    # rotary wavelet transforms to select inertial component; need to divide by sqrt(2)
+    wp = (wxh + 1j * wyh) / np.sqrt(2)
+    wn = (wxh - 1j * wyh) / np.sqrt(2)
+
+    # find the values of radian_frequency/dt that most closely match cor_freq
+    frequency_bins = [
+        np.argmin(np.abs(cor_freq[i] - radian_frequency / time_step))
+        for i in range(data_length)
+    ]
+
+    # get the transform at the inertial and "anti-inertial" frequencies
+    # extract the values of wp and wn at the calculated index as a function of time
+    # positive is anticyclonic (inertial) in the southern hemisphere
+    # negative is anticyclonic (inertial) in the northern hemisphere
+    wp = wp[frequency_bins, np.arange(0, data_length)]
+    wn = wn[frequency_bins, np.arange(0, data_length)]
+
+    # indices of northern latitude points
+    north = latitude >= 0
+
+    # initialize the zonal and meridional components of inertial displacements
+    wxhat = np.zeros_like(latitude, dtype=np.complex64)
+    wyhat = np.zeros_like(latitude, dtype=np.complex64)
+    # equations are x+ = 0.5*(z+ + z-) and y+ = -0.5*1j*(z+ - z-)
+    if any(north):
+        wxhat[north] = wn[north] / np.sqrt(2)
+        wyhat[north] = 1j * wn[north] / np.sqrt(2)
+    if any(~north):
+        wxhat[~north] = wp[~north] / np.sqrt(2)
+        wyhat[~north] = -1j * wp[~north] / np.sqrt(2)
+
+    # inertial displacement in meters
+    xhat = np.real(wxhat)
+    yhat = np.real(wyhat)
+
+    return xhat, yhat
+
+
+def residual_positions_from_displacements(
+    longitude: Union[float, np.ndarray],
+    latitude: Union[float, np.ndarray],
+    x: Union[float, np.ndarray],
+    y: Union[float, np.ndarray],
+) -> Union[Tuple[float], Tuple[np.ndarray]]:
+    """
+    Return residual longitudes and latitudes along a trajectory on the spherical Earth
+    after correcting for zonal and meridional displacements x and y in meters.
+
+    This is applicable as an example when one seeks to correct a trajectory for
+    horizontal oscillations due to inertial motions, tides, etc.
+
+    Parameters
+    ----------
+    longitude : float or np.ndarray
+        Longitude in degrees.
+    latitude : float or np.ndarray
+        Latitude in degrees.
+    x : float or np.ndarray
+        Zonal displacement in meters.
+    y : float or np.ndarray
+        Meridional displacement in meters.
+
+    Returns
+    ------
+    residual_longitude : float or np.ndarray
+        Residual longitude after correcting for zonal displacement, in degrees.
+    residual_latitude : float or np.ndarray
+        Residual latitude after correcting for meridional displacement, in degrees.
+
+    Examples
+    --------
+    Obtain the new geographical position for a displacement of 1/360-th of the
+    circumference of the Earth from original position (longitude,latitude) = (1,0):
+
+    >>> from clouddrift.sphere import EARTH_RADIUS_METERS
+    >>> residual_positions_from_displacements(1,0,2 * np.pi * EARTH_RADIUS_METERS / 360,0)
+    (0.0, 0.0)
+    """
+    latitudehat = 180 / np.pi * y / EARTH_RADIUS_METERS
+    longitudehat = (
+        180 / np.pi * x / (EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
+    )
+
+    residual_latitude = latitude - latitudehat
+    residual_longitude = recast_lon360(
+        np.degrees(np.angle(np.exp(1j * np.radians(longitude - longitudehat))))
+    )
+
+    return residual_longitude, residual_latitude
 
 
 def position_from_velocity(
