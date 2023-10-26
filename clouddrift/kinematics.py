@@ -733,7 +733,7 @@ def spin(
     difference_scheme: Optional[str] = "forward",
     time_axis: Optional[int] = -1,
 ) -> Union[float, np.ndarray]:
-    """Compute spin from velocities and times.
+    """Compute spin continuously from velocities and times.
 
     Spin is defined as (u'dv' - v'du') / (2 dt EKE) where u' and v' are
     eddy-perturbations of the velocity field, EKE is eddy kinetic energy, dt is
