@@ -188,8 +188,8 @@ def inertial_oscillation_from_position(
 
 
 def residual_position_from_displacement(
-    longitude: Union[float, np.ndarray],
-    latitude: Union[float, np.ndarray],
+    longitude: Union[float, np.ndarray, xr.DataArray],
+    latitude: Union[float, np.ndarray, xr.DataArray],
     x: Union[float, np.ndarray],
     y: Union[float, np.ndarray],
 ) -> Union[Tuple[float], Tuple[np.ndarray]]:
@@ -202,9 +202,9 @@ def residual_position_from_displacement(
 
     Parameters
     ----------
-    longitude : float or np.ndarray
+    longitude : float or array-like
         Longitude in degrees.
-    latitude : float or np.ndarray
+    latitude : float or array-like
         Latitude in degrees.
     x : float or np.ndarray
         Zonal displacement in meters.
@@ -227,6 +227,12 @@ def residual_position_from_displacement(
     >>> residual_position_from_displacement(1,0,2 * np.pi * EARTH_RADIUS_METERS / 360,0)
     (0.0, 0.0)
     """
+    # convert to numpy arrays to insure consistent outputs
+    if isinstance(longitude, xr.DataArray):
+        longitude = longitude.to_numpy()
+    if isinstance(latitude, xr.DataArray):
+        latitude = latitude.to_numpy()
+
     latitudehat = 180 / np.pi * y / EARTH_RADIUS_METERS
     longitudehat = (
         180 / np.pi * x / (EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
