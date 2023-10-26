@@ -22,7 +22,8 @@ from clouddrift.wavelet import morse_logspace_freq, morse_wavelet, wavelet_trans
 def inertial_oscillation_from_position(
     longitude: np.ndarray,
     latitude: np.ndarray,
-    relative_bandwidth: float,
+    relative_bandwidth: Optional[float] = None,
+    wavelet_duration: Optional[float] = None,
     time_step: Optional[float] = 3600.0,
     relative_vorticity: Optional[Union[float, np.ndarray]] = 0.0,
 ) -> np.ndarray:
@@ -31,7 +32,12 @@ def inertial_oscillation_from_position(
     This function acts by performing a time-frequency analysis of horizontal displacements
     with analytic Morse wavelets. It extracts the portion of the wavelet transform signal
     that follows the inertial frequency (opposite of Coriolis frequency) as a function of time,
-    potentially shifted in frequency by a measure of relative vorticity.
+    potentially shifted in frequency by a measure of relative vorticity. The result is a pair
+    of zonal and meridional relative displacements in meters.
+
+    This function is equivalent to a bandpass filtering of the horizontal displacements. The characteristics
+    of the filter are defined by the relative bandwidth of the wavelet transform or by the duration of the wavelet,
+    see the parameters below.
 
     Parameters
     ----------
@@ -39,11 +45,14 @@ def inertial_oscillation_from_position(
         Longitude sequence. Unidimensional array input.
     latitude : array-like
         Latitude sequence. Unidimensional array input.
-    relative_bandwidth : float
+    relative_bandwidth : float, optional
         Bandwidth of the frequency-domain equivalent filter for the extraction of the inertial
         oscillations; a number less or equal to one which is a fraction of the inertial frequency.
         A value of 0.1 leads to a bandpass filter equivalent of +/- 10 percent of the inertial frequency.
-    time_step : float
+    wavelet_duration : float, optional
+        Duration of the wavelet, or inverse of the relative bandwidth, which can be passed instead of the
+        relative bandwidth.
+    time_step : float, optional
         The constant time interval between data points in seconds. Default is 3600.
     relative_vorticity: Optional, float or array-like
         Relative vorticity adding to the local Coriolis frequency. If "f" is the Coriolis
@@ -75,7 +84,10 @@ def inertial_oscillation_from_position(
         If longitude and latitude arrays do not have the same shape.
         If relative_vorticity is an array and does not have the same shape as longitude and latitude.
         If time_step is not a float.
+        If both relative_bandwidth and wavelet_duration are specified.
+        If neither relative_bandwidth nor wavelet_duration are specified.
         If the absolute value of relative_bandwidth is not in the range (0,1].
+        If the wavelet duration is not greater than or equal to 1.
 
     See Also
     --------
@@ -84,6 +96,15 @@ def inertial_oscillation_from_position(
     """
     if longitude.shape != latitude.shape:
         raise ValueError("longitude and latitude arrays must have the same shape.")
+
+    if relative_bandwidth is not None and wavelet_duration is not None:
+        raise ValueError(
+            "Only one of 'relative_bandwidth' and 'wavelet_duration' can be specified"
+        )
+    elif relative_bandwidth is None and wavelet_duration is None:
+        raise ValueError(
+            "One of 'relative_bandwidth' and 'wavelet_duration' must be specified"
+        )
 
     # length of data sequence
     data_length = longitude.shape[0]
@@ -95,14 +116,20 @@ def inertial_oscillation_from_position(
             raise ValueError(
                 "relative_vorticity must be a float or the same shape as longitude and latitude."
             )
+    if relative_bandwidth is not None:
+        if not 0 < np.abs(relative_bandwidth) <= 1:
+            raise ValueError("relative_bandwidth must be in the (0, 1]) range")
 
-    if not 0 < np.abs(relative_bandwidth) <= 1:
-        raise ValueError("relative_bandwidth must be in the (0, 1]) range")
+    if wavelet_duration is not None:
+        if not wavelet_duration >= 1:
+            raise ValueError("wavelet_duration must be greater than or equal to 1")
 
     # wavelet parameters are gamma and beta
     gamma = 3  # symmetric wavelet
     density = 16  # results relative insensitive to this parameter
-    wavelet_duration = 1 / np.abs(relative_bandwidth)  # P parameter
+    # calculate beta from wavelet duration or from relative bandwidth
+    if relative_bandwidth is not None:
+        wavelet_duration = 1 / np.abs(relative_bandwidth)  # P parameter
     beta = wavelet_duration**2 / gamma
 
     if isinstance(latitude, xr.DataArray):

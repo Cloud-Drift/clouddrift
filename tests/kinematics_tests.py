@@ -140,17 +140,28 @@ class inertial_oscillation_from_position_tests(unittest.TestCase):
         )
         x_expected = x_expected - np.mean(x_expected)
         y_expected = y_expected - np.mean(y_expected)
-        xhat, yhat = inertial_oscillation_from_position(
+        xhat1, yhat1 = inertial_oscillation_from_position(
             lon1, lat1, relative_bandwidth=0.10, time_step=3600
         )
-        xhat = xhat - np.mean(xhat)
-        yhat = yhat - np.mean(yhat)
+        xhat1 = xhat1 - np.mean(xhat1)
+        yhat1 = yhat1 - np.mean(yhat1)
+        xhat2, yhat2 = inertial_oscillation_from_position(
+            lon1, lat1, wavelet_duration=10, time_step=3600
+        )
+        xhat2 = xhat2 - np.mean(xhat2)
+        yhat2 = yhat2 - np.mean(yhat2)
         m = 10
         self.assertTrue(
-            np.allclose(xhat[m * 24 : -m * 24], x_expected[m * 24 : -m * 24], atol=20)
+            np.allclose(xhat2[m * 24 : -m * 24], x_expected[m * 24 : -m * 24], atol=20)
         )
         self.assertTrue(
-            np.allclose(yhat[m * 24 : -m * 24], y_expected[m * 24 : -m * 24], atol=20)
+            np.allclose(yhat2[m * 24 : -m * 24], y_expected[m * 24 : -m * 24], atol=20)
+        )
+        self.assertTrue(
+            np.allclose(xhat2[m * 24 : -m * 24], xhat1[m * 24 : -m * 24], atol=20)
+        )
+        self.assertTrue(
+            np.allclose(yhat2[m * 24 : -m * 24], yhat1[m * 24 : -m * 24], atol=20)
         )
 
 
