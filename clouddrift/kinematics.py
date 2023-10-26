@@ -72,7 +72,11 @@ def inertial_oscillation_from_position(
     To extract displacements from inertial oscillations from sequences of longitude
     and latitude values, equivalent to bandpass around 20 percent of the local inertial frequency:
 
-    >>> xhat, yhat = inertial_oscillation_from_position(longitude, latitude, 0.2)
+    >>> xhat, yhat = inertial_oscillation_from_position(longitude, latitude, relative_bandwidth=0.2)
+
+    The same result can be obtained by specifying the wavelet duration instead of the relative bandwidth:
+
+    >>> xhat, yhat = inertial_oscillation_from_position(longitude, latitude, wavelet_duration=5)
 
     Next, the residual positions from the inertial displacements can be obtained with another function:
 
