@@ -3,6 +3,7 @@ Functions for kinematic computations.
 """
 
 import numpy as np
+import pandas as pd
 from typing import Optional, Tuple, Union
 import xarray as xr
 from clouddrift.sphere import (
@@ -17,6 +18,62 @@ from clouddrift.sphere import (
     spherical_to_cartesian,
 )
 from clouddrift.wavelet import morse_logspace_freq, morse_wavelet, wavelet_transform
+
+
+def eddy_kinetic_energy(
+    u: Union[list, np.ndarray, xr.DataArray, pd.Series],
+    v: Optional[Union[list, np.ndarray, xr.DataArray, pd.Series]] = None,
+    time_axis: Optional[int] = -1,
+) -> Union[float, np.ndarray, xr.DataArray]:
+    """Compute eddy kinetic energy from zonal and meridional velocities.
+
+    Eddy kinetic energy is defined as one half the variance of the velocity field.
+
+    To obtain the result, variances along ``time_axis`` are computed for each
+    velocity component. The rank of the result is thus reduced by one relative
+    to the input arrays.
+
+    The eddy perturbations are relative to the time-mean velocity, so if you
+    need to apply a shorter time scale, you need to first low-pass filter
+    the velocities, or pass in the velocities whose lengths are that of the
+    desired time scale.
+
+    Parameters
+    ----------
+    u : array-like
+        Zonal velocity.
+    v : array-like, optional.
+        Meridional velocity. If not provided, the flow is assumed one-dimensional
+        in time and defined by ``u``.
+    time_axis : int, optional
+        Axis along which the time dimension is located. Default is -1.
+
+    Returns
+    -------
+    eke : float or array_like
+        Eddy kinetic energy.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from clouddrift.kinematics import eddy_kinetic_energy
+    >>> u = np.array([1., 2., 3., 4.])
+    >>> v = np.array([1., 1., 1., 1.])
+    >>> eddy_kinetic_energy(u, v)
+    0.625
+
+    >>> u = np.reshape(np.tile([1., 2., 3., 4.], 2), (2, 4))
+    >>> v = np.reshape(np.tile([1., 1., 1., 1.], 2), (2, 4))
+    >>> eddy_kinetic_energy(u, v)
+    >>> array([0.625, 0.625])
+
+    >>> eddy_kinetic_energy(u, v, time_axis=0)
+    >>> array([0., 0., 0., 0.])
+    """
+    if v is None:
+        v = np.zeros_like(u)
+    eke = (np.var(u, axis=time_axis) + np.var(v, axis=time_axis)) / 2
+    return eke
 
 
 def inertial_oscillations_from_positions(
@@ -672,133 +729,142 @@ def velocity_from_position(
 def spin(
     u: np.ndarray,
     v: np.ndarray,
-    x: np.ndarray,
-    y: np.ndarray,
-    coord_system: Optional[str] = "spherical",
+    time: np.ndarray,
     difference_scheme: Optional[str] = "forward",
-    axis: Optional[int] = -1,
-) -> Tuple[np.ndarray, np.ndarray]:
-    """Compute spin from velocities and positions.
+    time_axis: Optional[int] = -1,
+) -> Union[float, np.ndarray]:
+    """Compute spin from velocities and times.
 
-    TODO docstring
+    Spin is defined as (u'dv' - v'du') / (2 dt EKE) where u' and v' are
+    eddy-perturbations of the velocity field, EKE is eddy kinetic energy, dt is
+    the time step, and du' and dv' are velocity component increments during dt.
+    The result has a rank reduced by one relative to the input arrays.
+
+    u, v, and time can be multi-dimensional arrays. If the time axis, along
+    which the finite differencing is performed, is not the last one (i.e.
+    u.shape[-1]), use the time_axis optional argument to specify along which the
+    spin should be calculated. u, v, and time must either have the same shape,
+    or time must be a 1-d array with the same length as u.shape[time_axis].
+
+    Difference scheme can be one of three values:
+
+        1. "forward" (default): finite difference is evaluated as ``dx[i] = dx[i+1] - dx[i]``;
+        2. "backward": finite difference is evaluated as ``dx[i] = dx[i] - dx[i-1]``;
+        3. "centered": finite difference is evaluated as ``dx[i] = (dx[i+1] - dx[i-1]) / 2``.
+
+    Forward and backward schemes are effectively the same except that the
+    position at which the velocity is evaluated is shifted one element down in
+    the backward scheme relative to the forward scheme. In the case of a
+    forward or backward difference scheme, the last or first element of the
+    velocity, respectively, is extrapolated from its neighboring point. In the
+    case of a centered difference scheme, the start and end boundary points are
+    evaluated using the forward and backward difference scheme, respectively.
+
+    Reference for the definition of spin is:
+
+    Veneziani, M., Griffa, A., Reynolds, A.M., Garraffo, Z.D. and Chassignet,
+    E.P., 2005. Parameterizations of Lagrangian spin statistics and particle
+    dispersion in the presence of coherent vortices. Journal of Marine Research,
+    63(6), pp.1057-1083.
+
+    Parameters
+    ----------
+    u : np.ndarray
+        Zonal velocity
+    v : np.ndarray
+        Meridional velocity
+    time : array-like
+        Time
+    difference_scheme : str, optional
+        Difference scheme to use; possible values are "forward", "backward", and "centered".
+    time_axis : int, optional
+        Axis along which the time varies (default is -1)
+
+    Returns
+    -------
+    s : float or np.ndarray
+        Spin
+
+    Raises
+    ------
+    ValueError
+        If u and v do not have the same shape.
+        If the time axis is outside of the valid range ([-1, N-1]).
+        If lengths of u, v, and time along time_axis are not equal.
+        If difference_scheme is not "forward", "backward", or "centered".
+
+    Examples
+    --------
+    TODO
     """
-    if not u.shape == v.shape or not x.shape == y.shape:
-        raise ValueError("u and v, and x and y arrays must have the same shape.")
+    if not u.shape == v.shape:
+        raise ValueError("u and v arrays must have the same shape.")
+
+    if not time.shape == u.shape:
+        if not time.size == u.shape[time_axis]:
+            raise ValueError("time must have the same length as u along time_axis.")
 
     # axis must be in valid range
-    if axis < -1 or axis > len(x.shape) - 1:
+    if time_axis < -1 or time_axis > len(u.shape) - 1:
         raise ValueError(
-            f"axis ({axis}) is outside of the valid range ([-1,"
-            f" {len(x.shape) - 1}])."
+            f"axis ({time_axis}) is outside of the valid range ([-1,"
+            f" {len(u.shape) - 1}])."
         )
 
     # Swap axes so that we can differentiate along the last axis.
     # This is a syntax convenience rather than memory access optimization:
     # np.swapaxes returns a view of the array, not a copy, if the input is a
     # NumPy array. Otherwise, it returns a copy.
-    u = np.swapaxes(u, axis, -1)
-    v = np.swapaxes(v, axis, -1)
-    x = np.swapaxes(x, axis, -1)
-    y = np.swapaxes(y, axis, -1)
+    u = np.swapaxes(u, time_axis, -1)
+    v = np.swapaxes(v, time_axis, -1)
+    time = np.swapaxes(time, time_axis, -1)
+
+    if not time.shape == u.shape:
+        # time is 1-d array; broadcast to u.shape.
+        time = np.broadcast_to(time, u.shape)
+
+    # Demean to get perturbations.
+    u -= np.mean(u, axis=-1, keepdims=True)
+    v -= np.mean(v, axis=-1, keepdims=True)
 
     du = np.empty(u.shape)
     dv = np.empty(v.shape)
-    dx = np.empty(x.shape)
-    dy = np.empty(y.shape)
+    dt = np.empty(time.shape)
 
     if difference_scheme == "forward":
-        # Velocity
         du[..., :-1] = np.diff(u)
         du[..., -1] = du[..., -2]
         dv[..., :-1] = np.diff(v)
         dv[..., -1] = dv[..., -2]
-
-        # Space
-        if coord_system == "cartesian":
-            dx[..., :-1] = np.diff(x)
-            dx[..., -1] = dx[..., -2]
-            dy[..., :-1] = np.diff(y)
-            dy[..., -1] = dy[..., -2]
-        elif coord_system == "spherical":
-            distances = distance(y[..., :-1], x[..., :-1], y[..., 1:], x[..., 1:])
-            bearings = bearing(y[..., :-1], x[..., :-1], y[..., 1:], x[..., 1:])
-            dx[..., :-1] = distances * np.cos(bearings)
-            dx[..., -1] = dx[..., -2]
-            dy[..., :-1] = distances * np.sin(bearings)
-            dy[..., -1] = dy[..., -2]
-        else:
-            raise ValueError('coord_system must be "spherical" or "cartesian".')
-
+        dt[..., :-1] = np.diff(time)
+        dt[..., -1] = dt[..., -2]
     elif difference_scheme == "backward":
-        # Velocity
         du[..., 1:] = np.diff(u)
         du[..., 0] = du[..., 1]
         dv[..., 1:] = np.diff(v)
         dv[..., 0] = dv[..., 1]
-
-        # Space
-        if coord_system == "cartesian":
-            dx[..., 1:] = np.diff(x)
-            dx[..., 0] = dx[..., 1]
-            dy[..., 1:] = np.diff(y)
-            dy[..., 0] = dy[..., 1]
-        elif coord_system == "spherical":
-            distances = distance(y[..., :-1], x[..., :-1], y[..., 1:], x[..., 1:])
-            bearings = bearing(y[..., :-1], x[..., :-1], y[..., 1:], x[..., 1:])
-            dx[..., 1:] = distances * np.cos(bearings)
-            dx[..., 0] = dx[..., 1]
-            dy[..., 1:] = distances * np.sin(bearings)
-            dy[..., 0] = dy[..., 1]
-        else:
-            raise ValueError('coord_system must be "spherical" or "cartesian".')
-
+        dt[..., 1:] = np.diff(time)
+        dt[..., 0] = dt[..., 1]
     elif difference_scheme == "centered":
-        # Velocity
         du[..., 1:-1] = (u[..., 2:] - u[..., :-2]) / 2
         du[..., 0] = u[..., 1] - u[..., 0]
         du[..., -1] = u[..., -1] - u[..., -2]
         dv[..., 1:-1] = (v[..., 2:] - v[..., :-2]) / 2
         dv[..., 0] = v[..., 1] - v[..., 0]
         dv[..., -1] = v[..., -1] - v[..., -2]
-
-        # Space
-        if coord_system == "cartesian":
-            dx[..., 1:-1] = (x[..., 2:] - x[..., :-2]) / 2
-            dx[..., 0] = x[..., 1] - x[..., 0]
-            dx[..., -1] = x[..., -1] - x[..., -2]
-            dy[..., 1:-1] = (y[..., 2:] - y[..., :-2]) / 2
-            dy[..., 0] = y[..., 1] - y[..., 0]
-            dy[..., -1] = y[..., -1] - y[..., -2]
-
-        elif coord_system == "spherical":
-            # Inner values
-            y1 = (y[..., :-2] + y[..., 1:-1]) / 2
-            x1 = (x[..., :-2] + x[..., 1:-1]) / 2
-            y2 = (y[..., 2:] + y[..., 1:-1]) / 2
-            x2 = (x[..., 2:] + x[..., 1:-1]) / 2
-            distances = distance(y1, x1, y2, x2)
-            bearings = bearing(y1, x1, y2, x2)
-            dx[..., 1:-1] = distances * np.cos(bearings)
-            dy[..., 1:-1] = distances * np.sin(bearings)
-
-            # Boundary values
-            distance1 = distance(y[..., 0], x[..., 0], y[..., 1], x[..., 1])
-            bearing1 = bearing(y[..., 0], x[..., 0], y[..., 1], x[..., 1])
-            dx[..., 0] = distance1 * np.cos(bearing1)
-            dy[..., 0] = distance1 * np.sin(bearing1)
-            distance2 = distance(y[..., -2], x[..., -2], y[..., -1], x[..., -1])
-            bearing2 = bearing(y[..., -2], x[..., -2], y[..., -1], x[..., -1])
-            dx[..., -1] = distance2 * np.cos(bearing2)
-            dy[..., -1] = distance2 * np.sin(bearing2)
-
-        else:
-            raise ValueError('coord_system must be "spherical" or "cartesian".')
-
+        dt[..., 1:-1] = (time[..., 2:] - time[..., :-2]) / 2
+        dt[..., 0] = time[..., 1] - time[..., 0]
+        dt[..., -1] = time[..., -1] - time[..., -2]
     else:
         raise ValueError(
             'difference_scheme must be "forward", "backward", or "centered".'
         )
 
-    s = dv / dx - du / dy
+    # Compute eddy kinetic energy; u and v are already with swapped axes such
+    # that the time axis is the last one, so we don't need to pass it here.
+    eke = eddy_kinetic_energy(u, v)
 
-    return np.swapaxes(s, axis, -1)
+    # Compute spin
+    s = np.mean((u * dv - v * du) / dt, axis=-1) / (2 * eke)
+
+    return np.swapaxes(s, time_axis, -1)
