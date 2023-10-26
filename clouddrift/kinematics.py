@@ -19,7 +19,7 @@ from clouddrift.sphere import (
 from clouddrift.wavelet import morse_logspace_freq, morse_wavelet, wavelet_transform
 
 
-def inertial_oscillations_from_positions(
+def inertial_oscillation_from_position(
     longitude: np.ndarray,
     latitude: np.ndarray,
     relative_bandwidth: float,
@@ -63,11 +63,11 @@ def inertial_oscillations_from_positions(
     To extract displacements from inertial oscillations from sequences of longitude
     and latitude values, equivalent to bandpass around 20 percent of the local inertial frequency:
 
-    >>> xhat, yhat = extract_inertial_from_position(longitude, latitude, 0.2)
+    >>> xhat, yhat = inertial_oscillation_from_position(longitude, latitude, 0.2)
 
     Next, the residual positions from the inertial displacements can be obtained with another function:
 
-    >>> residual_longitudes, residual_latitudes = residual_positions_from_displacements(longitude, latitude, xhat, yhat)
+    >>> residual_longitudes, residual_latitudes = residual_position_from_displacement(longitude, latitude, xhat, yhat)
 
     Raises
     ------
@@ -79,7 +79,7 @@ def inertial_oscillations_from_positions(
 
     See Also
     --------
-    :func:`residual_positions_from_displacements`, `wavelet_transform`, `morse_wavelet`
+    :func:`residual_position_from_displacement`, `wavelet_transform`, `morse_wavelet`
 
     """
     if longitude.shape != latitude.shape:
@@ -187,7 +187,7 @@ def inertial_oscillations_from_positions(
     return xhat, yhat
 
 
-def residual_positions_from_displacements(
+def residual_position_from_displacement(
     longitude: Union[float, np.ndarray],
     latitude: Union[float, np.ndarray],
     x: Union[float, np.ndarray],
@@ -224,7 +224,7 @@ def residual_positions_from_displacements(
     circumference of the Earth from original position (longitude,latitude) = (1,0):
 
     >>> from clouddrift.sphere import EARTH_RADIUS_METERS
-    >>> residual_positions_from_displacements(1,0,2 * np.pi * EARTH_RADIUS_METERS / 360,0)
+    >>> residual_position_from_displacement(1,0,2 * np.pi * EARTH_RADIUS_METERS / 360,0)
     (0.0, 0.0)
     """
     latitudehat = 180 / np.pi * y / EARTH_RADIUS_METERS
