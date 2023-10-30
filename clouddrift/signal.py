@@ -120,7 +120,7 @@ def analytic_transform(
         return z
 
 
-def rotary_transform(
+def cartesian_to_rotary(
     u: Union[np.ndarray, xr.DataArray],
     v: Union[np.ndarray, xr.DataArray],
     boundary: Optional[str] = "mirror",
