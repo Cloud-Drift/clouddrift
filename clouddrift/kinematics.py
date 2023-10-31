@@ -916,4 +916,6 @@ def spin(
         2 * np.mean(kinetic_energy(u, v), axis=-1)
     )
 
+    #TODO we reduced along time_axis but do we need to swap back and how?
+
     return s
