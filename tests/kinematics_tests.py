@@ -1,8 +1,8 @@
 from clouddrift.kinematics import (
-    inertial_oscillations_from_positions,
+    inertial_oscillation_from_position,
     position_from_velocity,
     velocity_from_position,
-    residual_positions_from_displacements,
+    residual_position_from_displacement,
 )
 from clouddrift.sphere import EARTH_RADIUS_METERS, coriolis_frequency
 from clouddrift.raggedarray import RaggedArray
@@ -79,7 +79,7 @@ def sample_ragged_array() -> RaggedArray:
     return ra
 
 
-class inertial_oscillations_from_positions_tests(unittest.TestCase):
+class inertial_oscillation_from_position_tests(unittest.TestCase):
     def setUp(self):
         self.INPUT_SIZE = 1440
         self.longitude = np.linspace(0, 45, self.INPUT_SIZE)
@@ -87,14 +87,14 @@ class inertial_oscillations_from_positions_tests(unittest.TestCase):
         self.relative_vorticity = 0.1 * coriolis_frequency(self.latitude)
 
     def test_result_has_same_size_as_input(self):
-        x, y = inertial_oscillations_from_positions(
+        x, y = inertial_oscillation_from_position(
             self.longitude, self.latitude, relative_bandwidth=0.10, time_step=3600
         )
         self.assertTrue(np.all(self.longitude.shape == x.shape))
         self.assertTrue(np.all(self.longitude.shape == y.shape))
 
     def test_relative_vorticity(self):
-        x, y = inertial_oscillations_from_positions(
+        x, y = inertial_oscillation_from_position(
             self.longitude,
             self.latitude,
             relative_bandwidth=0.10,
@@ -105,7 +105,7 @@ class inertial_oscillations_from_positions_tests(unittest.TestCase):
         self.assertTrue(np.all(self.longitude.shape == y.shape))
 
     def test_time_step(self):
-        x, y = inertial_oscillations_from_positions(
+        x, y = inertial_oscillation_from_position(
             self.longitude,
             self.latitude,
             relative_bandwidth=0.10,
@@ -140,21 +140,32 @@ class inertial_oscillations_from_positions_tests(unittest.TestCase):
         )
         x_expected = x_expected - np.mean(x_expected)
         y_expected = y_expected - np.mean(y_expected)
-        xhat, yhat = inertial_oscillations_from_positions(
+        xhat1, yhat1 = inertial_oscillation_from_position(
             lon1, lat1, relative_bandwidth=0.10, time_step=3600
         )
-        xhat = xhat - np.mean(xhat)
-        yhat = yhat - np.mean(yhat)
+        xhat1 = xhat1 - np.mean(xhat1)
+        yhat1 = yhat1 - np.mean(yhat1)
+        xhat2, yhat2 = inertial_oscillation_from_position(
+            lon1, lat1, wavelet_duration=10, time_step=3600
+        )
+        xhat2 = xhat2 - np.mean(xhat2)
+        yhat2 = yhat2 - np.mean(yhat2)
         m = 10
         self.assertTrue(
-            np.allclose(xhat[m * 24 : -m * 24], x_expected[m * 24 : -m * 24], atol=20)
+            np.allclose(xhat2[m * 24 : -m * 24], x_expected[m * 24 : -m * 24], atol=20)
         )
         self.assertTrue(
-            np.allclose(yhat[m * 24 : -m * 24], y_expected[m * 24 : -m * 24], atol=20)
+            np.allclose(yhat2[m * 24 : -m * 24], y_expected[m * 24 : -m * 24], atol=20)
+        )
+        self.assertTrue(
+            np.allclose(xhat2[m * 24 : -m * 24], xhat1[m * 24 : -m * 24], atol=20)
+        )
+        self.assertTrue(
+            np.allclose(yhat2[m * 24 : -m * 24], yhat1[m * 24 : -m * 24], atol=20)
         )
 
 
-class residual_positions_from_displacements_tests(unittest.TestCase):
+class residual_position_from_displacement_tests(unittest.TestCase):
     def setUp(self):
         self.INPUT_SIZE = 100
         self.lon = np.rad2deg(
@@ -165,14 +176,14 @@ class residual_positions_from_displacements_tests(unittest.TestCase):
         self.y = np.random.rand(self.INPUT_SIZE)
 
     def test_result_has_same_size_as_input(self):
-        lon, lat = residual_positions_from_displacements(
+        lon, lat = residual_position_from_displacement(
             self.lon, self.lat, self.x, self.y
         )
         self.assertTrue(np.all(self.lon.shape == lon.shape))
         self.assertTrue(np.all(self.lon.shape == lat.shape))
 
     def test_simple_case(self):
-        lon, lat = residual_positions_from_displacements(
+        lon, lat = residual_position_from_displacement(
             1, 0, 2 * np.pi * EARTH_RADIUS_METERS / 360, 0
         )
         self.assertTrue(np.isclose((np.mod(lon, 360), lat), (0, 0)).all())
