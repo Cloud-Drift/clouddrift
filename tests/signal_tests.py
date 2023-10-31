@@ -1,6 +1,7 @@
 from clouddrift.signal import (
     analytic_transform,
-    rotary_transform,
+    cartesian_to_rotary,
+    rotary_to_cartesian,
 )
 import numpy as np
 import unittest
@@ -57,21 +58,63 @@ class analytic_transform_tests(unittest.TestCase):
             )
 
 
-class rotary_transform_tests(unittest.TestCase):
+class cartesian_to_rotary_tests(unittest.TestCase):
+    def test_size(self):
+        u = np.random.rand(99)
+        v = np.random.rand(99)
+        zp, zn = cartesian_to_rotary(u, v)
+        self.assertEqual(np.shape(u), np.shape(zp))
+        self.assertEqual(np.shape(u), np.shape(zn))
+
     def test_array(self):
         u = np.random.random((9))
         v = np.random.random((9))
-        zp, zn = rotary_transform(u, v)
+        zp, zn = cartesian_to_rotary(u, v)
         self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn)))
 
     def test_ndarray(self):
         u = np.random.rand(99, 10, 101)
         v = np.random.rand(99, 10, 101)
-        zp, zn = rotary_transform(u, v)
+        zp, zn = cartesian_to_rotary(u, v)
         self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn)))
 
     def test_xarray(self):
         u = xr.DataArray(data=np.random.rand(99))
         v = xr.DataArray(data=np.random.rand(99))
-        zp, zn = rotary_transform(u, v)
+        zp, zn = cartesian_to_rotary(u, v)
         self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn)))
+
+
+class rotary_to_cartesian_tests(unittest.TestCase):
+    def test_size(self):
+        zp = np.random.rand(99)
+        zn = np.random.rand(99)
+        u, v = rotary_to_cartesian(zp, zn)
+        self.assertEqual(np.shape(u), np.shape(zp))
+        self.assertEqual(np.shape(u), np.shape(zn))
+
+    def test_array(self):
+        zp = np.random.random((9))
+        zn = np.random.random((9))
+        u, v = rotary_to_cartesian(zp, zn)
+        self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn)))
+
+    def test_ndarray(self):
+        zp = np.random.rand(99, 10, 101)
+        zn = np.random.rand(99, 10, 101)
+        u, v = rotary_to_cartesian(zp, zn)
+        self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn)))
+
+    def test_xarray(self):
+        zp = xr.DataArray(data=np.random.rand(99))
+        zn = xr.DataArray(data=np.random.rand(99))
+        u, v = rotary_to_cartesian(zp, zn)
+        self.assertTrue(np.allclose(u + 1j * v, zp + np.conj(zn)))
+
+    def test_invert_rotary_to_cartesian(self):
+        u = np.random.rand(99)
+        v = np.random.rand(99)
+        zp, zn = cartesian_to_rotary(u, v)
+        u_, v_ = rotary_to_cartesian(zp, zn)
+        self.assertTrue(np.allclose(u, u_))
+        self.assertTrue(np.allclose(v, v_))
