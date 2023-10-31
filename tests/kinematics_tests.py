@@ -1,4 +1,5 @@
 from clouddrift.kinematics import (
+    eddy_kinetic_energy,
     inertial_oscillation_from_position,
     position_from_velocity,
     velocity_from_position,
@@ -77,6 +78,42 @@ def sample_ragged_array() -> RaggedArray:
     )
 
     return ra
+
+
+class eddy_kinetic_energy_tests(unittest.TestCase):
+    def test_values_1d_velocity(self):
+        u = np.random.random((100))
+        self.assertTrue(np.all(eddy_kinetic_energy(u) == np.var(u) / 2))
+
+    def test_1d_velocity_kwarg(self):
+        u = np.random.random((100))
+        self.assertTrue(
+            np.all(eddy_kinetic_energy(u) == eddy_kinetic_energy(u, np.zeros_like(u)))
+        )
+
+    def test_values_2d_velocity(self):
+        u = np.random.random((100))
+        v = np.random.random((100))
+        self.assertTrue(
+            np.all(eddy_kinetic_energy(u, v) == (np.var(u) + np.var(v)) / 2)
+        )
+
+    def test_time_axis_default(self):
+        u = np.random.random((10, 20, 30))
+        v = np.random.random((10, 20, 30))
+        self.assertTrue(
+            np.all(eddy_kinetic_energy(u, v) == eddy_kinetic_energy(u, v, time_axis=-1))
+        )
+
+    def test_time_axis_default(self):
+        u = np.random.random((10, 20, 30))
+        v = np.random.random((10, 20, 30))
+        eke0 = eddy_kinetic_energy(u, v, time_axis=0)
+        eke1 = eddy_kinetic_energy(u, v, time_axis=1)
+        eke2 = eddy_kinetic_energy(u, v, time_axis=2)
+        self.assertTrue(eke0.shape == (20, 30))
+        self.assertTrue(eke1.shape == (10, 30))
+        self.assertTrue(eke2.shape == (10, 20))
 
 
 class inertial_oscillation_from_position_tests(unittest.TestCase):
