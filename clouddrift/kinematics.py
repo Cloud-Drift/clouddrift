@@ -756,10 +756,19 @@ def spin(
 ) -> Union[float, np.ndarray]:
     """Compute spin continuously from velocities and times.
 
-    Spin is defined as (u'dv' - v'du') / (2 dt EKE) where u' and v' are
-    eddy-perturbations of the velocity field, EKE is eddy kinetic energy, dt is
-    the time step, and du' and dv' are velocity component increments during dt.
-    The result has a rank reduced by one relative to the input arrays.
+    Spin is traditionally (Sawford, 1999; Veneziani et al., 2005) defined as
+    (<u'dv' - v'du'>) / (2 dt EKE) where u' and v' are eddy-perturbations of the
+    velocity field, EKE is eddy kinetic energy, dt is the time step, and du' and
+    dv' are velocity component increments during dt, and < > denotes time
+    average.
+
+    To allow computing spin based on full velocity fields, this function does
+    not do any demeaning of the velocity fields. If you need the spin based on
+    velocity anomalies, ensure to demean the velocity fields before passing
+    them to this function.
+
+    Averaging is performed along ``time_axis`` so the result has a rank reduced
+    by one relative to the input arrays.
 
     u, v, and time can be multi-dimensional arrays. If the time axis, along
     which the finite differencing is performed, is not the last one (i.e.
@@ -916,6 +925,6 @@ def spin(
         2 * np.mean(kinetic_energy(u, v), axis=-1)
     )
 
-    #TODO we reduced along time_axis but do we need to swap back and how?
+    # TODO we reduced along time_axis but do we need to swap back and how?
 
     return s
