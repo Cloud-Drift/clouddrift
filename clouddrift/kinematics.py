@@ -50,7 +50,7 @@ def kinetic_energy(
 
     >>> u = np.reshape(np.tile([1., 2., 3., 4.], 2), (2, 4))
     >>> v = np.reshape(np.tile([1., 1., 1., 1.], 2), (2, 4))
-    >>> eddy_kinetic_energy(u, v)
+    >>> kinetic_energy(u, v)
     array([[1. , 2.5, 5. , 8.5],
            [1. , 2.5, 5. , 8.5]])
     """
