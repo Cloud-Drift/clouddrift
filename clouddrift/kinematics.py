@@ -27,16 +27,12 @@ def eddy_kinetic_energy(
 ) -> Union[float, np.ndarray, xr.DataArray]:
     """Compute eddy kinetic energy from zonal and meridional velocities.
 
-    Eddy kinetic energy is defined as one half the variance of the velocity field.
+    Eddy kinetic energy is defined as one half the variance of the velocity field,
+    i.e. it is the kinetic energy based on demeaned input velocities.
 
     To obtain the result, variances along ``time_axis`` are computed for each
     velocity component. The rank of the result is thus reduced by one relative
     to the input arrays.
-
-    The eddy perturbations are relative to the time-mean velocity, so if you
-    need to apply a shorter time scale, you need to first low-pass filter
-    the velocities, or pass in the velocities whose lengths are that of the
-    desired time scale.
 
     Parameters
     ----------
@@ -797,13 +793,6 @@ def spin(
     case of a centered difference scheme, the start and end boundary points are
     evaluated using the forward and backward difference scheme, respectively.
 
-    Reference for the definition of spin is:
-
-    Veneziani, M., Griffa, A., Reynolds, A.M., Garraffo, Z.D. and Chassignet,
-    E.P., 2005. Parameterizations of Lagrangian spin statistics and particle
-    dispersion in the presence of coherent vortices. Journal of Marine Research,
-    63(6), pp.1057-1083.
-
     Parameters
     ----------
     u : np.ndarray
@@ -833,6 +822,11 @@ def spin(
     Examples
     --------
     TODO
+
+    References
+    ----------
+    * Sawford, B.L., 1999. Rotation of trajectories in Lagrangian stochastic models of turbulent dispersion. Boundary-layer meteorology, 93, pp.411-424.
+    * Veneziani, M., Griffa, A., Garraffo, Z.D. and Chassignet, E.P., 2005. Lagrangian spin parameter and coherent structures from trajectories released in a high-resolution ocean model. Journal of Marine Research, 63(4), pp.753-788.
     """
     if not u.shape == v.shape:
         raise ValueError("u and v arrays must have the same shape.")
