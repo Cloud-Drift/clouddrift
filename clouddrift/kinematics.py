@@ -72,7 +72,7 @@ def eddy_kinetic_energy(
     return eke
 
 
-def inertial_oscillations_from_positions(
+def inertial_oscillation_from_position(
     longitude: np.ndarray,
     latitude: np.ndarray,
     relative_bandwidth: Optional[float] = None,
