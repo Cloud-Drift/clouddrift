@@ -20,56 +20,44 @@ from clouddrift.sphere import (
 from clouddrift.wavelet import morse_logspace_freq, morse_wavelet, wavelet_transform
 
 
-def eddy_kinetic_energy(
-    u: Union[list, np.ndarray, xr.DataArray, pd.Series],
-    v: Optional[Union[list, np.ndarray, xr.DataArray, pd.Series]] = None,
-    time_axis: Optional[int] = -1,
+def kinetic_energy(
+    u: Union[float, list, np.ndarray, xr.DataArray, pd.Series],
+    v: Optional[Union[float, list, np.ndarray, xr.DataArray, pd.Series]] = None,
 ) -> Union[float, np.ndarray, xr.DataArray]:
-    """Compute eddy kinetic energy from zonal and meridional velocities.
-
-    Eddy kinetic energy is defined as one half the variance of the velocity field,
-    i.e. it is the kinetic energy based on demeaned input velocities.
-
-    To obtain the result, variances along ``time_axis`` are computed for each
-    velocity component. The rank of the result is thus reduced by one relative
-    to the input arrays.
+    """Compute kinetic energy from zonal and meridional velocities.
 
     Parameters
     ----------
-    u : array-like
+    u : float or array-like
         Zonal velocity.
-    v : array-like, optional.
+    v : float or array-like, optional.
         Meridional velocity. If not provided, the flow is assumed one-dimensional
         in time and defined by ``u``.
-    time_axis : int, optional
-        Axis along which the time dimension is located. Default is -1.
 
     Returns
     -------
-    eke : float or array_like
-        Eddy kinetic energy.
+    ke : float or array-like
+        Kinetic energy.
 
     Examples
     --------
     >>> import numpy as np
-    >>> from clouddrift.kinematics import eddy_kinetic_energy
+    >>> from clouddrift.kinematics import kinetic_energy
     >>> u = np.array([1., 2., 3., 4.])
     >>> v = np.array([1., 1., 1., 1.])
-    >>> eddy_kinetic_energy(u, v)
-    0.625
+    >>> kinetic_energy(u, v)
+    array([1. , 2.5, 5. , 8.5])
 
     >>> u = np.reshape(np.tile([1., 2., 3., 4.], 2), (2, 4))
     >>> v = np.reshape(np.tile([1., 1., 1., 1.], 2), (2, 4))
     >>> eddy_kinetic_energy(u, v)
-    >>> array([0.625, 0.625])
-
-    >>> eddy_kinetic_energy(u, v, time_axis=0)
-    >>> array([0., 0., 0., 0.])
+    array([[1. , 2.5, 5. , 8.5],
+           [1. , 2.5, 5. , 8.5]])
     """
     if v is None:
         v = np.zeros_like(u)
-    eke = (np.var(u, axis=time_axis) + np.var(v, axis=time_axis)) / 2
-    return eke
+    ke = (u**2 + v**2) / 2
+    return ke
 
 
 def inertial_oscillation_from_position(
@@ -821,12 +809,48 @@ def spin(
 
     Examples
     --------
-    TODO
+    >>> from clouddrift.kinematics import spin
+    >>> import numpy as np
+    >>> u = np.array([1., 2., -1., 4.])
+    >>> v = np.array([1., 3., -2., 1.])
+    >>> time = np.array([0., 1., 2., 3.])
+    >>> spin(u, v, time)
+    0.3783783783783784
+
+    Use ``difference_scheme`` to specify an alternative finite difference
+    scheme for the velocity differences:
+
+    >>> spin(u, v, time, difference_scheme="centered")
+    0.2972972972972973
+    >>> spin(u, v, time, difference_scheme="backward")
+    0.21621621621621623
+
+    You can pass N-d arrays for ``u``, ``v``, and ``time``, as long as they have
+    the same shape, or ``time`` is a 1-d array with the same length as
+    ``u.shape[time_axis].`` By default, ``time_axis`` is -1, so passing ``u``
+    and ``v`` with shape ``(2, 3)`` results in a 1-d array of length 2:
+
+    >>> u = np.array([[1., 2., -1.], [4., 2., 7.]])
+    >>> v = np.array([[1., 3., -2.], [2., 0., -1.]])
+    >>> time = np.array([0., 1., 2.])
+    >>> s = spin(u, v, time)
+    >>> s
+    array([-0.05      , -0.10810811])
+
+    Alternatively, you can specify a different time axis if your data is
+    organized as such:
+
+    >>> u = np.random.random((4, 3))
+    >>> v = np.random.random((4, 3))
+    >>> time = np.arange((4.))
+    >>> s = spin(u, v, time, time_axis=0)
+    >>> s.shape
+    (3,)
 
     References
     ----------
-    * Sawford, B.L., 1999. Rotation of trajectories in Lagrangian stochastic models of turbulent dispersion. Boundary-layer meteorology, 93, pp.411-424.
-    * Veneziani, M., Griffa, A., Garraffo, Z.D. and Chassignet, E.P., 2005. Lagrangian spin parameter and coherent structures from trajectories released in a high-resolution ocean model. Journal of Marine Research, 63(4), pp.753-788.
+    * Sawford, B.L., 1999. Rotation of trajectories in Lagrangian stochastic models of turbulent dispersion. Boundary-layer meteorology, 93, pp.411-424. https://doi.org/10.1023/A:1002114132715
+    * Veneziani, M., Griffa, A., Garraffo, Z.D. and Chassignet, E.P., 2005. Lagrangian spin parameter and coherent structures from trajectories released in a high-resolution ocean model. Journal of Marine Research, 63(4), pp.753-788. https://elischolar.library.yale.edu/journal_of_marine_research/100/
     """
     if not u.shape == v.shape:
         raise ValueError("u and v arrays must have the same shape.")
@@ -853,10 +877,6 @@ def spin(
     if not time.shape == u.shape:
         # time is 1-d array; broadcast to u.shape.
         time = np.broadcast_to(time, u.shape)
-
-    # Demean to get perturbations.
-    u -= np.mean(u, axis=-1, keepdims=True)
-    v -= np.mean(v, axis=-1, keepdims=True)
 
     du = np.empty(u.shape)
     dv = np.empty(v.shape)
@@ -891,11 +911,9 @@ def spin(
             'difference_scheme must be "forward", "backward", or "centered".'
         )
 
-    # Compute eddy kinetic energy; u and v are already with swapped axes such
-    # that the time axis is the last one, so we don't need to pass it here.
-    eke = eddy_kinetic_energy(u, v)
-
     # Compute spin
-    s = np.mean((u * dv - v * du) / dt, axis=-1) / (2 * eke)
+    s = np.mean((u * dv - v * du) / dt, axis=-1) / (
+        2 * np.mean(kinetic_energy(u, v), axis=-1)
+    )
 
-    return np.swapaxes(s, time_axis, -1)
+    return s
