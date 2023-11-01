@@ -759,16 +759,13 @@ def spin(
     Spin is traditionally (Sawford, 1999; Veneziani et al., 2005) defined as
     (<u'dv' - v'du'>) / (2 dt EKE) where u' and v' are eddy-perturbations of the
     velocity field, EKE is eddy kinetic energy, dt is the time step, and du' and
-    dv' are velocity component increments during dt, and < > denotes time
+    dv' are velocity component increments during dt, and < > denotes ensemble
     average.
 
     To allow computing spin based on full velocity fields, this function does
     not do any demeaning of the velocity fields. If you need the spin based on
     velocity anomalies, ensure to demean the velocity fields before passing
     them to this function.
-
-    Averaging is performed along ``time_axis`` so the result has a rank reduced
-    by one relative to the input arrays.
 
     u, v, and time can be multi-dimensional arrays. If the time axis, along
     which the finite differencing is performed, is not the last one (i.e.
@@ -833,28 +830,6 @@ def spin(
     0.2972972972972973
     >>> spin(u, v, time, difference_scheme="backward")
     0.21621621621621623
-
-    You can pass N-d arrays for ``u``, ``v``, and ``time``, as long as they have
-    the same shape, or ``time`` is a 1-d array with the same length as
-    ``u.shape[time_axis].`` By default, ``time_axis`` is -1, so passing ``u``
-    and ``v`` with shape ``(2, 3)`` results in a 1-d array of length 2:
-
-    >>> u = np.array([[1., 2., -1.], [4., 2., 7.]])
-    >>> v = np.array([[1., 3., -2.], [2., 0., -1.]])
-    >>> time = np.array([0., 1., 2.])
-    >>> s = spin(u, v, time)
-    >>> s
-    array([-0.05      , -0.10810811])
-
-    Alternatively, you can specify a different time axis if your data is
-    organized as such:
-
-    >>> u = np.random.random((4, 3))
-    >>> v = np.random.random((4, 3))
-    >>> time = np.arange((4.))
-    >>> s = spin(u, v, time, time_axis=0)
-    >>> s.shape
-    (3,)
 
     References
     ----------
@@ -921,10 +896,6 @@ def spin(
         )
 
     # Compute spin
-    s = np.mean((u * dv - v * du) / dt, axis=-1) / (
-        2 * np.mean(kinetic_energy(u, v), axis=-1)
-    )
+    s = (u * dv - v * du) / (2 * dt * kinetic_energy(u, v))
 
-    # TODO we reduced along time_axis but do we need to swap back and how?
-
-    return s
+    return np.swapaxes(s, time_axis, -1)
