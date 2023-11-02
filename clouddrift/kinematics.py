@@ -3,6 +3,7 @@ Functions for kinematic computations.
 """
 
 import numpy as np
+import pandas as pd
 from typing import Optional, Tuple, Union
 import xarray as xr
 from clouddrift.sphere import (
@@ -17,6 +18,46 @@ from clouddrift.sphere import (
     spherical_to_cartesian,
 )
 from clouddrift.wavelet import morse_logspace_freq, morse_wavelet, wavelet_transform
+
+
+def kinetic_energy(
+    u: Union[float, list, np.ndarray, xr.DataArray, pd.Series],
+    v: Optional[Union[float, list, np.ndarray, xr.DataArray, pd.Series]] = None,
+) -> Union[float, np.ndarray, xr.DataArray]:
+    """Compute kinetic energy from zonal and meridional velocities.
+
+    Parameters
+    ----------
+    u : float or array-like
+        Zonal velocity.
+    v : float or array-like, optional.
+        Meridional velocity. If not provided, the flow is assumed one-dimensional
+        in time and defined by ``u``.
+
+    Returns
+    -------
+    ke : float or array-like
+        Kinetic energy.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from clouddrift.kinematics import kinetic_energy
+    >>> u = np.array([1., 2., 3., 4.])
+    >>> v = np.array([1., 1., 1., 1.])
+    >>> kinetic_energy(u, v)
+    array([1. , 2.5, 5. , 8.5])
+
+    >>> u = np.reshape(np.tile([1., 2., 3., 4.], 2), (2, 4))
+    >>> v = np.reshape(np.tile([1., 1., 1., 1.], 2), (2, 4))
+    >>> kinetic_energy(u, v)
+    array([[1. , 2.5, 5. , 8.5],
+           [1. , 2.5, 5. , 8.5]])
+    """
+    if v is None:
+        v = np.zeros_like(u)
+    ke = (u**2 + v**2) / 2
+    return ke
 
 
 def inertial_oscillation_from_position(
@@ -704,3 +745,159 @@ def velocity_from_position(
     dy /= dt
 
     return np.swapaxes(dx, time_axis, -1), np.swapaxes(dy, time_axis, -1)
+
+
+def spin(
+    u: np.ndarray,
+    v: np.ndarray,
+    time: np.ndarray,
+    difference_scheme: Optional[str] = "forward",
+    time_axis: Optional[int] = -1,
+) -> Union[float, np.ndarray]:
+    """Compute spin continuously from velocities and times.
+
+    Spin is traditionally (Sawford, 1999; Veneziani et al., 2005) defined as
+    (<u'dv' - v'du'>) / (2 dt EKE) where u' and v' are eddy-perturbations of the
+    velocity field, EKE is eddy kinetic energy, dt is the time step, and du' and
+    dv' are velocity component increments during dt, and < > denotes ensemble
+    average.
+
+    To allow computing spin based on full velocity fields, this function does
+    not do any demeaning of the velocity fields. If you need the spin based on
+    velocity anomalies, ensure to demean the velocity fields before passing
+    them to this function. This function also returns instantaneous spin values,
+    so the rank of the result is not reduced relative to the input.
+
+    ``u``, ``v``, and ``time`` can be multi-dimensional arrays. If the time
+    axis, along which the finite differencing is performed, is not the last one
+    (i.e. ``u.shape[-1]``), use the time_axis optional argument to specify along
+    which the spin should be calculated. u, v, and time must either have the
+    same shape, or time must be a 1-d array with the same length as
+    ``u.shape[time_axis]``.
+
+    Difference scheme can be one of three values:
+
+        1. "forward" (default): finite difference is evaluated as ``dx[i] = dx[i+1] - dx[i]``;
+        2. "backward": finite difference is evaluated as ``dx[i] = dx[i] - dx[i-1]``;
+        3. "centered": finite difference is evaluated as ``dx[i] = (dx[i+1] - dx[i-1]) / 2``.
+
+    Forward and backward schemes are effectively the same except that the
+    position at which the velocity is evaluated is shifted one element down in
+    the backward scheme relative to the forward scheme. In the case of a
+    forward or backward difference scheme, the last or first element of the
+    velocity, respectively, is extrapolated from its neighboring point. In the
+    case of a centered difference scheme, the start and end boundary points are
+    evaluated using the forward and backward difference scheme, respectively.
+
+    Parameters
+    ----------
+    u : np.ndarray
+        Zonal velocity
+    v : np.ndarray
+        Meridional velocity
+    time : array-like
+        Time
+    difference_scheme : str, optional
+        Difference scheme to use; possible values are "forward", "backward", and "centered".
+    time_axis : int, optional
+        Axis along which the time varies (default is -1)
+
+    Returns
+    -------
+    s : float or np.ndarray
+        Spin
+
+    Raises
+    ------
+    ValueError
+        If u and v do not have the same shape.
+        If the time axis is outside of the valid range ([-1, N-1]).
+        If lengths of u, v, and time along time_axis are not equal.
+        If difference_scheme is not "forward", "backward", or "centered".
+
+    Examples
+    --------
+    >>> from clouddrift.kinematics import spin
+    >>> import numpy as np
+    >>> u = np.array([1., 2., -1., 4.])
+    >>> v = np.array([1., 3., -2., 1.])
+    >>> time = np.array([0., 1., 2., 3.])
+    >>> spin(u, v, time)
+    array([ 0.5       , -0.07692308,  1.4       ,  0.41176471])
+
+    Use ``difference_scheme`` to specify an alternative finite difference
+    scheme for the velocity differences:
+
+    >>> spin(u, v, time, difference_scheme="centered")
+    array([0.5       , 0.        , 0.6       , 0.41176471])
+    >>> spin(u, v, time, difference_scheme="backward")
+    array([ 0.5       ,  0.07692308, -0.2       ,  0.41176471])
+
+    References
+    ----------
+    * Sawford, B.L., 1999. Rotation of trajectories in Lagrangian stochastic models of turbulent dispersion. Boundary-layer meteorology, 93, pp.411-424. https://doi.org/10.1023/A:1002114132715
+    * Veneziani, M., Griffa, A., Garraffo, Z.D. and Chassignet, E.P., 2005. Lagrangian spin parameter and coherent structures from trajectories released in a high-resolution ocean model. Journal of Marine Research, 63(4), pp.753-788. https://elischolar.library.yale.edu/journal_of_marine_research/100/
+    """
+    if not u.shape == v.shape:
+        raise ValueError("u and v arrays must have the same shape.")
+
+    if not time.shape == u.shape:
+        if not time.size == u.shape[time_axis]:
+            raise ValueError("time must have the same length as u along time_axis.")
+
+    # axis must be in valid range
+    if time_axis < -1 or time_axis > len(u.shape) - 1:
+        raise ValueError(
+            f"axis ({time_axis}) is outside of the valid range ([-1,"
+            f" {len(u.shape) - 1}])."
+        )
+
+    # Swap axes so that we can differentiate along the last axis.
+    # This is a syntax convenience rather than memory access optimization:
+    # np.swapaxes returns a view of the array, not a copy, if the input is a
+    # NumPy array. Otherwise, it returns a copy.
+    u = np.swapaxes(u, time_axis, -1)
+    v = np.swapaxes(v, time_axis, -1)
+    time = np.swapaxes(time, time_axis, -1)
+
+    if not time.shape == u.shape:
+        # time is 1-d array; broadcast to u.shape.
+        time = np.broadcast_to(time, u.shape)
+
+    du = np.empty(u.shape)
+    dv = np.empty(v.shape)
+    dt = np.empty(time.shape)
+
+    if difference_scheme == "forward":
+        du[..., :-1] = np.diff(u)
+        du[..., -1] = du[..., -2]
+        dv[..., :-1] = np.diff(v)
+        dv[..., -1] = dv[..., -2]
+        dt[..., :-1] = np.diff(time)
+        dt[..., -1] = dt[..., -2]
+    elif difference_scheme == "backward":
+        du[..., 1:] = np.diff(u)
+        du[..., 0] = du[..., 1]
+        dv[..., 1:] = np.diff(v)
+        dv[..., 0] = dv[..., 1]
+        dt[..., 1:] = np.diff(time)
+        dt[..., 0] = dt[..., 1]
+    elif difference_scheme == "centered":
+        du[..., 1:-1] = (u[..., 2:] - u[..., :-2]) / 2
+        du[..., 0] = u[..., 1] - u[..., 0]
+        du[..., -1] = u[..., -1] - u[..., -2]
+        dv[..., 1:-1] = (v[..., 2:] - v[..., :-2]) / 2
+        dv[..., 0] = v[..., 1] - v[..., 0]
+        dv[..., -1] = v[..., -1] - v[..., -2]
+        dt[..., 1:-1] = (time[..., 2:] - time[..., :-2]) / 2
+        dt[..., 0] = time[..., 1] - time[..., 0]
+        dt[..., -1] = time[..., -1] - time[..., -2]
+    else:
+        raise ValueError(
+            'difference_scheme must be "forward", "backward", or "centered".'
+        )
+
+    # Compute spin
+    s = (u * dv - v * du) / (2 * dt * kinetic_energy(u, v))
+
+    return np.swapaxes(s, time_axis, -1)
