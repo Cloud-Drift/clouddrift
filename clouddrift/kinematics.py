@@ -765,13 +765,15 @@ def spin(
     To allow computing spin based on full velocity fields, this function does
     not do any demeaning of the velocity fields. If you need the spin based on
     velocity anomalies, ensure to demean the velocity fields before passing
-    them to this function.
+    them to this function. This function also returns instantaneous spin values,
+    so the rank of the result is not reduced relative to the input.
 
-    u, v, and time can be multi-dimensional arrays. If the time axis, along
-    which the finite differencing is performed, is not the last one (i.e.
-    u.shape[-1]), use the time_axis optional argument to specify along which the
-    spin should be calculated. u, v, and time must either have the same shape,
-    or time must be a 1-d array with the same length as u.shape[time_axis].
+    ``u``, ``v``, and ``time`` can be multi-dimensional arrays. If the time
+    axis, along which the finite differencing is performed, is not the last one
+    (i.e. ``u.shape[-1]``), use the time_axis optional argument to specify along
+    which the spin should be calculated. u, v, and time must either have the
+    same shape, or time must be a 1-d array with the same length as
+    ``u.shape[time_axis]``.
 
     Difference scheme can be one of three values:
 
@@ -821,15 +823,15 @@ def spin(
     >>> v = np.array([1., 3., -2., 1.])
     >>> time = np.array([0., 1., 2., 3.])
     >>> spin(u, v, time)
-    0.3783783783783784
+    array([ 0.5       , -0.07692308,  1.4       ,  0.41176471])
 
     Use ``difference_scheme`` to specify an alternative finite difference
     scheme for the velocity differences:
 
     >>> spin(u, v, time, difference_scheme="centered")
-    0.2972972972972973
+    array([0.5       , 0.        , 0.6       , 0.41176471])
     >>> spin(u, v, time, difference_scheme="backward")
-    0.21621621621621623
+    array([ 0.5       ,  0.07692308, -0.2       ,  0.41176471])
 
     References
     ----------
