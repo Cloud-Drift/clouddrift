@@ -1,9 +1,10 @@
 from clouddrift.kinematics import (
-    kinetic_energy,
     inertial_oscillation_from_position,
+    kinetic_energy,
     position_from_velocity,
-    velocity_from_position,
     residual_position_from_displacement,
+    velocity_from_position,
+    spin,
 )
 from clouddrift.sphere import EARTH_RADIUS_METERS, coriolis_frequency
 from clouddrift.raggedarray import RaggedArray
@@ -455,3 +456,46 @@ class velocity_from_position_tests(unittest.TestCase):
             self.assertTrue(
                 np.all(np.swapaxes(vf, time_axis, -1).shape == expected_uf.shape)
             )
+
+
+class spin_tests(unittest.TestCase):
+    def test_simple_spin(self):
+        u = np.array([0.16622662, 0.92834973, 0.83375613, 0.99353467])
+        v = np.array([0.91568661, 0.71860701, 0.69412382, 0.78336003])
+        time = np.arange(4.0)
+        self.assertTrue(
+            np.allclose(
+                spin(u, v, time),
+                np.array([-0.84356843, 0.03282956, -0.0310163, -0.02280464]),
+            )
+        )
+
+    def test_known_zero_spin(self):
+        u = np.ones((10))
+        v = np.ones((10))
+        time = np.arange(10.0)
+        self.assertTrue(np.all(spin(u, v, time) == 0))
+
+    def test_multidim_inputs(self):
+        u = np.ones((4, 3))
+        v = np.ones((4, 3))
+        time = np.arange(3.0)
+        self.assertTrue(spin(u, v, time).shape == (4, 3))
+        self.assertTrue(np.all(spin(u, v, time) == 0))
+
+    def test_raises(self):
+        with self.assertRaises(AttributeError):
+            spin(0, 0, 0)
+        with self.assertRaises(AttributeError):
+            spin([0], [0], [0])
+        with self.assertRaises(IndexError):
+            spin(np.array([0]), np.array([0]), np.array([0]))
+        with self.assertRaises(ValueError):
+            spin(np.ones((4)), np.ones((4)), np.arange(3.0))
+        with self.assertRaises(ValueError):
+            u = np.random.random((4, 3))
+            v = np.random.random((4, 3))
+            time = np.arange((4.0))
+            spin(u, v, time)
+        with self.assertRaises(ValueError):
+            spin(np.ones((4)), np.ones((4)), np.arange(4.0), time_axis=2)
