@@ -140,7 +140,6 @@ def morse_wavelet_transform(
     >>> radian_frequency = morse_logspace_freq(gamma, beta, np.shape(x)[0])
     >>> wtx = morse_wavelet_transform(x, gamma, beta, radian_frequency)
 
-
     Raises
     ------
     ValueError
@@ -150,7 +149,7 @@ def morse_wavelet_transform(
 
     See Also
     --------
-    :func:`morse_wavelet`, `wavelet_transform`, `morse_logspace_freq`
+    :func:`morse_wavelet`, :func:`wavelet_transform`, :func:`morse_logspace_freq`
 
     """
     # time_axis must be in valid range
@@ -241,14 +240,15 @@ def wavelet_transform(
 
     Examples
     --------
-
-    Apply a wavelet transform with a Morse wavelet with gamma parameter 3, beta parameter 4, at radian frequency 0.2 cycles per unit time:
+    Apply a wavelet transform with a Morse wavelet with gamma parameter 3, beta
+    parameter 4, at radian frequency 0.2 cycles per unit time:
 
     >>> x = np.random.random(1024)
     >>> wavelet, _ = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2]))
     >>> wtx = wavelet_transform(x, wavelet)
 
-    The input signal can have an arbitrary number of dimensions but its ``time_axis`` must be specified if it is not the last:
+    The input signal can have an arbitrary number of dimensions but its
+    ``time_axis`` must be specified if it is not the last:
 
     >>> x = np.random.random((1024,10,15))
     >>> wavelet, _ = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2]))
@@ -263,7 +263,7 @@ def wavelet_transform(
 
     See Also
     --------
-    :func:`morse_wavelet`, `morse_wavelet_transform`, `morse_freq`
+    :func:`morse_wavelet`, :func:`morse_wavelet_transform`, :func:`morse_freq`
     """
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(x.shape) - 1:
@@ -383,8 +383,8 @@ def morse_wavelet(
 
     Examples
     --------
-
-    Compute a Morse wavelet with gamma parameter 3, beta parameter 4, at radian frequency 0.2 cycles per unit time:
+    Compute a Morse wavelet with gamma parameter 3, beta parameter 4, at radian
+    frequency 0.2 cycles per unit time:
 
     >>> wavelet, wavelet_fft = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2]))
     >>> np.shape(wavelet)
@@ -407,7 +407,7 @@ def morse_wavelet(
 
     See Also
     --------
-    :func:`wavelet_transform`, `morse_wavelet_transform`, `morse_freq`, `morse_logspace_freq`, `morse_amplitude`, `morse_properties`
+    :func:`wavelet_transform`, :func:`morse_wavelet_transform`, :func:`morse_freq`, :func:`morse_logspace_freq`, :func:`morse_amplitude`, :func:`morse_properties`
     """
     # ad test for radian_frequency being a numpy array
     # initialization
@@ -559,30 +559,29 @@ def morse_freq(
 
     Examples
     --------
+    >>> fm, fe, fi = morse_freq(3, 4)
 
-    >>> fm, fe, fi = morse_freq(3,4)
-
-    >>> morse_freq(3,4)
+    >>> morse_freq(3, 4)
     (array(1.10064242), 1.1025129235952809, 1.1077321674324723)
 
-    >>> morse_freq(3,np.array([10,20,30]))
+    >>> morse_freq(3, np.array([10, 20, 30]))
     (array([1.49380158, 1.88207206, 2.15443469]),
     array([1.49421505, 1.88220264, 2.15450116]),
     array([1.49543843, 1.88259299, 2.15470024]))
 
-    >>> morse_freq(np.array([3,4,5]),np.array([10,20,30]))
+    >>> morse_freq(np.array([3, 4, 5]), np.array([10, 20, 30]))
     (array([1.49380158, 1.49534878, 1.43096908]),
     array([1.49421505, 1.49080278, 1.4262489 ]),
     array([1.49543843, 1.48652036, 1.42163583]))
 
-    >>> morse_freq(np.array([3,4,5]),10)
+    >>> morse_freq(np.array([3, 4, 5]), 10)
     (array([1.49380158, 1.25743343, 1.14869835]),
     array([1.49421505, 1.25000964, 1.13759731]),
     array([1.49543843, 1.24350315, 1.12739747]))
 
     See Also
     --------
-    :func:`morse_wavelet`, `morse_amplitude`
+    :func:`morse_wavelet`, :func:`morse_amplitude`
     """
     # add test for type and shape in case of ndarray?
     fm = np.where(
@@ -664,15 +663,13 @@ def morse_logspace_freq(
     Generate a frequency array for the generalized Morse wavelet
     with parameters gamma=3 and beta=5 for a time series of length n=1024:
 
-    >>> radian_frequency = morse_logspace_freq(3,5,1024)
-
-    >>> radian_frequency = morse_logspace_freq(3,5,1024,highset=(0.2,np.pi),lowset=(5,0))
-
-    >>> radian_frequency = morse_logspace_freq(3,5,1024,highset=(0.2,np.pi),lowset=(5,0),density=10)
+    >>> radian_frequency = morse_logspace_freq(3, 5, 1024)
+    >>> radian_frequency = morse_logspace_freq(3, 5, 1024, highset=(0.2, np.pi), lowset=(5, 0))
+    >>> radian_frequency = morse_logspace_freq(3, 5, 1024, highset=(0.2, np.pi), lowset=(5, 0), density=10)
 
     See Also
     --------
-    :func:`morse_wavelet`, `morse_freq`, `morse_properties`.
+    :func:`morse_wavelet`, :func:`morse_freq`, :func:`morse_properties`
     """
     gamma_ = np.array([gamma])
     beta_ = np.array([beta])
@@ -742,9 +739,13 @@ def morse_properties(
         Normalized fourth moment of the time-domain demodulate,
         or 'demodulate kurtosis'.
 
+    Examples
+    --------
+    TODO
+
     See Also
     --------
-    :func:`morse_wavelet`, `morse_freq`, `morse_amplitude`, `morse_logspace_freq`.
+    :func:`morse_wavelet`, :func:`morse_freq`, :func:`morse_amplitude`, :func:`morse_logspace_freq`.
     """
     # test common size? or could be broadcasted
     width = np.sqrt(gamma * beta)
@@ -787,9 +788,13 @@ def morse_amplitude(
     amp : np.ndarray or float
         The amplitude coefficient of the wavelets.
 
+    Examples
+    --------
+    TODO
+
     See Also
     --------
-    :func:`morse_wavelet`, `morse_freq`, `morse_props`, `morse_logspace_freq`.
+    :func:`morse_wavelet`, :func:`morse_freq`, :func:`morse_properties`, :func:`morse_logspace_freq`.
     """
     # add test for type and shape in case of ndarray
     if normalization == "energy":

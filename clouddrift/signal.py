@@ -5,7 +5,6 @@ This module provides signal processing functions.
 import numpy as np
 from typing import Optional, Tuple, Union
 import xarray as xr
-import warnings
 
 
 def analytic_transform(
@@ -158,14 +157,15 @@ def rotary_transform(
 
     Examples
     --------
-
     To obtain the rotary components of a real-valued signal:
+
     >>> u = np.random.rand(99)
     >>> v = np.random.rand(99)
     >>> zp, zn = rotary_transform(u,v)
 
     To specify that the time axis is along the first axis, and apply
     zero boundary conditions:
+
     >>> u = np.random.rand(100,99)
     >>> v = np.random.rand(100,99)
     >>> zp, zn = rotary_transform(u,v,time_axis=0,boundary="zeros")
