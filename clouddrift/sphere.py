@@ -53,8 +53,8 @@ def cumulative_distance(
 
 def distance(
     lat1: Union[float, list, np.ndarray, xr.DataArray],
-    lat2: Union[float, list, np.ndarray, xr.DataArray],
     lon1: Union[float, list, np.ndarray, xr.DataArray],
+    lat2: Union[float, list, np.ndarray, xr.DataArray],
     lon2: Union[float, list, np.ndarray, xr.DataArray],
 ) -> Union[float, np.ndarray]:
     """Return elementwise great circle distance in meters between one or more
@@ -133,8 +133,8 @@ def distance(
 
 def bearing(
     lat1: Union[float, list, np.ndarray, xr.DataArray],
-    lat2: Union[float, list, np.ndarray, xr.DataArray],
     lon1: Union[float, list, np.ndarray, xr.DataArray],
+    lat2: Union[float, list, np.ndarray, xr.DataArray],
     lon2: Union[float, list, np.ndarray, xr.DataArray],
 ) -> Union[float, np.ndarray]:
     """Return elementwise initial (forward) bearing in radians from arrays of
