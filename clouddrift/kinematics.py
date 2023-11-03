@@ -284,7 +284,7 @@ def residual_position_from_displacement(
         Meridional displacement in meters.
 
     Returns
-    ------
+    -------
     residual_longitude : float or np.ndarray
         Residual longitude after correcting for zonal displacement, in degrees.
     residual_latitude : float or np.ndarray
@@ -597,6 +597,32 @@ def velocity_from_position(
         If lengths of x, y, and time along time_axis are not equal.
         If coord_system is not "spherical" or "cartesian".
         If difference_scheme is not "forward", "backward", or "centered".
+
+    Examples
+    --------
+    Simple integration on a sphere, using the forward scheme by default:
+
+    >>> import numpy as np
+    >>> from clouddrift.kinematics import velocity_from_position
+    >>> lon = np.array([0., 1., 3., 6.])
+    >>> lat = np.array([0., 1., 2., 3.])
+    >>> time = np.array([0., 1., 2., 3.]) * 1e5
+    >>> u, v = velocity_from_position(lon, lat, time)
+    >>> u
+    array([1.11307541, 2.22513331, 3.33515501, 3.33515501])
+    >>> v
+    array([1.11324496, 1.11409224, 1.1167442 , 1.1167442 ])
+
+    Integration on a Cartesian plane, using the forward scheme by default:
+
+    >>> x = np.array([0., 1., 3., 6.])
+    >>> y = np.array([0., 1., 2., 3.])
+    >>> time = np.array([0., 1., 2., 3.])
+    >>> u, v = velocity_from_position(x, y, time, coord_system="cartesian")
+    >>> u
+    array([1., 2., 3., 3.])
+    >>> v
+    array([1., 1., 1., 1.])
 
     See Also
     --------

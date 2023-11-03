@@ -431,7 +431,6 @@ def rowsize_to_index(rowsize: Union[list, np.ndarray, xr.DataArray]) -> np.ndarr
 
     Examples
     --------
-
     To obtain the indices within a ragged array of three consecutive rows of sizes 100, 202, and 53:
 
     >>> rowsize_to_index([100, 202, 53])
@@ -466,7 +465,6 @@ def segment(
 
     Examples
     --------
-
     The simplest use of ``segment`` is to provide a tolerance value that is
     used to divide an array into segments:
 
@@ -577,7 +575,8 @@ def subset(
 
     Examples
     --------
-    Criteria are combined on any data or metadata variables part of the Dataset. The following examples are based on the GDP dataset.
+    Criteria are combined on any data or metadata variables part of the Dataset.
+    The following examples are based on the GDP dataset.
 
     Retrieve a region, like the Gulf of Mexico, using ranges of latitude and longitude:
 

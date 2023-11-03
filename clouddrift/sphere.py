@@ -36,8 +36,8 @@ def cumulative_distance(
 
     Examples
     --------
-
     Calculate the cumulative distance in meters along a path of three points:
+
     >>> cumulative_distance(np.array([0, 1, 2]), np.array([0, 1, 2]))
     array([     0.        , 157424.62387233, 314825.27182116])
     """
@@ -52,8 +52,11 @@ def cumulative_distance(
 
 
 def distance(
-    lat1: np.ndarray, lon1: np.ndarray, lat2: np.ndarray, lon2: np.ndarray
-) -> np.ndarray:
+    lat1: Union[float, list, np.ndarray, xr.DataArray],
+    lon1: Union[float, list, np.ndarray, xr.DataArray],
+    lat2: Union[float, list, np.ndarray, xr.DataArray],
+    lon2: Union[float, list, np.ndarray, xr.DataArray],
+) -> Union[float, np.ndarray]:
     """Return elementwise great circle distance in meters between one or more
     points from arrays of their latitudes and longitudes, using the Haversine
     formula.
@@ -73,6 +76,23 @@ def distance(
         Latitudes of the second set of points, in degrees
     lon2 : np.ndarray
         Longitudes of the second set of points, in degrees
+
+    Examples
+    --------
+    Calculate the distance of one degree longitude on the equator:
+
+    >>> distance(0, 0, 0, 1)
+    111318.84502145034
+
+    Calculate the distance of one degree longitude at 45-degrees North latitude:
+
+    >>> distance(45, 0, 45, 1)
+    78713.81064540472
+
+    You can also pass array-like inputs to calculate an array of distances:
+
+    >>> distance([0, 45], [0, 0], [0, 45], [1, 1])
+    array([111318.84502145,  78713.8106454 ])
 
     Returns
     -------
@@ -112,8 +132,11 @@ def distance(
 
 
 def bearing(
-    lat1: np.ndarray, lon1: np.ndarray, lat2: np.ndarray, lon2: np.ndarray
-) -> np.ndarray:
+    lat1: Union[float, list, np.ndarray, xr.DataArray],
+    lon1: Union[float, list, np.ndarray, xr.DataArray],
+    lat2: Union[float, list, np.ndarray, xr.DataArray],
+    lon2: Union[float, list, np.ndarray, xr.DataArray],
+) -> Union[float, np.ndarray]:
     """Return elementwise initial (forward) bearing in radians from arrays of
     latitude and longitude in degrees, based on the spherical law of cosines.
 
@@ -126,21 +149,32 @@ def bearing(
 
     Parameters
     ----------
-    lat1 : np.ndarray
+    lat1 : float or array-like
         Latitudes of the first set of points, in degrees
-    lon1 : np.ndarray
+    lon1 : float or array-like
         Longitudes of the first set of points, in degrees
-    lat2 : np.ndarray
+    lat2 : float or array-like
         Latitudes of the second set of points, in degrees
-    lon2 : np.ndarray
+    lon2 : float or array-like
         Longitudes of the second set of points, in degrees
 
     Returns
     -------
-    theta : np.ndarray
+    theta : float or np.ndarray
         Bearing angles in radians
-    """
 
+    Examples
+    --------
+    Calculate the bearing of one degree longitude on the equator:
+
+    >>> bearing(0, 0, 0, 1)
+    0.0
+
+    Calculate the bearing of 10 degrees longitude at 45-degrees North latitude:
+
+    >>> bearing(45, 0, 45, 10)
+    0.06178508761798218
+    """
     # Input coordinates are in degrees; convert to radians.
     # If any of the input arrays are xr.DataArray, extract the values first
     # because Xarray enforces alignment between coordinates.
@@ -204,6 +238,18 @@ def position_from_distance_and_bearing(
         Latitudes of the second set of points, in degrees, in the range [-90, 90]
     lon2 : array_like
         Longitudes of the second set of points, in degrees, in the range [-180, 180]
+
+    Examples
+    --------
+    Calculate the position of one degree longitude distance on the equator:
+
+    >>> position_from_distance_and_bearing(0, 0, 111318.84502145034, 0)
+    (0.0, 1.0)
+
+    Calculate the position of one degree latitude distance from 45 degrees North latitude:
+
+    >>> position_from_distance_and_bearing(45, 0, 111318.84502145034, np.pi / 2)
+    (45.99999999999999, 8.81429402840006e-17)
     """
     lat_rad = np.deg2rad(lat)
     lon_rad = np.deg2rad(lon)
@@ -223,7 +269,8 @@ def position_from_distance_and_bearing(
 
 
 def recast_lon(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
-    """Recast (convert) longitude values to a selected range of 360 degrees starting from ``lon0``.
+    """Recast (convert) longitude values to a selected range of 360 degrees
+    starting from ``lon0``.
 
     Parameters
     ----------
@@ -239,7 +286,6 @@ def recast_lon(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
 
     Examples
     --------
-
     By default, ``recast_lon`` converts longitude values to the range
     `[-180, 180[`:
 
@@ -481,8 +527,8 @@ def sphere_to_plane(
 
 
 def spherical_to_cartesian(
-    lon: np.ndarray,
-    lat: np.ndarray,
+    lon: Union[float, list, np.ndarray, xr.DataArray],
+    lat: Union[float, list, np.ndarray, xr.DataArray],
     radius: Optional[float] = EARTH_RADIUS_METERS,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Converts latitude and longitude on a spherical body to
@@ -495,9 +541,9 @@ def spherical_to_cartesian(
 
     Parameters
     ----------
-    lon : np.ndarray
+    lon : array-like
         An N-d array of longitudes in degrees.
-    lat : np.ndarray
+    lat : array-like
         An N-d array of latitudes in degrees.
     radius: float, optional
         The radius of the spherical body in meters. The default assumes the Earth with
@@ -505,11 +551,11 @@ def spherical_to_cartesian(
 
     Returns
     -------
-    x : np.ndarray
+    x : float or array-like
         x-coordinates in 3D in meters.
-    y : np.ndarray
+    y : float or array-like
         y-coordinates in 3D in meters.
-    z : np.ndarray
+    z : float or array-like
         z-coordinates in 3D in meters.
 
     Examples
@@ -545,9 +591,9 @@ def spherical_to_cartesian(
 
 
 def cartesian_to_spherical(
-    x: np.ndarray,
-    y: np.ndarray,
-    z: np.ndarray,
+    x: Union[float, np.ndarray, xr.DataArray],
+    y: Union[float, np.ndarray, xr.DataArray],
+    z: Union[float, np.ndarray, xr.DataArray],
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Converts Cartesian three-dimensional coordinates to latitude and longitude on a
     spherical body.
@@ -559,18 +605,18 @@ def cartesian_to_spherical(
 
     Parameters
     ----------
-    x : np.ndarray
+    x : float or array-like
         x-coordinates in 3D.
-    y : np.ndarray
+    y : float or array-like
         y-coordinates in 3D.
-    z : np.ndarray
+    z : float or array-like
         z-coordinates in 3D.
 
     Returns
     -------
-    lon : np.ndarray
+    lon : float or array-like
         An N-d array of longitudes in degrees in range [-180, 180].
-    lat : np.ndarray
+    lat : float or array-like
         An N-d array of latitudes in degrees.
 
     Examples
@@ -581,7 +627,7 @@ def cartesian_to_spherical(
     >>> cartesian_to_spherical(x, y, z)
     (44.99999999999985, 0.0)
 
-    `cartesian_to_spherical` is inverted by `spherical_to_cartesian`:
+    ``cartesian_to_spherical`` is inverted by ``spherical_to_cartesian``:
 
     >>> x, y, z = spherical_to_cartesian(np.array([45]),np.array(0))
     >>> cartesian_to_spherical(x, y, z)
@@ -715,7 +761,7 @@ def tangentplane_to_cartesian(
 
     Notes
     -----
-    This function is inverted by `cartesian_to_tangetplane`.
+    This function is inverted by :func:`cartesian_to_tangetplane`.
 
     See Also
     --------
@@ -749,7 +795,6 @@ def coriolis_frequency(
     Examples
     --------
     >>> f = coriolis_frequency(np.array([0, 45, 90]))
-
     """
     f = 2 * EARTH_ROTATION_RATE * np.sin(np.radians(latitude))
 
