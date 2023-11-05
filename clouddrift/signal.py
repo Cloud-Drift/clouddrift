@@ -8,56 +8,85 @@ import xarray as xr
 import warnings
 
 
-def analytic_transform(
+def analytic_signal(
     x: Union[np.ndarray, xr.DataArray],
     boundary: Optional[str] = "mirror",
     time_axis: Optional[int] = -1,
-) -> np.ndarray:
-    """Return the analytic part of a real-valued signal or of a complex-valued
-    signal. To obtain the anti-analytic part of a complex-valued signal apply analytic_transform
-    to the conjugate of the input. Analytic_transform removes the mean of the input signals.
+) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+    """Return the analytic signal from a real-valued signal or the analytic and
+    anti-analytic signals from a complex-valued signal.
+
+    If the input is a real-valued signal, the analytic signal is calculated as
+    the inverse Fourier transform of the positive-frequency part of the Fourier
+    transform. If the input is a complex-valued signal, the anti-analytic signal
+    is additionally calculated as the inverse Fourier transform of the conjugate of
+    the negative-frequency part of the Fourier transform.
+
+    For a complex-valued signal, the mean is evenly divided between the analytic and
+    anti-analytic signals.
+
+    The calculation is performed along the last axis of the input array by default.
+    Alternatively, the user can specify the time axis of the input. The user can also
+    specify the boundary conditions to be applied to the input array (default is "mirror").
 
     Parameters
     ----------
-    x : np.ndarray
-        Real- or complex-valued signal
+    x : array_like
+        Real- or complex-valued signal.
     boundary : str, optional
         The boundary condition to be imposed at the edges of the time series.
         Allowed values are "mirror", "zeros", and "periodic".
         Default is "mirror".
     time_axis : int, optional
-        Axis on which the time is defined (default is -1)
+        Axis on which the time is defined (default is -1).
 
     Returns
     -------
-    z : np.ndarray
-        Analytic transform of the input signal.
+    xa : np.ndarray
+        Analytic signal. It is a tuple if the input is a complex-valed signal
+        with the first element being the analytic signal and the second element
+        being the anti-analytic signal.
 
     Examples
     --------
 
-    To obtain the analytic part of a real-valued signal:
-    >>> x = np.random.rand(99)
-    >>> z = analytic_transform(x)
+    To obtain the analytic signal of a real-valued signal:
 
-    To obtain the analytic and anti-analytic parts of a complex-valued signal:
-    >>> z = np.random.rand(99)+1j*np.random.rand(99)
-    >>> zp = analytic_transform(z)
-    >>> zn = analytic_transform(np.conj(z))
+    >>> x = np.random.rand(99)
+    >>> xa = analytic_signal(x)
+
+    To obtain the analytic and anti-analytic signals of a complex-valued signal:
+
+    >>> w = np.random.rand(99)+1j*np.random.rand(99)
+    >>> wp, wn = analytic_signal(w)
 
     To specify that a periodic boundary condition should be used:
+
     >>> x = np.random.rand(99)
-    >>> z = analytic_transform(x, boundary="periodic")
+    >>> xa = analytic_signal(x, boundary="periodic")
 
     To specify that the time axis is along the first axis and apply
     zero boundary conditions:
+
     >>> x = np.random.rand(100, 99)
-    >>> z = analytic_transform(x, time_axis=0, boundary="zeros")
+    >>> xa = analytic_signal(x, time_axis=0, boundary="zeros")
 
     Raises
     ------
     ValueError
+        If the time axis is outside of the valid range ([-1, N-1]).
         If ``boundary not in ["mirror", "zeros", "periodic"]``.
+
+    References
+    ----------
+    [1] Gabor D. 1946 Theory of communication. Proc. IEE 93, 429–457. (10.1049/ji-1.1947.0015).
+
+    [2] Lilly JM, Olhede SC. 2010 Bivariate instantaneous frequency and bandwidth.
+    IEEE T. Signal Proces. 58, 591–603. (10.1109/TSP.2009.2031729).
+
+    See Also
+    --------
+    :func:`rotary_to_cartesian`, `cartesian_to_rotary`
     """
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(x.shape) - 1:
@@ -78,7 +107,8 @@ def analytic_transform(
 
     # Subtract mean along time axis (-1); convert to np.array for compatibility
     # with xarray.DataArray.
-    xa = x_ - np.array(np.mean(x_, axis=-1, keepdims=True))
+    mx_ = np.array(np.mean(x_, axis=-1, keepdims=True))
+    xa = x_ - mx_
 
     # apply boundary conditions
     if boundary == "mirror":
@@ -90,59 +120,64 @@ def analytic_transform(
     else:
         raise ValueError("boundary must be one of 'mirror', 'align', or 'zeros'.")
 
-    if np.isrealobj(xa):
-        # fft should be taken along last axis
-        z = 2 * np.fft.fft(xa)
-    else:
-        z = np.fft.fft(xa)
+    # analytic signal
+    xap = np.fft.fft(xa)
+    # anti-analytic signal
+    xan = np.fft.fft(np.conj(xa))
 
     # time dimension of extended time series
     M = np.shape(xa)[-1]
 
     # zero negative frequencies
     if M % 2 == 0:
-        z[..., int(M / 2 + 2) - 1 : int(M + 1) + 1] = 0
+        xap[..., int(M / 2 + 2) - 1 : int(M + 1) + 1] = 0
+        xan[..., int(M / 2 + 2) - 1 : int(M + 1) + 1] = 0
         # divide Nyquist component by 2 in even case
-        z[..., int(M / 2 + 1) - 1] = z[..., int(M / 2 + 1) - 1] / 2
+        xap[..., int(M / 2 + 1) - 1] = xap[..., int(M / 2 + 1) - 1] / 2
+        xan[..., int(M / 2 + 1) - 1] = xan[..., int(M / 2 + 1) - 1] / 2
     else:
-        z[..., int((M + 3) / 2) - 1 : int(M + 1) + 1] = 0
+        xap[..., int((M + 3) / 2) - 1 : int(M + 1) + 1] = 0
+        xan[..., int((M + 3) / 2) - 1 : int(M + 1) + 1] = 0
 
     # inverse Fourier transform along last axis
-    z = np.fft.ifft(z)
+    xap = np.fft.ifft(xap)
+    xan = np.fft.ifft(xan)
 
-    # return central part
-    z = z[..., int(N + 1) - 1 : int(2 * N + 1) - 1]
+    # return central part plus hlaf the mean
+    xap = xap[..., int(N + 1) - 1 : int(2 * N + 1) - 1] + 0.5 * mx_
+    xan = xan[..., int(N + 1) - 1 : int(2 * N + 1) - 1] + 0.5 * np.conj(mx_)
+
+    if np.isrealobj(x):
+        xa = xap + xan
+    else:
+        xa = (xap, xan)
 
     # return after reorganizing the axes
     if time_axis != -1 and time_axis != len(x.shape) - 1:
-        return np.swapaxes(z, time_axis, -1)
+        return np.swapaxes(xa, time_axis, -1)
     else:
-        return z
+        return xa
 
 
 def cartesian_to_rotary(
-    u: Union[np.ndarray, xr.DataArray],
-    v: Union[np.ndarray, xr.DataArray],
-    boundary: Optional[str] = "mirror",
+    ua: Union[np.ndarray, xr.DataArray],
+    va: Union[np.ndarray, xr.DataArray],
     time_axis: Optional[int] = -1,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Return time-domain rotary components time series (wp,wn) from Cartesian components time series (u,v).
-    The complex-valued time series u+1j*v is recovered by wp+np.conj(wn).
+    """Return rotary signals (wp,wn) from analytic Cartesian signals (ua,va).
 
-    If up is the analytic transform of u, and vp the analytic transform of v, then the positive (counterclockwise)
-     and negative (clockwise) components are defined by wp = 0.5*(up+1j*vp), wp = 0.5*(up-1j*vp).
+    If ua is the analytic signal from real-valued signal u, and va the analytic signal
+    from real-valued signal v, then the positive (counterclockwise) and negative (clockwise)
+    signals are defined by wp = 0.5*(up+1j*vp), wp = 0.5*(up-1j*vp).
 
-    Here the mean of the input signal is split evenly between the two rotary components.
+    This function is the inverse of :func:`rotary_to_cartesian`.
 
     Parameters
     ----------
-    u : array_like
-        Real-valued signal, first Cartesian component (zonal, east-west)
-    v : array_like
-        Real-valued signal, second Cartesian component (meridional, north-south)
-    boundary : str, optional
-        The boundary condition to be imposed at the edges of the time series for the analytic transform.
-        Allowed values are "mirror" (default), "zeros", and "periodic".
+    ua : array_like
+        Complex-valued analytic signal for first Cartesian component (zonal, east-west)
+    va : array_like
+        Complex-valued analytic signal for second Cartesian component (meridional, north-south)
     time_axis : int, optional
         The axis of the time array. Default is -1, which corresponds to the
         last axis.
@@ -150,63 +185,53 @@ def cartesian_to_rotary(
     Returns
     -------
     wp : np.ndarray
-        Time-domain complex-valued positive (counterclockwise) rotary component.
+        Complex-valued positive (counterclockwise) rotary signal.
     wn : np.ndarray
-        Time-domain complex-valued negative (clockwise) rotary component.
+        Complex-valued negative (clockwise) rotary signal.
 
     Examples
     --------
 
-    To obtain the rotary components of a real-valued signal:
+    To obtain the rotary signals from a pair of real-valued signal:
 
     >>> u = np.random.rand(99)
     >>> v = np.random.rand(99)
-    >>> wp, wn = rotary_transform(u,v)
+    >>> wp, wn = cartesian_to_rotary(analytic_signal(u),analytic_signal(v))
 
-    To specify that the time axis is along the first axis, and apply
-    zero boundary conditions:
+    To specify that the time axis is along the first axis:
 
     >>> u = np.random.rand(100,99)
     >>> v = np.random.rand(100,99)
-    >>> wp, wn = rotary_transform(u,v,time_axis=0,boundary="zeros")
+    >>> wp, wn = cartesian_to_rotary(analytic_signal(u),analytic_signal(v),time_axis=0)
 
     Raises
     ------
     ValueError
         If the input arrays do not have the same shape.
+        If the time axis is outside of the valid range ([-1, N-1]).
 
     References
     ----------
-    Lilly, J. M., & Olhede, S. C. (2010). On the Analytic Wavelet Transform.
-    doi: 10.1109/TIT.2010.2050935.
+    Lilly JM, Olhede SC. 2010 Bivariate instantaneous frequency and bandwidth.
+    IEEE T. Signal Proces. 58, 591–603. (10.1109/TSP.2009.2031729)
 
     See Also
     --------
-    :func:`analytic_transform`, `rotary_to_cartesian`
+    :func:`analytic_signal`, `rotary_to_cartesian`
     """
     # u and v arrays must have the same shape.
-    if not u.shape == v.shape:
+    if not ua.shape == va.shape:
         raise ValueError("u and v must have the same shape.")
 
     # time_axis must be in valid range
-    if time_axis < -1 or time_axis > len(u.shape) - 1:
+    if time_axis < -1 or time_axis > len(ua.shape) - 1:
         raise ValueError(
             f"time_axis ({time_axis}) is outside of the valid range ([-1,"
-            f" {len(u.shape) - 1}])."
+            f" {len(ua.shape) - 1}])."
         )
 
-    muv = np.mean(u, axis=time_axis, keepdims=True) + 1j * np.mean(
-        v, axis=time_axis, keepdims=True
-    )
-
-    if type(muv) == xr.DataArray:
-        muv = muv.to_numpy()
-
-    up = analytic_transform(u, boundary=boundary, time_axis=time_axis)
-    vp = analytic_transform(v, boundary=boundary, time_axis=time_axis)
-
-    wp = 0.5 * (up + 1j * vp) + 0.5 * muv
-    wn = 0.5 * (up - 1j * vp) + 0.5 * np.conj(muv)
+    wp = 0.5 * (ua + 1j * va)
+    wn = 0.5 * (ua - 1j * va)
 
     return wp, wn
 
@@ -216,49 +241,53 @@ def rotary_to_cartesian(
     wn: Union[np.ndarray, xr.DataArray],
     time_axis: Optional[int] = -1,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Return time-domain Cartesian components time series (u,v) from rotary components time series (wp,wn).
+    """Return Cartesian analytic signals (ua,va) from rotary signals (wp,wn) as
+    ua = wp + wn and va = -1j * (wp - wn).
+
+    This function is the inverse of :func:`cartesian_to_rotary`.
 
     Parameters
     ----------
     wp : array_like
-        Time-domain complex-valued positive (counterclockwise) rotary component.
+        Complex-valued positive (counterclockwise) rotary signal.
     wn : array_like
-        Time-domain complex-valued negative (clockwise) rotary component.
+        Complex-valued negative (clockwise) rotary signal.
     time_axis : int, optional
         The axis of the time array. Default is -1, which corresponds to the
         last axis.
 
     Returns
     -------
-    u : array_like
-        Real-valued signal, first Cartesian component (zonal, east-west)
-    v : array_like
-        Real-valued signal, second Cartesian component (meridional, north-south)
+    ua : array_like
+        Complex-valued analytic signal, first Cartesian component (zonal, east-west)
+    va : array_like
+        Complex-valued analytic signal, second Cartesian component (meridional, north-south)
 
     Examples
     --------
 
-    To obtain the Cartesian components of a signal from its rotary components:
+    To obtain the Cartesian analytic signals from a pair of rotary signals (wp,wn):
 
-    >>> u, v = rotary_to_cartesian(wp,wn)
+    >>> ua, va = rotary_to_cartesian(wp,wn)
 
     To specify that the time axis is along the first axis:
 
-    >>> u, v = rotary_to_cartesian(wp,wn,time_axis=0,boundary="zeros")
+    >>> ua, va = rotary_to_cartesian(wp,wn,time_axis=0)
 
     Raises
     ------
     ValueError
         If the input arrays do not have the same shape.
+        If the time axis is outside of the valid range ([-1, N-1]).
 
     References
     ----------
-    Lilly, J. M., & Olhede, S. C. (2010). On the Analytic Wavelet Transform.
-    doi: 10.1109/TIT.2010.2050935.
+    Lilly JM, Olhede SC. 2010 Bivariate instantaneous frequency and bandwidth.
+    IEEE T. Signal Proces. 58, 591–603. (10.1109/TSP.2009.2031729)
 
     See Also
     --------
-    :func:`analytic_transform`, `cartesian_to_rotary`
+    :func:`analytic_signal`, `cartesian_to_rotary`
     """
 
     if not wp.shape == wn.shape:
@@ -272,7 +301,7 @@ def rotary_to_cartesian(
         )
 
     # I think this may return xarray dataarrays if that's the input
-    u = np.real(wp + wn)
-    v = np.real(-1j * (wp - wn))
+    ua = wp + wn
+    va = -1j * (wp - wn)
 
-    return u, v
+    return ua, va
