@@ -5,7 +5,6 @@ This module provides signal processing functions.
 import numpy as np
 from typing import Optional, Tuple, Union
 import xarray as xr
-import warnings
 
 
 def analytic_signal(
@@ -191,7 +190,6 @@ def cartesian_to_rotary(
 
     Examples
     --------
-
     To obtain the rotary signals from a pair of real-valued signal:
 
     >>> u = np.random.rand(99)
