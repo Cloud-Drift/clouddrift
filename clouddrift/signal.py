@@ -194,13 +194,13 @@ def cartesian_to_rotary(
 
     >>> u = np.random.rand(99)
     >>> v = np.random.rand(99)
-    >>> wp, wn = cartesian_to_rotary(analytic_signal(u),analytic_signal(v))
+    >>> wp, wn = cartesian_to_rotary(analytic_signal(u), analytic_signal(v))
 
     To specify that the time axis is along the first axis:
 
-    >>> u = np.random.rand(100,99)
-    >>> v = np.random.rand(100,99)
-    >>> wp, wn = cartesian_to_rotary(analytic_signal(u),analytic_signal(v),time_axis=0)
+    >>> u = np.random.rand(100, 99)
+    >>> v = np.random.rand(100, 99)
+    >>> wp, wn = cartesian_to_rotary(analytic_signal(u), analytic_signal(v), time_axis=0)
 
     Raises
     ------
@@ -215,7 +215,7 @@ def cartesian_to_rotary(
 
     See Also
     --------
-    :func:`analytic_signal`, `rotary_to_cartesian`
+    :func:`analytic_signal`, :func:`rotary_to_cartesian`
     """
     # u and v arrays must have the same shape.
     if not ua.shape == va.shape:
@@ -239,8 +239,8 @@ def rotary_to_cartesian(
     wn: Union[np.ndarray, xr.DataArray],
     time_axis: Optional[int] = -1,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Return Cartesian analytic signals (ua,va) from rotary signals (wp,wn) as
-    ua = wp + wn and va = -1j * (wp - wn).
+    """Return Cartesian analytic signals (ua, va) from rotary signals (wp, wn)
+    as ua = wp + wn and va = -1j * (wp - wn).
 
     This function is the inverse of :func:`cartesian_to_rotary`.
 
@@ -270,7 +270,7 @@ def rotary_to_cartesian(
 
     To specify that the time axis is along the first axis:
 
-    >>> ua, va = rotary_to_cartesian(wp,wn,time_axis=0)
+    >>> ua, va = rotary_to_cartesian(wp, wn, time_axis=0)
 
     Raises
     ------
@@ -285,7 +285,7 @@ def rotary_to_cartesian(
 
     See Also
     --------
-    :func:`analytic_signal`, `cartesian_to_rotary`
+    :func:`analytic_signal`, :func:`cartesian_to_rotary`
     """
 
     if not wp.shape == wn.shape:
