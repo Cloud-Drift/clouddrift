@@ -85,7 +85,7 @@ def analytic_signal(
 
     See Also
     --------
-    :func:`rotary_to_cartesian`, `cartesian_to_rotary`
+    :func:`rotary_to_cartesian`, :func:`cartesian_to_rotary`
     """
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(x.shape) - 1:
