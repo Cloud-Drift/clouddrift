@@ -515,8 +515,8 @@ def position_from_velocity(
         bearings = np.arctan2(dy, dx)
         x[..., 0], y[..., 0] = x_origin, y_origin
         for n in range(distances.shape[-1]):
-            y[..., n + 1], x[..., n + 1] = position_from_distance_and_bearing(
-                y[..., n], x[..., n], distances[..., n], bearings[..., n]
+            x[..., n + 1], y[..., n + 1] = position_from_distance_and_bearing(
+                x[..., n], y[..., n], distances[..., n], bearings[..., n]
             )
     else:
         raise ValueError('coord_system must be "spherical" or "cartesian".')
@@ -681,8 +681,8 @@ def velocity_from_position(
             dy[..., -1] = dy[..., -2]
 
         elif coord_system == "spherical":
-            distances = distance(y_[..., :-1], x_[..., :-1], y_[..., 1:], x_[..., 1:])
-            bearings = bearing(y_[..., :-1], x_[..., :-1], y_[..., 1:], x_[..., 1:])
+            distances = distance(x_[..., :-1], y_[..., :-1], x_[..., 1:], y_[..., 1:])
+            bearings = bearing(x_[..., :-1], y_[..., :-1], x_[..., 1:], y_[..., 1:])
             dx[..., :-1] = distances * np.cos(bearings)
             dx[..., -1] = dx[..., -2]
             dy[..., :-1] = distances * np.sin(bearings)
@@ -708,8 +708,8 @@ def velocity_from_position(
             dy[..., 0] = dy[..., 1]
 
         elif coord_system == "spherical":
-            distances = distance(y_[..., :-1], x_[..., :-1], y_[..., 1:], x_[..., 1:])
-            bearings = bearing(y_[..., :-1], x_[..., :-1], y_[..., 1:], x_[..., 1:])
+            distances = distance(x_[..., :-1], y_[..., :-1], x_[..., 1:], y_[..., 1:])
+            bearings = bearing(x_[..., :-1], y_[..., :-1], x_[..., 1:], y_[..., 1:])
             dx[..., 1:] = distances * np.cos(bearings)
             dx[..., 0] = dx[..., 1]
             dy[..., 1:] = distances * np.sin(bearings)
@@ -743,18 +743,18 @@ def velocity_from_position(
             x1 = (x_[..., :-2] + x_[..., 1:-1]) / 2
             y2 = (y_[..., 2:] + y_[..., 1:-1]) / 2
             x2 = (x_[..., 2:] + x_[..., 1:-1]) / 2
-            distances = distance(y1, x1, y2, x2)
-            bearings = bearing(y1, x1, y2, x2)
+            distances = distance(x1, y1, x2, y2)
+            bearings = bearing(x1, y1, x2, y2)
             dx[..., 1:-1] = distances * np.cos(bearings)
             dy[..., 1:-1] = distances * np.sin(bearings)
 
             # Boundary values
-            distance1 = distance(y_[..., 0], x_[..., 0], y_[..., 1], x_[..., 1])
-            bearing1 = bearing(y_[..., 0], x_[..., 0], y_[..., 1], x_[..., 1])
+            distance1 = distance(x_[..., 0], y_[..., 0], x_[..., 1], y_[..., 1])
+            bearing1 = bearing(x_[..., 0], y_[..., 0], x_[..., 1], y_[..., 1])
             dx[..., 0] = distance1 * np.cos(bearing1)
             dy[..., 0] = distance1 * np.sin(bearing1)
-            distance2 = distance(y_[..., -2], x_[..., -2], y_[..., -1], x_[..., -1])
-            bearing2 = bearing(y_[..., -2], x_[..., -2], y_[..., -1], x_[..., -1])
+            distance2 = distance(x_[..., -2], y_[..., -2], x_[..., -1], y_[..., -1])
+            bearing2 = bearing(x_[..., -2], y_[..., -2], x_[..., -1], y_[..., -1])
             dx[..., -1] = distance2 * np.cos(bearing2)
             dy[..., -1] = distance2 * np.sin(bearing2)
 
