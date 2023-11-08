@@ -52,10 +52,10 @@ def cumulative_distance(
 
 
 def distance(
-    lat1: Union[float, list, np.ndarray, xr.DataArray],
     lon1: Union[float, list, np.ndarray, xr.DataArray],
-    lat2: Union[float, list, np.ndarray, xr.DataArray],
+    lat1: Union[float, list, np.ndarray, xr.DataArray],
     lon2: Union[float, list, np.ndarray, xr.DataArray],
+    lat2: Union[float, list, np.ndarray, xr.DataArray],
 ) -> Union[float, np.ndarray]:
     """Return elementwise great circle distance in meters between one or more
     points from arrays of their latitudes and longitudes, using the Haversine
@@ -68,14 +68,19 @@ def distance(
 
     Parameters
     ----------
-    lat1 : np.ndarray
-        Latitudes of the first set of points, in degrees
     lon1 : np.ndarray
         Longitudes of the first set of points, in degrees
-    lat2 : np.ndarray
-        Latitudes of the second set of points, in degrees
+    lat1 : np.ndarray
+        Latitudes of the first set of points, in degrees
     lon2 : np.ndarray
         Longitudes of the second set of points, in degrees
+    lat2 : np.ndarray
+        Latitudes of the second set of points, in degrees
+
+    Returns
+    -------
+    out : np.ndarray
+        Great circle distance
 
     Examples
     --------
@@ -86,18 +91,13 @@ def distance(
 
     Calculate the distance of one degree longitude at 45-degrees North latitude:
 
-    >>> distance(45, 0, 45, 1)
+    >>> distance(0, 45, 1, 45)
     78713.81064540472
 
     You can also pass array-like inputs to calculate an array of distances:
 
-    >>> distance([0, 45], [0, 0], [0, 45], [1, 1])
+    >>> distance([0, 0], [0, 45], [0, 1], [1, 45])
     array([111318.84502145,  78713.8106454 ])
-
-    Returns
-    -------
-    out : np.ndarray
-        Great circle distance
     """
 
     # Input coordinates are in degrees; convert to radians.
@@ -132,10 +132,10 @@ def distance(
 
 
 def bearing(
-    lat1: Union[float, list, np.ndarray, xr.DataArray],
     lon1: Union[float, list, np.ndarray, xr.DataArray],
-    lat2: Union[float, list, np.ndarray, xr.DataArray],
+    lat1: Union[float, list, np.ndarray, xr.DataArray],
     lon2: Union[float, list, np.ndarray, xr.DataArray],
+    lat2: Union[float, list, np.ndarray, xr.DataArray],
 ) -> Union[float, np.ndarray]:
     """Return elementwise initial (forward) bearing in radians from arrays of
     latitude and longitude in degrees, based on the spherical law of cosines.
@@ -149,14 +149,14 @@ def bearing(
 
     Parameters
     ----------
-    lat1 : float or array-like
-        Latitudes of the first set of points, in degrees
     lon1 : float or array-like
         Longitudes of the first set of points, in degrees
-    lat2 : float or array-like
-        Latitudes of the second set of points, in degrees
+    lat1 : float or array-like
+        Latitudes of the first set of points, in degrees
     lon2 : float or array-like
         Longitudes of the second set of points, in degrees
+    lat2 : float or array-like
+        Latitudes of the second set of points, in degrees
 
     Returns
     -------
@@ -167,12 +167,12 @@ def bearing(
     --------
     Calculate the bearing of one degree longitude on the equator:
 
-    >>> bearing(0, 0, 0, 1)
+    >>> bearing(0, 0, 1, 0)
     0.0
 
     Calculate the bearing of 10 degrees longitude at 45-degrees North latitude:
 
-    >>> bearing(45, 0, 45, 10)
+    >>> bearing(0, 45, 10, 45)
     0.06178508761798218
     """
     # Input coordinates are in degrees; convert to radians.
@@ -207,7 +207,7 @@ def bearing(
 
 
 def position_from_distance_and_bearing(
-    lat: float, lon: float, distance: float, bearing: float
+    lon: float, lat: float, distance: float, bearing: float
 ) -> Tuple[float, float]:
     """Return elementwise new position in degrees from arrays of latitude and
     longitude in degrees, distance in meters, and bearing in radians, based on
@@ -223,10 +223,10 @@ def position_from_distance_and_bearing(
 
     Parameters
     ----------
-    lat : float
-        Latitude of the first set of points, in degrees
     lon : float
         Longitude of the first set of points, in degrees
+    lat : float
+        Latitude of the first set of points, in degrees
     distance : array_like
         Distance in meters
     bearing : array_like
@@ -234,9 +234,9 @@ def position_from_distance_and_bearing(
 
     Returns
     -------
-    lat2 : array_like
-        Latitudes of the second set of points, in degrees, in the range [-90, 90]
     lon2 : array_like
+        Latitudes of the second set of points, in degrees, in the range [-90, 90]
+    lat2 : array_like
         Longitudes of the second set of points, in degrees, in the range [-180, 180]
 
     Examples
@@ -244,12 +244,12 @@ def position_from_distance_and_bearing(
     Calculate the position of one degree longitude distance on the equator:
 
     >>> position_from_distance_and_bearing(0, 0, 111318.84502145034, 0)
-    (0.0, 1.0)
+    (1.0, 0.0)
 
     Calculate the position of one degree latitude distance from 45 degrees North latitude:
 
-    >>> position_from_distance_and_bearing(45, 0, 111318.84502145034, np.pi / 2)
-    (45.99999999999999, 8.81429402840006e-17)
+    >>> position_from_distance_and_bearing(0, 45, 111318.84502145034, np.pi / 2)
+    (8.81429402840006e-17, 45.99999999999999)
     """
     lat_rad = np.deg2rad(lat)
     lon_rad = np.deg2rad(lon)
@@ -265,7 +265,7 @@ def position_from_distance_and_bearing(
         np.cos(distance_rad) - np.sin(lat_rad) * np.sin(lat2_rad),
     )
 
-    return np.rad2deg(lat2_rad), np.rad2deg(lon2_rad)
+    return np.rad2deg(lon2_rad), np.rad2deg(lat2_rad)
 
 
 def recast_lon(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
@@ -438,12 +438,12 @@ def plane_to_sphere(
 
     # Compute spherical coordinates following great circles between each
     # successive point.
-    lat[..., 0], lon[..., 0] = position_from_distance_and_bearing(
-        lat_origin, lon_origin, distances[..., 0], bearings[..., 0]
+    lon[..., 0], lat[..., 0] = position_from_distance_and_bearing(
+        lon_origin, lat_origin, distances[..., 0], bearings[..., 0]
     )
     for n in range(1, lon.shape[-1]):
-        lat[..., n], lon[..., n] = position_from_distance_and_bearing(
-            lat[..., n - 1], lon[..., n - 1], distances[..., n], bearings[..., n]
+        lon[..., n], lat[..., n] = position_from_distance_and_bearing(
+            lon[..., n - 1], lat[..., n - 1], distances[..., n], bearings[..., n]
         )
 
     return lon, lat
@@ -510,12 +510,12 @@ def sphere_to_plane(
     bearings = np.empty_like(x)
 
     # Distance and bearing of the starting point relative to the origin
-    distances[0] = distance(lat_origin, lon_origin, lat[..., 0], lon[..., 0])
-    bearings[0] = bearing(lat_origin, lon_origin, lat[..., 0], lon[..., 0])
+    distances[0] = distance(lon_origin, lat_origin, lon[..., 0], lat[..., 0])
+    bearings[0] = bearing(lon_origin, lat_origin, lon[..., 0], lat[..., 0])
 
     # Distance and bearing of the remaining points
-    distances[1:] = distance(lat[..., :-1], lon[..., :-1], lat[..., 1:], lon[..., 1:])
-    bearings[1:] = bearing(lat[..., :-1], lon[..., :-1], lat[..., 1:], lon[..., 1:])
+    distances[1:] = distance(lon[..., :-1], lat[..., :-1], lon[..., 1:], lat[..., 1:])
+    bearings[1:] = bearing(lon[..., :-1], lat[..., :-1], lon[..., 1:], lat[..., 1:])
 
     dx = distances * np.cos(bearings)
     dy = distances * np.sin(bearings)
@@ -537,7 +537,8 @@ def spherical_to_cartesian(
     The Cartesian coordinate system is a right-handed system whose
     origin lies at the center of a sphere.  It is oriented with the
     Z-axis passing through the poles and the X-axis passing through
-    the point lon = 0, lat = 0. This function is inverted by `cartesian_to_spherical`.
+    the point lon = 0, lat = 0. This function is inverted by
+    :func:`cartesian_to_spherical`.
 
     Parameters
     ----------
@@ -560,17 +561,17 @@ def spherical_to_cartesian(
 
     Examples
     --------
-    >>> spherical_to_cartesian(np.array([0, 45]),np.array([0, 45]))
+    >>> spherical_to_cartesian(np.array([0, 45]), np.array([0, 45]))
     (array([6378100., 3189050.]),
     array([      0., 3189050.]),
     array([      0.        , 4509997.76108592]))
 
-    >>> spherical_to_cartesian(np.array([0, 45, 90]),np.array([0, 90, 180]),radius=1)
+    >>> spherical_to_cartesian(np.array([0, 45, 90]), np.array([0, 90, 180]), radius=1)
     (array([ 1.00000000e+00,  4.32978028e-17, -6.12323400e-17]),
     array([ 0.00000000e+00,  4.32978028e-17, -1.00000000e+00]),
     array([0.0000000e+00, 1.0000000e+00, 1.2246468e-16]))
 
-    >>> x, y, z = spherical_to_cartesian(np.array([0,5]),np.array([0,5]))
+    >>> x, y, z = spherical_to_cartesian(np.array([0, 5]), np.array([0, 5]))
 
     Raises
     ------
