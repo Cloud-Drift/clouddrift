@@ -10,10 +10,10 @@ Example
 >>> ds = glad.to_xarray()
 """
 from concurrent.futures import ThreadPoolExecutor
+from io import StringIO
 import numpy as np
 import pandas as pd
 import requests
-from io import StringIO
 import tqdm
 import xarray as xr
 
@@ -83,6 +83,26 @@ def to_xarray() -> xr.Dataset:
         "units": "degrees_north",
     }
 
-    # TODO attributes for other variables
+    ds["position_error"].attrs = {
+        "long_name": "position_error",
+        "units": "m",
+    }
+
+    ds["u"].attrs = {
+        "long_name": "eastward_sea_water_velocity",
+        "standard_name": "eastward_sea_water_velocity",
+        "units": "m s-1",
+    }
+
+    ds["v"].attrs = {
+        "long_name": "northward_sea_water_velocity",
+        "standard_name": "northward_sea_water_velocity",
+        "units": "m s-1",
+    }
+
+    ds["velocity_error"].attrs = {
+        "long_name": "velocity_error",
+        "units": "m s-1",
+    }
 
     return ds
