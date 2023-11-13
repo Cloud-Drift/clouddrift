@@ -131,6 +131,65 @@ def gdp6h() -> xr.Dataset:
     return xr.open_dataset(url)
 
 
+def glad() -> xr.Dataset:
+    """Returns the Grand LAgrangian Deployment (GLAD) dataset as an Xarray dataset.
+
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access.
+
+    The upstream data is available at https://doi.org/10.7266/N7VD6WC8.
+
+    Returns
+    -------
+    xarray.Dataset
+        GLAD dataset as a ragged array
+
+    Examples
+    --------
+    >>> from clouddrift.datasets import glad
+    >>> ds = glad()
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:         (obs: 1602883, traj: 297)
+    Coordinates:
+      * obs             (obs) datetime64[ns] 2012-07-20T01:15:00.143960 ... 2012-...
+      * traj            (traj) object 'CARTHE_001' 'CARTHE_002' ... 'CARTHE_451'
+    Data variables:
+      latitude        (obs) float32 28.56 28.56 28.56 28.56 ... 26.33 26.33 26.33
+      longitude       (obs) float32 -87.21 -87.21 -87.21 ... -87.09 -87.09 -87.08
+      position_error  (obs) float32 10.0 10.0 10.0 10.0 ... 227.7 228.2 228.6
+      u               (obs) float32 0.023 0.022 0.021 0.021 ... 0.501 0.465 0.425
+      v               (obs) float32 -0.247 -0.23 -0.213 ... -0.268 -0.248 -0.226
+      velocity_error  (obs) float32 0.033 0.033 0.033 0.033 ... 0.033 0.033 0.033
+      rowsize         (traj) int64 7696 1385 2965 3729 ... 1749 1535 3077 2631
+    Attributes:
+      title:        GLAD experiment CODE-style drifter trajectories (low-pass f...
+      institution:  Consortium for Advanced Research on Transport of Hydrocarbo...
+      source:       CODE-style drifters
+      history:      Downloaded from https://data.gulfresearchinitiative.org/dat...
+      references:   Özgökmen, Tamay. 2013. GLAD experiment CODE-style drifter t...
+
+    Reference
+    ---------
+    Özgökmen, Tamay. 2013. GLAD experiment CODE-style drifter trajectories (low-pass filtered, 15 minute interval records), northern Gulf of Mexico near DeSoto Canyon, July-October 2012. Distributed by: Gulf of Mexico Research Initiative Information and Data Cooperative (GRIIDC), Harte Research Institute, Texas A&M University–Corpus Christi. doi:10.7266/N7VD6WC8
+    """
+    clouddrift_path = (
+        os.path.expanduser("~/.clouddrift")
+        if not os.getenv("CLOUDDRIFT_PATH")
+        else os.getenv("CLOUDDRIFT_PATH")
+    )
+    glad_path = f"{clouddrift_path}/data/glad.nc"
+    if not os.path.exists(glad_path):
+        print(f"{glad_path} not found; download from upstream repository.")
+        ds = adapters.glad.to_xarray()
+        os.makedirs(os.path.dirname(glad_path), exist_ok=True)
+        ds.to_netcdf(glad_path)
+    else:
+        ds = xr.open_dataset(glad_path)
+    return ds
+
+
 def mosaic() -> xr.Dataset:
     """Returns the MOSAiC sea-ice drift dataset as an Xarray dataset.
 

@@ -52,6 +52,11 @@ Currently available datasets are:
 - :func:`clouddrift.datasets.gdp6h`: 6-hourly GDP data from a ragged-array
   NetCDF file hosted by the public HTTPS server at
   `NOAA's Atlantic Oceanographic and Meteorological Laboratory (AOML) <https://www.aoml.noaa.gov/phod/gdp/index.php>`_.
+- :func:`clouddrift.datasets.glad`: 15-minute Grand LAgrangian Deployment (GLAD)
+  data produced by the Consortium for Advanced Research on Transport of
+  Hydrocarbon in the Environment (CARTHE) and hosted upstream at the `Gulf of
+  Mexico Research Initiative Information and Data Cooperative (GRIIDC)
+  <https://doi.org/10.7266/N7VD6WC8>`_.
 - :func:`clouddrift.datasets.mosaic`: MOSAiC sea-ice drift dataset as a ragged
   array processed from the upstream dataset hosted at the
   `NSF's Arctic Data Center <https://doi.org/10.18739/A2KP7TS83>`_.
@@ -61,6 +66,6 @@ Currently available datasets are:
   and maintained by Andree Ramsey and Heather Furey from the Woods Hole Oceanographic Institution.
 
 The GDP datasets are accessed lazily, so the data is only downloaded when
-specific array values are referenced. The GLAD, MOSAiC, and Subsurface float 
+specific array values are referenced. The GLAD, MOSAiC, and Subsurface floats 
 datasets are downloaded in their entirety when the function is called for the first 
 time and stored locally for later use.
