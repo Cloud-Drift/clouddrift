@@ -10,20 +10,20 @@ Example
 >>> ds = subsurface.to_xarray()
 """
 
-import scipy.io
-import urllib.request
-import os
-import tempfile
-import xarray as xr
-import numpy as np
-import pandas as pd
-import warnings
 from datetime import datetime
+import numpy as np
+import os
+import pandas as pd
+import scipy.io
+import tempfile
+import urllib.request
+import xarray as xr
+import warnings
 
 SUBSURFACE_FLOAT_DATA_URL = (
     "https://www.aoml.noaa.gov/phod/float_traj/files/allFloats_12122017.mat"
 )
-SUBSURFACE_FLOAT_VERSION = f"December 2017 (version 2)"
+SUBSURFACE_FLOAT_VERSION = "December 2017 (version 2)"
 SUBSURFACE_FLOAT_TMP_PATH = os.path.join(
     tempfile.gettempdir(), "clouddrift", "subsurface_float"
 )

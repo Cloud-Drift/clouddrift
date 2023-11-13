@@ -254,14 +254,6 @@ def subsurface_float() -> xr.Dataset:
         t         (obs) float64 ...
         u         (obs) float64 ...
         v         (obs) float64 ...
-    Attributes:
-        title:            Subsurface float trajectories dataset
-        history:          December 2017 (version 2)
-        date_created:     2023-11-13T12:20:32.962820
-        publisher_name:   WOCE Subsurface Float Data Assembly Center and NOAA AOML
-        publisher_url:    https://www.aoml.noaa.gov/phod/float_traj/data.php
-        licence:          freely available
-        acknowledgement:  Maintained by Andree Ramsey and Heather Furey from the Woods Hole Oceanographic Institution
 
     References
     ----------
