@@ -69,15 +69,15 @@ def to_xarray(
     for var in data_variables:
         data[var] = np.concatenate([v.flatten() for v in source_data[var].flatten()])
 
+    # create rowsize variable
+    rowsize = np.array([len(v) for v in source_data["dtnum"].flatten()])
+    assert np.sum(rowsize) == len(data["dtnum"])
+
     # some metadata are repeated for each float
     # use those indices to retrieve one value per experiment
     _, indices_exp = np.unique(metadata["indexExp"], return_index=True)
 
-    # todo
-    # rowsize
-    # "ids": (["obs"], np.repeat(unique_id, rowsize))
-
-    # todo 2
+    # todo 2 to fix netcdf export maybe...
     # "experiment_list": (["exp"], cut_str(metadata["expList"], 20)),
     # "experiment_name": (["exp"], cut_str(metadata["expName"][indices_exp], 20)),
     # "experiment_org": (["exp"], cut_str(metadata["expOrg"][indices_exp], 20)),
@@ -92,7 +92,9 @@ def to_xarray(
             "index_exp": (["traj"], metadata["indexExp"]),
             "float_type": (["traj"], metadata["fltType"]),
             "id": (["traj"], metadata["indexFlt"]),
-            "date": (["obs"], data["dtnum"]),
+            "rowsize": (["traj"], rowsize),
+            "datenum": (["obs"], data["dtnum"]),
+            "ids": (["obs"], np.repeat(metadata["indexFlt"], rowsize)),
             "lon": (["obs"], data["lon"]),
             "lat": (["obs"], data["lat"]),
             "pressure": (["obs"], data["p"]),
@@ -101,4 +103,8 @@ def to_xarray(
             "vn": (["obs"], data["v"]),
         }
     )
+
+    # set coordinates
+    ds = ds.set_coords(["datenum", "ids"])
+
     return ds
