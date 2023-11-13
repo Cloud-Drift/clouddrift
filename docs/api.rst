@@ -13,7 +13,9 @@ Auto-generated summary of CloudDrift's API. For more details and examples, refer
     adapters.gdp
     adapters.gdp1h
     adapters.gdp6h
+    adapters.glad
     adapters.mosaic
+    adapters.subsurface
     datasets
     kinematics
     ragged
