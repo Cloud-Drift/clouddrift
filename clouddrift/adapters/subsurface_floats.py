@@ -1,7 +1,7 @@
 """
 This module defines functions used to adapt the subsurface float trajectories as
-a ragged-array dataset. The dataset contains 2193 trajectories from 52 experiments
-across the world between 1989 and 2015.
+a ragged-array dataset. The dataset contains 2193 trajectories of SOFAR, APEX, and
+RAFOS floats from 52 experiments across the world between 1989 and 2015.
 
 The dataset is hosted at https://www.aoml.noaa.gov/phod/float_traj/index.php
 
