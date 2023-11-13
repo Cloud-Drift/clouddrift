@@ -196,8 +196,8 @@ def mosaic() -> xr.Dataset:
     return ds
 
 
-def subsurface_float() -> xr.Dataset:
-    """Returns the Subsurface float observations dataset as an Xarray dataset.
+def subsurface_floats() -> xr.Dataset:
+    """Returns the Subsurface floats dataset as an Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
     filesystem. If it is not found, the dataset will be downloaded using the
@@ -227,12 +227,12 @@ def subsurface_float() -> xr.Dataset:
     Returns
     -------
     xarray.Dataset
-        Subsurface float observations dataset as a ragged array
+        Subsurface floats dataset as a ragged array
 
     Examples
     --------
-    >>> from clouddrift.datasets import subsurface_float
-    >>> ds = subsurface_float()
+    >>> from clouddrift.datasets import subsurface_floats
+    >>> ds = subsurface_floats()
     >>> ds
     <xarray.Dataset>
     Dimensions:   (exp: 52, traj: 2193, obs: 1402840)
@@ -265,12 +265,12 @@ def subsurface_float() -> xr.Dataset:
         if not os.getenv("CLOUDDRIFT_PATH")
         else os.getenv("CLOUDDRIFT_PATH")
     )
-    subsurface_float_path = f"{clouddrift_path}/data/subsurface_float.nc"
-    if not os.path.exists(subsurface_float_path):
-        print(f"{subsurface_float_path} not found; download from upstream repository.")
-        ds = adapters.subsurface.to_xarray()
-        os.makedirs(os.path.dirname(subsurface_float_path), exist_ok=True)
-        ds.to_netcdf(subsurface_float_path)
+    local_file = f"{clouddrift_path}/data/subsurface_floats.nc"
+    if not os.path.exists(local_file):
+        print(f"{local_file} not found; download from upstream repository.")
+        ds = adapters.subsurface_floats.to_xarray()
+        os.makedirs(os.path.dirname(local_file), exist_ok=True)
+        ds.to_netcdf(local_file)
     else:
-        ds = xr.open_dataset(subsurface_float_path)
+        ds = xr.open_dataset(local_file)
     return ds

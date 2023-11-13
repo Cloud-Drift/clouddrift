@@ -55,7 +55,7 @@ Currently available datasets are:
 - :func:`clouddrift.datasets.mosaic`: MOSAiC sea-ice drift dataset as a ragged
   array processed from the upstream dataset hosted at the
   `NSF's Arctic Data Center <https://doi.org/10.18739/A2KP7TS83>`_.
-- :func:`clouddrift.datasets.subsurface`: The subsurface float trajectories dataset as
+- :func:`clouddrift.datasets.subsurface_floats`: The subsurface float trajectories dataset as
   hosted by NOAA AOML at 
   `NOAA's Atlantic Oceanographic and Meteorological Laboratory (AOML) <https://www.aoml.noaa.gov/phod/float_traj/index.php>`
   and maintained by Andree Ramsey and Heather Furey from the Woods Hole Oceanographic Institution.

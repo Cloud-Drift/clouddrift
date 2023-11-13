@@ -1,13 +1,14 @@
 """
 This module defines functions used to adapt the subsurface float trajectories as
-a ragged-array dataset.
+a ragged-array dataset. The dataset contains 2193 trajectories from 52 experiments
+across the world between 1989 and 2015.
 
 The dataset is hosted at https://www.aoml.noaa.gov/phod/float_traj/index.php
 
 Example
 -------
->>> from clouddrift.adapters import subsurface
->>> ds = subsurface.to_xarray()
+>>> from clouddrift.adapters import subsurface_floats
+>>> ds = subsurface_floats.to_xarray()
 """
 
 from datetime import datetime
@@ -20,21 +21,21 @@ import urllib.request
 import xarray as xr
 import warnings
 
-SUBSURFACE_FLOAT_DATA_URL = (
+SUBSURFACE_FLOATS_DATA_URL = (
     "https://www.aoml.noaa.gov/phod/float_traj/files/allFloats_12122017.mat"
 )
-SUBSURFACE_FLOAT_VERSION = "December 2017 (version 2)"
-SUBSURFACE_FLOAT_TMP_PATH = os.path.join(
-    tempfile.gettempdir(), "clouddrift", "subsurface_float"
+SUBSURFACE_FLOATS_VERSION = "December 2017 (version 2)"
+SUBSURFACE_FLOATS_TMP_PATH = os.path.join(
+    tempfile.gettempdir(), "clouddrift", "subsurface_floats"
 )
 
 
 def download(file: str):
-    print(
-        f"Downloading Subsurface float trajectories from {SUBSURFACE_FLOAT_DATA_URL} to {file}..."
-    )
     if not os.path.isfile(file):
-        urllib.request.urlretrieve(SUBSURFACE_FLOAT_DATA_URL, file)
+        print(
+            f"Downloading Subsurface float trajectories from {SUBSURFACE_FLOATS_DATA_URL} to {file}..."
+        )
+        urllib.request.urlretrieve(SUBSURFACE_FLOATS_DATA_URL, file)
     else:
         warnings.warn(f"{file} already exists; skip download.")
 
@@ -43,10 +44,10 @@ def to_xarray(
     tmp_path: str = None,
 ):
     if tmp_path is None:
-        tmp_path = SUBSURFACE_FLOAT_TMP_PATH
+        tmp_path = SUBSURFACE_FLOATS_TMP_PATH
         os.makedirs(tmp_path, exist_ok=True)
 
-    local_file = f"{tmp_path}/{SUBSURFACE_FLOAT_DATA_URL.split('/')[-1]}"
+    local_file = f"{tmp_path}/{SUBSURFACE_FLOATS_DATA_URL.split('/')[-1]}"
     download(local_file)
     source_data = scipy.io.loadmat(local_file)
 
@@ -97,10 +98,10 @@ def to_xarray(
             ),
             "lon": (["obs"], data["lon"]),
             "lat": (["obs"], data["lat"]),
-            "p": (["obs"], data["p"]),
-            "t": (["obs"], data["t"]),
-            "u": (["obs"], data["u"]),
-            "v": (["obs"], data["v"]),
+            "pres": (["obs"], data["p"]),
+            "temp": (["obs"], data["t"]),
+            "ve": (["obs"], data["u"]),
+            "vn": (["obs"], data["v"]),
         }
     )
 
@@ -132,23 +133,47 @@ def to_xarray(
             "units": "-",
         },
         "id": {"long_name": "Float ID", "units": "-"},
-        "lon": {"long_name": "Longitude", "units": "degrees_east"},
-        "lat": {"long_name": "Latitude", "units": "degrees_north"},
+        "lon": {
+            "long_name": "Longitude",
+            "standard_name": "longitude",
+            "units": "degrees_east",
+        },
+        "lat": {
+            "long_name": "Latitude",
+            "standard_name": "latitude",
+            "units": "degrees_north",
+        },
         "rowsize": {
             "long_name": "Number of observations per trajectory",
             "sample_dimension": "obs",
             "units": "-",
         },
-        "u": {"long_name": "Eastward velocity", "units": "m/s"},
-        "v": {"long_name": "Northward velocity", "units": "m/s"},
-        "t": {"long_name": "Temperature", "units": "Celsius"},
-        "p": {"long_name": "Pressure", "units": "Millibar"},
+        "pres": {
+            "long_name": "Pressure",
+            "standard_name": "sea_water_pressure",
+            "units": "dbar",
+        },
+        "temp": {
+            "long_name": "Temperature",
+            "standard_name": "sea_water_temperature",
+            "units": "degree_C",
+        },
+        "ve": {
+            "long_name": "Eastward velocity",
+            "standard_name": "eastward_sea_water_velocity",
+            "units": "m s-1",
+        },
+        "vn": {
+            "long_name": "Northward velocity",
+            "standard_name": "northward_sea_water_velocity",
+            "units": "m s-1",
+        },
     }
 
     # global attributes
     attrs = {
         "title": "Subsurface float trajectories dataset",
-        "history": SUBSURFACE_FLOAT_VERSION,
+        "history": SUBSURFACE_FLOATS_VERSION,
         "date_created": datetime.now().isoformat(),
         "publisher_name": "WOCE Subsurface Float Data Assembly Center and NOAA AOML",
         "publisher_url": "https://www.aoml.noaa.gov/phod/float_traj/data.php",

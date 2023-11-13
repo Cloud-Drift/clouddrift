@@ -15,6 +15,6 @@ class datasets_tests(unittest.TestCase):
         ds = datasets.gdp6h()
         self.assertTrue(ds)
 
-    def test_subsurface_float_opens(self):
-        ds = datasets.subsurface_float()
+    def test_subsurface_floats_opens(self):
+        ds = datasets.subsurface_floats()
         self.assertTrue(ds)
