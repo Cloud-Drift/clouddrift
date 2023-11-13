@@ -3,8 +3,8 @@ This module provides adapters to custom datasets.
 Each adapter module provides convenience functions and metadata to convert a
 custom dataset to a `clouddrift.RaggedArray` instance.
 Currently, clouddrift provides adapter modules for the hourly Global
-Drifter Program (GDP) data, 6-hourly GDP data, 15-minute Grand LAgrangian
-Deployment (GLAD) and the MOSAiC sea-ice drift data. More adapters will be added
+Drifter Program (GDP) dataset, the 6-hourly GDP dataset, 15-minute Grand LAgrangian
+Deployment (GLAD) dataset, and the MOSAiC sea-ice drift dataset. More adapters will be added
 in the future.
 """
 
