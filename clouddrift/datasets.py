@@ -194,3 +194,86 @@ def mosaic() -> xr.Dataset:
     else:
         ds = xr.open_dataset(mosaic_path)
     return ds
+
+
+def subsurface_float() -> xr.Dataset:
+    """Returns the Subsurface float observations dataset as an Xarray dataset.
+
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access.
+
+    The upstream data is available at
+    https://www.aoml.noaa.gov/phod/float_traj/files/allFloats_12122017.mat.
+
+    This dataset of subsurface float observations was compiled by the WOCE Subsurface
+    Float Data Assembly Center (WFDAC) in Woods Hole maintained by Andree Ramsey and
+    Heather Furey and copied to NOAA/AOML in October 2014 (version 1) and in December
+    2017 (version 2). Subsequent updates will be included as additional appropriate
+    float data, quality controlled by the appropriate principal investigators, is
+    submitted for inclusion.
+
+    Note that these observations are collected by ALACE/RAFOS/Eurofloat-style
+    acoustically-tracked, neutrally-buoyant subsurface floats which collect data while
+    drifting beneath the ocean surface. These data are the result of the effort and
+    resources of many individuals and institutions. You are encouraged to acknowledge
+    the work of the data originators and Data Centers in publications arising from use
+    of these data.
+
+    The float data were originally divided by project at the WFDAC. Here they have been
+    compiled in a single Matlab data set. See here for more information on the variables
+    contained in these files.
+
+    Returns
+    -------
+    xarray.Dataset
+        Subsurface float observations dataset as a ragged array
+
+    Examples
+    --------
+    >>> from clouddrift.datasets import subsurface_float
+    >>> ds = subsurface_float()
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:                     (obs: 1926226, traj: 216)
+    Coordinates:
+        time                        (obs) datetime64[ns] ...
+        id                          (traj) object ...
+    Dimensions without coordinates: obs, traj
+    Data variables: (12/19)
+        latitude                    (obs) float64 ...
+        longitude                   (obs) float64 ...
+        Deployment Leg              (traj) int64 ...
+        DN Station ID               (traj) object ...
+        IMEI                        (traj) object ...
+        Deployment Date             (traj) datetime64[ns] ...
+        ...                          ...
+        Buoy Type                   (traj) object ...
+        Manufacturer                (traj) object ...
+        Model                       (traj) object ...
+        PI                          (traj) object ...
+        Data Authors                (traj) object ...
+        rowsize                     (traj) int64 ...
+
+    References
+    ----------
+    WOCE Subsurface Float Data Assembly Center (WFDAC) https://www.aoml.noaa.gov/phod/float_traj/index.php
+    """
+
+    clouddrift_path = (
+        os.path.expanduser("~/.clouddrift")
+        if not os.getenv("CLOUDDRIFT_PATH")
+        else os.getenv("CLOUDDRIFT_PATH")
+    )
+    subsurface_float_path = f"{clouddrift_path}/data/subsurface_float.nc"
+    if not os.path.exists(subsurface_float_path):
+        print(f"{subsurface_float_path} not found; download from upstream repository.")
+        ds = adapters.subsurface.to_xarray()
+        os.makedirs(os.path.dirname(subsurface_float_path), exist_ok=True)
+        # something is wrong when trying to write
+        # my guess is the string objects with variable length
+        # are not supported properly
+        # ds.to_netcdf(subsurface_float_path)
+    else:
+        ds = xr.open_dataset(subsurface_float_path)
+    return ds

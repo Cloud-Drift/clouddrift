@@ -10,3 +10,4 @@ data. More adapters will be added in the future.
 import clouddrift.adapters.gdp1h
 import clouddrift.adapters.gdp6h
 import clouddrift.adapters.mosaic
+import clouddrift.adapters.subsurface

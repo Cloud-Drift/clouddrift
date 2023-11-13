@@ -10,12 +10,14 @@ Example
 >>> ds = subsurface.to_xarray()
 """
 
+from clouddrift.adapters.gdp import cut_str
 import scipy.io
 import urllib.request
 import os
 import tempfile
 import xarray as xr
 import numpy as np
+import warnings
 
 SUBSURFACE_FLOAT_DATA_URL = (
     "https://www.aoml.noaa.gov/phod/float_traj/files/allFloats_12122017.mat"
@@ -25,13 +27,14 @@ SUBSURFACE_FLOAT_TMP_PATH = os.path.join(
 )
 
 
-def download(tmp_path):
+def download(file: str):
     print(
-        f"Downloading Subsurface float trajectories from {SUBSURFACE_FLOAT_DATA_URL} to {tmp_path}..."
+        f"Downloading Subsurface float trajectories from {SUBSURFACE_FLOAT_DATA_URL} to {file}..."
     )
-    os.makedirs(tmp_path, exist_ok=True)
-    urllib.request.urlretrieve(SUBSURFACE_FLOAT_DATA_URL, tmp_path)
-    return
+    if not os.path.isfile(file):
+        urllib.request.urlretrieve(SUBSURFACE_FLOAT_DATA_URL, file)
+    else:
+        warnings.warn(f"{file} already exists; skip download.")
 
 
 def to_xarray(
@@ -39,10 +42,10 @@ def to_xarray(
 ):
     if tmp_path is None:
         tmp_path = SUBSURFACE_FLOAT_TMP_PATH
-    local_file = f"{tmp_path}/{url.split('/')[-1]}"
+        os.makedirs(tmp_path, exist_ok=True)
 
-    if not local_file:
-        download(tmp_path)
+    local_file = f"{tmp_path}/{SUBSURFACE_FLOAT_DATA_URL.split('/')[-1]}"
+    download(local_file)
     source_data = scipy.io.loadmat(local_file)
 
     # metadata
@@ -55,6 +58,7 @@ def to_xarray(
         "indexExp",
         "indexFlt",
     ]
+
     metadata = {}
     for var in meta_variables:
         metadata[var] = source_data[var].flatten()
@@ -69,6 +73,16 @@ def to_xarray(
     # use those indices to retrieve one value per experiment
     _, indices_exp = np.unique(metadata["indexExp"], return_index=True)
 
+    # todo
+    # rowsize
+    # "ids": (["obs"], np.repeat(unique_id, rowsize))
+
+    # todo 2
+    # "experiment_list": (["exp"], cut_str(metadata["expList"], 20)),
+    # "experiment_name": (["exp"], cut_str(metadata["expName"][indices_exp], 20)),
+    # "experiment_org": (["exp"], cut_str(metadata["expOrg"][indices_exp], 20)),
+    # "experiment_pi": (["exp"], cut_str(metadata["expPI"][indices_exp]), 20),
+
     ds = xr.Dataset(
         {
             "experiment_list": (["exp"], metadata["expList"]),
@@ -78,9 +92,6 @@ def to_xarray(
             "index_exp": (["traj"], metadata["indexExp"]),
             "float_type": (["traj"], metadata["fltType"]),
             "id": (["traj"], metadata["indexFlt"]),
-            "date": (["obs"], data["dtnum"]),
-            "date": (["obs"], data["dtnum"]),
-            "date": (["obs"], data["dtnum"]),
             "date": (["obs"], data["dtnum"]),
             "lon": (["obs"], data["lon"]),
             "lat": (["obs"], data["lat"]),
