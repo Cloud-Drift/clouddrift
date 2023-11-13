@@ -8,8 +8,11 @@ Example
 -------
 >>> from clouddrift.adapters import glad
 >>> ds = glad.to_xarray()
+
+Reference
+---------
+Özgökmen, Tamay. 2013. GLAD experiment CODE-style drifter trajectories (low-pass filtered, 15 minute interval records), northern Gulf of Mexico near DeSoto Canyon, July-October 2012. Distributed by: Gulf of Mexico Research Initiative Information and Data Cooperative (GRIIDC), Harte Research Institute, Texas A&M University–Corpus Christi. doi:10.7266/N7VD6WC8
 """
-from concurrent.futures import ThreadPoolExecutor
 from io import StringIO
 import numpy as np
 import pandas as pd
@@ -51,7 +54,7 @@ def get_dataframe() -> pd.DataFrame:
 
 
 def to_xarray() -> xr.Dataset:
-    """Return the GLAD data as an ragged-array Xarray Dataset."""
+    """Return the GLAD data as a ragged-array Xarray Dataset."""
     df = get_dataframe()
     ds = df.to_xarray()
 
@@ -103,6 +106,15 @@ def to_xarray() -> xr.Dataset:
     ds["velocity_error"].attrs = {
         "long_name": "velocity_error",
         "units": "m s-1",
+    }
+
+    # Set global attributes
+    ds.attrs = {
+        "title": "GLAD experiment CODE-style drifter trajectories (low-pass filtered, 15 minute interval records), northern Gulf of Mexico near DeSoto Canyon, July-October 2012",
+        "institution": "Consortium for Advanced Research on Transport of Hydrocarbon in the Environment (CARTHE)",
+        "source": "CODE-style drifters",
+        "history": "Downloaded from https://data.gulfresearchinitiative.org/data/R1.x134.073:0004 and post-processed into a ragged-array Xarray Dataset by CloudDrift",
+        "references": "Özgökmen, Tamay. 2013. GLAD experiment CODE-style drifter trajectories (low-pass filtered, 15 minute interval records), northern Gulf of Mexico near DeSoto Canyon, July-October 2012. Distributed by: Gulf of Mexico Research Initiative Information and Data Cooperative (GRIIDC), Harte Research Institute, Texas A&M University–Corpus Christi. doi:10.7266/N7VD6WC8",
     }
 
     return ds
