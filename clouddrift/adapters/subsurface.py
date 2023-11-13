@@ -94,7 +94,6 @@ def to_xarray(
             "id": (["traj"], metadata["indexFlt"]),
             "rowsize": (["traj"], rowsize),
             "datenum": (["obs"], data["dtnum"]),
-            "ids": (["obs"], np.repeat(metadata["indexFlt"], rowsize)),
             "lon": (["obs"], data["lon"]),
             "lat": (["obs"], data["lat"]),
             "pressure": (["obs"], data["p"]),
