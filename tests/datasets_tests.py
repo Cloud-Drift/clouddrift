@@ -14,3 +14,7 @@ class datasets_tests(unittest.TestCase):
     def test_gdp6h_opens(self):
         ds = datasets.gdp6h()
         self.assertTrue(ds)
+
+    def test_glad_opens(self):
+        ds = datasets.glad()
+        self.assertTrue(ds)
