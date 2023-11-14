@@ -63,7 +63,7 @@ def to_xarray() -> xr.Dataset:
     # Make the dataset compatible with clouddrift functions.
     ds = (
         ds.swap_dims({"index": "obs"})
-        .assign_coords(obs=ds.obs, traj=traj)
+        .assign_coords(traj=traj)
         .assign({"rowsize": ("traj", rowsize)})
         .drop_vars(["id", "index"])
     )

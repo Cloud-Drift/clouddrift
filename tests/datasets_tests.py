@@ -21,6 +21,15 @@ class datasets_tests(unittest.TestCase):
         ds = datasets.glad()
         self.assertTrue(ds)
 
+    def test_glad_dims_coords(self):
+        ds = datasets.glad()
+        self.assertTrue(len(ds.dims) == 2)
+        self.assertTrue("obs" in ds.dims)
+        self.assertTrue("traj" in ds.dims)
+        self.assertTrue(len(ds.coords) == 2)
+        self.assertTrue("obs" in ds.coords)
+        self.assertTrue("traj" in ds.coords)
+
     def test_glad_subset_and_apply_ragged_work(self):
         ds = datasets.glad()
         ds_sub = subset(ds, {"traj": ["CARTHE_001", "CARTHE_002"]}, id_var_name="traj")
