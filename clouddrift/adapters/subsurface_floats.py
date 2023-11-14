@@ -66,6 +66,10 @@ def to_xarray(
     for var in meta_variables:
         metadata[var] = np.array([v.flatten()[0] for v in source_data[var].flatten()])
 
+    # bring the expList to the "traj" dimension
+    _, float_per_exp = np.unique(metadata["indexExp"], return_counts=True)
+    metadata["expList"] = np.repeat(metadata["expList"], float_per_exp)
+
     # data
     data_variables = ["dtnum", "lon", "lat", "p", "t", "u", "v"]
     data = {}
@@ -76,18 +80,15 @@ def to_xarray(
     rowsize = np.array([len(v) for v in source_data["dtnum"].flatten()])
     assert np.sum(rowsize) == len(data["dtnum"])
 
-    # some metadata are repeated for each float
-    # use those indices to retrieve one value per experiment
-    _, indices_exp = np.unique(metadata["indexExp"], return_index=True)
-
-    origin_datenum = 719529  # Unix epoch start (1970-01-01)
+    # Unix epoch start (1970-01-01)
+    origin_datenum = 719529
 
     ds = xr.Dataset(
         {
-            "expList": (["exp"], metadata["expList"]),
-            "expName": (["exp"], metadata["expName"][indices_exp]),
-            "expOrg": (["exp"], metadata["expOrg"][indices_exp]),
-            "expPI": (["exp"], metadata["expPI"][indices_exp]),
+            "expList": (["traj"], metadata["expList"]),
+            "expName": (["traj"], metadata["expName"]),
+            "expOrg": (["traj"], metadata["expOrg"]),
+            "expPI": (["traj"], metadata["expPI"]),
             "indexExp": (["traj"], metadata["indexExp"]),
             "fltType": (["traj"], metadata["fltType"]),
             "id": (["traj"], metadata["indexFlt"]),
