@@ -1,5 +1,5 @@
 """
-This module defines functions used to adapt the YoMaHa dataset as
+This module defines functions used to adapt the YoMaHa'07 dataset as
 a ragged-array dataset. 
 
 The dataset is hosted at http://apdrc.soest.hawaii.edu/projects/yomaha/
@@ -8,6 +8,10 @@ Example
 -------
 >>> from clouddrift.adapters import yomaha
 >>> ds = yomaha.to_xarray()
+
+Reference
+---------
+Lebedev, K. V., Yoshinari, H., Maximenko, N. A., & Hacker, P. W. (2007). Velocity data assessed from trajectories of Argo floats at parking level and at the sea surface. IPRC Technical Note, 4(2), 1-16.
 """
 
 from datetime import datetime

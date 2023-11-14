@@ -1,5 +1,5 @@
 """
-This module defines functions used to adapt the Andro dataset as
+This module defines functions used to adapt the ANDRO dataset as
 a ragged-array dataset. 
 
 The dataset is hosted at https://www.seanoe.org/data/00360/47077/
@@ -8,6 +8,10 @@ Example
 -------
 >>> from clouddrift.adapters import andro
 >>> ds = andro.to_xarray()
+
+Reference
+---------
+Ollitrault Michel, Rannou Philippe, Brion Emilie, Cabanes Cecile, Piron Anne, Reverdin Gilles, Kolodziejczyk Nicolas (2022). ANDRO: An Argo-based deep displacement dataset. SEANOE. https://doi.org/10.17882/47077
 """
 
 from clouddrift.adapters.yomaha import download_with_progress
@@ -28,7 +32,7 @@ def to_xarray(tmp_path: str = None):
         tmp_path = ANDRO_TMP_PATH
         os.makedirs(tmp_path, exist_ok=True)
 
-    # get or update required files
+    # get or update dataset
     local_file = tmp_path + ANDRO_URL.split("/")[-1]
     download_with_progress(ANDRO_URL, local_file)
 
