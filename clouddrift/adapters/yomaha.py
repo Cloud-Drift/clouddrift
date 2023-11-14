@@ -22,8 +22,8 @@ import xarray as xr
 import warnings
 
 
-# order of the URLs is important
 YOMAHA_URLS = [
+    # order of the URLs is important
     "http://apdrc.soest.hawaii.edu/projects/Argo/data/trjctry/float_types.txt",
     "http://apdrc.soest.hawaii.edu/projects/Argo/data/trjctry/DACs.txt",
     "http://apdrc.soest.hawaii.edu/projects/Argo/data/trjctry/0-Near-Real_Time/0-date_time.txt",
@@ -199,7 +199,7 @@ def to_xarray(tmp_path: str = None):
     ]
 
     # open with pandas
-    filename = tmp_path + "yomaha07.dat"
+    filename = tmp_path + YOMAHA_URLS[-1].split("/")[-1][:-3]
     df = pd.read_csv(
         filename, names=col_names, sep="\s+", header=None, na_values=na_col
     )
