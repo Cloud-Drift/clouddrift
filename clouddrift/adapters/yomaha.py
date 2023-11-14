@@ -2,7 +2,8 @@
 This module defines functions used to adapt the YoMaHa'07 dataset as
 a ragged-array dataset. 
 
-The dataset is hosted at http://apdrc.soest.hawaii.edu/projects/yomaha/
+The dataset is hosted at http://apdrc.soest.hawaii.edu/projects/yomaha/ and the user manual
+is available at http://apdrc.soest.hawaii.edu/projects/yomaha/yomaha07/YoMaHa070612.pdf.
 
 Example
 -------
@@ -39,26 +40,23 @@ YOMAHA_URLS = [
 YOMAHA_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "yomaha")
 
 
-# Create a function to download a file with a progress bar
 def download_with_progress(url, output_file):
-    # Check if the file already exists
     if os.path.isfile(output_file):
-        # Get last modified time of the local file
         local_last_modified = os.path.getmtime(output_file)
 
-        # Make a HEAD request to get remote file info
+        # Get last modified time of the remote file
         with urllib.request.urlopen(url) as response:
             remote_last_modified = datetime.strptime(
                 response.headers.get("Last-Modified"), "%a, %d %b %Y %H:%M:%S %Z"
             )
-
-            # Compare last modified times
+            # compare with local modified time
             if local_last_modified >= remote_last_modified.timestamp():
                 warnings.warn(
                     f"{output_file} already exists and is up to date; skip download."
                 )
                 return False
 
+    print(f"Downloading from {url} to {output_file}...")
     with urllib.request.urlopen(url) as response, open(
         output_file, "wb"
     ) as outfile, tqdm(
@@ -79,14 +77,12 @@ def download_with_progress(url, output_file):
 
 
 def download(tmp_path: str):
-    # loop on different files to download
+    # download yomaha files
     for i in range(0, len(YOMAHA_URLS) - 1):
         print("Downloading: " + str(YOMAHA_URLS[i]))
         outfile = tmp_path + YOMAHA_URLS[i].split("/")[-1]
         download_with_progress(YOMAHA_URLS[i], outfile)
 
-    ## gzip file (saved archive ~120Mb and decompressed ~400Mb)
-    print("Downloading: " + str(YOMAHA_URLS[-1]))
     filename_gz = tmp_path + YOMAHA_URLS[-1].split("/")[-1]
 
     if download_with_progress(YOMAHA_URLS[-1], filename_gz) or not os.path.isfile(

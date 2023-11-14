@@ -2,7 +2,8 @@
 This module defines functions used to adapt the ANDRO dataset as
 a ragged-array dataset. 
 
-The dataset is hosted at https://www.seanoe.org/data/00360/47077/
+The dataset is hosted at https://www.seanoe.org/data/00360/47077/ and the user manual
+is available at https://archimer.ifremer.fr/doc/00360/47126/.
 
 Example
 -------
@@ -124,7 +125,6 @@ def to_xarray(tmp_path: str = None):
     ]
 
     # open with pandas
-    local_file = ANDRO_URL.split("/")[-1]
     df = pd.read_csv(
         local_file, names=col_names, sep="\s+", header=None, na_values=na_col
     )
