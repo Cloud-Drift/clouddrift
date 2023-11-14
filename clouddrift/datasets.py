@@ -313,7 +313,7 @@ def subsurface_floats() -> xr.Dataset:
     temp      (obs) float64 3.859 3.491 3.473 3.497 ... 3.873 3.878 3.873 3.858
     ve        (obs) float64 nan 0.0334 -0.0275 -0.0574 ... 0.0262 0.0183 0.012
     vn        (obs) float64 nan 0.0228 -0.0465 ... -0.0629 -0.0687 -0.0493
-    
+
     References
     ----------
     WOCE Subsurface Float Data Assembly Center (WFDAC) https://www.aoml.noaa.gov/phod/float_traj/index.php
