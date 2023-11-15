@@ -15,6 +15,7 @@ Auto-generated summary of CloudDrift's API. For more details and examples, refer
     adapters.gdp6h
     adapters.glad
     adapters.mosaic
+    adapters.subsurface_floats
     datasets
     kinematics
     ragged
