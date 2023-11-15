@@ -153,8 +153,8 @@ def glad() -> xr.Dataset:
     <xarray.Dataset>
     Dimensions:         (obs: 1602883, traj: 297)
     Coordinates:
-      * obs             (obs) datetime64[ns] 2012-07-20T01:15:00.143960 ... 2012-...
-      * traj            (traj) object 'CARTHE_001' 'CARTHE_002' ... 'CARTHE_451'
+      * time            (obs) datetime64[ns] 2012-07-20T01:15:00.143960 ... 2012-...
+      * id              (traj) object 'CARTHE_001' 'CARTHE_002' ... 'CARTHE_451'
     Data variables:
       latitude        (obs) float32 28.56 28.56 28.56 28.56 ... 26.33 26.33 26.33
       longitude       (obs) float32 -87.21 -87.21 -87.21 ... -87.09 -87.09 -87.08
