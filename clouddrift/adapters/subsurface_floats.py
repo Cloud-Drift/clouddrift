@@ -106,6 +106,12 @@ def to_xarray(
         }
     )
 
+    # Cast double floats to singles
+    double_vars = ["lat", "lon"]
+    for var in [v for v in ds.variables if v not in double_vars]:
+        if ds[var].dtype == "float64":
+            ds[var] = ds[var].astype("float32")
+
     # define attributes
     vars_attrs = {
         "expList": {
