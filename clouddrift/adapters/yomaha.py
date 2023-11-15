@@ -77,16 +77,16 @@ def download_with_progress(url, output_file):
 
 
 def download(tmp_path: str):
-    # download yomaha files
     for i in range(0, len(YOMAHA_URLS) - 1):
         print("Downloading: " + str(YOMAHA_URLS[i]))
         outfile = tmp_path + YOMAHA_URLS[i].split("/")[-1]
         download_with_progress(YOMAHA_URLS[i], outfile)
 
     filename_gz = tmp_path + YOMAHA_URLS[-1].split("/")[-1]
+    filename = filename_gz[:-3]
 
     if download_with_progress(YOMAHA_URLS[-1], filename_gz) or not os.path.isfile(
-        filename := filename_gz[:-3]
+        filename
     ):
         with open(filename_gz, "rb") as f_gz, open(filename, "wb") as f:
             f.write(gzip.decompress(f_gz.read()))
@@ -102,38 +102,7 @@ def to_xarray(tmp_path: str = None):
 
     # database last update
     with open(tmp_path + YOMAHA_URLS[2].split("/")[-1]) as f:
-        print("Last database update was: " + f.read())
-
-    """
-    ## Columns 1-8 contain three-dimensional coordinates, time, components and errors of the deep float velocity. 
-    - 1-2. Coordinates (longitude Xndeep and latitude Yndeep) of location where deep velocity is estimated. These coordinates are averages between last fixed float position (Xn-1last , Yn-1last) at the sea surface during previous cycle (stored in columns 16-17) and first fix (Xnfirst , Ynfirst) in the current cycle (stored in columns 19-20).  I.e., [X,Y] ndeep = ( [X,Y] n-1last + [X,Y] nfirst)/2.
-    - 3. “Parking” pressure Zpark (dbars) for this cycle. This value is a pre-programmed value stored in the “meta”-file. 
-    - 4. Julian time Tndeep (days) relative to 2000-01-01 00:00 UTC. (Adding 18262 will convert it into more traditional Julian time relative to 1950-01-01 00:00 UTC.) This value is an average between the Julian time of the last fix during the previous cycle (Tn-1last  stored in column 18) and the first fix in the current cycle (Tnfirst  stored in column 21). I.e., Tndeep = ( Tn-1last + Tnfirst)/2 . 
-    - 5-6. Estimate of eastward and northward components of the deep velocity (Undeep , Vndeep) (cm/s) at Zparkcalculated from the float displacement from  [X,Y] n-1last to [X,Y] nfirst for time Tnfirst - Tn-1last. 
-    - 7-8. Estimates of the errors of components of deep velocity (εUndeep , εVndeep) (cm/s) due to a vertical shear of horizontal flow obtained as described in Appendix A. 
-    ## Columns 9-15 contain horizontal coordinates, time, components and errors of the float velocity at the sea surface. Velocity is estimated using linear regression of all surface fixes for the cycle. Details are given in Appendix B. 
-    - 9-10. Coordinates (longitude Xnsurf and latitude Ynsurf) of location where surface velocity is estimated. 
-    - 11. Julian time Tnsurf (days) relative to 2000-01-01 00:00 UTC when surface velocity is estimated. 
-    - 12-13. Estimate of eastward and northward components of velocity (Unsurf , Vnsurf) (cm/s) at the sea surface. - 
-    - 14-15. Estimates of the errors of components of surface velocity (εUnsurf , εVnsurf) (cm/s) obtained as described in Appendix B. 
-
-    ## Auxiliary float and cycle data are in columns 16-27. 
-    - 16-18. Coordinates (Xn-1last , Yn-1last) and Julian time Tn-1last (relative to 2000-01-01 00:00 UTC) of the last fix at the sea surface during the previous cycle. 
-    - 19-21. Coordinates (Xnfirst , Ynfirst) and Julian time Tnfirst (relative to 2000-01-01 00:00 UTC)of the first fix at the sea surface during the current cycle.
-    - 22-24. Coordinates (Xnlast , Ynlast) and Julian time Tnlast(relative to 2000-01-01 00:00 UTC)of the last fix at the sea surface during the current cycle. 
-    - 25. Number of surface fixes Nnfix during the current cycle. 
-    - 26. Float ID. To unify data of all DAC’s we re-counted all the floats. Correspondence between our float ID’s and WMO float ID’s used by the DAC’s is described in our file yomaha2wmo.dat 
-    - 27. Cycle number. We adopted cycle numbers recorded in data of the DAC’s. 
-    - 28. Time inversion/duplication flag Ft. Ft = 1 if at least one duplicate or inversion of time is found in the sequence containing last fix from the previous cycle and all fixes from the current cycle. Otherwise, Ft =0.
-
-    File WMO2DAC2type.txt catalogs the float information included into
-    YoMaHa'07 dataset:
-
-    1 - Serial YoMaHa'07 number of the float
-    2 - WMO float ID
-    3 - DAC where float data are stored (described in the file DACs.txt)
-    4 - Float type (described in the file float_types.txt)
-    """
+        print("YoMaHa last database update was: " + f.read())
 
     # parse with panda
     col_names = [
@@ -206,17 +175,90 @@ def to_xarray(tmp_path: str = None):
 
     # convert to an Xarray Dataset
     ds = xr.Dataset.from_dataframe(df)
-    ds = ds.rename_dims({"index": "obs"})
 
     for t in ["t_s", "t_d", "t_lp", "t_fc", "t_lc"]:
         ds[t].values = pd.to_datetime(ds[t], origin="2000-01-01 00:00", unit="D").values
 
     unique_id, rowsize = np.unique(ds["id"], return_counts=True)
 
-    ds["id"] = (["traj"], unique_id)
-    ds["rowsize"] = (["traj"], rowsize)
+    # mapping of yomaha float id, wmo float id, daq id and float type
+    df_wmo = pd.read_csv(
+        tmp_path + YOMAHA_URLS[3].split("/")[-1],
+        sep="\s+",
+        header=None,
+        names=["id", "wmo_id", "dac_id", "float_type_id"],
+    )
 
-    ds = ds.set_coords(["id", "t_d", "t_s", "t_lp", "t_lc", "t_lp"])
-    ds = ds.drop_vars("index")
+    # mapping of Data Assembly Center (DAC) id and DAC name
+    df_daq = pd.read_csv(
+        tmp_path + YOMAHA_URLS[1].split("/")[-1],
+        sep=":",
+        header=None,
+        names=["dac_id", "dac"],
+    )
+
+    # mapping of float_type_id and float_type
+    df_float = pd.read_csv(
+        tmp_path + YOMAHA_URLS[0].split("/")[-1],
+        sep=":",
+        header=None,
+        skipfooter=4,
+        names=["float_type_id", "float_type"],
+        engine="python",
+    )
+    # there is a note on METOCEAN * in float_types.txt but the
+    # float id, wmo id, and float type do not match (?)
+    # so we remove the * from the type
+    df_float.loc[df_float["float_type_id"] == 0, "float_type"] = "METOCEAN"
+
+    # combine metadata
+    df_metadata = (
+        pd.merge(df_wmo, df_daq, on="dac_id", how="left")
+        .merge(df_float, on="float_type_id", how="left")
+        .loc[lambda x: np.isin(x["id"], unique_id)]
+    )
+
+    ds = (
+        ds.rename_dims({"index": "obs"})
+        .assign({"id": ("traj", unique_id)})
+        .assign({"rowsize": ("traj", rowsize)})
+        .assign({"wmo_id": ("traj", df_metadata["wmo_id"])})
+        .assign({"dac": ("traj", df_metadata["dac"])})
+        .assign({"float_type": ("traj", df_metadata["float_type"])})
+        .set_coords(["id", "t_d", "t_s", "t_lp", "t_lc", "t_lp"])
+        .drop_vars(["index"])
+    )
+
+    # add attributes
+    """
+    ## Columns 1-8 contain three-dimensional coordinates, time, components and errors of the deep float velocity. 
+    - 1-2. Coordinates (longitude Xndeep and latitude Yndeep) of location where deep velocity is estimated. These coordinates are averages between last fixed float position (Xn-1last , Yn-1last) at the sea surface during previous cycle (stored in columns 16-17) and first fix (Xnfirst , Ynfirst) in the current cycle (stored in columns 19-20).  I.e., [X,Y] ndeep = ( [X,Y] n-1last + [X,Y] nfirst)/2.
+    - 3. “Parking” pressure Zpark (dbars) for this cycle. This value is a pre-programmed value stored in the “meta”-file. 
+    - 4. Julian time Tndeep (days) relative to 2000-01-01 00:00 UTC. (Adding 18262 will convert it into more traditional Julian time relative to 1950-01-01 00:00 UTC.) This value is an average between the Julian time of the last fix during the previous cycle (Tn-1last  stored in column 18) and the first fix in the current cycle (Tnfirst  stored in column 21). I.e., Tndeep = ( Tn-1last + Tnfirst)/2 . 
+    - 5-6. Estimate of eastward and northward components of the deep velocity (Undeep , Vndeep) (cm/s) at Zparkcalculated from the float displacement from  [X,Y] n-1last to [X,Y] nfirst for time Tnfirst - Tn-1last. 
+    - 7-8. Estimates of the errors of components of deep velocity (εUndeep , εVndeep) (cm/s) due to a vertical shear of horizontal flow obtained as described in Appendix A. 
+    ## Columns 9-15 contain horizontal coordinates, time, components and errors of the float velocity at the sea surface. Velocity is estimated using linear regression of all surface fixes for the cycle. Details are given in Appendix B. 
+    - 9-10. Coordinates (longitude Xnsurf and latitude Ynsurf) of location where surface velocity is estimated. 
+    - 11. Julian time Tnsurf (days) relative to 2000-01-01 00:00 UTC when surface velocity is estimated. 
+    - 12-13. Estimate of eastward and northward components of velocity (Unsurf , Vnsurf) (cm/s) at the sea surface. - 
+    - 14-15. Estimates of the errors of components of surface velocity (εUnsurf , εVnsurf) (cm/s) obtained as described in Appendix B. 
+
+    ## Auxiliary float and cycle data are in columns 16-27. 
+    - 16-18. Coordinates (Xn-1last , Yn-1last) and Julian time Tn-1last (relative to 2000-01-01 00:00 UTC) of the last fix at the sea surface during the previous cycle. 
+    - 19-21. Coordinates (Xnfirst , Ynfirst) and Julian time Tnfirst (relative to 2000-01-01 00:00 UTC)of the first fix at the sea surface during the current cycle.
+    - 22-24. Coordinates (Xnlast , Ynlast) and Julian time Tnlast(relative to 2000-01-01 00:00 UTC)of the last fix at the sea surface during the current cycle. 
+    - 25. Number of surface fixes Nnfix during the current cycle. 
+    - 26. Float ID. To unify data of all DAC’s we re-counted all the floats. Correspondence between our float ID’s and WMO float ID’s used by the DAC’s is described in our file yomaha2wmo.dat 
+    - 27. Cycle number. We adopted cycle numbers recorded in data of the DAC’s. 
+    - 28. Time inversion/duplication flag Ft. Ft = 1 if at least one duplicate or inversion of time is found in the sequence containing last fix from the previous cycle and all fixes from the current cycle. Otherwise, Ft =0.
+
+    File WMO2DAC2type.txt catalogs the float information included into
+    YoMaHa'07 dataset:
+
+    1 - Serial YoMaHa'07 number of the float
+    2 - WMO float ID
+    3 - DAC where float data are stored (described in the file DACs.txt)
+    4 - Float type (described in the file float_types.txt)
+    """
 
     return ds

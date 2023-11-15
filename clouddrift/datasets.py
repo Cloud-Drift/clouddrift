@@ -199,7 +199,9 @@ def mosaic() -> xr.Dataset:
 
     The upstream data is available at https://arcticdata.io/catalog/view/doi:10.18739/A2KP7TS83.
 
-    Reference: Angela Bliss, Jennifer Hutchings, Philip Anderson, Philipp Anhaus,
+    Reference
+    ---------
+    Angela Bliss, Jennifer Hutchings, Philip Anderson, Philipp Anhaus,
     Hans Jakob Belter, Jørgen Berge, Vladimir Bessonov, Bin Cheng, Sylvia Cole,
     Dave Costa, Finlo Cottier, Christopher J Cox, Pedro R De La Torre, Dmitry V Divine,
     Gilbert Emzivat, Ying-Chih Fang, Steven Fons, Michael Gallagher, Maxime Geoffrey,
@@ -252,4 +254,127 @@ def mosaic() -> xr.Dataset:
         ds.to_netcdf(mosaic_path)
     else:
         ds = xr.open_dataset(mosaic_path)
+    return ds
+
+
+def yomaha() -> xr.Dataset:
+    """Returns the YoMaHa  as an Xarray dataset.
+
+
+    The upstream data is available at https://arcticdata.io/catalog/view/doi:10.18739/A2KP7TS83.
+
+    Reference
+    ---------
+    Lebedev, K. V., Yoshinari, H., Maximenko, N. A., & Hacker, P. W. (2007). Velocity data
+    assessed  from trajectories of Argo floats at parking level and at the sea
+    surface. IPRC Technical Note, 4(2), 1-16.
+
+    Returns
+    -------
+    xarray.Dataset
+        YoMaHa'07 dataset as a ragged array
+
+    Examples
+    --------
+    >>> from clouddrift.datasets import yomaha
+    >>> ds = yomaha()
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:  (obs: 1926743, traj: 12196)
+    Coordinates:
+        t_d      (obs) datetime64[ns] ...
+        t_s      (obs) datetime64[ns] ...
+        t_lp     (obs) datetime64[ns] ...
+        t_lc     (obs) datetime64[ns] ...
+        id       (traj) int64 ...
+    Dimensions without coordinates: obs, traj
+    Data variables: (12/24)
+        lon_d    (obs) float64 ...
+        lat_d    (obs) float64 ...
+        p_d      (obs) float64 ...
+        u_d      (obs) float64 ...
+        v_d      (obs) float64 ...
+        eu_d     (obs) float64 ...
+        ...       ...
+        lon_lc   (obs) float64 ...
+        lat_lc   (obs) float64 ...
+        s_fix    (obs) int64 ...
+        cycle    (obs) int64 ...
+        t_inv    (obs) int64 ...
+        rowsize  (traj) int64 ...
+    """
+    clouddrift_path = (
+        os.path.expanduser("~/.clouddrift")
+        if not os.getenv("CLOUDDRIFT_PATH")
+        else os.getenv("CLOUDDRIFT_PATH")
+    )
+    local_file = f"{clouddrift_path}/data/yomaha.nc"
+    if not os.path.exists(local_file):
+        print(f"{local_file} not found; download from upstream repository.")
+        ds = adapters.yomaha.to_xarray()
+        os.makedirs(os.path.dirname(local_file), exist_ok=True)
+        ds.to_netcdf(local_file)
+    else:
+        ds = xr.open_dataset(local_file)
+    return ds
+
+
+def andro() -> xr.Dataset:
+    """Returns the ANDRO as an Xarray dataset.
+
+    The upstream data is available at https://arcticdata.io/catalog/view/doi:10.18739/A2KP7TS83.
+
+    Reference
+    ---------
+    Ollitrault Michel, Rannou Philippe, Brion Emilie, Cabanes Cecile, Piron Anne, Reverdin Gilles,
+    Kolodziejczyk Nicolas (2022). ANDRO: An Argo-based deep displacement dataset.
+    SEANOE. https://doi.org/10.17882/47077
+
+    Returns
+    -------
+    xarray.Dataset
+        ANDRO dataset as a ragged array
+
+    Examples
+    --------
+    >>> from clouddrift.datasets import andro
+    >>> ds = andro()
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:  (obs: 1360753, traj: 9996)
+    Coordinates:
+        t_d      (obs) datetime64[ns] ...
+        t_s      (obs) datetime64[ns] ...
+        t_lp     (obs) datetime64[ns] ...
+        t_lc     (obs) datetime64[ns] ...
+        id       (traj) int64 ...
+    Dimensions without coordinates: obs, traj
+    Data variables: (12/33)
+        lon_d    (obs) float64 ...
+        lat_d    (obs) float64 ...
+        p_d      (obs) float64 ...
+        temp_d   (obs) float64 ...
+        s_d      (obs) float64 ...
+        u_d      (obs) float64 ...
+        ...       ...
+        lon_lc   (obs) float64 ...
+        lat_lc   (obs) float64 ...
+        s_fix    (obs) int64 ...
+        cycle    (obs) int64 ...
+        t_inv    (obs) float64 ...
+        rowsize  (traj) int64 ...
+    """
+    clouddrift_path = (
+        os.path.expanduser("~/.clouddrift")
+        if not os.getenv("CLOUDDRIFT_PATH")
+        else os.getenv("CLOUDDRIFT_PATH")
+    )
+    local_file = f"{clouddrift_path}/data/andro.nc"
+    if not os.path.exists(local_file):
+        print(f"{local_file} not found; download from upstream repository.")
+        ds = adapters.andro.to_xarray()
+        os.makedirs(os.path.dirname(local_file), exist_ok=True)
+        ds.to_netcdf(local_file)
+    else:
+        ds = xr.open_dataset(local_file)
     return ds

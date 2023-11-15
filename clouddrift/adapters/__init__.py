@@ -12,3 +12,5 @@ import clouddrift.adapters.gdp1h
 import clouddrift.adapters.gdp6h
 import clouddrift.adapters.glad
 import clouddrift.adapters.mosaic
+import clouddrift.adapters.yomaha
+import clouddrift.adapters.andro

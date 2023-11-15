@@ -12,7 +12,9 @@ Example
 
 Reference
 ---------
-Ollitrault Michel, Rannou Philippe, Brion Emilie, Cabanes Cecile, Piron Anne, Reverdin Gilles, Kolodziejczyk Nicolas (2022). ANDRO: An Argo-based deep displacement dataset. SEANOE. https://doi.org/10.17882/47077
+Ollitrault Michel, Rannou Philippe, Brion Emilie, Cabanes Cecile, Piron Anne, Reverdin Gilles, 
+Kolodziejczyk Nicolas (2022). ANDRO: An Argo-based deep displacement dataset. 
+SEANOE. https://doi.org/10.17882/47077
 """
 
 from clouddrift.adapters.yomaha import download_with_progress
@@ -131,17 +133,18 @@ def to_xarray(tmp_path: str = None):
 
     # convert to an Xarray Dataset
     ds = xr.Dataset.from_dataframe(df)
-    ds = ds.rename_dims({"index": "obs"})
 
     for t in ["t_s", "t_d", "t_lp", "t_fc", "t_lc"]:
         ds[t].values = pd.to_datetime(ds[t], origin="2000-01-01 00:00", unit="D").values
 
     unique_id, rowsize = np.unique(ds["id"], return_counts=True)
 
-    ds["id"] = (["traj"], unique_id)
-    ds["rowsize"] = (["traj"], rowsize)
-
-    ds = ds.set_coords(["id", "t_d", "t_s", "t_lp", "t_lc", "t_lp"])
-    ds = ds.drop_vars("index")
+    ds = (
+        ds.rename_dims({"index": "obs"})
+        .assign({"id": ("traj", unique_id)})
+        .assign({"rowsize": ("traj", rowsize)})
+        .set_coords(["id", "t_d", "t_s", "t_lp", "t_lc", "t_lp"])
+        .drop_vars(["index"])
+    )
 
     return ds
