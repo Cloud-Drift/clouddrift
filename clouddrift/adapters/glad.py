@@ -63,9 +63,10 @@ def to_xarray() -> xr.Dataset:
     # Make the dataset compatible with clouddrift functions.
     ds = (
         ds.swap_dims({"index": "obs"})
+        .drop_vars(["id", "index"])
         .assign_coords(traj=traj)
         .assign({"rowsize": ("traj", rowsize)})
-        .drop_vars(["id", "index"])
+        .rename_vars({"obs": "time", "traj": "id"})
     )
 
     # Cast double floats to singles
