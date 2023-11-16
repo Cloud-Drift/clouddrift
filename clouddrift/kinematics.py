@@ -459,7 +459,7 @@ def position_from_velocity(
     # Velocity arrays must have the same shape.
     # Although the exception would be raised further down in the function,
     # we do the check here for a clearer error message.
-    if not u.shape == u.shape:
+    if not u.shape == v.shape:
         raise ValueError("u and v must have the same shape.")
 
     # time_axis must be in valid range
