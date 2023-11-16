@@ -129,9 +129,7 @@ def plot_ragged(
         If the axis is a GeoAxes object and cartopy is not installed.
     """
 
-    if isinstance(ax, plt.Axes) or hasattr(
-        ax, "coastlines"
-    ):  # check if GeoAxes without cartopy
+    if hasattr(ax, "coastlines"):  # check if GeoAxes without cartopy
         try:
             from cartopy.mpl.geoaxes import GeoAxes
 
@@ -141,7 +139,7 @@ def plot_ragged(
                 )
         except ImportError:
             raise ImportError("missing optional dependency 'cartopy'")
-    else:
+    elif not isinstance(ax, plt.Axes):
         raise ValueError("ax must be either: plt.Axes or GeoAxes.")
 
     if longitude.shape != latitude.shape:
