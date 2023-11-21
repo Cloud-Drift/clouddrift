@@ -4,18 +4,98 @@ Functions to analyze pairs of contiguous data segments.
 import numpy as np
 import pandas as pd
 import xarray as xr
-from typing import Union
+from typing import Tuple, Union
 
-array_like = Union[
-    list[float], np.ndarray[float], pd.Series, xr.DataArray
-]
+array_like = Union[list[float], np.ndarray[float], pd.Series, xr.DataArray]
+
+
+def pair_bounding_box_overlap(
+    lon1: array_like,
+    lat1: array_like,
+    lon2: array_like,
+    lat2: array_like,
+    tolerance: float,
+) -> Tuple[np.ndarray[bool], np.ndarray[bool]]:
+    """Given two arrays of longitudes and latitudes, return boolean masks for
+    their overlapping bounding boxes.
+
+    Parameters
+    ----------
+    lon1 : array_like
+        First array of longitudes.
+    lat1 : array_like
+        First array of latitudes.
+    lon2 : array_like
+        Second array of longitudes.
+    lat2 : array_like
+        Second array of latitudes.
+    tolerance : float
+        Tolerance for the overlap. If the overlap is within this tolerance,
+        the times are considered to overlap.
+
+    Returns
+    -------
+    overlap1 : np.ndarray[bool]
+        Boolean mask for the overlapping times in `lon1` and `lat1`.
+    overlap2 : np.ndarray[bool]
+        Boolean mask for the overlapping times in `lon2` and `lat2`.
+
+    Examples
+    --------
+    >>> lon1 = [0, 0, 1, 1]
+    >>> lat1 = [0, 0, 1, 1]
+    >>> lon2 = [1, 1, 2, 2]
+    >>> lat2 = [1, 1, 2, 2]
+    >>> pair_bounding_box_overlap(lon1, lat1, lon2, lat2, 0.5)
+    (array([False, False,  True,  True]), array([ True,  True, False, False]))
+    """
+    # First get the bounding box of each trajectory.
+    lon1_min, lon1_max = np.min(lon1), np.max(lon1)
+    lat1_min, lat1_max = np.min(lat1), np.max(lat1)
+    lon2_min, lon2_max = np.min(lon2), np.max(lon2)
+    lat2_min, lat2_max = np.min(lat2), np.max(lat2)
+
+    # TODO handle trajectories that cross the dateline
+
+    bounding_boxes_overlap = (
+        (lon1_min <= lon2_max + tolerance)
+        & (lon1_max >= lon2_min - tolerance)
+        & (lat1_min <= lat2_max + tolerance)
+        & (lat1_max >= lat2_min - tolerance)
+    )
+
+    # Now check if the trajectories overlap within the bounding box.
+    if bounding_boxes_overlap:
+        overlap_start = (
+            max(lon1_min, lon2_min) - tolerance,  # West
+            max(lat1_min, lat2_min) - tolerance,  # South
+        )
+        overlap_end = (
+            min(lon1_max, lon2_max) + tolerance,  # East
+            min(lat1_max, lat2_max) + tolerance,  # North
+        )
+        overlap1 = (
+            (lon1 >= overlap_start[0])
+            & (lon1 <= overlap_end[0])
+            & (lat1 >= overlap_start[1])
+            & (lat1 <= overlap_end[1])
+        )
+        overlap2 = (
+            (lon2 >= overlap_start[0])
+            & (lon2 <= overlap_end[0])
+            & (lat2 >= overlap_start[1])
+            & (lat2 <= overlap_end[1])
+        )
+        return overlap1, overlap2
+    else:
+        return np.zeros_like(lon1, dtype=bool), np.zeros_like(lon2, dtype=bool)
 
 
 def pair_time_overlap(
     time1: array_like,
     time2: array_like,
     tolerance,
-) -> np.ndarray[bool]:
+) -> Tuple[np.ndarray[bool], np.ndarray[bool]]:
     """Given two arrays of times (or any other monotonically increasing
     quantity), return boolean masks for the overlapping times.
 
