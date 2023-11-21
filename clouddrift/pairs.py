@@ -15,7 +15,7 @@ def pair_bounding_box_overlap(
     lat1: array_like,
     lon2: array_like,
     lat2: array_like,
-    tolerance: float,
+    tolerance: float = 0,
 ) -> Tuple[np.ndarray[bool], np.ndarray[bool]]:
     """Given two arrays of longitudes and latitudes, return boolean masks for
     their overlapping bounding boxes.
@@ -23,16 +23,17 @@ def pair_bounding_box_overlap(
     Parameters
     ----------
     lon1 : array_like
-        First array of longitudes.
+        First array of longitudes in degrees.
     lat1 : array_like
-        First array of latitudes.
+        First array of latitudes in degrees.
     lon2 : array_like
-        Second array of longitudes.
+        Second array of longitudes in degrees.
     lat2 : array_like
-        Second array of latitudes.
-    tolerance : float
-        Tolerance for the overlap. If the overlap is within this tolerance,
-        the times are considered to overlap.
+        Second array of latitudes in degrees.
+    tolerance : float, optional
+        Tolerance in degrees for the overlap. If the overlap is within this
+        tolerance, the times are considered to overlap. Default is 0, or no
+        tolerance.
 
     Returns
     -------
@@ -92,14 +93,14 @@ def pair_bounding_box_overlap(
         return np.zeros_like(lon1, dtype=bool), np.zeros_like(lon2, dtype=bool)
 
 
-def pair_distance(
+def pair_space_distance(
     lon1: array_like,
     lat1: array_like,
     lon2: array_like,
     lat2: array_like,
 ) -> np.ndarray[float]:
     """Given two arrays of longitudes and latitudes, return the distance
-    on a sphere between each pair of points.
+    on a sphere between all pairs of points.
 
     Parameters
     ----------
@@ -115,11 +116,23 @@ def pair_distance(
     Returns
     -------
     distance : np.ndarray[float]
-        Array of distances between each pair of points.
+        Array of distances between all pairs of points.
 
     Examples
     --------
-    TODO
+    >>> lon1 = [0, 0, 1, 1]
+    >>> lat1 = [0, 0, 1, 1]
+    >>> lon2 = [1, 1, 2, 2]
+    >>> lat2 = [1, 1, 2, 2]
+    >>> pair_space_distance(lon1, lat1, lon2, lat2)
+    array([[157424.62387233, 157424.62387233,      0.        ,
+             0.        ],
+       [157424.62387233, 157424.62387233,      0.        ,
+             0.        ],
+       [314825.26360286, 314825.26360286, 157400.64794884,
+        157400.64794884],
+       [314825.26360286, 314825.26360286, 157400.64794884,
+        157400.64794884]])
     """
     # Create longitude and latitude matrices from arrays to compute distance
     lon1_2d, lon2_2d = np.meshgrid(lon1, lon2, copy=False)
@@ -131,6 +144,44 @@ def pair_distance(
     return distance
 
 
+def pair_time_distance(
+    time1: array_like,
+    time2: array_like,
+) -> np.ndarray[float]:
+    """Given two arrays of times (or any other monotonically increasing
+    quantity), return the distance between all pairs of times.
+
+    Parameters
+    ----------
+    time1 : array_like
+        First array of times.
+    time2 : array_like
+        Second array of times.
+
+    Returns
+    -------
+    distance : np.ndarray[float]
+        Array of distances between all pairs of times.
+
+    Examples
+    --------
+    >>> time1 = np.arange(4)
+    >>> time2 = np.arange(2, 6)
+    >>> pair_time_distance(time1, time2)
+    array([[2, 1, 0, 1],
+           [3, 2, 1, 0],
+           [4, 3, 2, 1],
+           [5, 4, 3, 2]])
+    """
+    # Create time matrices from arrays to compute distance
+    time1_2d, time2_2d = np.meshgrid(time1, time2, copy=False)
+
+    # Compute distance between all pairs of times
+    distance = np.abs(time1_2d - time2_2d)
+
+    return distance
+
+
 def pair_time_overlap(
     time1: array_like,
     time2: array_like,
@@ -138,6 +189,10 @@ def pair_time_overlap(
 ) -> Tuple[np.ndarray[bool], np.ndarray[bool]]:
     """Given two arrays of times (or any other monotonically increasing
     quantity), return boolean masks for the overlapping times.
+
+    Although higher-level array containers like xarray and pandas are supported
+    for input arrays, this function is an order of magnitude faster when passing
+    in numpy arrays.
 
     Parameters
     ----------
