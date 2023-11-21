@@ -1,6 +1,7 @@
 """
 Functions to analyze pairs of contiguous data segments.
 """
+from clouddrift import sphere
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -89,6 +90,45 @@ def pair_bounding_box_overlap(
         return overlap1, overlap2
     else:
         return np.zeros_like(lon1, dtype=bool), np.zeros_like(lon2, dtype=bool)
+
+
+def pair_distance(
+    lon1: array_like,
+    lat1: array_like,
+    lon2: array_like,
+    lat2: array_like,
+) -> np.ndarray[float]:
+    """Given two arrays of longitudes and latitudes, return the distance
+    on a sphere between each pair of points.
+
+    Parameters
+    ----------
+    lon1 : array_like
+        First array of longitudes.
+    lat1 : array_like
+        First array of latitudes.
+    lon2 : array_like
+        Second array of longitudes.
+    lat2 : array_like
+        Second array of latitudes.
+
+    Returns
+    -------
+    distance : np.ndarray[float]
+        Array of distances between each pair of points.
+
+    Examples
+    --------
+    TODO
+    """
+    # Create longitude and latitude matrices from arrays to compute distance
+    lon1_2d, lon2_2d = np.meshgrid(lon1, lon2, copy=False)
+    lat1_2d, lat2_2d = np.meshgrid(lat1, lat2, copy=False)
+
+    # Compute distance between all pairs of points
+    distance = sphere.distance(lon1_2d, lat1_2d, lon2_2d, lat2_2d)
+
+    return distance
 
 
 def pair_time_overlap(
