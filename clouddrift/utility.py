@@ -30,8 +30,12 @@ def plot_ragged(
     tolerance: Optional[Union[float, int]] = 180,
     **kwargs,
 ):
-    """Function that wraps matplotlib plot function (plt.plot) and LineCollection
-    (matplotlib.collections) to efficiently plot trajectories from a ragged array dataset.
+    """Plot trajectories from a ragged array dataset on a Matplotlib Axes
+    or a Cartopy GeoAxes object ``ax``.
+
+    This function wraps Matplotlib's ``plot`` function (``plt.plot``) and
+    ``LineCollection`` (``matplotlib.collections``) to efficiently plot
+    trajectories from a ragged array dataset.
 
     Parameters
     ----------
@@ -47,13 +51,13 @@ def plot_ragged(
         to the corresponding color value. If colors is the same shape as rowsize, the
         trajectories are uniformly colored according to the corresponding color value.
     *args : tuple
-        Additional arguments to pass to `plt.plot`.
+        Additional arguments to pass to ``ax.plot``.
     tolerance : float
         Tolerance gap between data points (in degrees) for segmenting trajectories. For periodic
         domains, the tolerance parameter should be set to the maximum allowed gap
         between data points. Defaults to 180.
     **kwargs : dict
-        Additional keyword arguments to pass to `plt.plot`.
+        Additional keyword arguments to pass to ``ax.plot``.
 
     Returns
     -------
