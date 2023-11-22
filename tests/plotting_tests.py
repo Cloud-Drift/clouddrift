@@ -1,15 +1,25 @@
-import cartopy.crs as ccrs
-from clouddrift.plotting import plot_ragged
-import matplotlib.pyplot as plt
 import numpy as np
 import sys
 import unittest
 from unittest.mock import patch
 
+try:
+    import cartopy.crs as ccrs
+    from clouddrift.plotting import plot_ragged
+    import matplotlib.pyplot as plt
+
+    optional_dependencies_installed = True
+except:
+    optional_dependencies_installed = False
+
 if __name__ == "__main__":
     unittest.main()
 
 
+@unittest.skipIf(
+    not optional_dependencies_installed,
+    "Matplotlib and Cartopy are required for those tests.",
+)
 class plotting_tests(unittest.TestCase):
     @classmethod
     def setUpClass(self):
