@@ -8,8 +8,8 @@ import pandas as pd
 from typing import Optional, Union
 import xarray as xr
 import pandas as pd
-from typing import Optional, Tuple, Union
-from clouddrift.ragged import segment, rowsize_to_index, subset
+from typing import Optional, Union
+from clouddrift.ragged import segment, rowsize_to_index
 
 try:
     import matplotlib.pyplot as plt
