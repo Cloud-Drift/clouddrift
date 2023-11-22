@@ -1,4 +1,4 @@
-from clouddrift import pairs
+from clouddrift import datasets, pairs, ragged, sphere
 import numpy as np
 import pandas as pd
 import unittest
@@ -7,6 +7,33 @@ import xarray as xr
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class pairs_chance_pair_tests(unittest.TestCase):
+    def setUp(self) -> None:
+        ds = datasets.glad()
+        self.lon1 = ragged.unpack(ds["longitude"], ds["rowsize"], rows=0).pop()
+        self.lat1 = ragged.unpack(ds["latitude"], ds["rowsize"], rows=0).pop()
+        self.time1 = ragged.unpack(ds["time"], ds["rowsize"], rows=0).pop()
+        self.lon2 = ragged.unpack(ds["longitude"], ds["rowsize"], rows=1).pop()
+        self.lat2 = ragged.unpack(ds["latitude"], ds["rowsize"], rows=1).pop()
+        self.time2 = ragged.unpack(ds["time"], ds["rowsize"], rows=1).pop()
+
+    def test_chance_pair(self):
+        i1, i2 = pairs.chance_pair(
+            self.lon1,
+            self.lat1,
+            self.lon2,
+            self.lat2,
+            self.time1,
+            self.time2,
+            space_tolerance=5000,
+            time_tolerance=np.timedelta64(1),
+        )
+        space_distance = sphere.distance(
+            self.lon1[i1], self.lat1[i1], self.lon2[i2], self.lat2[i2]
+        )
+        self.assertTrue(np.all(space_distance < 5000))
 
 
 class pairs_bounding_box_overlap_tests(unittest.TestCase):

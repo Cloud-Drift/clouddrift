@@ -5,9 +5,97 @@ from clouddrift import sphere
 import numpy as np
 import pandas as pd
 import xarray as xr
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
 array_like = Union[list[float], np.ndarray[float], pd.Series, xr.DataArray]
+
+
+def chance_pair(
+    lon1: array_like,
+    lat1: array_like,
+    lon2: array_like,
+    lat2: array_like,
+    time1: Optional[array_like] = None,
+    time2: Optional[array_like] = None,
+    space_tolerance: Optional[float] = 0,
+    time_tolerance: Optional[float] = 0,
+):
+    """Given two arrays of longitudes and latitudes, return the chance of
+    finding a pair of points that overlap in space and time.
+
+    Parameters
+    ----------
+    lon1 : array_like
+        First array of longitudes in degrees.
+    lat1 : array_like
+        First array of latitudes in degrees.
+    lon2 : array_like
+        Second array of longitudes in degrees.
+    lat2 : array_like
+        Second array of latitudes in degrees.
+    time1 : array_like, optional
+        First array of times.
+    time2 : array_like, optional
+        Second array of times.
+    space_tolerance : float, optional
+        Tolerance in meters for the spatial overlap. If the overlap is within
+        this tolerance, the pair is considered to be a chance pair. Default is
+        0, or no tolerance.
+    time_tolerance : float, optional
+        Tolerance for the temporal overlap. If the overlap is within this
+        tolerance, and the space_tolerance condition is satisfied, the pair is
+        considered a chance pair.. Default is 0, or no tolerance.
+
+    Returns
+    -------
+    indices1 : np.ndarray[int]
+        Indices of the first array that satisfy chance pair criteria.
+    indices2 : np.ndarray[int]
+        Indices of the second array that satisfy chance pair criteria.
+
+    Examples
+    --------
+    TODO
+    """
+    time_present = time1 is not None and time2 is not None
+
+    # If time is provided, subset the trajectories to the overlapping times.
+    if time_present:
+        overlap1, overlap2 = pair_time_overlap(time1, time2, time_tolerance)
+        lon1 = lon1[overlap1]
+        lat1 = lat1[overlap1]
+        time1 = time1[overlap1]
+        lon2 = lon2[overlap2]
+        lat2 = lat2[overlap2]
+        time2 = time2[overlap2]
+
+    space_tolerance_degrees = np.degrees(space_tolerance / sphere.EARTH_RADIUS_METERS)
+
+    bbox_overlap1, bbox_overlap2 = pair_bounding_box_overlap(
+        lon1, lat1, lon2, lat2, space_tolerance_degrees
+    )
+
+    lon1 = lon1[bbox_overlap1]
+    lat1 = lat1[bbox_overlap1]
+    lon2 = lon2[bbox_overlap2]
+    lat2 = lat2[bbox_overlap2]
+    time1 = time1[bbox_overlap1] if time_present else None
+    time2 = time2[bbox_overlap2] if time_present else None
+
+    space_distance = pair_space_distance(lon1, lat1, lon2, lat2)
+    chance_mask = space_distance <= space_tolerance
+
+    if time_present:
+        time_distance = pair_time_distance(time1, time2)
+        chance_mask_time = time_distance <= time_tolerance
+        chance_mask = chance_mask & chance_mask_time
+
+    indices2, indices1 = np.where(chance_mask)
+
+    # FIXME: We return indices for subsetted arrays, not the original arrays.
+    # FIXME: We should return the indices for the original arrays.
+
+    return indices1, indices2
 
 
 def pair_bounding_box_overlap(
@@ -15,7 +103,7 @@ def pair_bounding_box_overlap(
     lat1: array_like,
     lon2: array_like,
     lat2: array_like,
-    tolerance: float = 0,
+    tolerance: Optional[float] = 0,
 ) -> Tuple[np.ndarray[bool], np.ndarray[bool]]:
     """Given two arrays of longitudes and latitudes, return boolean masks for
     their overlapping bounding boxes.
@@ -187,7 +275,7 @@ def pair_time_distance(
 def pair_time_overlap(
     time1: array_like,
     time2: array_like,
-    tolerance,
+    tolerance: Optional[float] = 0,
 ) -> Tuple[np.ndarray[bool], np.ndarray[bool]]:
     """Given two arrays of times (or any other monotonically increasing
     quantity), return boolean masks for the overlapping times.
