@@ -1,5 +1,5 @@
 """
-This module contains various utility functions.
+This module provides a function to easily and efficiently plot trajectories stored in a ragged array.
 """
 
 from clouddrift.ragged import segment, rowsize_to_index
