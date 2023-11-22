@@ -53,8 +53,8 @@ def plot_ragged(
     *args : tuple
         Additional arguments to pass to ``ax.plot``.
     tolerance : float
-        Tolerance gap between data points (in degrees) for segmenting trajectories. For periodic
-        domains, the tolerance parameter should be set to the maximum allowed gap
+        Longitude tolerance gap between data points (in degrees) for segmenting trajectories.
+        For periodic domains, the tolerance parameter should be set to the maximum allowed gap
         between data points. Defaults to 180.
     **kwargs : dict
         Additional keyword arguments to pass to ``ax.plot``.
@@ -77,7 +77,6 @@ def plot_ragged(
     >>> fig = plt.figure()
     >>> ax = fig.add_subplot(1, 1, 1)
 
-    >>> time = [v.astype(np.int64) / 86400 / 1e9 for v in ds.time.values]
     >>> plot_ragged(
     >>>     ax,
     >>>     ds.lon,
@@ -89,7 +88,6 @@ def plot_ragged(
     To plot the same trajectories, but assigning a different color to each
     observation and specifying a colormap:
 
-    >>> time = [v.astype(np.int64) / 86400 / 1e9 for v in ds.time.values]
     >>> fig = plt.figure()
     >>> ax = fig.add_subplot(1, 1, 1)
     >>> lc = plot_ragged(

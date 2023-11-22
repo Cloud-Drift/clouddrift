@@ -1,5 +1,5 @@
 import cartopy.crs as ccrs
-from clouddrift.utility import plot_ragged
+from clouddrift.plotting import plot_ragged
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
@@ -10,7 +10,7 @@ if __name__ == "__main__":
     unittest.main()
 
 
-class utility_tests(unittest.TestCase):
+class plotting_tests(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         """
@@ -123,17 +123,17 @@ class utility_tests(unittest.TestCase):
         self.assertEqual(len(l), 2)
 
     def test_matplotlib_not_installed(self):
-        del sys.modules["clouddrift.utility"]
+        del sys.modules["clouddrift.plotting"]
         with patch.dict(sys.modules, {"matplotlib": None}):
             with self.assertRaises(ImportError):
-                from clouddrift.utility import plot_ragged
+                from clouddrift.plotting import plot_ragged
         # reload for other tests
-        from clouddrift.utility import plot_ragged
+        from clouddrift.plotting import plot_ragged
 
     def test_cartopy_not_installed(self):
-        del sys.modules["clouddrift.utility"]
+        del sys.modules["clouddrift.plotting"]
         with patch.dict(sys.modules, {"cartopy": None}):
-            from clouddrift.utility import plot_ragged
+            from clouddrift.plotting import plot_ragged
 
             fig = plt.figure()
             ax = fig.add_subplot(1, 1, 1)
@@ -146,4 +146,4 @@ class utility_tests(unittest.TestCase):
             )
 
         # reload for other tests
-        from clouddrift.utility import plot_ragged
+        from clouddrift.plotting import plot_ragged

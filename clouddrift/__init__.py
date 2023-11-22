@@ -9,5 +9,5 @@ import clouddrift.kinematics
 import clouddrift.ragged
 import clouddrift.signal
 import clouddrift.sphere
-import clouddrift.utility
+import clouddrift.plotting
 import clouddrift.wavelet
