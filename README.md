@@ -120,6 +120,7 @@ With pip:
 python3 -m venv .venv
 source .venv/bin/activate
 pip install .
+pip install matplotlib-base cartopy
 ```
 
 With Conda:
@@ -127,6 +128,7 @@ With Conda:
 ```
 conda env create -f environment.yml
 conda activate clouddrift
+conda install matplotlib-base cartopy
 ```
 
 Then, run the tests like this:
