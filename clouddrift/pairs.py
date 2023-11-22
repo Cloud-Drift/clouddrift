@@ -32,15 +32,17 @@ def pair_bounding_box_overlap(
         Second array of latitudes in degrees.
     tolerance : float, optional
         Tolerance in degrees for the overlap. If the overlap is within this
-        tolerance, the times are considered to overlap. Default is 0, or no
-        tolerance.
+        tolerance, the bounding boxes are considered to overlap. Default is 0,
+        or no tolerance.
 
     Returns
     -------
     overlap1 : np.ndarray[bool]
-        Boolean mask for the overlapping times in `lon1` and `lat1`.
+        Boolean mask for ``lon1`` and ``lat1`` that indicates where their bounding
+        box overlaps with that of ``lon2`` and ``lat2``.
     overlap2 : np.ndarray[bool]
-        Boolean mask for the overlapping times in `lon2` and `lat2`.
+        Boolean mask for ``lon2`` and ``lat2`` that indicates where their bounding
+        box overlaps with that of ``lon1`` and ``lat1``.
 
     Examples
     --------
@@ -105,13 +107,13 @@ def pair_space_distance(
     Parameters
     ----------
     lon1 : array_like
-        First array of longitudes.
+        First array of longitudes in degrees.
     lat1 : array_like
-        First array of latitudes.
+        First array of latitudes in degrees.
     lon2 : array_like
-        Second array of longitudes.
+        Second array of longitudes in degrees.
     lat2 : array_like
-        Second array of latitudes.
+        Second array of latitudes in degrees.
 
     Returns
     -------
