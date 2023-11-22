@@ -24,8 +24,8 @@ def plot_ragged(
     ax: plt.Axes,
     longitude: Union[list, np.ndarray, pd.Series, xr.DataArray],
     latitude: Union[list, np.ndarray, pd.Series, xr.DataArray],
-    rowsize: Optional[Union[list, np.ndarray, pd.Series, xr.DataArray]],
-    colors: Optional[Union[list, np.ndarray, pd.Series, xr.DataArray]],
+    rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
+    colors: Optional[Union[list, np.ndarray, pd.Series, xr.DataArray]] = None,
     *args,
     tolerance: Optional[Union[float, int]] = 180,
     **kwargs,
@@ -142,9 +142,15 @@ def plot_ragged(
     elif not isinstance(ax, plt.Axes):
         raise ValueError("ax must be either: plt.Axes or GeoAxes.")
 
-    if longitude.shape != latitude.shape:
-        raise ValueError("lon and lat must have the same shape.")
-    if colors is not None and (len(colors) not in [len(longitude), len(rowsize)]):
+    if np.sum(rowsize) != len(longitude):
+        raise ValueError("The sum of rowsize must equal the length of lon and lat.")
+
+    if len(longitude) != len(latitude):
+        raise ValueError("lon and lat must have the same length.")
+
+    if colors is None:
+        colors = np.arange(len(rowsize))
+    elif colors is not None and (len(colors) not in [len(longitude), len(rowsize)]):
         raise ValueError("shape colors must match the shape of lon/lat or rowsize.")
 
     # define a colormap
