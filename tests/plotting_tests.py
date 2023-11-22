@@ -35,13 +35,28 @@ class plotting_tests(unittest.TestCase):
         with self.assertRaises(ValueError):
             plot_ragged(ax, self.lon, self.lat, self.rowsize)
 
-    def test_plot(self):
+    def test_plot_colored_trajectory(self):
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
         l = plot_ragged(
             ax, self.lon, self.lat, self.rowsize, colors=np.arange(len(self.rowsize))
         )
         self.assertIsInstance(l, list)
+
+    def test_plot_colored_datapoints(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+        l = plot_ragged(
+            ax, self.lon, self.lat, self.rowsize, colors=np.arange(len(self.lat))
+        )
+        self.assertIsInstance(l, list)
+
+    def test_plot_color_wrong_dimension(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+        color_test = np.append(np.arange(len(self.lat)), 3)
+        with self.assertRaises(ValueError):
+            l = plot_ragged(ax, self.lon, self.lat, self.rowsize, colors=color_test)
 
     def test_plot_cartopy_transform(self):
         fig = plt.figure()
