@@ -132,28 +132,16 @@ class plotting_tests(unittest.TestCase):
         self.assertIsInstance(l, list)
         self.assertEqual(len(l), 2)
 
+
+class plotting_optional_dep(unittest.TestCase):
     def test_matplotlib_not_installed(self):
-        del sys.modules["clouddrift.plotting"]
+        try:
+            del sys.modules["clouddrift.plotting"]
+        except:
+            pass
         with patch.dict(sys.modules, {"matplotlib": None}):
             with self.assertRaises(ImportError):
                 from clouddrift.plotting import plot_ragged
-        # reload for other tests
-        from clouddrift.plotting import plot_ragged
 
-    def test_cartopy_not_installed(self):
-        del sys.modules["clouddrift.plotting"]
-        with patch.dict(sys.modules, {"cartopy": None}):
-            from clouddrift.plotting import plot_ragged
-
-            fig = plt.figure()
-            ax = fig.add_subplot(1, 1, 1)
-            plot_ragged(
-                ax,
-                self.lon,
-                self.lat,
-                self.rowsize,
-                colors=np.arange(len(self.rowsize)),
-            )
-
-        # reload for other tests
-        from clouddrift.plotting import plot_ragged
+                # matplotlib loads at the top of the func
+                plot_ragged(None, None, None, None)

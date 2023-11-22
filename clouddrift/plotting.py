@@ -11,22 +11,14 @@ import pandas as pd
 from typing import Optional, Union
 from clouddrift.ragged import segment, rowsize_to_index
 
-try:
-    import matplotlib.pyplot as plt
-    import matplotlib.colors as mcolors
-    from matplotlib.collections import LineCollection
-    from matplotlib import cm
-except ImportError:
-    raise ImportError("missing optional dependency 'matplotlib'")
-
 
 def plot_ragged(
-    ax: plt.Axes,
+    ax,
     longitude: Union[list, np.ndarray, pd.Series, xr.DataArray],
     latitude: Union[list, np.ndarray, pd.Series, xr.DataArray],
     rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
-    colors: Optional[Union[list, np.ndarray, pd.Series, xr.DataArray]] = None,
     *args,
+    colors: Optional[Union[list, np.ndarray, pd.Series, xr.DataArray]] = None,
     tolerance: Optional[Union[float, int]] = 180,
     **kwargs,
 ):
@@ -39,19 +31,21 @@ def plot_ragged(
 
     Parameters
     ----------
+    ax: matplotlib.axes.Axes or cartopy.mpl.geoaxes.GeoAxes
+        Axis to plot on.
     longitude : array-like
         Longitude sequence. Unidimensional array input.
     latitude : array-like
         Latitude sequence. Unidimensional array input.
     rowsize : list
         List of integers specifying the number of data points in each row.
+    *args : tuple
+        Additional arguments to pass to ``ax.plot``.
     colors : array-like
         Colors to use for plotting. If colors is the same shape as longitude and latitude,
         the trajectories are splitted into segments and each segment is colored according
         to the corresponding color value. If colors is the same shape as rowsize, the
         trajectories are uniformly colored according to the corresponding color value.
-    *args : tuple
-        Additional arguments to pass to ``ax.plot``.
     tolerance : float
         Longitude tolerance gap between data points (in degrees) for segmenting trajectories.
         For periodic domains, the tolerance parameter should be set to the maximum allowed gap
@@ -130,6 +124,15 @@ def plot_ragged(
         If matplotlib is not installed.
         If the axis is a GeoAxes object and cartopy is not installed.
     """
+
+    # optional dependency
+    try:
+        import matplotlib.pyplot as plt
+        import matplotlib.colors as mcolors
+        from matplotlib.collections import LineCollection
+        from matplotlib import cm
+    except ImportError:
+        raise ImportError("missing optional dependency 'matplotlib'")
 
     if hasattr(ax, "coastlines"):  # check if GeoAxes without cartopy
         try:
