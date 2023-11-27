@@ -1,7 +1,9 @@
 """
 Functions to analyze pairs of contiguous data segments.
 """
-from clouddrift import sphere
+from clouddrift import ragged, sphere
+from concurrent.futures import as_completed, ThreadPoolExecutor
+import itertools
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -55,7 +57,37 @@ def chance_pair(
 
     Examples
     --------
-    TODO
+    In the following example, we load the first two trajectories from the GLAD
+    dataset and find all longitudes, latitudes, and times that satisfy the
+    chance pair criteria of 6 km separation distance and no time separation:
+
+    >>> from clouddrift.datasets import glad
+    >>> from clouddrift.pairs import chance_pair
+    >>> from clouddrift.ragged import unpack
+    >>> ds = glad()
+    >>> lon1 = unpack(ds["longitude"], ds["rowsize"], rows=0).pop()
+    >>> lat1 = unpack(ds["latitude"], ds["rowsize"], rows=0).pop()
+    >>> time1 = unpack(ds["time"], ds["rowsize"], rows=0).pop()
+    >>> lon2 = unpack(ds["longitude"], ds["rowsize"], rows=1).pop()
+    >>> lat2 = unpack(ds["latitude"], ds["rowsize"], rows=1).pop()
+    >>> time2 = unpack(ds["time"], ds["rowsize"], rows=1).pop()
+    >>> chance_pair(lon1, lat1, lon2, lat2, time1, time2, 6000, np.timedelta64(0))
+    (array([-87.05255 , -87.04974 , -87.04612 , -87.04155 , -87.03718 ,
+            -87.033165], dtype=float32),
+     array([28.23184 , 28.227087, 28.222498, 28.217508, 28.2118  , 28.205938],
+           dtype=float32),
+     array([-87.111305, -87.10078 , -87.090675, -87.08157 , -87.07363 ,
+            -87.067375], dtype=float32),
+     array([28.217918, 28.20882 , 28.198603, 28.187078, 28.174644, 28.161713],
+           dtype=float32),
+     array(['2012-07-21T21:30:00.524160000', '2012-07-21T22:15:00.532800000',
+            '2012-07-21T23:00:00.541440000', '2012-07-21T23:45:00.550080000',
+            '2012-07-22T00:30:00.558720000', '2012-07-22T01:15:00.567360000'],
+           dtype='datetime64[ns]'),
+     array(['2012-07-21T21:30:00.524160000', '2012-07-21T22:15:00.532800000',
+            '2012-07-21T23:00:00.541440000', '2012-07-21T23:45:00.550080000',
+            '2012-07-22T00:30:00.558720000', '2012-07-22T01:15:00.567360000'],
+           dtype='datetime64[ns]'))
     """
     time_present = time1 is not None and time2 is not None
 
@@ -92,10 +124,66 @@ def chance_pair(
 
     indices2, indices1 = np.where(chance_mask)
 
-    # FIXME: We return indices for subsetted arrays, not the original arrays.
-    # FIXME: We should return the indices for the original arrays.
+    if time_present:
+        return (
+            lon1[indices1],
+            lat1[indices1],
+            lon2[indices2],
+            lat2[indices2],
+            time1[indices1],
+            time2[indices2],
+        )
+    else:
+        return lon1[indices1], lat1[indices1], lon2[indices2], lat2[indices2]
 
-    return indices1, indices2
+
+def chance_pairs(
+    lon: array_like,
+    lat: array_like,
+    rowsize: array_like,
+    space_tolerance: Optional[float] = 0,
+    time: Optional[array_like] = None,
+    time_tolerance: Optional[float] = 0,
+):
+    """
+    TODO
+    """
+    pairs = itertools.combinations(np.arange(rowsize.size), 2)
+    i = ragged.rowsize_to_index(rowsize)
+    results = []
+    with ThreadPoolExecutor() as executor:
+        if time is None:
+            futures = [
+                executor.submit(
+                    chance_pair,
+                    lon[i[j] : i[j + 1]],
+                    lat[i[j] : i[j + 1]],
+                    lon[i[k] : i[k + 1]],
+                    lat[i[k] : i[k + 1]],
+                    space_tolerance=space_tolerance,
+                )
+                for j, k in pairs
+            ]
+        else:
+            futures = [
+                executor.submit(
+                    chance_pair,
+                    lon[i[j] : i[j + 1]],
+                    lat[i[j] : i[j + 1]],
+                    lon[i[k] : i[k + 1]],
+                    lat[i[k] : i[k + 1]],
+                    time[i[j] : i[j + 1]],
+                    time[i[k] : i[k + 1]],
+                    space_tolerance,
+                    time_tolerance,
+                )
+                for j, k in pairs
+            ]
+        for future in as_completed(futures):
+            #TODO make sure we return the pair indices
+            #TODO so we know what pair the results correspond to
+            results.append(future.result())
+    return results
 
 
 def pair_bounding_box_overlap(

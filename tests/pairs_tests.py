@@ -20,20 +20,21 @@ class pairs_chance_pair_tests(unittest.TestCase):
         self.time2 = ragged.unpack(ds["time"], ds["rowsize"], rows=1).pop()
 
     def test_chance_pair(self):
-        i1, i2 = pairs.chance_pair(
+        space_tolerance = 6000
+        time_tolerance = np.timedelta64(0)
+        lon1, lat1, lon2, lat2, time1, time2 = pairs.chance_pair(
             self.lon1,
             self.lat1,
             self.lon2,
             self.lat2,
             self.time1,
             self.time2,
-            space_tolerance=5000,
-            time_tolerance=np.timedelta64(1),
+            space_tolerance,
+            time_tolerance,
         )
-        space_distance = sphere.distance(
-            self.lon1[i1], self.lat1[i1], self.lon2[i2], self.lat2[i2]
-        )
-        self.assertTrue(np.all(space_distance < 5000))
+        space_distance = sphere.distance(lon1, lat1, lon2, lat2)
+        self.assertTrue(np.all(space_distance <= space_tolerance))
+        self.assertTrue(np.all(time1 == time2))
 
 
 class pairs_bounding_box_overlap_tests(unittest.TestCase):
