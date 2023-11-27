@@ -180,8 +180,8 @@ def chance_pairs(
                 for j, k in pairs
             ]
         for future in as_completed(futures):
-            #TODO make sure we return the pair indices
-            #TODO so we know what pair the results correspond to
+            # TODO make sure we return the pair indices
+            # TODO so we know what pair the results correspond to
             results.append(future.result())
     return results
 
