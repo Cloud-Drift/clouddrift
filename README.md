@@ -69,6 +69,13 @@ In your virtual environment, type:
 pip install clouddrift
 ```
 
+To install optional dependencies needed by the `clouddrift.plotting` module,
+type:
+
+```
+pip install matplotlib-base cartopy
+```
+
 ##### Conda:
 
 First add `conda-forge` to your channels in your Conda configuration (`~/.condarc`):
@@ -82,6 +89,13 @@ then install CloudDrift:
 
 ```
 conda install clouddrift
+```
+
+To install optional dependencies needed by the `clouddrift.plotting` module,
+type:
+
+```
+conda install matplotlib-base cartopy
 ```
 
 #### Development branch:
