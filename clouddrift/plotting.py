@@ -84,6 +84,7 @@ def plot_ragged(
 
     >>> fig = plt.figure()
     >>> ax = fig.add_subplot(1, 1, 1)
+    >>> time = [v.astype(np.int64) / 86400 / 1e9 for v in ds.time.values]
     >>> lc = plot_ragged(
     >>>     ax,
     >>>     ds.lon,
