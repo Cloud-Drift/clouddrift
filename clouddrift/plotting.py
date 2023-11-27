@@ -66,6 +66,7 @@ def plot_ragged(
     a different color to each trajectory:
 
     >>> from clouddrift import datasets
+    >>> import matplotlib.pyplot as plt
     >>> ds = datasets.gdp1h()
     >>> ds = subset(ds, {"ID": ds.ID[:100].values}).load()
     >>> fig = plt.figure()
@@ -100,6 +101,7 @@ def plot_ragged(
     Finally, to plot the same trajectories, but using a cartopy
     projection:
 
+    >>> import cartopy.crs as ccrs
     >>> fig = plt.figure()
     >>> ax = fig.add_subplot(1, 1, 1, projection=ccrs.Mollweide())
     >>> time = [v.astype(np.int64) / 86400 / 1e9 for v in ds.time.values]
