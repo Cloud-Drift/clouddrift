@@ -543,7 +543,7 @@ def subset(
     rowsize_var_name: str = "rowsize",
     traj_dim_name: str = "traj",
     obs_dim_name: str = "obs",
-    complete_trajectory=False,
+    full_trajectories=False,
 ) -> xr.Dataset:
     """Subset the dataset as a function of one or many criteria. The criteria are
     passed as a dictionary, where a variable to subset is assigned to either a
@@ -587,9 +587,9 @@ def subset(
 
     >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)})
 
-    The parameter `complete_trajectory` can be used to retrieve trajectories passing through a region, for example all trajectories passing through the Gulf of Mexico:
+    The parameter `full_trajectories` can be used to retrieve trajectories passing through a region, for example all trajectories passing through the Gulf of Mexico:
 
-    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)}, complete_trajectory=True)
+    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)}, full_trajectories=True)
 
     Retrieve drogued trajectory segments:
 
@@ -651,7 +651,7 @@ def subset(
     )
 
     # reset mask_obs to True to keep complete trajectories
-    if complete_trajectory:
+    if full_trajectories:
         for i in np.where(mask_traj)[0]:
             mask_obs[slice(traj_idx[i], traj_idx[i + 1])] = True
         ids_with_mask_obs = np.repeat(

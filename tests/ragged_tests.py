@@ -667,12 +667,12 @@ class subset_tests(unittest.TestCase):
         ds_sub = subset(self.ds, {"ID": self.ds["ID"][:2].values})
         self.assertTrue(ds_sub["ID"].size == 2)
 
-    def test_complete_trajectory(self):
+    def test_full_trajectories(self):
         ds_id_rowsize = {
             i: j for i, j in zip(self.ds.ID.values, self.ds.rowsize.values)
         }
 
-        ds_sub = subset(self.ds, {"lon": (-125, -111)}, complete_trajectory=True)
+        ds_sub = subset(self.ds, {"lon": (-125, -111)}, full_trajectories=True)
         self.assertTrue(all(ds_sub.lon == [-121, -111, 51, 61, 71]))
 
         ds_sub_id_rowsize = {
@@ -681,7 +681,7 @@ class subset_tests(unittest.TestCase):
         for k, v in ds_sub_id_rowsize.items():
             self.assertTrue(ds_id_rowsize[k] == v)
 
-        ds_sub = subset(self.ds, {"lat": (30, 40)}, complete_trajectory=True)
+        ds_sub = subset(self.ds, {"lat": (30, 40)}, full_trajectories=True)
         self.assertTrue(all(ds_sub.lat == [10, 20, 30, 40]))
 
         ds_sub_id_rowsize = {
@@ -690,7 +690,7 @@ class subset_tests(unittest.TestCase):
         for k, v in ds_sub_id_rowsize.items():
             self.assertTrue(ds_id_rowsize[k] == v)
 
-        ds_sub = subset(self.ds, {"time": (4, 5)}, complete_trajectory=True)
+        ds_sub = subset(self.ds, {"time": (4, 5)}, full_trajectories=True)
         xr.testing.assert_equal(self.ds, ds_sub)
 
 
