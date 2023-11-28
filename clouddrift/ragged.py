@@ -568,7 +568,7 @@ def subset(
         Name of the trajectory dimension (default is "traj")
     obs_dim_name : str, optional
         Name of the observation dimension (default is "obs")
-    complete_trajectory : bool, optional
+    full_trajectory : bool, optional
         If True, it returns the complete trajectories where at least one observation
         matches the criteria, rather than just the segments where the criteria are satisfied.
         Default is False.
