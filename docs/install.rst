@@ -15,6 +15,13 @@ In your virtual environment, type:
 
   pip install clouddrift
 
+To install optional dependencies needed by the ``clouddrift.plotting`` module,
+type:
+
+.. code-block:: text
+
+  pip install matplotlib-base cartopy
+
 Conda
 -----
 
@@ -30,6 +37,13 @@ then install CloudDrift:
 .. code-block:: text
 
   conda install clouddrift
+
+To install optional dependencies needed by the ``clouddrift.plotting`` module,
+type:
+
+.. code-block:: text
+
+  conda install matplotlib-base cartopy
 
 Developers
 ----------
