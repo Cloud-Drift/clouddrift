@@ -667,7 +667,7 @@ class subset_tests(unittest.TestCase):
         ds_sub = subset(self.ds, {"ID": self.ds["ID"][:2].values})
         self.assertTrue(ds_sub["ID"].size == 2)
 
-    def test_fulltraj(self):
+    def test_complete_trajectory(self):
         ds_id_rowsize = {
             i: j for i, j in zip(self.ds.ID.values, self.ds.rowsize.values)
         }
