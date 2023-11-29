@@ -293,7 +293,7 @@ def pair_bounding_box_overlap(
     lat1: array_like,
     lon2: array_like,
     lat2: array_like,
-    tolerance: Optional[float] = 0,
+    distance: Optional[float] = 0,
 ) -> Tuple[np.ndarray[bool], np.ndarray[bool]]:
     """Given two arrays of longitudes and latitudes, return boolean masks for
     their overlapping bounding boxes.
@@ -308,19 +308,18 @@ def pair_bounding_box_overlap(
         Second array of longitudes in degrees.
     lat2 : array_like
         Second array of latitudes in degrees.
-    tolerance : float, optional
-        Tolerance in degrees for the overlap. If the overlap is within this
-        tolerance, the bounding boxes are considered to overlap. Default is 0,
-        or no tolerance.
+    distance : float, optional
+        Distance in degrees for the overlap. If the overlap is within this
+        distance, the bounding boxes are considered to overlap. Default is 0.
 
     Returns
     -------
-    overlap1 : np.ndarray[bool]
-        Boolean mask for ``lon1`` and ``lat1`` that indicates where their bounding
-        box overlaps with that of ``lon2`` and ``lat2``.
-    overlap2 : np.ndarray[bool]
-        Boolean mask for ``lon2`` and ``lat2`` that indicates where their bounding
-        box overlaps with that of ``lon1`` and ``lat1``.
+    overlap1 : np.ndarray[int]
+        Indices ``lon1`` and ``lat1`` where their bounding box overlaps with
+        that of ``lon2`` and ``lat2``.
+    overlap2 : np.ndarray[int]
+        Indices ``lon2`` and ``lat2`` where their bounding box overlaps with
+        that of ``lon1`` and ``lat1``.
 
     Examples
     --------
@@ -329,7 +328,7 @@ def pair_bounding_box_overlap(
     >>> lon2 = [1, 1, 2, 2]
     >>> lat2 = [1, 1, 2, 2]
     >>> pair_bounding_box_overlap(lon1, lat1, lon2, lat2, 0.5)
-    (array([False, False,  True,  True]), array([ True,  True, False, False]))
+    (array([2, 3]), array([0, 1]))
     """
     # First get the bounding box of each trajectory.
     lon1_min, lon1_max = np.min(lon1), np.max(lon1)
@@ -340,21 +339,21 @@ def pair_bounding_box_overlap(
     # TODO handle trajectories that cross the dateline
 
     bounding_boxes_overlap = (
-        (lon1_min <= lon2_max + tolerance)
-        & (lon1_max >= lon2_min - tolerance)
-        & (lat1_min <= lat2_max + tolerance)
-        & (lat1_max >= lat2_min - tolerance)
+        (lon1_min <= lon2_max + distance)
+        & (lon1_max >= lon2_min - distance)
+        & (lat1_min <= lat2_max + distance)
+        & (lat1_max >= lat2_min - distance)
     )
 
     # Now check if the trajectories overlap within the bounding box.
     if bounding_boxes_overlap:
         overlap_start = (
-            max(lon1_min, lon2_min) - tolerance,  # West
-            max(lat1_min, lat2_min) - tolerance,  # South
+            max(lon1_min, lon2_min) - distance,  # West
+            max(lat1_min, lat2_min) - distance,  # South
         )
         overlap_end = (
-            min(lon1_max, lon2_max) + tolerance,  # East
-            min(lat1_max, lat2_max) + tolerance,  # North
+            min(lon1_max, lon2_max) + distance,  # East
+            min(lat1_max, lat2_max) + distance,  # North
         )
         overlap1 = (
             (lon1 >= overlap_start[0])
@@ -368,9 +367,9 @@ def pair_bounding_box_overlap(
             & (lat2 >= overlap_start[1])
             & (lat2 <= overlap_end[1])
         )
-        return overlap1, overlap2
+        return np.where(overlap1)[0], np.where(overlap2)[0]
     else:
-        return np.zeros_like(lon1, dtype=bool), np.zeros_like(lon2, dtype=bool)
+        return np.array([], dtype=int), np.array([], dtype=int)
 
 
 def pair_space_distance(

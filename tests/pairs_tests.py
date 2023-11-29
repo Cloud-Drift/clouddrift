@@ -48,10 +48,13 @@ class pairs_bounding_box_overlap_tests(unittest.TestCase):
 
     def test_list(self):
         mask1, mask2 = pairs.pair_bounding_box_overlap(
-            self.lon1, self.lat1, self.lon2, self.lat2, 0.5
+            self.lon1,
+            self.lat1,
+            self.lon2,
+            self.lat2,
         )
-        self.assertTrue(np.all(mask1 == [False, False, True, True]))
-        self.assertTrue(np.all(mask2 == [True, True, False, False]))
+        self.assertTrue(np.all(mask1 == [2, 3]))
+        self.assertTrue(np.all(mask2 == [0, 1]))
 
     def test_ndarray(self):
         mask1, mask2 = pairs.pair_bounding_box_overlap(
@@ -59,10 +62,9 @@ class pairs_bounding_box_overlap_tests(unittest.TestCase):
             np.array(self.lat1),
             np.array(self.lon2),
             np.array(self.lat2),
-            0.5,
         )
-        self.assertTrue(np.all(mask1 == [False, False, True, True]))
-        self.assertTrue(np.all(mask2 == [True, True, False, False]))
+        self.assertTrue(np.all(mask1 == [2, 3]))
+        self.assertTrue(np.all(mask2 == [0, 1]))
 
     def test_xarray(self):
         mask1, mask2 = pairs.pair_bounding_box_overlap(
@@ -70,10 +72,9 @@ class pairs_bounding_box_overlap_tests(unittest.TestCase):
             xr.DataArray(data=self.lat1),
             xr.DataArray(data=self.lon2),
             xr.DataArray(data=self.lat2),
-            0.5,
         )
-        self.assertTrue(np.all(mask1 == [False, False, True, True]))
-        self.assertTrue(np.all(mask2 == [True, True, False, False]))
+        self.assertTrue(np.all(mask1 == [2, 3]))
+        self.assertTrue(np.all(mask2 == [0, 1]))
 
     def test_pandas(self):
         mask1, mask2 = pairs.pair_bounding_box_overlap(
@@ -81,24 +82,26 @@ class pairs_bounding_box_overlap_tests(unittest.TestCase):
             pd.Series(self.lat1),
             pd.Series(self.lon2),
             pd.Series(self.lat2),
-            0.5,
         )
-        self.assertTrue(np.all(mask1 == [False, False, True, True]))
-        self.assertTrue(np.all(mask2 == [True, True, False, False]))
+        self.assertTrue(np.all(mask1 == [2, 3]))
+        self.assertTrue(np.all(mask2 == [0, 1]))
 
     def test_tolerance(self):
         mask1, mask2 = pairs.pair_bounding_box_overlap(
-            self.lon1, self.lat1, self.lon2, self.lat2, 1.5
+            self.lon1, self.lat1, self.lon2, self.lat2, 1
         )
-        self.assertTrue(np.all(mask1 == [False, True, True, True]))
-        self.assertTrue(np.all(mask2 == [True, True, True, False]))
+        self.assertTrue(np.all(mask1 == [1, 2, 3]))
+        self.assertTrue(np.all(mask2 == [0, 1, 2]))
 
     def test_different_length_inputs(self):
         mask1, mask2 = pairs.pair_bounding_box_overlap(
-            self.lon1, self.lat1, self.lon3, self.lat3, 0.5
+            self.lon1,
+            self.lat1,
+            self.lon3,
+            self.lat3,
         )
-        self.assertTrue(np.all(mask1 == [False, False, True, True]))
-        self.assertTrue(np.all(mask2 == [True, True, False, False, False]))
+        self.assertTrue(np.all(mask1 == [2, 3]))
+        self.assertTrue(np.all(mask2 == [0, 1]))
 
     def test_no_overlap(self):
         mask1, mask2 = pairs.pair_bounding_box_overlap(
@@ -106,10 +109,9 @@ class pairs_bounding_box_overlap_tests(unittest.TestCase):
             np.array([0, 0]),
             np.array([1, 1]),
             np.array([1, 1]),
-            0.5,
         )
-        self.assertTrue(np.all(mask1 == [False, False]))
-        self.assertTrue(np.all(mask2 == [False, False]))
+        self.assertTrue(np.all(mask1 == []))
+        self.assertTrue(np.all(mask2 == []))
 
 
 class pairs_time_overlap_tests(unittest.TestCase):
