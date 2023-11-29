@@ -26,7 +26,7 @@ jobs:
         with:
           environment-file: environment.yml
           environment-name: clouddrift
-      - name: Running Tests
+      - name: Run unit tests
         shell: bash -l {0}
         run: |
               micromamba install coverage matplotlib-base cartopy
