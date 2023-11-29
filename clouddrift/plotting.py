@@ -213,7 +213,7 @@ def plot_ragged(
             lines.append(line)
 
     # set axis limits
-    ax.set_xlim([longitude.min(), longitude.max()])
-    ax.set_ylim([latitude.min(), latitude.max()])
+    ax.set_xlim([np.min(longitude), np.max(longitude)])
+    ax.set_ylim([np.min(latitude), np.max(latitude)])
 
     return lines
