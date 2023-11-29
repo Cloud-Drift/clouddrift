@@ -119,35 +119,37 @@ class pairs_time_overlap_tests(unittest.TestCase):
         self.c = [2, 3, 4, 5]
 
     def test_list(self):
-        mask1, mask2 = pairs.pair_time_overlap(self.a, self.b, 0.5)
-        self.assertTrue(np.all(mask1 == [False, False, True]))
-        self.assertTrue(np.all(mask2 == [True, False, False]))
+        mask1, mask2 = pairs.pair_time_overlap(self.a, self.b)
+        self.assertTrue(np.all(mask1 == [2]))
+        self.assertTrue(np.all(mask2 == [0]))
 
     def test_ndarray(self):
-        mask1, mask2 = pairs.pair_time_overlap(np.array(self.a), np.array(self.b), 0.5)
-        self.assertTrue(np.all(mask1 == [False, False, True]))
-        self.assertTrue(np.all(mask2 == [True, False, False]))
+        mask1, mask2 = pairs.pair_time_overlap(np.array(self.a), np.array(self.b))
+        self.assertTrue(np.all(mask1 == [2]))
+        self.assertTrue(np.all(mask2 == [0]))
 
     def test_xarray(self):
         mask1, mask2 = pairs.pair_time_overlap(
-            xr.DataArray(data=self.a), xr.DataArray(data=self.b), 0.5
+            xr.DataArray(data=self.a),
+            xr.DataArray(data=self.b),
         )
-        self.assertTrue(np.all(mask1 == [False, False, True]))
-        self.assertTrue(np.all(mask2 == [True, False, False]))
+        self.assertTrue(np.all(mask1 == [2]))
+        self.assertTrue(np.all(mask2 == [0]))
 
     def test_pandas(self):
         mask1, mask2 = pairs.pair_time_overlap(
-            pd.Series(self.a), pd.Series(self.b), 0.5
+            pd.Series(self.a),
+            pd.Series(self.b),
         )
-        self.assertTrue(np.all(mask1 == [False, False, True]))
-        self.assertTrue(np.all(mask2 == [True, False, False]))
+        self.assertTrue(np.all(mask1 == [2]))
+        self.assertTrue(np.all(mask2 == [0]))
 
     def test_tolerance(self):
-        mask1, mask2 = pairs.pair_time_overlap(self.a, self.b, 1.5)
-        self.assertTrue(np.all(mask1 == [False, True, True]))
-        self.assertTrue(np.all(mask2 == [True, True, False]))
+        mask1, mask2 = pairs.pair_time_overlap(self.a, self.b, 1)
+        self.assertTrue(np.all(mask1 == [1, 2]))
+        self.assertTrue(np.all(mask2 == [0, 1]))
 
     def test_different_length_inputs(self):
-        mask1, mask2 = pairs.pair_time_overlap(self.a, self.c, 0.5)
-        self.assertTrue(np.all(mask1 == [False, False, True]))
-        self.assertTrue(np.all(mask2 == [True, False, False, False]))
+        mask1, mask2 = pairs.pair_time_overlap(self.a, self.c, 1)
+        self.assertTrue(np.all(mask1 == [1, 2]))
+        self.assertTrue(np.all(mask2 == [0, 1]))
