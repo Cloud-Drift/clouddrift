@@ -26,15 +26,17 @@ jobs:
         with:
           environment-file: environment.yml
           environment-name: clouddrift
-      - name: Running tests
+      - name: Running Tests
+        shell: bash -l {0}
         run: |
               micromamba install coverage matplotlib-base cartopy
               coverage run -m unittest discover -s tests -p "*.py"
       - name: Create coverage report
+        shell: bash -l {0}
         run: |
               coverage xml
       - name: Upload coverage report to Codecov
-        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.9'
+        if: matrix.os == "ubuntu-latest" && matrix.python-version == "3.9"
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage.xml
