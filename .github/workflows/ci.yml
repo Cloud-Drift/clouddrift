@@ -29,8 +29,8 @@ jobs:
       - name: Testing
         shell: bash -l {0}
         run: |
-              pip install coverage 
-              pip install matplotlib-base cartopy
+              mamba install coverage 
+              mamba install matplotlib-base cartopy
               coverage run -m unittest discover -s tests -p "*.py"
               coverage xml
       - name: Upload coverage reports to Codecov
