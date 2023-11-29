@@ -543,6 +543,7 @@ def subset(
     rowsize_var_name: str = "rowsize",
     traj_dim_name: str = "traj",
     obs_dim_name: str = "obs",
+    full_trajectories=False,
 ) -> xr.Dataset:
     """Subset the dataset as a function of one or many criteria. The criteria are
     passed as a dictionary, where a variable to subset is assigned to either a
@@ -567,6 +568,10 @@ def subset(
         Name of the trajectory dimension (default is "traj")
     obs_dim_name : str, optional
         Name of the observation dimension (default is "obs")
+    full_trajectories : bool, optional
+        If True, it returns the complete trajectories where at least one observation
+        matches the criteria, rather than just the segments where the criteria are satisfied.
+        Default is False.
 
     Returns
     -------
@@ -581,6 +586,10 @@ def subset(
     Retrieve a region, like the Gulf of Mexico, using ranges of latitude and longitude:
 
     >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)})
+
+    The parameter `full_trajectories` can be used to retrieve trajectories passing through a region, for example all trajectories passing through the Gulf of Mexico:
+
+    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)}, full_trajectories=True)
 
     Retrieve drogued trajectory segments:
 
@@ -640,6 +649,14 @@ def subset(
     mask_traj = np.logical_and(
         mask_traj, np.in1d(ds[id_var_name], np.unique(ids_with_mask_obs))
     )
+
+    # reset mask_obs to True to keep complete trajectories
+    if full_trajectories:
+        for i in np.where(mask_traj)[0]:
+            mask_obs[slice(traj_idx[i], traj_idx[i + 1])] = True
+        ids_with_mask_obs = np.repeat(
+            ds[id_var_name].values, ds[rowsize_var_name].values
+        )[mask_obs]
 
     if not any(mask_traj):
         warnings.warn("No data matches the criteria; returning an empty dataset.")
