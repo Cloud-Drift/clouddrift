@@ -19,11 +19,11 @@ def chance_pair(
     lat2: array_like,
     time1: Optional[array_like] = None,
     time2: Optional[array_like] = None,
-    space_tolerance: Optional[float] = 0,
-    time_tolerance: Optional[float] = 0,
+    space_distance: Optional[float] = 0,
+    time_distance: Optional[float] = 0,
 ):
     """Given two arrays of longitudes and latitudes, return the chance of
-    finding a pair of points that overlap in space and time.
+    finding a pair of points that are within a given distance in space and time.
 
     Parameters
     ----------
@@ -39,14 +39,16 @@ def chance_pair(
         First array of times.
     time2 : array_like, optional
         Second array of times.
-    space_tolerance : float, optional
-        Tolerance in meters for the spatial overlap. If the overlap is within
-        this tolerance, the pair is considered to be a chance pair. Default is
-        0, or no tolerance.
-    time_tolerance : float, optional
-        Tolerance for the temporal overlap. If the overlap is within this
-        tolerance, and the space_tolerance condition is satisfied, the pair is
-        considered a chance pair.. Default is 0, or no tolerance.
+    space_distance : float, optional
+        Maximum space distance in meters for the pair to qualify as chance pair.
+        If the separation is within this distance, the pair is considered to be
+        a chance pair. Default is 0, or no distance, i.e. the positions must be
+        exactly the same.
+    time_distance : float, optional
+        Maximum time distance allowed for the pair to qualify as chance pair.
+        If the separation is within this distance, and the space distance
+        condition is satisfied, the pair is considered a chance pair. Default is
+        0, or no distance, i.e. the times must be exactly the same.
 
     Returns
     -------
@@ -93,7 +95,7 @@ def chance_pair(
 
     # If time is provided, subset the trajectories to the overlapping times.
     if time_present:
-        overlap1, overlap2 = pair_time_overlap(time1, time2, time_tolerance)
+        overlap1, overlap2 = pair_time_overlap(time1, time2, time_distance)
         lon1 = lon1[overlap1]
         lat1 = lat1[overlap1]
         time1 = time1[overlap1]
@@ -101,10 +103,10 @@ def chance_pair(
         lat2 = lat2[overlap2]
         time2 = time2[overlap2]
 
-    space_tolerance_degrees = np.degrees(space_tolerance / sphere.EARTH_RADIUS_METERS)
+    space_distance_degrees = np.degrees(space_distance / sphere.EARTH_RADIUS_METERS)
 
     bbox_overlap1, bbox_overlap2 = pair_bounding_box_overlap(
-        lon1, lat1, lon2, lat2, space_tolerance_degrees
+        lon1, lat1, lon2, lat2, space_distance_degrees
     )
 
     lon1 = lon1[bbox_overlap1]
@@ -114,12 +116,11 @@ def chance_pair(
     time1 = time1[bbox_overlap1] if time_present else None
     time2 = time2[bbox_overlap2] if time_present else None
 
-    space_distance = pair_space_distance(lon1, lat1, lon2, lat2)
-    chance_mask = space_distance <= space_tolerance
+    chance_mask = pair_space_distance(lon1, lat1, lon2, lat2) <= space_distance
 
     if time_present:
         time_distance = pair_time_distance(time1, time2)
-        chance_mask_time = time_distance <= time_tolerance
+        chance_mask_time = time_distance <= time_distance
         chance_mask = chance_mask & chance_mask_time
 
     indices2, indices1 = np.where(chance_mask)
@@ -141,9 +142,9 @@ def chance_pairs(
     lon: array_like,
     lat: array_like,
     rowsize: array_like,
-    space_tolerance: Optional[float] = 0,
+    space_distance: Optional[float] = 0,
     time: Optional[array_like] = None,
-    time_tolerance: Optional[float] = 0,
+    time_distance: Optional[float] = 0,
 ) -> List[
     Tuple[
         Tuple[int, int],
@@ -153,11 +154,11 @@ def chance_pairs(
     """Return all longitudes, latitudes, and (optionally) times, at which pairs
     of contiguous trajectories satisfy the chance pair criteria.
 
-    if ``time`` and ``time_tolerance`` are omitted, the search will be done
+    If ``time`` and ``time_distance`` are omitted, the search will be done
     only on the spatial criteria, and the result will not include the time
     arrays.
 
-    if ``time`` and ``time_tolerance`` are provided, the search will be done
+    If ``time`` and ``time_distance`` are provided, the search will be done
     on both the spatial and temporal criteria, and the result will include the
     time arrays.
 
@@ -169,17 +170,18 @@ def chance_pairs(
         Array of latitudes in degrees.
     rowsize : array_like
         Array of rowsizes.
-    space_tolerance : float, optional
-        Tolerance in meters for the spatial overlap. If the overlap is within
-        this tolerance, the pair is considered to be a chance pair. Default is
-        0, or no tolerance, i.e. the positions must be exactly the same.
+    space_distance : float, optional
+        Maximum space distance in meters for the pair to qualify as chance pair.
+        If the separation is within this distance, the pair is considered to be
+        a chance pair. Default is 0, or no distance, i.e. the positions must be
+        exactly the same.
     time : array_like, optional
         Array of times.
-    time_tolerance : float, optional
-        Tolerance for the temporal overlap. If the overlap is within this
-        tolerance, and the space_tolerance condition is satisfied, the pair is
-        considered a chance pair. Default is 0, or no tolerance, i.e. the times
-        must be exactly the same.
+    time_distance : float, optional
+        Maximum time distance allowed for the pair to qualify as chance pair.
+        If the separation is within this distance, and the space distance
+        condition is satisfied, the pair is considered a chance pair. Default is
+        0, or no distance, i.e. the times must be exactly the same.
 
     Returns
     -------
@@ -207,9 +209,9 @@ def chance_pairs(
         ds["longitude"].values,
         ds["latitude"].values,
         ds["rowsize"].values,
-        space_tolerance=6000,
+        space_distance=6000,
         time=time,
-        time_tolerance=np.timedelta64(0)
+        time_distance=np.timedelta64(0)
     )
     [((0, 1),
       (array([-87.05255 , -87.04974 , -87.04612 , -87.04155 , -87.03718 ,
@@ -237,9 +239,9 @@ def chance_pairs(
         ds["longitude"].values,
         ds["latitude"].values,
         ds["rowsize"].values,
-        space_tolerance=60000,
+        space_distance=60000,
         time=time,
-        time_tolerance=np.timedelta64(0)
+        time_distance=np.timedelta64(0)
     )
     >>> [p[0] for p in res]
     [(1, 4), (1, 3), (2, 3), (0, 1), (2, 4), (1, 2), (0, 2), (0, 3), (3, 4)]
@@ -257,7 +259,7 @@ def chance_pairs(
                     lat[i[j] : i[j + 1]],
                     lon[i[k] : i[k + 1]],
                     lat[i[k] : i[k + 1]],
-                    space_tolerance=space_tolerance,
+                    space_distance=space_distance,
                 )
                 for j, k in pairs
             ]
@@ -271,8 +273,8 @@ def chance_pairs(
                     lat[i[k] : i[k + 1]],
                     time[i[j] : i[j + 1]],
                     time[i[k] : i[k + 1]],
-                    space_tolerance,
-                    time_tolerance,
+                    space_distance,
+                    time_distance,
                 )
                 for j, k in pairs
             ]

@@ -20,8 +20,8 @@ class pairs_chance_pair_tests(unittest.TestCase):
         self.time2 = ragged.unpack(ds["time"], ds["rowsize"], rows=1).pop()
 
     def test_chance_pair(self):
-        space_tolerance = 6000
-        time_tolerance = np.timedelta64(0)
+        space_distance = 6000
+        time_distance = np.timedelta64(0)
         lon1, lat1, lon2, lat2, time1, time2 = pairs.chance_pair(
             self.lon1,
             self.lat1,
@@ -29,11 +29,12 @@ class pairs_chance_pair_tests(unittest.TestCase):
             self.lat2,
             self.time1,
             self.time2,
-            space_tolerance,
-            time_tolerance,
+            space_distance,
+            time_distance,
         )
-        space_distance = sphere.distance(lon1, lat1, lon2, lat2)
-        self.assertTrue(np.all(space_distance <= space_tolerance))
+        self.assertTrue(
+            np.all(sphere.distance(lon1, lat1, lon2, lat2) <= space_distance)
+        )
         self.assertTrue(np.all(time1 == time2))
 
 
@@ -86,7 +87,7 @@ class pairs_bounding_box_overlap_tests(unittest.TestCase):
         self.assertTrue(np.all(mask1 == [2, 3]))
         self.assertTrue(np.all(mask2 == [0, 1]))
 
-    def test_tolerance(self):
+    def test_distance(self):
         mask1, mask2 = pairs.pair_bounding_box_overlap(
             self.lon1, self.lat1, self.lon2, self.lat2, 1
         )
@@ -146,7 +147,7 @@ class pairs_time_overlap_tests(unittest.TestCase):
         self.assertTrue(np.all(mask1 == [2]))
         self.assertTrue(np.all(mask2 == [0]))
 
-    def test_tolerance(self):
+    def test_distance(self):
         mask1, mask2 = pairs.pair_time_overlap(self.a, self.b, 1)
         self.assertTrue(np.all(mask1 == [1, 2]))
         self.assertTrue(np.all(mask2 == [0, 1]))
