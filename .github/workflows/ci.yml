@@ -26,13 +26,11 @@ jobs:
         with:
           environment-file: environment.yml
           environment-name: clouddrift
-      - name: Testing
-        shell: bash -l {0}
+      - name: Running tests
         run: |
               micromamba install coverage matplotlib-base cartopy
               coverage run -m unittest discover -s tests -p "*.py"
       - name: Create coverage report
-        shell: bash -l {0}
         run: |
               coverage xml
       - name: Upload coverage report to Codecov
