@@ -34,7 +34,7 @@ jobs:
         run: |
               coverage xml
       - name: Upload coverage report to Codecov
-        if: matrix.os == "ubuntu-latest" && matrix.python-version == "3.9"
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.9'
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage.xml
