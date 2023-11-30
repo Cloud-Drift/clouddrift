@@ -93,49 +93,48 @@ def chance_pair(
     """
     time_present = time1 is not None and time2 is not None
 
-    # If time is provided, subset the trajectories to the overlapping times.
     if time_present:
+        # If time is provided, subset the trajectories to the overlapping times.
         overlap1, overlap2 = pair_time_overlap(time1, time2, time_distance)
-        lon1 = lon1[overlap1]
-        lat1 = lat1[overlap1]
-        time1 = time1[overlap1]
-        lon2 = lon2[overlap2]
-        lat2 = lat2[overlap2]
-        time2 = time2[overlap2]
+    else:
+        # Otherwise, initialize the overlap indices to the full length of the
+        # trajectories.
+        overlap1 = np.arange(lon1.size)
+        overlap2 = np.arange(lon2.size)
 
+    # Provided space distance is in meters, but here we convert it to degrees
+    # for the bounding box overlap check.
     space_distance_degrees = np.degrees(space_distance / sphere.EARTH_RADIUS_METERS)
 
+    # Compute the indices for each trajectory where the two trajectories'
+    # bounding boxes overlap.
     bbox_overlap1, bbox_overlap2 = pair_bounding_box_overlap(
-        lon1, lat1, lon2, lat2, space_distance_degrees
+        lon1[overlap1],
+        lat1[overlap1],
+        lon2[overlap2],
+        lat2[overlap2],
+        space_distance_degrees,
     )
 
-    lon1 = lon1[bbox_overlap1]
-    lat1 = lat1[bbox_overlap1]
-    lon2 = lon2[bbox_overlap2]
-    lat2 = lat2[bbox_overlap2]
-    time1 = time1[bbox_overlap1] if time_present else None
-    time2 = time2[bbox_overlap2] if time_present else None
-
-    chance_mask = pair_space_distance(lon1, lat1, lon2, lat2) <= space_distance
+    # bbox_overlap1 and bbox_overlap2 subset the overlap1 and overlap2 indices.
+    overlap1 = overlap1[bbox_overlap1]
+    overlap2 = overlap2[bbox_overlap2]
 
     if time_present:
-        time_distance = pair_time_distance(time1, time2)
-        chance_mask_time = time_distance <= time_distance
-        chance_mask = chance_mask & chance_mask_time
+        time_separation = pair_time_distance(time1[overlap1], time2[overlap2])
+        # FIXME np.where returns indices relative to the subset array, not the
+        # FIXME original input arrays. Figure out a logic to back out the indices
+        overlap2, overlap1 = np.where(time_separation <= time_distance)
 
-    indices2, indices1 = np.where(chance_mask)
-
-    if time_present:
-        return (
-            lon1[indices1],
-            lat1[indices1],
-            lon2[indices2],
-            lat2[indices2],
-            time1[indices1],
-            time2[indices2],
+    # FIXME same here as above
+    overlap2, overlap1 = np.where(
+        pair_space_distance(
+            lon1[overlap1], lat1[overlap1], lon2[overlap2], lat2[overlap2]
         )
-    else:
-        return lon1[indices1], lat1[indices1], lon2[indices2], lat2[indices2]
+        <= space_distance
+    )
+
+    return overlap1, overlap2
 
 
 def chance_pairs(
