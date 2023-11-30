@@ -256,7 +256,7 @@ def mosaic() -> xr.Dataset:
         ds = xr.open_dataset(mosaic_path)
     return ds
 
-  
+
 def subsurface_floats() -> xr.Dataset:
     """Returns the subsurface floats dataset as an Xarray dataset.
 
@@ -456,4 +456,3 @@ def andro() -> xr.Dataset:
     else:
         ds = xr.open_dataset(local_file)
     return ds
- 
