@@ -64,7 +64,7 @@ def morse_wavelet_transform(
         ``radian_frequency``. However, if the optional argument ``complex=True``
         is specified, the wavelets will be divided by 2 so that the total
         variance of the input complex signal is equal to the sum of the
-        variances of the returned analytic (positive) and anti-analiyic
+        variances of the returned analytic (positive) and conjugate analytic
         (negative) parts. See examples below. The other option is ``"energy"``
         which uses the unit energy normalization. In this last case, the
         time-domain wavelet energies ``np.sum(np.abs(wave)**2)`` are always
@@ -102,7 +102,7 @@ def morse_wavelet_transform(
 
     Apply a wavelet transform with a Morse wavelet with gamma parameter 3, beta parameter 4,
     for a complex input signal at radian frequency 0.2 cycles per unit time. This case returns the
-    analytic and anti-analytic components:
+    analytic and conjugate analytic components:
 
     >>> z = np.random.random(1024) + 1j*np.random.random(1024)
     >>> wtz_p, wtz_n = morse_wavelet_transform(z, 3, 4, np.array([2*np.pi*0.2]), complex=True)
@@ -113,7 +113,7 @@ def morse_wavelet_transform(
     >>> wtz_imag = morse_wavelet_transform(np.imag(z)), 3, 4, np.array([2*np.pi*0.2]))
     >>> wtz_p, wtz_n = (wtz_real + 1j*wtz_imag) / 2, (wtz_real - 1j*wtz_imag) / 2
 
-    For the "energy" normalization, the analytic and anti-analytic components are obtained as follows
+    For the "energy" normalization, the analytic and conjugate analytic components are obtained as follows
     with this alternative method:
     >>> wtz_real = morse_wavelet_transform(np.real(z)), 3, 4, np.array([2*np.pi*0.2]))
     >>> wtz_imag = morse_wavelet_transform(np.imag(z)), 3, 4, np.array([2*np.pi*0.2]))
@@ -170,7 +170,7 @@ def morse_wavelet_transform(
 
     # apply the wavelet transform, distinguish complex and real cases
     if complex:
-        # imaginary case, divide by 2 the wavelet and return analytic and anti-analytic
+        # imaginary case, divide by 2 the wavelet and return analytic and conjugate analytic
         if normalization == "bandpass":
             wtx_p = wavelet_transform(
                 0.5 * x, wavelet, boundary="mirror", time_axis=time_axis

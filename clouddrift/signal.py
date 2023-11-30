@@ -13,16 +13,16 @@ def analytic_signal(
     time_axis: Optional[int] = -1,
 ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
     """Return the analytic signal from a real-valued signal or the analytic and
-    anti-analytic signals from a complex-valued signal.
+    conjugate analytic signals from a complex-valued signal.
 
     If the input is a real-valued signal, the analytic signal is calculated as
     the inverse Fourier transform of the positive-frequency part of the Fourier
-    transform. If the input is a complex-valued signal, the anti-analytic signal
-    is additionally calculated as the inverse Fourier transform of the conjugate of
-    the negative-frequency part of the Fourier transform.
+    transform. If the input is a complex-valued signal, the conjugate analytic signal
+    is additionally calculated as the inverse Fourier transform of the positive-frequency
+    part of the Fourier transform of the complex conjugate of the input signal.
 
     For a complex-valued signal, the mean is evenly divided between the analytic and
-    anti-analytic signals.
+    conjugate analytic signal.
 
     The calculation is performed along the last axis of the input array by default.
     Alternatively, the user can specify the time axis of the input. The user can also
@@ -44,7 +44,7 @@ def analytic_signal(
     xa : np.ndarray
         Analytic signal. It is a tuple if the input is a complex-valed signal
         with the first element being the analytic signal and the second element
-        being the anti-analytic signal.
+        being the conjugate analytic signal.
 
     Examples
     --------
@@ -54,7 +54,7 @@ def analytic_signal(
     >>> x = np.random.rand(99)
     >>> xa = analytic_signal(x)
 
-    To obtain the analytic and anti-analytic signals of a complex-valued signal:
+    To obtain the analytic and conjugate analytic signals of a complex-valued signal:
 
     >>> w = np.random.rand(99)+1j*np.random.rand(99)
     >>> wp, wn = analytic_signal(w)
@@ -121,7 +121,7 @@ def analytic_signal(
 
     # analytic signal
     xap = np.fft.fft(xa)
-    # anti-analytic signal
+    # conjugate analytic signal
     xan = np.fft.fft(np.conj(xa))
 
     # time dimension of extended time series
@@ -142,7 +142,7 @@ def analytic_signal(
     xap = np.fft.ifft(xap)
     xan = np.fft.ifft(xan)
 
-    # return central part plus hlaf the mean
+    # return central part plus half the mean
     xap = xap[..., int(N + 1) - 1 : int(2 * N + 1) - 1] + 0.5 * mx_
     xan = xan[..., int(N + 1) - 1 : int(2 * N + 1) - 1] + 0.5 * np.conj(mx_)
 
