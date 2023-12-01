@@ -61,7 +61,7 @@ def chance_pair(
     --------
     In the following example, we load the first two trajectories from the GLAD
     dataset and find all longitudes, latitudes, and times that satisfy the
-    chance pair criteria of 2 km separation distance and no time separation:
+    chance pair criteria of 6 km separation distance and no time separation:
 
     >>> from clouddrift.datasets import glad
     >>> from clouddrift.pairs import chance_pair
@@ -73,14 +73,24 @@ def chance_pair(
     >>> lon2 = unpack(ds["longitude"], ds["rowsize"], rows=1).pop()
     >>> lat2 = unpack(ds["latitude"], ds["rowsize"], rows=1).pop()
     >>> time2 = unpack(ds["time"], ds["rowsize"], rows=1).pop()
-    >>> i1, i2 = chance_pair(lon1, lat1, lon2, lat2, time1, time2, 2000, np.timedelta64(0))
+    >>> i1, i2 = chance_pair(lon1, lat1, lon2, lat2, time1, time2, 6000, np.timedelta64(0))
     >>> i1, i2
-    (array([308, 311, 314]), array([234, 237, 237]))
+    (array([177, 180, 183, 186, 189, 192]), array([166, 169, 172, 175, 178, 181]))
 
-    Check to ensure our collocation worked:
+    Check to ensure our collocation in space worked:
 
     >>> sphere.distance(lon1[i1], lat1[i1], lon2[i2], lat2[i2])
-    array([1804.2596, 1876.314 , 1919.9955], dtype=float32)
+    array([5967.4844, 5403.253 , 5116.9136, 5185.715 , 5467.8555, 5958.4917],
+          dtype=float32)
+
+    Check to ensure our collocation in time worked:
+
+    >>> time1[i1] - time2[i2]
+    <xarray.DataArray 'time' (obs: 6)>
+    array([0, 0, 0, 0, 0, 0], dtype='timedelta64[ns]')
+    Coordinates:
+        time     (obs) datetime64[ns] 2012-07-21T21:30:00.524160 ... 2012-07-22T0...
+    Dimensions without coordinates: obs
     """
     time_present = time1 is not None and time2 is not None
 
@@ -115,19 +125,21 @@ def chance_pair(
     if time_present:
         time_separation = pair_time_distance(time1[overlap1], time2[overlap2])
         time_match2, time_match1 = np.where(time_separation <= time_distance)
-
-    overlap1 = overlap1[time_match1]
-    overlap2 = overlap2[time_match2]
+        overlap1 = overlap1[time_match1]
+        overlap2 = overlap2[time_match2]
 
     # Now search for collocation in space.
-    match2, match1 = np.where(
-        pair_space_distance(
-            lon1[overlap1], lat1[overlap1], lon2[overlap2], lat2[overlap2]
-        )
-        <= space_distance
+    space_separation = pair_space_distance(
+        lon1[overlap1], lat1[overlap1], lon2[overlap2], lat2[overlap2]
     )
+    space_overlap = space_separation <= space_distance
+    if time_present:
+        time_separation = pair_time_distance(time1[overlap1], time2[overlap2])
+        time_overlap = time_separation <= time_distance
+        match2, match1 = np.where(space_overlap & time_overlap)
+    else:
+        match2, match1 = np.where(space_overlap)
 
-    # Final subset of collocating indices
     overlap1 = overlap1[match1]
     overlap2 = overlap2[match2]
 
