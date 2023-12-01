@@ -153,21 +153,18 @@ def chance_pair(
     return overlap1, overlap2
 
 
-def chance_pairs(
+def chance_pairs_from_ragged(
     lon: array_like,
     lat: array_like,
     rowsize: array_like,
     space_distance: Optional[float] = 0,
     time: Optional[array_like] = None,
     time_distance: Optional[float] = 0,
-) -> List[
-    Tuple[
-        Tuple[int, int],
-        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray],
-    ]
-]:
-    """Return all longitudes, latitudes, and (optionally) times, at which pairs
-    of contiguous trajectories satisfy the chance pair criteria.
+) -> List[Tuple[Tuple[int, int], Tuple[np.ndarray, np.ndarray]]]:
+    """Return all chance pairs of contiguous trajectories in a ragged array,
+    and their collocated points in space and (optionally) time, given input
+    ragged arrays of longitude, latitude, and (optionally) time, and chance
+    pair criteria as maximum allowable distances in space and time.
 
     If ``time`` and ``time_distance`` are omitted, the search will be done
     only on the spatial criteria, and the result will not include the time
@@ -200,69 +197,45 @@ def chance_pairs(
 
     Returns
     -------
-    pairs : List[Tuple[Tuple[int, int], Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]]
-        List of tuples, each tuple being a tuple of pair indices and longitudes,
-        latitudes, and times that satisfy the chance pair criteria, for each
-        trajectory. The arrays are returned in the following order:
-        longitude and latitude for the first trajectory, longitude and latitude
-        for the second trajectory, and then times for the first and second
-        trajectories, if time was provided as the input.
+    pairs : List[Tuple[Tuple[int, int], Tuple[np.ndarray, np.ndarray]]]
+        List of tuples, each tuple containing a Tuple of integer indices that
+        corresponds to the trajectory rows in the ragged array, indicating the
+        pair of trajectories that satisfy the chance pair criteria, and a Tuple
+        of arrays containing the indices of the collocated points for each
+        trajectory in the chance pair.
 
     Examples
     --------
     In the following example, we load GLAD dataset as a ragged array dataset,
-    subset the result to retain the first five trajectories, and finally find all longitudes,
-    latitudes, and times that satisfy the chance pair criteria of 6 km separation distance
-    and no time separation:
+    subset the result to retain the first five trajectories, and finally find
+    all trajectories that satisfy the chance pair criteria of 12 km separation
+    distance and no time separation, as well as the indices of the collocated
+    points for each pair.
 
     >>> from clouddrift.datasets import glad
-    >>> from clouddrift.datasets import glad
-    >>> from clouddrift.pairs import chance_pairs
+    >>> from clouddrift.pairs import chance_pairs_from_ragged
     >>> from clouddrift.ragged import subset
     >>> ds = subset(glad(), {"id": ["CARTHE_001", "CARTHE_002", "CARTHE_003", "CARTHE_004", "CARTHE_005"]}, id_var_name="id")
-    >>> pairs = chance_pairs(
+    >>> pairs = chance_pairs_from_ragged(
         ds["longitude"].values,
         ds["latitude"].values,
         ds["rowsize"].values,
-        space_distance=6000,
-        time=time,
+        space_distance=12000,
+        time=ds["time"].values,
         time_distance=np.timedelta64(0)
     )
     [((0, 1),
-      (array([-87.05255 , -87.04974 , -87.04612 , -87.04155 , -87.03718 ,
-              -87.033165], dtype=float32),
-       array([28.23184 , 28.227087, 28.222498, 28.217508, 28.2118  , 28.205938],
-             dtype=float32),
-       array([-87.111305, -87.10078 , -87.090675, -87.08157 , -87.07363 ,
-              -87.067375], dtype=float32),
-       array([28.217918, 28.20882 , 28.198603, 28.187078, 28.174644, 28.161713],
-             dtype=float32),
-       array(['2012-07-21T21:30:00.524160000', '2012-07-21T22:15:00.532800000',
-              '2012-07-21T23:00:00.541440000', '2012-07-21T23:45:00.550080000',
-              '2012-07-22T00:30:00.558720000', '2012-07-22T01:15:00.567360000'],
-             dtype='datetime64[ns]'),
-       array(['2012-07-21T21:30:00.524160000', '2012-07-21T22:15:00.532800000',
-              '2012-07-21T23:00:00.541440000', '2012-07-21T23:45:00.550080000',
-              '2012-07-22T00:30:00.558720000', '2012-07-22T01:15:00.567360000'],
-             dtype='datetime64[ns]')))]
+      (array([153, 156, 159, 162, 165, 168, 171, 174, 177, 180, 183, 186, 189,
+              192, 195, 198, 201, 204, 207, 210, 213, 216]),
+       array([142, 145, 148, 151, 154, 157, 160, 163, 166, 169, 172, 175, 178,
+              181, 184, 187, 190, 193, 196, 199, 202, 205]))),
+     ((3, 4),
+      (array([141, 144, 147, 150, 153, 156, 159, 162, 165, 168, 171, 174, 177,
+              180, 183]),
+       array([136, 139, 142, 145, 148, 151, 154, 157, 160, 163, 166, 169, 172,
+              175, 178])))]
 
-    The result above shows that 6 chance pairs were found between the first and
-    second trajectories only.
-
-    To query only the trajectory pair indices that satisfy the chance pair
-    criteria, use a list comprehension. The following example returns the
-    trajectory pair indices that satisfy the chance pair criteria of 60 km:
-
-    >>> res = chance_pairs(
-        ds["longitude"].values,
-        ds["latitude"].values,
-        ds["rowsize"].values,
-        space_distance=60000,
-        time=time,
-        time_distance=np.timedelta64(0)
-    )
-    >>> [p[0] for p in res]
-    [(1, 4), (1, 3), (2, 3), (0, 1), (2, 4), (1, 2), (0, 2), (0, 3), (3, 4)]
+    The result above shows that 2 chance pairs were found.
     """
     # TODO check len(rowsize) >= set_size
     pairs = list(itertools.combinations(np.arange(rowsize.size), 2))
