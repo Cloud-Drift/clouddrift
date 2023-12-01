@@ -421,7 +421,7 @@ def pair_time_distance(
     time2: array_like,
 ) -> np.ndarray[float]:
     """Given two arrays of times (or any other monotonically increasing
-    quantity), return the distance between all pairs of times.
+    quantity), return the temporal distance between all pairs of times.
 
     Parameters
     ----------
