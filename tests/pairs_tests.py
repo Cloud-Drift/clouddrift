@@ -22,7 +22,7 @@ class pairs_chance_pair_tests(unittest.TestCase):
     def test_chance_pair(self):
         space_distance = 6000
         time_distance = np.timedelta64(0)
-        lon1, lat1, lon2, lat2, time1, time2 = pairs.chance_pair(
+        i1, i2 = pairs.chance_pair(
             self.lon1,
             self.lat1,
             self.lon2,
@@ -33,9 +33,14 @@ class pairs_chance_pair_tests(unittest.TestCase):
             time_distance,
         )
         self.assertTrue(
-            np.all(sphere.distance(lon1, lat1, lon2, lat2) <= space_distance)
+            np.all(
+                sphere.distance(
+                    self.lon1[i1], self.lat1[i1], self.lon2[i2], self.lat2[i2]
+                )
+                <= space_distance
+            )
         )
-        self.assertTrue(np.all(time1 == time2))
+        self.assertTrue(np.all(self.time1[i1] == self.time2[i2]))
 
 
 class pairs_bounding_box_overlap_tests(unittest.TestCase):
