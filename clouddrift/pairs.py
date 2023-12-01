@@ -22,8 +22,9 @@ def chance_pair(
     space_distance: Optional[float] = 0,
     time_distance: Optional[float] = 0,
 ):
-    """Given two arrays of longitudes and latitudes, return the chance of
-    finding a pair of points that are within a given distance in space and time.
+    """Given two sets of longitudes, latitudes, and times arrays, return in pairs 
+    the indices of collocated data points that are within prescribed distances 
+    in space and time. Also known as chance pairs.
 
     Parameters
     ----------
@@ -40,28 +41,28 @@ def chance_pair(
     time2 : array_like, optional
         Second array of times.
     space_distance : float, optional
-        Maximum space distance in meters for the pair to qualify as chance pair.
+        Maximum allowable space distance in meters for a pair to qualify as chance pair.
         If the separation is within this distance, the pair is considered to be
         a chance pair. Default is 0, or no distance, i.e. the positions must be
         exactly the same.
     time_distance : float, optional
-        Maximum time distance allowed for the pair to qualify as chance pair.
-        If the separation is within this distance, and the space distance
+        Maximum allowable time distance for a pair to qualify as chance pair.
+        If a separation is within this distance, and a space distance
         condition is satisfied, the pair is considered a chance pair. Default is
         0, or no distance, i.e. the times must be exactly the same.
 
     Returns
     -------
     indices1 : np.ndarray[int]
-        Indices of the first array that satisfy chance pair criteria.
+        Indices within the first set of arrays that lead to chance pair.
     indices2 : np.ndarray[int]
-        Indices of the second array that satisfy chance pair criteria.
+        Indices within the second set of arrays that lead to chance pair.
 
     Examples
     --------
-    In the following example, we load the first two trajectories from the GLAD
-    dataset and find all longitudes, latitudes, and times that satisfy the
-    chance pair criteria of 6 km separation distance and no time separation:
+    In the following example, we load the GLAD dataset, extract the first 
+    two trajectories, and find between these the array indices that satisfy
+    the chance pair criteria of 6 km separation distance and no time separation:
 
     >>> from clouddrift.datasets import glad
     >>> from clouddrift.pairs import chance_pair
@@ -77,13 +78,14 @@ def chance_pair(
     >>> i1, i2
     (array([177, 180, 183, 186, 189, 192]), array([166, 169, 172, 175, 178, 181]))
 
-    Check to ensure our collocation in space worked:
+    Check to ensure our collocation in space worked by calculating the distance
+    between the identified pairs:
 
     >>> sphere.distance(lon1[i1], lat1[i1], lon2[i2], lat2[i2])
     array([5967.4844, 5403.253 , 5116.9136, 5185.715 , 5467.8555, 5958.4917],
           dtype=float32)
 
-    Check to ensure our collocation in time worked:
+    Check the collocation in time:
 
     >>> time1[i1] - time2[i2]
     <xarray.DataArray 'time' (obs: 6)>
@@ -208,17 +210,17 @@ def chance_pairs(
 
     Examples
     --------
-    In the following example, we load the first five trajectories from the GLAD
-    dataset as a ragged-array, and find all longitudes, latitudes, and times
-    that satisfy the chance pair criteria of 6 km separation distance and no
-    time separation:
+    In the following example, we load GLAD dataset as a ragged array dataset,
+    subset the result to retain the first five trajectories, and finally find all longitudes, 
+    latitudes, and times that satisfy the chance pair criteria of 6 km separation distance
+    and no time separation:
 
     >>> from clouddrift.datasets import glad
     >>> from clouddrift.datasets import glad
     >>> from clouddrift.pairs import chance_pairs
     >>> from clouddrift.ragged import subset
     >>> ds = subset(glad(), {"id": ["CARTHE_001", "CARTHE_002", "CARTHE_003", "CARTHE_004", "CARTHE_005"]}, id_var_name="id")
-    >>> res = chance_pairs(
+    >>> pairs = chance_pairs(
         ds["longitude"].values,
         ds["latitude"].values,
         ds["rowsize"].values,
@@ -243,6 +245,9 @@ def chance_pairs(
               '2012-07-21T23:00:00.541440000', '2012-07-21T23:45:00.550080000',
               '2012-07-22T00:30:00.558720000', '2012-07-22T01:15:00.567360000'],
              dtype='datetime64[ns]')))]
+
+    The result above shows that 6 chance pairs were found between the first and
+    second trajectories only.
 
     To query only the trajectory pair indices that satisfy the chance pair
     criteria, use a list comprehension. The following example returns the
@@ -482,7 +487,7 @@ def pair_time_overlap(
     distance: Optional[float] = 0,
 ) -> Tuple[np.ndarray[int], np.ndarray[int]]:
     """Given two arrays of times (or any other monotonically increasing
-    quantity), return indices where the times are within a requested distance.
+    quantity), return indices where the times are within a prescribed distance.
 
     Although higher-level array containers like xarray and pandas are supported
     for input arrays, this function is an order of magnitude faster when passing
