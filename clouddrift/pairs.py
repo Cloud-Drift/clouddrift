@@ -92,6 +92,11 @@ def chance_pair(
         time     (obs) datetime64[ns] 2012-07-21T21:30:00.524160 ... 2012-07-22T0...
     Dimensions without coordinates: obs
     """
+    if (time1 is None and time2 is not None) or (time1 is not None and time2 is None):
+        raise ValueError(
+            "Both time1 and time2 must be provided or both must be omitted."
+        )
+
     time_present = time1 is not None and time2 is not None
 
     if time_present:
