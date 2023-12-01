@@ -22,8 +22,8 @@ def chance_pair(
     space_distance: Optional[float] = 0,
     time_distance: Optional[float] = 0,
 ):
-    """Given two sets of longitudes, latitudes, and times arrays, return in pairs 
-    the indices of collocated data points that are within prescribed distances 
+    """Given two sets of longitudes, latitudes, and times arrays, return in pairs
+    the indices of collocated data points that are within prescribed distances
     in space and time. Also known as chance pairs.
 
     Parameters
@@ -60,7 +60,7 @@ def chance_pair(
 
     Examples
     --------
-    In the following example, we load the GLAD dataset, extract the first 
+    In the following example, we load the GLAD dataset, extract the first
     two trajectories, and find between these the array indices that satisfy
     the chance pair criteria of 6 km separation distance and no time separation:
 
@@ -211,7 +211,7 @@ def chance_pairs(
     Examples
     --------
     In the following example, we load GLAD dataset as a ragged array dataset,
-    subset the result to retain the first five trajectories, and finally find all longitudes, 
+    subset the result to retain the first five trajectories, and finally find all longitudes,
     latitudes, and times that satisfy the chance pair criteria of 6 km separation distance
     and no time separation:
 
