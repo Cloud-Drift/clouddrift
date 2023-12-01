@@ -61,7 +61,7 @@ def chance_pair(
     --------
     In the following example, we load the first two trajectories from the GLAD
     dataset and find all longitudes, latitudes, and times that satisfy the
-    chance pair criteria of 6 km separation distance and no time separation:
+    chance pair criteria of 2 km separation distance and no time separation:
 
     >>> from clouddrift.datasets import glad
     >>> from clouddrift.pairs import chance_pair
@@ -73,23 +73,14 @@ def chance_pair(
     >>> lon2 = unpack(ds["longitude"], ds["rowsize"], rows=1).pop()
     >>> lat2 = unpack(ds["latitude"], ds["rowsize"], rows=1).pop()
     >>> time2 = unpack(ds["time"], ds["rowsize"], rows=1).pop()
-    >>> chance_pair(lon1, lat1, lon2, lat2, time1, time2, 6000, np.timedelta64(0))
-    (array([-87.05255 , -87.04974 , -87.04612 , -87.04155 , -87.03718 ,
-            -87.033165], dtype=float32),
-     array([28.23184 , 28.227087, 28.222498, 28.217508, 28.2118  , 28.205938],
-           dtype=float32),
-     array([-87.111305, -87.10078 , -87.090675, -87.08157 , -87.07363 ,
-            -87.067375], dtype=float32),
-     array([28.217918, 28.20882 , 28.198603, 28.187078, 28.174644, 28.161713],
-           dtype=float32),
-     array(['2012-07-21T21:30:00.524160000', '2012-07-21T22:15:00.532800000',
-            '2012-07-21T23:00:00.541440000', '2012-07-21T23:45:00.550080000',
-            '2012-07-22T00:30:00.558720000', '2012-07-22T01:15:00.567360000'],
-           dtype='datetime64[ns]'),
-     array(['2012-07-21T21:30:00.524160000', '2012-07-21T22:15:00.532800000',
-            '2012-07-21T23:00:00.541440000', '2012-07-21T23:45:00.550080000',
-            '2012-07-22T00:30:00.558720000', '2012-07-22T01:15:00.567360000'],
-           dtype='datetime64[ns]'))
+    >>> i1, i2 = chance_pair(lon1, lat1, lon2, lat2, time1, time2, 2000, np.timedelta64(0))
+    >>> i1, i2
+    (array([308, 311, 314]), array([234, 237, 237]))
+
+    Check to ensure our collocation worked:
+
+    >>> sphere.distance(lon1[i1], lat1[i1], lon2[i2], lat2[i2])
+    array([1804.2596, 1876.314 , 1919.9955], dtype=float32)
     """
     time_present = time1 is not None and time2 is not None
 
@@ -120,19 +111,25 @@ def chance_pair(
     overlap1 = overlap1[bbox_overlap1]
     overlap2 = overlap2[bbox_overlap2]
 
+    # If time is present, first search for collocation in time.
     if time_present:
         time_separation = pair_time_distance(time1[overlap1], time2[overlap2])
-        # FIXME np.where returns indices relative to the subset array, not the
-        # FIXME original input arrays. Figure out a logic to back out the indices
-        overlap2, overlap1 = np.where(time_separation <= time_distance)
+        time_match2, time_match1 = np.where(time_separation <= time_distance)
 
-    # FIXME same here as above
-    overlap2, overlap1 = np.where(
+    overlap1 = overlap1[time_match1]
+    overlap2 = overlap2[time_match2]
+
+    # Now search for collocation in space.
+    match2, match1 = np.where(
         pair_space_distance(
             lon1[overlap1], lat1[overlap1], lon2[overlap2], lat2[overlap2]
         )
         <= space_distance
     )
+
+    # Final subset of collocating indices
+    overlap1 = overlap1[match1]
+    overlap2 = overlap2[match2]
 
     return overlap1, overlap2
 
