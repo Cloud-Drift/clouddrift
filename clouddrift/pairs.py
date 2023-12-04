@@ -93,6 +93,11 @@ def chance_pair(
     Coordinates:
         time     (obs) datetime64[ns] 2012-07-21T21:30:00.524160 ... 2012-07-22T0...
     Dimensions without coordinates: obs
+
+    Raises
+    ------
+    ValueError
+        If ``time1`` and ``time2`` are not both provided or both omitted.
     """
     if (time1 is None and time2 is not None) or (time1 is not None and time2 is None):
         raise ValueError(
@@ -236,8 +241,14 @@ def chance_pairs_from_ragged(
               175, 178])))]
 
     The result above shows that 2 chance pairs were found.
+
+    Raises
+    ------
+    ValueError
+        If ``rowsize`` has fewer than two elements.
     """
-    # TODO check len(rowsize) >= set_size
+    if len(rowsize) < 2:
+        raise ValueError("rowsize must have at least two elements.")
     pairs = list(itertools.combinations(np.arange(rowsize.size), 2))
     i = ragged.rowsize_to_index(rowsize)
     results = []
