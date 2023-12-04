@@ -149,7 +149,7 @@ class ellipse_parameters_tests(unittest.TestCase):
 
     def test_invert_ellipse_parameters(self):
         kappa, lamb, theta, phi = ellipse_parameters(self.xa, self.ya)
-        xa, ya = modulated_ellipse_signals(kappa, lamb, theta, phi)
+        xa, ya = modulated_ellipse_signal(kappa, lamb, theta, phi)
         self.assertTrue(np.allclose(self.xa, xa))
         self.assertTrue(np.allclose(self.ya, ya))
 
@@ -193,7 +193,7 @@ class modulated_ellipse_signal_tests(unittest.TestCase):
         self.assertTrue(np.allclose(xa, self.xa, atol=1e-2))
         self.assertTrue(np.allclose(ya, self.ya, atol=1e-2))
 
-    def test_invert_modulated_ellipse_signals(self):
+    def test_invert_modulated_ellipse_signal(self):
         xa, ya = modulated_ellipse_signal(self.kappa, self.lamb, self.theta, self.phi)
         kappa, lamb, theta, phi = ellipse_parameters(xa, ya)
         self.assertTrue(np.allclose(kappa, self.kappa, atol=1e-2))
