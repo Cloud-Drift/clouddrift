@@ -729,7 +729,7 @@ def unpack(
 
     if rows is None:
         rows = range(indices.size - 1)
-    if isinstance(rows, int):
+    if isinstance(rows, (int, np.integer)):
         rows = [rows]
 
     unpacked = np.split(ragged_array, indices[1:-1], axis=axis)

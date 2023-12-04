@@ -18,6 +18,7 @@ Auto-generated summary of CloudDrift's API. For more details and examples, refer
     adapters.subsurface_floats
     datasets
     kinematics
+    pairs
     plotting
     ragged
     raggedarray
