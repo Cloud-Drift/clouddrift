@@ -9,6 +9,45 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class pairs_chance_pairs_from_ragged_tests(unittest.TestCase):
+    def setUp(self) -> None:
+        num_trajectories = 10
+        ids = ["CARTHE_%3.3i" % (i + 1) for i in range(num_trajectories)]
+        ds = ragged.subset(datasets.glad(), {"id": ids}, id_var_name="id")
+        self.lon = ds["longitude"]
+        self.lat = ds["latitude"]
+        self.time = ds["time"]
+        self.rowsize = ds["rowsize"]
+
+    def test_chance_pairs_from_ragged(self):
+        space_distance = 10000
+        time_distance = np.timedelta64(0)
+        chance_pairs = pairs.chance_pairs_from_ragged(
+            self.lon,
+            self.lat,
+            self.rowsize,
+            space_distance,
+            self.time,
+            time_distance,
+        )
+        for pair in chance_pairs:
+            rows = pair[0]
+            i1, i2 = pair[1]
+            lon1 = ragged.unpack(self.lon, self.rowsize, rows=rows[0]).pop()
+            lat1 = ragged.unpack(self.lat, self.rowsize, rows=rows[0]).pop()
+            time1 = ragged.unpack(self.time, self.rowsize, rows=rows[0]).pop()
+            lon2 = ragged.unpack(self.lon, self.rowsize, rows=rows[1]).pop()
+            lat2 = ragged.unpack(self.lat, self.rowsize, rows=rows[1]).pop()
+            time2 = ragged.unpack(self.time, self.rowsize, rows=rows[1]).pop()
+            self.assertTrue(
+                np.all(
+                    sphere.distance(lon1[i1], lat1[i1], lon2[i2], lat2[i2])
+                    <= space_distance
+                )
+            )
+            self.assertTrue(np.all(time1[i1] == time2[i2]))
+
+
 class pairs_chance_pair_tests(unittest.TestCase):
     def setUp(self) -> None:
         ds = datasets.glad()
