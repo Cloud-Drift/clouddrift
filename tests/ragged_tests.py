@@ -739,3 +739,11 @@ class unpack_tests(unittest.TestCase):
                 for a, b in zip(unpack(x, rowsize, [0, 1]), unpack(x, rowsize)[:2])
             )
         )
+        # Test that unpack can accept rows as numpy integer as well, not just
+        # the built-in int.
+        self.assertTrue(
+            all(
+                np.array_equal(a, b)
+                for a, b in zip(unpack(x, rowsize, np.int64(0)), unpack(x, rowsize)[:1])
+            )
+        )
