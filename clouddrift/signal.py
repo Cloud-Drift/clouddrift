@@ -262,6 +262,7 @@ def ellipse_parameters(
     --------
 
     To obtain the ellipse parameters from a pair of real-valued signals (x, y):
+
     >>> kappa, lambda, theta, phi = ellipse_parameters(analytic_signal(x), analytic_signal(y))
 
     Raises
