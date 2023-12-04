@@ -153,6 +153,7 @@ class ellipse_parameters_tests(unittest.TestCase):
         self.assertTrue(np.allclose(self.xa, xa))
         self.assertTrue(np.allclose(self.ya, ya))
 
+
 class modulated_ellipse_signal_tests(unittest.TestCase):
     def setUp(self):
         self.phi = np.linspace(0, 10 * 2 * np.pi, 1000) + np.pi / 3
