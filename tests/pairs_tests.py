@@ -158,6 +158,12 @@ class pairs_bounding_box_overlap_tests(unittest.TestCase):
         self.assertTrue(np.all(mask1 == []))
         self.assertTrue(np.all(mask2 == []))
 
+    def test_antimeridian(self):
+        mask1, mask2 = pairs.pair_bounding_box_overlap(
+            [179, -179], [0, 2], [0, 2], [0, 2]
+        )
+        self.assertTrue(mask1.size == mask2.size == 0)
+
 
 class pairs_time_overlap_tests(unittest.TestCase):
     def setUp(self) -> None:
