@@ -3,6 +3,7 @@ This module provides functions to easily access ragged-array datasets.
 """
 
 from clouddrift import adapters
+import numpy as np
 import os
 import xarray as xr
 
@@ -29,7 +30,7 @@ def gdp1h() -> xr.Dataset:
     Dimensions:                (traj: 19396, obs: 197214787)
     Coordinates:
         ids                    (obs) int64 ...
-        time                   (obs) datetime64[ns] ...
+        time                   (obs) float64 ...
     Dimensions without coordinates: traj, obs
     Data variables: (12/60)
         BuoyTypeManufacturer   (traj) |S20 ...
@@ -65,7 +66,7 @@ def gdp1h() -> xr.Dataset:
     :func:`gdp6h`
     """
     url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/latest/gdp-v2.01.zarr"
-    return xr.open_dataset(url, engine="zarr")
+    return xr.open_dataset(url, engine="zarr", decode_times=False)
 
 
 def gdp6h() -> xr.Dataset:
@@ -90,7 +91,7 @@ def gdp6h() -> xr.Dataset:
     Dimensions:                (traj: 26843, obs: 44544647)
     Coordinates:
         ids                    (obs) int64 ...
-        time                   (obs) datetime64[ns] ...
+        time                   (obs) float64 ...
         lon                    (obs) float32 ...
         lat                    (obs) float32 ...
     Dimensions without coordinates: traj, obs
@@ -128,7 +129,7 @@ def gdp6h() -> xr.Dataset:
     :func:`gdp1h`
     """
     url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/gdp_jul22_ragged_6h.nc#mode=bytes"
-    return xr.open_dataset(url)
+    return xr.open_dataset(url, decode_times=False)
 
 
 def glad() -> xr.Dataset:
@@ -153,8 +154,8 @@ def glad() -> xr.Dataset:
     <xarray.Dataset>
     Dimensions:         (obs: 1602883, traj: 297)
     Coordinates:
-      * time            (obs) datetime64[ns] 2012-07-20T01:15:00.143960 ... 2012-...
-      * id              (traj) object 'CARTHE_001' 'CARTHE_002' ... 'CARTHE_451'
+      time            (obs) float64 ...
+      id              (traj) object ...
     Data variables:
       latitude        (obs) float32 ...
       longitude       (obs) float32 ...
@@ -187,6 +188,7 @@ def glad() -> xr.Dataset:
         ds.to_netcdf(glad_path)
     else:
         ds = xr.open_dataset(glad_path)
+    ds["time"] = _to_seconds_since_epoch(ds["time"])
     return ds
 
 
@@ -221,7 +223,7 @@ def mosaic() -> xr.Dataset:
     <xarray.Dataset>
     Dimensions:                     (obs: 1926226, traj: 216)
     Coordinates:
-        time                        (obs) datetime64[ns] ...
+        time                        (obs) float64 ...
         id                          (traj) object ...
     Dimensions without coordinates: obs, traj
     Data variables: (12/19)
@@ -252,6 +254,7 @@ def mosaic() -> xr.Dataset:
         ds.to_netcdf(mosaic_path)
     else:
         ds = xr.open_dataset(mosaic_path)
+    ds["time"] = _to_seconds_since_epoch(ds["time"])
     return ds
 
 
@@ -297,7 +300,7 @@ def subsurface_floats() -> xr.Dataset:
     Dimensions:   (traj: 2193, obs: 1402840)
     Coordinates:
         id        (traj) uint16 ...
-        time      (obs) datetime64[ns] ...
+        time      (obs) float64 ...
     Dimensions without coordinates: traj, obs
     Data variables: (12/13)
         expList   (traj) object ...
@@ -340,4 +343,21 @@ def subsurface_floats() -> xr.Dataset:
         ds.to_netcdf(local_file)
     else:
         ds = xr.open_dataset(local_file)
+    ds["time"] = _to_seconds_since_epoch(ds["time"])
     return ds
+
+
+def _to_seconds_since_epoch(time: np.datetime64) -> float:
+    """Converts a numpy datetime64 object to seconds since the epoch.
+
+    Parameters
+    ----------
+    time : np.datetime64
+        Time to convert
+
+    Returns
+    -------
+    float
+        Seconds since the epoch
+    """
+    return (time - np.datetime64("1970-01-01")) / np.timedelta64(1, "s")
