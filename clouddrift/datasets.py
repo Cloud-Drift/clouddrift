@@ -188,7 +188,8 @@ def glad() -> xr.Dataset:
         ds.to_netcdf(glad_path)
     else:
         ds = xr.open_dataset(glad_path)
-    ds["time"] = _to_seconds_since_epoch(ds["time"])
+    if not ds["time"].dtype == float:
+        ds["time"] = _to_seconds_since_epoch(ds["time"])
     return ds
 
 
@@ -254,7 +255,8 @@ def mosaic() -> xr.Dataset:
         ds.to_netcdf(mosaic_path)
     else:
         ds = xr.open_dataset(mosaic_path)
-    ds["time"] = _to_seconds_since_epoch(ds["time"])
+    if not ds["time"].dtype == float:
+        ds["time"] = _to_seconds_since_epoch(ds["time"])
     return ds
 
 
@@ -343,7 +345,8 @@ def subsurface_floats() -> xr.Dataset:
         ds.to_netcdf(local_file)
     else:
         ds = xr.open_dataset(local_file)
-    ds["time"] = _to_seconds_since_epoch(ds["time"])
+    if not ds["time"].dtype == float:
+        ds["time"] = _to_seconds_since_epoch(ds["time"])
     return ds
 
 
