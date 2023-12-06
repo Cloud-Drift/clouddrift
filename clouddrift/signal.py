@@ -295,9 +295,9 @@ def ellipse_parameters(
     nz = np.imag(xa) * np.real(ya) - np.imag(ya) * np.real(xa)
 
     denom = np.sqrt(nx**2 + ny**2 + nz**2)
-    nx = nx / denom
-    ny = ny / denom
-    nz = nz / denom
+    nx /= denom
+    ny /= denom
+    nz /= denom
 
     alpha = np.imag(np.log(np.sqrt(-1) * nx - ny))
     beta = np.imag(np.log(nz + np.sqrt(-1) * np.sqrt(nx**2 + ny**2)))
