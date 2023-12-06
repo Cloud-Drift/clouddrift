@@ -29,7 +29,7 @@ def gdp1h() -> xr.Dataset:
     <xarray.Dataset>
     Dimensions:                (traj: 19396, obs: 197214787)
     Coordinates:
-        ids                    (obs) int64 ...
+        id                     (traj) int64 ...
         time                   (obs) float64 ...
     Dimensions without coordinates: traj, obs
     Data variables: (12/60)
@@ -66,7 +66,9 @@ def gdp1h() -> xr.Dataset:
     :func:`gdp6h`
     """
     url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/latest/gdp-v2.01.zarr"
-    return xr.open_dataset(url, engine="zarr", decode_times=False)
+    ds = xr.open_dataset(url, engine="zarr", decode_times=False)
+    ds = ds.rename_vars({"ID": "id"}).assign_coords({"id": ds.ID}).drop_vars(["ids"])
+    return ds
 
 
 def gdp6h() -> xr.Dataset:
@@ -90,13 +92,12 @@ def gdp6h() -> xr.Dataset:
     <xarray.Dataset>
     Dimensions:                (traj: 26843, obs: 44544647)
     Coordinates:
-        ids                    (obs) int64 ...
+        id                     (traj) int64 ...
         time                   (obs) float64 ...
         lon                    (obs) float32 ...
         lat                    (obs) float32 ...
     Dimensions without coordinates: traj, obs
     Data variables: (12/44)
-        ID                     (traj) int64 ...
         rowsize                (traj) int32 ...
         WMO                    (traj) int32 ...
         expno                  (traj) int32 ...
@@ -129,7 +130,9 @@ def gdp6h() -> xr.Dataset:
     :func:`gdp1h`
     """
     url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/gdp_jul22_ragged_6h.nc#mode=bytes"
-    return xr.open_dataset(url, decode_times=False)
+    ds = xr.open_dataset(url, decode_times=False)
+    ds = ds.rename_vars({"ID": "id"}).assign_coords({"id": ds.ID}).drop_vars(["ids"])
+    return ds
 
 
 def glad() -> xr.Dataset:
