@@ -42,7 +42,7 @@ def sample_ragged_array() -> RaggedArray:
     variables_coords = ["ids", "time", "lon", "lat"]
 
     coords = {"lon": longitude, "lat": latitude, "ids": ids, "time": t}
-    metadata = {"ID": drifter_id, "rowsize": rowsize}
+    metadata = {"id": drifter_id, "rowsize": rowsize}
     data = {"test": test}
 
     # append xr.Dataset to a list
@@ -79,7 +79,7 @@ def sample_ragged_array() -> RaggedArray:
         [0, 1, 2],
         lambda i: list_ds[i],
         variables_coords,
-        ["ID", "rowsize"],
+        ["id", "rowsize"],
         ["test"],
     )
 
@@ -584,12 +584,12 @@ class subset_tests(unittest.TestCase):
 
     def test_equal(self):
         ds_sub = subset(self.ds, {"test": True})
-        self.assertEqual(len(ds_sub.ID), 2)
+        self.assertEqual(len(ds_sub.id), 2)
 
     def test_select(self):
-        ds_sub = subset(self.ds, {"ID": [1, 2]})
-        self.assertTrue(all(ds_sub.ID == [1, 2]))
-        self.assertEqual(len(ds_sub.ID), 2)
+        ds_sub = subset(self.ds, {"id": [1, 2]})
+        self.assertTrue(all(ds_sub.id == [1, 2]))
+        self.assertEqual(len(ds_sub.id), 2)
 
     def test_range(self):
         # positive
@@ -608,27 +608,27 @@ class subset_tests(unittest.TestCase):
         # negative range
         ds_sub = subset(self.ds, {"lon": (-180, 0)})
         traj_idx = np.insert(np.cumsum(ds_sub["rowsize"].values), 0, 0)
-        self.assertEqual(len(ds_sub.ID), 1)
-        self.assertEqual(ds_sub.ID[0], 1)
+        self.assertEqual(len(ds_sub.id), 1)
+        self.assertEqual(ds_sub.id[0], 1)
         self.assertTrue(all(ds_sub.lon == [-121, -111]))
 
         # both
         ds_sub = subset(self.ds, {"lon": (-30, 30)})
         traj_idx = np.insert(np.cumsum(ds_sub["rowsize"].values), 0, 0)
-        self.assertEqual(len(ds_sub.ID), 1)
-        self.assertEqual(ds_sub.ID[0], 2)
+        self.assertEqual(len(ds_sub.id), 1)
+        self.assertEqual(ds_sub.id[0], 2)
         self.assertTrue(all(ds_sub.lon[slice(traj_idx[0], traj_idx[1])] == ([12, 22])))
 
     def test_combine(self):
         ds_sub = subset(
-            self.ds, {"ID": [1, 2], "lat": (-90, 20), "lon": (-180, 25), "test": True}
+            self.ds, {"id": [1, 2], "lat": (-90, 20), "lon": (-180, 25), "test": True}
         )
-        self.assertTrue(all(ds_sub.ID == [1, 2]))
+        self.assertTrue(all(ds_sub.id == [1, 2]))
         self.assertTrue(all(ds_sub.lon == [-121, -111, 12]))
         self.assertTrue(all(ds_sub.lat == [-90, -45, 10]))
 
     def test_empty(self):
-        ds_sub = subset(self.ds, {"ID": 3, "lon": (-180, 0)})
+        ds_sub = subset(self.ds, {"id": 3, "lon": (-180, 0)})
         self.assertTrue(ds_sub.dims == {})
 
     def test_unknown_var(self):
@@ -640,43 +640,43 @@ class subset_tests(unittest.TestCase):
 
     def test_ragged_array_with_id_as_str(self):
         ds_str = self.ds.copy()
-        ds_str["ID"].values = ds_str["ID"].astype(str)
+        ds_str["id"].values = ds_str["id"].astype(str)
 
-        ds_sub = subset(ds_str, {"ID": ds_str["ID"].values[0]})
-        self.assertTrue(ds_sub["ID"].size == 1)
+        ds_sub = subset(ds_str, {"id": ds_str["id"].values[0]})
+        self.assertTrue(ds_sub["id"].size == 1)
 
-        ds_sub = subset(ds_str, {"ID": list(ds_str["ID"].values[:2])})
-        self.assertTrue(ds_sub["ID"].size == 2)
+        ds_sub = subset(ds_str, {"id": list(ds_str["id"].values[:2])})
+        self.assertTrue(ds_sub["id"].size == 2)
 
     def test_ragged_array_with_id_as_object(self):
         ds_str = self.ds.copy()
-        ds_str["ID"].values = ds_str["ID"].astype(object)
+        ds_str["id"].values = ds_str["id"].astype(object)
 
-        ds_sub = subset(ds_str, {"ID": ds_str["ID"].values[0]})
-        self.assertTrue(ds_sub["ID"].size == 1)
+        ds_sub = subset(ds_str, {"id": ds_str["id"].values[0]})
+        self.assertTrue(ds_sub["id"].size == 1)
 
-        ds_sub = subset(ds_str, {"ID": list(ds_str["ID"].values[:2])})
-        self.assertTrue(ds_sub["ID"].size == 2)
+        ds_sub = subset(ds_str, {"id": list(ds_str["id"].values[:2])})
+        self.assertTrue(ds_sub["id"].size == 2)
 
     def test_arraylike_criterion(self):
         # DataArray
-        ds_sub = subset(self.ds, {"ID": self.ds["ID"][:2]})
-        self.assertTrue(ds_sub["ID"].size == 2)
+        ds_sub = subset(self.ds, {"id": self.ds["id"][:2]})
+        self.assertTrue(ds_sub["id"].size == 2)
 
         # NumPy array
-        ds_sub = subset(self.ds, {"ID": self.ds["ID"][:2].values})
-        self.assertTrue(ds_sub["ID"].size == 2)
+        ds_sub = subset(self.ds, {"id": self.ds["id"][:2].values})
+        self.assertTrue(ds_sub["id"].size == 2)
 
     def test_full_trajectories(self):
         ds_id_rowsize = {
-            i: j for i, j in zip(self.ds.ID.values, self.ds.rowsize.values)
+            i: j for i, j in zip(self.ds.id.values, self.ds.rowsize.values)
         }
 
         ds_sub = subset(self.ds, {"lon": (-125, -111)}, full_trajectories=True)
         self.assertTrue(all(ds_sub.lon == [-121, -111, 51, 61, 71]))
 
         ds_sub_id_rowsize = {
-            i: j for i, j in zip(ds_sub.ID.values, ds_sub.rowsize.values)
+            i: j for i, j in zip(ds_sub.id.values, ds_sub.rowsize.values)
         }
         for k, v in ds_sub_id_rowsize.items():
             self.assertTrue(ds_id_rowsize[k] == v)
@@ -685,7 +685,7 @@ class subset_tests(unittest.TestCase):
         self.assertTrue(all(ds_sub.lat == [10, 20, 30, 40]))
 
         ds_sub_id_rowsize = {
-            i: j for i, j in zip(ds_sub.ID.values, ds_sub.rowsize.values)
+            i: j for i, j in zip(ds_sub.id.values, ds_sub.rowsize.values)
         }
         for k, v in ds_sub_id_rowsize.items():
             self.assertTrue(ds_id_rowsize[k] == v)
