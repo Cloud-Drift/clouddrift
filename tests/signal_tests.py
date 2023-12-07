@@ -107,19 +107,28 @@ class cartesian_to_rotary_tests(unittest.TestCase):
 
 class ellipse_parameters_tests(unittest.TestCase):
     def setUp(self):
-        self.theta = np.pi / 4
-        self.a = 1
-        self.b = 2
+        # self.theta = np.pi / 4
+        self.ap = 2
+        self.an = 1
+        # self.phi = np.linspace(0, 10 * 2 * np.pi, 1000)
+        # self.z = (self.a * np.cos(self.phi) + 1j * self.b * np.sin(self.phi)) * np.exp(
+        #    1j * self.theta
+        # )
+        self.phip = np.linspace(0, 10 * 2 * np.pi, 1000) + np.pi / 3
+        self.phin = np.linspace(0, 10 * 2 * np.pi, 1000) - np.pi / 6
+        self.zp = self.ap * np.exp(1j * self.phip)
+        self.zn = self.an * np.exp(1j * self.phin)
+        self.z = self.zp + np.conj(self.zn)
+        self.a = self.ap + self.an
+        self.b = self.ap - self.an
+        self.xa = analytic_signal(np.real(self.z), boundary="periodic")
+        self.ya = analytic_signal(np.imag(self.z), boundary="periodic")
         self.kappa = np.sqrt(0.5 * (self.a**2 + self.b**2))
         self.lamb = (
             np.sign(self.b) * (self.a**2 - self.b**2) / (self.a**2 + self.b**2)
         )
-        self.phi = np.linspace(0, 10 * 2 * np.pi, 1000)
-        self.z = (self.a * np.cos(self.phi) + 1j * self.b * np.sin(self.phi)) * np.exp(
-            -1j * self.theta
-        )
-        self.xa = analytic_signal(np.real(self.z), boundary="periodic")
-        self.ya = analytic_signal(np.imag(self.z), boundary="periodic")
+        self.phi = 0.5 * (self.phip + self.phin)
+        self.theta = 0.5 * (self.phip - self.phin)
 
     def test_result_has_same_size_as_input(self):
         kappa, lamb, theta, phi = ellipse_parameters(self.xa, self.ya)
@@ -139,13 +148,10 @@ class ellipse_parameters_tests(unittest.TestCase):
 
     def test_result_is_correct(self):
         kappa, lamb, theta, phi = ellipse_parameters(self.xa, self.ya)
-        self.assertTrue(np.allclose(np.mean(kappa), np.mean(self.kappa), atol=1e-2))
-        # self.assertTrue(np.allclose(np.mean(lamb), np.mean(self.lamb), atol=1e-2))
-        self.assertTrue(np.allclose(np.mean(theta), np.mean(self.theta), atol=1e-2))
-        # self.assertTrue(np.allclose(phi, self.phi, atol=1e-2))
-        self.assertTrue(
-            np.isclose(np.mod(np.mean(self.phi - phi), np.pi / 2), 0, atol=1e-2)
-        )
+        self.assertTrue(np.allclose(kappa, self.kappa, atol=1e-2))
+        self.assertTrue(np.allclose(lamb, self.lamb, atol=1e-2))
+        self.assertTrue(np.allclose(theta, self.theta, atol=1e-2))
+        self.assertTrue(np.allclose(np.mod(phi, np.pi), self.phi, atol=1e-2))
 
     def test_invert_ellipse_parameters(self):
         kappa, lamb, theta, phi = ellipse_parameters(self.xa, self.ya)

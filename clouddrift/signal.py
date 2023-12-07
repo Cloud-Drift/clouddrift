@@ -304,10 +304,10 @@ def ellipse_parameters(
 
     x = np.cos(-alpha) * xa - np.sin(-alpha) * ya
     y = np.sin(-alpha) * xa + np.cos(-alpha) * ya
-    z = za
+    # z = za
     x = np.cos(-beta) * x - np.sin(-beta) * y
     y = np.sin(-beta) * x + np.cos(-beta) * y
-    z = z
+    # z = z
 
     X = np.abs(x)
     Y = np.abs(y)
@@ -335,8 +335,8 @@ def ellipse_parameters(
     # For vanishing linearity, put in very small number to have sign information
     lambda_[lambda_ == 0] = np.sign(P[lambda_ == 0] - N[lambda_ == 0]) * (1e-12)
 
-    theta = phip / 2 - phin / 2
-    phi = phip / 2 + phin / 2
+    theta = 0.5 * (phip - phin)
+    phi = 0.5 * (phip + phin)
 
     lambda_ = np.real(lambda_)
 
@@ -450,7 +450,7 @@ def rotary_to_cartesian(
 
     To obtain the Cartesian analytic signals from a pair of rotary signals (wp,wn):
 
-    >>> ua, va = rotary_to_cartesian(wp,wn)
+    >>> ua, va = rotary_to_cartesian(wp, wn)
 
     To specify that the time axis is along the first axis:
 
