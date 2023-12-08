@@ -82,7 +82,7 @@ def download(tmp_path: str):
         outfile = f"{tmp_path}/{YOMAHA_URLS[i].split('/')[-1]}"
         download_with_progress(YOMAHA_URLS[i], outfile)
 
-    filename_gz = tmp_path + YOMAHA_URLS[-1].split("/")[-1]
+    filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
     filename = filename_gz[:-3]
 
     if download_with_progress(YOMAHA_URLS[-1], filename_gz) or not os.path.isfile(
@@ -101,7 +101,7 @@ def to_xarray(tmp_path: str = None):
     download(tmp_path)
 
     # database last update
-    with open(tmp_path + YOMAHA_URLS[2].split("/")[-1]) as f:
+    with open(f"{tmp_path}/{YOMAHA_URLS[2].split('/')[-1]}") as f:
         YOMAHA_VERSION = f.read().strip()
         print(f"Last database update was: {YOMAHA_VERSION}")
 
@@ -169,7 +169,7 @@ def to_xarray(tmp_path: str = None):
     ]
 
     # open with pandas
-    filename = tmp_path + YOMAHA_URLS[-1].split("/")[-1][:-3]
+    filename = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1][:-3]}"
     df = pd.read_csv(
         filename, names=col_names, sep="\s+", header=None, na_values=na_col
     )
@@ -181,23 +181,25 @@ def to_xarray(tmp_path: str = None):
 
     # mapping of yomaha float id, wmo float id, daq id and float type
     df_wmo = pd.read_csv(
-        tmp_path + YOMAHA_URLS[3].split("/")[-1],
+        f"{tmp_path}/{YOMAHA_URLS[3].split('/')[-1]}",
         sep="\s+",
         header=None,
         names=["id", "wmo_id", "dac_id", "float_type_id"],
+        engine="python",
     )
 
     # mapping of Data Assembly Center (DAC) id and DAC name
-    df_daq = pd.read_csv(
-        tmp_path + YOMAHA_URLS[1].split("/")[-1],
+    df_dac = pd.read_csv(
+        f"{tmp_path}/{YOMAHA_URLS[1].split('/')[-1]}",
         sep=":",
         header=None,
         names=["dac_id", "dac"],
     )
+    df_dac["dac"] = df_dac["dac"].str.strip()
 
     # mapping of float_type_id and float_type
     df_float = pd.read_csv(
-        tmp_path + YOMAHA_URLS[0].split("/")[-1],
+        f"{tmp_path}/{YOMAHA_URLS[0].split('/')[-1]}",
         sep=":",
         header=None,
         skipfooter=4,
@@ -211,7 +213,7 @@ def to_xarray(tmp_path: str = None):
 
     # combine metadata
     df_metadata = (
-        pd.merge(df_wmo, df_daq, on="dac_id", how="left")
+        pd.merge(df_wmo, df_dac, on="dac_id", how="left")
         .merge(df_float, on="float_type_id", how="left")
         .loc[lambda x: np.isin(x["id"], unique_id)]
     )
@@ -221,8 +223,8 @@ def to_xarray(tmp_path: str = None):
         .assign({"id": ("traj", unique_id)})
         .assign({"rowsize": ("traj", rowsize)})
         .assign({"wmo_id": ("traj", df_metadata["wmo_id"])})
-        .assign({"dac": ("traj", df_metadata["dac"])})
-        .assign({"float_type": ("traj", df_metadata["float_type"])})
+        .assign({"dac_id": ("traj", df_metadata["dac_id"])})
+        .assign({"float_type": ("traj", df_metadata["float_type_id"])})
         .set_coords(["id", "time_d", "time_s", "time_lp", "time_lc", "time_lp"])
         .drop_vars(["index"])
     )
