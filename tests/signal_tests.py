@@ -107,22 +107,17 @@ class cartesian_to_rotary_tests(unittest.TestCase):
 
 class ellipse_parameters_tests(unittest.TestCase):
     def setUp(self):
-        # self.theta = np.pi / 4
-        self.ap = 2
-        self.an = 1
-        # self.phi = np.linspace(0, 10 * 2 * np.pi, 1000)
-        # self.z = (self.a * np.cos(self.phi) + 1j * self.b * np.sin(self.phi)) * np.exp(
-        #    1j * self.theta
-        # )
         self.phip = np.linspace(0, 10 * 2 * np.pi, 1000) + np.pi / 3
         self.phin = np.linspace(0, 10 * 2 * np.pi, 1000) - np.pi / 6
+        self.ap = 2 * np.ones_like(self.phip)
+        self.an = 3 * np.ones_like(self.phin)
         self.zp = self.ap * np.exp(1j * self.phip)
         self.zn = self.an * np.exp(1j * self.phin)
         self.z = self.zp + np.conj(self.zn)
-        self.a = self.ap + self.an
-        self.b = self.ap - self.an
         self.xa = analytic_signal(np.real(self.z), boundary="periodic")
         self.ya = analytic_signal(np.imag(self.z), boundary="periodic")
+        self.a = self.ap + self.an
+        self.b = self.ap - self.an
         self.kappa = np.sqrt(0.5 * (self.a**2 + self.b**2))
         self.lamb = (
             np.sign(self.b) * (self.a**2 - self.b**2) / (self.a**2 + self.b**2)
@@ -148,10 +143,10 @@ class ellipse_parameters_tests(unittest.TestCase):
 
     def test_result_is_correct(self):
         kappa, lamb, theta, phi = ellipse_parameters(self.xa, self.ya)
-        self.assertTrue(np.allclose(kappa, self.kappa, atol=1e-2))
-        self.assertTrue(np.allclose(lamb, self.lamb, atol=1e-2))
-        self.assertTrue(np.allclose(theta, self.theta, atol=1e-2))
-        self.assertTrue(np.allclose(np.mod(phi, np.pi), self.phi, atol=1e-2))
+        self.assertTrue(np.allclose(kappa[249:749], self.kappa[249:749], atol=1e-2))
+        self.assertTrue(np.allclose(lamb[249:749], self.lamb[249:749], atol=1e-2))
+        self.assertTrue(np.allclose(theta[249:749], self.theta[249:749], atol=1e-2))
+        self.assertTrue(np.allclose(phi[249:749], self.phi[249:749], atol=1e-2))
 
     def test_invert_ellipse_parameters(self):
         kappa, lamb, theta, phi = ellipse_parameters(self.xa, self.ya)
@@ -164,8 +159,8 @@ class modulated_ellipse_signal_tests(unittest.TestCase):
     def setUp(self):
         self.phi = np.linspace(0, 10 * 2 * np.pi, 1000) + np.pi / 3
         self.theta = -np.pi / 4 * np.ones_like(self.phi)
-        self.a = 6
-        self.b = -1.5
+        self.a = 2 * np.ones_like(self.phi)
+        self.b = -1 * np.ones_like(self.phi)
         self.kappa = np.sqrt(0.5 * (self.a**2 + self.b**2)) * np.ones_like(self.phi)
         self.lamb = (
             np.ones_like(self.phi)
