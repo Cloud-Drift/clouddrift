@@ -603,6 +603,12 @@ def subset(
 
     >>> subset(ds, {"ID": [2578, 2582, 2583]})
 
+    Sometimes, you may want to retrieve specific rows of a ragged array.
+    The easiest way to do that is to slice the "ID" variable:
+
+    >>> rows = [5, 6, 7]
+    >>> subset(ds, {"ID": ds["ID"][rows]})
+
     Retrieve a specific time period:
 
     >>> subset(ds, {"time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))})
