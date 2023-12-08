@@ -79,7 +79,7 @@ def download_with_progress(url, output_file):
 def download(tmp_path: str):
     for i in range(0, len(YOMAHA_URLS) - 1):
         print("Downloading: " + str(YOMAHA_URLS[i]))
-        outfile = f"{tmp_path}/{YOMAHA_URLS[i].split(" / ")[-1]}"
+        outfile = f"{tmp_path}/{YOMAHA_URLS[i].split('/')[-1]}"
         download_with_progress(YOMAHA_URLS[i], outfile)
 
     filename_gz = tmp_path + YOMAHA_URLS[-1].split("/")[-1]
