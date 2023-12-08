@@ -38,7 +38,7 @@ def to_xarray(tmp_path: str = None):
         os.makedirs(tmp_path, exist_ok=True)
 
     # get or update dataset
-    local_file = tmp_path + ANDRO_URL.split("/")[-1]
+    local_file = f"{tmp_path}/{ANDRO_URL.split('/')[-1]}"
     download_with_progress(ANDRO_URL, local_file)
 
     # parse with panda

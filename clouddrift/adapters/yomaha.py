@@ -37,7 +37,6 @@ YOMAHA_URLS = [
     "http://apdrc.soest.hawaii.edu/projects/Argo/data/trjctry/0-Near-Real_Time/end-prog.lst",
     "http://apdrc.soest.hawaii.edu/projects/Argo/data/trjctry/0-Near-Real_Time/yomaha07.dat.gz",
 ]
-
 YOMAHA_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "yomaha")
 
 
@@ -80,7 +79,7 @@ def download_with_progress(url, output_file):
 def download(tmp_path: str):
     for i in range(0, len(YOMAHA_URLS) - 1):
         print("Downloading: " + str(YOMAHA_URLS[i]))
-        outfile = tmp_path + YOMAHA_URLS[i].split("/")[-1]
+        outfile = f"{tmp_path}/{YOMAHA_URLS[i].split(" / ")[-1]}"
         download_with_progress(YOMAHA_URLS[i], outfile)
 
     filename_gz = tmp_path + YOMAHA_URLS[-1].split("/")[-1]
