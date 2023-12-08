@@ -1,6 +1,6 @@
 """
-This module defines functions used to adapt the ANDRO dataset as
-a ragged-array dataset. 
+This module defines functions used to adapt the ANDRO: An Argo-based 
+deep displacement dataset as a ragged-arrays dataset. 
 
 The dataset is hosted at https://www.seanoe.org/data/00360/47077/ and the user manual
 is available at https://archimer.ifremer.fr/doc/00360/47126/.
@@ -18,16 +18,18 @@ SEANOE. https://doi.org/10.17882/47077
 """
 
 from clouddrift.adapters.yomaha import download_with_progress
+from datetime import datetime
 import numpy as np
 import os
 import pandas as pd
 import tempfile
 import xarray as xr
-
+import warnings
 
 # order of the URLs is important
 ANDRO_URL = "https://www.seanoe.org/data/00360/47077/data/91950.dat"
 ANDRO_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "andro")
+ANDRO_VERSION = "TODO"
 
 
 def to_xarray(tmp_path: str = None):
@@ -44,46 +46,46 @@ def to_xarray(tmp_path: str = None):
         # depth
         "lon_d",
         "lat_d",
-        "p_d",
+        "pres_d",
         "temp_d",
-        "s_d",
-        "t_d",
-        "u_d",
-        "v_d",
-        "eu_d",
-        "ev_d",
+        "sal_d",
+        "time_d",
+        "ve_d",
+        "vn_d",
+        "err_ve_d",
+        "err_vn_d",
         # first surface velocity
         "lon_s",
         "lat_s",
-        "t_s",
-        "u_s",
-        "v_s",
-        "eu_s",
-        "ev_s",
+        "time_s",
+        "ve_s",
+        "vn_s",
+        "err_ve_s",
+        "err_vn_s",
         # last surface velocity
         "lon_ls",
         "lat_ls",
-        "t_ls",
-        "u_ls",
-        "v_ls",
-        "eu_ls",
-        "ev_ls",
+        "time_ls",
+        "ve_ls",
+        "vn_ls",
+        "err_ve_ls",
+        "err_vn_ls",
         # last fix previous cycle
         "lon_lp",
         "lat_lp",
-        "t_lp",
+        "time_lp",
         # first fix current cycle
         "lon_fc",
         "lat_fc",
-        "t_fc",
+        "time_fc",
         # last fix current cycle
         "lon_lc",
         "lat_lc",
-        "t_lc",
-        "s_fix",
+        "time_lc",
+        "surf_fix",
         "id",
         "cycle",
-        "t_inv",
+        "profile_id",
     ]
 
     na_col = [
@@ -134,17 +136,203 @@ def to_xarray(tmp_path: str = None):
     # convert to an Xarray Dataset
     ds = xr.Dataset.from_dataframe(df)
 
-    for t in ["t_s", "t_d", "t_lp", "t_fc", "t_lc"]:
-        ds[t].values = pd.to_datetime(ds[t], origin="2000-01-01 00:00", unit="D").values
-
     unique_id, rowsize = np.unique(ds["id"], return_counts=True)
 
     ds = (
         ds.rename_dims({"index": "obs"})
         .assign({"id": ("traj", unique_id)})
         .assign({"rowsize": ("traj", rowsize)})
-        .set_coords(["id", "t_d", "t_s", "t_lp", "t_lc", "t_lp"])
+        .set_coords(["id", "time_d", "time_s", "time_lp", "time_lc", "time_lp"])
         .drop_vars(["index"])
     )
+
+    # Cast double floats to singles
+    double_vars = [
+        "lat_d",
+        "lon_d",
+        "lat_s",
+        "lon_s",
+        "lat_ls",
+        "lon_ls",
+        "lat_lp",
+        "lon_lp",
+        "lat_fc",
+        "lon_fc",
+        "lat_lc",
+        "lon_lc",
+    ]
+    for var in [v for v in ds.variables if v not in double_vars]:
+        if ds[var].dtype == "float64":
+            ds[var] = ds[var].astype("float32")
+
+    # define attributes
+    vars_attrs = {
+        "lon_d": {
+            "long_name": "Longitude of the location where the deep velocity is calculated",
+            "units": "degrees_east",
+        },
+        "lat_d": {
+            "long_name": "Latitude of the location where the deep velocity is calculated",
+            "units": "degrees_north",
+        },
+        "pres_d": {
+            "long_name": "Reference parking pressure for this cycle",
+            "units": "dbar",
+        },
+        "temp_d": {
+            "long_name": "Parking temperature (°C) for this cycle",
+            "units": "degree_C",
+        },
+        "sal_d": {
+            "long_name": "Parking salinity for this cycle",
+            "units": "psu",
+        },
+        "time_d": {
+            "long_name": "Julian time (days) when deep velocity is estimated",
+            "units": "days since 2000-01-01 00:00",
+        },
+        "ve_d": {
+            "long_name": "Eastward component of the deep velocity",
+            "units": "cm s-1",
+        },
+        "vn_d": {
+            "long_name": "Northward component of the deep velocity",
+            "units": "cm s-1",
+        },
+        "err_ve_d": {
+            "long_name": "Error on the eastward component of the deep velocity",
+            "units": "cm s-1",
+        },
+        "err_vn_d": {
+            "long_name": "Error on the northward component of the deep velocity",
+            "units": "cm s-1",
+        },
+        "lon_s": {
+            "long_name": "Longitude of the location where the first surface velocity is calculated (over the first 6 h at surface)",
+            "units": "degrees_east",
+        },
+        "lat_s": {
+            "long_name": "Latitude of the location where the first surface velocity is calculated",
+            "units": "degrees_north",
+        },
+        "time_s": {
+            "long_name": "Julian time (days) when the first surface velocity is calculated",
+            "units": "days since 2000-01-01 00:00",
+        },
+        "ve_s": {
+            "long_name": "Eastward component of first surface velocity",
+            "units": "cm s-1",
+        },
+        "vn_s": {
+            "long_name": "Northward component of first surface velocity",
+            "units": "cm s-1",
+        },
+        "err_ve_s": {
+            "long_name": "Error on the eastward component of the first surface velocity",
+            "units": "cm s-1",
+        },
+        "err_vn_s": {
+            "long_name": "Error on the northward component of the first surface velocity",
+            "units": "cm s-1",
+        },
+        "lon_ls": {
+            "long_name": "Longitude of the location where the last surface velocity is calculated (over the last 6 h at surface)",
+            "units": "degrees_east",
+        },
+        "lat_ls": {
+            "long_name": "Latitude of the location where the last surface velocity is calculated",
+            "units": "degrees_north",
+        },
+        "time_ls": {
+            "long_name": "Julian time (days) when the last surface velocity is calculated",
+            "units": "days since 2000-01-01 00:00",
+        },
+        "ve_ls": {
+            "long_name": "Eastward component of last surface velocity (cm s-1)",
+            "units": "cm s-1",
+        },
+        "vn_ls": {
+            "long_name": "Northward component of last surface velocity (cm s-1)",
+            "units": "cm s-1",
+        },
+        "err_ve_ls": {
+            "long_name": "Error on the eastward component of the last surface velocity",
+            "units": "cm s-1",
+        },
+        "err_vn_ls": {
+            "long_name": "Error on the northward component of the last surface velocity",
+            "units": "cm s-1",
+        },
+        "lon_lp": {
+            "long_name": "Longitude of the last fix at the sea surface during the previous cycle",
+            "units": "degrees_east",
+        },
+        "lat_lp": {
+            "long_name": "Latitude of the last fix at the sea surface during the previous cycle",
+            "units": "degrees_north",
+        },
+        "time_lp": {
+            "long_name": "Julian time of the last fix at the sea surface during the previous cycle",
+            "units": "days since 2000-01-01 00:00",
+        },
+        "lon_fc": {
+            "long_name": "Longitude of the first fix at the sea surface during the current cycle",
+            "units": "degrees_east",
+        },
+        "lat_fc": {
+            "long_name": "Latitude of the first fix at the sea surface during the current cycle",
+            "units": "degrees_north",
+        },
+        "time_fc": {
+            "long_name": "Julian time of the first fix at the sea surface during the current cycle",
+            "units": "days since 2000-01-01 00:00",
+        },
+        "lon_lc": {
+            "long_name": "Longitude of the last fix at the sea surface during the current cycle",
+            "units": "degrees_east",
+        },
+        "lat_lc": {
+            "long_name": "Latitude of the last fix at the sea surface during the current cycle",
+            "units": "degrees_north",
+        },
+        "time_lc": {
+            "long_name": "Julian time of the last fix at the sea surface during the current cycle",
+            "units": "days since 2000-01-01 00:00",
+        },
+        "surf_fix": {
+            "long_name": "Number of surface fixes during the current cycle",
+            "units": "-",
+        },
+        "id": {
+            "long_name": "Float WMO number",
+            "units": "-",
+        },
+        "cycle": {
+            "long_name": "Cycle number",
+            "units": "-",
+        },
+        "profile_id": {
+            "long_name": "Profile number as given in the NetCDF prof file",
+            "units": "-",
+        },
+    }
+
+    # global attributes
+    attrs = {
+        "title": "ANDRO: An Argo-based deep displacement dataset",
+        "history": ANDRO_VERSION,
+        "date_created": datetime.now().isoformat(),
+        "publisher_name": "SEANOE (SEA scieNtific Open data Edition)",
+        "publisher_url": "https://www.seanoe.org/data/00360/47077/",
+        "licence": "freely available",
+    }
+
+    # set attributes
+    for var in vars_attrs.keys():
+        if var in ds.keys():
+            ds[var].attrs = vars_attrs[var]
+        else:
+            warnings.warn(f"Variable {var} not found in upstream data; skipping.")
+    ds.attrs = attrs
 
     return ds

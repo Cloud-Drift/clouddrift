@@ -40,3 +40,11 @@ class datasets_tests(unittest.TestCase):
     def test_subsurface_floats_opens(self):
         ds = datasets.subsurface_floats()
         self.assertTrue(ds)
+
+    def test_andro_opens(self):
+        ds = datasets.andro()
+        self.assertTrue(ds)
+
+    def test_yomaha_opens(self):
+        ds = datasets.yomaha()
+        self.assertTrue(ds)

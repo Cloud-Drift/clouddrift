@@ -1,6 +1,7 @@
 """
-This module defines functions used to adapt the YoMaHa'07 dataset as
-a ragged-array dataset. 
+This module defines functions used to adapt the YoMaHa'07: Velocity data assessed 
+from trajectories of Argo floats at parking level and at the sea surface as 
+a ragged-arrays dataset. 
 
 The dataset is hosted at http://apdrc.soest.hawaii.edu/projects/yomaha/ and the user manual
 is available at http://apdrc.soest.hawaii.edu/projects/yomaha/yomaha07/YoMaHa070612.pdf.
@@ -102,38 +103,39 @@ def to_xarray(tmp_path: str = None):
 
     # database last update
     with open(tmp_path + YOMAHA_URLS[2].split("/")[-1]) as f:
-        print("YoMaHa last database update was: " + f.read())
+        YOMAHA_VERSION = f.read().strip()
+        print(f"Last database update was: {YOMAHA_VERSION}")
 
     # parse with panda
     col_names = [
         "lon_d",
         "lat_d",
-        "p_d",
-        "t_d",
-        "u_d",
-        "v_d",
-        "eu_d",
-        "ev_d",
+        "pres_d",
+        "time_d",
+        "ve_d",
+        "vn_d",
+        "err_ve_d",
+        "err_vn_d",
         "lon_s",
         "lat_s",
-        "t_s",
-        "u_s",
-        "v_s",
-        "eu_s",
-        "ev_s",
+        "time_s",
+        "ve_s",
+        "vn_s",
+        "err_ve_s",
+        "err_vn_s",
         "lon_lp",
         "lat_lp",
-        "t_lp",
+        "time_lp",
         "lon_fc",
         "lat_fc",
-        "t_fc",
+        "time_fc",
         "lon_lc",
         "lat_lc",
-        "t_lc",
-        "s_fix",
+        "time_lc",
+        "surf_fix",
         "id",
         "cycle",
-        "t_inv",
+        "time_inv",
     ]
 
     na_col = [
@@ -175,9 +177,6 @@ def to_xarray(tmp_path: str = None):
 
     # convert to an Xarray Dataset
     ds = xr.Dataset.from_dataframe(df)
-
-    for t in ["t_s", "t_d", "t_lp", "t_fc", "t_lc"]:
-        ds[t].values = pd.to_datetime(ds[t], origin="2000-01-01 00:00", unit="D").values
 
     unique_id, rowsize = np.unique(ds["id"], return_counts=True)
 
@@ -225,40 +224,172 @@ def to_xarray(tmp_path: str = None):
         .assign({"wmo_id": ("traj", df_metadata["wmo_id"])})
         .assign({"dac": ("traj", df_metadata["dac"])})
         .assign({"float_type": ("traj", df_metadata["float_type"])})
-        .set_coords(["id", "t_d", "t_s", "t_lp", "t_lc", "t_lp"])
+        .set_coords(["id", "time_d", "time_s", "time_lp", "time_lc", "time_lp"])
         .drop_vars(["index"])
     )
 
-    # add attributes
-    """
-    ## Columns 1-8 contain three-dimensional coordinates, time, components and errors of the deep float velocity. 
-    - 1-2. Coordinates (longitude Xndeep and latitude Yndeep) of location where deep velocity is estimated. These coordinates are averages between last fixed float position (Xn-1last , Yn-1last) at the sea surface during previous cycle (stored in columns 16-17) and first fix (Xnfirst , Ynfirst) in the current cycle (stored in columns 19-20).  I.e., [X,Y] ndeep = ( [X,Y] n-1last + [X,Y] nfirst)/2.
-    - 3. “Parking” pressure Zpark (dbars) for this cycle. This value is a pre-programmed value stored in the “meta”-file. 
-    - 4. Julian time Tndeep (days) relative to 2000-01-01 00:00 UTC. (Adding 18262 will convert it into more traditional Julian time relative to 1950-01-01 00:00 UTC.) This value is an average between the Julian time of the last fix during the previous cycle (Tn-1last  stored in column 18) and the first fix in the current cycle (Tnfirst  stored in column 21). I.e., Tndeep = ( Tn-1last + Tnfirst)/2 . 
-    - 5-6. Estimate of eastward and northward components of the deep velocity (Undeep , Vndeep) (cm/s) at Zparkcalculated from the float displacement from  [X,Y] n-1last to [X,Y] nfirst for time Tnfirst - Tn-1last. 
-    - 7-8. Estimates of the errors of components of deep velocity (εUndeep , εVndeep) (cm/s) due to a vertical shear of horizontal flow obtained as described in Appendix A. 
-    ## Columns 9-15 contain horizontal coordinates, time, components and errors of the float velocity at the sea surface. Velocity is estimated using linear regression of all surface fixes for the cycle. Details are given in Appendix B. 
-    - 9-10. Coordinates (longitude Xnsurf and latitude Ynsurf) of location where surface velocity is estimated. 
-    - 11. Julian time Tnsurf (days) relative to 2000-01-01 00:00 UTC when surface velocity is estimated. 
-    - 12-13. Estimate of eastward and northward components of velocity (Unsurf , Vnsurf) (cm/s) at the sea surface. - 
-    - 14-15. Estimates of the errors of components of surface velocity (εUnsurf , εVnsurf) (cm/s) obtained as described in Appendix B. 
+    # Cast double floats to singles
+    double_vars = [
+        "lat_d",
+        "lon_d",
+        "lat_s",
+        "lon_s",
+        "lat_lp",
+        "lon_lp",
+        "lat_lc",
+        "lon_lc",
+    ]
+    for var in [v for v in ds.variables if v not in double_vars]:
+        if ds[var].dtype == "float64":
+            ds[var] = ds[var].astype("float32")
 
-    ## Auxiliary float and cycle data are in columns 16-27. 
-    - 16-18. Coordinates (Xn-1last , Yn-1last) and Julian time Tn-1last (relative to 2000-01-01 00:00 UTC) of the last fix at the sea surface during the previous cycle. 
-    - 19-21. Coordinates (Xnfirst , Ynfirst) and Julian time Tnfirst (relative to 2000-01-01 00:00 UTC)of the first fix at the sea surface during the current cycle.
-    - 22-24. Coordinates (Xnlast , Ynlast) and Julian time Tnlast(relative to 2000-01-01 00:00 UTC)of the last fix at the sea surface during the current cycle. 
-    - 25. Number of surface fixes Nnfix during the current cycle. 
-    - 26. Float ID. To unify data of all DAC’s we re-counted all the floats. Correspondence between our float ID’s and WMO float ID’s used by the DAC’s is described in our file yomaha2wmo.dat 
-    - 27. Cycle number. We adopted cycle numbers recorded in data of the DAC’s. 
-    - 28. Time inversion/duplication flag Ft. Ft = 1 if at least one duplicate or inversion of time is found in the sequence containing last fix from the previous cycle and all fixes from the current cycle. Otherwise, Ft =0.
+    # define attributes
+    vars_attrs = {
+        "lon_d": {
+            "long_name": "Longitude of the location where the deep velocity is calculated",
+            "units": "degrees_east",
+        },
+        "lat_d": {
+            "long_name": "Latitude of the location where the deep velocity is calculated",
+            "units": "degrees_north",
+        },
+        "pres_d": {
+            "long_name": "Reference parking pressure for this cycle",
+            "units": "dbar",
+        },
+        "time_d": {
+            "long_name": "Julian time (days) when deep velocity is estimated",
+            "units": "days since 2000-01-01 00:00",
+        },
+        "ve_d": {
+            "long_name": "Eastward component of the deep velocity",
+            "units": "cm s-1",
+        },
+        "vn_d": {
+            "long_name": "Northward component of the deep velocity",
+            "units": "cm s-1",
+        },
+        "err_ve_d": {
+            "long_name": "Error on the eastward component of the deep velocity",
+            "units": "cm s-1",
+        },
+        "err_vn_d": {
+            "long_name": "Error on the northward component of the deep velocity",
+            "units": "cm s-1",
+        },
+        "lon_s": {
+            "long_name": "Longitude of the location where the first surface velocity is calculated (over the first 6 h at surface)",
+            "units": "degrees_east",
+        },
+        "lat_s": {
+            "long_name": "Latitude of the location where the first surface velocity is calculated",
+            "units": "degrees_north",
+        },
+        "time_s": {
+            "long_name": "Julian time (days) when the first surface velocity is calculated",
+            "units": "days since 2000-01-01 00:00",
+        },
+        "ve_s": {
+            "long_name": "Eastward component of first surface velocity",
+            "units": "cm s-1",
+        },
+        "vn_s": {
+            "long_name": "Northward component of first surface velocity",
+            "units": "cm s-1",
+        },
+        "err_ve_s": {
+            "long_name": "Error on the eastward component of the first surface velocity",
+            "units": "cm s-1",
+        },
+        "err_vn_s": {
+            "long_name": "Error on the northward component of the first surface velocity",
+            "units": "cm s-1",
+        },
+        "lon_lp": {
+            "long_name": "Longitude of the last fix at the sea surface during the previous cycle",
+            "units": "degrees_east",
+        },
+        "lat_lp": {
+            "long_name": "Latitude of the last fix at the sea surface during the previous cycle",
+            "units": "degrees_north",
+        },
+        "time_lp": {
+            "long_name": "Julian time of the last fix at the sea surface during the previous cycle",
+            "units": "days since 2000-01-01 00:00",
+        },
+        "lon_fc": {
+            "long_name": "Longitude of the first fix at the sea surface during the current cycle",
+            "units": "degrees_east",
+        },
+        "lat_fc": {
+            "long_name": "Latitude of the first fix at the sea surface during the current cycle",
+            "units": "degrees_north",
+        },
+        "time_fc": {
+            "long_name": "Julian time of the first fix at the sea surface during the current cycle",
+            "units": "days since 2000-01-01 00:00",
+        },
+        "lon_lc": {
+            "long_name": "Longitude of the last fix at the sea surface during the current cycle",
+            "units": "degrees_east",
+        },
+        "lat_lc": {
+            "long_name": "Latitude of the last fix at the sea surface during the current cycle",
+            "units": "degrees_north",
+        },
+        "time_lc": {
+            "long_name": "Julian time of the last fix at the sea surface during the current cycle",
+            "units": "days since 2000-01-01 00:00",
+        },
+        "surf_fix": {
+            "long_name": "Number of surface fixes during the current cycle",
+            "units": "-",
+        },
+        "id": {
+            "long_name": "Float WMO number",
+            "units": "-",
+        },
+        "cycle": {
+            "long_name": "Cycle number",
+            "units": "-",
+        },
+        "time_inv": {
+            "long_name": "Time inversion/duplication flag",
+            "description": "1 if at least one duplicate or inversion of time is found in the sequence containing last fix from the previous cycle and all fixes from the current cycle. Otherwise, 0.",
+            "units": "-",
+        },
+        "wmo_id": {
+            "long_name": "Float WMO number",
+            "units": "-",
+        },
+        "dac_id": {
+            "long_name": "Data Assembly Center (DAC) number",
+            "description": "1: AOML (USA), 2: CORIOLIS (France), 3: JMA (Japan), 4: BODC (UK), 5: MEDS (Canada), 6: INCOIS (India), 7: KMA (Korea), 8: CSIRO (Australia), 9: CSIO (China)",
+            "units": "-",
+        },
+        "float_type": {
+            "long_name": "Float type",
+            "description": "1: APEX, 2: SOLO, 3: PROVOR, 4: R1, 5: MARTEC, 6: PALACE, 7: NINJA, 8: NEMO, 9: ALACE, 0: METOCEAN",
+            "units": "-",
+        },
+    }
 
-    File WMO2DAC2type.txt catalogs the float information included into
-    YoMaHa'07 dataset:
+    # global attributes
+    attrs = {
+        "title": "YoMaHa'07: Velocity data assessed from trajectories of Argo floats at parking level and at the sea surface",
+        "history": f"Dataset updated on {YOMAHA_VERSION}",
+        "date_created": datetime.now().isoformat(),
+        "publisher_name": "Asia-Pacific Data Research Center",
+        "publisher_url": "http://apdrc.soest.hawaii.edu/index.php",
+        "licence": "freely available",
+    }
 
-    1 - Serial YoMaHa'07 number of the float
-    2 - WMO float ID
-    3 - DAC where float data are stored (described in the file DACs.txt)
-    4 - Float type (described in the file float_types.txt)
-    """
+    # set attributes
+    for var in vars_attrs.keys():
+        if var in ds.keys():
+            ds[var].attrs = vars_attrs[var]
+        else:
+            warnings.warn(f"Variable {var} not found in upstream data; skipping.")
+    ds.attrs = attrs
 
     return ds
