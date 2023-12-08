@@ -599,6 +599,12 @@ def subset(
 
     >>> subset(ds, {"sst": (303.15, np.inf)})
 
+    You can use the same approach to return only the trajectories that are
+    shorter than some number of observations (similar to :func:`prune` but for
+    the entire dataset):
+
+    >>> subset(ds, {"rowsize": (0, 1000)})
+
     Retrieve specific drifters from their IDs:
 
     >>> subset(ds, {"ID": [2578, 2582, 2583]})
