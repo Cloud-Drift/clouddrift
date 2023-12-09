@@ -399,7 +399,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         "publisher_name": "GDP Drifter DAC",
         "publisher_email": "aoml.dftr@noaa.gov",
         "publisher_url": "https://www.aoml.noaa.gov/phod/gdp",
-        "licence": "freely available",
+        "license": "freely available",
         "processing_level": "Level 2 QC by GDP drifter DAC",
         "metadata_link": "https://www.aoml.noaa.gov/phod/dac/dirall.html",
         "contributor_name": "NOAA Global Drifter Program",

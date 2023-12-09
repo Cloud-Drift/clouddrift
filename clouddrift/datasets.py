@@ -321,7 +321,7 @@ def subsurface_floats() -> xr.Dataset:
         date_created:     2023-11-14T22:30:38.831656
         publisher_name:   WOCE Subsurface Float Data Assembly Center and NOAA AOML
         publisher_url:    https://www.aoml.noaa.gov/phod/float_traj/data.php
-        licence:          freely available
+        license:          freely available
         acknowledgement:  Maintained by Andree Ramsey and Heather Furey from the ...
 
     References
@@ -346,7 +346,12 @@ def subsurface_floats() -> xr.Dataset:
 
 def yomaha() -> xr.Dataset:
     """Returns the YoMaHa  as an Xarray dataset.
-    The upstream data is available at https://arcticdata.io/catalog/view/doi:10.18739/A2KP7TS83.
+
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access. The upstream
+    data is available at http://apdrc.soest.hawaii.edu/projects/yomaha/.
+
     Reference
     ---------
     Lebedev, K. V., Yoshinari, H., Maximenko, N. A., & Hacker, P. W. (2007). Velocity data
@@ -390,7 +395,7 @@ def yomaha() -> xr.Dataset:
         date_created:    2023-12-08T00:52:08.478075
         publisher_name:  Asia-Pacific Data Research Center
         publisher_url:   http://apdrc.soest.hawaii.edu/index.php
-        licence:         freely available
+        license:         Creative Commons Attribution 4.0 International License..
     """
     clouddrift_path = (
         os.path.expanduser("~/.clouddrift")
@@ -410,7 +415,12 @@ def yomaha() -> xr.Dataset:
 
 def andro() -> xr.Dataset:
     """Returns the ANDRO as an Xarray dataset.
-    The upstream data is available at https://arcticdata.io/catalog/view/doi:10.18739/A2KP7TS83.
+
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access. The upstream
+    data is available at https://www.seanoe.org/data/00360/47077/.
+
     Reference
     ---------
     Ollitrault Michel, Rannou Philippe, Brion Emilie, Cabanes Cecile, Piron Anne, Reverdin Gilles,
@@ -454,7 +464,7 @@ def andro() -> xr.Dataset:
         date_created:    2023-12-08T00:52:00.937120
         publisher_name:  SEANOE (SEA scieNtific Open data Edition)
         publisher_url:   https://www.seanoe.org/data/00360/47077/
-        licence:         freely available
+        license:         freely available
     """
     clouddrift_path = (
         os.path.expanduser("~/.clouddrift")

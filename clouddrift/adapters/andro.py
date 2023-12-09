@@ -324,7 +324,7 @@ def to_xarray(tmp_path: str = None):
         "date_created": datetime.now().isoformat(),
         "publisher_name": "SEANOE (SEA scieNtific Open data Edition)",
         "publisher_url": "https://www.seanoe.org/data/00360/47077/",
-        "licence": "freely available",
+        "license": "Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0/)",
     }
 
     # set attributes

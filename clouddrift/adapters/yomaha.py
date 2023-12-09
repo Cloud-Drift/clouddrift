@@ -382,7 +382,7 @@ def to_xarray(tmp_path: str = None):
         "date_created": datetime.now().isoformat(),
         "publisher_name": "Asia-Pacific Data Research Center",
         "publisher_url": "http://apdrc.soest.hawaii.edu/index.php",
-        "licence": "freely available",
+        "license": "freely available",
     }
 
     # set attributes
