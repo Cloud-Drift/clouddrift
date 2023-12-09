@@ -187,7 +187,7 @@ def morse_wavelet_transform(
             )
         wtx = wtx_p, wtx_n
 
-    elif ~complex:
+    elif not complex:
         # real case
         wtx = wavelet_transform(x, wavelet, boundary=boundary, time_axis=time_axis)
 
