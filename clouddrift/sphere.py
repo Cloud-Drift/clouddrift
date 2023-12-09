@@ -649,7 +649,12 @@ def cartesian_to_spherical(
     y /= R
     z /= R
 
-    lon = recast_lon180(np.rad2deg(np.imag(np.log((x + 1j * y)))))
+    with np.errstate(invalid="ignore"):
+        lon = np.where(
+            np.logical_and(x == 0, y == 0),
+            0,
+            recast_lon180(np.rad2deg(np.imag(np.log((x + 1j * y))))),
+        )
     lat = np.rad2deg(np.arcsin(z))
 
     return lon, lat
