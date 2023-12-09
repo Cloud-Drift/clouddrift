@@ -649,7 +649,7 @@ def cartesian_to_spherical(
     y /= R
     z /= R
 
-    with np.errstate(invalid="ignore"):
+    with np.errstate(divide="ignore"):
         lon = np.where(
             np.logical_and(x == 0, y == 0),
             0,
