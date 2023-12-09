@@ -622,10 +622,10 @@ def subset(
         If one of the variable in a criterion is not found in the Dataset
     """
     mask_traj = xr.DataArray(
-        data=np.ones(ds.dims[traj_dim_name], dtype="bool"), dims=[traj_dim_name]
+        data=np.ones(ds.sizes[traj_dim_name], dtype="bool"), dims=[traj_dim_name]
     )
     mask_obs = xr.DataArray(
-        data=np.ones(ds.dims[obs_dim_name], dtype="bool"), dims=[obs_dim_name]
+        data=np.ones(ds.sizes[obs_dim_name], dtype="bool"), dims=[obs_dim_name]
     )
 
     for key in criteria.keys():
