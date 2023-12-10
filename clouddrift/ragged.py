@@ -599,9 +599,22 @@ def subset(
 
     >>> subset(ds, {"sst": (303.15, np.inf)})
 
+    You can use the same approach to return only the trajectories that are
+    shorter than some number of observations (similar to :func:`prune` but for
+    the entire dataset):
+
+    >>> subset(ds, {"rowsize": (0, 1000)})
+
     Retrieve specific drifters from their IDs:
 
     >>> subset(ds, {"ID": [2578, 2582, 2583]})
+
+    Sometimes, you may want to retrieve specific rows of a ragged array.
+    You can do that by filtering along the trajectory dimension directly, since
+    this one corresponds to row numbers:
+
+    >>> rows = [5, 6, 7]
+    >>> subset(ds, {"traj": rows})
 
     Retrieve a specific time period:
 
@@ -629,7 +642,7 @@ def subset(
     )
 
     for key in criteria.keys():
-        if key in ds:
+        if key in ds or key in ds.dims:
             if ds[key].dims == (traj_dim_name,):
                 mask_traj = np.logical_and(mask_traj, _mask_var(ds[key], criteria[key]))
             elif ds[key].dims == (obs_dim_name,):
