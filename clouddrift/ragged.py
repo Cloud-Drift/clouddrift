@@ -610,8 +610,8 @@ def subset(
     >>> subset(ds, {"ID": [2578, 2582, 2583]})
 
     Sometimes, you may want to retrieve specific rows of a ragged array.
-    You can do that by querying the trajectory dimension directly, since
-    the dimension data are equivalent to row numbers:
+    You can do that by filtering along the trajectory dimension directly, since
+    this one corresponds to row numbers:
 
     >>> rows = [5, 6, 7]
     >>> subset(ds, {"traj": rows})
