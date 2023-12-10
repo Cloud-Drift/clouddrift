@@ -311,7 +311,7 @@ def rowsize(index: int, **kwargs) -> int:
             decode_times=False,
             concat_characters=False,
             decode_coords=False,
-        ).dims["obs"]
+        ).sizes["obs"]
     except Exception as e:
         print(
             f"Error processing {os.path.join(kwargs['tmp_path'], kwargs['filename_pattern'].format(id=index))}"
