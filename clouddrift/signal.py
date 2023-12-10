@@ -234,6 +234,191 @@ def cartesian_to_rotary(
     return wp, wn
 
 
+def ellipse_parameters(
+    xa: Union[np.ndarray, xr.DataArray],
+    ya: Union[np.ndarray, xr.DataArray],
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Return the instantaneous parameters of a modulated elliptical signal from its analytic Cartesian signals.
+
+    Parameters
+    ----------
+    xa : array_like
+        Complex-valued analytic signal for first Cartesian component (zonal, east-west).
+    ya : array_like
+        Complex-valued analytic signal for second Cartesian component (meridional, north-south).
+
+    Returns
+    -------
+    kappa : np.ndarray
+        Ellipse root-mean-square amplitude.
+    lambda : np.ndarray
+        Ellipse linearity between -1 and 1, or departure from circular motion (lambda=0).
+    theta : np.ndarray
+        Ellipse orientation in radian.
+    phi : np.ndarray
+        Ellipse phase in radian.
+
+    Examples
+    --------
+
+    To obtain the ellipse parameters from a pair of real-valued signals (x, y):
+
+    >>> kappa, lambda, theta, phi = ellipse_parameters(analytic_signal(x), analytic_signal(y))
+
+    Raises
+    ------
+    ValueError
+        If the input arrays do not have the same shape.
+
+    References
+    ----------
+    Lilly JM, Olhede SC. 2010 Bivariate instantaneous frequency and bandwidth.
+    IEEE T. Signal Proces. 58, 591–603. (10.1109/TSP.2009.2031729).
+
+    See Also
+    --------
+    :func:`modulated_ellipse_signal`, :func:`analytic_signal`, :func:`rotary_to_cartesian`, :func:`cartesian_to_rotary`
+
+    """
+
+    # u and v arrays must have the same shape.
+    if not xa.shape == ya.shape:
+        raise ValueError("xa and ya must have the same shape.")
+
+    # initialize empty array for z; for future extension to 3D
+    # calculation below should hold once za is input
+    za = np.zeros_like(xa)
+
+    # calculate normal vector to ellipse plane
+    nx = np.imag(ya) * np.real(za) - np.imag(za) * np.real(ya)
+    ny = -(np.imag(xa) * np.real(za) - np.imag(za) * np.real(xa))
+    nz = np.imag(xa) * np.real(ya) - np.imag(ya) * np.real(xa)
+
+    denom = np.sqrt(nx**2 + ny**2 + nz**2)
+    nx /= denom
+    ny /= denom
+    nz /= denom
+
+    with np.errstate(divide="ignore", invalid="ignore"):
+        alpha = np.imag(np.log(1j * nx - ny))
+        beta = np.imag(np.log(nz + 1j * np.sqrt(nx**2 + ny**2)))
+
+    x = np.cos(-alpha) * xa - np.sin(-alpha) * ya
+    y = np.sin(-alpha) * xa + np.cos(-alpha) * ya
+    # z = za
+    x = np.cos(-beta) * x - np.sin(-beta) * y
+    y = np.sin(-beta) * x + np.cos(-beta) * y
+    # z = z
+
+    X = np.abs(x)
+    Y = np.abs(y)
+    phix = np.angle(x)
+    phiy = np.angle(y)
+
+    phia = 0.5 * (phix + phiy + 0.5 * np.pi)
+    phid = 0.5 * (phix - phiy - 0.5 * np.pi)
+
+    P = 0.5 * np.sqrt(X**2 + Y**2 + 2 * X * Y * np.cos(2 * phid))
+    N = 0.5 * np.sqrt(X**2 + Y**2 - 2 * X * Y * np.cos(2 * phid))
+
+    phip = np.unwrap(
+        phia
+        + np.unwrap(np.imag(np.log(X * np.exp(1j * phid) + Y * np.exp(-1j * phid))))
+    )
+    phin = np.unwrap(
+        phia
+        + np.unwrap(np.imag(np.log(X * np.exp(1j * phid) - Y * np.exp(-1j * phid))))
+    )
+
+    kappa = np.sqrt(P**2 + N**2)
+    lambda_ = (2 * P * N * np.sign(P - N)) / (P**2 + N**2)
+
+    # For vanishing linearity, put in very small number to have sign information
+    lambda_[lambda_ == 0] = np.sign(P[lambda_ == 0] - N[lambda_ == 0]) * (1e-12)
+
+    theta = np.unwrap(0.5 * (phip - phin))
+    phi = np.unwrap(0.5 * (phip + phin))
+
+    lambda_ = np.real(lambda_)
+
+    return kappa, lambda_, theta, phi
+
+
+def modulated_ellipse_signal(
+    kappa: Union[np.ndarray, xr.DataArray],
+    lambda_: Union[np.ndarray, xr.DataArray],
+    theta: Union[np.ndarray, xr.DataArray],
+    phi: Union[np.ndarray, xr.DataArray],
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Return the analytic Cartesian signals (xa, ya) from the instantaneous parameters of a modulated elliptical signal.
+
+    This function is the inverse of :func:`ellipse_parameters`.
+
+    Parameters
+    ----------
+    kappa : array_like
+        Ellipse root-mean-square amplitude.
+    lambda : array_like
+        Ellipse linearity between -1 and 1, or departure from circular motion (lambda=0).
+    theta : array_like
+        Ellipse orientation in radian.
+    phi : array_like
+        Ellipse phase in radian.
+    time_axis : int, optional
+        The axis of the time array. Default is -1, which corresponds to the
+        last axis.
+
+    Returns
+    -------
+    xa : np.ndarray
+        Complex-valued analytic signal for first Cartesian component (zonal, east-west).
+    ya : np.ndarray
+        Complex-valued analytic signal for second Cartesian component (meridional, north-south).
+
+    Examples
+    --------
+
+    To obtain the analytic signals from the instantaneous parameters of a modulated elliptical signal:
+
+    >>> xa, ya = modulated_ellipse_signal(kappa, lambda, theta, phi)
+
+    Raises
+    ------
+    ValueError
+        If the input arrays do not have the same shape.
+
+    References
+    ----------
+    Lilly JM, Olhede SC. 2010 Bivariate instantaneous frequency and bandwidth.
+    IEEE T. Signal Proces. 58, 591–603. (10.1109/TSP.2009.2031729).
+
+    See Also
+    --------
+    :func:`ellipse_parameters`, :func:`analytic_signal`, :func:`rotary_to_cartesian`, :func:`cartesian_to_rotary`
+
+    """
+
+    # make sure all input arrays have the same shape
+    if not kappa.shape == lambda_.shape == theta.shape == phi.shape:
+        raise ValueError("All input arrays must have the same shape.")
+
+    # calculate semi major and semi minor axes
+    a = kappa * np.sqrt(1 + np.abs(lambda_))
+    b = np.sign(lambda_) * kappa * np.sqrt(1 - np.abs(lambda_))
+
+    # define b to be positive for lambda exactly zero
+    b[lambda_ == 0] = kappa[lambda_ == 0]
+
+    xa = np.exp(1j * phi) * (a * np.cos(theta) + 1j * b * np.sin(theta))
+    ya = np.exp(1j * phi) * (a * np.sin(theta) - 1j * b * np.cos(theta))
+
+    mask = np.isinf(kappa * lambda_ * theta * phi)
+    xa[mask] = np.inf + 1j * np.inf
+    ya[mask] = np.inf + 1j * np.inf
+
+    return xa, ya
+
+
 def rotary_to_cartesian(
     wp: Union[np.ndarray, xr.DataArray],
     wn: Union[np.ndarray, xr.DataArray],
@@ -266,7 +451,7 @@ def rotary_to_cartesian(
 
     To obtain the Cartesian analytic signals from a pair of rotary signals (wp,wn):
 
-    >>> ua, va = rotary_to_cartesian(wp,wn)
+    >>> ua, va = rotary_to_cartesian(wp, wn)
 
     To specify that the time axis is along the first axis:
 
