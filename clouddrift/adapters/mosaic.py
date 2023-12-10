@@ -19,12 +19,15 @@ Example
 >>> ds = mosaic.to_xarray()
 """
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 import numpy as np
 import pandas as pd
 import requests
 from tqdm import tqdm
 import xarray as xr
 import xml.etree.ElementTree as ET
+
+MOSAIC_VERSION = "2022"
 
 
 def get_dataframes() -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -135,6 +138,16 @@ def to_xarray():
         "long_name": "latitude",
         "standard_name": "latitude",
         "units": "degrees_north",
+    }
+
+    # global attributes
+    ds.attrs = {
+        "title": "Multidisciplinary drifting Observatory for the Study of Arctic Climate (MOSAiC) expedition 2019 - 2021",
+        "history": f"Dataset updated in {MOSAIC_VERSION}",
+        "date_created": datetime.now().isoformat(),
+        "publisher_name": "NSF Arctic Data Center",
+        "publisher_url": "https://arcticdata.io/catalog/view/doi:10.18739/A2KP7TS83",
+        "license": "Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0/)",
     }
 
     return ds
