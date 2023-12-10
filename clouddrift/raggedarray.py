@@ -107,7 +107,7 @@ class RaggedArray:
         rowsize_func = (
             rowsize_func
             if rowsize_func
-            else lambda i, **kwargs: preprocess_func(i, **kwargs).dims["obs"]
+            else lambda i, **kwargs: preprocess_func(i, **kwargs).sizes["obs"]
         )
         rowsize = cls.number_of_observations(rowsize_func, indices, **kwargs)
         coords, metadata, data = cls.allocate(
@@ -197,16 +197,16 @@ class RaggedArray:
             attrs_variables[var] = ds[var].attrs
 
         for var in ds.data_vars.keys():
-            if len(ds[var]) == ds.dims[dim_traj]:
+            if len(ds[var]) == ds.sizes[dim_traj]:
                 metadata[var] = ds[var].data
-            elif len(ds[var]) == ds.dims[dim_obs]:
+            elif len(ds[var]) == ds.sizes[dim_obs]:
                 data[var] = ds[var].data
             else:
                 warnings.warn(
                     f"""
                     Variable '{var}' has unknown dimension size of 
-                    {len(ds[var])}, which is not traj={ds.dims[dim_traj]} or 
-                    obs={ds.dims[dim_obs]}; skipping.
+                    {len(ds[var])}, which is not traj={ds.sizes[dim_traj]} or 
+                    obs={ds.sizes[dim_obs]}; skipping.
                     """
                 )
             attrs_variables[var] = ds[var].attrs

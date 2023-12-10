@@ -629,7 +629,7 @@ class subset_tests(unittest.TestCase):
 
     def test_empty(self):
         ds_sub = subset(self.ds, {"ID": 3, "lon": (-180, 0)})
-        self.assertTrue(ds_sub.dims == {})
+        self.assertTrue(ds_sub.sizes == {})
 
     def test_unknown_var(self):
         with self.assertRaises(ValueError):

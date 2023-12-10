@@ -219,7 +219,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
             warnings.warn(f"Variable {var} not found in upstream data; skipping.")
 
     # new variables
-    ds["ids"] = (["traj", "obs"], [np.repeat(ds.ID.values, ds.dims["obs"])])
+    ds["ids"] = (["traj", "obs"], [np.repeat(ds.ID.values, ds.sizes["obs"])])
     ds["drogue_status"] = (
         ["traj", "obs"],
         [gdp.drogue_presence(ds.drogue_lost_date.data, ds.time.data[0])],
