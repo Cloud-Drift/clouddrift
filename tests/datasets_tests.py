@@ -23,7 +23,7 @@ class datasets_tests(unittest.TestCase):
 
     def test_glad_dims_coords(self):
         ds = datasets.glad()
-        self.assertTrue(len(ds.dims) == 2)
+        self.assertTrue(len(ds.sizes) == 2)
         self.assertTrue("obs" in ds.dims)
         self.assertTrue("traj" in ds.dims)
         self.assertTrue(len(ds.coords) == 2)

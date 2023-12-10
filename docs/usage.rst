@@ -92,7 +92,7 @@ contiguous 1-dimensional array in memory.
 
 Let's look at the dataset dimensions:
 
->>> ds.dims
+>>> ds.sizes
 Frozen({'traj': 17324, 'obs': 165754333})
 
 The ``traj`` dimension has 17324 elements, which is the number of individual

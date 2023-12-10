@@ -73,7 +73,7 @@ To install optional dependencies needed by the `clouddrift.plotting` module,
 type:
 
 ```
-pip install matplotlib-base cartopy
+pip install matplotlib cartopy
 ```
 
 ##### Conda:
@@ -134,7 +134,7 @@ With pip:
 python3 -m venv .venv
 source .venv/bin/activate
 pip install .
-pip install matplotlib-base cartopy
+pip install matplotlib cartopy
 ```
 
 With Conda:

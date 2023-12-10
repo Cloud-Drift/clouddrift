@@ -629,7 +629,7 @@ class subset_tests(unittest.TestCase):
 
     def test_empty(self):
         ds_sub = subset(self.ds, {"ID": 3, "lon": (-180, 0)})
-        self.assertTrue(ds_sub.dims == {})
+        self.assertTrue(ds_sub.sizes == {})
 
     def test_unknown_var(self):
         with self.assertRaises(ValueError):
@@ -693,6 +693,12 @@ class subset_tests(unittest.TestCase):
         ds_sub = subset(self.ds, {"time": (4, 5)}, full_trajectories=True)
         xr.testing.assert_equal(self.ds, ds_sub)
 
+    def test_subset_by_rows(self):
+        rows = [0, 2]  # test extracting first and third rows
+        ds_sub = subset(self.ds, {"traj": rows})
+        self.assertTrue(all(ds_sub["ID"] == [1, 2]))
+        self.assertTrue(all(ds_sub["rowsize"] == [5, 4]))
+
 
 class unpack_tests(unittest.TestCase):
     def test_unpack(self):
@@ -737,5 +743,13 @@ class unpack_tests(unittest.TestCase):
             all(
                 np.array_equal(a, b)
                 for a, b in zip(unpack(x, rowsize, [0, 1]), unpack(x, rowsize)[:2])
+            )
+        )
+        # Test that unpack can accept rows as numpy integer as well, not just
+        # the built-in int.
+        self.assertTrue(
+            all(
+                np.array_equal(a, b)
+                for a, b in zip(unpack(x, rowsize, np.int64(0)), unpack(x, rowsize)[:1])
             )
         )

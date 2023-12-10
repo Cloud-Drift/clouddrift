@@ -187,7 +187,7 @@ def morse_wavelet_transform(
             )
         wtx = wtx_p, wtx_n
 
-    elif ~complex:
+    elif not complex:
         # real case
         wtx = wavelet_transform(x, wavelet, boundary=boundary, time_axis=time_axis)
 
@@ -583,12 +583,12 @@ def morse_freq(
     --------
     :func:`morse_wavelet`, :func:`morse_amplitude`
     """
-    # add test for type and shape in case of ndarray?
-    fm = np.where(
-        beta == 0,
-        np.log(2) ** (1 / gamma),
-        np.exp((1 / gamma) * (np.log(beta) - np.log(gamma))),
-    )
+    with np.errstate(divide="ignore"):  # ignore warning when beta=0
+        fm = np.where(
+            beta == 0,
+            np.log(2) ** (1 / gamma),
+            np.exp((1 / gamma) * (np.log(beta) - np.log(gamma))),
+        )
 
     fe = (
         1
@@ -682,7 +682,7 @@ def morse_logspace_freq(
     low_ = np.max(np.append(low, lowset[1]))
 
     r = 1 + 1 / (density * width)
-    m = np.floor(np.log10(high_ / low_) / np.log10(r))
+    m = np.floor(np.log10(high_ / low_) / np.log10(r)).astype(int)[0]
     radian_frequency = high_ * np.ones(int(m + 1)) / r ** np.arange(0, m + 1)
 
     return radian_frequency
