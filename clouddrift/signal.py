@@ -299,8 +299,8 @@ def ellipse_parameters(
     ny /= denom
     nz /= denom
 
-    alpha = np.imag(np.log(np.sqrt(-1) * nx - ny))
-    beta = np.imag(np.log(nz + np.sqrt(-1) * np.sqrt(nx**2 + ny**2)))
+    alpha = np.imag(np.log(1j * nx - ny))
+    beta = np.imag(np.log(nz + 1j * np.sqrt(nx**2 + ny**2)))
 
     x = np.cos(-alpha) * xa - np.sin(-alpha) * ya
     y = np.sin(-alpha) * xa + np.cos(-alpha) * ya
@@ -314,8 +314,8 @@ def ellipse_parameters(
     phix = np.angle(x)
     phiy = np.angle(y)
 
-    phia = (phix + phiy + np.pi / 2) / 2
-    phid = (phix - phiy - np.pi / 2) / 2
+    phia = 0.5 * (phix + phiy + 0.5 * np.pi)
+    phid = 0.5 * (phix - phiy - 0.5 * np.pi)
 
     P = 0.5 * np.sqrt(X**2 + Y**2 + 2 * X * Y * np.cos(2 * phid))
     N = 0.5 * np.sqrt(X**2 + Y**2 - 2 * X * Y * np.cos(2 * phid))
@@ -330,13 +330,13 @@ def ellipse_parameters(
     )
 
     kappa = np.sqrt(P**2 + N**2)
-    lambda_ = 2 * P * N * np.sign(P - N) / (P**2 + N**2)
+    lambda_ = (2 * P * N * np.sign(P - N)) / (P**2 + N**2)
 
     # For vanishing linearity, put in very small number to have sign information
     lambda_[lambda_ == 0] = np.sign(P[lambda_ == 0] - N[lambda_ == 0]) * (1e-12)
 
-    theta = 0.5 * (phip - phin)
-    phi = 0.5 * (phip + phin)
+    theta = np.unwrap(0.5 * (phip - phin))
+    phi = np.unwrap(0.5 * (phip + phin))
 
     lambda_ = np.real(lambda_)
 

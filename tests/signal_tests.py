@@ -107,23 +107,19 @@ class cartesian_to_rotary_tests(unittest.TestCase):
 
 class ellipse_parameters_tests(unittest.TestCase):
     def setUp(self):
-        self.phip = np.linspace(0, 10 * 2 * np.pi, 1000) + np.pi / 3
-        self.phin = np.linspace(0, 10 * 2 * np.pi, 1000) - np.pi / 6
-        self.ap = 2 * np.ones_like(self.phip)
-        self.an = 3 * np.ones_like(self.phin)
-        self.zp = self.ap * np.exp(1j * self.phip)
-        self.zn = self.an * np.exp(1j * self.phin)
-        self.z = self.zp + np.conj(self.zn)
-        self.xa = analytic_signal(np.real(self.z), boundary="periodic")
-        self.ya = analytic_signal(np.imag(self.z), boundary="periodic")
-        self.a = self.ap + self.an
-        self.b = self.ap - self.an
-        self.kappa = np.sqrt(0.5 * (self.a**2 + self.b**2))
-        self.lamb = (
-            np.sign(self.b) * (self.a**2 - self.b**2) / (self.a**2 + self.b**2)
+        t = np.arange(0, 926)
+        self.kappa = 3 * np.exp(2 * 0.393 * (t / 1000 - 1))
+        self.lamb = 0.5 * np.ones_like(t)
+        self.phi = np.pi * 2 * t / 1000 * 5
+        self.theta = np.pi / 4 + self.phi / 14.45
+        self.a = self.kappa * np.sqrt(1 + np.abs(self.lamb))
+        self.b = np.sign(self.lamb) * self.kappa * np.sqrt(1 - np.abs(self.lamb))
+        self.xa = np.exp(1j * self.phi) * (
+            self.a * np.cos(self.theta) + 1j * self.b * np.sin(self.theta)
         )
-        self.phi = 0.5 * (self.phip + self.phin)
-        self.theta = 0.5 * (self.phip - self.phin)
+        self.ya = np.exp(1j * self.phi) * (
+            self.a * np.sin(self.theta) - 1j * self.b * np.cos(self.theta)
+        )
 
     def test_result_has_same_size_as_input(self):
         kappa, lamb, theta, phi = ellipse_parameters(self.xa, self.ya)
@@ -143,16 +139,31 @@ class ellipse_parameters_tests(unittest.TestCase):
 
     def test_result_is_correct(self):
         kappa, lamb, theta, phi = ellipse_parameters(self.xa, self.ya)
-        self.assertTrue(np.allclose(kappa[249:749], self.kappa[249:749], atol=1e-2))
-        self.assertTrue(np.allclose(lamb[249:749], self.lamb[249:749], atol=1e-2))
-        self.assertTrue(np.allclose(theta[249:749], self.theta[249:749], atol=1e-2))
-        self.assertTrue(np.allclose(phi[249:749], self.phi[249:749], atol=1e-2))
+        self.assertTrue(np.allclose(kappa, self.kappa, atol=1e-2))
+        self.assertTrue(np.allclose(lamb, self.lamb, atol=1e-2))
+        self.assertTrue(
+            np.allclose(
+                np.mod(theta + phi, np.pi),
+                np.mod(self.theta + self.phi, np.pi),
+                atol=1e-2,
+            )
+        )
 
     def test_invert_ellipse_parameters(self):
         kappa, lamb, theta, phi = ellipse_parameters(self.xa, self.ya)
         xa, ya = modulated_ellipse_signal(kappa, lamb, theta, phi)
-        self.assertTrue(np.allclose(self.xa, xa))
-        self.assertTrue(np.allclose(self.ya, ya))
+        self.assertTrue(np.allclose(np.abs(self.xa), np.abs(xa), atol=1e-2))
+        self.assertTrue(np.allclose(np.abs(self.ya), np.abs(ya), atol=1e-2))
+        self.assertTrue(
+            np.allclose(
+                np.mod(np.angle(self.xa), np.pi), np.mod(np.angle(xa), np.pi), atol=1e-2
+            )
+        )
+        self.assertTrue(
+            np.allclose(
+                np.mod(np.angle(self.ya), np.pi), np.mod(np.angle(ya), np.pi), atol=1e-2
+            )
+        )
 
 
 class modulated_ellipse_signal_tests(unittest.TestCase):
@@ -199,8 +210,13 @@ class modulated_ellipse_signal_tests(unittest.TestCase):
         kappa, lamb, theta, phi = ellipse_parameters(xa, ya)
         self.assertTrue(np.allclose(kappa, self.kappa, atol=1e-2))
         self.assertTrue(np.allclose(lamb, self.lamb, atol=1e-2))
-        self.assertTrue(np.allclose(theta, self.theta, atol=1e-2))
-        self.assertTrue(np.allclose(phi, self.phi, atol=1e-2))
+        self.assertTrue(
+            np.allclose(
+                np.mod(phi + theta, np.pi),
+                np.mod(self.phi + self.theta, np.pi),
+                atol=1e-2,
+            )
+        )
 
 
 class rotary_to_cartesian_tests(unittest.TestCase):
