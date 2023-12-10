@@ -1,5 +1,8 @@
 """
-This module provides functions to easily access ragged-array datasets.
+This module provides functions to easily access ragged array datasets. If the datasets are 
+not accessed via cloud storage platforms or are not found on the local filesystem,
+they will be downloaded from their upstream repositories and stored for later access 
+(~/.clouddrift for unix-based systems).
 """
 
 from clouddrift import adapters
@@ -9,7 +12,7 @@ import xarray as xr
 
 def gdp1h() -> xr.Dataset:
     """Returns the latest version of the NOAA Global Drifter Program (GDP) hourly
-    dataset as an Xarray dataset.
+    dataset as a ragged array Xarray dataset.
 
     The data is accessed from zarr archive hosted on a public AWS S3 bucket accessible at
     https://registry.opendata.aws/noaa-oar-hourly-gdp/. Original data source from NOAA NCEI
@@ -69,7 +72,7 @@ def gdp1h() -> xr.Dataset:
 
 
 def gdp6h() -> xr.Dataset:
-    """Returns the NOAA Global Drifter Program (GDP) 6-hourly dataset as an
+    """Returns the NOAA Global Drifter Program (GDP) 6-hourly dataset as a ragged array
     Xarray dataset.
 
     The data is accessed from a public HTTPS server at NOAA's Atlantic
@@ -132,7 +135,8 @@ def gdp6h() -> xr.Dataset:
 
 
 def glad() -> xr.Dataset:
-    """Returns the Grand LAgrangian Deployment (GLAD) dataset as an Xarray dataset.
+    """Returns the Grand LAgrangian Deployment (GLAD) dataset as a ragged array
+      Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
     filesystem. If it is not found, the dataset will be downloaded using the
@@ -191,7 +195,7 @@ def glad() -> xr.Dataset:
 
 
 def mosaic() -> xr.Dataset:
-    """Returns the MOSAiC sea-ice drift dataset as an Xarray dataset.
+    """Returns the MOSAiC sea-ice drift dataset as a ragged array Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
     filesystem. If it is not found, the dataset will be downloaded using the
@@ -258,7 +262,7 @@ def mosaic() -> xr.Dataset:
 
 
 def subsurface_floats() -> xr.Dataset:
-    """Returns the subsurface floats dataset as an Xarray dataset.
+    """Returns the subsurface floats dataset as a ragged array Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
     filesystem. If it is not found, the dataset will be downloaded using the
@@ -345,7 +349,7 @@ def subsurface_floats() -> xr.Dataset:
 
 
 def yomaha() -> xr.Dataset:
-    """Returns the YoMaHa  as an Xarray dataset.
+    """Returns the YoMaHa dataset as a ragged array Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
     filesystem. If it is not found, the dataset will be downloaded using the
@@ -357,12 +361,15 @@ def yomaha() -> xr.Dataset:
     Lebedev, K. V., Yoshinari, H., Maximenko, N. A., & Hacker, P. W. (2007). Velocity data
     assessed  from trajectories of Argo floats at parking level and at the sea
     surface. IPRC Technical Note, 4(2), 1-16.
+
     Returns
     -------
     xarray.Dataset
         YoMaHa'07 dataset as a ragged array
+
     Examples
     --------
+
     >>> from clouddrift.datasets import yomaha
     >>> ds = yomaha()
     >>> ds
@@ -414,7 +421,7 @@ def yomaha() -> xr.Dataset:
 
 
 def andro() -> xr.Dataset:
-    """Returns the ANDRO as an Xarray dataset.
+    """Returns the ANDRO as a ragged array Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
     filesystem. If it is not found, the dataset will be downloaded using the
