@@ -256,9 +256,9 @@ def mosaic() -> xr.Dataset:
 
 
 def sofar() -> xr.Dataset:
-    """Returns the SOFAR ocean drifters dataset as an Xarray dataset.
+    """Returns the SOFAR ocean drifters ragged array dataset as an Xarray dataset.
 
-    The data is accessed from zarr archive hosted on a public AWS S3 bucket accessible
+    The data is accessed from a zarr archive hosted on a public AWS S3 bucket accessible
     at https://sofar-spotter-archive.s3.amazonaws.com/spotter_data_bulk_zarr.
 
     Returns
