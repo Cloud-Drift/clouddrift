@@ -255,7 +255,7 @@ def mosaic() -> xr.Dataset:
     return ds
 
 
-def sofar() -> xr.Dataset:
+def spotters() -> xr.Dataset:
     """Returns the SOFAR ocean drifters ragged array dataset as an Xarray dataset.
 
     The data is accessed from a zarr archive hosted on a public AWS S3 bucket accessible
@@ -264,12 +264,12 @@ def sofar() -> xr.Dataset:
     Returns
     -------
     xarray.Dataset
-        Sofar ocan floats dataset as a ragged array
+        Sofar ocean floats dataset as a ragged array
 
     Examples
     --------
-    >>> from clouddrift.datasets import sofar
-    >>> ds = sofar()
+    >>> from clouddrift.datasets import spotters
+    >>> ds = spotters()
     >>> ds
     <xarray.Dataset>
     Dimensions:                (index: 6390651, trajectory: 871)

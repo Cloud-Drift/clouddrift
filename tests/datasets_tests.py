@@ -37,8 +37,8 @@ class datasets_tests(unittest.TestCase):
         mean_lon = apply_ragged(np.mean, [ds_sub.longitude], ds_sub.rowsize)
         self.assertTrue(mean_lon.size == 2)
 
-    def test_sofar_opens(self):
-        ds = datasets.sofar()
+    def test_spotters_opens(self):
+        ds = datasets.spotters()
         self.assertTrue(ds)
 
     def test_subsurface_floats_opens(self):
