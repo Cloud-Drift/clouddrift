@@ -26,7 +26,7 @@ class datasets_tests(unittest.TestCase):
 
     def test_glad_dims_coords(self):
         ds = datasets.glad()
-        self.assertTrue(len(ds.dims) == 2)
+        self.assertTrue(len(ds.sizes) == 2)
         self.assertTrue("obs" in ds.dims)
         self.assertTrue("traj" in ds.dims)
         self.assertTrue(len(ds.coords) == 2)
@@ -43,4 +43,11 @@ class datasets_tests(unittest.TestCase):
     def test_subsurface_floats_opens(self):
         ds = datasets.subsurface_floats()
         self.assertTrue(ds)
-        self.assertTrue(ds["time"].dtype == float)
+
+    def test_andro_opens(self):
+        ds = datasets.andro()
+        self.assertTrue(ds)
+
+    def test_yomaha_opens(self):
+        ds = datasets.yomaha()
+        self.assertTrue(ds)

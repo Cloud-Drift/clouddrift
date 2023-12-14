@@ -1,5 +1,8 @@
 """
-This module provides functions to easily access ragged-array datasets.
+This module provides functions to easily access ragged array datasets. If the datasets are 
+not accessed via cloud storage platforms or are not found on the local filesystem,
+they will be downloaded from their upstream repositories and stored for later access 
+(~/.clouddrift for unix-based systems).
 """
 
 from clouddrift import adapters
@@ -10,7 +13,7 @@ import xarray as xr
 
 def gdp1h() -> xr.Dataset:
     """Returns the latest version of the NOAA Global Drifter Program (GDP) hourly
-    dataset as an Xarray dataset.
+    dataset as a ragged array Xarray dataset.
 
     The data is accessed from zarr archive hosted on a public AWS S3 bucket accessible at
     https://registry.opendata.aws/noaa-oar-hourly-gdp/. Original data source from NOAA NCEI
@@ -72,7 +75,7 @@ def gdp1h() -> xr.Dataset:
 
 
 def gdp6h() -> xr.Dataset:
-    """Returns the NOAA Global Drifter Program (GDP) 6-hourly dataset as an
+    """Returns the NOAA Global Drifter Program (GDP) 6-hourly dataset as a ragged array
     Xarray dataset.
 
     The data is accessed from a public HTTPS server at NOAA's Atlantic
@@ -136,7 +139,8 @@ def gdp6h() -> xr.Dataset:
 
 
 def glad() -> xr.Dataset:
-    """Returns the Grand LAgrangian Deployment (GLAD) dataset as an Xarray dataset.
+    """Returns the Grand LAgrangian Deployment (GLAD) dataset as a ragged array
+      Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
     filesystem. If it is not found, the dataset will be downloaded using the
@@ -197,7 +201,7 @@ def glad() -> xr.Dataset:
 
 
 def mosaic() -> xr.Dataset:
-    """Returns the MOSAiC sea-ice drift dataset as an Xarray dataset.
+    """Returns the MOSAiC sea-ice drift dataset as a ragged array Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
     filesystem. If it is not found, the dataset will be downloaded using the
@@ -205,7 +209,9 @@ def mosaic() -> xr.Dataset:
 
     The upstream data is available at https://arcticdata.io/catalog/view/doi:10.18739/A2KP7TS83.
 
-    Reference: Angela Bliss, Jennifer Hutchings, Philip Anderson, Philipp Anhaus,
+    Reference
+    ---------
+    Angela Bliss, Jennifer Hutchings, Philip Anderson, Philipp Anhaus,
     Hans Jakob Belter, Jørgen Berge, Vladimir Bessonov, Bin Cheng, Sylvia Cole,
     Dave Costa, Finlo Cottier, Christopher J Cox, Pedro R De La Torre, Dmitry V Divine,
     Gilbert Emzivat, Ying-Chih Fang, Steven Fons, Michael Gallagher, Maxime Geoffrey,
@@ -264,7 +270,7 @@ def mosaic() -> xr.Dataset:
 
 
 def subsurface_floats() -> xr.Dataset:
-    """Returns the subsurface floats dataset as an Xarray dataset.
+    """Returns the subsurface floats dataset as a ragged array Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
     filesystem. If it is not found, the dataset will be downloaded using the
@@ -327,7 +333,7 @@ def subsurface_floats() -> xr.Dataset:
         date_created:     2023-11-14T22:30:38.831656
         publisher_name:   WOCE Subsurface Float Data Assembly Center and NOAA AOML
         publisher_url:    https://www.aoml.noaa.gov/phod/float_traj/data.php
-        licence:          freely available
+        license:          freely available
         acknowledgement:  Maintained by Andree Ramsey and Heather Furey from the ...
 
     References
@@ -340,16 +346,154 @@ def subsurface_floats() -> xr.Dataset:
         if not os.getenv("CLOUDDRIFT_PATH")
         else os.getenv("CLOUDDRIFT_PATH")
     )
+
     local_file = f"{clouddrift_path}/data/subsurface_floats.nc"
     if not os.path.exists(local_file):
         print(f"{local_file} not found; download from upstream repository.")
         ds = adapters.subsurface_floats.to_xarray()
+    else:
+        ds = xr.open_dataset(local_file)
+    return ds
+
+
+def yomaha() -> xr.Dataset:
+    """Returns the YoMaHa dataset as a ragged array Xarray dataset.
+
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access. The upstream
+    data is available at http://apdrc.soest.hawaii.edu/projects/yomaha/.
+
+    Reference
+    ---------
+    Lebedev, K. V., Yoshinari, H., Maximenko, N. A., & Hacker, P. W. (2007). Velocity data
+    assessed  from trajectories of Argo floats at parking level and at the sea
+    surface. IPRC Technical Note, 4(2), 1-16.
+
+    Returns
+    -------
+    xarray.Dataset
+        YoMaHa'07 dataset as a ragged array
+
+    Examples
+    --------
+
+    >>> from clouddrift.datasets import yomaha
+    >>> ds = yomaha()
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:     (obs: 1926743, traj: 12196)
+    Coordinates:
+        time_d      (obs) datetime64[ns] ...
+        time_s      (obs) datetime64[ns] ...
+        time_lp     (obs) datetime64[ns] ...
+        time_lc     (obs) datetime64[ns] ...
+        id          (traj) int64 ...
+    Dimensions without coordinates: obs, traj
+    Data variables: (12/27)
+        lon_d       (obs) float64 ...
+        lat_d       (obs) float64 ...
+        pres_d      (obs) float32 ...
+        ve_d        (obs) float32 ...
+        vn_d        (obs) float32 ...
+        err_ve_d    (obs) float32 ...
+        ...          ...
+        cycle       (obs) int64 ...
+        time_inv    (obs) int64 ...
+        rowsize     (traj) int64 ...
+        wmo_id      (traj) int64 ...
+        dac_id      (traj) int64 ...
+        float_type  (traj) int64 ...
+    Attributes:
+        title:           YoMaHa'07: Velocity data assessed from trajectories of A...
+        history:         Dataset updated on Tue Jun 28 03:14:34 HST 2022
+        date_created:    2023-12-08T00:52:08.478075
+        publisher_name:  Asia-Pacific Data Research Center
+        publisher_url:   http://apdrc.soest.hawaii.edu/index.php
+        license:         Creative Commons Attribution 4.0 International License..
+    """
+    clouddrift_path = (
+        os.path.expanduser("~/.clouddrift")
+        if not os.getenv("CLOUDDRIFT_PATH")
+        else os.getenv("CLOUDDRIFT_PATH")
+    )
+    local_file = f"{clouddrift_path}/data/yomaha.nc"
+    if not os.path.exists(local_file):
+        print(f"{local_file} not found; download from upstream repository.")
+        ds = adapters.yomaha.to_xarray()
         os.makedirs(os.path.dirname(local_file), exist_ok=True)
         ds.to_netcdf(local_file)
     else:
         ds = xr.open_dataset(local_file)
-    if not ds["time"].dtype == float:
-        ds["time"] = _to_seconds_since_epoch(ds["time"])
+    return ds
+
+
+def andro() -> xr.Dataset:
+    """Returns the ANDRO as a ragged array Xarray dataset.
+
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access. The upstream
+    data is available at https://www.seanoe.org/data/00360/47077/.
+
+    Reference
+    ---------
+    Ollitrault Michel, Rannou Philippe, Brion Emilie, Cabanes Cecile, Piron Anne, Reverdin Gilles,
+    Kolodziejczyk Nicolas (2022). ANDRO: An Argo-based deep displacement dataset.
+    SEANOE. https://doi.org/10.17882/47077
+    Returns
+    -------
+    xarray.Dataset
+        ANDRO dataset as a ragged array
+    Examples
+    --------
+    >>> from clouddrift.datasets import andro
+    >>> ds = andro()
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:     (obs: 1360753, traj: 9996)
+    Coordinates:
+        time_d      (obs) datetime64[ns] ...
+        time_s      (obs) datetime64[ns] ...
+        time_lp     (obs) datetime64[ns] ...
+        time_lc     (obs) datetime64[ns] ...
+        id          (traj) int64 ...
+    Dimensions without coordinates: obs, traj
+    Data variables: (12/33)
+        lon_d       (obs) float64 ...
+        lat_d       (obs) float64 ...
+        pres_d      (obs) float32 ...
+        temp_d      (obs) float32 ...
+        sal_d       (obs) float32 ...
+        ve_d        (obs) float32 ...
+        ...          ...
+        lon_lc      (obs) float64 ...
+        lat_lc      (obs) float64 ...
+        surf_fix    (obs) int64 ...
+        cycle       (obs) int64 ...
+        profile_id  (obs) float32 ...
+        rowsize     (traj) int64 ...
+    Attributes:
+        title:           ANDRO: An Argo-based deep displacement dataset
+        history:         2022-03-04
+        date_created:    2023-12-08T00:52:00.937120
+        publisher_name:  SEANOE (SEA scieNtific Open data Edition)
+        publisher_url:   https://www.seanoe.org/data/00360/47077/
+        license:         freely available
+    """
+    clouddrift_path = (
+        os.path.expanduser("~/.clouddrift")
+        if not os.getenv("CLOUDDRIFT_PATH")
+        else os.getenv("CLOUDDRIFT_PATH")
+    )
+    local_file = f"{clouddrift_path}/data/andro.nc"
+    if not os.path.exists(local_file):
+        print(f"{local_file} not found; download from upstream repository.")
+        ds = adapters.andro.to_xarray()
+        os.makedirs(os.path.dirname(local_file), exist_ok=True)
+        ds.to_netcdf(local_file)
+    else:
+        ds = xr.open_dataset(local_file)
     return ds
 
 

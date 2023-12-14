@@ -693,6 +693,12 @@ class subset_tests(unittest.TestCase):
         ds_sub = subset(self.ds, {"time": (4, 5)}, full_trajectories=True)
         xr.testing.assert_equal(self.ds, ds_sub)
 
+    def test_subset_by_rows(self):
+        rows = [0, 2]  # test extracting first and third rows
+        ds_sub = subset(self.ds, {"traj": rows})
+        self.assertTrue(all(ds_sub["id"] == [1, 2]))
+        self.assertTrue(all(ds_sub["rowsize"] == [5, 4]))
+
 
 class unpack_tests(unittest.TestCase):
     def test_unpack(self):

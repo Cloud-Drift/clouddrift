@@ -184,7 +184,7 @@ def to_xarray(
         "date_created": datetime.now().isoformat(),
         "publisher_name": "WOCE Subsurface Float Data Assembly Center and NOAA AOML",
         "publisher_url": "https://www.aoml.noaa.gov/phod/float_traj/data.php",
-        "licence": "freely available",
+        "license": "freely available",
         "acknowledgement": f"Maintained by Andree Ramsey and Heather Furey from the Woods Hole Oceanographic Institution",
     }
 
