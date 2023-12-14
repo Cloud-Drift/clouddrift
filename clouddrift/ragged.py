@@ -105,7 +105,7 @@ def apply_ragged(
         arrays = [arrays]
     # validate rowsize
     for arr in arrays:
-        if not sum(rowsize) == arr.shape[axis]:
+        if not np.sum(rowsize) == arr.shape[axis]:
             raise ValueError("The sum of rowsize must equal the length of arr.")
 
     # split the array(s) into trajectories
@@ -525,7 +525,7 @@ def segment(
         segment_sizes = np.append(segment_sizes, len(x) - np.sum(segment_sizes))
         return segment_sizes
     else:
-        if not sum(rowsize) == len(x):
+        if not np.sum(rowsize) == len(x):
             raise ValueError("The sum of rowsize must equal the length of x.")
         segment_sizes = []
         start = 0
