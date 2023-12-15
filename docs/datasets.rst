@@ -47,6 +47,9 @@ datasets.
 
 Currently available datasets are:
 
+- :func:`clouddrift.datasets.andro`: The ANDRO dataset as a ragged array
+  processed from the upstream dataset hosted at the `SEANOE repository
+  <https://www.seanoe.org/data/00360/47077/>`_.
 - :func:`clouddrift.datasets.gdp1h`: 1-hourly Global Drifter Program (GDP) data
   from a `cloud-optimized Zarr dataset on AWS <https://registry.opendata.aws/noaa-oar-hourly-gdp/.>`_.
 - :func:`clouddrift.datasets.gdp6h`: 6-hourly GDP data from a ragged-array
@@ -65,8 +68,11 @@ Currently available datasets are:
   `NOAA's Atlantic Oceanographic and Meteorological Laboratory (AOML) <https://www.aoml.noaa.gov/phod/float_traj/index.php>_`
   and maintained by Andree Ramsey and Heather Furey from the Woods Hole Oceanographic Institution.
 - :func:`clouddrift.datasets.spotters`: The SOFAR ocean spotters archive dataset as hosted at the public `AWS S3 bucket <https://sofar-spotter-archive.s3.amazonaws.com/spotter_data_bulk_zarr>`_.
+- :func:`clouddrift.datasets.yomaha`: The YoMaHa'07 dataset as a ragged array
+  processed from the upstream dataset hosted at the `Asia-Pacific Data-Research
+  Center (APDRC) <http://apdrc.soest.hawaii.edu/projects/yomaha/>`_.
 
-The GDP and the spotters datasets are accessed lazily, so the data is only downloaded when
-specific array values are referenced. The GLAD, MOSAiC, and Subsurface floats 
+The GDP nd the spotters datasets are accessed lazily, so the data is only downloaded when
+specific array values are referenced. The ANDRO, GLAD, MOSAiC, Subsurface floats, and YoMaHa'07
 datasets are downloaded in their entirety when the function is called for the first 
 time and stored locally for later use.
