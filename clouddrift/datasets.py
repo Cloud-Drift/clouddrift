@@ -261,12 +261,58 @@ def mosaic() -> xr.Dataset:
     return ds
 
 
+def spotters() -> xr.Dataset:
+    """Returns the SOFAR ocean drifters ragged array dataset as an Xarray dataset.
+
+    The data is accessed from a zarr archive hosted on a public AWS S3 bucket accessible
+    at https://sofar-spotter-archive.s3.amazonaws.com/spotter_data_bulk_zarr.
+
+    Returns
+    -------
+    xarray.Dataset
+        Sofar ocean floats dataset as a ragged array
+
+    Examples
+    --------
+    >>> from clouddrift.datasets import spotters
+    >>> ds = spotters()
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:                (index: 6390651, trajectory: 871)
+    Coordinates:
+        time                   (index) datetime64[ns] ...
+      * trajectory             (trajectory) object 'SPOT-010001' ... 'SPOT-1975'
+    Dimensions without coordinates: index
+    Data variables:
+        latitude               (index) float64 ...
+        longitude              (index) float64 ...
+        meanDirection          (index) float64 ...
+        meanDirectionalSpread  (index) float64 ...
+        meanPeriod             (index) float64 ...
+        peakDirection          (index) float64 ...
+        peakDirectionalSpread  (index) float64 ...
+        peakPeriod             (index) float64 ...
+        rowsize                (trajectory) int64 ...
+        significantWaveHeight  (index) float64 ...
+    Attributes:
+        author:         Isabel A. Houghton
+        creation_date:  2023-10-18 00:43:55.333537
+        email:          isabel.houghton@sofarocean.com
+        institution:    Sofar Ocean
+        references:     https://content.sofarocean.com/hubfs/Spotter%20product%20...
+        source:         Spotter wave buoy
+        title:          Sofar Spotter Data Archive - Bulk Wave Parameters
+    """
+    url = "https://sofar-spotter-archive.s3.amazonaws.com/spotter_data_bulk_zarr"
+    return xr.open_dataset(url, engine="zarr")
+
+
 def subsurface_floats() -> xr.Dataset:
     """Returns the subsurface floats dataset as a ragged array Xarray dataset.
 
-    The function will first look for the ragged-array dataset on the local
-    filesystem. If it is not found, the dataset will be downloaded using the
-    corresponding adapter function and stored for later access.
+    The data is accessed from a public HTTPS server at NOAA's Atlantic
+    Oceanographic and Meteorological Laboratory (AOML) accessible at
+    https://www.aoml.noaa.gov/phod/gdp/index.php.
 
     The upstream data is available at
     https://www.aoml.noaa.gov/phod/float_traj/files/allFloats_12122017.mat.
