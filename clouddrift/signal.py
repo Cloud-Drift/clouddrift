@@ -285,35 +285,10 @@ def ellipse_parameters(
     if not xa.shape == ya.shape:
         raise ValueError("xa and ya must have the same shape.")
 
-    # initialize empty array for z; for future extension to 3D
-    # calculation below should hold once za is input
-    za = np.zeros_like(xa)
-
-    # calculate normal vector to ellipse plane
-    nx = np.imag(ya) * np.real(za) - np.imag(za) * np.real(ya)
-    ny = -(np.imag(xa) * np.real(za) - np.imag(za) * np.real(xa))
-    nz = np.imag(xa) * np.real(ya) - np.imag(ya) * np.real(xa)
-
-    denom = np.sqrt(nx**2 + ny**2 + nz**2)
-    nx /= denom
-    ny /= denom
-    nz /= denom
-
-    with np.errstate(divide="ignore", invalid="ignore"):
-        alpha = np.imag(np.log(1j * nx - ny))
-        beta = np.imag(np.log(nz + 1j * np.sqrt(nx**2 + ny**2)))
-
-    x = np.cos(-alpha) * xa - np.sin(-alpha) * ya
-    y = np.sin(-alpha) * xa + np.cos(-alpha) * ya
-    # z = za
-    x = np.cos(-beta) * x - np.sin(-beta) * y
-    y = np.sin(-beta) * x + np.cos(-beta) * y
-    # z = z
-
-    X = np.abs(x)
-    Y = np.abs(y)
-    phix = np.angle(x)
-    phiy = np.angle(y)
+    X = np.abs(xa)
+    Y = np.abs(ya)
+    phix = np.angle(xa)
+    phiy = np.angle(ya)
 
     phia = 0.5 * (phix + phiy + 0.5 * np.pi)
     phid = 0.5 * (phix - phiy - 0.5 * np.pi)
