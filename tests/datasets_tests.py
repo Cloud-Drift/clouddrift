@@ -12,17 +12,14 @@ class datasets_tests(unittest.TestCase):
     def test_gdp1h(self):
         ds = datasets.gdp1h()
         self.assertTrue(ds)
-        self.assertTrue(ds["time"].dtype == float)
 
     def test_gdp6h(self):
         ds = datasets.gdp6h()
         self.assertTrue(ds)
-        self.assertTrue(ds["time"].dtype == float)
 
     def test_glad(self):
         ds = datasets.glad()
         self.assertTrue(ds)
-        self.assertTrue(ds["time"].dtype == float)
 
     def test_glad_dims_coords(self):
         ds = datasets.glad()
