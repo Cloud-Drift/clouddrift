@@ -21,7 +21,7 @@ class pairs_chance_pairs_from_ragged_tests(unittest.TestCase):
 
     def test_chance_pairs_from_ragged(self):
         space_distance = 10000
-        time_distance = 0
+        time_distance = np.timedelta64(0)
         chance_pairs = pairs.chance_pairs_from_ragged(
             self.lon,
             self.lat,
@@ -60,7 +60,7 @@ class pairs_chance_pair_tests(unittest.TestCase):
 
     def test_chance_pair(self):
         space_distance = 6000
-        time_distance = 0
+        time_distance = np.timedelta64(0)
         i1, i2 = pairs.chance_pair(
             self.lon1,
             self.lat1,
