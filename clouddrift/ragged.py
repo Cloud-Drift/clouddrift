@@ -539,7 +539,7 @@ def segment(
 def subset(
     ds: xr.Dataset,
     criteria: dict,
-    id_var_name: str = "ID",
+    id_var_name: str = "id",
     rowsize_var_name: str = "rowsize",
     traj_dim_name: str = "traj",
     obs_dim_name: str = "obs",
@@ -561,7 +561,7 @@ def subset(
     criteria : dict
         dictionary containing the variables and the ranges/values to subset
     id_var_name : str, optional
-        Name of the variable containing the ID of the trajectories (default is "ID")
+        Name of the variable containing the ID of the trajectories (default is "id")
     rowsize_var_name : str, optional
         Name of the variable containing the number of observations per trajectory (default is "rowsize")
     traj_dim_name : str, optional
@@ -607,7 +607,7 @@ def subset(
 
     Retrieve specific drifters from their IDs:
 
-    >>> subset(ds, {"ID": [2578, 2582, 2583]})
+    >>> subset(ds, {"id": [2578, 2582, 2583]})
 
     Sometimes, you may want to retrieve specific rows of a ragged array.
     You can do that by filtering along the trajectory dimension directly, since

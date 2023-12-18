@@ -2,21 +2,27 @@
 This module provides functions to easily access ragged array datasets. If the datasets are 
 not accessed via cloud storage platforms or are not found on the local filesystem,
 they will be downloaded from their upstream repositories and stored for later access 
-(~/.clouddrift for unix-based systems).
+(~/.clouddrift for UNIX-based systems).
 """
-
 from clouddrift import adapters
 import os
 import xarray as xr
 
 
-def gdp1h() -> xr.Dataset:
+def gdp1h(decode_times: bool = True) -> xr.Dataset:
     """Returns the latest version of the NOAA Global Drifter Program (GDP) hourly
     dataset as a ragged array Xarray dataset.
 
     The data is accessed from zarr archive hosted on a public AWS S3 bucket accessible at
     https://registry.opendata.aws/noaa-oar-hourly-gdp/. Original data source from NOAA NCEI
     is https://doi.org/10.25921/x46c-3620).
+
+    Parameters
+    ----------
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
 
     Returns
     -------
@@ -31,7 +37,7 @@ def gdp1h() -> xr.Dataset:
     <xarray.Dataset>
     Dimensions:                (traj: 19396, obs: 197214787)
     Coordinates:
-        ids                    (obs) int64 ...
+        id                     (traj) int64 ...
         time                   (obs) datetime64[ns] ...
     Dimensions without coordinates: traj, obs
     Data variables: (12/60)
@@ -68,16 +74,25 @@ def gdp1h() -> xr.Dataset:
     :func:`gdp6h`
     """
     url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/latest/gdp-v2.01.zarr"
-    return xr.open_dataset(url, engine="zarr")
+    ds = xr.open_dataset(url, engine="zarr", decode_times=decode_times)
+    ds = ds.rename_vars({"ID": "id"}).assign_coords({"id": ds.ID}).drop_vars(["ids"])
+    return ds
 
 
-def gdp6h() -> xr.Dataset:
+def gdp6h(decode_times: bool = True) -> xr.Dataset:
     """Returns the NOAA Global Drifter Program (GDP) 6-hourly dataset as a ragged array
     Xarray dataset.
 
     The data is accessed from a public HTTPS server at NOAA's Atlantic
     Oceanographic and Meteorological Laboratory (AOML) accessible at
     https://www.aoml.noaa.gov/phod/gdp/index.php.
+
+    Parameters
+    ----------
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
 
     Returns
     -------
@@ -92,13 +107,12 @@ def gdp6h() -> xr.Dataset:
     <xarray.Dataset>
     Dimensions:                (traj: 26843, obs: 44544647)
     Coordinates:
-        ids                    (obs) int64 ...
+        id                     (traj) int64 ...
         time                   (obs) datetime64[ns] ...
         lon                    (obs) float32 ...
         lat                    (obs) float32 ...
     Dimensions without coordinates: traj, obs
     Data variables: (12/44)
-        ID                     (traj) int64 ...
         rowsize                (traj) int32 ...
         WMO                    (traj) int32 ...
         expno                  (traj) int32 ...
@@ -131,18 +145,27 @@ def gdp6h() -> xr.Dataset:
     :func:`gdp1h`
     """
     url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/gdp_jul22_ragged_6h.nc#mode=bytes"
-    return xr.open_dataset(url)
+    ds = xr.open_dataset(url, decode_times=decode_times)
+    ds = ds.rename_vars({"ID": "id"}).assign_coords({"id": ds.ID}).drop_vars(["ids"])
+    return ds
 
 
-def glad() -> xr.Dataset:
+def glad(decode_times: bool = True) -> xr.Dataset:
     """Returns the Grand LAgrangian Deployment (GLAD) dataset as a ragged array
-      Xarray dataset.
+    Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
     filesystem. If it is not found, the dataset will be downloaded using the
     corresponding adapter function and stored for later access.
 
     The upstream data is available at https://doi.org/10.7266/N7VD6WC8.
+
+    Parameters
+    ----------
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
 
     Returns
     -------
@@ -157,8 +180,8 @@ def glad() -> xr.Dataset:
     <xarray.Dataset>
     Dimensions:         (obs: 1602883, traj: 297)
     Coordinates:
-      * time            (obs) datetime64[ns] 2012-07-20T01:15:00.143960 ... 2012-...
-      * id              (traj) object 'CARTHE_001' 'CARTHE_002' ... 'CARTHE_451'
+      time            (obs) datetime64[ns] ...
+      id              (traj) object ...
     Data variables:
       latitude        (obs) float32 ...
       longitude       (obs) float32 ...
@@ -190,11 +213,11 @@ def glad() -> xr.Dataset:
         os.makedirs(os.path.dirname(glad_path), exist_ok=True)
         ds.to_netcdf(glad_path)
     else:
-        ds = xr.open_dataset(glad_path)
+        ds = xr.open_dataset(glad_path, decode_times=decode_times)
     return ds
 
 
-def mosaic() -> xr.Dataset:
+def mosaic(decode_times: bool = True) -> xr.Dataset:
     """Returns the MOSAiC sea-ice drift dataset as a ragged array Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
@@ -213,6 +236,13 @@ def mosaic() -> xr.Dataset:
     Network of autonomous buoys deployed during the Multidisciplinary drifting Observatory
     for the Study of Arctic Climate (MOSAiC) expedition 2019 - 2021. Arctic Data Center.
     doi:10.18739/A2KP7TS83.
+
+    Parameters
+    ----------
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
 
     Returns
     -------
@@ -257,15 +287,22 @@ def mosaic() -> xr.Dataset:
         os.makedirs(os.path.dirname(mosaic_path), exist_ok=True)
         ds.to_netcdf(mosaic_path)
     else:
-        ds = xr.open_dataset(mosaic_path)
+        ds = xr.open_dataset(mosaic_path, decode_times=decode_times)
     return ds
 
 
-def spotters() -> xr.Dataset:
-    """Returns the SOFAR ocean drifters ragged array dataset as an Xarray dataset.
+def spotters(decode_times: bool = True) -> xr.Dataset:
+    """Returns the Sofar Ocean Spotter drifters ragged array dataset as an Xarray dataset.
 
     The data is accessed from a zarr archive hosted on a public AWS S3 bucket accessible
     at https://sofar-spotter-archive.s3.amazonaws.com/spotter_data_bulk_zarr.
+
+    Parameters
+    ----------
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
 
     Returns
     -------
@@ -304,10 +341,10 @@ def spotters() -> xr.Dataset:
         title:          Sofar Spotter Data Archive - Bulk Wave Parameters
     """
     url = "https://sofar-spotter-archive.s3.amazonaws.com/spotter_data_bulk_zarr"
-    return xr.open_dataset(url, engine="zarr")
+    return xr.open_dataset(url, engine="zarr", decode_times=decode_times)
 
 
-def subsurface_floats() -> xr.Dataset:
+def subsurface_floats(decode_times: bool = True) -> xr.Dataset:
     """Returns the subsurface floats dataset as a ragged array Xarray dataset.
 
     The data is accessed from a public HTTPS server at NOAA's Atlantic
@@ -334,6 +371,13 @@ def subsurface_floats() -> xr.Dataset:
     The float data were originally divided by project at the WFDAC. Here they have been
     compiled in a single Matlab data set. See here for more information on the variables
     contained in these files.
+
+    Parameters
+    ----------
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
 
     Returns
     -------
@@ -390,11 +434,11 @@ def subsurface_floats() -> xr.Dataset:
         print(f"{local_file} not found; download from upstream repository.")
         ds = adapters.subsurface_floats.to_xarray()
     else:
-        ds = xr.open_dataset(local_file)
+        ds = xr.open_dataset(local_file, decode_times=decode_times)
     return ds
 
 
-def yomaha() -> xr.Dataset:
+def yomaha(decode_times: bool = True) -> xr.Dataset:
     """Returns the YoMaHa dataset as a ragged array Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
@@ -402,11 +446,12 @@ def yomaha() -> xr.Dataset:
     corresponding adapter function and stored for later access. The upstream
     data is available at http://apdrc.soest.hawaii.edu/projects/yomaha/.
 
-    Reference
-    ---------
-    Lebedev, K. V., Yoshinari, H., Maximenko, N. A., & Hacker, P. W. (2007). Velocity data
-    assessed  from trajectories of Argo floats at parking level and at the sea
-    surface. IPRC Technical Note, 4(2), 1-16.
+    Parameters
+    ----------
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
 
     Returns
     -------
@@ -449,6 +494,12 @@ def yomaha() -> xr.Dataset:
         publisher_name:  Asia-Pacific Data Research Center
         publisher_url:   http://apdrc.soest.hawaii.edu/index.php
         license:         Creative Commons Attribution 4.0 International License..
+
+    Reference
+    ---------
+    Lebedev, K. V., Yoshinari, H., Maximenko, N. A., & Hacker, P. W. (2007). Velocity data
+    assessed  from trajectories of Argo floats at parking level and at the sea
+    surface. IPRC Technical Note, 4(2), 1-16.
     """
     clouddrift_path = (
         os.path.expanduser("~/.clouddrift")
@@ -462,11 +513,11 @@ def yomaha() -> xr.Dataset:
         os.makedirs(os.path.dirname(local_file), exist_ok=True)
         ds.to_netcdf(local_file)
     else:
-        ds = xr.open_dataset(local_file)
+        ds = xr.open_dataset(local_file, decode_times=decode_times)
     return ds
 
 
-def andro() -> xr.Dataset:
+def andro(decode_times: bool = True) -> xr.Dataset:
     """Returns the ANDRO as a ragged array Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
@@ -474,11 +525,13 @@ def andro() -> xr.Dataset:
     corresponding adapter function and stored for later access. The upstream
     data is available at https://www.seanoe.org/data/00360/47077/.
 
-    Reference
-    ---------
-    Ollitrault Michel, Rannou Philippe, Brion Emilie, Cabanes Cecile, Piron Anne, Reverdin Gilles,
-    Kolodziejczyk Nicolas (2022). ANDRO: An Argo-based deep displacement dataset.
-    SEANOE. https://doi.org/10.17882/47077
+    Parameters
+    ----------
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
+
     Returns
     -------
     xarray.Dataset
@@ -518,6 +571,12 @@ def andro() -> xr.Dataset:
         publisher_name:  SEANOE (SEA scieNtific Open data Edition)
         publisher_url:   https://www.seanoe.org/data/00360/47077/
         license:         freely available
+
+    Reference
+    ---------
+    Ollitrault Michel, Rannou Philippe, Brion Emilie, Cabanes Cecile, Piron Anne, Reverdin Gilles,
+    Kolodziejczyk Nicolas (2022). ANDRO: An Argo-based deep displacement dataset.
+    SEANOE. https://doi.org/10.17882/47077
     """
     clouddrift_path = (
         os.path.expanduser("~/.clouddrift")
@@ -531,5 +590,5 @@ def andro() -> xr.Dataset:
         os.makedirs(os.path.dirname(local_file), exist_ok=True)
         ds.to_netcdf(local_file)
     else:
-        ds = xr.open_dataset(local_file)
+        ds = xr.open_dataset(local_file, decode_times=decode_times)
     return ds
