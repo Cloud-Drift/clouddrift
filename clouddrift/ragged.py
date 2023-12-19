@@ -658,11 +658,19 @@ def subset(
     for key in criteria.keys():
         if key in ds or key in ds.dims:
             if ds[key].dims == (traj_dim_name,):
-                mask_traj = np.logical_and(mask_traj, _mask_var(ds[key], criteria[key], ds[rowsize_var_name],
-                                                                traj_dim_name))
+                mask_traj = np.logical_and(
+                    mask_traj,
+                    _mask_var(
+                        ds[key], criteria[key], ds[rowsize_var_name], traj_dim_name
+                    ),
+                )
             elif ds[key].dims == (obs_dim_name,):
-                mask_obs = np.logical_and(mask_obs, _mask_var(ds[key], criteria[key], ds[rowsize_var_name],
-                                                              obs_dim_name))
+                mask_obs = np.logical_and(
+                    mask_obs,
+                    _mask_var(
+                        ds[key], criteria[key], ds[rowsize_var_name], obs_dim_name
+                    ),
+                )
         else:
             raise ValueError(f"Unknown variable '{key}'.")
 
@@ -823,8 +831,12 @@ def _mask_var(
     elif isinstance(criterion, (list, np.ndarray, xr.DataArray)):
         # select multiple values
         mask = np.isin(var, criterion)
-    elif callable(criterion):  # mask directly created by applying `criterion` to each trajectory
-        mask = xr.DataArray(data=apply_ragged(criterion, var, rowsize), dims=[dim_name]).astype(bool)
+    elif callable(
+        criterion
+    ):  # mask directly created by applying `criterion` to each trajectory
+        mask = xr.DataArray(
+            data=apply_ragged(criterion, var, rowsize), dims=[dim_name]
+        ).astype(bool)
     else:  # select one specific value
         mask = var == criterion
     return mask
