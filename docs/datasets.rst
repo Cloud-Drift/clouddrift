@@ -67,12 +67,12 @@ Currently available datasets are:
   hosted by NOAA AOML at 
   `NOAA's Atlantic Oceanographic and Meteorological Laboratory (AOML) <https://www.aoml.noaa.gov/phod/float_traj/index.php>_`
   and maintained by Andree Ramsey and Heather Furey from the Woods Hole Oceanographic Institution.
-- :func:`clouddrift.datasets.spotters`: The SOFAR ocean spotters archive dataset as hosted at the public `AWS S3 bucket <https://sofar-spotter-archive.s3.amazonaws.com/spotter_data_bulk_zarr>`_.
+- :func:`clouddrift.datasets.spotters`: The Sofar Ocean Spotters archive dataset as hosted at the public `AWS S3 bucket <https://sofar-spotter-archive.s3.amazonaws.com/spotter_data_bulk_zarr>`_.
 - :func:`clouddrift.datasets.yomaha`: The YoMaHa'07 dataset as a ragged array
   processed from the upstream dataset hosted at the `Asia-Pacific Data-Research
   Center (APDRC) <http://apdrc.soest.hawaii.edu/projects/yomaha/>`_.
 
-The GDP nd the spotters datasets are accessed lazily, so the data is only downloaded when
-specific array values are referenced. The ANDRO, GLAD, MOSAiC, Subsurface floats, and YoMaHa'07
+The GDP and the Spotters datasets are accessed lazily, so the data is only downloaded when
+specific array values are referenced. The ANDRO, GLAD, MOSAiC, Subsurface Floats, and YoMaHa'07
 datasets are downloaded in their entirety when the function is called for the first 
 time and stored locally for later use.

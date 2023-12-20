@@ -539,7 +539,7 @@ def segment(
 def subset(
     ds: xr.Dataset,
     criteria: dict,
-    id_var_name: str = "ID",
+    id_var_name: str = "id",
     rowsize_var_name: str = "rowsize",
     traj_dim_name: str = "traj",
     obs_dim_name: str = "obs",
@@ -561,7 +561,7 @@ def subset(
     criteria : dict
         dictionary containing the variables and the ranges/values to subset
     id_var_name : str, optional
-        Name of the variable containing the ID of the trajectories (default is "ID")
+        Name of the variable containing the ID of the trajectories (default is "id")
     rowsize_var_name : str, optional
         Name of the variable containing the number of observations per trajectory (default is "rowsize")
     traj_dim_name : str, optional
@@ -607,7 +607,7 @@ def subset(
 
     Retrieve specific drifters from their IDs:
 
-    >>> subset(ds, {"ID": [2578, 2582, 2583]})
+    >>> subset(ds, {"id": [2578, 2582, 2583]})
 
     Sometimes, you may want to retrieve specific rows of a ragged array.
     You can do that by filtering along the trajectory dimension directly, since
@@ -791,14 +791,9 @@ def _mask_var(
     """
     if isinstance(criterion, tuple):  # min/max defining range
         mask = np.logical_and(var >= criterion[0], var <= criterion[1])
-    elif isinstance(
-        criterion, (list, np.ndarray, xr.DataArray)
-    ):  # select multiple values
-        # Ensure we define the mask as boolean, otherwise it will inherit
-        # the dtype of the variable which may be a string, object, or other.
-        mask = xr.zeros_like(var, dtype=bool)
-        for v in criterion:
-            mask = np.logical_or(mask, var == v)
+    elif isinstance(criterion, (list, np.ndarray, xr.DataArray)):
+        # select multiple values
+        mask = np.isin(var, criterion)
     else:  # select one specific value
         mask = var == criterion
     return mask
