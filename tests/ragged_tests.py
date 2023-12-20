@@ -708,6 +708,18 @@ class subset_tests(unittest.TestCase):
         self.assertTrue(all(ds_sub["rowsize"] == [3, 1, 2]))
         self.assertTrue(all(ds_sub["time"] == [1, 3, 5, 4, 2, 4]))
 
+        func = lambda arr: arr <= 2  # keep id larger or equal to 2
+        ds_sub = subset(self.ds, {"id": func})
+        self.assertTrue(all(ds_sub["id"] == [1, 2]))
+        self.assertTrue(all(ds_sub["rowsize"] == [5, 4]))
+
+    def test_subset_callable_wrong_dim(self):
+        func = lambda arr: [arr, arr]  # returns 2 values per element
+        with self.assertRaises(ValueError):
+            subset(self.ds, {"time": func})
+        with self.assertRaises(ValueError):
+            subset(self.ds, {"id": func})
+
 
 class unpack_tests(unittest.TestCase):
     def test_unpack(self):
