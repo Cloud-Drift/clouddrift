@@ -831,12 +831,21 @@ def _mask_var(
     elif isinstance(criterion, (list, np.ndarray, xr.DataArray)):
         # select multiple values
         mask = np.isin(var, criterion)
-    elif callable(
-        criterion
-    ):  # mask directly created by applying `criterion` to each trajectory
-        mask = xr.DataArray(
-            data=apply_ragged(criterion, var, rowsize), dims=[dim_name]
-        ).astype(bool)
+    elif callable(criterion):
+        # mask directly created by applying `criterion` function
+        if len(var) == len(rowsize):
+            mask = criterion(var)
+        else:
+            mask = xr.DataArray(
+                data=apply_ragged(criterion, var, rowsize), dims=[dim_name]
+            ).astype(bool)
+
+        if (len(var) == len(rowsize) and len(mask) != len(var)) or (
+            len(var) == np.sum(rowsize) and len(mask) != np.sum(rowsize)
+        ):
+            raise ValueError(
+                "The `Callable` function needs to return a masked array that matches the length of the variable to filter."
+            )
     else:  # select one specific value
         mask = var == criterion
     return mask
