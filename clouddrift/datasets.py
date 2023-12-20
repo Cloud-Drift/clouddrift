@@ -130,7 +130,7 @@ def gdp6h() -> xr.Dataset:
     --------
     :func:`gdp1h`
     """
-    url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/gdp_jul22_ragged_6h.nc#mode=bytes"
+    url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/gdp6h_ragged_may23.nc#mode=bytes"
     return xr.open_dataset(url)
 
 
