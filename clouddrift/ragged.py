@@ -840,11 +840,9 @@ def _mask_var(
                 data=apply_ragged(criterion, var, rowsize), dims=[dim_name]
             ).astype(bool)
 
-        if (len(var) == len(rowsize) and len(mask) != len(var)) or (
-            len(var) == np.sum(rowsize) and len(mask) != np.sum(rowsize)
-        ):
+        if not len(var) == len(mask):
             raise ValueError(
-                "The `Callable` function needs to return a masked array that matches the length of the variable to filter."
+                "The `Callable` function must return a masked array that matches the length of the variable to filter."
             )
     else:  # select one specific value
         mask = var == criterion
