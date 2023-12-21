@@ -57,7 +57,7 @@ def download(
     Returns
     -------
     out : list
-        List of retrived drifters
+        List of retrieved drifters
     """
 
     print(f"Downloading GDP 6-hourly data to {tmp_path}...")
