@@ -552,7 +552,7 @@ def subset(
     masking function applied to every row of the ragged array using ``apply_ragged``.
 
     This function needs to know the names of the dimensions of the ragged array dataset
-    (traj_dim_name and obs_dim_name), and the name of the rowsize variable (rowsize_var_name).
+    (`traj_dim_name` and `obs_dim_name`), and the name of the rowsize variable (`rowsize_var_name`).
     Default values are provided for these arguments (see below), but they can be changed if needed.
 
     Parameters
@@ -583,7 +583,7 @@ def subset(
     --------
     Criteria are combined on any data or metadata variables part of the Dataset.
     The following examples are based on NOAA GDP datasets which can be accessed with the
-    clouddrift.datasets module.
+    ``clouddrift.datasets`` module.
 
     Retrieve a region, like the Gulf of Mexico, using ranges of latitude and longitude:
 
