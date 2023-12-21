@@ -20,7 +20,7 @@ import xarray as xr
 
 GDP_VERSION = "September 2023"
 
-GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/netcdf/"
+GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/6h/"
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp6h")
 GDP_DATA = [
     "lon",
@@ -68,10 +68,10 @@ def download(
 
     pattern = "drifter_6h_[0-9]*.nc"
     directory_list = [
-        "buoydata_1_5000",
-        "buoydata_5001_10000",
-        "buoydata_10001_15000",
-        "buoydata_15001_sep23",
+        "netcdf_1_5000",
+        "netcdf_5001_10000",
+        "netcdf_10001_15000",
+        "netcdf_15001_current",
     ]
 
     # retrieve all drifter ID numbers
