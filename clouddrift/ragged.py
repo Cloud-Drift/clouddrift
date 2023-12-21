@@ -545,13 +545,13 @@ def subset(
     obs_dim_name: str = "obs",
     full_trajectories=False,
 ) -> xr.Dataset:
-    """Subset a ragged array dataset as a function of one or more criteria. 
-    The criteria are passed with a dictionary, where a dictionary key 
-    is a variable to subset and the associated dictionary value is either a range 
-    (valuemin, valuemax), a list [value1, value2, valueN], a single value, or a 
+    """Subset a ragged array dataset as a function of one or more criteria.
+    The criteria are passed with a dictionary, where a dictionary key
+    is a variable to subset and the associated dictionary value is either a range
+    (valuemin, valuemax), a list [value1, value2, valueN], a single value, or a
     masking function applied to every row of the ragged array using ``apply_ragged``.
 
-    This function needs to know the names of the dimensions of the ragged array dataset 
+    This function needs to know the names of the dimensions of the ragged array dataset
     (traj_dim_name and obs_dim_name), and the name of the rowsize variable (rowsize_var_name).
     Default values are provided for these arguments (see below), but they can be changed if needed.
 
