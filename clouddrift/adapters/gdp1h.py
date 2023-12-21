@@ -6,7 +6,7 @@ instance.
 
 import clouddrift.adapters.gdp as gdp
 from clouddrift.raggedarray import RaggedArray
-from datetime import datetime
+from datetime import datetime, timedelta
 import numpy as np
 import urllib.request
 import concurrent.futures
@@ -490,9 +490,9 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         "title": "Global Drifter Program hourly drifting buoy collection",
         "history": f"version {GDP_VERSION}. Metadata from dirall.dat and deplog.dat",
         "Conventions": "CF-1.6",
+        "time_coverage_start": "",
+        "time_coverage_end": "",
         "date_created": datetime.now().isoformat(),
-        "time_coverage_start": f"{np.datetime_as_string(np.min(ds.time), unit='s')}Z",
-        "time_coverage_end": f"{np.datetime_as_string(np.max(ds.time), unit='s')}Z",
         "publisher_name": "GDP Drifter DAC",
         "publisher_email": "aoml.dftr@noaa.gov",
         "publisher_url": "https://www.aoml.noaa.gov/phod/gdp",
@@ -604,7 +604,7 @@ def to_raggedarray(
     else:
         raise ValueError(f"url must be {GDP_DATA_URL} or {GDP_DATA_URL_EXPERIMENTAL}.")
 
-    return RaggedArray.from_files(
+    ra = RaggedArray.from_files(
         indices=ids,
         preprocess_func=preprocess,
         name_coords=gdp.GDP_COORDS,
@@ -614,3 +614,9 @@ def to_raggedarray(
         filename_pattern=filename_pattern,
         tmp_path=tmp_path,
     )
+
+    # set dynamic global attributes
+    ra.attrs_global["time_coverage_start"] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords["time"]))):%Y-%m-%d:%H:%M:%SZ}"
+    ra.attrs_global["time_coverage_end"] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords["time"]))):%Y-%m-%d:%H:%M:%SZ}"
+
+    return ra
