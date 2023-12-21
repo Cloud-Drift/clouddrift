@@ -491,6 +491,8 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         "history": f"version {GDP_VERSION}. Metadata from dirall.dat and deplog.dat",
         "Conventions": "CF-1.6",
         "date_created": datetime.now().isoformat(),
+        "time_coverage_start": f"{np.datetime_as_string(np.min(ds.time), unit='s')}Z",
+        "time_coverage_end": f"{np.datetime_as_string(np.max(ds.time), unit='s')}Z",
         "publisher_name": "GDP Drifter DAC",
         "publisher_email": "aoml.dftr@noaa.gov",
         "publisher_url": "https://www.aoml.noaa.gov/phod/gdp",
