@@ -545,22 +545,22 @@ def subset(
     obs_dim_name: str = "obs",
     full_trajectories=False,
 ) -> xr.Dataset:
-    """Subset the dataset as a function of one or many criteria. The criteria are
-    passed as a dictionary, where a variable to subset is assigned to either a
-    range (valuemin, valuemax), a list [value1, value2, valueN], a single value,
-    or a masking function applied to every trajectory using ``apply_ragged``
+    """Subset a ragged array dataset as a function of one or more criteria. 
+    The criteria are passed with a dictionary, where a dictionary key 
+    is a variable to subset and the associated dictionary value is either a range 
+    (valuemin, valuemax), a list [value1, value2, valueN], a single value, or a 
+    masking function applied to every row of the ragged array using ``apply_ragged``.
 
-    This function relies on specific names of the dataset dimensions and the
-    rowsize variables. The default expected values are listed in the Parameters
-    section, however, if your dataset uses different names for these dimensions
-    and variables, you can specify them using the optional arguments.
+    This function needs to know the names of the dimensions of the ragged array dataset 
+    (traj_dim_name and obs_dim_name), and the name of the rowsize variable (rowsize_var_name).
+    Default values are provided for these arguments (see below), but they can be changed if needed.
 
     Parameters
     ----------
     ds : xr.Dataset
-        Lagrangian dataset stored in two-dimensional or ragged array format
+        Dataset stored as ragged arrays
     criteria : dict
-        dictionary containing the variables and the ranges/values/functions to subset
+        dictionary containing the variables (as keys) and the ranges/values/functions (as values) to subset
     id_var_name : str, optional
         Name of the variable containing the ID of the trajectories (default is "id")
     rowsize_var_name : str, optional
@@ -570,7 +570,7 @@ def subset(
     obs_dim_name : str, optional
         Name of the observation dimension (default is "obs")
     full_trajectories : bool, optional
-        If True, it returns the complete trajectories where at least one observation
+        If True, it returns the complete trajectories (rows) where at least one observation
         matches the criteria, rather than just the segments where the criteria are satisfied.
         Default is False.
 
@@ -582,7 +582,8 @@ def subset(
     Examples
     --------
     Criteria are combined on any data or metadata variables part of the Dataset.
-    The following examples are based on the GDP dataset.
+    The following examples are based on NOAA GDP datasets which can be accessed with the
+    clouddrift.datasets module.
 
     Retrieve a region, like the Gulf of Mexico, using ranges of latitude and longitude:
 
@@ -630,18 +631,11 @@ def subset(
 
     >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78), "drogue_status": True, "sst": (303.15, np.inf), "time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))})
 
-    Retrieve observations every 24 hours after the first one, trajectory-wise:
+    You can also use a function to filter the data. For example, retrieve every other observation
+    of each trajectory (row):
 
-    >>> def daily_masking(
-    >>>     traj_time: xr.DataArray
-    >>> ) -> np.ndarray:
-    >>>     traj_time = traj_time.astype("float64")
-    >>>     traj_time /= 1e9  # to seconds
-    >>>     traj_time -= traj_time[0]  # start from 0
-    >>>     mask = (traj_time % (24*60*60)) == 0  # get only obs every 24 hours after the first one
-    >>>     rowsize = int(mask.sum())  # the number of obs per traj has to be updated
-    >>>     return mask, rowsize
-    >>> subset(ds, {"time": daily_masking})
+    >>> func = (lambda arr: ((arr - arr[0]) % 2) == 0)
+    >>> subset(ds, {"time": func})
 
     Raises
     ------
