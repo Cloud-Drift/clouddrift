@@ -65,7 +65,7 @@ def download(
     # Create a temporary directory if doesn't already exists.
     os.makedirs(tmp_path, exist_ok=True)
 
-    pattern = "drifter_[0-9]*.nc"
+    pattern = "drifter_6h_[0-9]*.nc"
     directory_list = [
         "buoydata_1_5000",
         "buoydata_5001_10000",
@@ -492,6 +492,6 @@ def to_raggedarray(
         name_meta=gdp.GDP_METADATA,
         name_data=GDP_DATA,
         rowsize_func=gdp.rowsize,
-        filename_pattern="drifter_{id}.nc",
+        filename_pattern="drifter_6h_{id}.nc",
         tmp_path=tmp_path,
     )
