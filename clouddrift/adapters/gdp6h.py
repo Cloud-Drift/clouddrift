@@ -393,7 +393,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
 
     # global attributes
     attrs = {
-        "title": "Global Drifter Program hourly drifting buoy collection",
+        "title": "Global Drifter Program drifting buoy collection",
         "history": f"version {GDP_VERSION}. Metadata from dirall.dat and deplog.dat",
         "Conventions": "CF-1.6",
         "time_coverage_start": "",
