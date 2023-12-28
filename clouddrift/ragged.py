@@ -830,9 +830,9 @@ def _mask_var(
         if len(var) == len(rowsize):
             mask = criterion(var)
         else:
-            mask = xr.DataArray(
-                data=apply_ragged(criterion, var, rowsize), dims=[dim_name]
-            ).astype(bool)
+            mask = apply_ragged(criterion, var, rowsize)
+
+        mask = xr.DataArray(data=mask, dims=[dim_name]).astype(bool)
 
         if not len(var) == len(mask):
             raise ValueError(
