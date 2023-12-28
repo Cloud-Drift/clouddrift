@@ -650,19 +650,26 @@ def subset(
     )
 
     for key in criteria.keys():
-        if key in ds or key in ds.dims:
-            if ds[key].dims == (traj_dim_name,):
+        if np.all(np.isin(key, ds.variables)) or np.all(np.isin(key, ds.dims)):
+            if isinstance(key, (list, tuple)):
+                criterion = [ds[k] for k in key]
+                criterion_dims = criterion[0].dims
+            else:
+                criterion = ds[key]
+                criterion_dims = criterion.dims
+
+            if criterion_dims == (traj_dim_name,):
                 mask_traj = np.logical_and(
                     mask_traj,
                     _mask_var(
-                        ds[key], criteria[key], ds[rowsize_var_name], traj_dim_name
+                        criterion, criteria[key], ds[rowsize_var_name], traj_dim_name
                     ),
                 )
-            elif ds[key].dims == (obs_dim_name,):
+            elif criterion_dims == (obs_dim_name,):
                 mask_obs = np.logical_and(
                     mask_obs,
                     _mask_var(
-                        ds[key], criteria[key], ds[rowsize_var_name], obs_dim_name
+                        criterion, criteria[key], ds[rowsize_var_name], obs_dim_name
                     ),
                 )
         else:
@@ -827,14 +834,17 @@ def _mask_var(
         mask = np.isin(var, criterion)
     elif callable(criterion):
         # mask directly created by applying `criterion` function
-        if len(var) == len(rowsize):
-            mask = criterion(var)
-        else:
-            mask = xr.DataArray(
-                data=apply_ragged(criterion, var, rowsize), dims=[dim_name]
-            ).astype(bool)
+        if not isinstance(var, (tuple, list)):
+            var = [var]
 
-        if not len(var) == len(mask):
+        if len(var[0]) == len(rowsize):
+            mask = criterion(*var)
+        else:
+            mask = apply_ragged(criterion, var, rowsize)
+
+        mask = xr.DataArray(data=mask, dims=[dim_name]).astype(bool)
+
+        if not len(var[0]) == len(mask):
             raise ValueError(
                 "The `Callable` function must return a masked array that matches the length of the variable to filter."
             )
