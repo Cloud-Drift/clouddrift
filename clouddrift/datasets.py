@@ -144,7 +144,9 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     :func:`gdp1h`
     """
     url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/gdp6h_ragged_may23.nc"
-    ds = xr.open_dataset(url + "#mode=bytes", decode_times=decode_times)
+    ds = xr.open_dataset(
+        url + "#mode=bytes", engine="h5netcdf", decode_times=decode_times
+    )
     ds = ds.rename_vars({"ID": "id"}).assign_coords({"id": ds.ID}).drop_vars(["ids"])
     return ds
 
