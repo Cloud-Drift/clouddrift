@@ -31,6 +31,9 @@ jobs:
         run: |
               micromamba install coverage matplotlib-base cartopy
               coverage run -m unittest discover -s tests -p "*.py"
+      - name: Set Environment Variable on Windows
+        if: matrix.os == 'windows-latest'
+        run: echo "HDF5_USE_FILE_LOCKING=FALSE" >> $GITHUB_ENV
       - name: Create coverage report
         shell: bash -l {0}
         run: |
