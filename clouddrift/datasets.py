@@ -4,8 +4,10 @@ not accessed via cloud storage platforms or are not found on the local filesyste
 they will be downloaded from their upstream repositories and stored for later access 
 (~/.clouddrift for UNIX-based systems).
 """
+from io import BufferedReader, BytesIO
 from clouddrift import adapters
 import os
+import requests
 import xarray as xr
 
 
@@ -144,7 +146,10 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     :func:`gdp1h`
     """
     url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/gdp6h_ragged_may23.nc"
-    ds = xr.open_dataset(url + "#mode=bytes", decode_times=decode_times)
+    response = requests.get(f"{url}#mode=bytes", timeout=30)
+    reader = BufferedReader(BytesIO(response.content))
+
+    ds = xr.open_dataset(reader, decode_times=decode_times)
     ds = ds.rename_vars({"ID": "id"}).assign_coords({"id": ds.ID}).drop_vars(["ids"])
     return ds
 
