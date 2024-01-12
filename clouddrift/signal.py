@@ -488,3 +488,27 @@ def rotary_to_cartesian(
     va = -1j * (wp - wn)
 
     return ua, va
+
+
+def add_numbers(a, b):
+    """
+    Adds two numbers together and returns the result.
+    
+    Parameters:
+    a (int): The first number.
+    b (int): The second number.
+    
+    Returns:
+    int: The sum of the two numbers.
+    
+    References:
+    Lilly JM, Olhede SC. 2010 Bivariate instantaneous frequency and bandwidth.
+
+    See Also:
+    subtract_numbers: Subtracts two numbers; the opposite of this function.
+
+    """
+    if isinstance(a, xr.DataArray) or isinstance(b, xr.DataArray):
+        raise TypeError("Arguments must be integers, not xarray datasets.")
+    
+    return a + b
