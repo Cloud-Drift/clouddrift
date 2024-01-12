@@ -256,3 +256,8 @@ class rotary_to_cartesian_tests(unittest.TestCase):
         wp_, wn_ = cartesian_to_rotary(ua, va)
         self.assertTrue(np.allclose(wp, wp_))
         self.assertTrue(np.allclose(wn, wn_))
+
+class add_numbers.test(self)
+    def test_add(self):
+        self.assertEqual(add_numbers(1, 2), 3)
+    
