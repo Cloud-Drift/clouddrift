@@ -58,7 +58,7 @@ def get_dataframes() -> tuple[pd.DataFrame, pd.DataFrame]:
         range(len(sensor_ids)), key=lambda k: order_index[sensor_ids[k]]
     )
     sorted_data_urls = [data_urls[i] for i in sorted_indices]
-    buffers = [BytesIO(b"")*len(sorted_data_urls)]
+    buffers = [BytesIO(b"") * len(sorted_data_urls)]
 
     download_with_progress(zip(sorted_data_urls, buffers), desc="Downloading data")
     dfs = [pd.read_csv(b) for b in buffers]

@@ -41,13 +41,16 @@ YOMAHA_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "yomaha")
 
 
 def download(tmp_path: str):
-    download_requests = [(url, f"{tmp_path}/{url.split('/')[-1]}") for url in YOMAHA_URLS[:-1]]
+    download_requests = [
+        (url, f"{tmp_path}/{url.split('/')[-1]}") for url in YOMAHA_URLS[:-1]
+    ]
     download_with_progress(download_requests)
 
     filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
     filename = filename_gz[:-3]
 
     download_with_progress([(YOMAHA_URLS[-1], filename)], gzip.decompress)
+
 
 def to_xarray(tmp_path: str = None):
     if tmp_path is None:

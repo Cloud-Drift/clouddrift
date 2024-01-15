@@ -94,10 +94,9 @@ def download(
             rng = np.random.RandomState(42)
             drifter_urls = rng.choice(drifter_urls, n_random_id, replace=False)
 
-    download_with_progress([
-        (url, os.path.join(tmp_path, os.path.basename(url)))
-        for url in drifter_urls
-    ])
+    download_with_progress(
+        [(url, os.path.join(tmp_path, os.path.basename(url))) for url in drifter_urls]
+    )
 
     # Download the metadata so we can order the drifter IDs by end date.
     gdp_metadata = gdp.get_gdp_metadata()

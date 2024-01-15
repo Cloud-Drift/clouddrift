@@ -25,6 +25,6 @@ __all__ = [
     "glad",
     "mosaic",
     "subsurface_floats",
-    "yomaha"
+    "yomaha",
     "utils"
 ]
