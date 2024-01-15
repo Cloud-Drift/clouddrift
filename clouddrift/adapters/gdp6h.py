@@ -5,14 +5,13 @@ instance.
 """
 
 import clouddrift.adapters.gdp as gdp
+from clouddrift.adapters.utils import download_with_progress
 from clouddrift.raggedarray import RaggedArray
 from datetime import datetime, timedelta
 import numpy as np
 import urllib.request
-import concurrent.futures
 import re
 import tempfile
-from tqdm import tqdm
 from typing import Optional
 import os
 import warnings
@@ -95,20 +94,10 @@ def download(
             rng = np.random.RandomState(42)
             drifter_urls = rng.choice(drifter_urls, n_random_id, replace=False)
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        # Asynchronously download individual netCDF files
-        list(
-            tqdm(
-                executor.map(
-                    gdp.fetch_netcdf,
-                    drifter_urls,
-                    [os.path.join(tmp_path, os.path.basename(f)) for f in drifter_urls],
-                ),
-                total=len(drifter_urls),
-                desc="Downloading files",
-                ncols=80,
-            )
-        )
+    download_with_progress([
+        (url, os.path.join(tmp_path, os.path.basename(url)))
+        for url in drifter_urls
+    ])
 
     # Download the metadata so we can order the drifter IDs by end date.
     gdp_metadata = gdp.get_gdp_metadata()

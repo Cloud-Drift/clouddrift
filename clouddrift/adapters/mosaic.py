@@ -18,14 +18,16 @@ Example
 >>> from clouddrift.adapters import mosaic
 >>> ds = mosaic.to_xarray()
 """
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
+from io import BytesIO
 import numpy as np
 import pandas as pd
 import requests
 from tqdm import tqdm
 import xarray as xr
 import xml.etree.ElementTree as ET
+
+from clouddrift.adapters.utils import download_with_progress
 
 MOSAIC_VERSION = "2022"
 
@@ -56,15 +58,10 @@ def get_dataframes() -> tuple[pd.DataFrame, pd.DataFrame]:
         range(len(sensor_ids)), key=lambda k: order_index[sensor_ids[k]]
     )
     sorted_data_urls = [data_urls[i] for i in sorted_indices]
+    buffers = [BytesIO(b"")*len(sorted_data_urls)]
 
-    with ThreadPoolExecutor() as executor:
-        dfs = tqdm(
-            executor.map(pd.read_csv, sorted_data_urls),
-            total=len(sorted_data_urls),
-            desc="Downloading data",
-            ncols=80,
-        )
-
+    download_with_progress(zip(sorted_data_urls, buffers), desc="Downloading data")
+    dfs = [pd.read_csv(b) for b in buffers]
     obs_df = pd.concat(dfs)
 
     # Use the index of the concatenated DataFrame to determine the count/rowsize
