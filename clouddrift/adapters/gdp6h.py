@@ -5,21 +5,21 @@ instance.
 """
 
 import clouddrift.adapters.gdp as gdp
+from clouddrift.adapters.utils import download_with_progress
 from clouddrift.raggedarray import RaggedArray
-from datetime import datetime
+from datetime import datetime, timedelta
 import numpy as np
 import urllib.request
-import concurrent.futures
 import re
 import tempfile
-from tqdm import tqdm
 from typing import Optional
 import os
 import warnings
 import xarray as xr
 
+GDP_VERSION = "September 2023"
 
-GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/netcdf/"
+GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/6h/"
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp6h")
 GDP_DATA = [
     "lon",
@@ -57,7 +57,7 @@ def download(
     Returns
     -------
     out : list
-        List of retrived drifters
+        List of retrieved drifters
     """
 
     print(f"Downloading GDP 6-hourly data to {tmp_path}...")
@@ -65,12 +65,12 @@ def download(
     # Create a temporary directory if doesn't already exists.
     os.makedirs(tmp_path, exist_ok=True)
 
-    pattern = "drifter_[0-9]*.nc"
+    pattern = "drifter_6h_[0-9]*.nc"
     directory_list = [
-        "buoydata_1_5000",
-        "buoydata_5001_10000",
-        "buoydata_10001_15000",
-        "buoydata_15001_oct22",
+        "netcdf_1_5000",
+        "netcdf_5001_10000",
+        "netcdf_10001_15000",
+        "netcdf_15001_current",
     ]
 
     # retrieve all drifter ID numbers
@@ -94,25 +94,14 @@ def download(
             rng = np.random.RandomState(42)
             drifter_urls = rng.choice(drifter_urls, n_random_id, replace=False)
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        # Asynchronously download individual netCDF files
-        list(
-            tqdm(
-                executor.map(
-                    gdp.fetch_netcdf,
-                    drifter_urls,
-                    [os.path.join(tmp_path, os.path.basename(f)) for f in drifter_urls],
-                ),
-                total=len(drifter_urls),
-                desc="Downloading files",
-                ncols=80,
-            )
-        )
+    download_with_progress(
+        [(url, os.path.join(tmp_path, os.path.basename(url))) for url in drifter_urls]
+    )
 
     # Download the metadata so we can order the drifter IDs by end date.
     gdp_metadata = gdp.get_gdp_metadata()
     drifter_ids = [
-        int(os.path.basename(f).split("_")[1].split(".")[0]) for f in drifter_urls
+        int(os.path.basename(f).split("_")[2].split(".")[0]) for f in drifter_urls
     ]
 
     return gdp.order_by_date(gdp_metadata, drifter_ids)
@@ -392,9 +381,11 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
 
     # global attributes
     attrs = {
-        "title": "Global Drifter Program hourly drifting buoy collection",
-        "history": f"version {gdp.GDP_VERSION}. Metadata from dirall.dat and deplog.dat",
+        "title": "Global Drifter Program drifting buoy collection",
+        "history": f"version {GDP_VERSION}. Metadata from dirall.dat and deplog.dat",
         "Conventions": "CF-1.6",
+        "time_coverage_start": "",
+        "time_coverage_end": "",
         "date_created": datetime.now().isoformat(),
         "publisher_name": "GDP Drifter DAC",
         "publisher_email": "aoml.dftr@noaa.gov",
@@ -485,13 +476,23 @@ def to_raggedarray(
     """
     ids = download(drifter_ids, n_random_id, GDP_DATA_URL, tmp_path)
 
-    return RaggedArray.from_files(
+    ra = RaggedArray.from_files(
         indices=ids,
         preprocess_func=preprocess,
         name_coords=gdp.GDP_COORDS,
         name_meta=gdp.GDP_METADATA,
         name_data=GDP_DATA,
         rowsize_func=gdp.rowsize,
-        filename_pattern="drifter_{id}.nc",
+        filename_pattern="drifter_6h_{id}.nc",
         tmp_path=tmp_path,
     )
+
+    # update dynamic global attributes
+    ra.attrs_global[
+        "time_coverage_start"
+    ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+    ra.attrs_global[
+        "time_coverage_end"
+    ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+
+    return ra

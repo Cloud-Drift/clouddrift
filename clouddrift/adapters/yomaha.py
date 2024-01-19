@@ -22,10 +22,10 @@ import numpy as np
 import os
 import pandas as pd
 import tempfile
-from tqdm import tqdm
-import urllib.request
 import xarray as xr
 import warnings
+
+from clouddrift.adapters.utils import download_with_progress
 
 
 YOMAHA_URLS = [
@@ -40,56 +40,16 @@ YOMAHA_URLS = [
 YOMAHA_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "yomaha")
 
 
-def download_with_progress(url, output_file):
-    if os.path.isfile(output_file):
-        local_last_modified = os.path.getmtime(output_file)
-
-        # Get last modified time of the remote file
-        with urllib.request.urlopen(url) as response:
-            remote_last_modified = datetime.strptime(
-                response.headers.get("Last-Modified"), "%a, %d %b %Y %H:%M:%S %Z"
-            )
-            # compare with local modified time
-            if local_last_modified >= remote_last_modified.timestamp():
-                warnings.warn(
-                    f"{output_file} already exists and is up to date; skip download."
-                )
-                return False
-
-    print(f"Downloading from {url} to {output_file}...")
-    with urllib.request.urlopen(url) as response, open(
-        output_file, "wb"
-    ) as outfile, tqdm(
-        desc=url,
-        total=int(response.headers["Content-Length"] or 0),
-        unit="B",
-        unit_scale=True,
-        unit_divisor=1024,
-    ) as bar:
-        chunk_size = 1024
-        while True:
-            chunk = response.read(chunk_size)
-            if not chunk:
-                break
-            outfile.write(chunk)
-            bar.update(len(chunk))
-    return True
-
-
 def download(tmp_path: str):
-    for i in range(0, len(YOMAHA_URLS) - 1):
-        print("Downloading: " + str(YOMAHA_URLS[i]))
-        outfile = f"{tmp_path}/{YOMAHA_URLS[i].split('/')[-1]}"
-        download_with_progress(YOMAHA_URLS[i], outfile)
+    download_requests = [
+        (url, f"{tmp_path}/{url.split('/')[-1]}") for url in YOMAHA_URLS[:-1]
+    ]
+    download_with_progress(download_requests)
 
     filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
     filename = filename_gz[:-3]
 
-    if download_with_progress(YOMAHA_URLS[-1], filename_gz) or not os.path.isfile(
-        filename
-    ):
-        with open(filename_gz, "rb") as f_gz, open(filename, "wb") as f:
-            f.write(gzip.decompress(f_gz.read()))
+    download_with_progress([(YOMAHA_URLS[-1], filename)], gzip.decompress)
 
 
 def to_xarray(tmp_path: str = None):
