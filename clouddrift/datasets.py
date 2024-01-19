@@ -7,7 +7,7 @@ they will be downloaded from their upstream repositories and stored for later ac
 from io import BufferedReader, BytesIO
 from clouddrift import adapters
 import os
-import requests
+import platform
 import xarray as xr
 
 
@@ -87,7 +87,11 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
 
     The data is accessed from a public HTTPS server at NOAA's Atlantic
     Oceanographic and Meteorological Laboratory (AOML) accessible at
-    https://www.aoml.noaa.gov/phod/gdp/index.php.
+    https://www.aoml.noaa.gov/phod/gdp/index.php. It should be noted that the data loading
+    method is platform dependent. Linux machines lazy load the datasets leveraging the 
+    byte-range feature of the netcdf-c library(dataset loading engine used by xarray). 
+    Windows machines download the entire dataset into a memory buffer which is then passed 
+    to xarray.
 
     Parameters
     ----------
@@ -145,12 +149,16 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     --------
     :func:`gdp1h`
     """
-    url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/gdp6h_ragged_may23.nc"
-    buffer = BytesIO()
-    adapters.utils.download_with_progress([(f"{url}#mode=bytes", buffer)])
-    reader = BufferedReader(buffer)
+    url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/gdp6h_ragged_may23.nc#mode=bytes"
 
-    ds = xr.open_dataset(reader, decode_times=decode_times)
+    if platform.system() == 'Windows':
+        buffer = BytesIO()
+        adapters.utils.download_with_progress([(f"{url}#mode=bytes", buffer)])
+        reader = BufferedReader(buffer)
+        ds = xr.open_dataset(reader, decode_times=decode_times)
+    else:
+        ds = xr.open_dataset(f"{url}", decode_times=decode_times)
+
     ds = ds.rename_vars({"ID": "id"}).assign_coords({"id": ds.ID}).drop_vars(["ids"])
     return ds
 
