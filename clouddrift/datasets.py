@@ -88,9 +88,9 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     The data is accessed from a public HTTPS server at NOAA's Atlantic
     Oceanographic and Meteorological Laboratory (AOML) accessible at
     https://www.aoml.noaa.gov/phod/gdp/index.php. It should be noted that the data loading
-    method is platform dependent. Linux machines lazy load the datasets leveraging the 
-    byte-range feature of the netcdf-c library(dataset loading engine used by xarray). 
-    Windows machines download the entire dataset into a memory buffer which is then passed 
+    method is platform dependent. Linux and Darwin (macOS) machines lazy load the datasets leveraging the
+    byte-range feature of the netCDF-c library (dataset loading engine used by xarray).
+    Windows machines download the entire dataset into a memory buffer which is then passed
     to xarray.
 
     Parameters
@@ -151,7 +151,7 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     """
     url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/gdp6h_ragged_may23.nc#mode=bytes"
 
-    if platform.system() == 'Windows':
+    if platform.system() == "Windows":
         buffer = BytesIO()
         adapters.utils.download_with_progress([(f"{url}#mode=bytes", buffer)])
         reader = BufferedReader(buffer)
