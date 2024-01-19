@@ -17,9 +17,10 @@ import os
 import pandas as pd
 import scipy.io
 import tempfile
-import urllib.request
 import xarray as xr
 import warnings
+
+from clouddrift.adapters.utils import download_with_progress
 
 SUBSURFACE_FLOATS_DATA_URL = (
     "https://www.aoml.noaa.gov/phod/float_traj/files/allFloats_12122017.mat"
@@ -31,13 +32,7 @@ SUBSURFACE_FLOATS_TMP_PATH = os.path.join(
 
 
 def download(file: str):
-    if not os.path.isfile(file):
-        print(
-            f"Downloading Subsurface float trajectories from {SUBSURFACE_FLOATS_DATA_URL} to {file}..."
-        )
-        urllib.request.urlretrieve(SUBSURFACE_FLOATS_DATA_URL, file)
-    else:
-        warnings.warn(f"{file} already exists; skip download.")
+    download_with_progress([(SUBSURFACE_FLOATS_DATA_URL, file)])
 
 
 def to_xarray(

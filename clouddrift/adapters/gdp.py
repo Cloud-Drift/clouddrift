@@ -5,12 +5,11 @@ defined in this module are common to both hourly (``clouddrift.adapters.gdp1h``)
 and six-hourly (``clouddrift.adapters.gdp6h``) GDP modules.
 """
 
+from clouddrift.adapters.utils import download_with_progress
 import numpy as np
 import os
 import pandas as pd
 import xarray as xr
-import urllib.request
-import warnings
 
 GDP_COORDS = [
     "ids",
@@ -188,10 +187,7 @@ def fetch_netcdf(url: str, file: str):
     file : str
         Name of the file to save.
     """
-    if not os.path.isfile(file):
-        urllib.request.urlretrieve(url, file)
-    else:
-        warnings.warn(f"{file} already exists; skip download.")
+    download_with_progress([(url, file)])
 
 
 def decode_date(t):

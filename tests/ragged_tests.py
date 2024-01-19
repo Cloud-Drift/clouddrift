@@ -628,8 +628,9 @@ class subset_tests(unittest.TestCase):
         self.assertTrue(all(ds_sub.lat == [-90, -45, 10]))
 
     def test_empty(self):
-        ds_sub = subset(self.ds, {"id": 3, "lon": (-180, 0)})
-        self.assertTrue(ds_sub.dims == {})
+        with self.assertWarns(UserWarning):
+            ds_sub = subset(self.ds, {"id": 3, "lon": (-180, 0)})
+            self.assertTrue(len(ds_sub.sizes) == 0)
 
     def test_unknown_var(self):
         with self.assertRaises(ValueError):

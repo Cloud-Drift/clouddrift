@@ -8,10 +8,23 @@ Deployment (GLAD) dataset, and the MOSAiC sea-ice drift dataset. More adapters w
 in the future.
 """
 
-import clouddrift.adapters.andro
-import clouddrift.adapters.gdp1h
-import clouddrift.adapters.gdp6h
-import clouddrift.adapters.glad
-import clouddrift.adapters.mosaic
-import clouddrift.adapters.subsurface_floats
-import clouddrift.adapters.yomaha
+import clouddrift.adapters.andro as andro
+import clouddrift.adapters.gdp1h as gdp1h
+import clouddrift.adapters.gdp6h as gdp6h
+import clouddrift.adapters.glad as glad
+import clouddrift.adapters.mosaic as mosaic
+import clouddrift.adapters.subsurface_floats as subsurface_floats
+import clouddrift.adapters.yomaha as yomaha
+import clouddrift.adapters.utils as utils
+
+
+__all__ = [
+    "andro",
+    "gdp1h",
+    "gdp6h",
+    "glad",
+    "mosaic",
+    "subsurface_floats",
+    "yomaha",
+    "utils",
+]
