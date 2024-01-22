@@ -665,8 +665,8 @@ def subset(
     )
 
     for key in criteria.keys():
-        if np.all(np.isin(key, ds.variables)) or np.all(np.isin(key, ds.dims)):
-            if isinstance(key, (list, tuple)):
+        if np.all(np.logical_or(np.isin(key, ds.variables), np.isin(key, ds.dims))):
+            if isinstance(key, tuple):
                 criterion = [ds[k] for k in key]
                 criterion_dims = criterion[0].dims
             else:
@@ -801,7 +801,7 @@ def _mask_var(
     Parameters
     ----------
     var : xr.DataArray or list[xr.DataArray]
-        DataArray or list of DataArray (only applicable if the criterion is a Callable) to be used by the criterion
+        DataArray or tuple of DataArray (only applicable if the criterion is a Callable) to be used by the criterion
     criterion : array-like or scalar or Callable
         The criterion can take four forms:
         - tuple: (min, max) defining a range
@@ -849,9 +849,9 @@ def _mask_var(
     mask : xr.DataArray
         The mask of the subset of the data matching the criteria
     """
-    if not callable(criterion) and isinstance(var, (tuple, list)):
+    if not callable(criterion) and isinstance(var, list):
         raise TypeError(
-            "The `var` parameter can be a `list` or a `tuple` only if the `criterion` is a `Callable`."
+            "The `var` parameter can be a `list` only if the `criterion` is a `Callable`."
         )
 
     if isinstance(criterion, tuple):  # min/max defining range
@@ -861,7 +861,7 @@ def _mask_var(
         mask = np.isin(var, criterion)
     elif callable(criterion):
         # mask directly created by applying `criterion` function
-        if not isinstance(var, (tuple, list)):
+        if not isinstance(var, list):
             var = [var]
 
         if len(var[0]) == len(rowsize):
