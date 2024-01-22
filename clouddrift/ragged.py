@@ -850,7 +850,7 @@ def _mask_var(
         The mask of the subset of the data matching the criteria
     """
     if not callable(criterion) and isinstance(var, (tuple, list)):
-        raise ValueError(
+        raise TypeError(
             "The `var` parameter can be a `list` or a `tuple` only if the `criterion` is a `Callable`."
         )
 
