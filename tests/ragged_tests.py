@@ -714,8 +714,8 @@ class subset_tests(unittest.TestCase):
         self.assertTrue(all(ds_sub["id"] == [1, 2]))
         self.assertTrue(all(ds_sub["rowsize"] == [5, 4]))
 
-        func = (
-            lambda arr1, arr2: np.logical_and(arr1 >= 0, arr2 >= 30)
+        func = lambda arr1, arr2: np.logical_and(
+            arr1 >= 0, arr2 >= 30
         )  # keep positive longitude and latitude larger or equal than 30
         ds_sub = subset(self.ds, {("lon", "lat"): func})
         self.assertTrue(all(ds_sub["id"] == [1, 2]))

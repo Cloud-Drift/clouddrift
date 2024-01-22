@@ -665,7 +665,7 @@ def subset(
     )
 
     for key in criteria.keys():
-        if np.all(np.logical_or(np.isin(key, ds.variables), np.isin(key, ds.dims))):
+        if np.any(np.isin(key, ds.variables) | np.isin(key, ds.dims)):
             if isinstance(key, tuple):
                 criterion = [ds[k] for k in key]
                 criterion_dims = criterion[0].dims
