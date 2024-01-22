@@ -637,6 +637,21 @@ def subset(
     >>> func = (lambda arr: ((arr - arr[0]) % 2) == 0)
     >>> subset(ds, {"time": func})
 
+    It is possible to use several variables to filter with a function. For example, keep trajectories
+    of drifters realeased in the Mediterranean Sea
+    (excluding the Bay of Biscay and the Black Sea from the bounding box):
+
+    >>> def mediterranean_masking(lon: xr.DataArray, lat: xr.DataArray) -> xr.DataArray:
+    >>>     # Mediterranean Sea bounding box
+    >>>     in_med = np.logical_and(-6.0327 <= lon, np.logical_and(lon <= 36.2173,
+    >>>                                                            np.logical_and(30.2639 <= lat, lat <= 45.7833)))
+    >>>     # exclude Bay of Biscay
+    >>>     in_biscay = np.logical_and(lon <= -0.1462, lat >= 43.2744)
+    >>>     # exclude Black Sea
+    >>>     in_blacksea = np.logical_and(lon >= 27.4437, lat >= 40.9088)
+    >>>     return np.logical_and(in_med, np.logical_not(np.logical_or(in_biscay, in_blacksea)))
+    >>> subset(ds, {("start_lon", "start_lat"): mediterranean_masking})
+
     Raises
     ------
     ValueError
@@ -776,7 +791,7 @@ def unpack(
 
 
 def _mask_var(
-    var: xr.DataArray,
+    var: Union[xr.DataArray, list[xr.DataArray]],
     criterion: Union[tuple, list, np.ndarray, xr.DataArray, bool, float, int, Callable],
     rowsize: xr.DataArray = None,
     dim_name: str = "dim_0",
@@ -785,8 +800,8 @@ def _mask_var(
 
     Parameters
     ----------
-    var : xr.DataArray
-        DataArray to be subset by the criterion
+    var : xr.DataArray or list[xr.DataArray]
+        DataArray or list of DataArray (only applicable if the criterion is a Callable) to be used by the criterion
     criterion : array-like or scalar or Callable
         The criterion can take four forms:
         - tuple: (min, max) defining a range
@@ -822,11 +837,23 @@ def _mask_var(
     array([False, True, False,  True, False])
     Dimensions without coordinates: dim_0
 
+    >>> y = xr.DataArray(data=np.arange(0, 5)+2)
+    >>> rowsize = xr.DataArray(data=[2, 3])
+    >>> _mask_var([x, y], lambda var1, var2: ((var1 * var2) % 2) == 0, rowsize, "dim_0")
+    <xarray.DataArray (dim_0: 5)>
+    array([True, False, True,  False, True])
+    Dimensions without coordinates: dim_0
+
     Returns
     -------
     mask : xr.DataArray
         The mask of the subset of the data matching the criteria
     """
+    if not callable(criterion) and isinstance(var, (tuple, list)):
+        raise ValueError(
+            "The `var` parameter can be a `list` or a `tuple` only if the `criterion` is a `Callable`."
+        )
+
     if isinstance(criterion, tuple):  # min/max defining range
         mask = np.logical_and(var >= criterion[0], var <= criterion[1])
     elif isinstance(criterion, (list, np.ndarray, xr.DataArray)):
