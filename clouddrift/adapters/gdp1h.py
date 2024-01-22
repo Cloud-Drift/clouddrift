@@ -6,13 +6,12 @@ instance.
 
 import clouddrift.adapters.gdp as gdp
 from clouddrift.raggedarray import RaggedArray
-from datetime import datetime
+from clouddrift.adapters.utils import download_with_progress
+from datetime import datetime, timedelta
 import numpy as np
 import urllib.request
-import concurrent.futures
 import re
 import tempfile
-from tqdm import tqdm
 from typing import Optional
 import os
 import warnings
@@ -20,7 +19,7 @@ import xarray as xr
 
 GDP_VERSION = "2.01"
 
-GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.01/netcdf/"
+GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01/"
 GDP_DATA_URL_EXPERIMENTAL = (
     "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental/"
 )
@@ -108,25 +107,11 @@ def download(
             rng = np.random.RandomState(42)
             drifter_ids = sorted(rng.choice(drifter_ids, n_random_id, replace=False))
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        # create list of urls and paths
-        urls = []
-        files = []
-        for i in drifter_ids:
-            file = filename_pattern.format(id=i)
-            urls.append(os.path.join(url, file))
-            files.append(os.path.join(tmp_path, file))
-
-        # parallel retrieving of individual netCDF files
-        list(
-            tqdm(
-                executor.map(gdp.fetch_netcdf, urls, files),
-                total=len(files),
-                desc="Downloading files",
-                ncols=80,
-            )
-        )
-
+    download_requests = [
+        (os.path.join(url, file_name), os.path.join(tmp_path, file_name))
+        for file_name in map(lambda d_id: filename_pattern.format(id=d_id), drifter_ids)
+    ]
+    download_with_progress(download_requests)
     # Download the metadata so we can order the drifter IDs by end date.
     gdp_metadata = gdp.get_gdp_metadata()
 
@@ -490,6 +475,8 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         "title": "Global Drifter Program hourly drifting buoy collection",
         "history": f"version {GDP_VERSION}. Metadata from dirall.dat and deplog.dat",
         "Conventions": "CF-1.6",
+        "time_coverage_start": "",
+        "time_coverage_end": "",
         "date_created": datetime.now().isoformat(),
         "publisher_name": "GDP Drifter DAC",
         "publisher_email": "aoml.dftr@noaa.gov",
@@ -602,7 +589,7 @@ def to_raggedarray(
     else:
         raise ValueError(f"url must be {GDP_DATA_URL} or {GDP_DATA_URL_EXPERIMENTAL}.")
 
-    return RaggedArray.from_files(
+    ra = RaggedArray.from_files(
         indices=ids,
         preprocess_func=preprocess,
         name_coords=gdp.GDP_COORDS,
@@ -612,3 +599,13 @@ def to_raggedarray(
         filename_pattern=filename_pattern,
         tmp_path=tmp_path,
     )
+
+    # set dynamic global attributes
+    ra.attrs_global[
+        "time_coverage_start"
+    ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+    ra.attrs_global[
+        "time_coverage_end"
+    ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+
+    return ra

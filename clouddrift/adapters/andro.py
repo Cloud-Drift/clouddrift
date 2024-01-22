@@ -17,7 +17,7 @@ Kolodziejczyk Nicolas (2022). ANDRO: An Argo-based deep displacement dataset.
 SEANOE. https://doi.org/10.17882/47077
 """
 
-from clouddrift.adapters.yomaha import download_with_progress
+from clouddrift.adapters.utils import download_with_progress
 from datetime import datetime
 import numpy as np
 import os
@@ -39,7 +39,7 @@ def to_xarray(tmp_path: str = None):
 
     # get or update dataset
     local_file = f"{tmp_path}/{ANDRO_URL.split('/')[-1]}"
-    download_with_progress(ANDRO_URL, local_file)
+    download_with_progress([(ANDRO_URL, local_file)])
 
     # parse with panda
     col_names = [
