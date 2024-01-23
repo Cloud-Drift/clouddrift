@@ -637,25 +637,28 @@ def subset(
     >>> func = (lambda arr: ((arr - arr[0]) % 2) == 0)
     >>> subset(ds, {"time": func})
 
-    It is possible to use several variables to filter with a function. For example, keep trajectories
-    of drifters realeased in the Mediterranean Sea
-    (excluding the Bay of Biscay and the Black Sea from the bounding box):
+    The filtering function can accept several input variables. For example, keep drifters released
+    in the Mediterranean Sea but exclude those released in the Bay of Biscay and the Black Sea:
 
-    >>> def mediterranean_masking(lon: xr.DataArray, lat: xr.DataArray) -> xr.DataArray:
+    >>> def mediterranean_mask(lon: xr.DataArray, lat: xr.DataArray) -> xr.DataArray:
     >>>     # Mediterranean Sea bounding box
     >>>     in_med = np.logical_and(-6.0327 <= lon, np.logical_and(lon <= 36.2173,
     >>>                                                            np.logical_and(30.2639 <= lat, lat <= 45.7833)))
-    >>>     # exclude Bay of Biscay
+    >>>     # Bay of Biscay
     >>>     in_biscay = np.logical_and(lon <= -0.1462, lat >= 43.2744)
-    >>>     # exclude Black Sea
+    >>>     # Black Sea
     >>>     in_blacksea = np.logical_and(lon >= 27.4437, lat >= 40.9088)
     >>>     return np.logical_and(in_med, np.logical_not(np.logical_or(in_biscay, in_blacksea)))
-    >>> subset(ds, {("start_lon", "start_lat"): mediterranean_masking})
+    >>> subset(ds, {("start_lon", "start_lat"): mediterranean_mask})
 
     Raises
     ------
     ValueError
         If one of the variable in a criterion is not found in the Dataset
+
+    See Also
+    --------
+    :func:`apply_ragged`
     """
     mask_traj = xr.DataArray(
         data=np.ones(ds.sizes[traj_dim_name], dtype="bool"), dims=[traj_dim_name]
