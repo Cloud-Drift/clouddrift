@@ -714,6 +714,7 @@ class subset_tests(unittest.TestCase):
         self.assertTrue(all(ds_sub["id"] == [1, 2]))
         self.assertTrue(all(ds_sub["rowsize"] == [5, 4]))
 
+    def test_subset_callable_tuple(self):
         func = lambda arr1, arr2: np.logical_and(
             arr1 >= 0, arr2 >= 30
         )  # keep positive longitude and latitude larger or equal than 30
@@ -734,6 +735,13 @@ class subset_tests(unittest.TestCase):
         rows = [0, 2]  # test extracting first and third rows
         with self.assertRaises(TypeError):  # passing a tuple when a string is expected
             subset(self.ds, {("traj",): rows})
+
+    def test_subset_callable_tuple_unknown_var(self):
+        func = lambda arr1, arr2: np.logical_and(
+            arr1 >= 0, arr2 >= 30
+        )  # keep positive longitude and latitude larger or equal than 30
+        with self.assertRaises(ValueError):
+            subset(self.ds, {("a", "lat"): func})
 
 
 class unpack_tests(unittest.TestCase):

@@ -637,8 +637,10 @@ def subset(
     >>> func = (lambda arr: ((arr - arr[0]) % 2) == 0)
     >>> subset(ds, {"time": func})
 
-    The filtering function can accept several input variables. For example, keep drifters released
-    in the Mediterranean Sea but exclude those released in the Bay of Biscay and the Black Sea:
+    The filtering function can accept several input variables
+    (note that here, filtering is done along the trajectory dimension).
+    For example, keep drifters released in the Mediterranean Sea,
+    but exclude those released in the Bay of Biscay and the Black Sea:
 
     >>> def mediterranean_mask(lon: xr.DataArray, lat: xr.DataArray) -> xr.DataArray:
     >>>     # Mediterranean Sea bounding box
@@ -655,6 +657,8 @@ def subset(
     ------
     ValueError
         If one of the variable in a criterion is not found in the Dataset
+    TypeError
+        If one of the `criteria` key is a tuple while its associated value is not a `Callable` criterion
 
     See Also
     --------
@@ -668,7 +672,7 @@ def subset(
     )
 
     for key in criteria.keys():
-        if np.any(np.isin(key, ds.variables) | np.isin(key, ds.dims)):
+        if np.all(np.isin(key, ds.variables) | np.isin(key, ds.dims)):
             if isinstance(key, tuple):
                 criterion = [ds[k] for k in key]
                 criterion_dims = criterion[0].dims
@@ -804,7 +808,7 @@ def _mask_var(
     Parameters
     ----------
     var : xr.DataArray or list[xr.DataArray]
-        DataArray or tuple of DataArray (only applicable if the criterion is a Callable) to be used by the criterion
+        DataArray or list of DataArray (only applicable if the criterion is a Callable) to be used by the criterion
     criterion : array-like or scalar or Callable
         The criterion can take four forms:
         - tuple: (min, max) defining a range
