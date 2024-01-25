@@ -743,6 +743,13 @@ class subset_tests(unittest.TestCase):
         with self.assertRaises(ValueError):
             subset(self.ds, {("a", "lat"): func})
 
+    def test_subset_callable_tuple_not_same_dimension(self):
+        func = lambda arr1, arr2: np.logical_and(
+            arr1 >= 0, arr2 >= 30
+        )  # keep positive longitude and latitude larger or equal than 30
+        with self.assertRaises(TypeError):
+            subset(self.ds, {("id", "lat"): func})
+
 
 class unpack_tests(unittest.TestCase):
     def test_unpack(self):

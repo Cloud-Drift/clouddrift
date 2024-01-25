@@ -658,6 +658,8 @@ def subset(
         If one of the variable in a criterion is not found in the Dataset.
     TypeError
         If one of the `criteria` key is a tuple while its associated value is not a `Callable` criterion.
+    TypeError
+        If variables of a `criterion` key associated to a `Callable` do not share the same dimension.
 
     See Also
     --------
@@ -674,6 +676,10 @@ def subset(
         if np.all(np.isin(key, ds.variables) | np.isin(key, ds.dims)):
             if isinstance(key, tuple):
                 criterion = [ds[k] for k in key]
+                if not all(c.dims == criterion[0].dims for c in criterion):
+                    raise TypeError(
+                        "Variables passed to the Callable must share the same dimension."
+                    )
                 criterion_dims = criterion[0].dims
             else:
                 criterion = ds[key]
