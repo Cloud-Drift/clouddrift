@@ -545,44 +545,45 @@ def subset(
     obs_dim_name: str = "obs",
     full_trajectories=False,
 ) -> xr.Dataset:
-    """Subset a ragged array dataset as a function of one or more criteria.
+    """Subset a ragged array xarray dataset as a function of one or more criteria.
     The criteria are passed with a dictionary, where a dictionary key
     is a variable to subset and the associated dictionary value is either a range
     (valuemin, valuemax), a list [value1, value2, valueN], a single value, or a
-    masking function applied to every row of the ragged array using ``apply_ragged``.
+    masking function applied to any variable of the dataset.
 
     This function needs to know the names of the dimensions of the ragged array dataset
     (`traj_dim_name` and `obs_dim_name`), and the name of the rowsize variable (`rowsize_var_name`).
-    Default values are provided for these arguments (see below), but they can be changed if needed.
+    Default values corresponds to the clouddrift convention ("traj", "obs", and "rowsize") but should
+    be changed as needed.
 
     Parameters
     ----------
     ds : xr.Dataset
-        Dataset stored as ragged arrays
+        Xarray dataset composed of ragged arrays.
     criteria : dict
-        dictionary containing the variables (as keys) and the ranges/values/functions (as values) to subset
+        Dictionary containing the variables (as keys) and the ranges/values/functions (as values) to subset.
     id_var_name : str, optional
-        Name of the variable containing the ID of the trajectories (default is "id")
+        Name of the variable containing the ID of the trajectories (default is "id").
     rowsize_var_name : str, optional
-        Name of the variable containing the number of observations per trajectory (default is "rowsize")
+        Name of the variable containing the number of observations per trajectory (default is "rowsize").
     traj_dim_name : str, optional
-        Name of the trajectory dimension (default is "traj")
+        Name of the trajectory dimension (default is "traj").
     obs_dim_name : str, optional
-        Name of the observation dimension (default is "obs")
+        Name of the observation dimension (default is "obs").
     full_trajectories : bool, optional
-        If True, it returns the complete trajectories (rows) where at least one observation
-        matches the criteria, rather than just the segments where the criteria are satisfied.
-        Default is False.
+        If True, the function returns complete rows (trajectories) for which the criteria
+        are matched at least once. Default is False which means that only segments matching the criteria
+        are returned when filtering along the observation dimension.
 
     Returns
     -------
     xr.Dataset
-        subset Dataset matching the criterion(a)
+        Subset xarray dataset matching the criterion(a).
 
     Examples
     --------
-    Criteria are combined on any data or metadata variables part of the Dataset.
-    The following examples are based on NOAA GDP datasets which can be accessed with the
+    Criteria are combined on any data (with dimension "obs") or metadata (with dimension "traj") variables
+    part of the Dataset. The following examples are based on NOAA GDP datasets which can be accessed with the
     ``clouddrift.datasets`` module.
 
     Retrieve a region, like the Gulf of Mexico, using ranges of latitude and longitude:
@@ -607,7 +608,7 @@ def subset(
 
     >>> subset(ds, {"rowsize": (0, 1000)})
 
-    Retrieve specific drifters from their IDs:
+    Retrieve specific drifters using their IDs:
 
     >>> subset(ds, {"id": [2578, 2582, 2583]})
 
@@ -637,10 +638,8 @@ def subset(
     >>> func = (lambda arr: ((arr - arr[0]) % 2) == 0)
     >>> subset(ds, {"time": func})
 
-    The filtering function can accept several input variables
-    (note that here, filtering is done along the trajectory dimension).
-    For example, keep drifters released in the Mediterranean Sea,
-    but exclude those released in the Bay of Biscay and the Black Sea:
+    The filtering function can accept several input variables passed as a tuple. For example, retrieve
+    drifters released in the Mediterranean Sea, but exclude those released in the Bay of Biscay and the Black Sea:
 
     >>> def mediterranean_mask(lon: xr.DataArray, lat: xr.DataArray) -> xr.DataArray:
     >>>     # Mediterranean Sea bounding box
@@ -656,9 +655,9 @@ def subset(
     Raises
     ------
     ValueError
-        If one of the variable in a criterion is not found in the Dataset
+        If one of the variable in a criterion is not found in the Dataset.
     TypeError
-        If one of the `criteria` key is a tuple while its associated value is not a `Callable` criterion
+        If one of the `criteria` key is a tuple while its associated value is not a `Callable` criterion.
 
     See Also
     --------
