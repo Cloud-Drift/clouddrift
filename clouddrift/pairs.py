@@ -1,6 +1,7 @@
 """
 Functions to analyze pairs of contiguous data segments.
 """
+
 from clouddrift import ragged, sphere
 from concurrent.futures import as_completed, ThreadPoolExecutor
 import itertools

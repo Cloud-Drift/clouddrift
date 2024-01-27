@@ -429,8 +429,7 @@ def morse_wavelet(
         if normalization == "energy":
             with np.errstate(divide="ignore"):
                 waveletzero = np.exp(
-                    beta * np.log(norm_radian_frequency)
-                    - norm_radian_frequency**gamma
+                    beta * np.log(norm_radian_frequency) - norm_radian_frequency**gamma
                 )
         elif normalization == "bandpass":
             if beta == 0:
@@ -800,11 +799,7 @@ def morse_amplitude(
     if normalization == "energy":
         r = (2 * beta + 1) / gamma
         amp = (
-            2
-            * np.pi
-            * gamma
-            * (2**r)
-            * np.exp(_lgamma(order) - _lgamma(order + r - 1))
+            2 * np.pi * gamma * (2**r) * np.exp(_lgamma(order) - _lgamma(order + r - 1))
         ) ** 0.5
     elif normalization == "bandpass":
         fm, _, _ = morse_freq(gamma, beta)
