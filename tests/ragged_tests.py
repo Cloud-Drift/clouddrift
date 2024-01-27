@@ -714,12 +714,41 @@ class subset_tests(unittest.TestCase):
         self.assertTrue(all(ds_sub["id"] == [1, 2]))
         self.assertTrue(all(ds_sub["rowsize"] == [5, 4]))
 
+    def test_subset_callable_tuple(self):
+        func = lambda arr1, arr2: np.logical_and(
+            arr1 >= 0, arr2 >= 30
+        )  # keep positive longitude and latitude larger or equal than 30
+        ds_sub = subset(self.ds, {("lon", "lat"): func})
+        self.assertTrue(all(ds_sub["id"] == [1, 2]))
+        self.assertTrue(all(ds_sub["rowsize"] == [2, 2]))
+        self.assertTrue(all(ds_sub["lon"] >= 0))
+        self.assertTrue(all(ds_sub["lat"] >= 30))
+
     def test_subset_callable_wrong_dim(self):
         func = lambda arr: [arr, arr]  # returns 2 values per element
         with self.assertRaises(ValueError):
             subset(self.ds, {"time": func})
         with self.assertRaises(ValueError):
             subset(self.ds, {"id": func})
+
+    def test_subset_callable_wrong_type(self):
+        rows = [0, 2]  # test extracting first and third rows
+        with self.assertRaises(TypeError):  # passing a tuple when a string is expected
+            subset(self.ds, {("traj",): rows})
+
+    def test_subset_callable_tuple_unknown_var(self):
+        func = lambda arr1, arr2: np.logical_and(
+            arr1 >= 0, arr2 >= 30
+        )  # keep positive longitude and latitude larger or equal than 30
+        with self.assertRaises(ValueError):
+            subset(self.ds, {("a", "lat"): func})
+
+    def test_subset_callable_tuple_not_same_dimension(self):
+        func = lambda arr1, arr2: np.logical_and(
+            arr1 >= 0, arr2 >= 30
+        )  # keep positive longitude and latitude larger or equal than 30
+        with self.assertRaises(TypeError):
+            subset(self.ds, {("id", "lat"): func})
 
 
 class unpack_tests(unittest.TestCase):
