@@ -558,17 +558,17 @@ def subset(
     Parameters
     ----------
     ds : xr.Dataset
-        Dataset stored as ragged arrays
+        Dataset stored as ragged arrays.
     criteria : dict
-        dictionary containing the variables (as keys) and the ranges/values/functions (as values) to subset
+        Dictionary containing the variables (as keys) and the ranges/values/functions (as values) to subset.
     id_var_name : str, optional
-        Name of the variable containing the ID of the trajectories (default is "id")
+        Name of the variable with dimension `traj_dim_name` containing the ID of the trajectories (default is "id").
     rowsize_var_name : str, optional
-        Name of the variable containing the number of observations per trajectory (default is "rowsize")
+        Name of the variable containing the number of observations per trajectory (default is "rowsize").
     traj_dim_name : str, optional
-        Name of the trajectory dimension (default is "traj")
+        Name of the trajectory dimension (default is "traj").
     obs_dim_name : str, optional
-        Name of the observation dimension (default is "obs")
+        Name of the observation dimension (default is "obs").
     full_trajectories : bool, optional
         If True, it returns the complete trajectories (rows) where at least one observation
         matches the criteria, rather than just the segments where the criteria are satisfied.

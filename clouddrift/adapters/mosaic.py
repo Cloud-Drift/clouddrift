@@ -18,6 +18,7 @@ Example
 >>> from clouddrift.adapters import mosaic
 >>> ds = mosaic.to_xarray()
 """
+
 from datetime import datetime
 from io import BytesIO
 import numpy as np
