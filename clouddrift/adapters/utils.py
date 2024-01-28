@@ -20,7 +20,7 @@ _CHUNK_SIZE = 1024
 class _DownloadRequest(NamedTuple):
     src: str
     dst: Union[BufferedIOBase, str]
-    exp_size: Union[int, None]
+    exp_size: Union[float, None]
 
 
 def download_with_progress(
@@ -55,6 +55,7 @@ def download_with_progress(
 def _download_with_progress(
     url: str,
     output: Union[BufferedIOBase, str],
+    expected_size: Union[float, None],
     prewrite_func: Callable[[bytes], Union[str, bytes]],
 ):
     if isinstance(output, str) and os.path.exists(output):
@@ -90,7 +91,7 @@ def _download_with_progress(
             buffer = output
         bar = tqdm(
             desc=url,
-            total=int(response.headers.get("Content-Length", 0)),
+            total=float(response.headers.get("Content-Length", expected_size)),
             unit="B",
             unit_scale=True,
             unit_divisor=1024,
