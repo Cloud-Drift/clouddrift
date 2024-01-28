@@ -2,8 +2,9 @@
 This module provides signal processing functions.
 """
 
-import numpy as np
 from typing import Optional, Tuple, Union
+
+import numpy as np
 import xarray as xr
 
 

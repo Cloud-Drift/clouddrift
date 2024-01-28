@@ -1,36 +1,45 @@
+import concurrent.futures
+import datetime
+import os
+import warnings
 from io import BufferedIOBase
 from typing import Callable, List, NamedTuple, Union
-import os
-import datetime
-from tqdm import tqdm
+
 import requests
-import warnings
 from tenacity import (
     retry,
-    wait_exponential_jitter,
-    stop_after_attempt,
     retry_if_exception,
+    stop_after_attempt,
+    wait_exponential_jitter,
 )
-import concurrent.futures
-
+from tqdm import tqdm
 
 _CHUNK_SIZE = 1024
-_ID_FUNC = lambda x: x
 
 
 class _DownloadRequest(NamedTuple):
     src: str
     dst: Union[BufferedIOBase, str]
+    exp_size: Union[int, None]
 
 
 def download_with_progress(
-    download_map: List[_DownloadRequest], prewrite_func=_ID_FUNC
+    download_map: List[_DownloadRequest], prewrite_func=lambda x: x
 ):
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = {
-            executor.submit(_download_with_progress, src, dst, prewrite_func): src
-            for (src, dst) in download_map
-        }
+        futures = dict()
+        for req in download_map:
+            if len(req) > 2:
+                src, dst, exp_size = req[0], req[1], req[2]
+            elif len(req) <= 2:
+                src, dst, exp_size = req[0], req[1], None
+
+            futures[
+                executor.submit(
+                    _download_with_progress, src, dst, exp_size, prewrite_func
+                )
+            ] = src
+
         for fut in concurrent.futures.as_completed(futures):
             url = futures[fut]
             print(f"Finished downloading: {url}")

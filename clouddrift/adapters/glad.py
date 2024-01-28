@@ -13,12 +13,13 @@ Reference
 ---------
 Özgökmen, Tamay. 2013. GLAD experiment CODE-style drifter trajectories (low-pass filtered, 15 minute interval records), northern Gulf of Mexico near DeSoto Canyon, July-October 2012. Distributed by: Gulf of Mexico Research Initiative Information and Data Cooperative (GRIIDC), Harte Research Institute, Texas A&M University–Corpus Christi. doi:10.7266/N7VD6WC8
 """
-
-from clouddrift.adapters.utils import download_with_progress
 from io import BytesIO
+
 import numpy as np
 import pandas as pd
 import xarray as xr
+
+from clouddrift.adapters.utils import download_with_progress
 
 
 def get_dataframe() -> pd.DataFrame:
@@ -28,7 +29,7 @@ def get_dataframe() -> pd.DataFrame:
     # the expected data length here.
     file_size = 155330876
     buf = BytesIO(b"")
-    download_with_progress([(url, buf)])
+    download_with_progress([(url, buf, file_size)])
     buf.seek(0)
     column_names = [
         "id",

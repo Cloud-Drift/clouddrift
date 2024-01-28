@@ -4,18 +4,20 @@ hourly Global Drifter Program (GDP) data to a ``clouddrift.RaggedArray``
 instance.
 """
 
-import clouddrift.adapters.gdp as gdp
-from clouddrift.raggedarray import RaggedArray
-from clouddrift.adapters.utils import download_with_progress
-from datetime import datetime, timedelta
-import numpy as np
-import urllib.request
+import os
 import re
 import tempfile
-from typing import Optional
-import os
+import urllib.request
 import warnings
+from datetime import datetime, timedelta
+from typing import Optional
+
+import numpy as np
 import xarray as xr
+
+import clouddrift.adapters.gdp as gdp
+from clouddrift.adapters.utils import download_with_progress
+from clouddrift.raggedarray import RaggedArray
 
 GDP_VERSION = "2.01"
 

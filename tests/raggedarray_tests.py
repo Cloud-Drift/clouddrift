@@ -1,10 +1,12 @@
+import os
 import unittest
 from unittest import TestCase
-import os
-import xarray as xr
-import numpy as np
-from clouddrift import RaggedArray
+
 import awkward as ak
+import numpy as np
+import xarray as xr
+
+from clouddrift import RaggedArray
 
 NETCDF_ARCHIVE = "test_archive.nc"
 PARQUET_ARCHIVE = "test_archive.parquet"
@@ -42,24 +44,24 @@ class raggedarray_tests(TestCase):
             xr_coords["ids"] = (
                 ["obs"],
                 np.ones(self.rowsize[i], dtype="int") * self.drifter_id[i],
-                {"long_name": f"variable ids", "units": "-"},
+                {"long_name": "variable ids", "units": "-"},
             )
 
             xr_data = {}
             xr_data["ID"] = (
                 ["traj"],
                 [self.drifter_id[i]],
-                {"long_name": f"variable ID", "units": "-"},
+                {"long_name": "variable ID", "units": "-"},
             )
             xr_data["rowsize"] = (
                 ["traj"],
                 [self.rowsize[i]],
-                {"long_name": f"variable rowsize", "units": "-"},
+                {"long_name": "variable rowsize", "units": "-"},
             )
             xr_data["temp"] = (
                 ["obs"],
                 np.random.rand(self.rowsize[i]),
-                {"long_name": f"variable temp", "units": "-"},
+                {"long_name": "variable temp", "units": "-"},
             )
 
             list_ds.append(

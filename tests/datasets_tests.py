@@ -1,8 +1,9 @@
-from clouddrift import datasets
-from clouddrift.ragged import apply_ragged, subset
-import numpy as np
 import unittest
 
+import numpy as np
+
+from clouddrift import datasets
+from clouddrift.ragged import apply_ragged, subset
 
 if __name__ == "__main__":
     unittest.main()

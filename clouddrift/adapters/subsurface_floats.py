@@ -11,14 +11,15 @@ Example
 >>> ds = subsurface_floats.to_xarray()
 """
 
-from datetime import datetime
-import numpy as np
 import os
+import tempfile
+import warnings
+from datetime import datetime
+
+import numpy as np
 import pandas as pd
 import scipy.io
-import tempfile
 import xarray as xr
-import warnings
 
 from clouddrift.adapters.utils import download_with_progress
 
@@ -180,7 +181,7 @@ def to_xarray(
         "publisher_name": "WOCE Subsurface Float Data Assembly Center and NOAA AOML",
         "publisher_url": "https://www.aoml.noaa.gov/phod/float_traj/data.php",
         "license": "freely available",
-        "acknowledgement": f"Maintained by Andree Ramsey and Heather Furey from the Woods Hole Oceanographic Institution",
+        "acknowledgement": "Maintained by Andree Ramsey and Heather Furey from the Woods Hole Oceanographic Institution",
     }
 
     # set attributes

@@ -5,11 +5,13 @@ defined in this module are common to both hourly (``clouddrift.adapters.gdp1h``)
 and six-hourly (``clouddrift.adapters.gdp6h``) GDP modules.
 """
 
-from clouddrift.adapters.utils import download_with_progress
-import numpy as np
 import os
+
+import numpy as np
 import pandas as pd
 import xarray as xr
+
+from clouddrift.adapters.utils import download_with_progress
 
 GDP_COORDS = [
     "ids",
@@ -148,7 +150,8 @@ def get_gdp_metadata() -> pd.DataFrame:
         try:
             dfs.append(parse_directory_file(name))
             start += 5000
-        except:
+        except Exception as e:
+            print(f"Error reading metadata for file: '{name}', error: {e}")
             break
 
     name = directory_file_pattern.format(low=start, high="current")

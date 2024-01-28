@@ -1,23 +1,25 @@
+import unittest
+
+import numpy as np
+import xarray as xr
+
 from clouddrift.sphere import (
-    recast_lon,
-    recast_lon180,
-    recast_lon360,
-    plane_to_sphere,
-    sphere_to_plane,
-    distance,
+    EARTH_RADIUS_METERS,
     bearing,
-    position_from_distance_and_bearing,
-    spherical_to_cartesian,
     cartesian_to_spherical,
-    tangentplane_to_cartesian,
     cartesian_to_tangentplane,
     coriolis_frequency,
     cumulative_distance,
-    EARTH_RADIUS_METERS,
+    distance,
+    plane_to_sphere,
+    position_from_distance_and_bearing,
+    recast_lon,
+    recast_lon180,
+    recast_lon360,
+    sphere_to_plane,
+    spherical_to_cartesian,
+    tangentplane_to_cartesian,
 )
-import unittest
-import numpy as np
-import xarray as xr
 
 ONE_DEGREE_METERS = np.deg2rad(EARTH_RADIUS_METERS)
 

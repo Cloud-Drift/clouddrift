@@ -1,13 +1,15 @@
+import unittest
+
+import numpy as np
+import xarray as xr
+
 from clouddrift.signal import (
     analytic_signal,
     cartesian_to_rotary,
-    rotary_to_cartesian,
     ellipse_parameters,
     modulated_ellipse_signal,
+    rotary_to_cartesian,
 )
-import numpy as np
-import unittest
-import xarray as xr
 
 if __name__ == "__main__":
     unittest.main()

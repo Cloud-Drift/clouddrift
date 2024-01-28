@@ -1,3 +1,11 @@
+import unittest
+from concurrent import futures
+from datetime import datetime, timedelta
+
+import numpy as np
+import pandas as pd
+import xarray as xr
+
 from clouddrift.kinematics import velocity_from_position
 from clouddrift.ragged import (
     apply_ragged,
@@ -10,14 +18,6 @@ from clouddrift.ragged import (
     unpack,
 )
 from clouddrift.raggedarray import RaggedArray
-from clouddrift.sphere import EARTH_RADIUS_METERS
-import unittest
-import numpy as np
-import xarray as xr
-import pandas as pd
-from datetime import datetime, timedelta
-from concurrent import futures
-
 
 if __name__ == "__main__":
     unittest.main()
@@ -565,7 +565,7 @@ class apply_ragged_tests(unittest.TestCase):
     def test_bad_rowsize_raises(self):
         with self.assertRaises(ValueError):
             for use_threads in [True, False]:
-                y = apply_ragged(
+                apply_ragged(
                     lambda x: x**2,
                     np.array([1, 2, 3, 4]),
                     [2],
@@ -579,7 +579,7 @@ class subset_tests(unittest.TestCase):
 
     def test_ds_unmodified(self):
         ds_original = self.ds.copy(deep=True)
-        ds_sub = subset(self.ds, {"test": True})
+        subset(self.ds, {"test": True})
         xr.testing.assert_equal(ds_original, self.ds)
 
     def test_equal(self):
@@ -758,7 +758,7 @@ class unpack_tests(unittest.TestCase):
         # Test unpacking into DataArrays
         lon = unpack(ds.lon, ds["rowsize"])
 
-        self.assertTrue(type(lon) is list)
+        self.assertTrue(isinstance(lon, list))
         self.assertTrue(np.all([type(a) is xr.DataArray for a in lon]))
         self.assertTrue(
             np.all([lon[n].size == ds["rowsize"][n] for n in range(len(lon))])
@@ -767,7 +767,7 @@ class unpack_tests(unittest.TestCase):
         # Test unpacking into np.ndarrays
         lon = unpack(ds.lon.values, ds["rowsize"])
 
-        self.assertTrue(type(lon) is list)
+        self.assertTrue(isinstance(lon, list))
         self.assertTrue(np.all([type(a) is np.ndarray for a in lon]))
         self.assertTrue(
             np.all([lon[n].size == ds["rowsize"][n] for n in range(len(lon))])

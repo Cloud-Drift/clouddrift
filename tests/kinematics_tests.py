@@ -1,17 +1,18 @@
+import unittest
+
+import numpy as np
+import xarray as xr
+
 from clouddrift.kinematics import (
     inertial_oscillation_from_position,
     kinetic_energy,
     position_from_velocity,
     residual_position_from_displacement,
-    velocity_from_position,
     spin,
+    velocity_from_position,
 )
-from clouddrift.sphere import EARTH_RADIUS_METERS, coriolis_frequency
 from clouddrift.raggedarray import RaggedArray
-import unittest
-import numpy as np
-import xarray as xr
-
+from clouddrift.sphere import EARTH_RADIUS_METERS, coriolis_frequency
 
 if __name__ == "__main__":
     unittest.main()

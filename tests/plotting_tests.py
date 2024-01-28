@@ -1,11 +1,12 @@
-import cartopy.crs as ccrs
-import matplotlib.pyplot as plt
-import numpy as np
 import sys
 import unittest
 from unittest.mock import patch
-from clouddrift.plotting import plot_ragged
 
+import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
+import numpy as np
+
+from clouddrift.plotting import plot_ragged
 
 if __name__ == "__main__":
     unittest.main()
@@ -56,13 +57,13 @@ class plotting_tests(unittest.TestCase):
         ax = fig.add_subplot(1, 1, 1)
         color_test = np.append(np.arange(len(self.lat)), 3)
         with self.assertRaises(ValueError):
-            l = plot_ragged(ax, self.lon, self.lat, self.rowsize, colors=color_test)
+            plot_ragged(ax, self.lon, self.lat, self.rowsize, colors=color_test)
 
     def test_plot_cartopy_transform(self):
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
         with self.assertRaises(ValueError):
-            l = plot_ragged(
+            plot_ragged(
                 ax,
                 self.lon,
                 self.lat,
@@ -141,8 +142,9 @@ class plotting_tests(unittest.TestCase):
     def test_matplotlib_not_installed(self):
         try:
             del sys.modules["clouddrift.plotting"]
-        except:
-            pass
+        except Exception as e:
+            print(f"Could not delete module for testing purposes, error: {e}")
+
         with patch.dict(sys.modules, {"matplotlib": None}):
             with self.assertRaises(ImportError):
                 from clouddrift.plotting import plot_ragged

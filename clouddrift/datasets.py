@@ -4,12 +4,13 @@ not accessed via cloud storage platforms or are not found on the local filesyste
 they will be downloaded from their upstream repositories and stored for later access 
 (~/.clouddrift for UNIX-based systems).
 """
-
-from io import BufferedReader, BytesIO
-from clouddrift import adapters
 import os
 import platform
+from io import BufferedReader, BytesIO
+
 import xarray as xr
+
+from clouddrift import adapters
 
 
 def gdp1h(decode_times: bool = True) -> xr.Dataset:
