@@ -38,11 +38,14 @@ def download_with_progress(
                 executor.submit(
                     _download_with_progress, src, dst, exp_size, prewrite_func
                 )
-            ] = src
+            ] = (src, dst)
 
         for fut in concurrent.futures.as_completed(futures):
-            url = futures[fut]
-            print(f"Finished downloading: {url}")
+            (src, dst) = futures[fut]
+            ex = fut.exception(0)
+            if ex is not None:
+                print(f"there was an issue downloading {src} to {dst}, exception details: {ex}")
+            print(f"Finished downloading: {src}")
 
 
 @retry(
