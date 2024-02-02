@@ -4,18 +4,20 @@ This module provides functions and metadata that can be used to convert the
 instance.
 """
 
+import os
+import re
+import tempfile
+import urllib.request
+import warnings
+from datetime import datetime, timedelta
+from typing import Optional
+
+import numpy as np
+import xarray as xr
+
 import clouddrift.adapters.gdp as gdp
 from clouddrift.adapters.utils import download_with_progress
 from clouddrift.raggedarray import RaggedArray
-from datetime import datetime, timedelta
-import numpy as np
-import urllib.request
-import re
-import tempfile
-from typing import Optional
-import os
-import warnings
-import xarray as xr
 
 GDP_VERSION = "September 2023"
 

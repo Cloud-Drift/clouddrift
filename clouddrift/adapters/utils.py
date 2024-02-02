@@ -1,39 +1,51 @@
+import concurrent.futures
+import datetime
+import os
+import warnings
 from io import BufferedIOBase
 from typing import Callable, List, NamedTuple, Union
-import os
-import datetime
-from tqdm import tqdm
+
 import requests
-import warnings
 from tenacity import (
     retry,
-    wait_exponential_jitter,
-    stop_after_attempt,
     retry_if_exception,
+    stop_after_attempt,
+    wait_exponential_jitter,
 )
-import concurrent.futures
-
+from tqdm import tqdm
 
 _CHUNK_SIZE = 1024
-_ID_FUNC = lambda x: x
 
 
 class _DownloadRequest(NamedTuple):
     src: str
     dst: Union[BufferedIOBase, str]
+    exp_size: Union[float, None]
 
 
 def download_with_progress(
-    download_map: List[_DownloadRequest], prewrite_func=_ID_FUNC
+    download_map: List[_DownloadRequest], prewrite_func=lambda x: x
 ):
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = {
-            executor.submit(_download_with_progress, src, dst, prewrite_func): src
-            for (src, dst) in download_map
-        }
+        futures = dict()
+        for req in download_map:
+            if len(req) > 2:
+                src, dst, exp_size = req[0], req[1], req[2]
+            elif len(req) <= 2:
+                src, dst, exp_size = req[0], req[1], None
+
+            futures[
+                executor.submit(
+                    _download_with_progress, src, dst, exp_size, prewrite_func
+                )
+            ] = (src, dst)
+
         for fut in concurrent.futures.as_completed(futures):
-            url = futures[fut]
-            print(f"Finished downloading: {url}")
+            (src, dst) = futures[fut]
+            ex = fut.exception(0)
+            if ex is not None:
+                print(f"there was an issue downloading {src} to {dst}, exception details: {ex}")
+            print(f"Finished downloading: {src}")
 
 
 @retry(
@@ -46,6 +58,7 @@ def download_with_progress(
 def _download_with_progress(
     url: str,
     output: Union[BufferedIOBase, str],
+    expected_size: Union[float, None],
     prewrite_func: Callable[[bytes], Union[str, bytes]],
 ):
     if isinstance(output, str) and os.path.exists(output):
@@ -81,7 +94,7 @@ def _download_with_progress(
             buffer = output
         bar = tqdm(
             desc=url,
-            total=int(response.headers.get("Content-Length", 0)),
+            total=float(response.headers.get("Content-Length", expected_size)),
             unit="B",
             unit_scale=True,
             unit_divisor=1024,

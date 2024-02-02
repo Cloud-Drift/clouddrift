@@ -1,9 +1,10 @@
-from clouddrift import datasets, pairs, ragged, sphere
+import unittest
+
 import numpy as np
 import pandas as pd
-import unittest
 import xarray as xr
 
+from clouddrift import datasets, pairs, ragged, sphere
 
 if __name__ == "__main__":
     unittest.main()

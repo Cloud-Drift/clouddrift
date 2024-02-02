@@ -16,17 +16,17 @@ Reference
 Lebedev, K. V., Yoshinari, H., Maximenko, N. A., & Hacker, P. W. (2007). Velocity data assessed from trajectories of Argo floats at parking level and at the sea surface. IPRC Technical Note, 4(2), 1-16.
 """
 
-from datetime import datetime
 import gzip
-import numpy as np
 import os
-import pandas as pd
 import tempfile
-import xarray as xr
 import warnings
+from datetime import datetime
+
+import numpy as np
+import pandas as pd
+import xarray as xr
 
 from clouddrift.adapters.utils import download_with_progress
-
 
 YOMAHA_URLS = [
     # order of the URLs is important

@@ -2,14 +2,13 @@
 This module provides a function to easily and efficiently plot trajectories stored in a ragged array.
 """
 
-from clouddrift.ragged import segment, rowsize_to_index
+from typing import Optional, Union
+
 import numpy as np
 import pandas as pd
-from typing import Optional, Union
 import xarray as xr
-import pandas as pd
-from typing import Optional, Union
-from clouddrift.ragged import segment, rowsize_to_index
+
+from clouddrift.ragged import rowsize_to_index, segment
 
 
 def plot_ragged(
@@ -130,10 +129,10 @@ def plot_ragged(
 
     # optional dependency
     try:
-        import matplotlib.pyplot as plt
         import matplotlib.colors as mcolors
-        from matplotlib.collections import LineCollection
+        import matplotlib.pyplot as plt
         from matplotlib import cm
+        from matplotlib.collections import LineCollection
     except ImportError:
         raise ImportError("missing optional dependency 'matplotlib'")
 

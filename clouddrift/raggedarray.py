@@ -3,15 +3,16 @@ This module defines the RaggedArray class, which is the intermediate data
 structure used by CloudDrift to process custom Lagrangian datasets to Xarray
 Datasets and Awkward Arrays.
 """
+import warnings
+from collections.abc import Callable
+from typing import Optional, Tuple
 
 import awkward as ak
-from clouddrift.ragged import rowsize_to_index
-import xarray as xr
 import numpy as np
-from collections.abc import Callable
-from typing import Tuple, Optional
+import xarray as xr
 from tqdm import tqdm
-import warnings
+
+from clouddrift.ragged import rowsize_to_index
 
 
 class RaggedArray:

@@ -2,10 +2,12 @@
 Functions for kinematic computations.
 """
 
+from typing import Optional, Tuple, Union
+
 import numpy as np
 import pandas as pd
-from typing import Optional, Tuple, Union
 import xarray as xr
+
 from clouddrift.sphere import (
     EARTH_RADIUS_METERS,
     bearing,
@@ -466,7 +468,7 @@ def position_from_velocity(
     if time_axis < -1 or time_axis > len(u.shape) - 1:
         raise ValueError(
             f"time_axis ({time_axis}) is outside of the valid range ([-1,"
-            f" {len(x.shape) - 1}])."
+            f" {len(u.shape) - 1}])."
         )
 
     # Input arrays must have the same length along the time axis.

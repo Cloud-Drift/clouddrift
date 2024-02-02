@@ -2,10 +2,11 @@
 This module provides functions for spherical geometry calculations.
 """
 
-import numpy as np
-from typing import Optional, Tuple, Union
-import xarray as xr
 import warnings
+from typing import Optional, Tuple, Union
+
+import numpy as np
+import xarray as xr
 
 EARTH_RADIUS_METERS = 6.3781e6
 EARTH_DAY_SECONDS = 86164.091

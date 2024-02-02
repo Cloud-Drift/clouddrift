@@ -2,13 +2,14 @@
 Transformational and inquiry functions for ragged arrays.
 """
 
-import numpy as np
-from typing import Tuple, Union, Iterable, Callable
-import xarray as xr
-import pandas as pd
+import warnings
 from concurrent import futures
 from datetime import timedelta
-import warnings
+from typing import Callable, Iterable, Tuple, Union
+
+import numpy as np
+import pandas as pd
+import xarray as xr
 
 
 def apply_ragged(

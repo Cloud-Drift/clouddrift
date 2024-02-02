@@ -18,15 +18,14 @@ Example
 >>> from clouddrift.adapters import mosaic
 >>> ds = mosaic.to_xarray()
 """
-
+import xml.etree.ElementTree as ET
 from datetime import datetime
 from io import BytesIO
+
 import numpy as np
 import pandas as pd
 import requests
-from tqdm import tqdm
 import xarray as xr
-import xml.etree.ElementTree as ET
 
 from clouddrift.adapters.utils import download_with_progress
 

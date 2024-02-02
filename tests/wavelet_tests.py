@@ -1,15 +1,17 @@
+import unittest
+
+import numpy as np
+
 from clouddrift.wavelet import (
-    morse_wavelet_transform,
-    wavelet_transform,
-    morse_wavelet,
-    morse_freq,
+    _morsehigh,
     morse_amplitude,
+    morse_freq,
     morse_logspace_freq,
     morse_properties,
-    _morsehigh,
+    morse_wavelet,
+    morse_wavelet_transform,
+    wavelet_transform,
 )
-import numpy as np
-import unittest
 
 if __name__ == "__main__":
     unittest.main()
@@ -190,7 +192,6 @@ class wavelet_transform_tests(unittest.TestCase):
         omega = dt * 2 * np.pi * f
         a = 1
         x = a * np.cos(2 * np.pi * t * f)
-        z = a * np.exp(1j * 2 * np.pi * t * f) + a / 2 * np.exp(-1j * 2 * np.pi * t * f)
         gamma = 3
         beta = 10
         waveletb, _ = morse_wavelet(
