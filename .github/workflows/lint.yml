@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Mypy
-        run: conda install mypy
+        run: pip install mypy
       - name: Install library stub types
         run: mypy --install-types --non-interactive
       - name: Mypy analysis
