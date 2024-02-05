@@ -15,4 +15,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yml
+          environment-name: clouddrift
       - uses: chartboost/ruff-action@v1
+      - name: Install Mypy
+        run: conda install mypy
+      - name: Install library stub types
+        run: mypy --install-types --non-interactive
+      - name: Mypy analysis
+        run: mypy
+
