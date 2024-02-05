@@ -4,16 +4,19 @@ hourly Global Drifter Program (GDP) data to a ``clouddrift.RaggedArray``
 instance.
 """
 
+import enum
+import logging
 import os
 import re
 import tempfile
 import urllib.request
 import warnings
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import List, Optional, Union
 
 import numpy as np
 import xarray as xr
+from numpy.typing import ArrayLike
 
 import clouddrift.adapters.gdp as gdp
 from clouddrift.adapters.utils import download_with_progress
@@ -21,10 +24,10 @@ from clouddrift.raggedarray import RaggedArray
 
 GDP_VERSION = "2.01"
 
-GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01/"
-GDP_DATA_URL_EXPERIMENTAL = (
-    "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental/"
-)
+class GdpDataUrl(str, enum.Enum):
+    GDP_DATA_URL_STABLE = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01/"
+    GDP_DATA_URL_EXPERIMENTAL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental/"
+
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
 GDP_TMP_PATH_EXPERIMENTAL = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp_exp")
 GDP_DATA = [
@@ -49,12 +52,14 @@ GDP_DATA = [
     "drogue_status",
 ]
 
+_logger = logging.getLogger(__name__)
+
 
 def download(
-    drifter_ids: list = None,
-    n_random_id: int = None,
-    url: str = GDP_DATA_URL,
-    tmp_path: str = None,
+    drifter_ids: Union[list[int], None] = None,
+    n_random_id: Union[int, None] = None,
+    url: GdpDataUrl = GdpDataUrl.GDP_DATA_URL_STABLE,
+    tmp_path: Union[str, None] = None,
 ):
     """Download individual NetCDF files from the AOML server.
 
@@ -78,46 +83,52 @@ def download(
 
     # adjust the tmp_path if using the experimental source
     if tmp_path is None:
-        tmp_path = GDP_TMP_PATH if url == GDP_DATA_URL else GDP_TMP_PATH_EXPERIMENTAL
+        tmp_path = GDP_TMP_PATH if url == GdpDataUrl.GDP_DATA_URL_STABLE else GDP_TMP_PATH_EXPERIMENTAL
 
-    print(f"Downloading GDP hourly data from {url} to {tmp_path}...")
+    _logger.debug(f"Downloading GDP hourly data from ({url}) to ({tmp_path})")
 
     # Create a temporary directory if doesn't already exists.
     os.makedirs(tmp_path, exist_ok=True)
 
-    if url == GDP_DATA_URL:
+    if url == GdpDataUrl.GDP_DATA_URL_STABLE:
         pattern = "drifter_hourly_[0-9]*.nc"
         filename_pattern = "drifter_hourly_{id}.nc"
-    elif url == GDP_DATA_URL_EXPERIMENTAL:
+    elif url == GdpDataUrl.GDP_DATA_URL_EXPERIMENTAL:
         pattern = "drifter_hourly_[0-9]*.nc"
         filename_pattern = "drifter_hourly_{id}.nc"
+    else:
+        raise ValueError(f"{url} is not a valid ")
 
     # retrieve all drifter ID numbers
+    chosen_drifter_ids: ArrayLike
     if drifter_ids is None:
         urlpath = urllib.request.urlopen(url)
         string = urlpath.read().decode("utf-8")
-        filelist = re.compile(pattern).findall(string)
-        drifter_ids = np.unique([int(f.split("_")[-1][:-3]) for f in filelist])
+        filelist: List[str] = re.compile(pattern).findall(string)
+        chosen_drifter_ids = np.unique([int(f.split("_")[-1][:-3]) for f in filelist])
+    else:
+        chosen_drifter_ids = drifter_ids
+
 
     # retrieve only a subset of n_random_id trajectories
     if n_random_id:
-        if n_random_id > len(drifter_ids):
-            warnings.warn(
-                f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(drifter_ids)} listed trajectories."
+        if n_random_id > len(chosen_drifter_ids):
+            _logger.warn(
+                f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(chosen_drifter_ids)} listed trajectories."
             )
         else:
             rng = np.random.RandomState(42)
-            drifter_ids = sorted(rng.choice(drifter_ids, n_random_id, replace=False))
+            drifter_ids = sorted(rng.choice(chosen_drifter_ids, n_random_id, replace=False))
 
     download_requests = [
-        (os.path.join(url, file_name), os.path.join(tmp_path, file_name))
-        for file_name in map(lambda d_id: filename_pattern.format(id=d_id), drifter_ids)
+        (os.path.join(url, file_name), os.path.join(tmp_path, file_name), None)
+        for file_name in map(lambda d_id: filename_pattern.format(id=d_id), drifter_ids or [])
     ]
     download_with_progress(download_requests)
     # Download the metadata so we can order the drifter IDs by end date.
     gdp_metadata = gdp.get_gdp_metadata()
 
-    return gdp.order_by_date(gdp_metadata, drifter_ids)
+    return gdp.order_by_date(gdp_metadata, chosen_drifter_ids)
 
 
 def preprocess(index: int, **kwargs) -> xr.Dataset:
@@ -137,7 +148,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds : xr.Dataset
         Xarray Dataset containing the data and attributes
     """
-    ds = xr.load_dataset(
+    ds = xr.open_dataset(
         os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)),
         decode_times=False,
         decode_coords=False,
@@ -223,7 +234,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds["BuoyTypeSensorArray"] = (("traj"), gdp.cut_str(ds.BuoyTypeSensorArray, 20))
     ds["CurrentProgram"] = (
         ("traj"),
-        np.int32([gdp.str_to_float(ds.CurrentProgram, -1)]),
+        np.array([gdp.str_to_float(ds.CurrentProgram, -1)], dtype=np.int32),
     )
     ds["PurchaserFunding"] = (("traj"), gdp.cut_str(ds.PurchaserFunding, 20))
     ds["SensorUpgrade"] = (("traj"), gdp.cut_str(ds.SensorUpgrade, 20))
@@ -237,16 +248,16 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     )  # remove non ascii char
     ds["ManufactureYear"] = (
         ("traj"),
-        np.int16([gdp.str_to_float(ds.ManufactureYear, -1)]),
+        np.array([gdp.str_to_float(ds.ManufactureYear, -1)], dtype=np.int16),
     )
     ds["ManufactureMonth"] = (
         ("traj"),
-        np.int16([gdp.str_to_float(ds.ManufactureMonth, -1)]),
+        np.array([gdp.str_to_float(ds.ManufactureMonth, -1)], dtype=np.int16),
     )
     ds["ManufactureSensorType"] = (("traj"), gdp.cut_str(ds.ManufactureSensorType, 20))
     ds["ManufactureVoltage"] = (
         ("traj"),
-        np.int16([gdp.str_to_float(ds.ManufactureVoltage[:-6], -1)]),
+        np.array([gdp.str_to_float(ds.ManufactureVoltage[:-6], -1)], dtype=np.int16),
     )  # e.g. 56 V
     ds["FloatDiameter"] = (
         ("traj"),
@@ -514,7 +525,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
 def to_raggedarray(
     drifter_ids: Optional[list[int]] = None,
     n_random_id: Optional[int] = None,
-    url: Optional[str] = GDP_DATA_URL,
+    url: GdpDataUrl = GdpDataUrl.GDP_DATA_URL_STABLE,
     tmp_path: Optional[str] = None,
 ) -> RaggedArray:
     """Download and process individual GDP hourly files and return a RaggedArray
@@ -580,16 +591,16 @@ def to_raggedarray(
 
     # adjust the tmp_path if using the experimental source
     if tmp_path is None:
-        tmp_path = GDP_TMP_PATH if url == GDP_DATA_URL else GDP_TMP_PATH_EXPERIMENTAL
+        tmp_path = GDP_TMP_PATH if url == GdpDataUrl.GDP_DATA_URL_STABLE else GDP_TMP_PATH_EXPERIMENTAL
 
     ids = download(drifter_ids, n_random_id, url, tmp_path)
 
-    if url == GDP_DATA_URL:
+    if url == GdpDataUrl.GDP_DATA_URL_STABLE:
         filename_pattern = "drifter_hourly_{id}.nc"
-    elif url == GDP_DATA_URL_EXPERIMENTAL:
+    elif url == GdpDataUrl.GDP_DATA_URL_EXPERIMENTAL:
         filename_pattern = "drifter_hourly_{id}.nc"
     else:
-        raise ValueError(f"url must be {GDP_DATA_URL} or {GDP_DATA_URL_EXPERIMENTAL}.")
+        raise ValueError(f"url must be {GdpDataUrl.GDP_DATA_URL_STABLE} or {GdpDataUrl.GDP_DATA_URL_EXPERIMENTAL}.")
 
     ra = RaggedArray.from_files(
         indices=ids,
@@ -603,11 +614,12 @@ def to_raggedarray(
     )
 
     # set dynamic global attributes
-    ra.attrs_global["time_coverage_start"] = (
-        f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
-    )
-    ra.attrs_global["time_coverage_end"] = (
-        f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
-    )
+    if ra.attrs_global:
+        ra.attrs_global[
+            "time_coverage_start"
+        ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+        ra.attrs_global[
+            "time_coverage_end"
+        ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
 
     return ra

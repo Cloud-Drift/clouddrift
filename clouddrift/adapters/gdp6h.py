@@ -10,10 +10,11 @@ import tempfile
 import urllib.request
 import warnings
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 import xarray as xr
+from numpy.typing import ArrayLike
 
 import clouddrift.adapters.gdp as gdp
 from clouddrift.adapters.utils import download_with_progress
@@ -37,10 +38,10 @@ GDP_DATA = [
 
 
 def download(
-    drifter_ids: list = None,
-    n_random_id: int = None,
-    url: str = GDP_DATA_URL,
-    tmp_path: str = GDP_TMP_PATH,
+    url: str,
+    tmp_path: str,
+    drifter_ids: Union[list, None] = None,
+    n_random_id: Union[int, None] = None
 ):
     """Download individual NetCDF files from the AOML server.
 
@@ -79,7 +80,7 @@ def download(
     if drifter_ids is None:
         urlpath = urllib.request.urlopen(url)
         string = urlpath.read().decode("utf-8")
-        drifter_urls = []
+        drifter_urls: ArrayLike = []
         for dir in directory_list:
             urlpath = urllib.request.urlopen(os.path.join(url, dir))
             string = urlpath.read().decode("utf-8")
@@ -90,14 +91,14 @@ def download(
     if n_random_id:
         if n_random_id > len(drifter_urls):
             warnings.warn(
-                f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(drifter_ids)} listed trajectories."
+                f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(drifter_urls)} listed trajectories."
             )
         else:
             rng = np.random.RandomState(42)
             drifter_urls = rng.choice(drifter_urls, n_random_id, replace=False)
 
     download_with_progress(
-        [(url, os.path.join(tmp_path, os.path.basename(url))) for url in drifter_urls]
+        [(url, os.path.join(tmp_path, os.path.basename(url)), None) for url in drifter_urls]
     )
 
     # Download the metadata so we can order the drifter IDs by end date.
@@ -423,7 +424,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
 def to_raggedarray(
     drifter_ids: Optional[list[int]] = None,
     n_random_id: Optional[int] = None,
-    tmp_path: Optional[str] = GDP_TMP_PATH,
+    tmp_path: str = GDP_TMP_PATH,
 ) -> RaggedArray:
     """Download and process individual GDP 6-hourly files and return a
     RaggedArray instance with the data.
@@ -476,7 +477,7 @@ def to_raggedarray(
     >>> arr = ra.to_awkward()
     >>> arr.to_parquet("gdp6h.parquet")
     """
-    ids = download(drifter_ids, n_random_id, GDP_DATA_URL, tmp_path)
+    ids = download(GDP_DATA_URL, tmp_path, drifter_ids, n_random_id)
 
     ra = RaggedArray.from_files(
         indices=ids,
@@ -490,11 +491,11 @@ def to_raggedarray(
     )
 
     # update dynamic global attributes
-    ra.attrs_global["time_coverage_start"] = (
-        f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
-    )
-    ra.attrs_global["time_coverage_end"] = (
-        f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
-    )
+    ra.attrs_global[
+        "time_coverage_start"
+    ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+    ra.attrs_global[
+        "time_coverage_end"
+    ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
 
     return ra

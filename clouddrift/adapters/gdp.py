@@ -113,7 +113,7 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
     df[8] += " " + df[9]
     df[12] += " " + df[13]
     df = df.drop(columns=[5, 9, 13])
-    df.columns = [
+    df.columns = pd.Index([
         "ID",
         "WMO_number",
         "program_number",
@@ -126,7 +126,7 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
         "End_lon",
         "Drogue_off_date",
         "death_code",
-    ]
+    ], dtype="str")
     for t in ["Start_date", "End_date", "Drogue_off_date"]:
         df[t] = pd.to_datetime(df[t], format="%Y/%m/%d %H:%M", errors="coerce")
 
@@ -162,7 +162,7 @@ def get_gdp_metadata() -> pd.DataFrame:
     return df
 
 
-def order_by_date(df: pd.DataFrame, idx: list[int]) -> np.ndarray[int]:
+def order_by_date(df: pd.DataFrame, idx: list[int]) -> list[int]:  # noqa: F821
     """From the previously sorted DataFrame of directory files, return the
     unique set of drifter IDs sorted by their start date (the date of the first
     quality-controlled data point).
@@ -190,7 +190,7 @@ def fetch_netcdf(url: str, file: str):
     file : str
         Name of the file to save.
     """
-    download_with_progress([(url, file)])
+    download_with_progress([(url, file, None)])
 
 
 def decode_date(t):

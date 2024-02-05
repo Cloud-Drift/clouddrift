@@ -21,6 +21,7 @@ Example
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from io import BytesIO
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -58,9 +59,13 @@ def get_dataframes() -> tuple[pd.DataFrame, pd.DataFrame]:
         range(len(sensor_ids)), key=lambda k: order_index[sensor_ids[k]]
     )
     sorted_data_urls = [data_urls[i] for i in sorted_indices]
-    buffers = [BytesIO(b"") * len(sorted_data_urls)]
+    buffers = [BytesIO(b"") for _ in range (len(sorted_data_urls))]
+    requests = [
+        (url, BytesIO(b""), None)
+        for url in sorted_data_urls
+    ]
 
-    download_with_progress(zip(sorted_data_urls, buffers), desc="Downloading data")
+    download_with_progress(requests, desc="Downloading data")
     dfs = [pd.read_csv(b) for b in buffers]
     obs_df = pd.concat(dfs)
 
@@ -76,22 +81,24 @@ def get_dataframes() -> tuple[pd.DataFrame, pd.DataFrame]:
     return obs_df, sensors
 
 
-def get_file_urls(xml: str) -> list[str]:
+def get_file_urls(xml: bytes) -> Tuple[list[str], list[str]]:
     """Pass the MOSAiC XML string and return the list of filenames and URLs."""
     filenames = [
         tag.text
         for tag in ET.fromstring(xml).findall("./dataset/dataTable/physical/objectName")
+        if tag.text
     ]
     urls = [
         tag.text
         for tag in ET.fromstring(xml).findall(
             "./dataset/dataTable/physical/distribution/online/url"
         )
+        if tag.text
     ]
     return filenames, urls
 
 
-def get_repository_metadata() -> str:
+def get_repository_metadata() -> bytes:
     """Get the MOSAiC repository metadata as an XML string.
     Pass this string to other get_* functions to extract the data you need.
     """

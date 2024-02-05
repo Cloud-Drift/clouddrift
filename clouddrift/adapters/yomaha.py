@@ -21,6 +21,7 @@ import os
 import tempfile
 import warnings
 from datetime import datetime
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -42,17 +43,17 @@ YOMAHA_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "yomaha")
 
 def download(tmp_path: str):
     download_requests = [
-        (url, f"{tmp_path}/{url.split('/')[-1]}") for url in YOMAHA_URLS[:-1]
+        (url, f"{tmp_path}/{url.split('/')[-1]}", None) for url in YOMAHA_URLS[:-1]
     ]
     download_with_progress(download_requests)
 
     filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
     filename = filename_gz[:-3]
 
-    download_with_progress([(YOMAHA_URLS[-1], filename)], gzip.decompress)
+    download_with_progress([(YOMAHA_URLS[-1], filename, None)], gzip.decompress)
 
 
-def to_xarray(tmp_path: str = None):
+def to_xarray(tmp_path: Union[str, None] = None):
     if tmp_path is None:
         tmp_path = YOMAHA_TMP_PATH
         os.makedirs(tmp_path, exist_ok=True)
@@ -97,7 +98,7 @@ def to_xarray(tmp_path: str = None):
         "time_inv",
     ]
 
-    na_col = [
+    na_col = list(map(lambda x: str(x), [
         -999.9999,
         -99.9999,
         -999.9,
@@ -126,7 +127,7 @@ def to_xarray(tmp_path: str = None):
         np.nan,
         np.nan,
         np.nan,
-    ]
+    ]))
 
     # open with pandas
     filename = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1][:-3]}"
