@@ -1,4 +1,5 @@
 # dataset files and folders
+data/
 data/process/*.nc
 data/process/*.parquet
 data/raw/gdp-*
