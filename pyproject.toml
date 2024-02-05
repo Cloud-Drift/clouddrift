@@ -59,6 +59,7 @@ modules = [
   "clouddrift.adapters.mosaic",
   "clouddrift.adapters.subsurface_floats",
   "clouddrift.adapters.yomaha",
+  "clouddrift.datasets",
   "tests",
   "tests.adapters",
   "tests.adapters.utils_tests",
