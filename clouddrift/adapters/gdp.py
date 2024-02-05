@@ -113,20 +113,23 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
     df[8] += " " + df[9]
     df[12] += " " + df[13]
     df = df.drop(columns=[5, 9, 13])
-    df.columns = pd.Index([
-        "ID",
-        "WMO_number",
-        "program_number",
-        "buoys_type",
-        "Start_date",
-        "Start_lat",
-        "Start_lon",
-        "End_date",
-        "End_lat",
-        "End_lon",
-        "Drogue_off_date",
-        "death_code",
-    ], dtype="str")
+    df.columns = pd.Index(
+        [
+            "ID",
+            "WMO_number",
+            "program_number",
+            "buoys_type",
+            "Start_date",
+            "Start_lat",
+            "Start_lon",
+            "End_date",
+            "End_lat",
+            "End_lon",
+            "Drogue_off_date",
+            "death_code",
+        ],
+        dtype="str",
+    )
     for t in ["Start_date", "End_date", "Drogue_off_date"]:
         df[t] = pd.to_datetime(df[t], format="%Y/%m/%d %H:%M", errors="coerce")
 

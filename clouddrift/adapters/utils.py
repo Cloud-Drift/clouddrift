@@ -1,10 +1,10 @@
 import concurrent.futures
 import logging
 import os
+import traceback
 from datetime import datetime
 from io import BufferedIOBase, StringIO
 from typing import Callable, Sequence, Tuple, Union
-import traceback
 
 import requests
 from requests import Response
@@ -25,15 +25,18 @@ _standard_retry_protocol = retry(
     ),
     wait=wait_exponential_jitter(initial=0.25),
     stop=stop_after_attempt(10),
-    before=lambda rcs: _logger.info(f"retrying call to: {rcs.fn}, attempt: {rcs.attempt_number}")
+    before=lambda rcs: _logger.info(
+        f"retrying call to: {rcs.fn}, attempt: {rcs.attempt_number}"
+    ),
 )
+
 
 def download_with_progress(
     download_map: Sequence[Tuple[str, Union[BufferedIOBase, str], Union[float, None]]],
     prewrite_func=lambda x: x,
     show_list_progress: Union[bool, None] = None,
     desc: str = "Downloading files",
-    custom_retry_protocol: Union[Callable[[WrappedFn], WrappedFn], None] = None
+    custom_retry_protocol: Union[Callable[[WrappedFn], WrappedFn], None] = None,
 ):
     if show_list_progress is None:
         show_list_progress = len(download_map) > 20
@@ -49,16 +52,17 @@ def download_with_progress(
         for src, dst, exp_size in download_map:
             futures[
                 executor.submit(
-                    retry_protocol(_download_with_progress), src, dst, exp_size or 0, show_list_progress, prewrite_func
+                    retry_protocol(_download_with_progress),
+                    src,
+                    dst,
+                    exp_size or 0,
+                    show_list_progress,
+                    prewrite_func,
                 )
             ] = (src, dst)
         try:
             if show_list_progress:
-                bar = tqdm(
-                    desc=desc,
-                    total=len(futures),
-                    unit="Files"
-                )
+                bar = tqdm(desc=desc, total=len(futures), unit="Files")
 
             for fut in concurrent.futures.as_completed(futures):
                 (src, dst) = futures[fut]
@@ -126,7 +130,7 @@ def _download_with_progress(
                 unit="B",
                 unit_scale=True,
                 unit_divisor=1024,
-                nrows=2
+                nrows=2,
             )
 
         for chunk in response.iter_content(_CHUNK_SIZE):
@@ -146,7 +150,9 @@ def _download_with_progress(
     finally:
         if response is not None:
             response.close()
-        if buffer is not None and (not isinstance(output, BufferedIOBase) or force_close):
+        if buffer is not None and (
+            not isinstance(output, BufferedIOBase) or force_close
+        ):
             _logger.debug(f"closing buffer {buffer}")
             buffer.close()
         if bar is not None:
@@ -154,6 +160,4 @@ def _download_with_progress(
     return True
 
 
-__all__ = [
-    "download_with_progress"
-]
+__all__ = ["download_with_progress"]

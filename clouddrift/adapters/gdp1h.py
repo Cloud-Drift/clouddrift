@@ -24,9 +24,15 @@ from clouddrift.raggedarray import RaggedArray
 
 GDP_VERSION = "2.01"
 
+
 class GdpDataUrl(str, enum.Enum):
-    GDP_DATA_URL_STABLE = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01/"
-    GDP_DATA_URL_EXPERIMENTAL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental/"
+    GDP_DATA_URL_STABLE = (
+        "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01/"
+    )
+    GDP_DATA_URL_EXPERIMENTAL = (
+        "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental/"
+    )
+
 
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
 GDP_TMP_PATH_EXPERIMENTAL = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp_exp")
@@ -83,7 +89,11 @@ def download(
 
     # adjust the tmp_path if using the experimental source
     if tmp_path is None:
-        tmp_path = GDP_TMP_PATH if url == GdpDataUrl.GDP_DATA_URL_STABLE else GDP_TMP_PATH_EXPERIMENTAL
+        tmp_path = (
+            GDP_TMP_PATH
+            if url == GdpDataUrl.GDP_DATA_URL_STABLE
+            else GDP_TMP_PATH_EXPERIMENTAL
+        )
 
     _logger.debug(f"Downloading GDP hourly data from ({url}) to ({tmp_path})")
 
@@ -109,7 +119,6 @@ def download(
     else:
         chosen_drifter_ids = drifter_ids
 
-
     # retrieve only a subset of n_random_id trajectories
     if n_random_id:
         if n_random_id > len(chosen_drifter_ids):
@@ -118,11 +127,15 @@ def download(
             )
         else:
             rng = np.random.RandomState(42)
-            drifter_ids = sorted(rng.choice(chosen_drifter_ids, n_random_id, replace=False))
+            drifter_ids = sorted(
+                rng.choice(chosen_drifter_ids, n_random_id, replace=False)
+            )
 
     download_requests = [
         (os.path.join(url, file_name), os.path.join(tmp_path, file_name), None)
-        for file_name in map(lambda d_id: filename_pattern.format(id=d_id), drifter_ids or [])
+        for file_name in map(
+            lambda d_id: filename_pattern.format(id=d_id), drifter_ids or []
+        )
     ]
     download_with_progress(download_requests)
     # Download the metadata so we can order the drifter IDs by end date.
@@ -591,7 +604,11 @@ def to_raggedarray(
 
     # adjust the tmp_path if using the experimental source
     if tmp_path is None:
-        tmp_path = GDP_TMP_PATH if url == GdpDataUrl.GDP_DATA_URL_STABLE else GDP_TMP_PATH_EXPERIMENTAL
+        tmp_path = (
+            GDP_TMP_PATH
+            if url == GdpDataUrl.GDP_DATA_URL_STABLE
+            else GDP_TMP_PATH_EXPERIMENTAL
+        )
 
     ids = download(drifter_ids, n_random_id, url, tmp_path)
 
@@ -600,7 +617,9 @@ def to_raggedarray(
     elif url == GdpDataUrl.GDP_DATA_URL_EXPERIMENTAL:
         filename_pattern = "drifter_hourly_{id}.nc"
     else:
-        raise ValueError(f"url must be {GdpDataUrl.GDP_DATA_URL_STABLE} or {GdpDataUrl.GDP_DATA_URL_EXPERIMENTAL}.")
+        raise ValueError(
+            f"url must be {GdpDataUrl.GDP_DATA_URL_STABLE} or {GdpDataUrl.GDP_DATA_URL_EXPERIMENTAL}."
+        )
 
     ra = RaggedArray.from_files(
         indices=ids,

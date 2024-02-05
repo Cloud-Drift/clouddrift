@@ -41,7 +41,7 @@ def download(
     url: str,
     tmp_path: str,
     drifter_ids: Union[list, None] = None,
-    n_random_id: Union[int, None] = None
+    n_random_id: Union[int, None] = None,
 ):
     """Download individual NetCDF files from the AOML server.
 
@@ -98,7 +98,10 @@ def download(
             drifter_urls = rng.choice(drifter_urls, n_random_id, replace=False)
 
     download_with_progress(
-        [(url, os.path.join(tmp_path, os.path.basename(url)), None) for url in drifter_urls]
+        [
+            (url, os.path.join(tmp_path, os.path.basename(url)), None)
+            for url in drifter_urls
+        ]
     )
 
     # Download the metadata so we can order the drifter IDs by end date.
