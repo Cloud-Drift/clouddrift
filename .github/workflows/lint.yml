@@ -26,7 +26,7 @@ jobs:
           environment-name: clouddrift
       - run: pip install mypy
         shell: micromamba-shell {0}
-      - run: mypy --install-types --non-interactive
+      - run: mypy --install-types --non-interactive --config-file pyproject.toml
         shell: micromamba-shell {0}
       - run: mypy
         shell: micromamba-shell {0}
