@@ -1,25 +1,12 @@
 import unittest
 from datetime import datetime, timedelta
-from typing import Sequence
-from unittest.mock import Mock, _patch, patch
+from unittest.mock import Mock, patch
 
 from requests import Timeout
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_fixed
 
 from clouddrift.adapters import utils
-
-
-class MultiPatcher:
-    _patches: Sequence[_patch]
-
-    def __init__(self, patches: Sequence[_patch]):
-        self._patches = patches
-
-    def __enter__(self) -> Sequence[Mock]:
-        return [p.start() for p in self._patches]
-
-    def __exit__(self, *_):
-        [p.stop() for p in self._patches]
+from tests.adapters.utils import MultiPatcher
 
 
 class utils_tests(unittest.TestCase):
@@ -54,7 +41,7 @@ class utils_tests(unittest.TestCase):
 
     def test_retry_mechanism(self):
         """
-        Only download files from remote server if local file doesn't exist or the file has been updated.
+        Ensure retry mechanism works.
         """
         with MultiPatcher(
             [

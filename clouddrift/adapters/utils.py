@@ -25,8 +25,8 @@ _standard_retry_protocol = retry(
     ),
     wait=wait_exponential_jitter(initial=0.25),
     stop=stop_after_attempt(10),
-    before=lambda rcs: _logger.info(
-        f"retrying call to: {rcs.fn}, attempt: {rcs.attempt_number}"
+    before=lambda rcs: _logger.debug(
+        f"calling {rcs.fn.__module__}.{rcs.fn.__name__}, attempt: {rcs.attempt_number}"
     ),
 )
 
