@@ -60,7 +60,6 @@ modules = [
   "clouddrift.adapters.subsurface_floats",
   "clouddrift.adapters.yomaha",
   "clouddrift.datasets",
-  "clouddrift.cli",
   "tests",
   "tests.adapters",
   "tests.adapters.utils_tests",
