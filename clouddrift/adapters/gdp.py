@@ -153,8 +153,7 @@ def get_gdp_metadata() -> pd.DataFrame:
         try:
             dfs.append(parse_directory_file(name))
             start += 5000
-        except Exception as e:
-            print(f"Error reading metadata for file: '{name}', error: {e}")
+        except Exception:
             break
 
     name = directory_file_pattern.format(low=start, high="current")
