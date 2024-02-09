@@ -1,4 +1,3 @@
-
 from typing import Sequence
 from unittest.mock import Mock, _patch
 

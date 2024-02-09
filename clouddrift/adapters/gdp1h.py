@@ -23,9 +23,7 @@ from clouddrift.raggedarray import RaggedArray
 GDP_VERSION = "2.01"
 
 
-GDP_DATA_URL = (
-    "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01/"
-)
+GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01/"
 GDP_DATA_URL_EXPERIMENTAL = (
     "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental/"
 )
@@ -62,7 +60,7 @@ def download(
     url: str,
     tmp_path: str,
     drifter_ids: Union[list[int], None] = None,
-    n_random_id: Union[int, None] = None
+    n_random_id: Union[int, None] = None,
 ):
     """Download individual NetCDF files from the AOML server.
 
@@ -105,18 +103,17 @@ def download(
             )
         else:
             rng = np.random.RandomState(42)
-            filelist = sorted(
-                rng.choice(filelist, n_random_id, replace=False)
-            )
+            filelist = sorted(rng.choice(filelist, n_random_id, replace=False))
 
-    download_with_progress([
-        (os.path.join(url, f), os.path.join(tmp_path, f), None)
-        for f in filelist
-    ])
+    download_with_progress(
+        [(os.path.join(url, f), os.path.join(tmp_path, f), None) for f in filelist]
+    )
     # Download the metadata so we can order the drifter IDs by end date.
     gdp_metadata = gdp.get_gdp_metadata()
 
-    return gdp.order_by_date(gdp_metadata, [int(f.split("_")[-1][:-3]) for f in filelist])
+    return gdp.order_by_date(
+        gdp_metadata, [int(f.split("_")[-1][:-3]) for f in filelist]
+    )
 
 
 def preprocess(index: int, **kwargs) -> xr.Dataset:
@@ -579,11 +576,7 @@ def to_raggedarray(
 
     # adjust the tmp_path if using the experimental source
     if tmp_path is None:
-        tmp_path = (
-            GDP_TMP_PATH
-            if url == GDP_DATA_URL
-            else GDP_TMP_PATH_EXPERIMENTAL
-        )
+        tmp_path = GDP_TMP_PATH if url == GDP_DATA_URL else GDP_TMP_PATH_EXPERIMENTAL
 
     ids = download(url, tmp_path, drifter_ids, n_random_id)
     filename_pattern = "drifter_hourly_{id}.nc"

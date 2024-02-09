@@ -30,13 +30,16 @@ class gdp1h_tests(unittest.TestCase):
 
     def test_downloads_all_files_returned(self):
         """
-        If neither drifter ids or n_random_id (randomized sample size) are provided as arguments, 
+        If neither drifter ids or n_random_id (randomized sample size) are provided as arguments,
         download all of the files.
         """
         with MultiPatcher(
             [
-                patch("clouddrift.adapters.gdp1h.urllib.request.urlopen", Mock(return_value=self.response_mock)),
-                patch( "clouddrift.adapters.gdp1h.download_with_progress", Mock()),
+                patch(
+                    "clouddrift.adapters.gdp1h.urllib.request.urlopen",
+                    Mock(return_value=self.response_mock),
+                ),
+                patch("clouddrift.adapters.gdp1h.download_with_progress", Mock()),
                 patch("clouddrift.adapters.gdp1h.os.makedirs", Mock()),
                 patch("clouddrift.adapters.gdp1h.gdp", self.gdp_mock),
             ]
@@ -48,13 +51,16 @@ class gdp1h_tests(unittest.TestCase):
         """
         If n_random_id is provided, exactly `n_random_id` drifter files should be downloaded
         """
-        
+
         gdp_mock = Mock()
         gdp_mock.gdp_order_by_date = lambda _, y: y
         with MultiPatcher(
             [
-                patch("clouddrift.adapters.gdp1h.urllib.request.urlopen", Mock(return_value=self.response_mock)),
-                patch( "clouddrift.adapters.gdp1h.download_with_progress", Mock()),
+                patch(
+                    "clouddrift.adapters.gdp1h.urllib.request.urlopen",
+                    Mock(return_value=self.response_mock),
+                ),
+                patch("clouddrift.adapters.gdp1h.download_with_progress", Mock()),
                 patch("clouddrift.adapters.gdp1h.os.makedirs", Mock()),
                 patch("clouddrift.adapters.gdp1h.gdp", self.gdp_mock),
             ]
@@ -68,16 +74,27 @@ class gdp1h_tests(unittest.TestCase):
         """
         with MultiPatcher(
             [
-                patch("clouddrift.adapters.gdp1h.urllib.request.urlopen", Mock(return_value=self.response_mock)),
-                patch( "clouddrift.adapters.gdp1h.download_with_progress", Mock()),
+                patch(
+                    "clouddrift.adapters.gdp1h.urllib.request.urlopen",
+                    Mock(return_value=self.response_mock),
+                ),
+                patch("clouddrift.adapters.gdp1h.download_with_progress", Mock()),
                 patch("clouddrift.adapters.gdp1h.os.makedirs", Mock()),
                 patch("clouddrift.adapters.gdp1h.gdp", self.gdp_mock),
             ]
         ) as mocks:
-            drifter_ids =  [0, 1, 2]
-            ret_drifter_ids = gdp1h.download("some-url.com", "../some/path", drifter_ids, None)
+            drifter_ids = [0, 1, 2]
+            ret_drifter_ids = gdp1h.download(
+                "some-url.com", "../some/path", drifter_ids, None
+            )
             assert len(ret_drifter_ids) == 3
-            mocks[1].assert_called_with([
-                (f"some-url.com/drifter_hourly_{did}.nc", f"../some/path/drifter_hourly_{did}.nc", None) 
-                for did in drifter_ids]
+            mocks[1].assert_called_with(
+                [
+                    (
+                        f"some-url.com/drifter_hourly_{did}.nc",
+                        f"../some/path/drifter_hourly_{did}.nc",
+                        None,
+                    )
+                    for did in drifter_ids
+                ]
             )

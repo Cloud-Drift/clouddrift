@@ -133,7 +133,11 @@ def to_xarray(tmp_path: Union[str, None] = None):
 
     # open with pandas
     df = pd.read_csv(
-        local_file, names=col_names, sep="\s+", header=None, na_values=na_col # type: ignore
+        local_file,
+        names=col_names,
+        sep="\s+",
+        header=None,
+        na_values=na_col,  # type: ignore
     )
 
     # convert to an Xarray Dataset
