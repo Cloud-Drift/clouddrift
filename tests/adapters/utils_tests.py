@@ -89,10 +89,11 @@ class utils_tests(unittest.TestCase):
 
     def test_progress_mechanism_disabled_files(self):
         """
-        Ensure we don't show progress for the list of files when number of files is less than 20 and user 
+        Ensure we don't show progress for the list of files when number of files is less than 20 and user
         does not specify whether the progress feature is enabled/disabled.
         """
         mocked_futures_list = list()
+
         def gen_future_mock():
             nonlocal mocked_futures_list
             fut = concurrent.futures.Future()
@@ -109,7 +110,7 @@ class utils_tests(unittest.TestCase):
         download_requests = [
             ("src0", "dst", None),
             ("src1", "dst", None),
-            ("src2", "dst", None)
+            ("src2", "dst", None),
         ]
 
         with MultiPatcher(
@@ -128,10 +129,11 @@ class utils_tests(unittest.TestCase):
 
     def test_progress_mechanism_enabled_files(self):
         """
-        Ensure we do show progress for the list of files when number of files is greater than 20 and user 
+        Ensure we do show progress for the list of files when number of files is greater than 20 and user
         does not specify whether the progress feature is enabled/disabled.
         """
         mocked_futures_list = list()
+
         def gen_future_mock():
             nonlocal mocked_futures_list
             fut = Mock()
@@ -146,9 +148,7 @@ class utils_tests(unittest.TestCase):
         futures_mock = Mock()
         futures_mock.ThreadPoolExecutor = Mock(return_value=tpe_mock)
         futures_mock.as_completed = Mock(return_value=mocked_futures_list)
-        download_requests = [
-            ("src0", "dst", None) for _ in range(0, 21)
-        ]
+        download_requests = [("src0", "dst", None) for _ in range(0, 21)]
 
         with MultiPatcher(
             [
