@@ -56,7 +56,7 @@ def download_with_progress(
                     src,
                     dst,
                     exp_size or 0,
-                    show_list_progress,
+                    not show_list_progress,
                     prewrite_func,
                 )
             ] = (src, dst)
