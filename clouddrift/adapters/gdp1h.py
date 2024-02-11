@@ -117,6 +117,26 @@ def download(
     )
 
 
+def _get_dataset(index: int, **kwargs) -> xr.Dataset:
+    engines_tried = 0
+    engines = ["netcdf4", "h5netcdf", "scipy"]
+    for engine in engines:
+        try:
+            engines_tried += 1
+            fp = os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)),
+            _logger.debug(f"Try opening ({fp}) using ({engine})")
+            ds = xr.open_dataset(
+                fp,
+                decode_times=False,
+                decode_coords=False,
+            )
+            return ds
+        except OSError as os_err:
+            _logger.warning(f"Tried opening ({fp}) using ({engine}). Got ({os_err.strerror})")
+            if engines_tried == len(engines):
+                raise os_err
+
+
 def preprocess(index: int, **kwargs) -> xr.Dataset:
     """Extract and preprocess the Lagrangian data and attributes.
 
@@ -134,11 +154,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds : xr.Dataset
         Xarray Dataset containing the data and attributes
     """
-    ds = xr.open_dataset(
-        os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)),
-        decode_times=False,
-        decode_coords=False,
-    )
+    ds = _get_dataset(index, **kwargs)
 
     # parse the date with custom function
     ds["deploy_date"].data = gdp.decode_date(np.array([ds.deploy_date.data[0]]))
