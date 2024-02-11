@@ -127,6 +127,7 @@ def _get_dataset(index: int, **kwargs) -> xr.Dataset:
             _logger.debug(f"Try opening ({fp}) using ({engine})")
             ds = xr.open_dataset(
                 fp,
+                engine=engine,
                 decode_times=False,
                 decode_coords=False,
             )
