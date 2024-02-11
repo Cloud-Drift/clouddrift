@@ -119,11 +119,11 @@ def download(
 
 def _get_dataset(index: int, **kwargs) -> xr.Dataset:
     engines_tried = 0
-    engines = ["netcdf4", "h5netcdf", "scipy"]
+    engines = [None, "netcdf4", "h5netcdf", "scipy"]
     for engine in engines:
         try:
             engines_tried += 1
-            fp = os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)),
+            fp = os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index))
             _logger.debug(f"Try opening ({fp}) using ({engine})")
             ds = xr.open_dataset(
                 fp,
