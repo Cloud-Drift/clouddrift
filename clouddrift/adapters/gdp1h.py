@@ -123,7 +123,9 @@ def _get_dataset(index: int, **kwargs) -> xr.Dataset:
     for engine in engines:
         try:
             engines_tried += 1
-            fp = os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index))
+            fp = os.path.join(
+                kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)
+            )
             _logger.debug(f"Try opening ({fp}) using ({engine})")
             ds = xr.open_dataset(
                 fp,
@@ -133,7 +135,9 @@ def _get_dataset(index: int, **kwargs) -> xr.Dataset:
             )
             return ds
         except OSError as os_err:
-            _logger.warning(f"Tried opening ({fp}) using ({engine}). Got ({os_err.strerror})")
+            _logger.warning(
+                f"Tried opening ({fp}) using ({engine}). Got ({os_err.strerror})"
+            )
             if engines_tried == len(engines):
                 raise os_err
 

@@ -105,9 +105,7 @@ class gdp1h_tests(unittest.TestCase):
         """
         xarray_mock = Mock()
         xarray_mock.open_dataset = Mock()
-        with MultiPatcher([
-                patch("clouddrift.adapters.gdp1h.xr", xarray_mock)
-        ]):
+        with MultiPatcher([patch("clouddrift.adapters.gdp1h.xr", xarray_mock)]):
             gdp1h._get_dataset(5, tmp_path="some-path", filename_pattern="some-pattern")
             xarray_mock.open_dataset.assert_called_once()
 
@@ -117,11 +115,13 @@ class gdp1h_tests(unittest.TestCase):
         until one succeeds.
         """
         xarray_mock = Mock()
-        xarray_mock.open_dataset = Mock(side_effect=[OSError("some os level error"), Mock()])
-        with MultiPatcher([
-                patch("clouddrift.adapters.gdp1h.xr", xarray_mock)
-        ]):
-            val = gdp1h._get_dataset(5, tmp_path="some-path", filename_pattern="some-pattern")
+        xarray_mock.open_dataset = Mock(
+            side_effect=[OSError("some os level error"), Mock()]
+        )
+        with MultiPatcher([patch("clouddrift.adapters.gdp1h.xr", xarray_mock)]):
+            val = gdp1h._get_dataset(
+                5, tmp_path="some-path", filename_pattern="some-pattern"
+            )
             assert xarray_mock.open_dataset.call_count > 1
             assert val is not None
 
@@ -132,12 +132,11 @@ class gdp1h_tests(unittest.TestCase):
         """
         xarray_mock = Mock()
         xarray_mock.open_dataset = Mock(side_effect=OSError("some os level error"))
-        with MultiPatcher([
-                patch("clouddrift.adapters.gdp1h.xr", xarray_mock)
-        ]):
+        with MultiPatcher([patch("clouddrift.adapters.gdp1h.xr", xarray_mock)]):
             self.assertRaises(
                 OSError,
-                lambda: gdp1h._get_dataset(5, tmp_path="some-path", filename_pattern="some-pattern")
+                lambda: gdp1h._get_dataset(
+                    5, tmp_path="some-path", filename_pattern="some-pattern"
+                ),
             )
             assert xarray_mock.open_dataset.call_count > 1
-
