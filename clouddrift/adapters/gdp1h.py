@@ -11,7 +11,7 @@ import tempfile
 import urllib.request
 import warnings
 from datetime import datetime, timedelta
-from typing import List, Optional, Union
+from typing import Optional, Sequence, Union
 
 import numpy as np
 import xarray as xr
@@ -91,9 +91,10 @@ def download(
     if drifter_ids is None:
         urlpath = urllib.request.urlopen(url)
         string = urlpath.read().decode("utf-8")
-        filelist: List[str] = re.compile(pattern).findall(string)
+        filelist: Sequence[str] = re.compile(pattern).findall(string)  # noqa: F821
     else:
         filelist = [filename_pattern.format(id=did) for did in drifter_ids]
+    filelist = np.unique(filelist)
 
     # retrieve only a subset of n_random_id trajectories
     if n_random_id:
