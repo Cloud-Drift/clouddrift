@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 function print_help_msg {
     echo  -e "Usage: get_clib_so_dependencies ENV_NAME OUTPUT_FILE_PATH"
@@ -13,15 +13,16 @@ do
     if [[ "$arg" == "--help" ]]
     then
         print_help_msg
-	exit 0
+        exit 0
     else
-        arg_count=$arg_count+1
+        arg_count=$((arg_count+1))
     fi
 done
 
 if [[ $arg_count == 2 ]]
 then
     env_location=$(conda env list --json | jq ".envs[]|select(endswith(\"${1}\"))" | awk -F "\"" "{print \$2}")
+    echo "Pulling clib shared obj dependencies for environment located in [${env_location}]"
     ldd ${env_location}/lib/python3*/site-packages/{netCDF4,h5py}/*.so > $2
 else
     echo "ERROR: Didn't provide the correct number of arguments. Exiting.\n"
