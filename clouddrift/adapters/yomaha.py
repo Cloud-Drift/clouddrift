@@ -21,6 +21,7 @@ import os
 import tempfile
 import warnings
 from datetime import datetime
+from io import BytesIO
 from typing import Union
 
 import numpy as np
@@ -50,7 +51,12 @@ def download(tmp_path: str):
     filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
     filename = filename_gz[:-3]
 
-    download_with_progress([(YOMAHA_URLS[-1], filename, None)], gzip.decompress)
+    download_with_progress(
+        [(YOMAHA_URLS[-1], filename, None)],
+        lambda buffer: BytesIO(
+            gzip.decompress(b"".join([data for data in buffer.readlines()]))
+        ),
+    )
 
 
 def to_xarray(tmp_path: Union[str, None] = None):

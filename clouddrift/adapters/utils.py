@@ -33,7 +33,7 @@ _standard_retry_protocol = retry(
 
 def download_with_progress(
     download_map: Sequence[Tuple[str, Union[BufferedIOBase, str], Union[float, None]]],
-    prewrite_func=lambda x: x,
+    post_download: Callable[[BufferedIOBase], BufferedIOBase] = lambda x: x,
     show_list_progress: Union[bool, None] = None,
     desc: str = "Downloading files",
     custom_retry_protocol: Union[Callable[[WrappedFn], WrappedFn], None] = None,
@@ -59,7 +59,7 @@ def download_with_progress(
                 dst,
                 exp_size or 0,
                 not show_list_progress,
-                prewrite_func,
+                post_download,
             )
         ] = (src, dst)
     try:
@@ -93,7 +93,7 @@ def _download_with_progress(
     output: Union[BufferedIOBase, str],
     expected_size: float,
     show_progress: bool,
-    prewrite_func: Callable[[bytes], bytes],
+    post_download: Callable[[BufferedIOBase], BufferedIOBase],
 ):
     if isinstance(output, str) and os.path.exists(output):
         _logger.debug(f"File exists {output} checking for updates...")
@@ -144,9 +144,10 @@ def _download_with_progress(
         for chunk in response.iter_content(_CHUNK_SIZE):
             if not chunk:
                 break
-            buffer.write(prewrite_func(chunk))
+            buffer.write(chunk)
             if bar is not None:
                 bar.update(len(chunk))
+        buffer = post_download(buffer)
     except Exception as e:
         force_close = True
         error_msg = f"Error downloading data file: {url} to: {output}, error: {e}"
