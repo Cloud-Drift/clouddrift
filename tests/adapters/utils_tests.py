@@ -204,7 +204,7 @@ class utils_tests(unittest.TestCase):
         mocked_futures = [
             self.gen_future_mock(),
             self.gen_future_mock(),
-            self.gen_future_mock(Exception()),
+            self.gen_future_mock(Exception("just a test exception that is expected")),
             self.gen_future_mock(),
         ]
 
