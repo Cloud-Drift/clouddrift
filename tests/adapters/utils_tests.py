@@ -1,4 +1,3 @@
-import concurrent.futures
 import unittest
 from datetime import datetime, timedelta
 from unittest.mock import Mock, mock_open, patch
@@ -92,26 +91,21 @@ class utils_tests(unittest.TestCase):
         Ensure we don't show progress for the list of files when number of files is less than 20 and user
         does not specify whether the progress feature is enabled/disabled.
         """
-        mocked_futures_list = list()
-
-        def gen_future_mock():
-            nonlocal mocked_futures_list
-            fut = concurrent.futures.Future()
-            mocked_futures_list.append(fut)
-            return fut
-
-        tpe_mock = Mock()
-        tpe_mock.__enter__ = Mock(return_value=tpe_mock)
-        tpe_mock.__exit__ = Mock()
-        tpe_mock.submit = Mock(side_effect=lambda *_, **__: gen_future_mock())
-        futures_mock = Mock()
-        futures_mock.ThreadPoolExecutor = Mock(return_value=tpe_mock)
-        futures_mock.as_completed = Mock(return_value=mocked_futures_list)
+        mocked_futures = [self.gen_future_mock() for _ in range(0, 3)]
         download_requests = [
             ("src0", "dst", None),
             ("src1", "dst", None),
             ("src2", "dst", None),
         ]
+
+        tpe_mock = Mock()
+        tpe_mock.__enter__ = Mock(return_value=tpe_mock)
+        tpe_mock.__exit__ = Mock()
+        tpe_mock.submit = Mock(side_effect=mocked_futures)
+
+        futures_mock = Mock()
+        futures_mock.ThreadPoolExecutor = Mock(return_value=tpe_mock)
+        futures_mock.as_completed = Mock(return_value=mocked_futures)
 
         with MultiPatcher(
             [
@@ -132,23 +126,18 @@ class utils_tests(unittest.TestCase):
         Ensure we do show progress for the list of files when number of files is greater than 20 and user
         does not specify whether the progress feature is enabled/disabled.
         """
-        mocked_futures_list = list()
 
-        def gen_future_mock():
-            nonlocal mocked_futures_list
-            fut = Mock()
-            fut.exception = Mock(return_value=None)
-            mocked_futures_list.append(fut)
-            return fut
+        mocked_futures = [self.gen_future_mock() for _ in range(0, 21)]
+        download_requests = [("src0", "dst", None) for _ in range(0, 21)]
 
         tpe_mock = Mock()
         tpe_mock.__enter__ = Mock(return_value=tpe_mock)
         tpe_mock.__exit__ = Mock()
-        tpe_mock.submit = Mock(side_effect=lambda *_, **__: gen_future_mock())
+        tpe_mock.submit = Mock(side_effect=mocked_futures)
+
         futures_mock = Mock()
         futures_mock.ThreadPoolExecutor = Mock(return_value=tpe_mock)
-        futures_mock.as_completed = Mock(return_value=mocked_futures_list)
-        download_requests = [("src0", "dst", None) for _ in range(0, 21)]
+        futures_mock.as_completed = Mock(return_value=mocked_futures)
 
         with MultiPatcher(
             [
@@ -201,3 +190,52 @@ class utils_tests(unittest.TestCase):
             )
             mock[0].assert_not_called()
             self.bar_mock.update.assert_not_called()
+
+    def test_raises_on_any_exception(self):
+        """
+        Ensure that any download job exception is propogated up.
+        """
+
+        tpe_mock = Mock()
+        tpe_mock.shutdown = Mock()
+        tpe_mock.__enter__ = Mock(return_value=tpe_mock)
+        tpe_mock.__exit__ = Mock()
+
+        mocked_futures = [
+            self.gen_future_mock(),
+            self.gen_future_mock(),
+            self.gen_future_mock(Exception()),
+            self.gen_future_mock(),
+        ]
+
+        futures_mock = Mock()
+        futures_mock.ThreadPoolExecutor = Mock(return_value=tpe_mock)
+        futures_mock.as_completed = Mock(return_value=mocked_futures)
+        tpe_mock.submit = Mock(side_effect=mocked_futures)
+
+        with MultiPatcher(
+            [
+                patch(
+                    "clouddrift.adapters.utils.tqdm", Mock(return_value=self.bar_mock)
+                ),
+                patch("clouddrift.adapters.utils.open", self.open_mock),
+                patch("clouddrift.adapters.utils.concurrent.futures", futures_mock),
+                patch("clouddrift.adapters.utils.requests", self.requests_mock),
+            ]
+        ) as _:
+            self.assertRaises(
+                Exception,
+                utils.download_with_progress,
+                [("src", "dst", None) for _ in range(0, len(mocked_futures))],
+                show_list_progress=True,
+            )
+            assert tpe_mock.submit.call_count == len(mocked_futures)
+            assert self.bar_mock.update.call_count == 2
+            tpe_mock.shutdown.assert_called_once()
+            [fut_mock.cancel.assert_called_once() for fut_mock in mocked_futures]
+
+    def gen_future_mock(self, ex=None):
+        future = Mock()
+        future.exception = Mock(return_value=ex)
+        future.cancel = Mock()
+        return future

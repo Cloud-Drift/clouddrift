@@ -45,39 +45,47 @@ def download_with_progress(
     else:
         retry_protocol = custom_retry_protocol
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = dict()
-        bar = None
+    executor = concurrent.futures.ThreadPoolExecutor()
+    futures: dict[
+        concurrent.futures.Future, Tuple[str, Union[BufferedIOBase, str]]
+    ] = dict()
+    bar = None
 
-        for src, dst, exp_size in download_map:
-            futures[
-                executor.submit(
-                    retry_protocol(_download_with_progress),
-                    src,
-                    dst,
-                    exp_size or 0,
-                    not show_list_progress,
-                    prewrite_func,
-                )
-            ] = (src, dst)
-        try:
-            if show_list_progress:
-                bar = tqdm(desc=desc, total=len(futures), unit="Files")
+    for src, dst, exp_size in download_map:
+        futures[
+            executor.submit(
+                retry_protocol(_download_with_progress),
+                src,
+                dst,
+                exp_size or 0,
+                not show_list_progress,
+                prewrite_func,
+            )
+        ] = (src, dst)
+    try:
+        if show_list_progress:
+            bar = tqdm(desc=desc, total=len(futures), unit="Files")
 
-            for fut in concurrent.futures.as_completed(futures):
-                (src, dst) = futures[fut]
-                ex = fut.exception(0)
-                if ex is None:
-                    _logger.debug(f"Finished download job: ({src}, {dst})")
-                    if bar is not None:
-                        bar.update(1)
-                else:
-                    _logger.error(
-                        f"there was an issue downloading {src} to {dst}, exception details: {str(ex)}"
-                    )
-        finally:
-            if bar is not None:
-                bar.close()
+        for fut in concurrent.futures.as_completed(futures):
+            (src, dst) = futures[fut]
+            ex = fut.exception(0)
+            if ex is None:
+                _logger.debug(f"Finished download job: ({src}, {dst})")
+                if bar is not None:
+                    bar.update(1)
+            else:
+                raise ex
+    except Exception as e:
+        _logger.error(
+            f"Got the following exception: {str(e)}, cancelling all other jobs."
+        )
+        for x in futures.keys():
+            x.cancel()
+        raise e
+    finally:
+        executor.shutdown(True)
+        if bar is not None:
+            bar.close()
 
 
 def _download_with_progress(
@@ -102,7 +110,7 @@ def _download_with_progress(
                 # compare with local modified time
                 if local_last_modified >= remote_last_modified.timestamp():
                     _logger.debug(f"File: {output} is up to date; skip download.")
-                    return False
+                    return
             else:
                 _logger.warning(
                     "Cannot determine the file has been updated on the remote source. \
@@ -157,7 +165,6 @@ def _download_with_progress(
             buffer.close()
         if bar is not None:
             bar.close()
-    return True
 
 
 __all__ = ["download_with_progress"]
