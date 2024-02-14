@@ -105,7 +105,7 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
     """
     GDP_DIRECTORY_FILE_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/"
     df = pd.read_csv(
-        os.path.join(GDP_DIRECTORY_FILE_URL, filename), delimiter="\s+", header=None
+        os.path.join(GDP_DIRECTORY_FILE_URL, filename), delimiter=r"\s+", header=None
     )
 
     # Combine the date and time columns to easily parse dates below.

@@ -155,7 +155,7 @@ def to_xarray(tmp_path: Union[str, None] = None):
     # open with pandas
     filename = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1][:-3]}"
     df = pd.read_csv(
-        filename, names=col_names, sep="\s+", header=None, na_values=na_col
+        filename, names=col_names, sep=r"\s+", header=None, na_values=na_col
     )
 
     # convert to an Xarray Dataset
@@ -166,7 +166,7 @@ def to_xarray(tmp_path: Union[str, None] = None):
     # mapping of yomaha float id, wmo float id, daq id and float type
     df_wmo = pd.read_csv(
         f"{tmp_path}/{YOMAHA_URLS[3].split('/')[-1]}",
-        sep="\s+",
+        sep=r"\s+",
         header=None,
         names=["id", "wmo_id", "dac_id", "float_type_id"],
         engine="python",

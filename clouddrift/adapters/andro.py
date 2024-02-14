@@ -135,7 +135,7 @@ def to_xarray(tmp_path: Union[str, None] = None):
     df = pd.read_csv(
         local_file,
         names=col_names,
-        sep="\s+",
+        sep=r"\s+",
         header=None,
         na_values=na_col,  # type: ignore
     )
