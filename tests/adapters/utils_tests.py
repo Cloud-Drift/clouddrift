@@ -56,7 +56,7 @@ class utils_tests(unittest.TestCase):
             ]
         ) as _:
             utils._download_with_progress(
-                "some.url.com", "./some/path/existing-file.nc", 0, False, lambda x: x
+                "some.url.com", "./some/path/existing-file.nc", 0, False
             )
             self.requests_mock.get.assert_not_called()
 
@@ -82,7 +82,7 @@ class utils_tests(unittest.TestCase):
             ]
         ) as _:
             utils._download_with_progress(
-                "some.url.com", "./some/path/existing-file.nc", 0, False, lambda x: x
+                "some.url.com", "./some/path/existing-file.nc", 0, False
             )
             self.requests_mock.get.assert_called()
 
@@ -167,7 +167,7 @@ class utils_tests(unittest.TestCase):
             ]
         ) as mock:
             utils._download_with_progress(
-                "some.url.com", "./some/path/existing-file.nc", 0, True, lambda x: x
+                "some.url.com", "./some/path/existing-file.nc", 0, True
             )
             mock[0].assert_called()
             self.bar_mock.update.assert_called()
@@ -186,14 +186,14 @@ class utils_tests(unittest.TestCase):
             ]
         ) as mock:
             utils._download_with_progress(
-                "some.url.com", "./some/path/existing-file.nc", 0, False, lambda x: x
+                "some.url.com", "./some/path/existing-file.nc", 0, False
             )
             mock[0].assert_not_called()
             self.bar_mock.update.assert_not_called()
 
-    def test_raises_on_any_exception(self):
+    def test_raises_on_any_exception_and_cleanup(self):
         """
-        Ensure that any download job exception is propogated up.
+        Ensure that any download job exception is propogated up and all download jobs are cancelled and cleaned up.
         """
 
         tpe_mock = Mock()
@@ -202,7 +202,7 @@ class utils_tests(unittest.TestCase):
         tpe_mock.__exit__ = Mock()
 
         mocked_futures = [
-            self.gen_future_mock(),
+            self.gen_future_mock(done=True),
             self.gen_future_mock(),
             self.gen_future_mock(Exception("just a test exception that is expected")),
             self.gen_future_mock(),
@@ -213,6 +213,9 @@ class utils_tests(unittest.TestCase):
         futures_mock.as_completed = Mock(return_value=mocked_futures)
         tpe_mock.submit = Mock(side_effect=mocked_futures)
 
+        os_mock = Mock()
+        os_mock.remove = Mock()
+
         with MultiPatcher(
             [
                 patch(
@@ -221,6 +224,7 @@ class utils_tests(unittest.TestCase):
                 patch("clouddrift.adapters.utils.open", self.open_mock),
                 patch("clouddrift.adapters.utils.concurrent.futures", futures_mock),
                 patch("clouddrift.adapters.utils.requests", self.requests_mock),
+                patch("clouddrift.adapters.utils.os", os_mock)
             ]
         ) as _:
             self.assertRaises(
@@ -231,6 +235,7 @@ class utils_tests(unittest.TestCase):
             )
             assert tpe_mock.submit.call_count == len(mocked_futures)
             assert self.bar_mock.update.call_count == 2
+            assert os_mock.remove.call_count == len(mocked_futures)
             tpe_mock.shutdown.assert_called_once()
             [fut_mock.cancel.assert_called_once() for fut_mock in mocked_futures]
 

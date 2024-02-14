@@ -67,7 +67,8 @@ def download(tmp_path: str):
         while data:
             file.write(gzip.decompress(data))
             data = buffer.read()
-        _logger.debug(f"Decompressed size of {filename_gz}: {sys.getsizeof(buffer)}")
+        _logger.debug(f"Decompressed size of {filename_gz}: {sys.getsizeof(file)}")
+        buffer.close()
 
 
 def to_xarray(tmp_path: Union[str, None] = None):

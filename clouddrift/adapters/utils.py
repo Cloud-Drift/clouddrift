@@ -75,9 +75,13 @@ def download_with_progress(
                 raise ex
     except Exception as e:
         _logger.error(
-            f"Got the following exception: {str(e)}, cancelling all other jobs."
+            f"Got the following exception: {str(e)}, cancelling all other jobs and cleaning up \
+              any created resources."
         )
         for x in futures.keys():
+            (src, dst) = futures[x]
+            if isinstance(dst, (str,)) and os.path.exists(dst):
+                os.remove(dst)
             x.cancel()
         raise e
     finally:
