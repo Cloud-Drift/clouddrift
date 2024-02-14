@@ -17,7 +17,9 @@ Lebedev, K. V., Yoshinari, H., Maximenko, N. A., & Hacker, P. W. (2007). Velocit
 """
 
 import gzip
+import logging
 import os
+import sys
 import tempfile
 import warnings
 from datetime import datetime
@@ -30,6 +32,7 @@ import xarray as xr
 
 from clouddrift.adapters.utils import download_with_progress
 
+_logger = logging.getLogger(__name__)
 YOMAHA_URLS = [
     # order of the URLs is important
     "http://apdrc.soest.hawaii.edu/projects/Argo/data/trjctry/float_types.txt",
@@ -51,12 +54,20 @@ def download(tmp_path: str):
     filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
     filename = filename_gz[:-3]
 
-    download_with_progress(
-        [(YOMAHA_URLS[-1], filename, None)],
-        lambda buffer: BytesIO(
-            gzip.decompress(b"".join([data for data in buffer.readlines()]))
-        ),
-    )
+    buffer = BytesIO()
+    download_with_progress([(YOMAHA_URLS[-1], buffer, None)])
+
+    decompressed_fp = os.path.join(tmp_path, filename)
+    with open(decompressed_fp, "wb") as file:
+        _logger.debug(
+            f"decompressing {filename_gz} into {decompressed_fp}. Original Size: {sys.getsizeof(buffer)}"
+        )
+        buffer.seek(0)
+        data = buffer.read()
+        while data:
+            file.write(gzip.decompress(data))
+            data = buffer.read()
+        _logger.debug(f"Decompressed size of {filename_gz}: {sys.getsizeof(buffer)}")
 
 
 def to_xarray(tmp_path: Union[str, None] = None):
