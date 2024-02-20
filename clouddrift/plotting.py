@@ -189,7 +189,6 @@ def plot_ragged(
     mpl_plot = True if colors is None or len(colors) == len(rowsize) else False
     traj_idx = rowsize_to_index(rowsize)
 
-    lines = []
     for i in range(len(rowsize)):
         lon_i, lat_i = (
             longitude[traj_idx[i] : traj_idx[i + 1]],
