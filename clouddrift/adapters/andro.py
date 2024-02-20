@@ -21,6 +21,7 @@ import os
 import tempfile
 import warnings
 from datetime import datetime
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -34,14 +35,14 @@ ANDRO_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "andro")
 ANDRO_VERSION = "2022-03-04"
 
 
-def to_xarray(tmp_path: str = None):
+def to_xarray(tmp_path: Union[str, None] = None):
     if tmp_path is None:
         tmp_path = ANDRO_TMP_PATH
         os.makedirs(tmp_path, exist_ok=True)
 
     # get or update dataset
     local_file = f"{tmp_path}/{ANDRO_URL.split('/')[-1]}"
-    download_with_progress([(ANDRO_URL, local_file)])
+    download_with_progress([(ANDRO_URL, local_file, None)])
 
     # parse with panda
     col_names = [
@@ -132,7 +133,11 @@ def to_xarray(tmp_path: str = None):
 
     # open with pandas
     df = pd.read_csv(
-        local_file, names=col_names, sep="\s+", header=None, na_values=na_col
+        local_file,
+        names=col_names,
+        sep=r"\s+",
+        header=None,
+        na_values=na_col,  # type: ignore
     )
 
     # convert to an Xarray Dataset

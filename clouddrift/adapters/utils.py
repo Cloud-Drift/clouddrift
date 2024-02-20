@@ -1,12 +1,15 @@
 import concurrent.futures
-import datetime
+import logging
 import os
-import warnings
-from io import BufferedIOBase
-from typing import Callable, List, NamedTuple, Union
+import traceback
+from datetime import datetime
+from io import BufferedIOBase, StringIO
+from typing import Callable, Sequence, Tuple, Union
 
 import requests
+from requests import Response
 from tenacity import (
+    WrappedFn,
     retry,
     retry_if_exception,
     stop_after_attempt,
@@ -15,110 +18,154 @@ from tenacity import (
 from tqdm import tqdm
 
 _CHUNK_SIZE = 1024
-
-
-class _DownloadRequest(NamedTuple):
-    src: str
-    dst: Union[BufferedIOBase, str]
-    exp_size: Union[float, None]
+_logger = logging.getLogger(__name__)
+_standard_retry_protocol = retry(
+    retry=retry_if_exception(
+        lambda ex: isinstance(ex, (requests.Timeout, requests.HTTPError))
+    ),
+    wait=wait_exponential_jitter(initial=0.25),
+    stop=stop_after_attempt(10),
+    before=lambda rcs: _logger.debug(
+        f"calling {rcs.fn.__module__}.{rcs.fn.__name__}, attempt: {rcs.attempt_number}"
+    ),
+)
 
 
 def download_with_progress(
-    download_map: List[_DownloadRequest], prewrite_func=lambda x: x
+    download_map: Sequence[Tuple[str, Union[BufferedIOBase, str], Union[float, None]]],
+    show_list_progress: Union[bool, None] = None,
+    desc: str = "Downloading files",
+    custom_retry_protocol: Union[Callable[[WrappedFn], WrappedFn], None] = None,
 ):
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = dict()
-        for req in download_map:
-            if len(req) > 2:
-                src, dst, exp_size = req[0], req[1], req[2]
-            elif len(req) <= 2:
-                src, dst, exp_size = req[0], req[1], None
+    if show_list_progress is None:
+        show_list_progress = len(download_map) > 20
+    if custom_retry_protocol is None:
+        retry_protocol = _standard_retry_protocol
+    else:
+        retry_protocol = custom_retry_protocol
 
-            futures[
-                executor.submit(
-                    _download_with_progress, src, dst, exp_size, prewrite_func
-                )
-            ] = (src, dst)
+    executor = concurrent.futures.ThreadPoolExecutor()
+    futures: dict[
+        concurrent.futures.Future, Tuple[str, Union[BufferedIOBase, str]]
+    ] = dict()
+    bar = None
+
+    for src, dst, exp_size in download_map:
+        futures[
+            executor.submit(
+                retry_protocol(_download_with_progress),
+                src,
+                dst,
+                exp_size or 0,
+                not show_list_progress,
+            )
+        ] = (src, dst)
+    try:
+        if show_list_progress:
+            bar = tqdm(desc=desc, total=len(futures), unit="Files")
 
         for fut in concurrent.futures.as_completed(futures):
             (src, dst) = futures[fut]
             ex = fut.exception(0)
-            if ex is not None:
-                print(f"there was an issue downloading {src} to {dst}, exception details: {ex}")
-            print(f"Finished downloading: {src}")
+            if ex is None:
+                _logger.debug(f"Finished download job: ({src}, {dst})")
+                if bar is not None:
+                    bar.update(1)
+            else:
+                raise ex
+    except Exception as e:
+        _logger.error(
+            f"Got the following exception: {str(e)}, cancelling all other jobs and cleaning up \
+              any created resources."
+        )
+        for x in futures.keys():
+            (src, dst) = futures[x]
+            if isinstance(dst, (str,)) and os.path.exists(dst):
+                os.remove(dst)
+            x.cancel()
+        raise e
+    finally:
+        executor.shutdown(True)
+        if bar is not None:
+            bar.close()
 
 
-@retry(
-    retry=retry_if_exception(
-        lambda ex: isinstance(ex, [requests.Timeout, requests.HTTPError])
-    ),
-    wait=wait_exponential_jitter(initial=0.25),
-    stop=stop_after_attempt(10),
-)
 def _download_with_progress(
     url: str,
     output: Union[BufferedIOBase, str],
-    expected_size: Union[float, None],
-    prewrite_func: Callable[[bytes], Union[str, bytes]],
+    expected_size: float,
+    show_progress: bool,
 ):
     if isinstance(output, str) and os.path.exists(output):
-        print(f"File exists {output} checking for updates...")
+        _logger.debug(f"File exists {output} checking for updates...")
         local_last_modified = os.path.getmtime(output)
 
         # Get last modified time of the remote file
-        with requests.head(url, timeout=5) as response:
-            if "Last-Modified" in response.headers:
+        with requests.head(url, timeout=5) as res:
+            if "Last-Modified" in res.headers:
                 remote_last_modified = datetime.strptime(
-                    response.headers.get("Last-Modified"), "%a, %d %b %Y %H:%M:%S %Z"
+                    res.headers.get("Last-Modified", ""),
+                    "%a, %d %b %Y %H:%M:%S %Z",
                 )
 
                 # compare with local modified time
                 if local_last_modified >= remote_last_modified.timestamp():
-                    warnings.warn(
-                        f"{output} already exists and is up to date; skip download."
-                    )
-                    return False
+                    _logger.debug(f"File: {output} is up to date; skip download.")
+                    return
             else:
-                warnings.warn(
+                _logger.warning(
                     "Cannot determine the file has been updated on the remote source. \
                               'Last-Modified' header not present."
                 )
-    print(f"Downloading from {url} to {output}...")
+    _logger.debug(f"Downloading from {url} to {output}...")
 
     force_close = False
+    response: Union[Response, None] = None
+    buffer: Union[BufferedIOBase, None] = None
+    bar = None
+
     try:
         response = requests.get(url, timeout=5, stream=True)
+
         if isinstance(output, str):
             buffer = open(output, "wb")
         else:
             buffer = output
-        bar = tqdm(
-            desc=url,
-            total=float(response.headers.get("Content-Length", expected_size)),
-            unit="B",
-            unit_scale=True,
-            unit_divisor=1024,
-        )
+
+        if show_progress:
+            bar = tqdm(
+                desc=url,
+                total=float(response.headers.get("Content-Length", expected_size)),
+                unit="B",
+                unit_scale=True,
+                unit_divisor=1024,
+                nrows=2,
+            )
 
         for chunk in response.iter_content(_CHUNK_SIZE):
             if not chunk:
                 break
-            buffer.write(prewrite_func(chunk))
-            bar.update(len(chunk))
+            buffer.write(chunk)
+            if bar is not None:
+                bar.update(len(chunk))
     except Exception as e:
-        import traceback as tb
-
         force_close = True
         error_msg = f"Error downloading data file: {url} to: {output}, error: {e}"
-        print(error_msg)
-        tb.print_exc()
-        raise RuntimeError(error_msg)
+        _logger.error(error_msg)
+        string_buffer = StringIO("")
+        traceback.print_tb(e.__traceback__, file=string_buffer)
+        _logger.debug(f"tracing details: <<<{string_buffer.getvalue()}>>>")
+        raise e
     finally:
         if response is not None:
             response.close()
-        if buffer is not None and not isinstance(buffer, BufferedIOBase) or force_close:
-            print(f"closing buffer {buffer}")
+        if buffer is not None and (
+            not isinstance(output, BufferedIOBase) or force_close
+        ):
+            _logger.debug(f"closing buffer {buffer}")
             buffer.close()
         if bar is not None:
             bar.close()
-    return True
+
+
+__all__ = ["download_with_progress"]

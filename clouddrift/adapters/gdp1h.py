@@ -4,13 +4,14 @@ hourly Global Drifter Program (GDP) data to a ``clouddrift.RaggedArray``
 instance.
 """
 
+import logging
 import os
 import re
 import tempfile
 import urllib.request
 import warnings
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, Sequence, Union
 
 import numpy as np
 import xarray as xr
@@ -21,10 +22,13 @@ from clouddrift.raggedarray import RaggedArray
 
 GDP_VERSION = "2.01"
 
+
 GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01/"
 GDP_DATA_URL_EXPERIMENTAL = (
     "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental/"
 )
+
+
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
 GDP_TMP_PATH_EXPERIMENTAL = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp_exp")
 GDP_DATA = [
@@ -49,75 +53,68 @@ GDP_DATA = [
     "drogue_status",
 ]
 
+_logger = logging.getLogger(__name__)
+
 
 def download(
-    drifter_ids: list = None,
-    n_random_id: int = None,
-    url: str = GDP_DATA_URL,
-    tmp_path: str = None,
+    url: str,
+    tmp_path: str,
+    drifter_ids: Union[list[int], None] = None,
+    n_random_id: Union[int, None] = None,
 ):
     """Download individual NetCDF files from the AOML server.
 
     Parameters
     ----------
-    drifter_ids : list
-        List of drifter to retrieve (Default: all)
-    n_random_id : int
-        Randomly select n_random_id drifter IDs to download (Default: None)
     url : str
-        URL from which to download the data (Default: GDP_DATA_URL). Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL.
-    tmp_path : str, optional
-        Path to the directory where the individual NetCDF files are stored
-        (default varies depending on operating system; /tmp/clouddrift/gdp on Linux)
+        URL from which to download the data.
+    tmp_path : str
+        Path to the directory where the individual NetCDF files are stored.
 
+    drifter_ids : list, optional
+        List of drifter to retrieve (Default: all)
+    n_random_id : int, optional
+        Randomly select n_random_id drifter IDs to download (Default: None)
     Returns
     -------
     out : list
         List of retrieved drifters
     """
-
-    # adjust the tmp_path if using the experimental source
-    if tmp_path is None:
-        tmp_path = GDP_TMP_PATH if url == GDP_DATA_URL else GDP_TMP_PATH_EXPERIMENTAL
-
-    print(f"Downloading GDP hourly data from {url} to {tmp_path}...")
+    _logger.debug(f"Downloading GDP hourly data from ({url}) to ({tmp_path})")
 
     # Create a temporary directory if doesn't already exists.
     os.makedirs(tmp_path, exist_ok=True)
-
-    if url == GDP_DATA_URL:
-        pattern = "drifter_hourly_[0-9]*.nc"
-        filename_pattern = "drifter_hourly_{id}.nc"
-    elif url == GDP_DATA_URL_EXPERIMENTAL:
-        pattern = "drifter_hourly_[0-9]*.nc"
-        filename_pattern = "drifter_hourly_{id}.nc"
+    pattern = "drifter_hourly_[0-9]*.nc"
+    filename_pattern = "drifter_hourly_{id}.nc"
 
     # retrieve all drifter ID numbers
     if drifter_ids is None:
         urlpath = urllib.request.urlopen(url)
         string = urlpath.read().decode("utf-8")
-        filelist = re.compile(pattern).findall(string)
-        drifter_ids = np.unique([int(f.split("_")[-1][:-3]) for f in filelist])
+        filelist: Sequence[str] = re.compile(pattern).findall(string)  # noqa: F821
+    else:
+        filelist = [filename_pattern.format(id=did) for did in drifter_ids]
+    filelist = np.unique(filelist)
 
     # retrieve only a subset of n_random_id trajectories
     if n_random_id:
-        if n_random_id > len(drifter_ids):
-            warnings.warn(
-                f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(drifter_ids)} listed trajectories."
+        if n_random_id > len(filelist):
+            _logger.warn(
+                f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(filelist)} listed trajectories."
             )
         else:
             rng = np.random.RandomState(42)
-            drifter_ids = sorted(rng.choice(drifter_ids, n_random_id, replace=False))
+            filelist = sorted(rng.choice(filelist, n_random_id, replace=False))
 
-    download_requests = [
-        (os.path.join(url, file_name), os.path.join(tmp_path, file_name))
-        for file_name in map(lambda d_id: filename_pattern.format(id=d_id), drifter_ids)
-    ]
-    download_with_progress(download_requests)
+    download_with_progress(
+        [(os.path.join(url, f), os.path.join(tmp_path, f), None) for f in filelist]
+    )
     # Download the metadata so we can order the drifter IDs by end date.
     gdp_metadata = gdp.get_gdp_metadata()
 
-    return gdp.order_by_date(gdp_metadata, drifter_ids)
+    return gdp.order_by_date(
+        gdp_metadata, [int(f.split("_")[-1][:-3]) for f in filelist]
+    )
 
 
 def preprocess(index: int, **kwargs) -> xr.Dataset:
@@ -137,8 +134,9 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds : xr.Dataset
         Xarray Dataset containing the data and attributes
     """
-    ds = xr.load_dataset(
-        os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)),
+    fp = os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index))
+    ds = xr.open_dataset(
+        fp,
         decode_times=False,
         decode_coords=False,
     )
@@ -223,7 +221,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds["BuoyTypeSensorArray"] = (("traj"), gdp.cut_str(ds.BuoyTypeSensorArray, 20))
     ds["CurrentProgram"] = (
         ("traj"),
-        np.int32([gdp.str_to_float(ds.CurrentProgram, -1)]),
+        np.array([gdp.str_to_float(ds.CurrentProgram, -1)], dtype=np.int32),
     )
     ds["PurchaserFunding"] = (("traj"), gdp.cut_str(ds.PurchaserFunding, 20))
     ds["SensorUpgrade"] = (("traj"), gdp.cut_str(ds.SensorUpgrade, 20))
@@ -237,16 +235,16 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     )  # remove non ascii char
     ds["ManufactureYear"] = (
         ("traj"),
-        np.int16([gdp.str_to_float(ds.ManufactureYear, -1)]),
+        np.array([gdp.str_to_float(ds.ManufactureYear, -1)], dtype=np.int16),
     )
     ds["ManufactureMonth"] = (
         ("traj"),
-        np.int16([gdp.str_to_float(ds.ManufactureMonth, -1)]),
+        np.array([gdp.str_to_float(ds.ManufactureMonth, -1)], dtype=np.int16),
     )
     ds["ManufactureSensorType"] = (("traj"), gdp.cut_str(ds.ManufactureSensorType, 20))
     ds["ManufactureVoltage"] = (
         ("traj"),
-        np.int16([gdp.str_to_float(ds.ManufactureVoltage[:-6], -1)]),
+        np.array([gdp.str_to_float(ds.ManufactureVoltage[:-6], -1)], dtype=np.int16),
     )  # e.g. 56 V
     ds["FloatDiameter"] = (
         ("traj"),
@@ -514,7 +512,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
 def to_raggedarray(
     drifter_ids: Optional[list[int]] = None,
     n_random_id: Optional[int] = None,
-    url: Optional[str] = GDP_DATA_URL,
+    url: str = GDP_DATA_URL,
     tmp_path: Optional[str] = None,
 ) -> RaggedArray:
     """Download and process individual GDP hourly files and return a RaggedArray
@@ -526,7 +524,7 @@ def to_raggedarray(
         List of drifters to retrieve (Default: all)
     n_random_id : list[int], optional
         Randomly select n_random_id drifter NetCDF files
-    url : str, optional
+    url : str
         URL from which to download the data (Default: GDP_DATA_URL).
         Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL.
     tmp_path : str, optional
@@ -582,14 +580,8 @@ def to_raggedarray(
     if tmp_path is None:
         tmp_path = GDP_TMP_PATH if url == GDP_DATA_URL else GDP_TMP_PATH_EXPERIMENTAL
 
-    ids = download(drifter_ids, n_random_id, url, tmp_path)
-
-    if url == GDP_DATA_URL:
-        filename_pattern = "drifter_hourly_{id}.nc"
-    elif url == GDP_DATA_URL_EXPERIMENTAL:
-        filename_pattern = "drifter_hourly_{id}.nc"
-    else:
-        raise ValueError(f"url must be {GDP_DATA_URL} or {GDP_DATA_URL_EXPERIMENTAL}.")
+    ids = download(url, tmp_path, drifter_ids, n_random_id)
+    filename_pattern = "drifter_hourly_{id}.nc"
 
     ra = RaggedArray.from_files(
         indices=ids,
@@ -603,11 +595,12 @@ def to_raggedarray(
     )
 
     # set dynamic global attributes
-    ra.attrs_global["time_coverage_start"] = (
-        f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
-    )
-    ra.attrs_global["time_coverage_end"] = (
-        f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
-    )
+    if ra.attrs_global:
+        ra.attrs_global[
+            "time_coverage_start"
+        ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+        ra.attrs_global[
+            "time_coverage_end"
+        ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
 
     return ra

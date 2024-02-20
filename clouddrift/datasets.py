@@ -6,7 +6,7 @@ they will be downloaded from their upstream repositories and stored for later ac
 """
 import os
 import platform
-from io import BufferedReader, BytesIO
+from io import BytesIO
 
 import xarray as xr
 
@@ -155,9 +155,8 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
 
     if platform.system() == "Windows":
         buffer = BytesIO()
-        adapters.utils.download_with_progress([(f"{url}#mode=bytes", buffer)])
-        reader = BufferedReader(buffer)
-        ds = xr.open_dataset(reader, decode_times=decode_times)
+        adapters.utils.download_with_progress([(f"{url}#mode=bytes", buffer, None)])
+        ds = xr.open_dataset(buffer, decode_times=decode_times)
     else:
         ds = xr.open_dataset(f"{url}", decode_times=decode_times)
 

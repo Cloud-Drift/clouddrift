@@ -17,10 +17,14 @@ Lebedev, K. V., Yoshinari, H., Maximenko, N. A., & Hacker, P. W. (2007). Velocit
 """
 
 import gzip
+import logging
 import os
+import sys
 import tempfile
 import warnings
 from datetime import datetime
+from io import BytesIO
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -28,6 +32,7 @@ import xarray as xr
 
 from clouddrift.adapters.utils import download_with_progress
 
+_logger = logging.getLogger(__name__)
 YOMAHA_URLS = [
     # order of the URLs is important
     "http://apdrc.soest.hawaii.edu/projects/Argo/data/trjctry/float_types.txt",
@@ -42,17 +47,31 @@ YOMAHA_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "yomaha")
 
 def download(tmp_path: str):
     download_requests = [
-        (url, f"{tmp_path}/{url.split('/')[-1]}") for url in YOMAHA_URLS[:-1]
+        (url, f"{tmp_path}/{url.split('/')[-1]}", None) for url in YOMAHA_URLS[:-1]
     ]
     download_with_progress(download_requests)
 
     filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
     filename = filename_gz[:-3]
 
-    download_with_progress([(YOMAHA_URLS[-1], filename)], gzip.decompress)
+    buffer = BytesIO()
+    download_with_progress([(YOMAHA_URLS[-1], buffer, None)])
+
+    decompressed_fp = os.path.join(tmp_path, filename)
+    with open(decompressed_fp, "wb") as file:
+        _logger.debug(
+            f"decompressing {filename_gz} into {decompressed_fp}. Original Size: {sys.getsizeof(buffer)}"
+        )
+        buffer.seek(0)
+        data = buffer.read()
+        while data:
+            file.write(gzip.decompress(data))
+            data = buffer.read()
+        _logger.debug(f"Decompressed size of {filename_gz}: {sys.getsizeof(file)}")
+        buffer.close()
 
 
-def to_xarray(tmp_path: str = None):
+def to_xarray(tmp_path: Union[str, None] = None):
     if tmp_path is None:
         tmp_path = YOMAHA_TMP_PATH
         os.makedirs(tmp_path, exist_ok=True)
@@ -97,41 +116,46 @@ def to_xarray(tmp_path: str = None):
         "time_inv",
     ]
 
-    na_col = [
-        -999.9999,
-        -99.9999,
-        -999.9,
-        -999.999,
-        -999.99,
-        -999.99,
-        -999.99,
-        -999.99,
-        -999.99,
-        -99.99,
-        -999.99,
-        -999.99,
-        -999.99,
-        -999.99,
-        -999.99,
-        -999.99,
-        -99.99,
-        -999.99,
-        -999.99,
-        -99.99,
-        -999.99,
-        -999.99,
-        -99.99,
-        -999.99,
-        np.nan,
-        np.nan,
-        np.nan,
-        np.nan,
-    ]
+    na_col = list(
+        map(
+            lambda x: str(x),
+            [
+                -999.9999,
+                -99.9999,
+                -999.9,
+                -999.999,
+                -999.99,
+                -999.99,
+                -999.99,
+                -999.99,
+                -999.99,
+                -99.99,
+                -999.99,
+                -999.99,
+                -999.99,
+                -999.99,
+                -999.99,
+                -999.99,
+                -99.99,
+                -999.99,
+                -999.99,
+                -99.99,
+                -999.99,
+                -999.99,
+                -99.99,
+                -999.99,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+            ],
+        )
+    )
 
     # open with pandas
     filename = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1][:-3]}"
     df = pd.read_csv(
-        filename, names=col_names, sep="\s+", header=None, na_values=na_col
+        filename, names=col_names, sep=r"\s+", header=None, na_values=na_col
     )
 
     # convert to an Xarray Dataset
@@ -142,7 +166,7 @@ def to_xarray(tmp_path: str = None):
     # mapping of yomaha float id, wmo float id, daq id and float type
     df_wmo = pd.read_csv(
         f"{tmp_path}/{YOMAHA_URLS[3].split('/')[-1]}",
-        sep="\s+",
+        sep=r"\s+",
         header=None,
         names=["id", "wmo_id", "dac_id", "float_type_id"],
         engine="python",

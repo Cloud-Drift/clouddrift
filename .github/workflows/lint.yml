@@ -16,3 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: chartboost/ruff-action@v1
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yml
+          environment-name: clouddrift
+      - run: pip install mypy
+        shell: micromamba-shell {0}
+      - run: mypy --install-types --non-interactive --config-file pyproject.toml
+        shell: micromamba-shell {0}
+      - run: mypy
+        shell: micromamba-shell {0}
+

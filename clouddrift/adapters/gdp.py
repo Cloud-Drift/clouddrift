@@ -105,7 +105,7 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
     """
     GDP_DIRECTORY_FILE_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/"
     df = pd.read_csv(
-        os.path.join(GDP_DIRECTORY_FILE_URL, filename), delimiter="\s+", header=None
+        os.path.join(GDP_DIRECTORY_FILE_URL, filename), delimiter=r"\s+", header=None
     )
 
     # Combine the date and time columns to easily parse dates below.
@@ -113,20 +113,23 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
     df[8] += " " + df[9]
     df[12] += " " + df[13]
     df = df.drop(columns=[5, 9, 13])
-    df.columns = [
-        "ID",
-        "WMO_number",
-        "program_number",
-        "buoys_type",
-        "Start_date",
-        "Start_lat",
-        "Start_lon",
-        "End_date",
-        "End_lat",
-        "End_lon",
-        "Drogue_off_date",
-        "death_code",
-    ]
+    df.columns = pd.Index(
+        [
+            "ID",
+            "WMO_number",
+            "program_number",
+            "buoys_type",
+            "Start_date",
+            "Start_lat",
+            "Start_lon",
+            "End_date",
+            "End_lat",
+            "End_lon",
+            "Drogue_off_date",
+            "death_code",
+        ],
+        dtype="str",
+    )
     for t in ["Start_date", "End_date", "Drogue_off_date"]:
         df[t] = pd.to_datetime(df[t], format="%Y/%m/%d %H:%M", errors="coerce")
 
@@ -150,8 +153,7 @@ def get_gdp_metadata() -> pd.DataFrame:
         try:
             dfs.append(parse_directory_file(name))
             start += 5000
-        except Exception as e:
-            print(f"Error reading metadata for file: '{name}', error: {e}")
+        except Exception:
             break
 
     name = directory_file_pattern.format(low=start, high="current")
@@ -162,7 +164,7 @@ def get_gdp_metadata() -> pd.DataFrame:
     return df
 
 
-def order_by_date(df: pd.DataFrame, idx: list[int]) -> np.ndarray[int]:
+def order_by_date(df: pd.DataFrame, idx: list[int]) -> list[int]:  # noqa: F821
     """From the previously sorted DataFrame of directory files, return the
     unique set of drifter IDs sorted by their start date (the date of the first
     quality-controlled data point).
@@ -190,7 +192,7 @@ def fetch_netcdf(url: str, file: str):
     file : str
         Name of the file to save.
     """
-    download_with_progress([(url, file)])
+    download_with_progress([(url, file, None)])
 
 
 def decode_date(t):
