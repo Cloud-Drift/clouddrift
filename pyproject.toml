@@ -47,7 +47,7 @@ select = ["E4", "E7", "E9", "F", "I"]
 
 [tool.mypy]
 python_version = "3.9"
-follow_imports = "skip"
+follow_imports = "normal"
 modules = [
   "clouddrift",
   "clouddrift._version",
@@ -60,6 +60,7 @@ modules = [
   "clouddrift.adapters.subsurface_floats",
   "clouddrift.adapters.yomaha",
   "clouddrift.datasets",
+  "clouddrift.raggedarray",
   "tests",
   "tests.adapters",
   "tests.adapters.utils_tests",
@@ -67,4 +68,20 @@ modules = [
   "tests.signal_tests",
   "tests.sphere_tests",
   "tests.wavelet_tests",
+  "tests.raggedarray_tests",
 ]
+
+[[tool.mypy.overrides]]
+module = [
+  "clouddrift.kinematics",
+  "clouddrift.pairs",
+  "clouddrift.plotting",
+  "clouddrift.ragged",
+  "clouddrift.signal",
+  "clouddrift.sphere",
+  "clouddrift.wavelet",
+  "tests.kinematics_tests",
+  "tests.pairs_tests",
+  "tests.plotting_tests",
+]
+ignore_errors = true

@@ -224,7 +224,7 @@ class utils_tests(unittest.TestCase):
                 patch("clouddrift.adapters.utils.open", self.open_mock),
                 patch("clouddrift.adapters.utils.concurrent.futures", futures_mock),
                 patch("clouddrift.adapters.utils.requests", self.requests_mock),
-                patch("clouddrift.adapters.utils.os", os_mock)
+                patch("clouddrift.adapters.utils.os", os_mock),
             ]
         ) as _:
             self.assertRaises(

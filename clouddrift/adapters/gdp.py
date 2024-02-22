@@ -12,10 +12,11 @@ import pandas as pd
 import xarray as xr
 
 from clouddrift.adapters.utils import download_with_progress
+from clouddrift.raggedarray import DimNames
 
-GDP_COORDS = [
-    "ids",
-    "time",
+GDP_COORDS: list[tuple[str, DimNames]] = [
+    ("id", "traj"),
+    ("time", "obs"),
 ]
 
 GDP_METADATA = [
@@ -179,7 +180,7 @@ def order_by_date(df: pd.DataFrame, idx: list[int]) -> list[int]:  # noqa: F821
     idx : list
         Unique set of drifter IDs sorted by their start date.
     """
-    return df.ID[np.where(np.in1d(df.ID, idx))[0]].values
+    return df.ID[np.where(np.in1d(df.ID, idx))[0]].values  # type: ignore
 
 
 def fetch_netcdf(url: str, file: str):
@@ -281,7 +282,7 @@ def cut_str(value: str, max_length: int) -> np.chararray:
     return charar
 
 
-def drogue_presence(lost_time, time) -> bool:
+def drogue_presence(lost_time, time) -> np.ndarray:
     """Create drogue status from the drogue lost time and the trajectory time.
 
     Parameters

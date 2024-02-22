@@ -14,7 +14,6 @@ from typing import Optional, Union
 
 import numpy as np
 import xarray as xr
-from numpy.typing import ArrayLike
 
 import clouddrift.adapters.gdp as gdp
 from clouddrift.adapters.utils import download_with_progress
@@ -80,12 +79,13 @@ def download(
     if drifter_ids is None:
         urlpath = urllib.request.urlopen(url)
         string = urlpath.read().decode("utf-8")
-        drifter_urls: ArrayLike = []
+        drifter_urls: list[str] = []
         for dir in directory_list:
             urlpath = urllib.request.urlopen(os.path.join(url, dir))
             string = urlpath.read().decode("utf-8")
             filelist = list(set(re.compile(pattern).findall(string)))
-            drifter_urls += [os.path.join(url, dir, f) for f in filelist]
+            for f in filelist:
+                drifter_urls.append(os.path.join(url, dir, f))
 
     # retrieve only a subset of n_random_id trajectories
     if n_random_id:
@@ -95,7 +95,7 @@ def download(
             )
         else:
             rng = np.random.RandomState(42)
-            drifter_urls = rng.choice(drifter_urls, n_random_id, replace=False)
+            drifter_urls = list(rng.choice(drifter_urls, n_random_id, replace=False))
 
     download_with_progress(
         [
@@ -204,7 +204,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds["BuoyTypeSensorArray"] = (("traj"), gdp.cut_str(ds.BuoyTypeSensorArray, 20))
     ds["CurrentProgram"] = (
         ("traj"),
-        np.int32([gdp.str_to_float(ds.CurrentProgram, -1)]),
+        np.int32(gdp.str_to_float(ds.CurrentProgram, -1)),
     )
     ds["PurchaserFunding"] = (("traj"), gdp.cut_str(ds.PurchaserFunding, 20))
     ds["SensorUpgrade"] = (("traj"), gdp.cut_str(ds.SensorUpgrade, 20))
@@ -218,16 +218,16 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     )  # remove non ascii char
     ds["ManufactureYear"] = (
         ("traj"),
-        np.int16([gdp.str_to_float(ds.ManufactureYear, -1)]),
+        np.int16(gdp.str_to_float(ds.ManufactureYear, -1)),
     )
     ds["ManufactureMonth"] = (
         ("traj"),
-        np.int16([gdp.str_to_float(ds.ManufactureMonth, -1)]),
+        np.int16(gdp.str_to_float(ds.ManufactureMonth, -1)),
     )
     ds["ManufactureSensorType"] = (("traj"), gdp.cut_str(ds.ManufactureSensorType, 20))
     ds["ManufactureVoltage"] = (
         ("traj"),
-        np.int16([gdp.str_to_float(ds.ManufactureVoltage[:-6], -1)]),
+        np.int16(gdp.str_to_float(ds.ManufactureVoltage[:-6], -1)),
     )  # e.g. 56 V
     ds["FloatDiameter"] = (
         ("traj"),
@@ -485,7 +485,7 @@ def to_raggedarray(
     ra = RaggedArray.from_files(
         indices=ids,
         preprocess_func=preprocess,
-        name_coords=gdp.GDP_COORDS,
+        coord_dim_map=gdp.GDP_COORDS,
         name_meta=gdp.GDP_METADATA,
         name_data=GDP_DATA,
         rowsize_func=gdp.rowsize,
