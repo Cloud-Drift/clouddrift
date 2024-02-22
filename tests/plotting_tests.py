@@ -42,7 +42,7 @@ class plotting_tests(unittest.TestCase):
         l = plot_ragged(
             ax, self.lon, self.lat, self.rowsize, colors=np.arange(len(self.rowsize))
         )
-        self.assertIsInstance(l, list)
+        self.assertIsInstance(l, plt.cm.ScalarMappable)
 
     def test_plot_colored_datapoints(self):
         fig = plt.figure()
@@ -50,7 +50,7 @@ class plotting_tests(unittest.TestCase):
         l = plot_ragged(
             ax, self.lon, self.lat, self.rowsize, colors=np.arange(len(self.lat))
         )
-        self.assertIsInstance(l, list)
+        self.assertIsInstance(l, plt.cm.ScalarMappable)
 
     def test_plot_color_wrong_dimension(self):
         fig = plt.figure()
@@ -82,7 +82,7 @@ class plotting_tests(unittest.TestCase):
             colors=np.arange(len(self.rowsize)),
             transform=ccrs.PlateCarree(),
         )
-        self.assertIsInstance(l, list)
+        self.assertIsInstance(l, plt.cm.ScalarMappable)
 
     def test_plot_segments(self):
         self.lon = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -99,8 +99,7 @@ class plotting_tests(unittest.TestCase):
             colors=np.arange(len(self.rowsize)),
             transform=ccrs.PlateCarree(),
         )
-        self.assertIsInstance(l, list)
-        self.assertEqual(len(l), 3)
+        self.assertIsInstance(l, plt.cm.ScalarMappable)
 
     def test_plot_segments_split(self):
         self.lon = [-170, -175, -180, 175, 170]
@@ -117,8 +116,7 @@ class plotting_tests(unittest.TestCase):
             colors=np.arange(len(self.rowsize)),
             transform=ccrs.PlateCarree(),
         )
-        self.assertIsInstance(l, list)
-        self.assertEqual(len(l), 2)
+        self.assertIsInstance(l, plt.cm.ScalarMappable)
 
     def test_plot_segments_split_domain(self):
         self.lon = [-1, -2, -3, 3, 2, 1]
@@ -136,8 +134,7 @@ class plotting_tests(unittest.TestCase):
             transform=ccrs.PlateCarree(),
             tolerance=5,
         )
-        self.assertIsInstance(l, list)
-        self.assertEqual(len(l), 2)
+        self.assertIsInstance(l, plt.cm.ScalarMappable)
 
     def test_matplotlib_not_installed(self):
         try:
