@@ -88,7 +88,7 @@ def plot_ragged(
     >>> fig.colorbar(l, cax=cax)
 
     To plot the same trajectories, but assigning a different color to each
-    observation and specifying a colormap:
+    observation based on time and specifying a colormap:
 
     >>> fig = plt.figure()
     >>> ax = fig.add_subplot(1, 1, 1)
