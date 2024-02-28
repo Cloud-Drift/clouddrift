@@ -83,7 +83,7 @@ class RaggedArray:
         rowsize_func: Optional[Callable[[int], int]] = None,
         **kwargs,
     ):
-        """Generate a ragged array archive from a list of trajectory files
+        """Generate a ragged array archive from a list of files
 
         Parameters
         ----------
@@ -224,7 +224,7 @@ class RaggedArray:
         Parameters
         ----------
         rowsize_func : Callable[[int], int]]
-            Function that returns the number observations of a trajectory from
+            Function that returns the number observations of a row from
             its identification number
         indices : list
             Identification numbers list to iterate
@@ -232,7 +232,7 @@ class RaggedArray:
         Returns
         -------
         np.ndarray
-            Number of observations of each trajectory
+            Number of observations
         """
         rowsize = np.zeros(len(indices), dtype="int")
 
@@ -299,9 +299,9 @@ class RaggedArray:
         preprocess_func : Callable[[int], xr.Dataset]
             Returns a processed xarray Dataset from an identification number.
         indices : list
-            List of indices separating trajectory in the ragged arrays.
+            List of indices separating row in the ragged arrays.
         rowsize : list
-            List of the number of observations per trajectory.
+            List of the number of observations per row.
         name_coords : list
             Name of the coordinate variables to include in the archive.
         name_meta : list, optional

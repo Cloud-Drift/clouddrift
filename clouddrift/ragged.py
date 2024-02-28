@@ -109,7 +109,7 @@ def apply_ragged(
         if not np.sum(rowsize) == arr.shape[axis]:
             raise ValueError("The sum of rowsize must equal the length of arr.")
 
-    # split the array(s) into trajectories
+    # split the array(s) into rows
     arrays = [unpack(np.array(arr), rowsize, rows, axis) for arr in arrays]
     iter = [[arrays[i][j] for i in range(len(arrays))] for j in range(len(arrays[0]))]
 
@@ -542,9 +542,9 @@ def subset(
     criteria: dict,
     id_var_name: str = "id",
     rowsize_var_name: str = "rowsize",
-    traj_dim_name: str = "traj",
+    row_dim_name: str = "traj",
     obs_dim_name: str = "obs",
-    full_trajectories=False,
+    full_rows=False,
 ) -> xr.Dataset:
     """Subset a ragged array xarray dataset as a function of one or more criteria.
     The criteria are passed with a dictionary, where a dictionary key
@@ -564,14 +564,14 @@ def subset(
     criteria : dict
         Dictionary containing the variables (as keys) and the ranges/values/functions (as values) to subset.
     id_var_name : str, optional
-        Name of the variable with dimension `traj_dim_name` containing the ID of the trajectories (default is "id").
+        Name of the variable with dimension `traj_dim_name` containing the ID of the rows (default is "id").
     rowsize_var_name : str, optional
-        Name of the variable containing the number of observations per trajectory (default is "rowsize").
-    traj_dim_name : str, optional
-        Name of the trajectory dimension (default is "traj").
+        Name of the variable containing the number of observations per row (default is "rowsize").
+    row_dim_name : str, optional
+        Name of the row dimension (default is "traj").
     obs_dim_name : str, optional
         Name of the observation dimension (default is "obs").
-    full_trajectories : bool, optional
+    full_rows : bool, optional
         If True, the function returns complete rows (trajectories) for which the criteria
         are matched at least once. Default is False which means that only segments matching the criteria
         are returned when filtering along the observation dimension.
@@ -591,9 +591,9 @@ def subset(
 
     >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)})
 
-    The parameter `full_trajectories` can be used to retrieve trajectories passing through a region, for example all trajectories passing through the Gulf of Mexico:
+    The parameter `full_rows` can be used to retrieve trajectories passing through a region, for example all trajectories passing through the Gulf of Mexico:
 
-    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)}, full_trajectories=True)
+    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)}, full_rows=True)
 
     Retrieve drogued trajectory segments:
 
@@ -667,7 +667,7 @@ def subset(
     :func:`apply_ragged`
     """
     mask_traj = xr.DataArray(
-        data=np.ones(ds.sizes[traj_dim_name], dtype="bool"), dims=[traj_dim_name]
+        data=np.ones(ds.sizes[row_dim_name], dtype="bool"), dims=[row_dim_name]
     )
     mask_obs = xr.DataArray(
         data=np.ones(ds.sizes[obs_dim_name], dtype="bool"), dims=[obs_dim_name]
@@ -686,11 +686,11 @@ def subset(
                 criterion = ds[key]
                 criterion_dims = criterion.dims
 
-            if criterion_dims == (traj_dim_name,):
+            if criterion_dims == (row_dim_name,):
                 mask_traj = np.logical_and(
                     mask_traj,
                     _mask_var(
-                        criterion, criteria[key], ds[rowsize_var_name], traj_dim_name
+                        criterion, criteria[key], ds[rowsize_var_name], row_dim_name
                     ),
                 )
             elif criterion_dims == (obs_dim_name,):
@@ -703,12 +703,12 @@ def subset(
         else:
             raise ValueError(f"Unknown variable '{key}'.")
 
-    # remove data when trajectories are filtered
+    # remove data when rows are filtered
     traj_idx = rowsize_to_index(ds[rowsize_var_name].values)
     for i in np.where(~mask_traj)[0]:
         mask_obs[slice(traj_idx[i], traj_idx[i + 1])] = False
 
-    # remove trajectory completely filtered in mask_obs
+    # remove rows completely filtered in mask_obs
     ids_with_mask_obs = np.repeat(ds[id_var_name].values, ds[rowsize_var_name].values)[
         mask_obs
     ]
@@ -716,8 +716,8 @@ def subset(
         mask_traj, np.in1d(ds[id_var_name], np.unique(ids_with_mask_obs))
     )
 
-    # reset mask_obs to True to keep complete trajectories
-    if full_trajectories:
+    # reset mask_obs to True if we want to keep complete rows
+    if full_rows:
         for i in np.where(mask_traj)[0]:
             mask_obs[slice(traj_idx[i], traj_idx[i + 1])] = True
         ids_with_mask_obs = np.repeat(
@@ -729,7 +729,7 @@ def subset(
         return xr.Dataset()
     else:
         # apply the filtering for both dimensions
-        ds_sub = ds.isel({traj_dim_name: mask_traj, obs_dim_name: mask_obs})
+        ds_sub = ds.isel({row_dim_name: mask_traj, obs_dim_name: mask_obs})
         _, unique_idx, sorted_rowsize = np.unique(
             ids_with_mask_obs, return_index=True, return_counts=True
         )
@@ -820,7 +820,7 @@ def _mask_var(
         - tuple: (min, max) defining a range
         - list, np.ndarray, or xr.DataArray: An array-like defining multiples values
         - scalar: value defining a single value
-        - function: a function applied against each trajectory using ``apply_ragged`` and returning a mask
+        - function: a function applied against each row (trajectory) using ``apply_ragged`` and returning a mask
     rowsize : xr.DataArray, optional
         List of integers specifying the number of data points in each row
     dim_name : str, optional
