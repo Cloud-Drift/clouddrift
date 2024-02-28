@@ -177,7 +177,7 @@ class RaggedArray:
         ds : xr.Dataset
             Xarray Dataset from which to load the RaggedArray
         dim_traj : str, optional
-            Name of the trajectories dimension in the xarray Dataset
+            Name of the row dimension in the xarray Dataset
         dim_obs : str, optional
             Name of the observations dimension in the xarray Dataset
 

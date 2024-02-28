@@ -572,7 +572,7 @@ def subset(
     obs_dim_name : str, optional
         Name of the observation dimension (default is "obs").
     full_rows : bool, optional
-        If True, the function returns complete rows (trajectories) for which the criteria
+        If True, the function returns complete rows for which the criteria
         are matched at least once. Default is False which means that only segments matching the criteria
         are returned when filtering along the observation dimension.
 
@@ -585,7 +585,8 @@ def subset(
     --------
     Criteria are combined on any data (with dimension "obs") or metadata (with dimension "traj") variables
     part of the Dataset. The following examples are based on NOAA GDP datasets which can be accessed with the
-    ``clouddrift.datasets`` module.
+    ``clouddrift.datasets`` module. In these datasets, each row of the ragged arrays corresponds to the data from 
+    a single drifter trajectory.
 
     Retrieve a region, like the Gulf of Mexico, using ranges of latitude and longitude:
 
@@ -634,7 +635,7 @@ def subset(
     >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78), "drogue_status": True, "sst": (303.15, np.inf), "time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))})
 
     You can also use a function to filter the data. For example, retrieve every other observation
-    of each trajectory (row):
+    of each trajectory:
 
     >>> func = (lambda arr: ((arr - arr[0]) % 2) == 0)
     >>> subset(ds, {"time": func})
@@ -820,7 +821,7 @@ def _mask_var(
         - tuple: (min, max) defining a range
         - list, np.ndarray, or xr.DataArray: An array-like defining multiples values
         - scalar: value defining a single value
-        - function: a function applied against each row (trajectory) using ``apply_ragged`` and returning a mask
+        - function: a function applied against each row using ``apply_ragged`` and returning a mask
     rowsize : xr.DataArray, optional
         List of integers specifying the number of data points in each row
     dim_name : str, optional
