@@ -89,7 +89,9 @@ class RaggedArray:
             data[var] = ak.flatten(array.obs[var]).to_numpy()
             attrs_variables[var] = array.obs[var].layout.parameters["attrs"]
 
-        return RaggedArray(coord_dims, coords, metadata, data, attrs_global, attrs_variables)
+        return RaggedArray(
+            coord_dims, coords, metadata, data, attrs_global, attrs_variables
+        )
 
     @classmethod
     def from_files(

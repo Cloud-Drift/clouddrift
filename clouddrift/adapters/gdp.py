@@ -20,7 +20,6 @@ GDP_COORDS: list[tuple[str, DimNames]] = [
 ]
 
 GDP_METADATA = [
-    "ID",
     "rowsize",
     "WMO",
     "expno",

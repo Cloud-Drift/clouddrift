@@ -188,7 +188,6 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
 
     # convert type of some variable
     target_dtype = {
-        "ID": "int64",
         "WMO": "int32",
         "expno": "int32",
         "typedeath": "int8",
