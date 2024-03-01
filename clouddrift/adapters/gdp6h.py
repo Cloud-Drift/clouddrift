@@ -5,7 +5,6 @@ instance.
 """
 
 import datetime
-import math
 import os
 import re
 import tempfile
