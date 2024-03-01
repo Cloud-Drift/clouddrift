@@ -107,7 +107,7 @@ def download(
             filelist = sorted(rng.choice(filelist, n_random_id, replace=False))
 
     download_with_progress(
-        [(os.path.join(url, f), os.path.join(tmp_path, f), None) for f in filelist]
+        [(f"{url}/{f}", os.path.join(tmp_path, f), None) for f in filelist]
     )
     # Download the metadata so we can order the drifter IDs by end date.
     gdp_metadata = gdp.get_gdp_metadata()

@@ -68,6 +68,7 @@ def download(
     os.makedirs(tmp_path, exist_ok=True)
 
     pattern = "drifter_6h_[0-9]*.nc"
+    filename_pattern = "drifter_6h_{id}.nc"
     directory_list = [
         "netcdf_1_5000",
         "netcdf_5001_10000",
@@ -77,8 +78,6 @@ def download(
 
     # retrieve all drifter ID numbers
     if drifter_ids is None:
-        urlpath = urllib.request.urlopen(url)
-        string = urlpath.read().decode("utf-8")
         drifter_urls: list[str] = []
         for dir in directory_list:
             urlpath = urllib.request.urlopen(os.path.join(url, dir))
@@ -86,6 +85,8 @@ def download(
             filelist = list(set(re.compile(pattern).findall(string)))
             for f in filelist:
                 drifter_urls.append(os.path.join(url, dir, f))
+    else:
+        drifter_urls = [f"{url}/{filename_pattern.format(id=did)}" for did in drifter_ids]
 
     # retrieve only a subset of n_random_id trajectories
     if n_random_id:
