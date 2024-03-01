@@ -6,6 +6,7 @@ and six-hourly (``clouddrift.adapters.gdp6h``) GDP modules.
 """
 
 import os
+import platform
 
 import numpy as np
 import pandas as pd
@@ -304,10 +305,16 @@ def drogue_presence(lost_time, time) -> np.ndarray:
 
 def rowsize(index: int, **kwargs) -> int:
     try:
+        if platform.system() == "Windows":
+            selected_engine = "h5netcdf"
+        else:
+            selected_engine = None
+
         return xr.open_dataset(
             os.path.join(
                 kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)
             ),
+            engine=selected_engine,
             decode_cf=False,
             decode_times=False,
             concat_characters=False,

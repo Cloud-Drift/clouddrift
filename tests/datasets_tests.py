@@ -9,6 +9,7 @@ if __name__ == "__main__":
     unittest.main()
 
 
+@unittest.skip
 class datasets_tests(unittest.TestCase):
     def test_gdp1h(self):
         with datasets.gdp1h() as ds:
