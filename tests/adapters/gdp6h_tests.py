@@ -95,6 +95,6 @@ class gdp6h_tests(unittest.TestCase):
                         os.path.join("../some/path", f"drifter_6h_{did}.nc"),
                         None,
                     )
-                    for did in drifter_ids
+                    for did in ret_drifter_ids
                 ]
             )
