@@ -305,16 +305,10 @@ def drogue_presence(lost_time, time) -> np.ndarray:
 
 def rowsize(index: int, **kwargs) -> int:
     try:
-        if platform.system() == "Windows":
-            selected_engine = "h5netcdf"
-        else:
-            selected_engine = None
-
         return xr.open_dataset(
             os.path.join(
                 kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)
             ),
-            engine=selected_engine,
             decode_cf=False,
             decode_times=False,
             concat_characters=False,

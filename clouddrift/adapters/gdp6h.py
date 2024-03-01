@@ -85,7 +85,7 @@ def download(
             string = urlpath.read().decode("utf-8")
             filelist = list(set(re.compile(pattern).findall(string)))
             for f in filelist:
-                drifter_urls.append(os.path.join(url, dir, f))
+                drifter_urls.append(f"{url}/{dir}/{f}")
     else:
         drifter_urls = [f"{url}/{filename_pattern.format(id=did)}" for did in drifter_ids]
 
@@ -132,17 +132,11 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds : xr.Dataset
         Xarray Dataset containing the data and attributes
     """
-    if platform.system() == "Windows":
-        selected_engine = "h5netcdf"
-    else:
-        selected_engine = None
-
-        ds = xr.load_dataset(
-            os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)),
-            engine=selected_engine,
-            decode_times=False,
-            decode_coords=False,
-        )
+    ds = xr.load_dataset(
+        os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)),
+        decode_times=False,
+        decode_coords=False,
+    )
 
     # parse the date with custom function
     ds["deploy_date"].data = gdp.decode_date(np.array([ds.deploy_date.data[0]]))
