@@ -2,6 +2,8 @@ import os
 import shutil
 import unittest
 
+import numpy as np
+
 from clouddrift.adapters import gdp1h
 
 
@@ -22,6 +24,7 @@ class gdp1h_integration_tests(unittest.TestCase):
                 assert "sst" in ra.data
                 assert "ve" in ra.data
                 assert "vn" in ra.data
+                assert ra.coords["id"].dtype == np.int64
                 assert len(ra.data["vn"]) == len(ra.coords["time"])
                 assert len(ra.data["ve"]) == len(ra.coords["time"])
                 assert len(ra.data["sst"]) == len(ra.coords["time"])

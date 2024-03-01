@@ -2,6 +2,8 @@ import os
 import shutil
 import unittest
 
+import numpy as np
+
 from clouddrift.adapters import gdp6h
 
 
@@ -12,6 +14,7 @@ class gdp6h_integration_tests(unittest.TestCase):
         assert "temp" in ra.data
         assert "ve" in ra.data
         assert "vn" in ra.data
+        assert ra.coords["id"].dtype == np.int64
         assert len(ra.data["vn"]) == len(ra.coords["time"])
         assert len(ra.metadata["rowsize"]) == len(ra.coords["id"])
 
