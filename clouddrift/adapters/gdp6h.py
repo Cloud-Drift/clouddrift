@@ -6,6 +6,7 @@ instance.
 
 import datetime
 import os
+import platform
 import re
 import tempfile
 import urllib.request
@@ -131,11 +132,17 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds : xr.Dataset
         Xarray Dataset containing the data and attributes
     """
-    ds = xr.load_dataset(
-        os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)),
-        decode_times=False,
-        decode_coords=False,
-    )
+    if platform.system() == "Windows":
+        selected_engine = "h5netcdf"
+    else:
+        selected_engine = None
+
+        ds = xr.load_dataset(
+            os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)),
+            engine=selected_engine,
+            decode_times=False,
+            decode_coords=False,
+        )
 
     # parse the date with custom function
     ds["deploy_date"].data = gdp.decode_date(np.array([ds.deploy_date.data[0]]))
