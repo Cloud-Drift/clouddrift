@@ -6,7 +6,6 @@ and six-hourly (``clouddrift.adapters.gdp6h``) GDP modules.
 """
 
 import os
-import platform
 
 import numpy as np
 import pandas as pd

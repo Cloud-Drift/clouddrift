@@ -6,7 +6,6 @@ instance.
 
 import datetime
 import os
-import platform
 import re
 import tempfile
 import urllib.request
@@ -87,7 +86,9 @@ def download(
             for f in filelist:
                 drifter_urls.append(f"{url}/{dir}/{f}")
     else:
-        drifter_urls = [f"{url}/{filename_pattern.format(id=did)}" for did in drifter_ids]
+        drifter_urls = [
+            f"{url}/{filename_pattern.format(id=did)}" for did in drifter_ids
+        ]
 
     # retrieve only a subset of n_random_id trajectories
     if n_random_id:

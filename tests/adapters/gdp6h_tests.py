@@ -1,4 +1,3 @@
-
 import unittest
 from unittest.mock import Mock, patch
 
@@ -45,7 +44,9 @@ class gdp6h_tests(unittest.TestCase):
             ]
         ) as mocks:
             ret_drifter_ids = gdp6h.download("some-url.com", "../some/path", None, None)
-            assert len(ret_drifter_ids) == (len(self.drifter_files) * mocks[0].call_count)
+            assert len(ret_drifter_ids) == (
+                len(self.drifter_files) * mocks[0].call_count
+            )
 
     def test_downloads_subset_of_files_returned(self):
         """
