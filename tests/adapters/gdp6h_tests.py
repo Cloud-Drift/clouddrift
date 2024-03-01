@@ -43,11 +43,9 @@ class gdp6h_tests(unittest.TestCase):
                 patch("clouddrift.adapters.gdp6h.os.makedirs", Mock()),
                 patch("clouddrift.adapters.gdp6h.gdp", self.gdp_mock),
             ]
-        ) as mocks:
+        ):
             ret_drifter_ids = gdp6h.download("some-url.com", "../some/path", None, None)
-            assert len(ret_drifter_ids) == (
-                len(self.drifter_files) * mocks[0].call_count
-            )
+            assert len(ret_drifter_ids) == len(self.drifter_files)
 
     def test_downloads_subset_of_files_returned(self):
         """
@@ -93,7 +91,7 @@ class gdp6h_tests(unittest.TestCase):
             mocks[1].assert_called_with(
                 [
                     (
-                        f"some-url.com/drifter_6h_{did}.nc",
+                        f"some-url.com/netcdf_1_5000/drifter_6h_{did}.nc",
                         os.path.join("../some/path", f"drifter_6h_{did}.nc"),
                         None,
                     )

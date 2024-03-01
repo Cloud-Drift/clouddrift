@@ -9,9 +9,6 @@ if __name__ == "__main__":
     unittest.main()
 
 
-@unittest.skip(
-    "Some of these tests take a really long time as they download GBs of data"
-)
 class datasets_tests(unittest.TestCase):
     def test_gdp1h(self):
         with datasets.gdp1h() as ds:

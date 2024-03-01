@@ -5,6 +5,7 @@ instance.
 """
 
 import datetime
+import math
 import os
 import re
 import tempfile
@@ -68,7 +69,6 @@ def download(
     os.makedirs(tmp_path, exist_ok=True)
 
     pattern = "drifter_6h_[0-9]*.nc"
-    filename_pattern = "drifter_6h_{id}.nc"
     directory_list = [
         "netcdf_1_5000",
         "netcdf_5001_10000",
@@ -76,19 +76,17 @@ def download(
         "netcdf_15001_current",
     ]
 
-    # retrieve all drifter ID numbers
-    if drifter_ids is None:
-        drifter_urls: list[str] = []
-        for dir in directory_list:
-            urlpath = urllib.request.urlopen(os.path.join(url, dir))
-            string = urlpath.read().decode("utf-8")
-            filelist = list(set(re.compile(pattern).findall(string)))
-            for f in filelist:
+    drifter_urls: list[str] = []
+    added = set()
+    for dir in directory_list:
+        urlpath = urllib.request.urlopen(f"{url}/{dir}")
+        string = urlpath.read().decode("utf-8")
+        filelist = list(set(re.compile(pattern).findall(string)))
+        for f in filelist:
+            did = int(f[:-3].split("_")[2])
+            if (drifter_ids is None or did in drifter_ids) and did not in added:
                 drifter_urls.append(f"{url}/{dir}/{f}")
-    else:
-        drifter_urls = [
-            f"{url}/{filename_pattern.format(id=did)}" for did in drifter_ids
-        ]
+                added.add(did)
 
     # retrieve only a subset of n_random_id trajectories
     if n_random_id:
