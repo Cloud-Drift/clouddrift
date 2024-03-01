@@ -1,3 +1,4 @@
+import os
 import unittest
 from typing import List
 from unittest.mock import Mock, patch
@@ -92,7 +93,7 @@ class gdp1h_tests(unittest.TestCase):
                 [
                     (
                         f"some-url.com/drifter_hourly_{did}.nc",
-                        f"../some/path/drifter_hourly_{did}.nc",
+                        os.path.join("../some/path", f"drifter_hourly_{did}.nc"),
                         None,
                     )
                     for did in drifter_ids
