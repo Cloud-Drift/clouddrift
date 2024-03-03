@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import warnings
 from collections.abc import Callable
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal, Optional, TypeVar, Union
 
 import awkward as ak  # type: ignore
 import numpy as np
@@ -18,6 +18,9 @@ from tqdm import tqdm
 from clouddrift.ragged import rowsize_to_index
 
 DimNames = Literal["rows", "obs"]
+
+
+T = TypeVar("T")
 
 
 class RaggedArray:
@@ -96,15 +99,17 @@ class RaggedArray:
         )
 
     @classmethod
-    def from_files(
+    def from_items(
         cls,
-        indices: list,
-        preprocess_func: Callable[[int], xr.Dataset],
+        indices: list[T],
         name_coords: list,
+        preprocess_func: Callable[[T], xr.Dataset],
+        rowsize_func: Optional[Callable[[T], int]] = None,
         name_meta: list = list(),
         name_data: list = list(),
         name_dims: dict[str, DimNames] = {},
-        rowsize_func: Optional[Callable[[int], int]] = None,
+        attrs_global: Optional[dict] = None,
+        attrs_variables: Optional[dict] = None,
         **kwargs,
     ):
         """Generate a ragged array archive from a list of files
@@ -146,12 +151,19 @@ class RaggedArray:
             name_dims,
             **kwargs,
         )
-        attrs_global, attrs_variables = cls.attributes(
+
+        extracted_attrs_global, extracted_attrs_variables = cls.attributes(
             preprocess_func(indices[0], **kwargs),
             name_coords,
             name_meta,
             name_data,
         )
+
+        if attrs_global is None:
+            attrs_global = extracted_attrs_global
+
+        if attrs_variables is None:
+            attrs_variables = extracted_attrs_variables
 
         return RaggedArray(
             coords, metadata, data, attrs_global, attrs_variables, name_dims, coord_dims
@@ -263,7 +275,7 @@ class RaggedArray:
 
     @staticmethod
     def number_of_observations(
-        rowsize_func: Callable[[int], int], indices: list, **kwargs
+        rowsize_func: Callable[[T], int], indices: list, **kwargs
     ) -> np.ndarray:
         """Iterate through the files and evaluate the number of observations.
 
@@ -331,7 +343,7 @@ class RaggedArray:
 
     @staticmethod
     def allocate(
-        preprocess_func: Callable[[int], xr.Dataset],
+        preprocess_func: Callable[[T], xr.Dataset],
         indices: list,
         rowsize: Union[list, np.ndarray, xr.DataArray],
         name_coords: list,
