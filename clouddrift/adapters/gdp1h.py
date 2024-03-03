@@ -94,7 +94,7 @@ def download(
         filelist: Sequence[str] = re.compile(pattern).findall(string)  # noqa: F821
     else:
         filelist = [filename_pattern.format(id=did) for did in drifter_ids]
-    filelist = np.unique(filelist)
+    filelist = list(np.unique(filelist))
 
     # retrieve only a subset of n_random_id trajectories
     if n_random_id:
@@ -107,7 +107,7 @@ def download(
             filelist = sorted(rng.choice(filelist, n_random_id, replace=False))
 
     download_with_progress(
-        [(os.path.join(url, f), os.path.join(tmp_path, f), None) for f in filelist]
+        [(f"{url}/{f}", os.path.join(tmp_path, f), None) for f in filelist]
     )
     # Download the metadata so we can order the drifter IDs by end date.
     gdp_metadata = gdp.get_gdp_metadata()
@@ -204,7 +204,6 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
             warnings.warn(f"Variable {var} not found in upstream data; skipping.")
 
     # new variables
-    ds["ids"] = (["traj", "obs"], [np.repeat(ds.ID.values, ds.sizes["obs"])])
     ds["drogue_status"] = (
         ["traj", "obs"],
         [gdp.drogue_presence(ds.drogue_lost_date.data, ds.time.data[0])],
@@ -284,10 +283,6 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         "longitude": {"long_name": "Longitude", "units": "degrees_east"},
         "latitude": {"long_name": "Latitude", "units": "degrees_north"},
         "time": {"long_name": "Time", "units": "seconds since 1970-01-01 00:00:00"},
-        "ids": {
-            "long_name": "Global Drifter Program Buoy ID repeated along observations",
-            "units": "-",
-        },
         "rowsize": {
             "long_name": "Number of observations per trajectory",
             "sample_dimension": "obs",
@@ -501,7 +496,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds.attrs = attrs
 
     # rename variables
-    ds = ds.rename_vars({"longitude": "lon", "latitude": "lat"})
+    ds = ds.rename_vars({"longitude": "lon", "latitude": "lat", "ID": "id"})
 
     # Cast float64 variables to float32 to reduce memory footprint.
     ds = gdp.cast_float64_variables_to_float32(ds)
@@ -586,7 +581,7 @@ def to_raggedarray(
     ra = RaggedArray.from_files(
         indices=ids,
         preprocess_func=preprocess,
-        name_coords=gdp.GDP_COORDS,
+        coord_dim_map=gdp.GDP_COORDS,
         name_meta=gdp.GDP_METADATA,
         name_data=GDP_DATA,
         rowsize_func=gdp.rowsize,
