@@ -33,7 +33,12 @@ class datasets_tests(unittest.TestCase):
 
     def test_glad_subset_and_apply_ragged_work(self):
         with datasets.glad() as ds:
-            ds_sub = subset(ds, {"id": ["CARTHE_001", "CARTHE_002"]}, id_var_name="id")
+            ds_sub = subset(
+                ds,
+                {"id": ["CARTHE_001", "CARTHE_002"]},
+                id_var_name="id",
+                row_dim_name="traj",
+            )
             self.assertTrue(ds_sub)
             mean_lon = apply_ragged(np.mean, [ds_sub.longitude], ds_sub.rowsize)
             self.assertTrue(mean_lon.size == 2)

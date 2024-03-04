@@ -13,6 +13,8 @@ import xarray as xr
 
 from clouddrift.adapters.utils import download_with_progress
 
+GDP_DIMS = {"rows": "traj", "obs": "obs"}
+
 GDP_COORDS = [
     "ids",
     "time",

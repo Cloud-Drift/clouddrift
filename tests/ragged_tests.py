@@ -79,8 +79,8 @@ def sample_ragged_array() -> RaggedArray:
         [0, 1, 2],
         lambda i: list_ds[i],
         variables_coords,
-        ["id", "rowsize"],
-        ["test"],
+        name_meta=["id", "rowsize"],
+        name_data=["test"],
     )
 
     return ra
@@ -696,7 +696,7 @@ class subset_tests(unittest.TestCase):
 
     def test_subset_by_rows(self):
         rows = [0, 2]  # test extracting first and third rows
-        ds_sub = subset(self.ds, {"traj": rows})
+        ds_sub = subset(self.ds, {"rows": rows})
         self.assertTrue(all(ds_sub["id"] == [1, 2]))
         self.assertTrue(all(ds_sub["rowsize"] == [5, 4]))
 
@@ -734,7 +734,7 @@ class subset_tests(unittest.TestCase):
     def test_subset_callable_wrong_type(self):
         rows = [0, 2]  # test extracting first and third rows
         with self.assertRaises(TypeError):  # passing a tuple when a string is expected
-            subset(self.ds, {("traj",): rows})
+            subset(self.ds, {("rows",): rows})
 
     def test_subset_callable_tuple_unknown_var(self):
         func = lambda arr1, arr2: np.logical_and(

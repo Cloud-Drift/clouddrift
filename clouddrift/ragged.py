@@ -542,7 +542,7 @@ def subset(
     criteria: dict,
     id_var_name: str = "id",
     rowsize_var_name: str = "rowsize",
-    row_dim_name: str = "traj",
+    row_dim_name: str = "rows",
     obs_dim_name: str = "obs",
     full_rows=False,
 ) -> xr.Dataset:
@@ -554,7 +554,7 @@ def subset(
 
     This function needs to know the names of the dimensions of the ragged array dataset
     (`traj_dim_name` and `obs_dim_name`), and the name of the rowsize variable (`rowsize_var_name`).
-    Default values corresponds to the clouddrift convention ("traj", "obs", and "rowsize") but should
+    Default values corresponds to the clouddrift convention ("rows", "obs", and "rowsize") but should
     be changed as needed.
 
     Parameters
@@ -568,7 +568,7 @@ def subset(
     rowsize_var_name : str, optional
         Name of the variable containing the number of observations per row (default is "rowsize").
     row_dim_name : str, optional
-        Name of the row dimension (default is "traj").
+        Name of the row dimension (default is "rows").
     obs_dim_name : str, optional
         Name of the observation dimension (default is "obs").
     full_rows : bool, optional
@@ -583,9 +583,9 @@ def subset(
 
     Examples
     --------
-    Criteria are combined on any data (with dimension "obs") or metadata (with dimension "traj") variables
+    Criteria are combined on any data (with dimension "obs") or metadata (with dimension "rows") variables
     part of the Dataset. The following examples are based on NOAA GDP datasets which can be accessed with the
-    ``clouddrift.datasets`` module. In these datasets, each row of the ragged arrays corresponds to the data from 
+    ``clouddrift.datasets`` module. In these datasets, each row of the ragged arrays corresponds to the data from
     a single drifter trajectory.
 
     Retrieve a region, like the Gulf of Mexico, using ranges of latitude and longitude:

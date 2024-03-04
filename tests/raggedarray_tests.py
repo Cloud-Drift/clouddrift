@@ -73,8 +73,8 @@ class raggedarray_tests(TestCase):
             [0, 1, 2],
             lambda i: list_ds[i],
             self.variables_coords,
-            ["ID", "rowsize"],
-            ["temp"],
+            name_meta=["ID", "rowsize"],
+            name_data=["temp"],
         )
 
         # output archive
@@ -100,7 +100,9 @@ class raggedarray_tests(TestCase):
     def test_from_xarray_dim_names(self):
         ds = xr.open_dataset("test_archive.nc")
         ra = RaggedArray.from_xarray(
-            ds.rename_dims({"traj": "t", "obs": "o"}), dim_traj="t", dim_obs="o"
+            ds.rename_dims({"rows": "t", "obs": "o"}),
+            rows_dim_name="t",
+            obs_dim_name="o",
         )
         self.compare_awkward_array(ra.to_awkward())
 

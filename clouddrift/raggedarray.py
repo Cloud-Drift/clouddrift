@@ -16,6 +16,7 @@ from clouddrift.ragged import rowsize_to_index
 
 
 class RaggedArray:
+
     def __init__(
         self,
         coords: dict,
@@ -23,12 +24,14 @@ class RaggedArray:
         data: dict,
         attrs_global: Optional[dict] = {},
         attrs_variables: Optional[dict] = {},
+        dim_names: Optional[dict] = {"rows": "rows", "obs": "obs"},
     ):
         self.coords = coords
         self.metadata = metadata
         self.data = data
         self.attrs_global = attrs_global
         self.attrs_variables = attrs_variables
+        self.dim_names = dim_names
         self.validate_attributes()
 
     @classmethod
@@ -78,6 +81,7 @@ class RaggedArray:
         indices: list,
         preprocess_func: Callable[[int], xr.Dataset],
         name_coords: list,
+        name_dims: Optional[dict] = {"rows": "rows", "obs": "obs"},
         name_meta: Optional[list] = [],
         name_data: Optional[list] = [],
         rowsize_func: Optional[Callable[[int], int]] = None,
@@ -128,7 +132,7 @@ class RaggedArray:
             name_data,
         )
 
-        return cls(coords, metadata, data, attrs_global, attrs_variables)
+        return cls(coords, metadata, data, attrs_global, attrs_variables, name_dims)
 
     @classmethod
     def from_netcdf(cls, filename: str):
@@ -169,14 +173,16 @@ class RaggedArray:
         return cls.from_awkward(ak.from_parquet(filename), name_coords)
 
     @classmethod
-    def from_xarray(cls, ds: xr.Dataset, dim_traj: str = "traj", dim_obs: str = "obs"):
+    def from_xarray(
+        cls, ds: xr.Dataset, rows_dim_name: str = "rows", obs_dim_name: str = "obs"
+    ):
         """Populate a RaggedArray instance from an xarray Dataset instance.
 
         Parameters
         ----------
         ds : xr.Dataset
             Xarray Dataset from which to load the RaggedArray
-        dim_traj : str, optional
+        dim_rows : str, optional
             Name of the row dimension in the xarray Dataset
         dim_obs : str, optional
             Name of the observations dimension in the xarray Dataset
@@ -199,16 +205,16 @@ class RaggedArray:
             attrs_variables[var] = ds[var].attrs
 
         for var in ds.data_vars.keys():
-            if len(ds[var]) == ds.sizes[dim_traj]:
+            if len(ds[var]) == ds.sizes[rows_dim_name]:
                 metadata[var] = ds[var].data
-            elif len(ds[var]) == ds.sizes[dim_obs]:
+            elif len(ds[var]) == ds.sizes[obs_dim_name]:
                 data[var] = ds[var].data
             else:
                 warnings.warn(
                     f"""
-                    Variable '{var}' has unknown dimension size of 
-                    {len(ds[var])}, which is not traj={ds.sizes[dim_traj]} or 
-                    obs={ds.sizes[dim_obs]}; skipping.
+                    Variable '{var}' has unknown dimension size of
+                    {len(ds[var])}, which is not rows={ds.sizes[rows_dim_name]} or
+                    obs={ds.sizes[obs_dim_name]}; skipping.
                     """
                 )
             attrs_variables[var] = ds[var].attrs
@@ -383,7 +389,7 @@ class RaggedArray:
             if key not in self.attrs_variables:
                 self.attrs_variables[key] = {}
 
-    def to_xarray(self, cast_to_float32: bool = True):
+    def to_xarray(self):
         """Convert ragged array object to a xarray Dataset.
 
         Parameters
@@ -400,14 +406,26 @@ class RaggedArray:
 
         xr_coords = {}
         for var in self.coords.keys():
-            xr_coords[var] = (["obs"], self.coords[var], self.attrs_variables[var])
+            xr_coords[var] = (
+                [self.dim_names["obs"]],
+                self.coords[var],
+                self.attrs_variables[var],
+            )
 
         xr_data = {}
         for var in self.metadata.keys():
-            xr_data[var] = (["traj"], self.metadata[var], self.attrs_variables[var])
+            xr_data[var] = (
+                [self.dim_names["rows"]],
+                self.metadata[var],
+                self.attrs_variables[var],
+            )
 
         for var in self.data.keys():
-            xr_data[var] = (["obs"], self.data[var], self.attrs_variables[var])
+            xr_data[var] = (
+                [self.dim_names["obs"]],
+                self.data[var],
+                self.attrs_variables[var],
+            )
 
         return xr.Dataset(coords=xr_coords, data_vars=xr_data, attrs=self.attrs_global)
 
