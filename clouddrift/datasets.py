@@ -232,6 +232,56 @@ def glad(decode_times: bool = True) -> xr.Dataset:
     return ds
 
 
+def hurdat2():
+    """Returns the hurricane (Atlantic Basin) v2 (HURDAT2) dataset as a ragged array
+    Xarray dataset.
+
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access.
+
+    The upstream data is available at https://www.aoml.noaa.gov/hrd/hurdat/hurdat2.html
+
+    Parameters
+    ----------
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
+
+    Returns
+    -------
+    xarray.Dataset
+        HURDAT2 dataset as a ragged array
+
+    Examples TODO - EVERYTHING BELOW NEEDS TO BE UPDATED
+    --------
+    >>> from clouddrift.datasets import glad
+    >>> ds = hurdat2()
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:         (obs: 1602883, traj: 297)
+    Coordinates:
+      time            (obs) datetime64[ns] ...
+      id              (traj) int64 ...
+    Data variables:
+      latitude        (obs) float32 ...
+      longitude       (obs) float32 ...
+      rowsize         (traj) int64 ...
+    Attributes:
+      title:        GLAD experiment CODE-style drifter trajectories (low-pass f...
+      institution:  Consortium for Advanced Research on Transport of Hydrocarbo...
+      source:       CODE-style drifters
+      history:      Downloaded from https://data.gulfresearchinitiative.org/dat...
+      references:   Özgökmen, Tamay. 2013. GLAD experiment CODE-style drifter t...
+
+    Reference
+    ---------
+    Özgökmen, Tamay. 2013. GLAD experiment CODE-style drifter trajectories (low-pass filtered, 15 minute interval records), northern Gulf of Mexico near DeSoto Canyon, July-October 2012. Distributed by: Gulf of Mexico Research Initiative Information and Data Cooperative (GRIIDC), Harte Research Institute, Texas A&M University–Corpus Christi. doi:10.7266/N7VD6WC8
+    """
+    return adapters.hurdat2.to_raggedarray().to_xarray()
+
+
 def mosaic(decode_times: bool = True) -> xr.Dataset:
     """Returns the MOSAiC sea-ice drift dataset as a ragged array Xarray dataset.
 

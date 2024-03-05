@@ -88,7 +88,7 @@ class HeaderLine:
 
 @dataclass
 class DataLine:
-    time: datetime = field(
+    time: float = field(
         metadata={"comments": "Computed property from YYY-MM-DD HH:MM in UTC"}
     )
     record_identifier: RecordIdentifier = field(
@@ -285,7 +285,7 @@ class TrackData:
             },
             coords={
                 "id": (["traj"], np.array([self.header.id])),
-                "time": (["obs"], np.array([line.time for line in self.data])),
+                "time": (["obs"], np.array([line.time for line in self.data], dtype=np.float64)),
             },
         )
 
@@ -315,7 +315,6 @@ def to_raggedarray():
     data_line_count = 0
     current_header = None
     data_lines = list()
-    header_lines = list()
     all_track_data = list[TrackData]()
 
     while (line := datapage.readline()) != "":
@@ -342,19 +341,18 @@ def to_raggedarray():
                 all_track_data.append(TrackData(current_header, data_lines))
                 data_lines = list()
                 current_header = header
-
-            header_lines.append(header)
         elif len(cols) > 4 and data_line_count > 0:
+            timestamp = datetime(
+                year=int(cols[0][:4]),
+                month=int(cols[0][4:6]),
+                day=int(cols[0][6:8]),
+                hour=int(cols[1][:2]),
+                minute=int(cols[1][2:4]),
+                tzinfo=timezone.utc,
+            ).timestamp()
             data_lines.append(
                 DataLine(
-                    time=datetime(
-                        year=int(cols[0][:4]),
-                        month=int(cols[0][4:6]),
-                        day=int(cols[0][6:8]),
-                        hour=int(cols[1][:2]),
-                        minute=int(cols[1][2:4]),
-                        tzinfo=timezone.utc,
-                    ),
+                    time=timestamp,
                     record_identifier=RecordIdentifier(cols[2]),
                     system_status=SystemStatus(cols[3]),
                     lat=_map_heading(cols[4]),
