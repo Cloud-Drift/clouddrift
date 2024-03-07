@@ -15,7 +15,7 @@ import os
 import tempfile
 import warnings
 from datetime import datetime
-from typing import Union
+from typing import Hashable, List, Union
 
 import numpy as np
 import pandas as pd
@@ -49,7 +49,7 @@ def to_xarray(
     source_data = scipy.io.loadmat(local_file)
 
     # metadata
-    meta_variables = [
+    meta_variables: List[Hashable] = [
         "expList",
         "expName",
         "expOrg",

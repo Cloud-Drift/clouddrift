@@ -1,6 +1,7 @@
 import unittest
 from concurrent import futures
 from datetime import datetime, timedelta
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -34,29 +35,30 @@ def sample_ragged_array() -> RaggedArray:
         [True, False, False, False],
     ]
     rowsize = [len(x) for x in longitude]
-    ids = [[d] * rowsize[i] for i, d in enumerate(drifter_id)]
     attrs_global = {
         "title": "test trajectories",
         "history": "version xyz",
     }
-    variables_coords = ["ids", "time", "lon", "lat"]
-
-    coords = {"lon": longitude, "lat": latitude, "ids": ids, "time": t}
-    metadata = {"id": drifter_id, "rowsize": rowsize}
-    data = {"test": test}
+    coords: dict[str, list] = {"id": drifter_id, "time": t}
+    metadata = {"rowsize": rowsize}
+    data: dict[str, list] = {"test": test, "lat": latitude, "lon": longitude}
 
     # append xr.Dataset to a list
     list_ds = []
     for i in range(0, len(rowsize)):
         xr_coords = {}
-        for var in coords.keys():
-            xr_coords[var] = (
-                ["obs"],
-                coords[var][i],
-                {"long_name": f"variable {var}", "units": "-"},
-            )
+        xr_coords["id"] = (
+            ["rows"],
+            [coords["id"][i]],
+            {"long_name": "variable id", "units": "-"},
+        )
+        xr_coords["time"] = (
+            ["obs"],
+            coords["time"][i],
+            {"long_name": "variable time", "units": "-"},
+        )
 
-        xr_data = {}
+        xr_data: dict[str, Any] = {}
         for var in metadata.keys():
             xr_data[var] = (
                 ["traj"],
@@ -78,9 +80,10 @@ def sample_ragged_array() -> RaggedArray:
     ra = RaggedArray.from_files(
         [0, 1, 2],
         lambda i: list_ds[i],
-        variables_coords,
-        name_meta=["id", "rowsize"],
-        name_data=["test"],
+        ["id", "time"],
+        name_meta=["rowsize"],
+        name_data=["test", "lat", "lon"],
+        dim_names={"rows": "rows", "obs": "obs"}
     )
 
     return ra

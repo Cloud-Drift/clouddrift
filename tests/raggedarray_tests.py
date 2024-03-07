@@ -2,7 +2,7 @@ import os
 import unittest
 from unittest import TestCase
 
-import awkward as ak
+import awkward as ak  # type: ignore
 import numpy as np
 import xarray as xr
 
@@ -29,30 +29,24 @@ class raggedarray_tests(TestCase):
             "title": "test trajectories",
             "history": "version xyz",
         }
-        self.variables_coords = ["ids", "time", "lon", "lat"]
 
         # append xr.Dataset to a list
         list_ds = []
         for i in range(0, len(self.rowsize)):
             xr_coords = {}
-            for var in ["lon", "lat", "time"]:
-                xr_coords[var] = (
-                    ["obs"],
-                    np.random.rand(self.rowsize[i]),
-                    {"long_name": f"variable {var}", "units": "-"},
-                )
-            xr_coords["ids"] = (
+            xr_coords["id"] = (
+                ["traj"],
+                [self.drifter_id[i]],
+                {"long_name": "variable id", "units": "-"},
+            )
+
+            xr_coords["time"] = (
                 ["obs"],
                 np.ones(self.rowsize[i], dtype="int") * self.drifter_id[i],
-                {"long_name": "variable ids", "units": "-"},
+                {"long_name": "variable time", "units": "-"},
             )
 
             xr_data = {}
-            xr_data["ID"] = (
-                ["traj"],
-                [self.drifter_id[i]],
-                {"long_name": "variable ID", "units": "-"},
-            )
             xr_data["rowsize"] = (
                 ["traj"],
                 [self.rowsize[i]],
@@ -69,12 +63,18 @@ class raggedarray_tests(TestCase):
             )
 
         # create test ragged array
+        self.name_coords=["id", "time"]
+        self.name_meta=["rowsize"]
+        self.name_data=["temp"]
+        self.name_dims={"rows": "traj", "obs": "obs"}
+        self.coord_dims={"id": "traj", "time": "obs"}
         self.ra = RaggedArray.from_files(
             [0, 1, 2],
             lambda i: list_ds[i],
-            self.variables_coords,
-            name_meta=["ID", "rowsize"],
-            name_data=["temp"],
+            self.name_coords,
+            self.name_meta,
+            self.name_data,
+            self.name_dims
         )
 
         # output archive
@@ -90,17 +90,23 @@ class raggedarray_tests(TestCase):
         os.remove(PARQUET_ARCHIVE)
 
     def test_from_awkward(self):
-        ra = RaggedArray.from_awkward(ak.from_parquet(PARQUET_ARCHIVE))
+        ra = RaggedArray.from_awkward(
+            ak.from_parquet(PARQUET_ARCHIVE), 
+            self.name_coords,
+            self.name_dims,
+            self.coord_dims
+        )
         self.compare_awkward_array(ra.to_awkward())
 
     def test_from_xarray(self):
-        ra = RaggedArray.from_xarray(xr.open_dataset(NETCDF_ARCHIVE))
+        ra = RaggedArray.from_xarray(xr.open_dataset(NETCDF_ARCHIVE), "traj")
         self.compare_awkward_array(ra.to_awkward())
 
     def test_from_xarray_dim_names(self):
         ds = xr.open_dataset("test_archive.nc")
+        
         ra = RaggedArray.from_xarray(
-            ds.rename_dims({"rows": "t", "obs": "o"}),
+            ds.rename_dims({"traj": "t", "obs": "o"}),
             rows_dim_name="t",
             obs_dim_name="o",
         )
@@ -110,9 +116,10 @@ class raggedarray_tests(TestCase):
         """
         Validate the size of the ragged array variables
         """
-        for var in ["lon", "lat", "time", "ids"]:
-            self.assertEqual(len(self.ra.coords[var]), self.nb_obs)
-        self.assertEqual(len(self.ra.metadata["ID"]), self.nb_traj)
+        self.assertEqual(len(self.ra.coords["id"]), self.nb_traj)
+        self.assertEqual(len(self.ra.coords["time"]), self.nb_obs)
+
+        self.assertEqual(len(self.ra.metadata["rowsize"]), self.nb_traj)
         self.assertEqual(len(self.ra.data["temp"]), self.nb_obs)
 
     def test_variable_attrs(self):
@@ -120,16 +127,10 @@ class raggedarray_tests(TestCase):
         Validate the variable attributes are properly transferred to the ragged array object.
         Note: as part of this test `long_name` is variable but `units` are always "-"
         """
-        for var in ["lon", "lat", "time"]:
+        for var in ["id", "time", "rowsize", "temp"]:
             self.assertEqual(
                 self.ra.attrs_variables[var]["long_name"],
                 f"variable {var}",
-            )
-            self.assertEqual(self.ra.attrs_variables[var]["units"], "-")
-
-        for var in ["ids", "ID", "temp"]:
-            self.assertEqual(
-                self.ra.attrs_variables[var]["long_name"], f"variable {var}"
             )
             self.assertEqual(self.ra.attrs_variables[var]["units"], "-")
 
@@ -146,21 +147,28 @@ class raggedarray_tests(TestCase):
         """
         # dimensions
         self.assertEqual(len(self.ra.data["temp"]), len(ak.flatten(ds.obs["temp"])))
-        self.assertEqual(len(self.ra.metadata["ID"]), len(ds.obs["temp"]))
 
         # coords
-        for var in ["lon", "lat", "time", "ids"]:
-            self.assertTrue(
-                np.allclose(self.ra.coords[var], ak.flatten(ds.obs[var]).to_numpy())
-            )
+        for var in ["time", "id"]:
+            if var == "time":
+                self.assertTrue(
+                    np.allclose(self.ra.coords[var], ak.flatten(ds.obs[var]).to_numpy())
+                )
+            else:
+                self.assertTrue(
+                    np.allclose(self.ra.coords[var], ds.obs[var].to_numpy())
+                )
             self.assertTrue(
                 self.ra.attrs_variables[var] == ds.obs[var].layout.parameters["attrs"]
             )
 
-        # metadata and
-        self.assertTrue(np.allclose(self.ra.metadata["ID"], ds["ID"].to_numpy()))
+        # metadata
         self.assertTrue(
-            self.ra.attrs_variables["ID"] == ds["ID"].layout.parameters["attrs"]
+            np.allclose(self.ra.metadata["rowsize"], ds["rowsize"].to_numpy())
+        )
+        self.assertTrue(
+            self.ra.attrs_variables["rowsize"]
+            == ds["rowsize"].layout.parameters["attrs"]
         )
 
         # data
@@ -175,12 +183,17 @@ class raggedarray_tests(TestCase):
         """
         Validate the netCDF output archive
         """
-        ds = RaggedArray.from_netcdf(NETCDF_ARCHIVE)
+        ds = RaggedArray.from_netcdf(NETCDF_ARCHIVE, "traj")
         self.compare_awkward_array(ds.to_awkward())
 
     def test_parquet_output(self):
         """
         Validate the netCDF output archive
         """
-        ds = RaggedArray.from_parquet(PARQUET_ARCHIVE)
+        ds = RaggedArray.from_parquet(
+            PARQUET_ARCHIVE, 
+            self.name_coords,
+            self.name_dims,
+            self.coord_dims
+        )
         self.compare_awkward_array(ds.to_awkward())
