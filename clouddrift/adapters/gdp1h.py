@@ -204,99 +204,93 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
             warnings.warn(f"Variable {var} not found in upstream data; skipping.")
 
     ds["drogue_status"] = (
-        [gdp.GDP_DIMS["rows"], gdp.GDP_DIMS["obs"]],
+        [gdp.GDP_DIMS["traj"], gdp.GDP_DIMS["obs"]],
         [gdp.drogue_presence(ds.drogue_lost_date.data, ds.time.data[0])],
     )
 
     # convert attributes to variable
     ds["location_type"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [False if ds.get("location_type") == "Argos" else True],
     )  # 0 for Argos, 1 for GPS
-    ds["DeployingShip"] = ((gdp.GDP_DIMS["rows"]), gdp.cut_str(ds.DeployingShip, 20))
+    ds["DeployingShip"] = ((gdp.GDP_DIMS["traj"]), gdp.cut_str(ds.DeployingShip, 20))
     ds["DeploymentStatus"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         gdp.cut_str(ds.DeploymentStatus, 20),
     )
     ds["BuoyTypeManufacturer"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         gdp.cut_str(ds.BuoyTypeManufacturer, 20),
     )
     ds["BuoyTypeSensorArray"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         gdp.cut_str(ds.BuoyTypeSensorArray, 20),
     )
     ds["CurrentProgram"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         np.array([gdp.str_to_float(ds.CurrentProgram, -1)], dtype=np.int32),
     )
     ds["PurchaserFunding"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         gdp.cut_str(ds.PurchaserFunding, 20),
     )
-    ds["SensorUpgrade"] = ((gdp.GDP_DIMS["rows"]), gdp.cut_str(ds.SensorUpgrade, 20))
-    ds["Transmissions"] = ((gdp.GDP_DIMS["rows"]), gdp.cut_str(ds.Transmissions, 20))
+    ds["SensorUpgrade"] = ((gdp.GDP_DIMS["traj"]), gdp.cut_str(ds.SensorUpgrade, 20))
+    ds["Transmissions"] = ((gdp.GDP_DIMS["traj"]), gdp.cut_str(ds.Transmissions, 20))
     ds["DeployingCountry"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         gdp.cut_str(ds.DeployingCountry, 20),
     )
     ds["DeploymentComments"] = (
-        (gdp.GDP_DIMS["rows"]),
-        gdp.cut_str(
-            ds.DeploymentComments.encode("ascii", "ignore").decode("ascii"), 20
-        ),
-    )  # remove non ascii char
-    ds["ManufactureYear"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         np.array([gdp.str_to_float(ds.ManufactureYear, -1)], dtype=np.int16),
     )
     ds["ManufactureMonth"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         np.array([gdp.str_to_float(ds.ManufactureMonth, -1)], dtype=np.int16),
     )
     ds["ManufactureSensorType"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         gdp.cut_str(ds.ManufactureSensorType, 20),
     )
     ds["ManufactureVoltage"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         np.array([gdp.str_to_float(ds.ManufactureVoltage[:-6], -1)], dtype=np.int16),
     )  # e.g. 56 V
     ds["FloatDiameter"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [gdp.str_to_float(ds.FloatDiameter[:-3])],
     )  # e.g. 35.5 cm
     ds["SubsfcFloatPresence"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         np.array([gdp.str_to_float(ds.SubsfcFloatPresence)], dtype="bool"),
     )
-    ds["DrogueType"] = ((gdp.GDP_DIMS["rows"]), gdp.cut_str(ds.DrogueType, 7))
+    ds["DrogueType"] = ((gdp.GDP_DIMS["traj"]), gdp.cut_str(ds.DrogueType, 7))
     ds["DrogueLength"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [gdp.str_to_float(ds.DrogueLength[:-2])],
     )  # e.g. 4.8 m
     ds["DrogueBallast"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [gdp.str_to_float(ds.DrogueBallast[:-3])],
     )  # e.g. 1.4 kg
     ds["DragAreaAboveDrogue"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [gdp.str_to_float(ds.DragAreaAboveDrogue[:-4])],
     )  # 10.66 m^2
     ds["DragAreaOfDrogue"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [gdp.str_to_float(ds.DragAreaOfDrogue[:-4])],
     )  # e.g. 416.6 m^2
     ds["DragAreaRatio"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [gdp.str_to_float(ds.DragAreaRatio)],
     )  # e.g. 39.08
     ds["DrogueCenterDepth"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [gdp.str_to_float(ds.DrogueCenterDepth[:-2])],
     )  # e.g. 20.0 m
     ds["DrogueDetectSensor"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         gdp.cut_str(ds.DrogueDetectSensor, 20),
     )
 
@@ -607,7 +601,7 @@ def to_raggedarray(
         name_coords=gdp.GDP_COORDS,
         name_meta=gdp.GDP_METADATA,
         name_data=GDP_DATA,
-        dim_names=gdp.GDP_DIMS,
+        name_dims=gdp.GDP_DIMS,
         rowsize_func=gdp.rowsize,
         filename_pattern=filename_pattern,
         tmp_path=tmp_path,

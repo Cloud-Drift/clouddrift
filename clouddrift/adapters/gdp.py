@@ -14,7 +14,7 @@ import xarray as xr
 from clouddrift.adapters.utils import download_with_progress
 from clouddrift.raggedarray import DimNames
 
-GDP_DIMS: dict[DimNames, str] = {"rows": "traj", "obs": "obs"}
+GDP_DIMS: dict[str, DimNames] = {"traj": "rows", "obs": "obs"}
 
 GDP_COORDS = [
     "id",
