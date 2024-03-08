@@ -1,6 +1,7 @@
 import unittest
 from concurrent import futures
 from datetime import datetime, timedelta
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -39,8 +40,6 @@ def sample_ragged_array() -> RaggedArray:
         "title": "test trajectories",
         "history": "version xyz",
     }
-    variables_coords = ["ids", "time", "lon", "lat"]
-
     coords = {"lon": longitude, "lat": latitude, "ids": ids, "time": t}
     metadata = {"id": drifter_id, "rowsize": rowsize}
     data = {"test": test}
@@ -56,7 +55,7 @@ def sample_ragged_array() -> RaggedArray:
                 {"long_name": f"variable {var}", "units": "-"},
             )
 
-        xr_data = {}
+        xr_data: dict[str, Any] = {}
         for var in metadata.keys():
             xr_data[var] = (
                 ["traj"],
@@ -78,7 +77,7 @@ def sample_ragged_array() -> RaggedArray:
     ra = RaggedArray.from_files(
         [0, 1, 2],
         lambda i: list_ds[i],
-        variables_coords,
+        [("ids", "traj"), ("time", "obs"), ("lat", "obs"), ("lon", "obs")],
         ["id", "rowsize"],
         ["test"],
     )

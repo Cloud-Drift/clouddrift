@@ -1,25 +1,24 @@
 import os
 import unittest
-from typing import List
 from unittest.mock import Mock, patch
 
-from clouddrift.adapters import gdp1h
+import clouddrift.adapters.gdp6h as gdp6h
 from tests.adapters.utils import MultiPatcher
 
 
-class gdp1h_tests(unittest.TestCase):
-    drifter_files: List[str]
+class gdp6h_tests(unittest.TestCase):
+    drifter_files: list[str]
     response_mock: Mock
     gdp_mock: Mock
 
     def setUp(self) -> None:
         super().setUp()
         self.drifter_files = [
-            "drifter_hourly_0.nc",
-            "drifter_hourly_1.nc",
-            "drifter_hourly_2.nc",
-            "drifter_hourly_3.nc",
-            "drifter_hourly_4.nc",
+            "drifter_6h_0.nc",
+            "drifter_6h_1.nc",
+            "drifter_6h_2.nc",
+            "drifter_6h_3.nc",
+            "drifter_6h_4.nc",
         ]
         mock_drifter_ids_str = "\n".join(self.drifter_files)
         data_mock = Mock()
@@ -37,15 +36,15 @@ class gdp1h_tests(unittest.TestCase):
         with MultiPatcher(
             [
                 patch(
-                    "clouddrift.adapters.gdp1h.urllib.request.urlopen",
+                    "clouddrift.adapters.gdp6h.urllib.request.urlopen",
                     Mock(return_value=self.response_mock),
                 ),
-                patch("clouddrift.adapters.gdp1h.download_with_progress", Mock()),
-                patch("clouddrift.adapters.gdp1h.os.makedirs", Mock()),
-                patch("clouddrift.adapters.gdp1h.gdp", self.gdp_mock),
+                patch("clouddrift.adapters.gdp6h.download_with_progress", Mock()),
+                patch("clouddrift.adapters.gdp6h.os.makedirs", Mock()),
+                patch("clouddrift.adapters.gdp6h.gdp", self.gdp_mock),
             ]
         ):
-            ret_drifter_ids = gdp1h.download("some-url.com", "../some/path", None, None)
+            ret_drifter_ids = gdp6h.download("some-url.com", "../some/path", None, None)
             assert len(ret_drifter_ids) == len(self.drifter_files)
 
     def test_downloads_subset_of_files_returned(self):
@@ -58,15 +57,15 @@ class gdp1h_tests(unittest.TestCase):
         with MultiPatcher(
             [
                 patch(
-                    "clouddrift.adapters.gdp1h.urllib.request.urlopen",
+                    "clouddrift.adapters.gdp6h.urllib.request.urlopen",
                     Mock(return_value=self.response_mock),
                 ),
-                patch("clouddrift.adapters.gdp1h.download_with_progress", Mock()),
-                patch("clouddrift.adapters.gdp1h.os.makedirs", Mock()),
-                patch("clouddrift.adapters.gdp1h.gdp", self.gdp_mock),
+                patch("clouddrift.adapters.gdp6h.download_with_progress", Mock()),
+                patch("clouddrift.adapters.gdp6h.os.makedirs", Mock()),
+                patch("clouddrift.adapters.gdp6h.gdp", self.gdp_mock),
             ]
         ):
-            ret_drifter_ids = gdp1h.download("some-url.com", "../some/path", None, 2)
+            ret_drifter_ids = gdp6h.download("some-url.com", "../some/path", None, 2)
             assert len(ret_drifter_ids) == 2
 
     def test_downloads_selected_drifter_id_files(self):
@@ -79,23 +78,23 @@ class gdp1h_tests(unittest.TestCase):
                     "clouddrift.adapters.gdp1h.urllib.request.urlopen",
                     Mock(return_value=self.response_mock),
                 ),
-                patch("clouddrift.adapters.gdp1h.download_with_progress", Mock()),
-                patch("clouddrift.adapters.gdp1h.os.makedirs", Mock()),
-                patch("clouddrift.adapters.gdp1h.gdp", self.gdp_mock),
+                patch("clouddrift.adapters.gdp6h.download_with_progress", Mock()),
+                patch("clouddrift.adapters.gdp6h.os.makedirs", Mock()),
+                patch("clouddrift.adapters.gdp6h.gdp", self.gdp_mock),
             ]
         ) as mocks:
             drifter_ids = [0, 1, 2]
-            ret_drifter_ids = gdp1h.download(
+            ret_drifter_ids = gdp6h.download(
                 "some-url.com", "../some/path", drifter_ids, None
             )
             assert len(ret_drifter_ids) == 3
             mocks[1].assert_called_with(
                 [
                     (
-                        f"some-url.com/drifter_hourly_{did}.nc",
-                        os.path.join("../some/path", f"drifter_hourly_{did}.nc"),
+                        f"some-url.com/netcdf_1_5000/drifter_6h_{did}.nc",
+                        os.path.join("../some/path", f"drifter_6h_{did}.nc"),
                         None,
                     )
-                    for did in drifter_ids
+                    for did in ret_drifter_ids
                 ]
             )
