@@ -19,14 +19,14 @@ from tqdm import tqdm
 
 _CHUNK_SIZE = 1024
 _logger = logging.getLogger(__name__)
-_standard_retry_protocol = retry(
+_standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
     retry=retry_if_exception(
         lambda ex: isinstance(ex, (requests.Timeout, requests.HTTPError))
     ),
     wait=wait_exponential_jitter(initial=0.25),
     stop=stop_after_attempt(10),
     before=lambda rcs: _logger.debug(
-        f"calling {rcs.fn.__module__}.{rcs.fn.__name__}, attempt: {rcs.attempt_number}"
+        f"calling {str(rcs.fn)}, attempt: {rcs.attempt_number}"
     ),
 )
 
@@ -42,7 +42,7 @@ def download_with_progress(
     if custom_retry_protocol is None:
         retry_protocol = _standard_retry_protocol
     else:
-        retry_protocol = custom_retry_protocol
+        retry_protocol = custom_retry_protocol  # type: ignore
 
     executor = concurrent.futures.ThreadPoolExecutor()
     futures: dict[

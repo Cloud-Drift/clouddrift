@@ -202,7 +202,7 @@ class utils_tests(unittest.TestCase):
         tpe_mock.__exit__ = Mock()
 
         mocked_futures = [
-            self.gen_future_mock(done=True),
+            self.gen_future_mock(),
             self.gen_future_mock(),
             self.gen_future_mock(Exception("just a test exception that is expected")),
             self.gen_future_mock(),

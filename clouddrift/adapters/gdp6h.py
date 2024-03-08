@@ -4,17 +4,16 @@ This module provides functions and metadata that can be used to convert the
 instance.
 """
 
+import datetime
 import os
 import re
 import tempfile
 import urllib.request
 import warnings
-from datetime import datetime, timedelta
 from typing import Optional, Union
 
 import numpy as np
 import xarray as xr
-from numpy.typing import ArrayLike
 
 import clouddrift.adapters.gdp as gdp
 from clouddrift.adapters.utils import download_with_progress
@@ -76,16 +75,17 @@ def download(
         "netcdf_15001_current",
     ]
 
-    # retrieve all drifter ID numbers
-    if drifter_ids is None:
-        urlpath = urllib.request.urlopen(url)
+    drifter_urls: list[str] = []
+    added = set()
+    for dir in directory_list:
+        urlpath = urllib.request.urlopen(f"{url}/{dir}")
         string = urlpath.read().decode("utf-8")
-        drifter_urls: ArrayLike = []
-        for dir in directory_list:
-            urlpath = urllib.request.urlopen(os.path.join(url, dir))
-            string = urlpath.read().decode("utf-8")
-            filelist = list(set(re.compile(pattern).findall(string)))
-            drifter_urls += [os.path.join(url, dir, f) for f in filelist]
+        filelist = list(set(re.compile(pattern).findall(string)))
+        for f in filelist:
+            did = int(f[:-3].split("_")[2])
+            if (drifter_ids is None or did in drifter_ids) and did not in added:
+                drifter_urls.append(f"{url}/{dir}/{f}")
+                added.add(did)
 
     # retrieve only a subset of n_random_id trajectories
     if n_random_id:
@@ -95,7 +95,7 @@ def download(
             )
         else:
             rng = np.random.RandomState(42)
-            drifter_urls = rng.choice(drifter_urls, n_random_id, replace=False)
+            drifter_urls = list(rng.choice(drifter_urls, n_random_id, replace=False))
 
     download_with_progress(
         [
@@ -188,103 +188,103 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
 
     # new variables
     ds["ids"] = (
-        [gdp.GDP_DIMS["rows"], gdp.GDP_DIMS["obs"]],
+        [gdp.GDP_DIMS["traj"], gdp.GDP_DIMS["obs"]],
         [np.repeat(ds.ID.values, ds.sizes[gdp.GDP_DIMS["obs"]])],
     )
     ds["drogue_status"] = (
-        [gdp.GDP_DIMS["rows"], gdp.GDP_DIMS["obs"]],
+        [gdp.GDP_DIMS["traj"], gdp.GDP_DIMS["obs"]],
         [gdp.drogue_presence(ds.drogue_lost_date.data, ds.time.data[0])],
     )
 
     # convert attributes to variable
     ds["location_type"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [False if ds.get("location_type") == "Argos" else True],
     )  # 0 for Argos, 1 for GPS
-    ds["DeployingShip"] = ((gdp.GDP_DIMS["rows"]), gdp.cut_str(ds.DeployingShip, 20))
+    ds["DeployingShip"] = ((gdp.GDP_DIMS["traj"]), gdp.cut_str(ds.DeployingShip, 20))
     ds["DeploymentStatus"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         gdp.cut_str(ds.DeploymentStatus, 20),
     )
     ds["BuoyTypeManufacturer"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         gdp.cut_str(ds.BuoyTypeManufacturer, 20),
     )
     ds["BuoyTypeSensorArray"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         gdp.cut_str(ds.BuoyTypeSensorArray, 20),
     )
     ds["CurrentProgram"] = (
-        (gdp.GDP_DIMS["rows"]),
-        np.int32([gdp.str_to_float(ds.CurrentProgram, -1)]),
+        (gdp.GDP_DIMS["traj"]),
+        [np.int32(gdp.str_to_float(ds.CurrentProgram, -1))],
     )
     ds["PurchaserFunding"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         gdp.cut_str(ds.PurchaserFunding, 20),
     )
-    ds["SensorUpgrade"] = ((gdp.GDP_DIMS["rows"]), gdp.cut_str(ds.SensorUpgrade, 20))
-    ds["Transmissions"] = ((gdp.GDP_DIMS["rows"]), gdp.cut_str(ds.Transmissions, 20))
+    ds["SensorUpgrade"] = ((gdp.GDP_DIMS["traj"]), gdp.cut_str(ds.SensorUpgrade, 20))
+    ds["Transmissions"] = ((gdp.GDP_DIMS["traj"]), gdp.cut_str(ds.Transmissions, 20))
     ds["DeployingCountry"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         gdp.cut_str(ds.DeployingCountry, 20),
     )
     ds["DeploymentComments"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         gdp.cut_str(
             ds.DeploymentComments.encode("ascii", "ignore").decode("ascii"), 20
         ),
     )  # remove non ascii char
     ds["ManufactureYear"] = (
-        (gdp.GDP_DIMS["rows"]),
-        np.int16([gdp.str_to_float(ds.ManufactureYear, -1)]),
+        (gdp.GDP_DIMS["traj"]),
+        [np.int16(gdp.str_to_float(ds.ManufactureYear, -1))],
     )
     ds["ManufactureMonth"] = (
-        (gdp.GDP_DIMS["rows"]),
-        np.int16([gdp.str_to_float(ds.ManufactureMonth, -1)]),
+        (gdp.GDP_DIMS["traj"]),
+        [np.int16(gdp.str_to_float(ds.ManufactureMonth, -1))],
     )
     ds["ManufactureSensorType"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         gdp.cut_str(ds.ManufactureSensorType, 20),
     )
     ds["ManufactureVoltage"] = (
-        (gdp.GDP_DIMS["rows"]),
-        np.int16([gdp.str_to_float(ds.ManufactureVoltage[:-6], -1)]),
+        (gdp.GDP_DIMS["traj"]),
+        [np.int16(gdp.str_to_float(ds.ManufactureVoltage[:-6], -1))],
     )  # e.g. 56 V
     ds["FloatDiameter"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [gdp.str_to_float(ds.FloatDiameter[:-3])],
     )  # e.g. 35.5 cm
     ds["SubsfcFloatPresence"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         np.array([gdp.str_to_float(ds.SubsfcFloatPresence)], dtype="bool"),
     )
-    ds["DrogueType"] = ((gdp.GDP_DIMS["rows"]), gdp.cut_str(ds.DrogueType, 7))
+    ds["DrogueType"] = ((gdp.GDP_DIMS["traj"]), gdp.cut_str(ds.DrogueType, 7))
     ds["DrogueLength"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [gdp.str_to_float(ds.DrogueLength[:-2])],
     )  # e.g. 4.8 m
     ds["DrogueBallast"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [gdp.str_to_float(ds.DrogueBallast[:-3])],
     )  # e.g. 1.4 kg
     ds["DragAreaAboveDrogue"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [gdp.str_to_float(ds.DragAreaAboveDrogue[:-4])],
     )  # 10.66 m^2
     ds["DragAreaOfDrogue"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [gdp.str_to_float(ds.DragAreaOfDrogue[:-4])],
     )  # e.g. 416.6 m^2
     ds["DragAreaRatio"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [gdp.str_to_float(ds.DragAreaRatio)],
     )  # e.g. 39.08
     ds["DrogueCenterDepth"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         [gdp.str_to_float(ds.DrogueCenterDepth[:-2])],
     )  # e.g. 20.0 m
     ds["DrogueDetectSensor"] = (
-        (gdp.GDP_DIMS["rows"]),
+        (gdp.GDP_DIMS["traj"]),
         gdp.cut_str(ds.DrogueDetectSensor, 20),
     )
 
@@ -294,10 +294,6 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         "longitude": {"long_name": "Longitude", "units": "degrees_east"},
         "latitude": {"long_name": "Latitude", "units": "degrees_north"},
         "time": {"long_name": "Time", "units": "seconds since 1970-01-01 00:00:00"},
-        "ids": {
-            "long_name": "Global Drifter Program Buoy ID repeated along observations",
-            "units": "-",
-        },
         "rowsize": {
             "long_name": "Number of observations per trajectory",
             "sample_dimension": gdp.GDP_DIMS["obs"],
@@ -419,7 +415,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         "Conventions": "CF-1.6",
         "time_coverage_start": "",
         "time_coverage_end": "",
-        "date_created": datetime.now().isoformat(),
+        "date_created": datetime.datetime.now().isoformat(),
         "publisher_name": "GDP Drifter DAC",
         "publisher_email": "aoml.dftr@noaa.gov",
         "publisher_url": "https://www.aoml.noaa.gov/phod/gdp",
@@ -429,7 +425,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         "contributor_name": "NOAA Global Drifter Program",
         "contributor_role": "Data Acquisition Center",
         "institution": "NOAA Atlantic Oceanographic and Meteorological Laboratory",
-        "acknowledgement": f"Lumpkin, Rick; Centurioni, Luca (2019). NOAA Global Drifter Program quality-controlled 6-hour interpolated data from ocean surface drifting buoys. [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://doi.org/10.25921/7ntx-z961. Accessed {datetime.utcnow().strftime('%d %B %Y')}.",
+        "acknowledgement": f"Lumpkin, Rick; Centurioni, Luca (2019). NOAA Global Drifter Program quality-controlled 6-hour interpolated data from ocean surface drifting buoys. [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://doi.org/10.25921/7ntx-z961. Accessed {datetime.datetime.now(datetime.timezone.utc).strftime('%d %B %Y')}.",
         "summary": "Global Drifter Program six-hourly data",
         "doi": "10.25921/7ntx-z961",
     }
@@ -443,7 +439,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds.attrs = attrs
 
     # rename variables
-    ds = ds.rename_vars({"longitude": "lon", "latitude": "lat"})
+    ds = ds.rename_vars({"longitude": "lon", "latitude": "lat", "ID": "id"})
 
     # Cast float64 variables to float32 to reduce memory footprint.
     ds = gdp.cast_float64_variables_to_float32(ds)
@@ -513,9 +509,9 @@ def to_raggedarray(
         indices=ids,
         preprocess_func=preprocess,
         name_coords=gdp.GDP_COORDS,
-        name_dims=gdp.GDP_DIMS,
         name_meta=gdp.GDP_METADATA,
         name_data=GDP_DATA,
+        name_dims=gdp.GDP_DIMS,
         rowsize_func=gdp.rowsize,
         filename_pattern="drifter_6h_{id}.nc",
         tmp_path=tmp_path,
@@ -524,9 +520,9 @@ def to_raggedarray(
     # update dynamic global attributes
     ra.attrs_global[
         "time_coverage_start"
-    ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+    ] = f"{datetime.datetime(1970,1,1) + datetime.timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
     ra.attrs_global[
         "time_coverage_end"
-    ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+    ] = f"{datetime.datetime(1970,1,1) + datetime.timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
 
     return ra
