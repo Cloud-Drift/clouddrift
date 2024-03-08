@@ -203,6 +203,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         else:
             warnings.warn(f"Variable {var} not found in upstream data; skipping.")
 
+    # new variables
     ds["drogue_status"] = (
         [gdp.GDP_DIMS["traj"], gdp.GDP_DIMS["obs"]],
         [gdp.drogue_presence(ds.drogue_lost_date.data, ds.time.data[0])],
@@ -598,7 +599,7 @@ def to_raggedarray(
     ra = RaggedArray.from_files(
         indices=ids,
         preprocess_func=preprocess,
-        name_coords=gdp.GDP_COORDS,
+        coord_dim_map=gdp.GDP_COORDS,
         name_meta=gdp.GDP_METADATA,
         name_data=GDP_DATA,
         name_dims=gdp.GDP_DIMS,

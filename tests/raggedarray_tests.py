@@ -29,6 +29,8 @@ class raggedarray_tests(TestCase):
             "title": "test trajectories",
             "history": "version xyz",
         }
+        self.variables_coords = [("id", "traj"), ("time", "obs")]
+
 
         # append xr.Dataset to a list
         list_ds = []
@@ -75,6 +77,9 @@ class raggedarray_tests(TestCase):
             self.name_meta,
             self.name_data,
             self.name_dims
+            self.variables_coords,
+            ["rowsize"],
+            ["temp"],
         )
 
         # output archive

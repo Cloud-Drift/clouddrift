@@ -508,7 +508,7 @@ def to_raggedarray(
     ra = RaggedArray.from_files(
         indices=ids,
         preprocess_func=preprocess,
-        name_coords=gdp.GDP_COORDS,
+        coord_dim_map=gdp.GDP_COORDS,
         name_meta=gdp.GDP_METADATA,
         name_data=GDP_DATA,
         name_dims=gdp.GDP_DIMS,

@@ -8,7 +8,6 @@ from __future__ import annotations
 import warnings
 from collections.abc import Callable
 from typing import Literal, Optional, Tuple, Union
-
 import awkward as ak  # type: ignore
 import numpy as np
 import xarray as xr
@@ -18,11 +17,11 @@ from clouddrift.ragged import rowsize_to_index
 
 DimNames = Literal["rows", "obs"]
 
-
 class RaggedArray:
 
     def __init__(
         self,
+        coord_dims: list[tuple[str, Dim]],
         coords: dict,
         metadata: dict,
         data: dict,
@@ -32,6 +31,7 @@ class RaggedArray:
         coord_dims: dict[str, str] = {}
     ):
         self.coords = coords
+        self.coord_dims = coord_dims
         self.metadata = metadata
         self.data = data
         self.attrs_global = attrs_global
@@ -66,7 +66,8 @@ class RaggedArray:
         RaggedArray
             A RaggedArray instance
         """
-        coords = {}
+        coords: dict[str, Any] = {}
+        coord_dims: list[tuple[str, Dim]] = list()
         metadata = {}
         data = {}
         attrs_variables = {}
@@ -114,8 +115,8 @@ class RaggedArray:
             Identification numbers list to iterate
         preprocess_func : Callable[[int], xr.Dataset]
             Returns a processed xarray Dataset from an identification number
-        name_coords : list
-            Name of the coordinate variables to include in the archive
+        coord_dim_map : list[tuple[str, DimNames]]
+            List of the coordinate variables names and their dimension names.
         name_meta : list, optional
             Name of metadata variables to include in the archive (Defaults to [])
         name_data : list, optional
@@ -141,7 +142,7 @@ class RaggedArray:
             preprocess_func,
             indices,
             rowsize,
-            name_coords,
+            coord_dim_map,
             name_meta,
             name_data,
             name_dims,
@@ -149,7 +150,7 @@ class RaggedArray:
         )
         attrs_global, attrs_variables = cls.attributes(
             preprocess_func(indices[0], **kwargs),
-            name_coords,
+            coord_dim_map,
             name_meta,
             name_data,
         )
@@ -194,7 +195,6 @@ class RaggedArray:
             Map a alias to a dimension.
         coord_dims: dict
             Map a coordinate to a dimension alias.
-        
 
         Returns
         -------
@@ -224,6 +224,7 @@ class RaggedArray:
             A RaggedArray instance
         """
         coords = {}
+        coord_dims: list[tuple[str, Dim]] = list()
         metadata = {}
         data = {}
         coord_dims = {}
@@ -238,6 +239,12 @@ class RaggedArray:
             dim = ds[var].dims[-1]
             coord_dims[var] = str(dim)
             coords[var] = ds[var].data
+            dimName = str(ds[var].dims[0])
+            dimSize = ds.sizes[dimName]
+            if dimName == "traj" or dimName == "obs":
+                coord_dims.append((var, Dim(dimName, dimSize)))  # type: ignore
+            else:
+                raise RuntimeError(f"coord {var} has an unknown dim {dimName}")
             attrs_variables[var] = ds[var].attrs
 
         for var in ds.data_vars.keys():
@@ -303,8 +310,8 @@ class RaggedArray:
         ----------
         ds : xr.Dataset
             _description_
-        name_coords : list
-            Name of the coordinate variables to include in the archive
+        coord_dim_map : list[tuple[str, DimNames]]
+            List of the coordinate variables names and their dimension names.
         name_meta : list, optional
             Name of metadata variables to include in the archive (default is [])
         name_data : list, optional
@@ -378,6 +385,7 @@ class RaggedArray:
                 dim_sizes[alias] = nb_obs
 
         # allocate memory
+        coord_dims: list[tuple[str, Dim]] = list()
         coords = {}
         coord_dims: dict[str, str] = {}
         for var in name_coords:
