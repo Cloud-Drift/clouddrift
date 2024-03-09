@@ -215,9 +215,9 @@ class RaggedArray:
         ----------
         ds : xr.Dataset
             Xarray Dataset from which to load the RaggedArray
-        dim_rows : str, optional
+        rows_dim_name : str, optional
             Name of the row dimension in the xarray Dataset
-        dim_obs : str, optional
+        obs_dim_name : str, optional
             Name of the observations dimension in the xarray Dataset
 
         Returns
@@ -463,7 +463,7 @@ class RaggedArray:
         xr.Dataset
             Xarray Dataset containing the ragged arrays and their attributes
         """
-        dim_name_map = {self.name_dims[name]: name for name in self.name_dims.keys()}
+        dim_name_map = {v: k for k, v in self.name_dims.items()}
 
         xr_coords = {}
         for var in self.coords.keys():
