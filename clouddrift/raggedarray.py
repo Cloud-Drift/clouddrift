@@ -7,7 +7,8 @@ from __future__ import annotations
 
 import warnings
 from collections.abc import Callable
-from typing import Literal, Optional, Tuple, Union
+from typing import Any, Literal, Optional, Union
+
 import awkward as ak  # type: ignore
 import numpy as np
 import xarray as xr
@@ -21,7 +22,6 @@ class RaggedArray:
 
     def __init__(
         self,
-        coord_dims: list[tuple[str, Dim]],
         coords: dict,
         metadata: dict,
         data: dict,
@@ -67,7 +67,6 @@ class RaggedArray:
             A RaggedArray instance
         """
         coords: dict[str, Any] = {}
-        coord_dims: list[tuple[str, Dim]] = list()
         metadata = {}
         data = {}
         attrs_variables = {}
@@ -142,7 +141,7 @@ class RaggedArray:
             preprocess_func,
             indices,
             rowsize,
-            coord_dim_map,
+            name_coords,
             name_meta,
             name_data,
             name_dims,
@@ -150,7 +149,7 @@ class RaggedArray:
         )
         attrs_global, attrs_variables = cls.attributes(
             preprocess_func(indices[0], **kwargs),
-            coord_dim_map,
+            name_coords,
             name_meta,
             name_data,
         )
@@ -224,7 +223,6 @@ class RaggedArray:
             A RaggedArray instance
         """
         coords = {}
-        coord_dims: list[tuple[str, Dim]] = list()
         metadata = {}
         data = {}
         coord_dims = {}
@@ -239,12 +237,6 @@ class RaggedArray:
             dim = ds[var].dims[-1]
             coord_dims[var] = str(dim)
             coords[var] = ds[var].data
-            dimName = str(ds[var].dims[0])
-            dimSize = ds.sizes[dimName]
-            if dimName == "traj" or dimName == "obs":
-                coord_dims.append((var, Dim(dimName, dimSize)))  # type: ignore
-            else:
-                raise RuntimeError(f"coord {var} has an unknown dim {dimName}")
             attrs_variables[var] = ds[var].attrs
 
         for var in ds.data_vars.keys():
@@ -302,7 +294,7 @@ class RaggedArray:
         name_coords: list,
         name_meta: list,
         name_data: list,
-    ) -> Tuple[dict, dict]:
+    ) -> tuple[dict, dict]:
         """Return global attributes and the attributes of all variables
         (name_coords, name_meta, and name_data) from an Xarray Dataset.
 
@@ -344,7 +336,7 @@ class RaggedArray:
         name_data: list,
         name_dims: dict[str, DimNames],
         **kwargs,
-    ) -> Tuple[dict, dict, dict, dict]:
+    ) -> tuple[dict, dict, dict, dict]:
         """
         Iterate through the files and fill for the ragged array associated
         with coordinates, and selected metadata and data variables.
@@ -368,7 +360,7 @@ class RaggedArray:
 
         Returns
         -------
-        Tuple[dict, dict, dict]
+        Tuple[dict, dict, dict, dict]
             Dictionaries containing numerical data and attributes of coordinates, metadata and data variables.
         """
         # open one file to get dtype of variables
@@ -385,7 +377,6 @@ class RaggedArray:
                 dim_sizes[alias] = nb_obs
 
         # allocate memory
-        coord_dims: list[tuple[str, Dim]] = list()
         coords = {}
         coord_dims: dict[str, str] = {}
         for var in name_coords:

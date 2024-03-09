@@ -76,10 +76,8 @@ class raggedarray_tests(TestCase):
             self.name_coords,
             self.name_meta,
             self.name_data,
-            self.name_dims
-            self.variables_coords,
-            ["rowsize"],
-            ["temp"],
+            self.name_dims,
+            lambda i: self.rowsize[i]
         )
 
         # output archive
