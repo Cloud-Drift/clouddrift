@@ -23,9 +23,9 @@ from clouddrift.raggedarray import RaggedArray
 GDP_VERSION = "2.01"
 
 
-GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01/"
+GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01"
 GDP_DATA_URL_EXPERIMENTAL = (
-    "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental/"
+    "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental"
 )
 
 

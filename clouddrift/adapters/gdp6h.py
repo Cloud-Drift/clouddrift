@@ -21,7 +21,7 @@ from clouddrift.raggedarray import RaggedArray
 
 GDP_VERSION = "September 2023"
 
-GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/6h/"
+GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/6h"
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp6h")
 GDP_DATA = [
     "lon",
