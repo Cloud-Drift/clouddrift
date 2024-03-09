@@ -3,6 +3,7 @@ This module defines the RaggedArray class, which is the intermediate data
 structure used by CloudDrift to process custom Lagrangian datasets to Xarray
 Datasets and Awkward Arrays.
 """
+
 from __future__ import annotations
 
 import warnings
@@ -18,8 +19,8 @@ from clouddrift.ragged import rowsize_to_index
 
 DimNames = Literal["rows", "obs"]
 
-class RaggedArray:
 
+class RaggedArray:
     def __init__(
         self,
         coords: dict,
@@ -28,7 +29,7 @@ class RaggedArray:
         attrs_global: Optional[dict] = {},
         attrs_variables: Optional[dict] = {},
         name_dims: dict[str, DimNames] = {},
-        coord_dims: dict[str, str] = {}
+        coord_dims: dict[str, str] = {},
     ):
         self.coords = coords
         self.coord_dims = coord_dims
@@ -46,7 +47,7 @@ class RaggedArray:
         array: ak.Array,
         name_coords: list,
         name_dims: dict[str, DimNames],
-        coord_dims: dict[str, str]
+        coord_dims: dict[str, str],
     ):
         """Load a RaggedArray instance from an Awkward Array.
 
@@ -114,8 +115,6 @@ class RaggedArray:
             Identification numbers list to iterate
         preprocess_func : Callable[[int], xr.Dataset]
             Returns a processed xarray Dataset from an identification number
-        coord_dim_map : list[tuple[str, DimNames]]
-            List of the coordinate variables names and their dimension names.
         name_meta : list, optional
             Name of metadata variables to include in the archive (Defaults to [])
         name_data : list, optional
@@ -154,7 +153,9 @@ class RaggedArray:
             name_data,
         )
 
-        return RaggedArray(coords, metadata, data, attrs_global, attrs_variables, name_dims, coord_dims)
+        return RaggedArray(
+            coords, metadata, data, attrs_global, attrs_variables, name_dims, coord_dims
+        )
 
     @classmethod
     def from_netcdf(cls, filename: str, rows_dim_name="rows", obs_dim_name="obs"):
@@ -180,7 +181,7 @@ class RaggedArray:
         filename: str,
         name_coords: list,
         name_dims: dict[str, DimNames],
-        coord_dims: dict[str, str]
+        coord_dims: dict[str, str],
     ):
         """Read a ragged array from a parquet file.
 
@@ -200,7 +201,9 @@ class RaggedArray:
         RaggedArray
             A ragged array instance
         """
-        return RaggedArray.from_awkward(ak.from_parquet(filename), name_coords, name_dims, coord_dims)
+        return RaggedArray.from_awkward(
+            ak.from_parquet(filename), name_coords, name_dims, coord_dims
+        )
 
     @classmethod
     def from_xarray(
@@ -226,7 +229,7 @@ class RaggedArray:
         metadata = {}
         data = {}
         coord_dims = {}
-        name_dims: dict[str, DimNames] = { rows_dim_name: "rows", obs_dim_name: "obs"}
+        name_dims: dict[str, DimNames] = {rows_dim_name: "rows", obs_dim_name: "obs"}
         attrs_global = {}
         attrs_variables = {}
 
@@ -302,8 +305,8 @@ class RaggedArray:
         ----------
         ds : xr.Dataset
             _description_
-        coord_dim_map : list[tuple[str, DimNames]]
-            List of the coordinate variables names and their dimension names.
+        name_coords : list, optional
+            Name of metadata variables to include in the archive (default is [])
         name_meta : list, optional
             Name of metadata variables to include in the archive (default is [])
         name_data : list, optional
@@ -382,7 +385,7 @@ class RaggedArray:
         for var in name_coords:
             dim = ds[var].dims[-1]
             dim_size = dim_sizes[dim]
-            coords[var] =np.zeros(dim_size, dtype=ds[var].dtype)
+            coords[var] = np.zeros(dim_size, dtype=ds[var].dtype)
             coord_dims[var] = dim
 
         metadata = {}
