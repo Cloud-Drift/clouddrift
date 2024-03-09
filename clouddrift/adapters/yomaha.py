@@ -1,7 +1,7 @@
 """
-This module defines functions used to adapt the YoMaHa'07: Velocity data assessed 
-from trajectories of Argo floats at parking level and at the sea surface as 
-a ragged-arrays dataset. 
+This module defines functions used to adapt the YoMaHa'07: Velocity data assessed
+from trajectories of Argo floats at parking level and at the sea surface as
+a ragged-arrays dataset.
 
 The dataset is hosted at http://apdrc.soest.hawaii.edu/projects/yomaha/ and the user manual
 is available at http://apdrc.soest.hawaii.edu/projects/yomaha/yomaha07/YoMaHa070612.pdf.
