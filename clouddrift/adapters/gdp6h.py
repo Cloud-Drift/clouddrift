@@ -82,7 +82,7 @@ def download(
         string = urlpath.read().decode("utf-8")
         filelist = list(set(re.compile(pattern).findall(string)))
         for f in filelist:
-            did = int(f[:-3].split("_")[2])
+            did = int(f.split("_")[2].removesuffix(".nc"))
             if (drifter_ids is None or did in drifter_ids) and did not in added:
                 drifter_urls.append(f"{url}/{dir}/{f}")
                 added.add(did)
@@ -248,7 +248,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     )
     ds["ManufactureVoltage"] = (
         ("traj"),
-        [np.int16(gdp.str_to_float(ds.ManufactureVoltage[:-6], -1))],
+        [np.int16(gdp.str_to_float(ds.ManufactureVoltage[:-2], -1))],
     )  # e.g. 56 V
     ds["FloatDiameter"] = (
         ("traj"),

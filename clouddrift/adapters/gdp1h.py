@@ -113,7 +113,7 @@ def download(
     gdp_metadata = gdp.get_gdp_metadata()
 
     return gdp.order_by_date(
-        gdp_metadata, [int(f.split("_")[-1][:-3]) for f in filelist]
+        gdp_metadata, [int(f.split("_")[-1].removesuffix(".nc")) for f in filelist]
     )
 
 
@@ -255,7 +255,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     )
     ds["ManufactureVoltage"] = (
         ("traj"),
-        np.array([gdp.str_to_float(ds.ManufactureVoltage[:-6], -1)], dtype=np.int16),
+        np.array([gdp.str_to_float(ds.ManufactureVoltage[:-2], -1)], dtype=np.int16),
     )  # e.g. 56 V
     ds["FloatDiameter"] = (
         ("traj"),
