@@ -553,7 +553,7 @@ def subset(
     masking function applied to any variable of the dataset.
 
     This function needs to know the names of the dimensions of the ragged array dataset
-    (`traj_dim_name` and `obs_dim_name`), and the name of the rowsize variable (`rowsize_var_name`).
+    (`row_dim_name` and `obs_dim_name`), and the name of the rowsize variable (`rowsize_var_name`).
     Default values corresponds to the clouddrift convention ("rows", "obs", and "rowsize") but should
     be changed as needed.
 
@@ -564,7 +564,8 @@ def subset(
     criteria : dict
         Dictionary containing the variables (as keys) and the ranges/values/functions (as values) to subset.
     id_var_name : str, optional
-        Name of the variable with dimension `traj_dim_name` containing the ID of the rows (default is "id").
+        Name of the variable with dimension `row_dim_name` containing the identification number of the 
+        rows (default is "id").
     rowsize_var_name : str, optional
         Name of the variable containing the number of observations per row (default is "rowsize").
     row_dim_name : str, optional
@@ -586,44 +587,44 @@ def subset(
     Criteria are combined on any data (with dimension "obs") or metadata (with dimension "rows") variables
     part of the Dataset. The following examples are based on NOAA GDP datasets which can be accessed with the
     ``clouddrift.datasets`` module. In these datasets, each row of the ragged arrays corresponds to the data from
-    a single drifter trajectory.
+    a single drifter trajectory and the `row_dim_name` is "traj" and the `obs_dim_name` is "obs".
 
     Retrieve a region, like the Gulf of Mexico, using ranges of latitude and longitude:
 
-    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)})
+    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)}, row_dim_name="traj")
 
     The parameter `full_rows` can be used to retrieve trajectories passing through a region, for example all trajectories passing through the Gulf of Mexico:
 
-    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)}, full_rows=True)
+    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)}, full_rows=True, row_dim_name="traj")
 
     Retrieve drogued trajectory segments:
 
-    >>> subset(ds, {"drogue_status": True})
+    >>> subset(ds, {"drogue_status": True}, row_dim_name="traj")
 
     Retrieve trajectory segments with temperature higher than 25°C (303.15K):
 
-    >>> subset(ds, {"sst": (303.15, np.inf)})
+    >>> subset(ds, {"sst": (303.15, np.inf)}, row_dim_name="traj")
 
     You can use the same approach to return only the trajectories that are
     shorter than some number of observations (similar to :func:`prune` but for
     the entire dataset):
 
-    >>> subset(ds, {"rowsize": (0, 1000)})
+    >>> subset(ds, {"rowsize": (0, 1000)}, row_dim_name="traj")
 
     Retrieve specific drifters using their IDs:
 
-    >>> subset(ds, {"id": [2578, 2582, 2583]})
+    >>> subset(ds, {"id": [2578, 2582, 2583]}, row_dim_name="traj")
 
     Sometimes, you may want to retrieve specific rows of a ragged array.
     You can do that by filtering along the trajectory dimension directly, since
     this one corresponds to row numbers:
 
     >>> rows = [5, 6, 7]
-    >>> subset(ds, {"traj": rows})
+    >>> subset(ds, {"traj": rows}, row_dim_name="traj")
 
     Retrieve a specific time period:
 
-    >>> subset(ds, {"time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))})
+    >>> subset(ds, {"time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))}, row_dim_name="traj")
 
     Note that to subset time variable, the range has to be defined as a function
     type of the variable. By default, ``xarray`` uses ``np.datetime64`` to
@@ -632,13 +633,13 @@ def subset(
 
     Those criteria can also be combined:
 
-    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78), "drogue_status": True, "sst": (303.15, np.inf), "time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))})
+    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78), "drogue_status": True, "sst": (303.15, np.inf), "time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))}, row_dim_name="traj")
 
     You can also use a function to filter the data. For example, retrieve every other observation
     of each trajectory:
 
     >>> func = (lambda arr: ((arr - arr[0]) % 2) == 0)
-    >>> subset(ds, {"time": func})
+    >>> subset(ds, {"time": func}, row_dim_name="traj")
 
     The filtering function can accept several input variables passed as a tuple. For example, retrieve
     drifters released in the Mediterranean Sea, but exclude those released in the Bay of Biscay and the Black Sea:
@@ -652,7 +653,7 @@ def subset(
     >>>     # Black Sea
     >>>     in_blacksea = np.logical_and(lon >= 27.4437, lat >= 40.9088)
     >>>     return np.logical_and(in_med, np.logical_not(np.logical_or(in_biscay, in_blacksea)))
-    >>> subset(ds, {("start_lon", "start_lat"): mediterranean_mask})
+    >>> subset(ds, {("start_lon", "start_lat"): mediterranean_mask}, row_dim_name="traj")
 
     Raises
     ------
