@@ -564,7 +564,7 @@ def subset(
     criteria : dict
         Dictionary containing the variables (as keys) and the ranges/values/functions (as values) to subset.
     id_var_name : str, optional
-        Name of the variable with dimension `row_dim_name` containing the identification number of the 
+        Name of the variable with dimension `row_dim_name` containing the identification number of the
         rows (default is "id").
     rowsize_var_name : str, optional
         Name of the variable containing the number of observations per row (default is "rowsize").
