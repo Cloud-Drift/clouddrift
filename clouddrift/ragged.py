@@ -668,7 +668,7 @@ def subset(
     --------
     :func:`apply_ragged`
     """
-    mask_traj = xr.DataArray(
+    mask_row = xr.DataArray(
         data=np.ones(ds.sizes[row_dim_name], dtype="bool"), dims=[row_dim_name]
     )
     mask_obs = xr.DataArray(
@@ -689,8 +689,8 @@ def subset(
                 criterion_dims = criterion.dims
 
             if criterion_dims == (row_dim_name,):
-                mask_traj = np.logical_and(
-                    mask_traj,
+                mask_row = np.logical_and(
+                    mask_row,
                     _mask_var(
                         criterion, criteria[key], ds[rowsize_var_name], row_dim_name
                     ),
@@ -707,31 +707,31 @@ def subset(
 
     # remove data when rows are filtered
     traj_idx = rowsize_to_index(ds[rowsize_var_name].values)
-    for i in np.where(~mask_traj)[0]:
+    for i in np.where(~mask_row)[0]:
         mask_obs[slice(traj_idx[i], traj_idx[i + 1])] = False
 
     # remove rows completely filtered in mask_obs
     ids_with_mask_obs = np.repeat(ds[id_var_name].values, ds[rowsize_var_name].values)[
         mask_obs
     ]
-    mask_traj = np.logical_and(
-        mask_traj, np.in1d(ds[id_var_name], np.unique(ids_with_mask_obs))
+    mask_row = np.logical_and(
+        mask_row, np.in1d(ds[id_var_name], np.unique(ids_with_mask_obs))
     )
 
     # reset mask_obs to True if we want to keep complete rows
     if full_rows:
-        for i in np.where(mask_traj)[0]:
+        for i in np.where(mask_row)[0]:
             mask_obs[slice(traj_idx[i], traj_idx[i + 1])] = True
         ids_with_mask_obs = np.repeat(
             ds[id_var_name].values, ds[rowsize_var_name].values
         )[mask_obs]
 
-    if not any(mask_traj):
+    if not any(mask_row):
         warnings.warn("No data matches the criteria; returning an empty dataset.")
         return xr.Dataset()
     else:
         # apply the filtering for both dimensions
-        ds_sub = ds.isel({row_dim_name: mask_traj, obs_dim_name: mask_obs})
+        ds_sub = ds.isel({row_dim_name: mask_row, obs_dim_name: mask_obs})
         _, unique_idx, sorted_rowsize = np.unique(
             ids_with_mask_obs, return_index=True, return_counts=True
         )
