@@ -2,7 +2,7 @@ all: clean check test
 check: lint mypy
 
 lint:
-	ruff clouddrift tests	
+	ruff check clouddrift tests	
 
 format:
 	ruff format clouddrift tests
