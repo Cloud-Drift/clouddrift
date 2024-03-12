@@ -3,12 +3,12 @@ This module defines the RaggedArray class, which is the intermediate data
 structure used by CloudDrift to process custom Lagrangian datasets to Xarray
 Datasets and Awkward Arrays.
 """
+
 from __future__ import annotations
 
 import warnings
 from collections.abc import Callable
-from dataclasses import dataclass
-from typing import Any, Literal, Optional, Tuple, Union
+from typing import Any, Literal, Optional, Union
 
 import awkward as ak  # type: ignore
 import numpy as np
@@ -17,24 +17,19 @@ from tqdm import tqdm
 
 from clouddrift.ragged import rowsize_to_index
 
-DimNames = Literal["traj", "obs"]
-
-
-@dataclass
-class Dim:
-    name: DimNames
-    size: int
+DimNames = Literal["rows", "obs"]
 
 
 class RaggedArray:
     def __init__(
         self,
-        coord_dims: list[tuple[str, Dim]],
         coords: dict,
         metadata: dict,
         data: dict,
-        attrs_global: dict = {},
-        attrs_variables: dict = {},
+        attrs_global: Optional[dict] = {},
+        attrs_variables: Optional[dict] = {},
+        name_dims: dict[str, DimNames] = {},
+        coord_dims: dict[str, str] = {},
     ):
         self.coords = coords
         self.coord_dims = coord_dims
@@ -42,13 +37,17 @@ class RaggedArray:
         self.data = data
         self.attrs_global = attrs_global
         self.attrs_variables = attrs_variables
+        self.name_dims = name_dims
+        self._coord_dims = coord_dims
         self.validate_attributes()
 
     @classmethod
     def from_awkward(
         cls,
         array: ak.Array,
-        coord_dim_map: list[tuple[str, DimNames]] = [("time", "obs"), ("id", "traj")],
+        name_coords: list,
+        name_dims: dict[str, DimNames],
+        coord_dims: dict[str, str],
     ):
         """Load a RaggedArray instance from an Awkward Array.
 
@@ -56,8 +55,12 @@ class RaggedArray:
         ----------
         array : ak.Array
             Awkward Array instance to load the data from
-        coord_dim_map : list[tuple[str, DimNames]]
-            List of the coordinate variables names and their dimension names.
+        name_coords : list, optional
+            Names of the coordinate variables in the ragged arrays
+        name_dims: dict
+            Map a dimension to an alias.
+        coord_dims: dict
+            Map a coordinate to a dimension alias.
 
         Returns
         -------
@@ -65,19 +68,18 @@ class RaggedArray:
             A RaggedArray instance
         """
         coords: dict[str, Any] = {}
-        coord_dims: list[tuple[str, Dim]] = list()
         metadata = {}
         data = {}
         attrs_variables = {}
 
         attrs_global = array.layout.parameters["attrs"]
 
-        for var, dimName in coord_dim_map:
-            if dimName == "obs":
+        for var in name_coords:
+            alias = coord_dims[var]
+            if name_dims[alias] == "obs":
                 coords[var] = ak.flatten(array.obs[var]).to_numpy()
             else:
                 coords[var] = array.obs[var].to_numpy()
-            coord_dims.append((var, Dim(dimName, len(coords[var]))))
 
             attrs_variables[var] = array.obs[var].layout.parameters["attrs"]
 
@@ -90,7 +92,7 @@ class RaggedArray:
             attrs_variables[var] = array.obs[var].layout.parameters["attrs"]
 
         return RaggedArray(
-            coord_dims, coords, metadata, data, attrs_global, attrs_variables
+            coords, metadata, data, attrs_global, attrs_variables, name_dims, coord_dims
         )
 
     @classmethod
@@ -98,13 +100,14 @@ class RaggedArray:
         cls,
         indices: list,
         preprocess_func: Callable[[int], xr.Dataset],
-        coord_dim_map: list[tuple[str, DimNames]],
+        name_coords: list,
         name_meta: list = list(),
         name_data: list = list(),
+        name_dims: dict[str, DimNames] = {},
         rowsize_func: Optional[Callable[[int], int]] = None,
         **kwargs,
     ):
-        """Generate a ragged array archive from a list of trajectory files
+        """Generate a ragged array archive from a list of files
 
         Parameters
         ----------
@@ -112,12 +115,12 @@ class RaggedArray:
             Identification numbers list to iterate
         preprocess_func : Callable[[int], xr.Dataset]
             Returns a processed xarray Dataset from an identification number
-        coord_dim_map : list[tuple[str, DimNames]]
-            List of the coordinate variables names and their dimension names.
         name_meta : list, optional
             Name of metadata variables to include in the archive (Defaults to [])
         name_data : list, optional
             Name of the data variables to include in the archive (Defaults to [])
+        name_dims: dict
+            Map an alias to a dimension.
         rowsize_func : Optional[Callable[[int], int]], optional
             Returns the number of observations from an identification number (to speed up processing) (Defaults to None)
 
@@ -137,24 +140,25 @@ class RaggedArray:
             preprocess_func,
             indices,
             rowsize,
-            coord_dim_map,
+            name_coords,
             name_meta,
             name_data,
+            name_dims,
             **kwargs,
         )
         attrs_global, attrs_variables = cls.attributes(
             preprocess_func(indices[0], **kwargs),
-            coord_dim_map,
+            name_coords,
             name_meta,
             name_data,
         )
 
         return RaggedArray(
-            coord_dims, coords, metadata, data, attrs_global, attrs_variables
+            coords, metadata, data, attrs_global, attrs_variables, name_dims, coord_dims
         )
 
     @classmethod
-    def from_netcdf(cls, filename: str):
+    def from_netcdf(cls, filename: str, rows_dim_name="rows", obs_dim_name="obs"):
         """Read a ragged arrays archive from a NetCDF file.
 
         This is a thin wrapper around ``from_xarray()``.
@@ -169,13 +173,15 @@ class RaggedArray:
         RaggedArray
             A ragged array instance
         """
-        return cls.from_xarray(xr.open_dataset(filename))
+        return cls.from_xarray(xr.open_dataset(filename), rows_dim_name, obs_dim_name)
 
     @classmethod
     def from_parquet(
         cls,
         filename: str,
-        coord_dim_map: list[tuple[str, DimNames]] = [("time", "obs"), ("id", "traj")],
+        name_coords: list,
+        name_dims: dict[str, DimNames],
+        coord_dims: dict[str, str],
     ):
         """Read a ragged array from a parquet file.
 
@@ -183,24 +189,36 @@ class RaggedArray:
         ----------
         filename : str
             File name of the parquet archive to read.
-        coord_dim_map : list[tuple[str, DimNames]]
-            List of the coordinate variables names and their dimension names.
+        name_coords : list, optional
+            Names of the coordinate variables in the ragged arrays
+        name_dims: dict
+            Map a alias to a dimension.
+        coord_dims: dict
+            Map a coordinate to a dimension alias.
 
         Returns
         -------
         RaggedArray
             A ragged array instance
         """
-        return RaggedArray.from_awkward(ak.from_parquet(filename), coord_dim_map)
+        return RaggedArray.from_awkward(
+            ak.from_parquet(filename), name_coords, name_dims, coord_dims
+        )
 
     @classmethod
-    def from_xarray(cls, ds: xr.Dataset):
+    def from_xarray(
+        cls, ds: xr.Dataset, rows_dim_name: str = "rows", obs_dim_name: str = "obs"
+    ):
         """Populate a RaggedArray instance from an xarray Dataset instance.
 
         Parameters
         ----------
         ds : xr.Dataset
             Xarray Dataset from which to load the RaggedArray
+        rows_dim_name : str, optional
+            Name of the row dimension in the xarray Dataset
+        obs_dim_name : str, optional
+            Name of the observations dimension in the xarray Dataset
 
         Returns
         -------
@@ -208,9 +226,10 @@ class RaggedArray:
             A RaggedArray instance
         """
         coords = {}
-        coord_dims: list[tuple[str, Dim]] = list()
         metadata = {}
         data = {}
+        coord_dims = {}
+        name_dims: dict[str, DimNames] = {rows_dim_name: "rows", obs_dim_name: "obs"}
         attrs_global = {}
         attrs_variables = {}
 
@@ -218,32 +237,28 @@ class RaggedArray:
 
         for var in ds.coords.keys():
             var = str(var)
+            dim = ds[var].dims[-1]
+            coord_dims[var] = str(dim)
             coords[var] = ds[var].data
-            dimName = str(ds[var].dims[0])
-            dimSize = ds.sizes[dimName]
-            if dimName == "traj" or dimName == "obs":
-                coord_dims.append((var, Dim(dimName, dimSize)))  # type: ignore
-            else:
-                raise RuntimeError(f"coord {var} has an unknown dim {dimName}")
             attrs_variables[var] = ds[var].attrs
 
         for var in ds.data_vars.keys():
-            if len(ds[var]) == ds.sizes["traj"]:
+            if len(ds[var]) == ds.sizes.get(rows_dim_name):
                 metadata[var] = ds[var].data
-            elif len(ds[var]) == ds.sizes["obs"]:
+            elif len(ds[var]) == ds.sizes.get(obs_dim_name):
                 data[var] = ds[var].data
             else:
                 warnings.warn(
                     f"""
-                    Variable '{var}' has unknown dimension size of 
-                    {len(ds[var])}, which is not traj={ds.sizes["traj"]} or 
-                    obs={ds.sizes["obs"]}; skipping.
+                    Variable '{var}' has unknown dimension size of
+                    {len(ds[var])}, which is not rows={ds.sizes.get(rows_dim_name)} or
+                    obs={ds.sizes.get(obs_dim_name)}; skipping.
                     """
                 )
             attrs_variables[str(var)] = ds[var].attrs
 
         return RaggedArray(
-            coord_dims, coords, metadata, data, attrs_global, attrs_variables
+            coords, metadata, data, attrs_global, attrs_variables, name_dims, coord_dims
         )
 
     @staticmethod
@@ -255,7 +270,7 @@ class RaggedArray:
         Parameters
         ----------
         rowsize_func : Callable[[int], int]]
-            Function that returns the number observations of a trajectory from
+            Function that returns the number observations of a row from
             its identification number
         indices : list
             Identification numbers list to iterate
@@ -263,7 +278,7 @@ class RaggedArray:
         Returns
         -------
         np.ndarray
-            Number of observations of each trajectory
+            Number of observations
         """
         rowsize = np.zeros(len(indices), dtype="int")
 
@@ -279,10 +294,10 @@ class RaggedArray:
     @staticmethod
     def attributes(
         ds: xr.Dataset,
-        coord_dim_map: list[tuple[str, DimNames]],
+        name_coords: list,
         name_meta: list,
         name_data: list,
-    ) -> Tuple[dict, dict]:
+    ) -> tuple[dict, dict]:
         """Return global attributes and the attributes of all variables
         (name_coords, name_meta, and name_data) from an Xarray Dataset.
 
@@ -290,8 +305,8 @@ class RaggedArray:
         ----------
         ds : xr.Dataset
             _description_
-        coord_dim_map : list[tuple[str, DimNames]]
-            List of the coordinate variables names and their dimension names.
+        name_coords : list, optional
+            Name of metadata variables to include in the archive (default is [])
         name_meta : list, optional
             Name of metadata variables to include in the archive (default is [])
         name_data : list, optional
@@ -306,7 +321,7 @@ class RaggedArray:
 
         # coordinates, metadata, and data
         attrs_variables = {}
-        for var in name_meta + name_data + [x for x, _ in coord_dim_map]:
+        for var in name_meta + name_data + name_coords:
             if var in ds.keys():
                 attrs_variables[var] = ds[var].attrs
             else:
@@ -319,11 +334,12 @@ class RaggedArray:
         preprocess_func: Callable[[int], xr.Dataset],
         indices: list,
         rowsize: Union[list, np.ndarray, xr.DataArray],
-        coord_dim_map: list[tuple[str, DimNames]],
+        name_coords: list,
         name_meta: list,
         name_data: list,
+        name_dims: dict[str, DimNames],
         **kwargs,
-    ) -> Tuple[dict, dict, dict, list[tuple[str, Dim]]]:
+    ) -> tuple[dict, dict, dict, dict]:
         """
         Iterate through the files and fill for the ragged array associated
         with coordinates, and selected metadata and data variables.
@@ -333,42 +349,49 @@ class RaggedArray:
         preprocess_func : Callable[[int], xr.Dataset]
             Returns a processed xarray Dataset from an identification number.
         indices : list
-            List of indices separating trajectory in the ragged arrays.
+            List of indices separating row in the ragged arrays.
         rowsize : list
-            List of the number of observations per trajectory.
-        coord_dim_map : list[tuple[str, DimNames]]
-            List of the coordinate variables names and their dimension names.
+            List of the number of observations per row.
+        name_coords : list
+            Name of the coordinate variables to include in the archive.
         name_meta : list, optional
             Name of metadata variables to include in the archive (Defaults to []).
         name_data : list, optional
             Name of the data variables to include in the archive (Defaults to []).
+        name_dims: dict[str, DimNames]
+            Dimension alias mapped to the name used by clouddrift.
 
         Returns
         -------
-        Tuple[dict, dict, dict]
+        Tuple[dict, dict, dict, dict]
             Dictionaries containing numerical data and attributes of coordinates, metadata and data variables.
         """
         # open one file to get dtype of variables
         ds = preprocess_func(indices[0], **kwargs)
-        nb_traj = len(rowsize)
+        nb_rows = len(rowsize)
         nb_obs = np.sum(rowsize).astype("int")
         index_traj = rowsize_to_index(rowsize)
+        dim_sizes = {}
+
+        for alias in name_dims.keys():
+            if name_dims[alias] == "rows":
+                dim_sizes[alias] = nb_rows
+            else:
+                dim_sizes[alias] = nb_obs
 
         # allocate memory
-        coord_dims: list[tuple[str, Dim]] = list()
         coords = {}
-        for var, dimName in coord_dim_map:
-            if dimName == "traj":
-                dimSize = nb_traj
-            else:
-                dimSize = nb_obs
-            coords[var] = np.zeros(dimSize, dtype=ds[var].dtype)
-            coord_dims.append((var, Dim(dimName, dimSize)))
+        coord_dims: dict[str, str] = {}
+        for var in name_coords:
+            dim = ds[var].dims[-1]
+            dim_size = dim_sizes[dim]
+            coords[var] = np.zeros(dim_size, dtype=ds[var].dtype)
+            coord_dims[var] = dim
 
         metadata = {}
         for var in name_meta:
             try:
-                metadata[var] = np.zeros(nb_traj, dtype=ds[var].dtype)
+                metadata[var] = np.zeros(nb_rows, dtype=ds[var].dtype)
             except KeyError:
                 warnings.warn(f"Variable {var} requested but not found; skipping.")
 
@@ -391,8 +414,9 @@ class RaggedArray:
                 size = rowsize[i]
                 oid = index_traj[i]
 
-                for var, dimName in coord_dim_map:
-                    if dimName == "obs":
+                for var in name_coords:
+                    dim = ds[var].dims[-1]
+                    if name_dims[dim] == "obs":
                         coords[var][oid : oid + size] = ds[var].data
                     else:
                         coords[var][i] = ds[var].data[0]
@@ -425,7 +449,7 @@ class RaggedArray:
             if key not in self.attrs_variables:
                 self.attrs_variables[key] = {}
 
-    def to_xarray(self, cast_to_float32: bool = True):
+    def to_xarray(self):
         """Convert ragged array object to a xarray Dataset.
 
         Parameters
@@ -439,17 +463,30 @@ class RaggedArray:
         xr.Dataset
             Xarray Dataset containing the ragged arrays and their attributes
         """
+        dim_name_map = {v: k for k, v in self.name_dims.items()}
 
         xr_coords = {}
-        for var, dim in self.coord_dims:
-            xr_coords[var] = ([dim.name], self.coords[var], self.attrs_variables[var])
+        for var in self.coords.keys():
+            xr_coords[var] = (
+                [self._coord_dims[var]],
+                self.coords[var],
+                self.attrs_variables[var],
+            )
 
         xr_data = {}
         for var in self.metadata.keys():
-            xr_data[var] = (["traj"], self.metadata[var], self.attrs_variables[var])
+            xr_data[var] = (
+                [dim_name_map["rows"]],
+                self.metadata[var],
+                self.attrs_variables[var],
+            )
 
         for var in self.data.keys():
-            xr_data[var] = (["obs"], self.data[var], self.attrs_variables[var])
+            xr_data[var] = (
+                [dim_name_map["obs"]],
+                self.data[var],
+                self.attrs_variables[var],
+            )
 
         return xr.Dataset(coords=xr_coords, data_vars=xr_data, attrs=self.attrs_global)
 
@@ -465,8 +502,9 @@ class RaggedArray:
         offset = ak.index.Index64(index_traj)
 
         data = []
-        for var, dim in self.coord_dims:
-            if dim.name == "obs":
+        for var in self.coords.keys():
+            dim = self._coord_dims[var]
+            if self.name_dims[dim] == "obs":
                 data.append(
                     ak.contents.ListOffsetArray(
                         offset,

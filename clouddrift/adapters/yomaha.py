@@ -1,7 +1,7 @@
 """
-This module defines functions used to adapt the YoMaHa'07: Velocity data assessed 
-from trajectories of Argo floats at parking level and at the sea surface as 
-a ragged-arrays dataset. 
+This module defines functions used to adapt the YoMaHa'07: Velocity data assessed
+from trajectories of Argo floats at parking level and at the sea surface as
+a ragged-arrays dataset.
 
 The dataset is hosted at http://apdrc.soest.hawaii.edu/projects/yomaha/ and the user manual
 is available at http://apdrc.soest.hawaii.edu/projects/yomaha/yomaha07/YoMaHa070612.pdf.
@@ -52,7 +52,7 @@ def download(tmp_path: str):
     download_with_progress(download_requests)
 
     filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
-    filename = filename_gz[:-3]
+    filename = filename_gz.removesuffix(".gz")
 
     buffer = BytesIO()
     download_with_progress([(YOMAHA_URLS[-1], buffer, None)])
@@ -153,7 +153,8 @@ def to_xarray(tmp_path: Union[str, None] = None):
     )
 
     # open with pandas
-    filename = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1][:-3]}"
+    filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
+    filename = filename_gz.removesuffix(".gz")
     df = pd.read_csv(
         filename, names=col_names, sep=r"\s+", header=None, na_values=na_col
     )

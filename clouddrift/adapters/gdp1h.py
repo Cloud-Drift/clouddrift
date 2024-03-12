@@ -23,9 +23,9 @@ from clouddrift.raggedarray import RaggedArray
 GDP_VERSION = "2.01"
 
 
-GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01/"
+GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01"
 GDP_DATA_URL_EXPERIMENTAL = (
-    "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental/"
+    "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental"
 )
 
 
@@ -113,7 +113,7 @@ def download(
     gdp_metadata = gdp.get_gdp_metadata()
 
     return gdp.order_by_date(
-        gdp_metadata, [int(f.split("_")[-1][:-3]) for f in filelist]
+        gdp_metadata, [int(f.split("_")[-1].removesuffix(".nc")) for f in filelist]
     )
 
 
@@ -215,24 +215,33 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         [False if ds.get("location_type") == "Argos" else True],
     )  # 0 for Argos, 1 for GPS
     ds["DeployingShip"] = (("traj"), gdp.cut_str(ds.DeployingShip, 20))
-    ds["DeploymentStatus"] = (("traj"), gdp.cut_str(ds.DeploymentStatus, 20))
-    ds["BuoyTypeManufacturer"] = (("traj"), gdp.cut_str(ds.BuoyTypeManufacturer, 20))
-    ds["BuoyTypeSensorArray"] = (("traj"), gdp.cut_str(ds.BuoyTypeSensorArray, 20))
+    ds["DeploymentStatus"] = (
+        ("traj"),
+        gdp.cut_str(ds.DeploymentStatus, 20),
+    )
+    ds["BuoyTypeManufacturer"] = (
+        ("traj"),
+        gdp.cut_str(ds.BuoyTypeManufacturer, 20),
+    )
+    ds["BuoyTypeSensorArray"] = (
+        ("traj"),
+        gdp.cut_str(ds.BuoyTypeSensorArray, 20),
+    )
     ds["CurrentProgram"] = (
         ("traj"),
         np.array([gdp.str_to_float(ds.CurrentProgram, -1)], dtype=np.int32),
     )
-    ds["PurchaserFunding"] = (("traj"), gdp.cut_str(ds.PurchaserFunding, 20))
+    ds["PurchaserFunding"] = (
+        ("traj"),
+        gdp.cut_str(ds.PurchaserFunding, 20),
+    )
     ds["SensorUpgrade"] = (("traj"), gdp.cut_str(ds.SensorUpgrade, 20))
     ds["Transmissions"] = (("traj"), gdp.cut_str(ds.Transmissions, 20))
-    ds["DeployingCountry"] = (("traj"), gdp.cut_str(ds.DeployingCountry, 20))
-    ds["DeploymentComments"] = (
+    ds["DeployingCountry"] = (
         ("traj"),
-        gdp.cut_str(
-            ds.DeploymentComments.encode("ascii", "ignore").decode("ascii"), 20
-        ),
-    )  # remove non ascii char
-    ds["ManufactureYear"] = (
+        gdp.cut_str(ds.DeployingCountry, 20),
+    )
+    ds["DeploymentComments"] = (
         ("traj"),
         np.array([gdp.str_to_float(ds.ManufactureYear, -1)], dtype=np.int16),
     )
@@ -240,10 +249,13 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         ("traj"),
         np.array([gdp.str_to_float(ds.ManufactureMonth, -1)], dtype=np.int16),
     )
-    ds["ManufactureSensorType"] = (("traj"), gdp.cut_str(ds.ManufactureSensorType, 20))
+    ds["ManufactureSensorType"] = (
+        ("traj"),
+        gdp.cut_str(ds.ManufactureSensorType, 20),
+    )
     ds["ManufactureVoltage"] = (
         ("traj"),
-        np.array([gdp.str_to_float(ds.ManufactureVoltage[:-6], -1)], dtype=np.int16),
+        np.array([gdp.str_to_float(ds.ManufactureVoltage[:-2], -1)], dtype=np.int16),
     )  # e.g. 56 V
     ds["FloatDiameter"] = (
         ("traj"),
@@ -270,12 +282,18 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         ("traj"),
         [gdp.str_to_float(ds.DragAreaOfDrogue[:-4])],
     )  # e.g. 416.6 m^2
-    ds["DragAreaRatio"] = (("traj"), [gdp.str_to_float(ds.DragAreaRatio)])  # e.g. 39.08
+    ds["DragAreaRatio"] = (
+        ("traj"),
+        [gdp.str_to_float(ds.DragAreaRatio)],
+    )  # e.g. 39.08
     ds["DrogueCenterDepth"] = (
         ("traj"),
         [gdp.str_to_float(ds.DrogueCenterDepth[:-2])],
     )  # e.g. 20.0 m
-    ds["DrogueDetectSensor"] = (("traj"), gdp.cut_str(ds.DrogueDetectSensor, 20))
+    ds["DrogueDetectSensor"] = (
+        ("traj"),
+        gdp.cut_str(ds.DrogueDetectSensor, 20),
+    )
 
     # vars attributes
     vars_attrs = {
@@ -581,9 +599,10 @@ def to_raggedarray(
     ra = RaggedArray.from_files(
         indices=ids,
         preprocess_func=preprocess,
-        coord_dim_map=gdp.GDP_COORDS,
+        name_coords=gdp.GDP_COORDS,
         name_meta=gdp.GDP_METADATA,
         name_data=GDP_DATA,
+        name_dims=gdp.GDP_DIMS,
         rowsize_func=gdp.rowsize,
         filename_pattern=filename_pattern,
         tmp_path=tmp_path,
@@ -591,11 +610,11 @@ def to_raggedarray(
 
     # set dynamic global attributes
     if ra.attrs_global:
-        ra.attrs_global[
-            "time_coverage_start"
-        ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
-        ra.attrs_global[
-            "time_coverage_end"
-        ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+        ra.attrs_global["time_coverage_start"] = (
+            f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+        )
+        ra.attrs_global["time_coverage_end"] = (
+            f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+        )
 
     return ra
