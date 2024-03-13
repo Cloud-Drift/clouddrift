@@ -98,6 +98,15 @@ type:
 ```
 conda install matplotlib-base cartopy
 ```
+#### Locally (Makefile assumes installation of micromamba for more info [visit here](https://mamba.readthedocs.io/en/latest/index.html)):
+If you need to install an experimental/local version of the library, you can do that via:
+
+```
+make install-local
+``` 
+
+This build target will install the build dependencies `[build, twine, docutils]`.
+Generate the build / wheel file and finally install its using `micromamba`
 
 #### Development branch:
 
@@ -117,40 +126,36 @@ conda env create -f environment.yml
 ```
 with the environment [file](https://github.com/Cloud-Drift/clouddrift/blob/main/environment.yml) located in the main repository.
 
-### Run the tests
+### Development Tasks (Makefile assumes installation of micromamba for more info [visit here](https://mamba.readthedocs.io/en/latest/index.html))
 
-To run the tests, you need to first download the CloudDrift source code from
-GitHub:
-
+#### Setting up Development Environment
 ```
-git clone https://github.com/cloud-drift/clouddrift
-cd clouddrift/
+make dev
 ```
 
-and create the virtual environment.
+Install all of the packages required for development. It should be noted this will create/update a conda environment named `clouddrift`. Make sure to **activate** your environment after running this command!
 
-With pip:
-
+#### Running the CI Test Suite
 ```
-python3 -m venv .venv
-source .venv/bin/activate
-pip install .
-pip install matplotlib cartopy
+make test
 ```
 
-With Conda:
+Execute our test suite and generate the coverage report.
 
+#### Running Ruff & Mypy
 ```
-conda env create -f environment.yml
-conda activate clouddrift
-conda install matplotlib-base cartopy
+make check
 ```
 
-Then, run the tests like this:
+Runs Ruff (styling, linting) and Mypy (Static type analysis).
 
+#### Precommit Check
 ```
-python -m unittest tests/*.py
+make
 ```
+
+Using the wildcard target, format the code, run styling, linting and static type analysis tools (Ruff & Mypy), and run the CI test suite. Essentially all the stuff the CI will check.
+
 
 ### Installing CloudDrift on unsupported platforms
 
