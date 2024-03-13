@@ -197,14 +197,11 @@ class DataLine:
 @dataclass
 class TrackData:
     global_attrs = {
-        "title": "Atlantic hurricane database (HURDAT2)",
-        "history": "Chris Landsea – April 2022",
-        "Conventions": "CF-1.6",
+        "title": "HURricane DATa 2nd generation (HURDAT2)",
         "date_created": datetime.now().isoformat(),
-        "publisher_name": "NOAA AOML",
-        "publisher_email": "aoml.dftr@noaa.gov",
-        "publisher_url": "https://www.aoml.noaa.gov/hrd/hurdat/hurdat2.html",
-        "contributor_name": "NOAA Global Drifter Program",
+        "publisher_name": "NOAA AOML Hurricane Research Division",
+        "publisher_email": "AOML.HRDWebmaster@noaa.gov",
+        "publisher_url": "https://www.aoml.noaa.gov/hrd/hurdat/Data_Storm.html",
         "institution": "NOAA Atlantic Oceanographic and Meteorological Laboratory",
         "summary": "The National Hurricane Center (NHC) conducts a post-storm analysis of each tropical cyclone in its area of responsibility to determine the official assessment of the cyclone's history",
     }
