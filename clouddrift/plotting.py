@@ -61,31 +61,39 @@ def plot_ragged(
     Examples
     --------
 
-    Plot the first 100 trajectories from the gdp1h dataset, assigning
-    a different color to each trajectory:
+    Load 100 trajectories from the gdp1h dataset for the examples.
 
     >>> from clouddrift import datasets
+    >>> from clouddrift.ragged import subset
+    >>> from clouddrift.plotting import plot_ragged
+    >>> import numpy as np
     >>> import matplotlib.pyplot as plt
+    >>> from mpl_toolkits.axes_grid1 import make_axes_locatable
     >>> ds = datasets.gdp1h()
-    >>> ds = subset(ds, {"ID": ds.ID[:100].values}).load()
+    >>> ds = subset(ds, {"id": ds.id[:100].values}).load()
+
+    Plot the trajectories, assigning a different color to each trajectory:
+
     >>> fig = plt.figure()
     >>> ax = fig.add_subplot(1, 1, 1)
-
-    >>> plot_ragged(
+    >>> l = plot_ragged(
     >>>     ax,
     >>>     ds.lon,
     >>>     ds.lat,
     >>>     ds.rowsize,
     >>>     colors=np.arange(len(ds.rowsize))
     >>> )
+    >>> divider = make_axes_locatable(ax)
+    >>> cax = divider.append_axes('right', size='3%', pad=0.05)
+    >>> fig.colorbar(l, cax=cax)
 
     To plot the same trajectories, but assigning a different color to each
-    observation and specifying a colormap:
+    observation based on time and specifying a colormap:
 
     >>> fig = plt.figure()
     >>> ax = fig.add_subplot(1, 1, 1)
     >>> time = [v.astype(np.int64) / 86400 / 1e9 for v in ds.time.values]
-    >>> lc = plot_ragged(
+    >>> l = plot_ragged(
     >>>     ax,
     >>>     ds.lon,
     >>>     ds.lat,
@@ -93,9 +101,9 @@ def plot_ragged(
     >>>     colors=np.floor(time),
     >>>     cmap="inferno"
     >>> )
-    >>> fig.colorbar(lc[0])
-    >>> ax.set_xlim([-180, 180])
-    >>> ax.set_ylim([-90, 90])
+    >>> divider = make_axes_locatable(ax)
+    >>> cax = divider.append_axes('right', size="3%", pad=0.05)
+    >>> fig.colorbar(l, cax=cax)
 
     Finally, to plot the same trajectories, but using a cartopy
     projection:
@@ -103,16 +111,21 @@ def plot_ragged(
     >>> import cartopy.crs as ccrs
     >>> fig = plt.figure()
     >>> ax = fig.add_subplot(1, 1, 1, projection=ccrs.Mollweide())
-    >>> time = [v.astype(np.int64) / 86400 / 1e9 for v in ds.time.values]
-    >>> lc = plot_ragged(
+    >>> l = plot_ragged(
     >>>     ax,
     >>>     ds.lon,
     >>>     ds.lat,
     >>>     ds.rowsize,
     >>>     colors=np.arange(len(ds.rowsize)),
     >>>     transform=ccrs.PlateCarree(),
-    >>>     cmap=cmocean.cm.ice,
+    >>>     cmap="Blues",
     >>> )
+    >>> ax.set_extent([-180, 180, -90, 90])
+    >>> ax.coastlines()
+    >>> ax.gridlines(draw_labels=True)
+    >>> divider = make_axes_locatable(ax)
+    >>> cax = divider.append_axes('right', size="3%", pad=0.25, axes_class=plt.Axes)
+    >>> fig.colorbar(l, cax=cax)
 
     Raises
     ------
@@ -161,7 +174,8 @@ def plot_ragged(
         raise ValueError("shape colors must match the shape of lon/lat or rowsize.")
 
     # define a colormap
-    cmap = kwargs.pop("cmap", cm.viridis)
+    if isinstance(cmap := kwargs.pop("cmap", cm.viridis), str):
+        cmap = plt.get_cmap(cmap)
 
     # define a normalization obtain uniform colors
     # for the sequence of lines or LineCollection
@@ -169,10 +183,12 @@ def plot_ragged(
         "norm", mcolors.Normalize(vmin=np.nanmin(colors), vmax=np.nanmax(colors))
     )
 
+    # create Mappable for colorbar
+    cb = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
+
     mpl_plot = True if colors is None or len(colors) == len(rowsize) else False
     traj_idx = rowsize_to_index(rowsize)
 
-    lines = []
     for i in range(len(rowsize)):
         lon_i, lat_i = (
             longitude[traj_idx[i] : traj_idx[i + 1]],
@@ -184,7 +200,7 @@ def plot_ragged(
             end = start + length
 
             if mpl_plot:
-                line = ax.plot(
+                ax.plot(
                     lon_i[start:end],
                     lat_i[start:end],
                     c=cmap(norm(colors[i])) if colors is not None else None,
@@ -201,18 +217,17 @@ def plot_ragged(
                         lat_i[start + 1 : end],
                     ]
                 ).reshape(-1, 2, 2)
-                line = LineCollection(segments, cmap=cmap, norm=norm, *args, **kwargs)
-                line.set_array(
+                lc = LineCollection(segments, cmap=cmap, norm=norm, *args, **kwargs)
+                lc.set_array(
                     # color of a segment is the average of its two data points
                     np.convolve(colors_i[start:end], [0.5, 0.5], mode="valid")
                 )
-                ax.add_collection(line)
+                ax.add_collection(lc)
 
             start = end
-            lines.append(line)
 
     # set axis limits
     ax.set_xlim([np.min(longitude), np.max(longitude)])
     ax.set_ylim([np.min(latitude), np.max(latitude)])
 
-    return lines
+    return cb

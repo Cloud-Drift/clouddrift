@@ -1,6 +1,6 @@
 """
-This module defines functions to adapt as a ragged-array dataset a collection of data 
-from 2193 trajectories of SOFAR, APEX, and RAFOS subsurface floats from 52 experiments 
+This module defines functions to adapt as a ragged-array dataset a collection of data
+from 2193 trajectories of SOFAR, APEX, and RAFOS subsurface floats from 52 experiments
 across the world between 1989 and 2015.
 
 The dataset is hosted at https://www.aoml.noaa.gov/phod/float_traj/index.php
@@ -15,7 +15,7 @@ import os
 import tempfile
 import warnings
 from datetime import datetime
-from typing import Union
+from typing import Hashable, List, Union
 
 import numpy as np
 import pandas as pd
@@ -49,7 +49,7 @@ def to_xarray(
     source_data = scipy.io.loadmat(local_file)
 
     # metadata
-    meta_variables = [
+    meta_variables: List[Hashable] = [
         "expList",
         "expName",
         "expOrg",

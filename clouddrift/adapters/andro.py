@@ -1,6 +1,6 @@
 """
-This module defines functions used to adapt the ANDRO: An Argo-based 
-deep displacement dataset as a ragged-arrays dataset. 
+This module defines functions used to adapt the ANDRO: An Argo-based
+deep displacement dataset as a ragged-arrays dataset.
 
 The dataset is hosted at https://www.seanoe.org/data/00360/47077/ and the user manual
 is available at https://archimer.ifremer.fr/doc/00360/47126/.
@@ -12,8 +12,8 @@ Example
 
 Reference
 ---------
-Ollitrault Michel, Rannou Philippe, Brion Emilie, Cabanes Cecile, Piron Anne, Reverdin Gilles, 
-Kolodziejczyk Nicolas (2022). ANDRO: An Argo-based deep displacement dataset. 
+Ollitrault Michel, Rannou Philippe, Brion Emilie, Cabanes Cecile, Piron Anne, Reverdin Gilles,
+Kolodziejczyk Nicolas (2022). ANDRO: An Argo-based deep displacement dataset.
 SEANOE. https://doi.org/10.17882/47077
 """
 

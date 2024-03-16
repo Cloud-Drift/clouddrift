@@ -1,9 +1,10 @@
 """
-This module provides functions to easily access ragged array datasets. If the datasets are 
+This module provides functions to easily access ragged array datasets. If the datasets are
 not accessed via cloud storage platforms or are not found on the local filesystem,
-they will be downloaded from their upstream repositories and stored for later access 
+they will be downloaded from their upstream repositories and stored for later access
 (~/.clouddrift for UNIX-based systems).
 """
+
 import os
 import platform
 from io import BytesIO

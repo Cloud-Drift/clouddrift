@@ -1,6 +1,7 @@
 import unittest
 from concurrent import futures
 from datetime import datetime, timedelta
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -34,29 +35,30 @@ def sample_ragged_array() -> RaggedArray:
         [True, False, False, False],
     ]
     rowsize = [len(x) for x in longitude]
-    ids = [[d] * rowsize[i] for i, d in enumerate(drifter_id)]
     attrs_global = {
         "title": "test trajectories",
         "history": "version xyz",
     }
-    variables_coords = ["ids", "time", "lon", "lat"]
-
-    coords = {"lon": longitude, "lat": latitude, "ids": ids, "time": t}
-    metadata = {"id": drifter_id, "rowsize": rowsize}
-    data = {"test": test}
+    coords: dict[str, list] = {"id": drifter_id, "time": t}
+    metadata = {"rowsize": rowsize}
+    data: dict[str, list] = {"test": test, "lat": latitude, "lon": longitude}
 
     # append xr.Dataset to a list
     list_ds = []
     for i in range(0, len(rowsize)):
         xr_coords = {}
-        for var in coords.keys():
-            xr_coords[var] = (
-                ["obs"],
-                coords[var][i],
-                {"long_name": f"variable {var}", "units": "-"},
-            )
+        xr_coords["id"] = (
+            ["rows"],
+            [coords["id"][i]],
+            {"long_name": "variable id", "units": "-"},
+        )
+        xr_coords["time"] = (
+            ["obs"],
+            coords["time"][i],
+            {"long_name": "variable time", "units": "-"},
+        )
 
-        xr_data = {}
+        xr_data: dict[str, Any] = {}
         for var in metadata.keys():
             xr_data[var] = (
                 ["traj"],
@@ -78,9 +80,10 @@ def sample_ragged_array() -> RaggedArray:
     ra = RaggedArray.from_files(
         [0, 1, 2],
         lambda i: list_ds[i],
-        variables_coords,
-        ["id", "rowsize"],
-        ["test"],
+        ["id", "time"],
+        name_meta=["rowsize"],
+        name_data=["test", "lat", "lon"],
+        name_dims={"rows": "rows", "obs": "obs"}
     )
 
     return ra
@@ -668,12 +671,12 @@ class subset_tests(unittest.TestCase):
         ds_sub = subset(self.ds, {"id": self.ds["id"][:2].values})
         self.assertTrue(ds_sub["id"].size == 2)
 
-    def test_full_trajectories(self):
+    def test_full_rows(self):
         ds_id_rowsize = {
             i: j for i, j in zip(self.ds.id.values, self.ds.rowsize.values)
         }
 
-        ds_sub = subset(self.ds, {"lon": (-125, -111)}, full_trajectories=True)
+        ds_sub = subset(self.ds, {"lon": (-125, -111)}, full_rows=True)
         self.assertTrue(all(ds_sub.lon == [-121, -111, 51, 61, 71]))
 
         ds_sub_id_rowsize = {
@@ -682,7 +685,7 @@ class subset_tests(unittest.TestCase):
         for k, v in ds_sub_id_rowsize.items():
             self.assertTrue(ds_id_rowsize[k] == v)
 
-        ds_sub = subset(self.ds, {"lat": (30, 40)}, full_trajectories=True)
+        ds_sub = subset(self.ds, {"lat": (30, 40)}, full_rows=True)
         self.assertTrue(all(ds_sub.lat == [10, 20, 30, 40]))
 
         ds_sub_id_rowsize = {
@@ -691,12 +694,12 @@ class subset_tests(unittest.TestCase):
         for k, v in ds_sub_id_rowsize.items():
             self.assertTrue(ds_id_rowsize[k] == v)
 
-        ds_sub = subset(self.ds, {"time": (4, 5)}, full_trajectories=True)
+        ds_sub = subset(self.ds, {"time": (4, 5)}, full_rows=True)
         xr.testing.assert_equal(self.ds, ds_sub)
 
     def test_subset_by_rows(self):
         rows = [0, 2]  # test extracting first and third rows
-        ds_sub = subset(self.ds, {"traj": rows})
+        ds_sub = subset(self.ds, {"rows": rows})
         self.assertTrue(all(ds_sub["id"] == [1, 2]))
         self.assertTrue(all(ds_sub["rowsize"] == [5, 4]))
 
@@ -734,7 +737,7 @@ class subset_tests(unittest.TestCase):
     def test_subset_callable_wrong_type(self):
         rows = [0, 2]  # test extracting first and third rows
         with self.assertRaises(TypeError):  # passing a tuple when a string is expected
-            subset(self.ds, {("traj",): rows})
+            subset(self.ds, {("rows",): rows})
 
     def test_subset_callable_tuple_unknown_var(self):
         func = lambda arr1, arr2: np.logical_and(

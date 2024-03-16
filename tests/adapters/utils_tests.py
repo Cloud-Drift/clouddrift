@@ -202,7 +202,7 @@ class utils_tests(unittest.TestCase):
         tpe_mock.__exit__ = Mock()
 
         mocked_futures = [
-            self.gen_future_mock(done=True),
+            self.gen_future_mock(),
             self.gen_future_mock(),
             self.gen_future_mock(Exception("just a test exception that is expected")),
             self.gen_future_mock(),
@@ -224,7 +224,7 @@ class utils_tests(unittest.TestCase):
                 patch("clouddrift.adapters.utils.open", self.open_mock),
                 patch("clouddrift.adapters.utils.concurrent.futures", futures_mock),
                 patch("clouddrift.adapters.utils.requests", self.requests_mock),
-                patch("clouddrift.adapters.utils.os", os_mock)
+                patch("clouddrift.adapters.utils.os", os_mock),
             ]
         ) as _:
             self.assertRaises(
