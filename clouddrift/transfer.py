@@ -14,6 +14,7 @@ import numpy as np
 from scipy.special import kv, k1, i0, i1
 # kv is the modified Bessel function of the second kind of real order v
 
+
 def transfer_function(
     omega: Union[float, np.ndarray],
     z: Union[float, np.ndarray],
@@ -117,11 +118,12 @@ def _transfer_function_no_slip(
         elif delta == 0:
             # Madsen solution
             coeff = 4 / (density * np.abs(coriolis_frequency) * mu)
-            G = coeff * kv(0, 
+            G = coeff * kv(
+                0,
                 2
                 * np.sqrt(2)
                 * _rot(s * np.pi / 4)
-                * np.sqrt((z / mu) * np.abs(1 + omega / coriolis_frequency))
+                * np.sqrt((z / mu) * np.abs(1 + omega / coriolis_frequency)),
             )
         else:
             # mixed solution
@@ -187,21 +189,21 @@ def _xis(
         2
         * np.sqrt(2)
         * _rot(s * np.pi / 4)
-        * np.divide(zo , delta)
+        * np.divide(zo, delta)
         * np.sqrt((1 + np.divide(z, zo)) * np.abs(1 + omega / coriolis_frequency))
     )
     xih = (
         2
         * np.sqrt(2)
         * _rot(s * np.pi / 4)
-        * np.divide(zo , delta)
+        * np.divide(zo, delta)
         * np.sqrt((1 + np.divide(bld, zo)) * np.abs(1 + omega / coriolis_frequency))
     )
     xi0 = (
         2
         * np.sqrt(2)
         * _rot(s * np.pi / 4)
-        * np.divide(zo , delta)
+        * np.divide(zo, delta)
         * np.sqrt(np.abs(1 + omega / coriolis_frequency))
     )
 
