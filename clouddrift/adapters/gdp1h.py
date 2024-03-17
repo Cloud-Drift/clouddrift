@@ -144,8 +144,12 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     # parse the date with custom function
     ds["deploy_date"].data = gdp.decode_date(np.array([ds.deploy_date.data[0]]))
     ds["end_date"].data = gdp.decode_date(np.array([ds.end_date.data[0]]))
-    ds["drogue_lost_date"].data = gdp.decode_date(np.array([ds.drogue_lost_date.data[0]])).astype("datetime64[s]")
-    ds["time"].data = gdp.decode_date(np.array([ds.time.data[0]])).astype("datetime64[s]")
+    ds["drogue_lost_date"].data = gdp.decode_date(
+        np.array([ds.drogue_lost_date.data[0]])
+    ).astype("datetime64[s]")
+    ds["time"].data = gdp.decode_date(np.array([ds.time.data[0]])).astype(
+        "datetime64[s]"
+    )
 
     # convert fill values to nan
     for var in [
@@ -609,11 +613,11 @@ def to_raggedarray(
 
     # set dynamic global attributes
     if ra.attrs_global:
-        ra.attrs_global["time_coverage_start"] = (
-            f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time'].astype("datetime64[s]").astype("int64")))):%Y-%m-%d:%H:%M:%SZ}"
-        )
-        ra.attrs_global["time_coverage_end"] = (
-            f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time'].astype("datetime64[s]").astype("int64")))):%Y-%m-%d:%H:%M:%SZ}"
-        )
+        ra.attrs_global[
+            "time_coverage_start"
+        ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time'].astype("datetime64[s]").astype("int64")))):%Y-%m-%d:%H:%M:%SZ}"
+        ra.attrs_global[
+            "time_coverage_end"
+        ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time'].astype("datetime64[s]").astype("int64")))):%Y-%m-%d:%H:%M:%SZ}"
 
     return ra

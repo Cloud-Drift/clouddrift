@@ -683,7 +683,7 @@ def subset(
     ...     30.2639 <= lat <= 45.7833
     ... )
     >>> in_biscay = lambda lon, lat: np.all(
-    ...     lon <= -0.1462, 
+    ...     lon <= -0.1462,
     ...     lat >= 43.2744,
     ... )
     >>> in_blacksea = lambda lon, lat: np.all(
@@ -691,10 +691,10 @@ def subset(
     ...     lat >= 40.9088
     ... )
     >>> mediterranean_mask = lambda lon, lat: np.logical_and(
-    ...     in_med, 
+    ...     in_med,
     ...     np.logical_not(
     ...         np.logical_and(
-    ...             in_biscay, 
+    ...             in_biscay,
     ...             in_blacksea
     ...         )
     ...     )
