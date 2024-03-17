@@ -10,14 +10,21 @@ from uuid import uuid4
 import numpy as np
 import xarray as xr
 
+from clouddrift.adapters.utils import download_with_progress
 from clouddrift.raggedarray import RaggedArray
 
-from .utils import download_with_progress
-
 _DEFAULT_NAME = "hurdat2"
-_DEFAULT_URL = "https://www.aoml.noaa.gov/hrd/hurdat/hurdat2.html"
+_ATLANTIC_BASIN_URL = "https://www.aoml.noaa.gov/hrd/hurdat/hurdat2.html"
+_NORTHEAST_PACIFIC_BASIN_URL = "https://www.aoml.noaa.gov/hrd/hurdat/hurdat2-nepac.html"
+
 _DEFAULT_FILE_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", _DEFAULT_NAME)
 os.makedirs(_DEFAULT_FILE_PATH, exist_ok=True)
+
+
+class BasinOption(int, enum.Enum):
+    ATLANTIC = 1
+    NORTHEAST_PACIFIC = 2
+    BOTH = 3
 
 
 class RecordIdentifier(str, enum.Enum):
@@ -56,6 +63,10 @@ class SystemStatus(str, enum.Enum):
     LO – A low that is neither a tropical cyclone, a subtropical cyclone, nor an extratropical cyclone (of any intensity)
     WV – Tropical Wave (of any intensity)
     DB – Disturbance (of any intensity)
+    ET - UNKNOWN found in Northeast Pacific Basin
+    PT - UNKNOWN found in Northeast Pacific Basin
+    ST - UNKNOWN found in Northeast Pacific Basin
+    TY - UNKNOWN found in Northeast Pacific Basin
     """
 
     TD = "TD"
@@ -67,6 +78,10 @@ class SystemStatus(str, enum.Enum):
     LO = "LO"
     WV = "WV"
     DB = "DB"
+    ET = "ET"
+    PT = "PT"
+    ST = "ST"
+    TY = "TY"
 
 
 @dataclass
@@ -282,7 +297,10 @@ class TrackData:
             },
             coords={
                 "id": (["traj"], np.array([self.header.id])),
-                "time": (["obs"], np.array([line.time for line in self.data], dtype=np.float64)),
+                "time": (
+                    ["obs"],
+                    np.array([line.time for line in self.data], dtype=np.float64),
+                ),
             },
         )
 
@@ -299,10 +317,59 @@ def _map_heading(coordinate: str) -> float:
         return float(heading) * sign
     raise ValueError(f"Invalid cardinal direction: {cardinal_direction}")
 
-def to_raggedarray():
-    datafile_path = os.path.join(_DEFAULT_FILE_PATH, "hurdat2.html")
-    download_with_progress([(_DEFAULT_URL, datafile_path, None)])
 
+def _get_download_requests(basin: BasinOption):
+    download_requests: list[tuple[str, str, None]] = list()
+
+    if basin & BasinOption.ATLANTIC == BasinOption.ATLANTIC:
+        file_name = _ATLANTIC_BASIN_URL.split("/")[-1]
+        fp = os.path.join(_DEFAULT_FILE_PATH, file_name)
+        download_requests.append((_ATLANTIC_BASIN_URL, fp, None))
+        ...
+    if basin & BasinOption.NORTHEAST_PACIFIC == BasinOption.NORTHEAST_PACIFIC:
+        file_name = _NORTHEAST_PACIFIC_BASIN_URL.split("/")[-1]
+        fp = os.path.join(_DEFAULT_FILE_PATH, file_name)
+        download_requests.append((_NORTHEAST_PACIFIC_BASIN_URL, fp, None))
+    return download_requests
+
+
+def to_raggedarray(basin: BasinOption = BasinOption.BOTH) -> RaggedArray:
+    download_requests = _get_download_requests(basin)
+    download_with_progress(download_requests)
+    track_data = list()
+
+    for _, fp, _ in download_requests:
+        track_data.extend(extract_track_data(fp))
+
+    metadata_fields = list()
+    data_fields = list()
+
+    for f in fields(HeaderLine):
+        if f.name != "id":
+            metadata_fields.append(f.name)
+
+    for f in fields(DataLine):
+        if f.name != "time":
+            data_fields.append(f.name)
+
+    ra = RaggedArray.from_items(
+        indices=track_data,
+        name_coords=["id", "time"],
+        name_meta=metadata_fields,
+        name_data=data_fields,
+        name_dims={"traj": "rows", "obs": "obs"},
+        rowsize_func=TrackData.get_rowsize,
+        preprocess_func=TrackData.to_xarray_dataset,
+        attrs_global=TrackData.global_attrs,
+        attrs_variables={
+            field.name: field.metadata
+            for field in fields(HeaderLine) + fields(DataLine)
+        },
+    )
+    return ra
+
+
+def extract_track_data(datafile_path: str) -> list[TrackData]:
     datapage = StringIO()
     with open(datafile_path, "rb") as file:
         while (data := file.read()) != b"":
@@ -312,18 +379,25 @@ def to_raggedarray():
     data_line_count = 0
     current_header = None
     data_lines = list()
-    all_track_data = list[TrackData]()
+    track_data = list[TrackData]()
+
+    is_html_line = lambda line: re.match(r"[html|head|pre]+", line)
+    is_header_line = (
+        lambda cols, data_line_count: len(cols) == 4 and data_line_count == 0
+    )
+    is_data_line = lambda cols, data_line_count: len(cols) == 21 and data_line_count > 0
 
     while (line := datapage.readline()) != "":
-        if re.match(r"[html|head|pre]+", line) or line == "\r\n":
+        if is_html_line(line) or line == "\r\n":
             if current_header is not None:
-                all_track_data.append(TrackData(current_header, data_lines))
+                track_data.append(TrackData(current_header, data_lines))
                 data_lines = list()
                 current_header = None
             continue
+
         cols = line.split(",")
 
-        if len(cols) == 4 and data_line_count == 0:
+        if is_header_line(cols, data_line_count):
             data_line_count = int(cols[2])
             header = HeaderLine(
                 basin=cols[0][:2],
@@ -335,21 +409,24 @@ def to_raggedarray():
             if current_header is None:
                 current_header = header
             else:
-                all_track_data.append(TrackData(current_header, data_lines))
+                track_data.append(TrackData(current_header, data_lines))
                 data_lines = list()
                 current_header = header
-        elif len(cols) > 4 and data_line_count > 0:
-            timestamp = datetime(
-                year=int(cols[0][:4]),
-                month=int(cols[0][4:6]),
-                day=int(cols[0][6:8]),
-                hour=int(cols[1][:2]),
-                minute=int(cols[1][2:4]),
-                tzinfo=timezone.utc,
-            ).timestamp()
+        elif (
+            is_data_line(cols, data_line_count)
+            and len(cols[0]) == 8
+            and len(cols[1]) == 4
+        ):
             data_lines.append(
                 DataLine(
-                    time=timestamp,
+                    time=datetime(
+                        year=int(cols[0][:4]),
+                        month=int(cols[0][4:6]),
+                        day=int(cols[0][6:8]),
+                        hour=int(cols[1][:2]),
+                        minute=int(cols[1][2:4]),
+                        tzinfo=timezone.utc,
+                    ).timestamp(),
                     record_identifier=RecordIdentifier(cols[2]),
                     system_status=SystemStatus(cols[3]),
                     lat=_map_heading(cols[4]),
@@ -372,28 +449,4 @@ def to_raggedarray():
                 )
             )
             data_line_count -= 1
-    metadata_fields = list()
-    data_fields = list()
-
-    for f in fields(HeaderLine):
-        if f.name != "id":
-            metadata_fields.append(f.name)
-
-    for f in fields(DataLine):
-        if f.name != "time":
-            data_fields.append(f.name)
-
-    ra = RaggedArray.from_items(
-        indices=all_track_data,
-        coord_dim_map=[("id", "traj"), ("time", "obs")],
-        name_meta=metadata_fields,
-        name_data=data_fields,
-        rowsize_func=TrackData.get_rowsize,
-        preprocess_func=TrackData.to_xarray_dataset,
-        attrs_global=TrackData.global_attrs,
-        attrs_variables={
-            field.name: field.metadata
-            for field in fields(HeaderLine) + fields(DataLine)
-        },
-    )
-    return ra
+    return track_data

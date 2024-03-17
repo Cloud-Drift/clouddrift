@@ -31,7 +31,6 @@ class raggedarray_tests(TestCase):
         }
         self.variables_coords = [("id", "traj"), ("time", "obs")]
 
-
         # append xr.Dataset to a list
         list_ds = []
         for i in range(0, len(self.rowsize)):
@@ -65,19 +64,19 @@ class raggedarray_tests(TestCase):
             )
 
         # create test ragged array
-        self.name_coords=["id", "time"]
-        self.name_meta=["rowsize"]
-        self.name_data=["temp"]
-        self.name_dims={"traj": "rows", "obs": "obs"}
-        self.coord_dims={"id": "traj", "time": "obs"}
-        self.ra = RaggedArray.from_files(
+        self.name_coords = ["id", "time"]
+        self.name_meta = ["rowsize"]
+        self.name_data = ["temp"]
+        self.name_dims = {"traj": "rows", "obs": "obs"}
+        self.coord_dims = {"id": "traj", "time": "obs"}
+        self.ra = RaggedArray.from_items(
             [0, 1, 2],
             lambda i: list_ds[i],
             self.name_coords,
             self.name_meta,
             self.name_data,
             self.name_dims,
-            lambda i: self.rowsize[i]
+            lambda i: self.rowsize[i],
         )
 
         # output archive
@@ -94,10 +93,10 @@ class raggedarray_tests(TestCase):
 
     def test_from_awkward(self):
         ra = RaggedArray.from_awkward(
-            ak.from_parquet(PARQUET_ARCHIVE), 
+            ak.from_parquet(PARQUET_ARCHIVE),
             self.name_coords,
             self.name_dims,
-            self.coord_dims
+            self.coord_dims,
         )
         self.compare_awkward_array(ra.to_awkward())
 
@@ -107,7 +106,7 @@ class raggedarray_tests(TestCase):
 
     def test_from_xarray_dim_names(self):
         ds = xr.open_dataset("test_archive.nc")
-        
+
         ra = RaggedArray.from_xarray(
             ds.rename_dims({"traj": "t", "obs": "o"}),
             rows_dim_name="t",
@@ -194,9 +193,6 @@ class raggedarray_tests(TestCase):
         Validate the netCDF output archive
         """
         ds = RaggedArray.from_parquet(
-            PARQUET_ARCHIVE, 
-            self.name_coords,
-            self.name_dims,
-            self.coord_dims
+            PARQUET_ARCHIVE, self.name_coords, self.name_dims, self.coord_dims
         )
         self.compare_awkward_array(ds.to_awkward())

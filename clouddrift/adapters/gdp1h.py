@@ -84,9 +84,28 @@ def download(
 
     # Create a temporary directory if doesn't already exists.
     os.makedirs(tmp_path, exist_ok=True)
+
+    download_requests = _get_download_requests(url, tmp_path, drifter_ids, n_random_id)
+    download_with_progress(download_requests)
+    # Download the metadata so we can order the drifter IDs by end date.
+    gdp_metadata = gdp.get_gdp_metadata()
+
+    extract_drifter_id = lambda url: int(
+        url.split("/")[-1].split("_")[-1].removesuffix(".nc")
+    )
+    return gdp.order_by_date(
+        gdp_metadata, [extract_drifter_id(url) for url, _, _ in download_requests]
+    )
+
+
+def _get_download_requests(
+    url: str,
+    tmp_path: str,
+    drifter_ids: Union[list[int], None],
+    n_random_id: Union[int, None],
+) -> list[tuple[str, str, None]]:
     pattern = "drifter_hourly_[0-9]*.nc"
     filename_pattern = "drifter_hourly_{id}.nc"
-
     # retrieve all drifter ID numbers
     if drifter_ids is None:
         urlpath = urllib.request.urlopen(url)
@@ -106,15 +125,7 @@ def download(
             rng = np.random.RandomState(42)
             filelist = sorted(rng.choice(filelist, n_random_id, replace=False))
 
-    download_with_progress(
-        [(f"{url}/{f}", os.path.join(tmp_path, f), None) for f in filelist]
-    )
-    # Download the metadata so we can order the drifter IDs by end date.
-    gdp_metadata = gdp.get_gdp_metadata()
-
-    return gdp.order_by_date(
-        gdp_metadata, [int(f.split("_")[-1].removesuffix(".nc")) for f in filelist]
-    )
+    return [(f"{url}/{f}", os.path.join(tmp_path, f), None) for f in filelist]
 
 
 def preprocess(index: int, **kwargs) -> xr.Dataset:
@@ -610,11 +621,11 @@ def to_raggedarray(
 
     # set dynamic global attributes
     if ra.attrs_global:
-        ra.attrs_global["time_coverage_start"] = (
-            f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
-        )
-        ra.attrs_global["time_coverage_end"] = (
-            f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
-        )
+        ra.attrs_global[
+            "time_coverage_start"
+        ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+        ra.attrs_global[
+            "time_coverage_end"
+        ] = f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
 
     return ra

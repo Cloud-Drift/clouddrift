@@ -77,13 +77,13 @@ def sample_ragged_array() -> RaggedArray:
             xr.Dataset(coords=xr_coords, data_vars=xr_data, attrs=attrs_global)
         )
 
-    ra = RaggedArray.from_files(
+    ra = RaggedArray.from_items(
         [0, 1, 2],
         lambda i: list_ds[i],
         ["id", "time"],
         name_meta=["rowsize"],
         name_data=["test", "lat", "lon"],
-        name_dims={"rows": "rows", "obs": "obs"}
+        name_dims={"rows": "rows", "obs": "obs"},
     )
 
     return ra
