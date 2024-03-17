@@ -12,6 +12,7 @@ from io import BytesIO
 import xarray as xr
 
 from clouddrift import adapters
+from clouddrift.adapters.hurdat2 import BasinOption
 
 
 def gdp1h(decode_times: bool = True) -> xr.Dataset:
@@ -232,7 +233,7 @@ def glad(decode_times: bool = True) -> xr.Dataset:
     return ds
 
 
-def hurdat2():
+def hurdat2(option: BasinOption = BasinOption.BOTH):
     """Returns the hurricane (Atlantic Basin) v2 (HURDAT2) dataset as a ragged array
     Xarray dataset.
 
@@ -244,11 +245,8 @@ def hurdat2():
 
     Parameters
     ----------
-    decode_times : bool, optional
-        If True, decode the time coordinate into a datetime object. If False, the time
-        coordinate will be an int64 or float64 array of increments since the origin
-        time indicated in the units attribute. Default is True.
-
+    option : BasinOption, default: BOTH
+        Basin dataset(s) to be downloaded.
     Returns
     -------
     xarray.Dataset
@@ -279,7 +277,7 @@ def hurdat2():
     ---------
     Özgökmen, Tamay. 2013. GLAD experiment CODE-style drifter trajectories (low-pass filtered, 15 minute interval records), northern Gulf of Mexico near DeSoto Canyon, July-October 2012. Distributed by: Gulf of Mexico Research Initiative Information and Data Cooperative (GRIIDC), Harte Research Institute, Texas A&M University–Corpus Christi. doi:10.7266/N7VD6WC8
     """
-    return adapters.hurdat2.to_raggedarray().to_xarray()
+    return adapters.hurdat2.to_raggedarray(option).to_xarray()
 
 
 def mosaic(decode_times: bool = True) -> xr.Dataset:
