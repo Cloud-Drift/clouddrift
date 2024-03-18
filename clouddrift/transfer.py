@@ -447,6 +447,9 @@ def besseltildes_noslip(
     Union[float, np.ndarray],
     Union[float, np.ndarray],
 ]:
+    """
+    Compute the nterms expansion about the large-argument exponential behavior of the Bessel functions
+    """
     k0z = besselktilde(0, xiz, nterms)
     i0z = besselitilde(0, xiz, nterms)
     k0h = besselktilde(0, xih, nterms)
@@ -462,6 +465,9 @@ def besselktilde(
     z: Union[float, np.ndarray],
     nterms=30,
 ) -> Union[float, np.ndarray]:
+    """
+    Compute the 30-term expansion about the large-argument exponential behavior of the Bessel functions
+    """
     z = np.asarray(
         z, dtype=np.complex128
     )  # Ensure z is an array for vectorized operations
