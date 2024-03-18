@@ -5,7 +5,9 @@ velocity.
 See  Lilly, J. M. and S. Elipot (2021). A unifying perspective on transfer function solutions
 to the unsteady Ekman problem. Fluids, 6 (2): 85, 1--36. doi:10.3390/fluids6020085.
 
-See Elipot and Gille (2009), doi:.
+See Elipot and Gille (2009), Ekman layers in the Southern Ocean: spectral models and
+observations, vertical viscosity and boundary layer depth Ocean Sci., 5, 115–139, 2009
+www.ocean-sci.net/5/115/2009/ doi:10.5194/os-5-115-2009
 """
 
 from typing import Tuple, Union
@@ -257,8 +259,10 @@ def _transfer_function_general_no_slip(
         omega[bool_idx], z[bool_idx], coriolis_frequency, delta, mu, bld, density
     )
 
-    G = _transfer_function_inertiallimit(G, omega, z, coriolis_frequency, delta, mu, bld, density)
-                                         
+    G = _transfer_function_inertiallimit(
+        G, omega, z, coriolis_frequency, delta, mu, bld, density
+    )
+
     return G
 
 
@@ -306,23 +310,29 @@ def _transfer_function_general_no_slip_expansion(
 
     return G
 
-def _transfer_function_inertiallimit(G : np.ndarray, 
-                                     omega : np.ndarray, 
-                                     z : np.ndarray, 
-                                     coriolis_freq: float, 
-                                     delta: float, 
-                                     mu: float, 
-                                     bld: float, 
-                                     density: float,
-                                     ) -> np.ndarray: 
+
+def _transfer_function_inertiallimit(
+    G: np.ndarray,
+    omega: np.ndarray,
+    z: np.ndarray,
+    coriolis_freq: float,
+    delta: float,
+    mu: float,
+    bld: float,
+    density: float,
+) -> np.ndarray:
     zo = delta**2 / mu
-    bool_idx = (omega == -coriolis_freq)
+    bool_idx = omega == -coriolis_freq
 
     if np.any(bool_idx):
         if not np.isinf(bld) and not np.isinf(zo):
-                G[bool_idx] = (2 / (density * np.abs(coriolis_freq) * mu)) * np.log((1 + bld / zo) / (1 + z[bool_idx] / zo))
+            G[bool_idx] = (2 / (density * np.abs(coriolis_freq) * mu)) * np.log(
+                (1 + bld / zo) / (1 + z[bool_idx] / zo)
+            )
         elif not np.isinf(bld) and np.isinf(zo):
-                G[bool_idx] = (2 / (density * np.abs(coriolis_freq) * delta**2)) * (bld - z[bool_idx])
+            G[bool_idx] = (2 / (density * np.abs(coriolis_freq) * delta**2)) * (
+                bld - z[bool_idx]
+            )
         else:
             G[bool_idx] = np.inf
 
