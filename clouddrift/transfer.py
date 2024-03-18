@@ -8,13 +8,14 @@ to the unsteady Ekman problem. Fluids, 6 (2): 85, 1--36. doi:10.3390/fluids60200
 See Elipot and Gille (2009), doi:.
 """
 
-from typing import Optional, Tuple, Union
+from typing import Tuple, Union
 
 import numpy as np
-from scipy.special import jv, kv, factorial
+from scipy.special import factorial, jv, kv
 
 # kv is the modified Bessel function of the second kind of real order v
 # jv is the Bessel function of the first kind of real order v
+
 
 def transfer_function(
     omega: Union[float, np.ndarray],
@@ -54,7 +55,7 @@ def transfer_function(
     # write a check that z is positive
     if np.any(z < 0):
         raise ValueError("Depth z must be positive.")
-    
+
     # z and omega can be scalars or arrays, convert to arrays here
     z_ = np.atleast_1d(z)
     omega_ = np.atleast_1d(omega)
@@ -63,12 +64,9 @@ def transfer_function(
     omega_ = omega_ / 86400
     cor_freq_ = cor_freq / 86400
 
-    # numerical parameters
-    tol = 100
-
     # Get the lengths of 'omega' and 'z', or 1 if they are scalars
-    #omega_len = len(omega_)
-    #z_len = len(z_)
+    # omega_len = len(omega_)
+    # z_len = len(z_)
 
     # Create the transfer function array
     [omega_grid, z_grid] = np.meshgrid(omega_, z_)
@@ -94,7 +92,7 @@ def transfer_function(
             density,
         )
 
-    G[z_grid>bld] = np.nan
+    G[z_grid > bld] = np.nan
 
     return G
 
@@ -177,34 +175,50 @@ def _transfer_function_no_slip(
                 * (z_grid / delta)
                 * np.sqrt(np.abs(1 + omega_grid / coriolis_frequency))
             )
-            
+
             numer = np.exp(-argz) - np.exp(argz) * np.exp(-2 * argh)
             denom = 1 + np.exp(-2 * argh)
             G = coeff * np.divide(numer, denom)
-       
+
             # solution at inertial frequency
             index = omega_grid == -coriolis_frequency
-            G[index] = 2 / ((density * np.abs(coriolis_frequency) * delta ** 2) * (bld - z_grid[index]))
+            G[index] = 2 / (
+                (density * np.abs(coriolis_frequency) * delta**2)
+                * (bld - z_grid[index])
+            )
 
         elif delta == 0:
             # finite layer Madsen
             coeff = 4 / (density * np.abs(coriolis_frequency) * mu)
-            argz = 2 * np.sqrt(2) * _rot(s * np.pi / 4) * np.sqrt((z_grid / mu) * np.abs(1 + omega_grid / coriolis_frequency))
-            argh = 2 * np.sqrt(2) * _rot(s * np.pi / 4) * np.sqrt((bld / mu) * np.abs(1 + omega_grid / coriolis_frequency)) 
-            k0z, i0z, k0h, i0h = bessels_noslip(argz,argh)
+            argz = (
+                2
+                * np.sqrt(2)
+                * _rot(s * np.pi / 4)
+                * np.sqrt((z_grid / mu) * np.abs(1 + omega_grid / coriolis_frequency))
+            )
+            argh = (
+                2
+                * np.sqrt(2)
+                * _rot(s * np.pi / 4)
+                * np.sqrt((bld / mu) * np.abs(1 + omega_grid / coriolis_frequency))
+            )
+            k0z, i0z, k0h, i0h, _, _ = bessels_noslip(argz, argh)
             G = coeff * (k0z - i0z * k0h / i0h)
 
             # solution at inertial frequency
             index = omega_grid == -coriolis_frequency
             if isinstance(z_grid, np.ndarray):
-                G[index] = 0.5 * coeff * np.log(bld/z_grid[index])
+                G[index] = 0.5 * coeff * np.log(bld / z_grid[index])
             else:
-                G = 0.5 * coeff * np.log(bld/z_grid)
+                G = 0.5 * coeff * np.log(bld / z_grid)
         else:
             # finite layer mixed
-            G = _transfer_function_general_no_slip(omega_grid, z_grid, coriolis_frequency, delta, mu, bld, density)
+            G = _transfer_function_general_no_slip(
+                omega_grid, z_grid, coriolis_frequency, delta, mu, bld, density
+            )
 
     return G  # , ddelta, dh
+
 
 def _transfer_function_general_no_slip(
     omega: np.ndarray,
@@ -221,43 +235,75 @@ def _transfer_function_general_no_slip(
     zo = np.divide(delta**2, mu)
     s = np.sign(coriolis_frequency) * np.sign(1 + omega / coriolis_frequency)
     xiz, xih, xi0 = _xis(s, zo, delta, z, omega, coriolis_frequency, bld)
-    coeff = np.sqrt(2)*_rot(-s*np.pi/4)/(delta*density*np.abs(coriolis_frequency)*np.sqrt(np.abs(1+omega/coriolis_frequency)))
+    coeff = (
+        np.sqrt(2)
+        * _rot(-s * np.pi / 4)
+        / (
+            delta
+            * density
+            * np.abs(coriolis_frequency)
+            * np.sqrt(np.abs(1 + omega / coriolis_frequency))
+        )
+    )
 
-    k0z,i0z,k0h,i0h,k10,i10 = bessels_noslip(xiz,xih,xi0=xi0)
-    numer = k0z/k10 - (k0h/k10)*(i0z/i0h)
-    denom = 1 + (k0h/k10)*(i10/i0h)
-    G = coeff * np.divide(numer,denom)
+    k0z, i0z, k0h, i0h, k10, i10 = bessels_noslip(xiz, xih, xi0=xi0)
+    numer = k0z / k10 - (k0h / k10) * (i0z / i0h)
+    denom = 1 + (k0h / k10) * (i10 / i0h)
+    G = coeff * np.divide(numer, denom)
 
     # stopped at line 309
-    index = np.log10(np.abs(xiz))>2.9
-    G[index] = _transfer_function_general_no_slip_expansion(omega[index], z[index], coriolis_frequency, delta, mu, bld, density) 
-    
+    index = np.log10(np.abs(xiz)) > 2.9
+    G[index] = _transfer_function_general_no_slip_expansion(
+        omega[index], z[index], coriolis_frequency, delta, mu, bld, density
+    )
+
     return G
 
+
 def _transfer_function_general_no_slip_expansion(
-        omega: np.ndarray,
-        z: np.ndarray,
-        coriolis_frequency: float,
-        delta: float,
-        mu: float,
-        bld: float,
-        density: float,
+    omega: np.ndarray,
+    z: np.ndarray,
+    coriolis_frequency: float,
+    delta: float,
+    mu: float,
+    bld: float,
+    density: float,
 ) -> np.ndarray:
-    
     zo = np.divide(delta**2, mu)
     s = np.sign(coriolis_frequency) * np.sign(1 + omega / coriolis_frequency)
     xiz, xih, xi0 = _xis(s, zo, delta, z, omega, coriolis_frequency, bld)
-    coeff = np.sqrt(2)*_rot(-s*np.pi/4)/(delta*density*np.abs(coriolis_frequency)*np.sqrt(np.abs(1+omega/coriolis_frequency)))
-    k0z, i0z, k0h, i0h, k10, i10 = besseltildes_noslip(xiz,xih,xi0,30)
+    coeff = (
+        np.sqrt(2)
+        * _rot(-s * np.pi / 4)
+        / (
+            delta
+            * density
+            * np.abs(coriolis_frequency)
+            * np.sqrt(np.abs(1 + omega / coriolis_frequency))
+        )
+    )
+    k0z, i0z, k0h, i0h, k10, i10 = besseltildes_noslip(xiz, xih, xi0, 30)
 
-    numer = np.exp(xi0-xiz)*i0h*k0z-np.exp(xi0+xiz-2*xih)*k0h*i0z
-    denom = i0h*k10+np.exp(2*xi0-2*xih)*k0h*i10
-    G = coeff * np.divide(numer,denom)
+    numer = np.exp(xi0 - xiz) * i0h * k0z - np.exp(xi0 + xiz - 2 * xih) * k0h * i0z
+    denom = i0h * k10 + np.exp(2 * xi0 - 2 * xih) * k0h * i10
+    G = coeff * np.divide(numer, denom)
 
-    index =  omega == -coriolis_frequency
-    G[index] = 4*zo/(density*np.abs(coriolis_frequency)*delta**2 * np.divide(np.sqrt(1+bld/zo)-np.sqrt(1+z/zo),(1+z/zo)**0.25))
+    index = omega == -coriolis_frequency
+    G[index] = (
+        4
+        * zo
+        / (
+            density
+            * np.abs(coriolis_frequency)
+            * delta**2
+            * np.divide(
+                np.sqrt(1 + bld / zo) - np.sqrt(1 + z / zo), (1 + z / zo) ** 0.25
+            )
+        )
+    )
 
     return G
+
 
 def _transfer_function_free_slip(
     omega: np.ndarray,
@@ -277,69 +323,106 @@ def _transfer_function_free_slip(
 
     xiz, xih, xi0 = _xis(s, zo, delta, z, omega, coriolis_frequency, bld)
 
-    coeff = np.sqrt(2)*_rot(-s*np.pi/4)/(delta*density*np.abs(coriolis_frequency)*np.sqrt(np.abs(1+omega/coriolis_frequency)))  
-    k0z,i0z,k1h,i1h,k10,i10 = bessels_freeslip(xiz,xih,xi0=xi0)
-    
+    coeff = (
+        np.sqrt(2)
+        * _rot(-s * np.pi / 4)
+        / (
+            delta
+            * density
+            * np.abs(coriolis_frequency)
+            * np.sqrt(np.abs(1 + omega / coriolis_frequency))
+        )
+    )
+    k0z, i0z, k1h, i1h, k10, i10 = bessels_freeslip(xiz, xih, xi0=xi0)
+
     numer = i0z * k1h + i1h * k0z
     denom = i1h * k10 - i10 * k1h
-    G = coeff * np.divide(numer,denom)
-    
+    G = coeff * np.divide(numer, denom)
+
     return G
 
-def bessels_freeslip(xiz: Union[float, np.ndarray], 
-                     xih: Union[float, np.ndarray], 
-                     **xi0: Union[float, np.ndarray],
-                     ):# -> Tuple[Union[float, np.ndarray], Union[float, np.ndarray], Union[float, np.ndarray], Union[float, np.ndarray], Union[float, np.ndarray], Union[float, np.ndarray]]:
 
+def bessels_freeslip(
+    xiz: Union[float, np.ndarray],
+    xih: Union[float, np.ndarray],
+    xi0: Union[float, np.ndarray, None] = None,
+) -> Tuple[
+    Union[float, np.ndarray],
+    Union[float, np.ndarray],
+    Union[float, np.ndarray],
+    Union[float, np.ndarray],
+    Union[float, np.ndarray],
+    Union[float, np.ndarray],
+]:
     k0z = kv(0, xiz)
     i0z = jv(0, xiz)
     k1h = kv(1, xih)
     i1h = jv(0, xih)
-    if xi0 is not None:    
-        k10 = kv(1, xi0) 
-        i10 = jv(1, xi0) 
-        return k0z,i0z,k1h,i1h,k10,i10
+
+    if xi0 is not None:
+        k10 = kv(1, xi0)
+        i10 = jv(1, xi0)
+        return k0z, i0z, k1h, i1h, k10, i10
     else:
-        return k0z,i0z,k1h,i1h
+        return k0z, i0z, k1h, i1h, np.nan, np.nan
 
-def bessels_noslip(xiz: Union[float, np.ndarray], 
-                   xih: Union[float, np.ndarray],
-                    **xi0: Union[float, np.ndarray],
-                   ):# -> Tuple[Union[float, np.ndarray], Union[float, np.ndarray], Union[float, np.ndarray], Union[float, np.ndarray], Union[float, np.ndarray], Union[float, np.ndarray]]:
 
+def bessels_noslip(
+    xiz: Union[float, np.ndarray],
+    xih: Union[float, np.ndarray],
+    xi0: Union[float, np.ndarray, None] = None,
+) -> Tuple[
+    Union[float, np.ndarray],
+    Union[float, np.ndarray],
+    Union[float, np.ndarray],
+    Union[float, np.ndarray],
+    Union[float, np.ndarray],
+    Union[float, np.ndarray],
+]:
     k0z = kv(0, xiz)
     i0z = jv(0, xiz)
     k0h = kv(0, xih)
     i0h = jv(0, xih)
 
     if xi0 is not None:
-        k10 = kv(1, xi0) 
+        k10 = kv(1, xi0)
         i10 = jv(1, xi0)
-        return k0z, i0z, k0h, i0h, k10, i10 
+        return k0z, i0z, k0h, i0h, k10, i10
     else:
-        return k0z, i0z, k0h, i0h
+        return k0z, i0z, k0h, i0h, np.nan, np.nan
 
-def besseltildes_noslip(xiz: Union[float, np.ndarray],
-                        xih: Union[float, np.ndarray],
-                        xi0: Union[float, np.ndarray],
-                        nterms=30,
-                        ):
-    
-    k0z = besselktilde(0,xiz,nterms)
-    i0z = besselitilde(0,xiz,nterms)
-    k0h = besselktilde(0,xih,nterms)
-    i0h = besselitilde(0,xih,nterms)
-    k10 = besselktilde(1,xi0,nterms)
-    i10 = besselitilde(1,xi0,nterms)
+
+def besseltildes_noslip(
+    xiz: Union[float, np.ndarray],
+    xih: Union[float, np.ndarray],
+    xi0: Union[float, np.ndarray],
+    nterms=30,
+) -> Tuple[
+    Union[float, np.ndarray],
+    Union[float, np.ndarray],
+    Union[float, np.ndarray],
+    Union[float, np.ndarray],
+    Union[float, np.ndarray],
+    Union[float, np.ndarray],
+]:
+    k0z = besselktilde(0, xiz, nterms)
+    i0z = besselitilde(0, xiz, nterms)
+    k0h = besselktilde(0, xih, nterms)
+    i0h = besselitilde(0, xih, nterms)
+    k10 = besselktilde(1, xi0, nterms)
+    i10 = besselitilde(1, xi0, nterms)
 
     return k0z, i0z, k0h, i0h, k10, i10
 
-def besselktilde(nu: int, 
-                 z: Union[float, np.ndarray],
-                 nterms=30,
-                 ):
-    
-    z = np.asarray(z, dtype=np.complex128)  # Ensure z is an array for vectorized operations
+
+def besselktilde(
+    nu: int,
+    z: Union[float, np.ndarray],
+    nterms=30,
+) -> Union[float, np.ndarray]:
+    z = np.asarray(
+        z, dtype=np.complex128
+    )  # Ensure z is an array for vectorized operations
     sizez = z.shape
     z = z.ravel()
 
@@ -349,7 +432,7 @@ def besselktilde(nu: int,
     zk = np.cumprod(zk, axis=1)
 
     k = np.arange(nterms)
-    ak = (4 * nu**2 - (2*k - 1)**2)
+    ak = 4 * nu**2 - (2 * k - 1) ** 2
     ak[0] = 1
     ak = np.cumprod(ak) / (factorial(k) * (8**k))
 
@@ -364,11 +447,15 @@ def besselktilde(nu: int,
 
     return K
 
-def besselitilde(nu: int,
-                 z: Union[float, np.ndarray], 
-                nterms=30,
-                ):
-    z = np.asarray(z, dtype=np.complex128)  # Ensure z is an array for vectorized operations
+
+def besselitilde(
+    nu: int,
+    z: Union[float, np.ndarray],
+    nterms=30,
+) -> Union[float, np.ndarray]:
+    z = np.asarray(
+        z, dtype=np.complex128
+    )  # Ensure z is an array for vectorized operations
     sizez = z.shape
     z = z.ravel()
 
@@ -378,7 +465,7 @@ def besselitilde(nu: int,
     zk = np.cumprod(zk, axis=1)
 
     k = np.arange(nterms)
-    ak = (4 * nu**2 - (2*k - 1)**2)
+    ak = 4 * nu**2 - (2 * k - 1) ** 2
     ak[0] = 1
     ak = np.cumprod(ak) / (factorial(k) * (8**k))
 
@@ -392,6 +479,7 @@ def besselitilde(nu: int,
     I = I.reshape(sizez)
 
     return I
+
 
 def _xis(
     s: float,
