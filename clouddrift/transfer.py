@@ -13,7 +13,7 @@ www.ocean-sci.net/5/115/2009/ doi:10.5194/os-5-115-2009
 from typing import Tuple, Union
 
 import numpy as np
-from scipy.special import factorial, jv, kv
+from scipy.special import factorial, iv, kv
 
 
 def transfer_function(
@@ -397,13 +397,13 @@ def bessels_freeslip(
     Union[float, np.ndarray],
 ]:
     k0z = kv(0, xiz)
-    i0z = jv(0, xiz)
+    i0z = iv(0, xiz)
     k1h = kv(1, xih)
-    i1h = jv(0, xih)
+    i1h = iv(0, xih)
 
     if xi0 is not None:
         k10 = kv(1, xi0)
-        i10 = jv(1, xi0)
+        i10 = iv(1, xi0)
         return k0z, i0z, k1h, i1h, k10, i10
     else:
         return k0z, i0z, k1h, i1h, np.nan, np.nan
@@ -422,13 +422,13 @@ def bessels_noslip(
     Union[float, np.ndarray],
 ]:
     k0z = kv(0, xiz)
-    i0z = jv(0, xiz)
+    i0z = iv(0, xiz)
     k0h = kv(0, xih)
-    i0h = jv(0, xih)
+    i0h = iv(0, xih)
 
     if xi0 is not None:
         k10 = kv(1, xi0)
-        i10 = jv(1, xi0)
+        i10 = iv(1, xi0)
         return k0z, i0z, k0h, i0h, k10, i10
     else:
         return k0z, i0z, k0h, i0h, np.nan, np.nan
