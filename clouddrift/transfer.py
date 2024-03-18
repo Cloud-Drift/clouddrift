@@ -181,10 +181,10 @@ def _transfer_function_no_slip(
             G = coeff * np.divide(numer, denom)
 
             # solution at inertial frequency
-            index = omega_grid == -coriolis_frequency
-            G[index] = 2 / (
+            bool_idx = omega_grid == -coriolis_frequency
+            G[bool_idx] = 2 / (
                 (density * np.abs(coriolis_frequency) * delta**2)
-                * (bld - z_grid[index])
+                * (bld - z_grid[bool_idx])
             )
 
         elif delta == 0:
@@ -206,9 +206,9 @@ def _transfer_function_no_slip(
             G = coeff * (k0z - i0z * k0h / i0h)
 
             # solution at inertial frequency
-            index = omega_grid == -coriolis_frequency
+            bool_idx = omega_grid == -coriolis_frequency
             if isinstance(z_grid, np.ndarray):
-                G[index] = 0.5 * coeff * np.log(bld / z_grid[index])
+                G[bool_idx] = 0.5 * coeff * np.log(bld / z_grid[bool_idx])
             else:
                 G = 0.5 * coeff * np.log(bld / z_grid)
         else:
@@ -251,12 +251,14 @@ def _transfer_function_general_no_slip(
     denom = 1 + (k0h / k10) * (i10 / i0h)
     G = coeff * np.divide(numer, denom)
 
-    # stopped at line 309
-    index = np.log10(np.abs(xiz)) > 2.9
-    G[index] = _transfer_function_general_no_slip_expansion(
-        omega[index], z[index], coriolis_frequency, delta, mu, bld, density
+    # large argument approximation
+    bool_idx = np.log10(np.abs(xiz)) > 2.9
+    G[bool_idx] = _transfer_function_general_no_slip_expansion(
+        omega[bool_idx], z[bool_idx], coriolis_frequency, delta, mu, bld, density
     )
 
+    G = _transfer_function_inertiallimit(G, omega, z, coriolis_frequency, delta, mu, bld, density)
+                                         
     return G
 
 
@@ -288,8 +290,8 @@ def _transfer_function_general_no_slip_expansion(
     denom = i0h * k10 + np.exp(2 * xi0 - 2 * xih) * k0h * i10
     G = coeff * np.divide(numer, denom)
 
-    index = omega == -coriolis_frequency
-    G[index] = (
+    bool_idx = omega == -coriolis_frequency
+    G[bool_idx] = (
         4
         * zo
         / (
@@ -301,6 +303,28 @@ def _transfer_function_general_no_slip_expansion(
             )
         )
     )
+
+    return G
+
+def _transfer_function_inertiallimit(G : np.ndarray, 
+                                     omega : np.ndarray, 
+                                     z : np.ndarray, 
+                                     coriolis_freq: float, 
+                                     delta: float, 
+                                     mu: float, 
+                                     bld: float, 
+                                     density: float,
+                                     ) -> np.ndarray: 
+    zo = delta**2 / mu
+    bool_idx = (omega == -coriolis_freq)
+
+    if np.any(bool_idx):
+        if not np.isinf(bld) and not np.isinf(zo):
+                G[bool_idx] = (2 / (density * np.abs(coriolis_freq) * mu)) * np.log((1 + bld / zo) / (1 + z[bool_idx] / zo))
+        elif not np.isinf(bld) and np.isinf(zo):
+                G[bool_idx] = (2 / (density * np.abs(coriolis_freq) * delta**2)) * (bld - z[bool_idx])
+        else:
+            G[bool_idx] = np.inf
 
     return G
 
