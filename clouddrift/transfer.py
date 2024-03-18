@@ -15,10 +15,6 @@ from typing import Tuple, Union
 import numpy as np
 from scipy.special import factorial, jv, kv
 
-# kv is the modified Bessel function of the second kind of real order v
-# jv is the Bessel function of the first kind of real order v
-
-
 def transfer_function(
     omega: Union[float, np.ndarray],
     z: Union[float, np.ndarray],
@@ -32,7 +28,8 @@ def transfer_function(
     """
     Compute the transfer function from wind stress to oceanic velocity.
 
-    Args:
+    Parameters
+    ----------
         omega: array_like
             Angular frequency of the wind stress forcing in radians per day.
         z: array_like
@@ -50,11 +47,18 @@ def transfer_function(
         density: float, optional
             Water density, in kg m-3. Default is 1025.
 
-    Returns:
-        Tuple[np.ndarray, np.ndarray]
+    Returns
+    -------
+        G: Tuple[np.ndarray, np.ndarray]
             The transfer function from wind stress to oceanic velocity.
+    
+    Raises
+    ------
+    ValueError
+        If the depth z is not positive.
+
     """
-    # write a check that z is positive
+    # check that z is positive
     if np.any(z < 0):
         raise ValueError("Depth z must be positive.")
 
@@ -65,10 +69,6 @@ def transfer_function(
     # convert to radians per second
     omega_ = omega_ / 86400
     cor_freq_ = cor_freq / 86400
-
-    # Get the lengths of 'omega' and 'z', or 1 if they are scalars
-    # omega_len = len(omega_)
-    # z_len = len(z_)
 
     # Create the transfer function array
     [omega_grid, z_grid] = np.meshgrid(omega_, z_)
@@ -109,7 +109,7 @@ def _transfer_function_no_slip(
     density: float,
 ) -> np.ndarray:
     """
-    Compute the transfer function from wind stress to oceanic velocity with no-slip boundary. Lilly version.
+    Compute the transfer function from wind stress to oceanic velocity with no-slip boundary.
     """
 
     zo = np.divide(delta**2, mu)
@@ -259,6 +259,7 @@ def _transfer_function_general_no_slip(
         omega[bool_idx], z[bool_idx], coriolis_frequency, delta, mu, bld, density
     )
 
+    # inertial limit
     G = _transfer_function_inertiallimit(
         G, omega, z, coriolis_frequency, delta, mu, bld, density
     )
@@ -275,6 +276,9 @@ def _transfer_function_general_no_slip_expansion(
     bld: float,
     density: float,
 ) -> np.ndarray:
+    """
+    Compute the transfer function from wind stress to oceanic velocity with no-slip boundary, large argument approximation.
+    """
     zo = np.divide(delta**2, mu)
     s = np.sign(coriolis_frequency) * np.sign(1 + omega / coriolis_frequency)
     xiz, xih, xi0 = _xis(s, zo, delta, z, omega, coriolis_frequency, bld)
@@ -321,6 +325,9 @@ def _transfer_function_inertiallimit(
     bld: float,
     density: float,
 ) -> np.ndarray:
+    """
+    Compute the transfer function from wind stress to oceanic velocity with no-slip boundary, inertial limit.
+    """
     zo = delta**2 / mu
     bool_idx = omega == -coriolis_freq
 
@@ -350,7 +357,7 @@ def _transfer_function_free_slip(
     solver: str = "general",
 ) -> np.ndarray:
     """
-    Compute the transfer function from wind stress to oceanic velocity with free-slip boundary.
+    Compute the transfer function from wind stress to oceanic velocity with free-slip boundary condition.
     """
     zo = np.divide(delta**2, mu)
     s = np.sign(coriolis_frequency) * np.sign(1 + omega / coriolis_frequency)
