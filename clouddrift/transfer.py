@@ -15,6 +15,7 @@ from typing import Tuple, Union
 import numpy as np
 from scipy.special import factorial, jv, kv
 
+
 def transfer_function(
     omega: Union[float, np.ndarray],
     z: Union[float, np.ndarray],
@@ -51,7 +52,7 @@ def transfer_function(
     -------
         G: Tuple[np.ndarray, np.ndarray]
             The transfer function from wind stress to oceanic velocity.
-    
+
     Raises
     ------
     ValueError
