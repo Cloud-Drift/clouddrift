@@ -105,8 +105,8 @@ def wind_transfer(
     # set G to nan where z > bld; may be mathematcially possible but not physically meaningful
     G[z_grid > bld] = np.nan
 
-    # analytical gradients of the transfer function for mu = 0
-    if mu == 0:
+    # analytical gradients of the transfer function for mu = 0 and free slip
+    if boundary_condition == "no-slip" and mu == 0:
         s = np.sign(cor_freq_) * np.sign(1 + omega_grid / cor_freq_)
         Gamma = (
             np.sqrt(2)

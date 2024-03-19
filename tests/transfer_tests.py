@@ -95,22 +95,7 @@ class TransferFunctionTestValues(unittest.TestCase):
             )
         )
 
-    def test_output_size_wind_transfer_free_slip_mu_is_0(self):
-        G, dG1, dG2 = wind_transfer(
-            self.omega,
-            self.z,
-            self.cor_freq,
-            self.delta,
-            self.mu,
-            self.bld,
-            boundary_condition="free-slip",
-            density=self.density,
-        )
-        self.assertEqual(G.shape, (len(self.z), len(self.omega)))
-        self.assertEqual(dG1.shape, (len(self.z), len(self.omega)))
-        self.assertEqual(dG2.shape, (len(self.z), len(self.omega)))
-
-    def test_output_size_wind_transfer_free_slip_mu_not_0(self):
+    def test_output_size_wind_transfer_free_slip(self):
         G, dG1, dG2 = wind_transfer(
             self.omega,
             self.z,
@@ -256,9 +241,7 @@ class TransferFunctionTestLimits(unittest.TestCase):
         self.fc = 1e-4
         self.delta = np.sqrt(2 * np.array(self.K0) / self.fc)
         self.mu = 2 * np.array(self.K1) / self.fc
-        self.omega = np.fft.fftfreq(1000, 1)[
-            "two"
-        ]  # Placeholder for `fourier` equivalent
+        self.omega = np.fft.fftfreq(1000, 1)["two"]
         self.slipstr = "noslip"
 
     def wind_transfer_test(self):
