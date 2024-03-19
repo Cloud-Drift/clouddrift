@@ -77,7 +77,7 @@ def sample_ragged_array() -> RaggedArray:
             xr.Dataset(coords=xr_coords, data_vars=xr_data, attrs=attrs_global)
         )
 
-    ra = RaggedArray.from_items(
+    ra = RaggedArray.from_files(
         [0, 1, 2],
         lambda i: list_ds[i],
         ["id", "time"],

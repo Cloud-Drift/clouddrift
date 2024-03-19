@@ -359,7 +359,7 @@ def to_raggedarray(basin: BasinOption = BasinOption.BOTH) -> RaggedArray:
         if f.name != "time":
             data_fields.append(f.name)
 
-    ra = RaggedArray.from_items(
+    ra = RaggedArray.from_files(
         indices=list(track_data_map.keys()),
         name_coords=["id", "time"],
         name_meta=metadata_fields,

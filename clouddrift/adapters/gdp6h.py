@@ -505,7 +505,7 @@ def to_raggedarray(
     """
     ids = download(GDP_DATA_URL, tmp_path, drifter_ids, n_random_id)
 
-    ra = RaggedArray.from_items(
+    ra = RaggedArray.from_files(
         indices=ids,
         preprocess_func=preprocess,
         name_coords=gdp.GDP_COORDS,
