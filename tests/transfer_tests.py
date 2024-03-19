@@ -123,7 +123,7 @@ class TransferFunctionTestValues(unittest.TestCase):
             )
 
 
-class wind_transfer_test_gradient(unittest.TestCase):
+class TransferFunctionTestGradient(unittest.TestCase):
     delta = 10 ** np.arange(-1, 0.05, 3)
     bld = 10 ** np.arange(np.log10(15.15), 5, 0.05)
     [delta_grid, bld_grid] = np.meshgrid(delta, bld)
