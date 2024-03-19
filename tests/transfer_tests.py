@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+from numpy.lib.scimath import sqrt
 from scipy.special import iv, kv
 
 from clouddrift.transfer import (
@@ -223,7 +224,7 @@ class TransferFunctionTestGradient(unittest.TestCase):
         eps1 = np.max(
             (
                 np.abs(dG_ddelta_fd[bool_indices] - dG_ddelta[bool_indices])
-                / np.sqrt(
+                / sqrt(
                     np.abs(dG_ddelta_fd[bool_indices]) ** 2
                     + np.abs(dG_ddelta[bool_indices]) ** 2
                 )
@@ -235,7 +236,7 @@ class TransferFunctionTestGradient(unittest.TestCase):
         eps2 = np.max(
             (
                 np.abs(dG_dbld_fd[bool_indices] - dG_dbld[bool_indices])
-                / np.sqrt(
+                / sqrt(
                     np.abs(dG_dbld_fd[bool_indices]) ** 2
                     + np.abs(dG_dbld[bool_indices]) ** 2
                 )
@@ -254,7 +255,7 @@ class TransferFunctionTestLimits(unittest.TestCase):
         self.K0 = [0, 1 / 10, 1 / 10]
         self.K1 = [1, 0, 1]
         self.fc = 1e-4
-        self.delta = np.sqrt(2 * np.array(self.K0) / self.fc)
+        self.delta = sqrt(2 * np.array(self.K0) / self.fc)
         self.mu = 2 * np.array(self.K1) / self.fc
         self.omega = np.fft.fftfreq(1000, 1)["two"]
         self.slipstr = "noslip"
@@ -278,7 +279,7 @@ class TestKvTilde(unittest.TestCase):
     def test_kvtilde(self):
         atol = 1e-10
         for s in [1, -1]:
-            z = np.sqrt(s * 1j) * np.arange(15, 100.01, 0.01).reshape(-1, 1)
+            z = sqrt(s * 1j) * np.arange(15, 100.01, 0.01).reshape(-1, 1)
             bk0 = np.zeros((len(z), 2), dtype=np.complex128)
             bk = np.zeros_like(bk0)
 
@@ -312,8 +313,8 @@ class TestKvTilde(unittest.TestCase):
                     msg=f"Failed: {test_name}",
                 )
 
-            bk0 = np.sqrt(np.pi / (2 * z)) * (1 - 1 / (8 * z))
-            bk1 = np.sqrt(np.pi / (2 * z)) * (1 + 3 / (8 * z))
+            bk0 = sqrt(np.pi / (2 * z)) * (1 - 1 / (8 * z))
+            bk1 = sqrt(np.pi / (2 * z)) * (1 + 3 / (8 * z))
 
             if s == 1:
                 test_name = "2-term vs. analytic for z with phase of pi/4"
@@ -333,7 +334,7 @@ class TestIvTilde(unittest.TestCase):
     def test_ivtilde(self):
         atol = 1e-10
         for s in [1, -1]:
-            z = np.sqrt(s * 1j) * np.arange(23.0, 100.0, 0.01).reshape(-1, 1)
+            z = sqrt(s * 1j) * np.arange(23.0, 100.0, 0.01).reshape(-1, 1)
             bi0 = np.zeros((len(z), 2), dtype=np.complex128)
             bi = np.zeros_like(bi0)
 
@@ -366,8 +367,8 @@ class TestIvTilde(unittest.TestCase):
                     msg=f"Failed: {test_name}",
                 )
 
-            bi0 = np.sqrt(1 / (2 * np.pi * z)) * (1 + 1 / (8 * z))
-            bi1 = np.sqrt(1 / (2 * np.pi * z)) * (1 - 3 / (8 * z))
+            bi0 = sqrt(1 / (2 * np.pi * z)) * (1 + 1 / (8 * z))
+            bi1 = sqrt(1 / (2 * np.pi * z)) * (1 - 3 / (8 * z))
 
             if s == 1:
                 test_name = "2-term vs. analytic for z with phase of pi/4"
@@ -395,24 +396,24 @@ class TestXis(unittest.TestCase):
         bld = 100.0
         expected_xiz = (
             2
-            * np.sqrt(2)
+            * sqrt(2)
             * _rot(s * np.pi / 4)
             * np.divide(zo, delta)
-            * np.sqrt((1 + np.divide(z, zo)) * np.abs(1 + omega / coriolis_frequency))
+            * sqrt((1 + np.divide(z, zo)) * np.abs(1 + omega / coriolis_frequency))
         )
         expected_xih = (
             2
-            * np.sqrt(2)
+            * sqrt(2)
             * _rot(s * np.pi / 4)
             * np.divide(zo, delta)
-            * np.sqrt((1 + np.divide(bld, zo)) * np.abs(1 + omega / coriolis_frequency))
+            * sqrt((1 + np.divide(bld, zo)) * np.abs(1 + omega / coriolis_frequency))
         )
         expected_xi0 = (
             2
-            * np.sqrt(2)
+            * sqrt(2)
             * _rot(s * np.pi / 4)
             * np.divide(zo, delta)
-            * np.sqrt(np.abs(1 + omega / coriolis_frequency))
+            * sqrt(np.abs(1 + omega / coriolis_frequency))
         )
         assert np.allclose(
             _xis(s, zo, delta, z, omega, coriolis_frequency, bld),
@@ -430,24 +431,24 @@ class TestXis(unittest.TestCase):
         bld = 7.0
         expected_xiz = (
             2
-            * np.sqrt(2)
+            * sqrt(2)
             * _rot(s * np.pi / 4)
             * np.divide(zo, delta)
-            * np.sqrt((1 + np.divide(z, zo)) * np.abs(1 + omega / coriolis_frequency))
+            * sqrt((1 + np.divide(z, zo)) * np.abs(1 + omega / coriolis_frequency))
         )
         expected_xih = (
             2
-            * np.sqrt(2)
+            * sqrt(2)
             * _rot(s * np.pi / 4)
             * np.divide(zo, delta)
-            * np.sqrt((1 + np.divide(bld, zo)) * np.abs(1 + omega / coriolis_frequency))
+            * sqrt((1 + np.divide(bld, zo)) * np.abs(1 + omega / coriolis_frequency))
         )
         expected_xi0 = (
             2
-            * np.sqrt(2)
+            * sqrt(2)
             * _rot(s * np.pi / 4)
             * np.divide(zo, delta)
-            * np.sqrt(np.abs(1 + omega / coriolis_frequency))
+            * sqrt(np.abs(1 + omega / coriolis_frequency))
         )
         assert np.allclose(
             _xis(s, zo, delta, z, omega, coriolis_frequency, bld),
@@ -465,24 +466,24 @@ class TestXis(unittest.TestCase):
         bld = 10.0
         expected_xiz = (
             2
-            * np.sqrt(2)
+            * sqrt(2)
             * _rot(s * np.pi / 4)
             * np.divide(zo, delta)
-            * np.sqrt((1 + np.divide(z, zo)) * np.abs(1 + omega / coriolis_frequency))
+            * sqrt((1 + np.divide(z, zo)) * np.abs(1 + omega / coriolis_frequency))
         )
         expected_xih = (
             2
-            * np.sqrt(2)
+            * sqrt(2)
             * _rot(s * np.pi / 4)
             * np.divide(zo, delta)
-            * np.sqrt((1 + np.divide(bld, zo)) * np.abs(1 + omega / coriolis_frequency))
+            * sqrt((1 + np.divide(bld, zo)) * np.abs(1 + omega / coriolis_frequency))
         )
         expected_xi0 = (
             2
-            * np.sqrt(2)
+            * sqrt(2)
             * _rot(s * np.pi / 4)
             * np.divide(zo, delta)
-            * np.sqrt(np.abs(1 + omega / coriolis_frequency))
+            * sqrt(np.abs(1 + omega / coriolis_frequency))
         )
         assert np.allclose(
             _xis(s, zo, delta, z, omega, coriolis_frequency, bld),
