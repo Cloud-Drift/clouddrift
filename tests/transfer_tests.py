@@ -143,7 +143,7 @@ class wind_transfer_test_gradient(unittest.TestCase):
     bld = 10 ** np.arange(np.log10(15.15), 5, 0.05)
     [delta_grid, bld_grid] = np.meshgrid(delta, bld)
 
-    def test_gradient(self):
+    def test_gradient_ekman_case(self):
         # Test the gradient of the transfer function, no-slip
         omega = np.array([1e-4])
         z = 15
@@ -241,11 +241,8 @@ class wind_transfer_test_gradient(unittest.TestCase):
                 )
             )
         )
-        print((eps1), (eps2))
-        print(np.log10(eps1), np.log10(eps2))
-
         self.assertTrue(
-            eps1 < -4 and eps2 < -4,
+            np.log10(eps1) < -4 and np.log10(eps2) < -4,
             "wind_transfer analytic and numerical gradients match for Ekman case",
         )
 
