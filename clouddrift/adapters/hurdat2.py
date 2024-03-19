@@ -5,7 +5,6 @@ import tempfile
 from dataclasses import dataclass, field, fields
 from datetime import datetime, timezone
 from io import StringIO
-from uuid import uuid4
 
 import numpy as np
 import xarray as xr
@@ -94,7 +93,6 @@ class HeaderLine:
     year: int = field(metadata={"long_name": "Year"})
     name: str = field(metadata={"long_name": "Name", "na_values": "UNNAMED"})
     rowsize: int = field(metadata={"long_name": "Number of best track entries"})
-    id: str = field(default_factory=lambda: uuid4().hex)
 
 
 @dataclass
@@ -220,7 +218,15 @@ class TrackData:
     header: HeaderLine
     data: list[DataLine]
 
-    def to_xarray_dataset(self) -> xr.Dataset:
+    def get_genesis_date(self) -> float:
+        results = list(
+            filter(lambda d: d.record_identifier == RecordIdentifier.GENESIS, self.data)
+        )
+        if len(results) > 0:
+            return results[0].time
+        return sorted(self.data, key=lambda x: x.time)[0].time
+
+    def to_xarray_dataset(self, id_: int) -> xr.Dataset:
         return xr.Dataset(
             {
                 "basin": (["traj"], np.array([self.header.basin])),
@@ -292,7 +298,7 @@ class TrackData:
                 ),
             },
             coords={
-                "id": (["traj"], np.array([self.header.id])),
+                "id": (["traj"], np.array([id_])),
                 "time": (
                     ["obs"],
                     np.array([line.time for line in self.data], dtype=np.float64),
@@ -337,6 +343,11 @@ def to_raggedarray(basin: BasinOption = BasinOption.BOTH) -> RaggedArray:
     for _, fp, _ in download_requests:
         track_data.extend(extract_track_data(fp))
 
+    track_data = sorted(track_data, key=lambda td: td.get_genesis_date())
+    track_data_map: dict[int, TrackData] = {
+        idx: track_data[idx] for idx in range(0, len(track_data))
+    }
+
     metadata_fields = list()
     data_fields = list()
 
@@ -349,13 +360,13 @@ def to_raggedarray(basin: BasinOption = BasinOption.BOTH) -> RaggedArray:
             data_fields.append(f.name)
 
     ra = RaggedArray.from_items(
-        indices=track_data,
+        indices=list(track_data_map.keys()),
         name_coords=["id", "time"],
         name_meta=metadata_fields,
         name_data=data_fields,
         name_dims={"traj": "rows", "obs": "obs"},
-        rowsize_func=TrackData.get_rowsize,
-        preprocess_func=TrackData.to_xarray_dataset,
+        rowsize_func=lambda idx: track_data_map[idx].get_rowsize(),
+        preprocess_func=lambda idx: track_data_map[idx].to_xarray_dataset(idx),
         attrs_global=TrackData.global_attrs,
         attrs_variables={
             field.name: field.metadata
