@@ -67,22 +67,6 @@ def download(
     # Create a temporary directory if doesn't already exists.
     os.makedirs(tmp_path, exist_ok=True)
 
-    download_requests = _get_download_requests(url, tmp_path, drifter_ids, n_random_id)
-    download_with_progress(download_requests)
-
-    # Download the metadata so we can order the drifter IDs by end date.
-    gdp_metadata = gdp.get_gdp_metadata()
-    drifter_ids = [
-        int(os.path.basename(f).split("_")[2].split(".")[0])
-        for _, f, _ in download_requests
-    ]
-
-    return gdp.order_by_date(gdp_metadata, drifter_ids)
-
-
-def _get_download_requests(
-    url, tmp_path, drifter_ids, n_random_id
-) -> list[tuple[str, str, None]]:
     pattern = "drifter_6h_[0-9]*.nc"
     directory_list = [
         "netcdf_1_5000",
@@ -112,10 +96,21 @@ def _get_download_requests(
         else:
             rng = np.random.RandomState(42)
             drifter_urls = list(rng.choice(drifter_urls, n_random_id, replace=False))
-    return [
-        (url, os.path.join(tmp_path, os.path.basename(url)), None)
-        for url in drifter_urls
+
+    download_with_progress(
+        [
+            (url, os.path.join(tmp_path, os.path.basename(url)), None)
+            for url in drifter_urls
+        ]
+    )
+
+    # Download the metadata so we can order the drifter IDs by end date.
+    gdp_metadata = gdp.get_gdp_metadata()
+    drifter_ids = [
+        int(os.path.basename(f).split("_")[2].split(".")[0]) for f in drifter_urls
     ]
+
+    return gdp.order_by_date(gdp_metadata, drifter_ids)
 
 
 def preprocess(index: int, **kwargs) -> xr.Dataset:
