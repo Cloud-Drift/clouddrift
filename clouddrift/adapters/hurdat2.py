@@ -15,7 +15,7 @@ from clouddrift.raggedarray import RaggedArray
 
 _DEFAULT_NAME = "hurdat2"
 _ATLANTIC_BASIN_URL = "https://www.aoml.noaa.gov/hrd/hurdat/hurdat2.html"
-_NORTHEAST_PACIFIC_BASIN_URL = "https://www.aoml.noaa.gov/hrd/hurdat/hurdat2-nepac.html"
+_PACIFIC_BASIN_URL = "https://www.aoml.noaa.gov/hrd/hurdat/hurdat2-nepac.html"
 
 _DEFAULT_FILE_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", _DEFAULT_NAME)
 os.makedirs(_DEFAULT_FILE_PATH, exist_ok=True)
@@ -23,7 +23,7 @@ os.makedirs(_DEFAULT_FILE_PATH, exist_ok=True)
 
 class BasinOption(int, enum.Enum):
     ATLANTIC = 1
-    NORTHEAST_PACIFIC = 2
+    PACIFIC = 2
     BOTH = 3
 
 
@@ -321,11 +321,11 @@ def _get_download_requests(basin: BasinOption):
         file_name = _ATLANTIC_BASIN_URL.split("/")[-1]
         fp = os.path.join(_DEFAULT_FILE_PATH, file_name)
         download_requests.append((_ATLANTIC_BASIN_URL, fp, None))
-        ...
-    if basin & BasinOption.NORTHEAST_PACIFIC == BasinOption.NORTHEAST_PACIFIC:
-        file_name = _NORTHEAST_PACIFIC_BASIN_URL.split("/")[-1]
+
+    if basin & BasinOption.PACIFIC == BasinOption.PACIFIC:
+        file_name = _PACIFIC_BASIN_URL.split("/")[-1]
         fp = os.path.join(_DEFAULT_FILE_PATH, file_name)
-        download_requests.append((_NORTHEAST_PACIFIC_BASIN_URL, fp, None))
+        download_requests.append((_PACIFIC_BASIN_URL, fp, None))
     return download_requests
 
 

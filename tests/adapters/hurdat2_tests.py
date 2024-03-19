@@ -14,14 +14,14 @@ class hurdat2_tests(unittest.TestCase):
             assert len(download_requests) == 1
             assert url == hurdat2._ATLANTIC_BASIN_URL
 
-        with self.subTest("Select Northeast Pacific Basin"):
+        with self.subTest("Select Pacific Basin"):
             download_requests = hurdat2._get_download_requests(
-                hurdat2.BasinOption.NORTHEAST_PACIFIC
+                hurdat2.BasinOption.PACIFIC
             )
             url, _, _ = download_requests[0]
 
             assert len(download_requests) == 1
-            assert url == hurdat2._NORTHEAST_PACIFIC_BASIN_URL
+            assert url == hurdat2._PACIFIC_BASIN_URL
 
         with self.subTest("Select Both Option"):
             download_requests = hurdat2._get_download_requests(hurdat2.BasinOption.BOTH)
@@ -30,14 +30,14 @@ class hurdat2_tests(unittest.TestCase):
 
             assert len(download_requests) == 2
             assert atlantic_url == hurdat2._ATLANTIC_BASIN_URL
-            assert pacific_url == hurdat2._NORTHEAST_PACIFIC_BASIN_URL
+            assert pacific_url == hurdat2._PACIFIC_BASIN_URL
 
         with self.subTest("Select Both Explicitly"):
             download_requests = hurdat2._get_download_requests(
-                hurdat2.BasinOption.NORTHEAST_PACIFIC | hurdat2.BasinOption.ATLANTIC
+                hurdat2.BasinOption.PACIFIC | hurdat2.BasinOption.ATLANTIC
             )
             url, _, _ = download_requests[0]
 
             assert len(download_requests) == 2
             assert atlantic_url == hurdat2._ATLANTIC_BASIN_URL
-            assert pacific_url == hurdat2._NORTHEAST_PACIFIC_BASIN_URL
+            assert pacific_url == hurdat2._PACIFIC_BASIN_URL
