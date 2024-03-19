@@ -16,7 +16,7 @@ import numpy as np
 from scipy.special import factorial, iv, kv
 
 
-def transfer_function(
+def wind_transfer(
     omega: Union[float, np.ndarray],
     z: Union[float, np.ndarray],
     cor_freq: float,
@@ -25,7 +25,7 @@ def transfer_function(
     bld: float,
     boundary_condition="no-slip",
     density=1025,
-) -> np.ndarray:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute the transfer function from wind stress to oceanic velocity based on the models of
     Elipot and Gille (2009) and Lilly and Elipot (2021).
@@ -54,6 +54,11 @@ def transfer_function(
     -------
         G: np.ndarray
             The transfer function from wind stress to oceanic velocity in units of kg-1 m 2 s.
+        ddelta: np.ndarray
+            The gradient of transfer function from the rate of change of the Ekman depth.
+        dh: np.ndarray
+            The gradient of transfer function from to the rate of change of the boundary layer depth.
+
 
     Raises
     ------
@@ -77,7 +82,7 @@ def transfer_function(
     [omega_grid, z_grid] = np.meshgrid(omega_, z_)
 
     if boundary_condition == "no-slip":
-        G = _transfer_function_no_slip(
+        G = _wind_transfer_no_slip(
             omega_grid,
             z_grid,
             cor_freq_,
@@ -87,7 +92,7 @@ def transfer_function(
             density,
         )
     elif boundary_condition == "free-slip":
-        G = _transfer_function_free_slip(
+        G = _wind_transfer_free_slip(
             omega_grid,
             z_grid,
             cor_freq_,
@@ -100,10 +105,44 @@ def transfer_function(
     # set G to nan where z > bld; may be mathematcially possible but not physically meaningful
     G[z_grid > bld] = np.nan
 
-    return G
+    # analytical gradients of the transfer function for mu = 0
+    if mu == 0:
+        s = np.sign(cor_freq_) * np.sign(1 + omega_grid / cor_freq_)
+        Gamma = (
+            np.sqrt(2)
+            * _rot(s * np.pi / 4)
+            * np.sqrt(np.abs(1 + omega_grid / cor_freq_))
+        )
+        ddelta1 = (
+            (Gamma * (bld / delta) * np.tanh(Gamma * (bld / delta)) - 1) * G / delta
+        )
+
+        numer = np.exp(Gamma * (-z_grid / delta)) + np.exp(
+            -Gamma * (2 * bld - z_grid) / delta
+        )
+        denom = 1 + np.exp(-Gamma * (2 * bld / delta))
+        ddelta2 = (
+            -2
+            / (delta**2 * np.abs(cor_freq_) * density)
+            * (bld - z_grid)
+            / delta
+            * (numer / denom)
+        )
+
+        dG_ddelta = ddelta1 + ddelta2
+
+        dbld1 = -Gamma / delta * np.tanh(Gamma * (bld / delta)) * G
+        dbld2 = 2 / (delta**2 * np.abs(cor_freq_) * density) * (numer / denom)
+        dG_dbld = dbld1 + dbld2
+
+    else:
+        dG_ddelta = np.array([], dtype=float)  # Empty array for consistency
+        dG_dbld = np.array([], dtype=float)
+
+    return G, dG_ddelta, dG_dbld
 
 
-def _transfer_function_no_slip(
+def _wind_transfer_no_slip(
     omega_grid: np.ndarray,
     z_grid: np.ndarray,
     coriolis_frequency: float,
@@ -218,14 +257,14 @@ def _transfer_function_no_slip(
                 G = 0.5 * coeff * np.log(bld / z_grid)
         else:
             # finite layer mixed
-            G = _transfer_function_general_no_slip(
+            G = _wind_transfer_general_no_slip(
                 omega_grid, z_grid, coriolis_frequency, delta, mu, bld, density
             )
 
     return G
 
 
-def _transfer_function_general_no_slip(
+def _wind_transfer_general_no_slip(
     omega: np.ndarray,
     z: np.ndarray,
     coriolis_frequency: float,
@@ -258,19 +297,19 @@ def _transfer_function_general_no_slip(
 
     # large argument approximation
     bool_idx = np.log10(np.abs(xiz)) > 2.9
-    G[bool_idx] = _transfer_function_general_no_slip_expansion(
+    G[bool_idx] = _wind_transfer_general_no_slip_expansion(
         omega[bool_idx], z[bool_idx], coriolis_frequency, delta, mu, bld, density
     )
 
     # inertial limit
-    G = _transfer_function_inertiallimit(
+    G = _wind_transfer_inertiallimit(
         G, omega, z, coriolis_frequency, delta, mu, bld, density
     )
 
     return G
 
 
-def _transfer_function_general_no_slip_expansion(
+def _wind_transfer_general_no_slip_expansion(
     omega: np.ndarray,
     z: np.ndarray,
     coriolis_frequency: float,
@@ -318,7 +357,7 @@ def _transfer_function_general_no_slip_expansion(
     return G
 
 
-def _transfer_function_inertiallimit(
+def _wind_transfer_inertiallimit(
     G: np.ndarray,
     omega: np.ndarray,
     z: np.ndarray,
@@ -349,7 +388,7 @@ def _transfer_function_inertiallimit(
     return G
 
 
-def _transfer_function_free_slip(
+def _wind_transfer_free_slip(
     omega: np.ndarray,
     z: np.ndarray,
     coriolis_frequency: float,
@@ -357,11 +396,11 @@ def _transfer_function_free_slip(
     mu: float,
     bld: float,
     density: float,
-    solver: str = "general",
 ) -> np.ndarray:
     """
     Transfer function from wind stress to oceanic velocity with free-slip boundary condition.
     """
+    # this should consider the cases when mu = 0
     zo = np.divide(delta**2, mu)
     s = np.sign(coriolis_frequency) * np.sign(1 + omega / coriolis_frequency)
 
@@ -379,9 +418,68 @@ def _transfer_function_free_slip(
     )
     k0z, i0z, k1h, i1h, k10, i10 = bessels_freeslip(xiz, xih, xi0=xi0)
 
-    numer = i0z * k1h + i1h * k0z
-    denom = i1h * k10 - i10 * k1h
-    G = coeff * np.divide(numer, denom)
+    K0 = 0.5 * delta**2 * np.abs(coriolis_frequency)
+    K1 = 0.5 * mu * np.abs(coriolis_frequency)
+
+    if K0 != 0 and K1 != 0:
+        numer = i0z * k1h + i1h * k0z
+        denom = i1h * k10 - i10 * k1h
+        G = coeff * np.divide(numer, denom)
+
+    elif mu == 0:
+        coeff = (np.sqrt(2) * _rot(s * np.pi / 4)) / (
+            delta
+            * np.abs(coriolis_frequency)
+            * density
+            * np.sqrt(np.abs(1 + omega / coriolis_frequency))
+        )
+        cosharg = (
+            np.sqrt(2)
+            * _rot(s * np.pi / 4)
+            * (bld - z)
+            / delta
+            * np.sqrt(np.abs(1 + omega / coriolis_frequency))
+        )
+        sinharg = (
+            np.sqrt(2)
+            * np.exp(1j * s * np.pi / 4)
+            * bld
+            / delta
+            * np.sqrt(np.abs(1 + omega / coriolis_frequency))
+        )
+        G = coeff * np.cosh(cosharg) / np.sinh(sinharg)
+
+    elif delta == 0:
+        coeff = 2 / (density * K1)
+        argument = (
+            2
+            * np.exp(1j * s * np.pi / 4)
+            * np.sqrt(
+                (z / (K1 / np.abs(coriolis_frequency)))
+                * np.abs(1 + omega / coriolis_frequency)
+            )
+        )
+        k0z = kv(0, argument)
+        k1h = kv(
+            1,
+            2
+            * np.exp(1j * s * np.pi / 4)
+            * np.sqrt(
+                (bld / (K1 / np.abs(coriolis_frequency)))
+                * np.abs(1 + omega / coriolis_frequency)
+            ),
+        )
+        i0z = iv(0, argument)
+        i1h = iv(
+            1,
+            2
+            * np.exp(1j * s * np.pi / 4)
+            * np.sqrt(
+                (bld / (K1 / np.abs(coriolis_frequency)))
+                * np.abs(1 + omega / coriolis_frequency)
+            ),
+        )
+        G = coeff * (k0z + k1h * i0z / i1h)
 
     return G
 
@@ -452,17 +550,17 @@ def besseltildes_noslip(
     """
     Compute the nterms expansion about the large-argument exponential behavior of the Bessel functions
     """
-    k0z = besselktilde(0, xiz, nterms)
-    i0z = besselitilde(0, xiz, nterms)
-    k0h = besselktilde(0, xih, nterms)
-    i0h = besselitilde(0, xih, nterms)
-    k10 = besselktilde(1, xi0, nterms)
-    i10 = besselitilde(1, xi0, nterms)
+    k0z = kvtilde(0, xiz, nterms)
+    i0z = ivtilde(0, xiz, nterms)
+    k0h = kvtilde(0, xih, nterms)
+    i0h = ivtilde(0, xih, nterms)
+    k10 = kvtilde(1, xi0, nterms)
+    i10 = ivtilde(1, xi0, nterms)
 
     return k0z, i0z, k0h, i0h, k10, i10
 
 
-def besselktilde(
+def kvtilde(
     nu: int,
     z: Union[float, np.ndarray],
     nterms=30,
@@ -498,7 +596,7 @@ def besselktilde(
     return K
 
 
-def besselitilde(
+def ivtilde(
     nu: int,
     z: Union[float, np.ndarray],
     nterms=30,

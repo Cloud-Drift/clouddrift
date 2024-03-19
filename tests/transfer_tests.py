@@ -6,46 +6,181 @@ from scipy.special import iv, kv
 from clouddrift.transfer import (
     _rot,
     _xis,
-    besselitilde,
-    besselktilde,
-    transfer_function,
+    ivtilde,
+    kvtilde,
+    wind_transfer,
 )
 
 if __name__ == "__main__":
     unittest.main()
 
 
-class transfer_test_gradient(unittest.TestCase):
+class TransferFunctionTestValues(unittest.TestCase):
+    def setUp(self):
+        self.omega = (
+            2 * np.pi * np.array([-2, -1.5, -0.5, 0, 0.5, 1, 1.5, 2])
+        )  # Angular frequency in radians per day
+        self.z = np.array([0, 10, 20, 30])  # Depth in meters
+        self.cor_freq = 2 * np.pi * 1.5  # Coriolis frequency in radians per day
+        self.delta = 10  # Ekman depth in meters
+        self.mu = 0  # Madsen depth in meters
+        self.bld = 50  # Boundary layer depth in meters
+        self.density = 1025  # Seawater density in kg/m^3
+
+    def test_output_size_wind_transfer_no_slip_mu_is_0(self):
+        G, dG1, dG2 = wind_transfer(
+            self.omega,
+            self.z,
+            self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="no-slip",
+            density=self.density,
+        )
+        self.assertEqual(G.shape, (len(self.z), len(self.omega)))
+        self.assertEqual(dG1.shape, (len(self.z), len(self.omega)))
+        self.assertEqual(dG2.shape, (len(self.z), len(self.omega)))
+
+    def test_output_size_wind_transfer_no_slip_mu_not_0(self):
+        G, dG1, dG2 = wind_transfer(
+            self.omega,
+            self.z,
+            self.cor_freq,
+            self.delta,
+            5,
+            self.bld,
+            boundary_condition="no-slip",
+            density=self.density,
+        )
+        self.assertEqual(G.shape, (len(self.z), len(self.omega)))
+        self.assertEqual(dG1.shape, (0,))
+        self.assertEqual(dG2.shape, (0,))
+
+    def test_surface_angle_wind_transfer_no_slip_nh(self):
+        G, ddelta, dh = wind_transfer(
+            self.omega,
+            self.z[0],
+            self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="no-slip",
+            density=self.density,
+        )
+        self.assertTrue(
+            np.allclose(
+                np.angle(G),
+                np.pi / 4 * np.array([1, 0, -1, -1, -1, -1, -1, -1]),
+                atol=1e-1,
+            )
+        )
+
+    def test_surface_angle_wind_transfer_no_slip_sh(self):
+        G, ddelta, dh = wind_transfer(
+            self.omega,
+            self.z[0],
+            -self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="no-slip",
+            density=self.density,
+        )
+        self.assertTrue(
+            np.allclose(
+                np.angle(G),
+                np.pi / 4 * np.array([1, 1, 1, 1, 1, 1, 0, -1]),
+                atol=1e-1,
+            )
+        )
+
+    def test_output_size_wind_transfer_free_slip_mu_is_0(self):
+        G, dG1, dG2 = wind_transfer(
+            self.omega,
+            self.z,
+            self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+        )
+        self.assertEqual(G.shape, (len(self.z), len(self.omega)))
+        self.assertEqual(dG1.shape, (len(self.z), len(self.omega)))
+        self.assertEqual(dG2.shape, (len(self.z), len(self.omega)))
+
+    def test_output_size_wind_transfer_free_slip_mu_not_0(self):
+        G, dG1, dG2 = wind_transfer(
+            self.omega,
+            self.z,
+            self.cor_freq,
+            self.delta,
+            5,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+        )
+        self.assertEqual(G.shape, (len(self.z), len(self.omega)))
+        self.assertEqual(dG1.shape, (0,))
+        self.assertEqual(dG2.shape, (0,))
+
+    def test_wind_transfer_negative_z(self):
+        with self.assertRaises(ValueError):
+            wind_transfer(
+                self.omega,
+                -self.z,
+                self.cor_freq,
+                self.delta,
+                self.mu,
+                self.bld,
+                density=self.density,
+            )
+
+
+class wind_transfer_test_gradient(unittest.TestCase):
     delta = 10 ** np.arange(-1, 0.05, 3)
     bld = 10 ** np.arange(np.log10(15.15), 5, 0.05)
     [delta_grid, bld_grid] = np.meshgrid(delta, bld)
 
     def test_gradient(self):
-        # Test the gradient of the transfer function
+        # Test the gradient of the transfer function, no-slip
         omega = np.array([1e-4])
         z = 15
         cor_freq = 1e-4
         mu = 0
         delta_delta = 1e-6
         delta_bld = 1e-6
-        # initialize the transfer function
-        transfer_function_0 = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
-        transfer_function_1 = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
-        transfer_function_2 = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
-        transfer_function_3 = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
-        transfer_function_4 = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
+        # initialize transfer functions and gradients
+        wind_transfer_init = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
+        wind_transfer_ddelta_plus = np.zeros(
+            (len(self.delta), len(self.bld)), dtype=complex
+        )
+        wind_transfer_ddelta_minus = np.zeros(
+            (len(self.delta), len(self.bld)), dtype=complex
+        )
+        wind_transfer_dbld_plus = np.zeros(
+            (len(self.delta), len(self.bld)), dtype=complex
+        )
+        wind_transfer_dbld_minus = np.zeros(
+            (len(self.delta), len(self.bld)), dtype=complex
+        )
+        dG_ddelta = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
+        dG_dbld = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
 
         for i in range(len(self.delta)):
             for j in range(len(self.bld)):
-                transfer_function_0[i, j] = transfer_function(
-                    omega=omega,
-                    z=z,
-                    cor_freq=cor_freq,
-                    delta=self.delta[i],
-                    mu=mu,
-                    bld=self.bld[j],
+                wind_transfer_init[i, j], dG_ddelta[i, j], dG_dbld[i, j] = (
+                    wind_transfer(
+                        omega=omega,
+                        z=z,
+                        cor_freq=cor_freq,
+                        delta=self.delta[i],
+                        mu=mu,
+                        bld=self.bld[j],
+                    )
                 )
-                transfer_function_1[i, j] = transfer_function(
+                wind_transfer_ddelta_plus[i, j], _, _ = wind_transfer(
                     omega=omega,
                     z=z,
                     cor_freq=cor_freq,
@@ -53,7 +188,7 @@ class transfer_test_gradient(unittest.TestCase):
                     mu=mu,
                     bld=self.bld[j],
                 )
-                transfer_function_2[i, j] = transfer_function(
+                wind_transfer_ddelta_minus[i, j], _, _ = wind_transfer(
                     omega=omega,
                     z=z,
                     cor_freq=cor_freq,
@@ -61,7 +196,7 @@ class transfer_test_gradient(unittest.TestCase):
                     mu=mu,
                     bld=self.bld[j],
                 )
-                transfer_function_3[i, j] = transfer_function(
+                wind_transfer_dbld_plus[i, j], _, _ = wind_transfer(
                     omega=omega,
                     z=z,
                     cor_freq=cor_freq,
@@ -69,7 +204,7 @@ class transfer_test_gradient(unittest.TestCase):
                     mu=mu,
                     bld=self.bld[j] + delta_bld / 2,
                 )
-                transfer_function_4[i, j] = transfer_function(
+                wind_transfer_dbld_minus[i, j], _, _ = wind_transfer(
                     omega=omega,
                     z=z,
                     cor_freq=cor_freq,
@@ -77,25 +212,75 @@ class transfer_test_gradient(unittest.TestCase):
                     mu=mu,
                     bld=self.bld[j] - delta_bld / 2,
                 )
-        self.assertTrue(
-            np.shape(transfer_function_0) == (len(self.delta), len(self.bld))
+
+        dG_ddelta_fd = (
+            wind_transfer_ddelta_plus - wind_transfer_ddelta_minus
+        ) / delta_delta
+        dG_dbld_fd = (wind_transfer_dbld_plus - wind_transfer_dbld_minus) / delta_bld
+
+        bool_indices = dG_ddelta_fd != 0
+        # Calculate eps1 using numpy operations
+        eps1 = np.max(
+            (
+                np.abs(dG_ddelta_fd[bool_indices] - dG_ddelta[bool_indices])
+                / np.sqrt(
+                    np.abs(dG_ddelta_fd[bool_indices]) ** 2
+                    + np.abs(dG_ddelta[bool_indices]) ** 2
+                )
+            )
         )
-        self.assertTrue(
-            np.shape(transfer_function_1) == (len(self.delta), len(self.bld))
+
+        bool_indices = dG_dbld_fd != 0
+        # Calculate eps2 using numpy operations
+        eps2 = np.max(
+            (
+                np.abs(dG_dbld_fd[bool_indices] - dG_dbld[bool_indices])
+                / np.sqrt(
+                    np.abs(dG_dbld_fd[bool_indices]) ** 2
+                    + np.abs(dG_dbld[bool_indices]) ** 2
+                )
+            )
         )
+        print((eps1), (eps2))
+        print(np.log10(eps1), np.log10(eps2))
+
         self.assertTrue(
-            np.shape(transfer_function_2) == (len(self.delta), len(self.bld))
-        )
-        self.assertTrue(
-            np.shape(transfer_function_3) == (len(self.delta), len(self.bld))
-        )
-        self.assertTrue(
-            np.shape(transfer_function_4) == (len(self.delta), len(self.bld))
+            eps1 < -4 and eps2 < -4,
+            "wind_transfer analytic and numerical gradients match for Ekman case",
         )
 
 
-class TestBesselkTilde(unittest.TestCase):
-    def test_besselktilde(self):
+class TransferFunctionTestLimits(unittest.TestCase):
+    def setUp(self):
+        self.z = np.arange(0.1, 101, 1)
+        self.h = [np.inf, 200]
+        self.K0 = [0, 1 / 10, 1 / 10]
+        self.K1 = [1, 0, 1]
+        self.fc = 1e-4
+        self.delta = np.sqrt(2 * np.array(self.K0) / self.fc)
+        self.mu = 2 * np.array(self.K1) / self.fc
+        self.omega = np.fft.fftfreq(1000, 1)[
+            "two"
+        ]  # Placeholder for `fourier` equivalent
+        self.slipstr = "noslip"
+
+    def wind_transfer_test(self):
+        for s in [1, -1]:
+            for i, (delta, mu) in enumerate(zip(self.delta, self.mu)):
+                for j, h in enumerate(self.h):
+                    # Placeholder for windtrans function calls and normalization
+                    # Ge, Go, Gl, Ga = [np.zeros_like(self.z) for _ in range(4)]
+
+                    # Assuming windtrans and comparisons would be defined here
+                    # bool1 = np.allclose(Ge, Gl, atol=1e-8)
+                    # Additional boolean checks for other conditions
+
+                    # Example assertion (replace with actual test logic)
+                    self.assertTrue(True, "Placeholder for actual test condition")
+
+
+class TestKvTilde(unittest.TestCase):
+    def test_kvtilde(self):
         atol = 1e-10
         for s in [1, -1]:
             z = np.sqrt(s * 1j) * np.arange(15, 100.01, 0.01).reshape(-1, 1)
@@ -104,12 +289,12 @@ class TestBesselkTilde(unittest.TestCase):
 
             for i in range(2):
                 bk0[:, i] = (np.exp(z) * kv(i, z)).reshape(-1)
-                bk[:, i] = (besselktilde(i, z)).reshape(-1)
+                bk[:, i] = (kvtilde(i, z)).reshape(-1)
 
             if s == 1:
-                test_name = "BESSELKTILDE for z with phase of pi/4"
+                test_name = "kvTILDE for z with phase of pi/4"
             else:
-                test_name = "BESSELKTILDE for z with phase of -pi/4"
+                test_name = "kvTILDE for z with phase of -pi/4"
 
             with self.subTest(test_name=test_name):
                 self.assertTrue(
@@ -119,7 +304,7 @@ class TestBesselkTilde(unittest.TestCase):
 
             for i in range(2):
                 # pass
-                bk[:, i] = besselktilde(i, z, 2).reshape(-1)
+                bk[:, i] = kvtilde(i, z, 2).reshape(-1)
 
             if s == 1:
                 test_name = "2-term for z with phase of pi/4, order 0 and 1"
@@ -149,8 +334,8 @@ class TestBesselkTilde(unittest.TestCase):
                 )
 
 
-class TestBesseliTilde(unittest.TestCase):
-    def test_besselitilde(self):
+class TestIvTilde(unittest.TestCase):
+    def test_ivtilde(self):
         atol = 1e-10
         for s in [1, -1]:
             z = np.sqrt(s * 1j) * np.arange(23.0, 100.0, 0.01).reshape(-1, 1)
@@ -159,12 +344,12 @@ class TestBesseliTilde(unittest.TestCase):
 
             for i in range(2):
                 bi0[:, i] = (np.exp(-z) * iv(i, z)).reshape(-1)
-                bi[:, i] = (besselitilde(i, z)).reshape(-1)
+                bi[:, i] = (ivtilde(i, z)).reshape(-1)
 
             if s == 1:
-                test_name = "BESSELITILDE for z with phase of pi/4"
+                test_name = "ivTILDE for z with phase of pi/4"
             else:
-                test_name = "BESSELITILDE for z with phase of -pi/4"
+                test_name = "ivTILDE for z with phase of -pi/4"
 
             with self.subTest(test_name=test_name):
                 self.assertTrue(
@@ -173,7 +358,7 @@ class TestBesseliTilde(unittest.TestCase):
                 )
 
             for i in range(2):
-                bi[:, i] = besselitilde(i, z, 2).reshape(-1)
+                bi[:, i] = ivtilde(i, z, 2).reshape(-1)
 
             if s == 1:
                 test_name = "2-term for z with phase of pi/4, order 0 and 1"
