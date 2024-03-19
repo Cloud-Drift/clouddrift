@@ -12,6 +12,7 @@ import clouddrift.signal as signal
 import clouddrift.sphere as sphere
 import clouddrift.wavelet as wavelet
 from clouddrift.raggedarray import RaggedArray
+import clouddrift.transfer as transfer
 
 __all__ = [
     "RaggedArray",
@@ -24,4 +25,5 @@ __all__ = [
     "signal",
     "sphere",
     "wavelet",
+    "transfer",
 ]
