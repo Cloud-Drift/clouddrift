@@ -57,6 +57,21 @@ class TransferFunctionTestValues(unittest.TestCase):
         self.assertEqual(dG1.shape, (0,))
         self.assertEqual(dG2.shape, (0,))
 
+        G, dG1, dG2 = wind_transfer(
+            self.omega,
+            self.z,
+            self.cor_freq,
+            self.delta,
+            5,
+            self.bld,
+            boundary_condition="no-slip",
+            density=self.density,
+            method="elipot",
+        )
+        self.assertEqual(G.shape, (len(self.z), len(self.omega)))
+        self.assertEqual(dG1.shape, (0,))
+        self.assertEqual(dG2.shape, (0,))
+
     def test_surface_angle_wind_transfer_no_slip_nh(self):
         G, ddelta, dh = wind_transfer(
             self.omega,

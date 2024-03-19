@@ -24,6 +24,7 @@ def wind_transfer(
     mu: float,
     bld: float,
     boundary_condition="no-slip",
+    method="lilly",
     density=1025,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
@@ -47,6 +48,9 @@ def wind_transfer(
         boundary_condition: str, optional
             Bottom boundary condition at the base of the ocean surface boundary layer.
             Options are "no-slip" (Default) or "free-slip".
+        method: str, optional
+            Method to compute the transfer function. Options are "lilly" (Default and preferred method)
+            or "elipot".
         density: float, optional
             Seawater density, in kg m-3. Default is 1025.
 
@@ -70,6 +74,30 @@ def wind_transfer(
     if np.any(z < 0):
         raise ValueError("Depth z must be positive.")
 
+    # check that the boundary layer depth is positive
+    if bld < 0:
+        raise ValueError("Boundary layer depth bld must be positive.")
+
+    # check that the Ekman depth is positive
+    if delta < 0:
+        raise ValueError("Ekman depth delta must be positive.")
+
+    # check that the Madsen depth is positive
+    if mu < 0:
+        raise ValueError("Madsen depth mu must be positive.")
+
+    # check that the density is positive
+    if density < 0:
+        raise ValueError("Density density must be positive.")
+
+    # check that the boundary condition is valid
+    if boundary_condition not in ["no-slip", "free-slip"]:
+        raise ValueError("Boundary condition must be 'no-slip' or 'free-slip'.")
+
+    # check that the method is valid
+    if method not in ["lilly", "elipot"]:
+        raise ValueError("Method must be 'lilly' or 'elipot'.")
+
     # z and omega can be scalars or arrays, convert to arrays here
     z_ = np.atleast_1d(z)
     omega_ = np.atleast_1d(omega)
@@ -82,31 +110,53 @@ def wind_transfer(
     [omega_grid, z_grid] = np.meshgrid(omega_, z_)
 
     if boundary_condition == "no-slip":
-        G = _wind_transfer_no_slip(
-            omega_grid,
-            z_grid,
-            cor_freq_,
-            delta,
-            mu,
-            bld,
-            density,
-        )
+        if method == "lilly":
+            G = _wind_transfer_no_slip(
+                omega_grid,
+                z_grid,
+                cor_freq_,
+                delta,
+                mu,
+                bld,
+                density,
+            )
+        else:
+            G = _wind_transfer_elipot_no_slip(
+                omega_grid,
+                z_grid,
+                cor_freq_,
+                delta,
+                mu,
+                bld,
+                density,
+            )
     elif boundary_condition == "free-slip":
-        G = _wind_transfer_free_slip(
-            omega_grid,
-            z_grid,
-            cor_freq_,
-            delta,
-            mu,
-            bld,
-            density,
-        )
+        if method == "lilly":
+            G = _wind_transfer_free_slip(
+                omega_grid,
+                z_grid,
+                cor_freq_,
+                delta,
+                mu,
+                bld,
+                density,
+            )
+        else:
+            G = _wind_transfer_elipot_free_slip(
+                omega_grid,
+                z_grid,
+                cor_freq_,
+                delta,
+                mu,
+                bld,
+                density,
+            )
 
-    # set G to nan where z > bld; may be mathematcially possible but not physically meaningful
+    # set G to nan where z > bld; may be mathematcially valid but not physically meaningful
     G[z_grid > bld] = np.nan
 
-    # analytical gradients of the transfer function for mu = 0 and free slip
-    if boundary_condition == "no-slip" and mu == 0:
+    # analytical gradients of the transfer function for mu = 0 and free slip, lilly method
+    if boundary_condition == "no-slip" and method == "lilly" and mu == 0:
         s = np.sign(cor_freq_) * np.sign(1 + omega_grid / cor_freq_)
         Gamma = (
             np.sqrt(2)
@@ -480,6 +530,123 @@ def _wind_transfer_free_slip(
             ),
         )
         G = coeff * (k0z + k1h * i0z / i1h)
+
+    return G
+
+
+def _wind_transfer_elipot_no_slip(
+    omega: np.ndarray,
+    z: np.ndarray,
+    coriolis_frequency: float,
+    delta: float,
+    mu: float,
+    bld: float,
+    density: float,
+) -> np.ndarray:
+    """
+    Transfer function from wind stress to oceanic velocity with no-slip boundary condition, Elipot method.
+    """
+
+    zo = np.divide(delta**2, mu)
+    K0 = 0.5 * delta**2 * np.abs(coriolis_frequency)
+    K1 = 0.5 * mu * np.abs(coriolis_frequency)
+
+    delta1 = np.sqrt(2 * K0 / (omega + coriolis_frequency))
+    delta2 = K1 / (omega + coriolis_frequency)
+    xiz = 2 * np.sqrt(1j * (zo + z) / delta2)
+    xi0 = 2 * np.sqrt(1j * zo / delta2)
+    xih = 2 * np.sqrt(1j * (zo + bld) / delta2)
+
+    if bld == np.inf:
+        if K1 == 0:
+            # Ekman solution
+            coeff = 1 / (density * np.sqrt(1j * (omega + coriolis_frequency) * K0))
+            G = coeff * np.exp(-z * (1 + 1j) / delta1)
+        elif K0 == 0:
+            # Madsen solution
+            coeff = 2 / (density * K1)
+            k0z = kv(0, 2 * np.sqrt(1j * z / delta2))
+            G = coeff * k0z
+        else:
+            # Mixed solution
+            coeff = 1 / (density * np.sqrt(1j * (omega + coriolis_frequency) * K0))
+            G = coeff * kv(0, xiz) / kv(1, xi0)
+    else:
+        if K1 == 0:
+            # Finite-layer Ekman
+            coeff = 1 / (density * np.sqrt(1j * (omega + coriolis_frequency) * K0))
+            numer = np.sinh((1 + 1j) * (bld - z) / delta1)
+            denom = np.cosh((1 + 1j) * bld / delta1)
+            G = coeff * numer / denom
+        elif K0 == 0:
+            # Finite-layer Madsen
+            coeff = 2 / (density * K1)
+            k0z = kv(0, 2 * np.sqrt(1j * z / delta2))
+            k0h = kv(0, 2 * np.sqrt(1j * bld / delta2))
+            i0z = iv(0, 2 * np.sqrt(1j * z / delta2))
+            i0h = iv(0, 2 * np.sqrt(1j * bld / delta2))
+            G = coeff * (k0z - (k0h * i0z / i0h))
+        else:
+            # Finite-layer mixed solution
+            coeff = 1 / (density * np.sqrt(1j * (omega + coriolis_frequency) * K0))
+            k0z, i0z, k0h, i0h, k10, i10 = bessels_noslip(xiz, xih, xi0)
+            numer = i0h * k0z - k0h * i0z
+            denom = i10 * k0h + k10 * i0h
+            G = coeff * numer / denom
+
+    return G
+
+
+def _wind_transfer_elipot_free_slip(
+    omega: np.ndarray,
+    z: np.ndarray,
+    coriolis_frequency: float,
+    delta: float,
+    mu: float,
+    bld: float,
+    density: float,
+) -> np.ndarray:
+    """
+    Transfer function from wind stress to oceanic velocity with free-slip boundary condition, Elipot method.
+    """
+
+    zo = np.divide(delta**2, mu)
+    K0 = 0.5 * delta**2 * np.abs(coriolis_frequency)
+    K1 = 0.5 * mu * np.abs(coriolis_frequency)
+    delta1 = np.sqrt(2 * K0 / (omega + coriolis_frequency))
+    delta2 = K1 / (omega + coriolis_frequency)
+    xiz = 2 * np.sqrt(1j * (zo + z) / delta2)
+    xi0 = 2 * np.sqrt(1j * zo / delta2)
+    xih = 2 * np.sqrt(1j * (zo + bld) / delta2)
+
+    if K1 == 0:
+        # Finite-layer Ekman
+        coeff = _rot(-np.pi / 4) / (
+            density * np.sqrt(1j * (omega + coriolis_frequency) * K0)
+        )
+        numer = np.cosh((1 + 1j) * (bld - z) / delta1)
+        denom = np.sinh((1 + 1j) * bld / delta1)
+        G = coeff * numer / denom
+    elif K0 == 0:
+        # Finite-layer Madsen
+        coeff = 2 / (density * K1)
+        k0z = kv(0, 2 * np.sqrt(1j * z / delta2))
+        k0h = kv(0, 2 * np.sqrt(1j * bld / delta2))
+        i0z = iv(0, 2 * np.sqrt(1j * z / delta2))
+        i1h = iv(1, 2 * np.sqrt(1j * bld / delta2))
+        G = coeff * (k0z - (k0h * i0z / i1h))
+    else:
+        # Finite-layer mixed solution
+        coeff = 1 / (density * np.sqrt(1j * (omega + coriolis_frequency) * K0))
+        k1h = kv(1, xih)
+        i0z = iv(0, xiz)
+        i1h = iv(1, xih)
+        k10 = kv(1, xi0)
+        i10 = iv(1, xi0)
+        k0z = kv(0, xiz)
+        numer = k1h * i0z + i1h * k0z
+        denom = i1h * k10 - i10 * k1h
+        G = coeff * numer / denom
 
     return G
 
