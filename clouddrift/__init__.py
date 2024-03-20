@@ -24,6 +24,6 @@ __all__ = [
     "ragged",
     "signal",
     "sphere",
-    "wavelet",
     "transfer",
+    "wavelet",
 ]
