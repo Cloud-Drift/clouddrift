@@ -69,7 +69,7 @@ class raggedarray_tests(TestCase):
         self.name_data = ["temp"]
         self.name_dims = {"traj": "rows", "obs": "obs"}
         self.coord_dims = {"id": "traj", "time": "obs"}
-        self.ra = RaggedArray.from_items(
+        self.ra = RaggedArray.from_files(
             [0, 1, 2],
             lambda i: list_ds[i],
             self.name_coords,
