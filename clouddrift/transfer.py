@@ -1,20 +1,15 @@
 """
 This module provides functions to calculate various transfer function from wind stress to oceanic
 velocity.
-
-See  Lilly, J. M. and S. Elipot (2021). A unifying perspective on transfer function solutions
-to the unsteady Ekman problem. Fluids, 6 (2): 85, 1--36. doi:10.3390/fluids6020085.
-
-See Elipot and Gille (2009), Ekman layers in the Southern Ocean: spectral models and
-observations, vertical viscosity and boundary layer depth Ocean Sci., 5, 115–139, 2009
-www.ocean-sci.net/5/115/2009/ doi:10.5194/os-5-115-2009
 """
 
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
 import numpy as np
 from numpy.lib.scimath import sqrt
-from scipy.special import factorial, iv, kv
+from scipy.special import factorial, iv, kv  # type: ignore
+
+from clouddrift.sphere import EARTH_DAY_SECONDS
 
 
 def wind_transfer(
@@ -24,13 +19,13 @@ def wind_transfer(
     delta: float,
     mu: float,
     bld: float,
-    boundary_condition="no-slip",
-    method="lilly",
-    density=1025,
+    boundary_condition: Optional[str] = "no-slip",
+    method: Optional[str] = "lilly",
+    density: Optional[float] = 1025.0,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Compute the transfer function from wind stress to oceanic velocity based on the models of
-    Elipot and Gille (2009) and Lilly and Elipot (2021).
+    Compute the transfer function from wind stress to oceanic velocity based on the physically-based
+    models of Elipot and Gille (2009) and Lilly and Elipot (2021).
 
     Parameters
     ----------
@@ -64,11 +59,31 @@ def wind_transfer(
         dh: np.ndarray
             The gradient of transfer function from to the rate of change of the boundary layer depth.
 
+    Examples
+    --------
+        To calculate the transfer function of Lilly and Elipot (2021) corresponding to the Ekman case
+         of infinite depth ocean surface boundary layer and constant vertical eddy viscosity, at the zero frequency:
+
+         >>> omega = 0
+         >>> z = np.linspace(0, 100, 100)
+         >>> cor_freq = 2 * np.pi * 1
+         >>> K0 = 1e-4
+         >>> delta = np.sqrt(2 * K0 / cor_freq / 86400)
+         >>> mu = 0
+         >>> G = wind_transfer(omega, z, cor_freq, delta, mu, np.inf, "no-slip")
 
     Raises
     ------
     ValueError
         If the depth z is not positive.
+
+    References
+    ----------
+    [1] Elipot, S., and S. T. Gille (2009). Ekman layers in the Southern Ocean: spectral models and
+    observations, vertical viscosity and boundary layer depth Ocean Sci., 5, 115–139, 2009, doi:10.5194/os-5-115-2009.
+
+    [2] Lilly, J. M. and S. Elipot (2021). A unifying perspective on transfer function solutions to
+    the unsteady Ekman problem. Fluids, 6 (2): 85, 1--36. doi:10.3390/fluids6020085.
 
     """
     # check that z is positive
@@ -104,8 +119,8 @@ def wind_transfer(
     omega_ = np.atleast_1d(omega)
 
     # convert to radians per second
-    omega_ = omega_ / 86400
-    cor_freq_ = cor_freq / 86400
+    omega_ = omega_ / EARTH_DAY_SECONDS
+    cor_freq_ = cor_freq / EARTH_DAY_SECONDS
 
     # Create the gridmesh of frequency and depth
     [omega_grid, z_grid] = np.meshgrid(omega_, z_)
@@ -159,11 +174,7 @@ def wind_transfer(
     # analytical gradients of the transfer function for mu = 0 and free slip, lilly method
     if boundary_condition == "no-slip" and method == "lilly" and mu == 0:
         s = np.sign(cor_freq_) * np.sign(1 + omega_grid / cor_freq_)
-        Gamma = (
-            sqrt(2)
-            * _rot(s * np.pi / 4)
-            * sqrt(np.abs(1 + omega_grid / cor_freq_))
-        )
+        Gamma = sqrt(2) * _rot(s * np.pi / 4) * sqrt(np.abs(1 + omega_grid / cor_freq_))
         ddelta1 = (
             (Gamma * (bld / delta) * np.tanh(Gamma * (bld / delta)) - 1) * G / delta
         )
@@ -297,7 +308,7 @@ def _wind_transfer_no_slip(
                 * _rot(s * np.pi / 4)
                 * sqrt((bld / mu) * np.abs(1 + omega_grid / coriolis_frequency))
             )
-            k0z, i0z, k0h, i0h, _, _ = bessels_noslip(argz, argh)
+            k0z, i0z, k0h, i0h, _, _ = _bessels_noslip(argz, argh)
             G = coeff * (k0z - i0z * k0h / i0h)
 
             # solution at inertial frequency
@@ -341,7 +352,7 @@ def _wind_transfer_general_no_slip(
         )
     )
 
-    k0z, i0z, k0h, i0h, k10, i10 = bessels_noslip(xiz, xih, xi0=xi0)
+    k0z, i0z, k0h, i0h, k10, i10 = _bessels_noslip(xiz, xih, xi0=xi0)
     numer = k0z / k10 - (k0h / k10) * (i0z / i0h)
     denom = 1 + (k0h / k10) * (i10 / i0h)
     G = coeff * np.divide(numer, denom)
@@ -385,7 +396,7 @@ def _wind_transfer_general_no_slip_expansion(
             * sqrt(np.abs(1 + omega / coriolis_frequency))
         )
     )
-    k0z, i0z, k0h, i0h, k10, i10 = besseltildes_noslip(xiz, xih, xi0, 30)
+    k0z, i0z, k0h, i0h, k10, i10 = _besseltildes_noslip(xiz, xih, xi0, 30)
 
     numer = np.exp(xi0 - xiz) * i0h * k0z - np.exp(xi0 + xiz - 2 * xih) * k0h * i0z
     denom = i0h * k10 + np.exp(2 * xi0 - 2 * xih) * k0h * i10
@@ -399,9 +410,7 @@ def _wind_transfer_general_no_slip_expansion(
             density
             * np.abs(coriolis_frequency)
             * delta**2
-            * np.divide(
-                sqrt(1 + bld / zo) - sqrt(1 + z / zo), (1 + z / zo) ** 0.25
-            )
+            * np.divide(sqrt(1 + bld / zo) - sqrt(1 + z / zo), (1 + z / zo) ** 0.25)
         )
     )
 
@@ -467,7 +476,7 @@ def _wind_transfer_free_slip(
             * sqrt(np.abs(1 + omega / coriolis_frequency))
         )
     )
-    k0z, i0z, k1h, i1h, k10, i10 = bessels_freeslip(xiz, xih, xi0=xi0)
+    k0z, i0z, k1h, i1h, k10, i10 = _bessels_freeslip(xiz, xih, xi0=xi0)
 
     K0 = 0.5 * delta**2 * np.abs(coriolis_frequency)
     K1 = 0.5 * mu * np.abs(coriolis_frequency)
@@ -590,7 +599,7 @@ def _wind_transfer_elipot_no_slip(
         else:
             # Finite-layer mixed solution
             coeff = 1 / (density * sqrt(1j * (omega + coriolis_frequency) * K0))
-            k0z, i0z, k0h, i0h, k10, i10 = bessels_noslip(xiz, xih, xi0)
+            k0z, i0z, k0h, i0h, k10, i10 = _bessels_noslip(xiz, xih, xi0)
             numer = i0h * k0z - k0h * i0z
             denom = i10 * k0h + k10 * i0h
             G = coeff * numer / denom
@@ -652,10 +661,10 @@ def _wind_transfer_elipot_free_slip(
     return G
 
 
-def bessels_freeslip(
+def _bessels_freeslip(
     xiz: Union[float, np.ndarray],
     xih: Union[float, np.ndarray],
-    xi0: Union[float, np.ndarray, None] = None,
+    xi0: Optional[Union[float, np.ndarray, None]] = None,
 ) -> Tuple[
     Union[float, np.ndarray],
     Union[float, np.ndarray],
@@ -664,6 +673,9 @@ def bessels_freeslip(
     Union[float, np.ndarray],
     Union[float, np.ndarray],
 ]:
+    """
+    Compute the Bessel functions for the free-slip boundary condition for the xsi(z), xsi(h), and xsi(0) functions.
+    """
     k0z = kv(0, xiz)
     i0z = iv(0, xiz)
     k1h = kv(1, xih)
@@ -677,7 +689,7 @@ def bessels_freeslip(
         return k0z, i0z, k1h, i1h, np.nan, np.nan
 
 
-def bessels_noslip(
+def _bessels_noslip(
     xiz: Union[float, np.ndarray],
     xih: Union[float, np.ndarray],
     xi0: Union[float, np.ndarray, None] = None,
@@ -689,6 +701,9 @@ def bessels_noslip(
     Union[float, np.ndarray],
     Union[float, np.ndarray],
 ]:
+    """
+    Compute the Bessel functions for the no-slip boundary condition for the xsi(z), xsi(h), and xsi(0) functions.
+    """
     k0z = kv(0, xiz)
     i0z = iv(0, xiz)
     k0h = kv(0, xih)
@@ -702,11 +717,11 @@ def bessels_noslip(
         return k0z, i0z, k0h, i0h, np.nan, np.nan
 
 
-def besseltildes_noslip(
+def _besseltildes_noslip(
     xiz: Union[float, np.ndarray],
     xih: Union[float, np.ndarray],
     xi0: Union[float, np.ndarray],
-    nterms=30,
+    nterms: Optional[int] = 30,
 ) -> Tuple[
     Union[float, np.ndarray],
     Union[float, np.ndarray],
@@ -716,7 +731,8 @@ def besseltildes_noslip(
     Union[float, np.ndarray],
 ]:
     """
-    Compute the nterms expansion about the large-argument exponential behavior of the Bessel functions
+    Compute the n-term expansion about the large-argument exponential behavior of Bessel functions
+    for the xsi(z), xsi(h), and xsi(0) functions.
     """
     k0z = kvtilde(0, xiz, nterms)
     i0z = ivtilde(0, xiz, nterms)
@@ -731,10 +747,11 @@ def besseltildes_noslip(
 def kvtilde(
     nu: int,
     z: Union[float, np.ndarray],
-    nterms=30,
+    nterms: Optional[int] = 30,
 ) -> Union[float, np.ndarray]:
     """
-    Compute the 30-term expansion about the large-argument exponential behavior of the Bessel functions
+    Compute the n-term expansion about the large-argument exponential behavior of the modified Bessel
+    function of the second kind of real order (kv).
     """
     z = np.asarray(
         z, dtype=np.complex128
@@ -767,8 +784,12 @@ def kvtilde(
 def ivtilde(
     nu: int,
     z: Union[float, np.ndarray],
-    nterms=30,
+    nterms: Optional[int] = 30,
 ) -> Union[float, np.ndarray]:
+    """
+    Compute the n-term expansion about the large-argument exponential behavior of the
+    Modified Bessel function of the first kind of real order (iv).
+    """
     z = np.asarray(
         z, dtype=np.complex128
     )  # Ensure z is an array for vectorized operations
@@ -809,7 +830,7 @@ def _xis(
     Union[float, np.ndarray], Union[float, np.ndarray], Union[float, np.ndarray]
 ]:
     """
-    Compute the complex-valued xi functions.
+    Compute the complex-valued "xsi" functions.
     """
     xiz = (
         2
@@ -836,7 +857,7 @@ def _xis(
     return xiz, xih, xi0
 
 
-def _rot(x) -> complex:
+def _rot(x: float) -> complex:
     """
     Compute the complex-valued rotation.
     """

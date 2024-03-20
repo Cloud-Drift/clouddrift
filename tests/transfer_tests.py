@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 from numpy.lib.scimath import sqrt
-from scipy.special import iv, kv
+from scipy.special import iv, kv  # type: ignore
 
 from clouddrift.transfer import (
     _rot,
@@ -73,8 +73,8 @@ class TransferFunctionTestValues(unittest.TestCase):
         self.assertEqual(dG1.shape, (0,))
         self.assertEqual(dG2.shape, (0,))
 
-    def test_surface_angle_wind_transfer_no_slip_nh(self):
-        G, ddelta, dh = wind_transfer(
+    def test_surface_angle_wind_transfer_no_slip_lilly_nh(self):
+        G, _, _ = wind_transfer(
             self.omega,
             self.z[0],
             self.cor_freq,
@@ -92,8 +92,29 @@ class TransferFunctionTestValues(unittest.TestCase):
             )
         )
 
-    def test_surface_angle_wind_transfer_no_slip_sh(self):
-        G, ddelta, dh = wind_transfer(
+    def test_surface_angle_wind_transfer_no_slip_elipot_nh(self):
+        G, _, _ = wind_transfer(
+            self.omega,
+            self.z[0],
+            self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="no-slip",
+            density=self.density,
+            method="elipot",
+        )
+        # except at inertial frequency which is not defined for elipot case
+        self.assertTrue(
+            np.allclose(
+                np.angle(np.delete(G, 1)),
+                np.pi / 4 * np.array([1, -1, -1, -1, -1, -1, -1]),
+                atol=1e-1,
+            )
+        )
+
+    def test_surface_angle_wind_transfer_no_slip_lilly_sh(self):
+        G, _, _ = wind_transfer(
             self.omega,
             self.z[0],
             -self.cor_freq,
@@ -107,6 +128,27 @@ class TransferFunctionTestValues(unittest.TestCase):
             np.allclose(
                 np.angle(G),
                 np.pi / 4 * np.array([1, 1, 1, 1, 1, 1, 0, -1]),
+                atol=1e-1,
+            )
+        )
+
+    def test_surface_angle_wind_transfer_no_slip_elipot_sh(self):
+        G, _, _ = wind_transfer(
+            self.omega,
+            self.z[0],
+            -self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="no-slip",
+            density=self.density,
+            method="elipot",
+        )
+        # except at inertial frequency which is not defined for elipot case
+        self.assertTrue(
+            np.allclose(
+                np.angle(np.delete(G, 6)),
+                np.pi / 4 * np.array([1, 1, 1, 1, 1, 1, -1]),
                 atol=1e-1,
             )
         )
@@ -248,31 +290,42 @@ class TransferFunctionTestGradient(unittest.TestCase):
         )
 
 
-class TransferFunctionTestLimits(unittest.TestCase):
+class TransferFunctionTestMethods(unittest.TestCase):
     def setUp(self):
         self.z = np.arange(0.1, 101, 1)
-        self.h = [np.inf, 200]
+        self.bld = [np.inf, 200]
         self.K0 = [0, 1 / 10, 1 / 10]
         self.K1 = [1, 0, 1]
-        self.fc = 1e-4
-        self.delta = sqrt(2 * np.array(self.K0) / self.fc)
-        self.mu = 2 * np.array(self.K1) / self.fc
-        self.omega = np.fft.fftfreq(1000, 1)["two"]
-        self.slipstr = "noslip"
+        self.cor_freq = 1e-4
+        self.delta = sqrt(2 * np.array(self.K0) / self.cor_freq)
+        self.mu = 2 * np.array(self.K1) / self.cor_freq
+        self.omega = np.fft.fftfreq(1000, 1)
+        self.slipstr = "free-slip"
 
-    def wind_transfer_test(self):
+    def test_method_equivalence_no_slip(self):
         for s in [1, -1]:
             for i, (delta, mu) in enumerate(zip(self.delta, self.mu)):
-                for j, h in enumerate(self.h):
-                    # Placeholder for windtrans function calls and normalization
-                    # Ge, Go, Gl, Ga = [np.zeros_like(self.z) for _ in range(4)]
-
-                    # Assuming windtrans and comparisons would be defined here
-                    # bool1 = np.allclose(Ge, Gl, atol=1e-8)
-                    # Additional boolean checks for other conditions
-
-                    # Example assertion (replace with actual test logic)
-                    self.assertTrue(True, "Placeholder for actual test condition")
+                for j, bld in enumerate(self.bld):
+                    Ge, _, _ = wind_transfer(
+                        self.omega,
+                        self.z,
+                        self.cor_freq,
+                        delta,
+                        mu,
+                        bld,
+                        method="elipot",
+                    )
+                    Gl, _, _ = wind_transfer(
+                        self.omega,
+                        self.z,
+                        self.cor_freq,
+                        delta,
+                        mu,
+                        bld,
+                        method="lilly",
+                    )
+                    bool1 = np.allclose(Ge, Gl, atol=1e-8)
+                    self.assertTrue(bool1)
 
 
 class TestKvTilde(unittest.TestCase):
@@ -299,7 +352,6 @@ class TestKvTilde(unittest.TestCase):
                 )
 
             for i in range(2):
-                # pass
                 bk[:, i] = kvtilde(i, z, 2).reshape(-1)
 
             if s == 1:
