@@ -19,6 +19,9 @@ _PACIFIC_BASIN_URL = "https://www.aoml.noaa.gov/hrd/hurdat/hurdat2-nepac.html"
 _DEFAULT_FILE_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", _DEFAULT_NAME)
 os.makedirs(_DEFAULT_FILE_PATH, exist_ok=True)
 
+_METERS_IN_NAUTICAL_MILES = 1825 # source: https://en.wikipedia.org/wiki/Nautical_mile#cite_note-BIPM-2
+_PASCAL_PER_MILLI_BAR = 100
+
 
 class BasinOption(int, enum.Enum):
     ATLANTIC = 1
@@ -83,16 +86,17 @@ class SystemStatus(str, enum.Enum):
 class HeaderLine:
     basin: str = field(
         metadata={
-            "long_name": "Basin",
-            "comments": "basin of origin.",
+            "comments": "Basin of origin, possible values: AL - North Atlantic basin, north of the Equator; SL - South Atlantic basin, south of the Equator; EP - North East Pacific basin, eastward of 140 degrees west longitude; CP - North Central Pacific basin, between the dateline and 140 degrees west longitude; WP - North West Pacific basin, westward of the dateline; IO - North Indian Ocean basin, north of the Equator between 40 and 100 degrees east longitude; SH - South Pacific Ocean basin and South Indian Ocean basin",
         }
     )
-    cyclone_number: int = field(
-        metadata={"long_name": "ATCF cyclone number for associated year."}
+    atcf_identifier: str = field(
+        metadata={
+            "standard_name": "automated_tropical_cyclone_forecasting_system_storm_identifier", 
+            "comment": "The Automated Tropical Cyclone Forecasting System (ATCF) storm identifier is an 8 character string which identifies a tropical cyclone. The storm identifier has the form BBCCYYYY, where BB is the ocean basin, specifically: AL - North Atlantic basin, north of the Equator; SL - South Atlantic basin, south of the Equator; EP - North East Pacific basin, eastward of 140 degrees west longitude; CP - North Central Pacific basin, between the dateline and 140 degrees west longitude; WP - North West Pacific basin, westward of the dateline; IO - North Indian Ocean basin, north of the Equator between 40 and 100 degrees east longitude; SH - South Pacific Ocean basin and South Indian Ocean basin. CC is the cyclone number. Numbers 01 through 49 are reserved for tropical and subtropical cyclones. A cyclone number is assigned to each tropical or subtropical cyclone in each basin as it develops. Numbers are assigned in chronological order. Numbers 50 through 79 are reserved for internal use by operational forecast centers. Numbers 80 through 89 are reserved for training, exercises and testing. Numbers 90 through 99 are reserved for tropical disturbances having the potential to become tropical or subtropical cyclones. The 90's are assigned sequentially and reused throughout the calendar year. YYYY is the four-digit year. This is calendar year for the northern hemisphere. For the southern hemisphere, the year begins July 1, with calendar year plus one. Reference: Miller, R.J., Schrader, A.J., Sampson, C.R., & Tsui, T.L. (1990), The Automated Tropical Cyclone Forecasting System (ATCF), American Meteorological Society Computer Techniques, 5, 653 - 660."
+        }
     )
     year: int = field(metadata={"long_name": "Year"})
-    name: str = field(metadata={"long_name": "Name", "na_values": "UNNAMED"})
-    rowsize: int = field(metadata={"long_name": "Number of best track entries"})
+    rowsize: int = field(metadata={"comment": "Number of best track entries"})
 
 
 @dataclass
@@ -101,105 +105,116 @@ class DataLine:
         metadata={"comments": "Computed property from YYY-MM-DD HH:MM in UTC"}
     )
     record_identifier: RecordIdentifier = field(
-        metadata={"long_name": "Record Idenfier", "comments": RecordIdentifier.__doc__}
+        metadata={"standard_name": "Record Idenfier", "comments": RecordIdentifier.__doc__}
     )
     system_status: SystemStatus = field(
-        metadata={"long_name": "System Status", "comments": SystemStatus.__doc__}
+        metadata={"standard_name": "System Status", "comments": SystemStatus.__doc__}
     )
     lat: float = field(
         metadata={
-            "long_name": "Latitude",
-            "units": "degrees",
-            "°": "Heading rounded to 10^-2 place",
+            "standard_name": "latitude",
+            "units": "degree_north",
+            "comment": "Latitude is positive northward; its units of degree_north (or equivalent) indicate this explicitly. In a latitude-longitude system defined with respect to a rotated North Pole, the standard name of grid_latitude should be used instead of latitude. Grid latitude is positive in the grid-northward direction, but its units should be plain degree.",
         }
     )
     lon: float = field(
         metadata={
-            "long_name": "Longitude",
-            "units": "degrees",
-            "°": "Heading rounded to 10^-2 place",
+            "standard_name": "Longitude",
+            "units": "degree_east",
+            "comment": "Longitude is positive eastward; its units of degree_east (or equivalent) indicate this explicitly. In a latitude-longitude system defined with respect to a rotated North Pole, the standard name of grid_longitude should be used instead of longitude. Grid longitude is positive in the grid-eastward direction, but its units should be plain degree.",
         }
     )
-    wind_speed: float = field(
-        metadata={"long_name": "Maximum Sustained Wind Speed", "units": "knots"}
+    wind_speed: float = field( # TODO: needs conversion
+        metadata={
+            "standard_name": "wind_speed",
+            "units": "m s-1",
+            "comment": "Speed is the magnitude of velocity. Wind is defined as a two-dimensional (horizontal) air velocity vector, with no vertical component. (Vertical motion in the atmosphere has the standard name upward_air_velocity.) The wind speed is the magnitude of the wind velocity."
+        }
     )
     pressure: float = field(
-        metadata={"long_name": "Minimum Pressure", "units": "millibar"}
-    )
-    low_wind_radii_ne: float = field(
         metadata={
-            "comment": "34 kt Wind Radii Maximum Extent NE Quadrant",
-            "units": "nautical-miles",
+            "standard_name": "air_pressure",
+            "units": "Pa",
+            "comment": "Air pressure is the force per unit area which would be exerted when the moving gas molecules of which the air is composed strike a theoretical surface of any orientation."
         }
     )
-    low_wind_radii_se: float = field(
+    max_low_wind_radius_ne: float = field(
         metadata={
-            "comment": "34 kt Wind Radii Maximum Extent SE Quadrant",
-            "units": "nautical-miles",
+            "comment": "34 kt Wind maximum radius in the storms NE Quadrant",
+            "units": "m",
         }
     )
-    low_wind_radii_sw: float = field(
+    max_low_wind_radius_se: float = field(
         metadata={
-            "comment": "34 kt Wind Radii Maximum Extent SW Quadrant",
-            "units": "nautical-miles",
+            "comment": "34 kt Wind maximum radius in the storms SE Quadrant",
+            "units": "m",
         }
     )
-    low_wind_radii_nw: float = field(
+    max_low_wind_radius_sw: float = field(
         metadata={
-            "comment": "34 kt Wind Radii Maximum Extent NW Quadrant",
-            "units": "nautical-miles",
+            "comment": "34 kt Wind maximum radius in the storms SW Quadrant",
+            "units": "m",
         }
     )
-    med_wind_radii_ne: float = field(
+    max_low_wind_radius_nw: float = field(
         metadata={
-            "comment": "34 kt Wind Radii Maximum Extent NE Quadrant",
-            "units": "nautical-miles",
+            "comment": "34 kt Wind maximum radius in the storms NW Quadrant",
+            "units": "m",
         }
     )
-    med_wind_radii_se: float = field(
+    max_med_wind_radius_ne: float = field(
         metadata={
-            "comment": "34 kt Wind Radii Maximum Extent SE Quadrant",
-            "units": "nautical-miles",
+            "comment": "50 kt Wind maximum radius in the storms NE Quadrant",
+            "units": "m",
         }
     )
-    med_wind_radii_sw: float = field(
+    max_med_wind_radius_se: float = field(
         metadata={
-            "comment": "34 kt Wind Radii Maximum Extent SW Quadrant",
-            "units": "nautical-miles",
+            "comment": "50 kt Wind maximum radius in the storms SE Quadrant",
+            "units": "m",
         }
     )
-    med_wind_radii_nw: float = field(
+    max_med_wind_radius_sw: float = field(
         metadata={
-            "comment": "34 kt Wind Radii Maximum Extent NW Quadrant",
-            "units": "nautical-miles",
+            "comment": "50 kt Wind maximum radius in the storms SW Quadrant",
+            "units": "m",
         }
     )
-    high_wind_radii_ne: float = field(
+    max_med_wind_radius_nw: float = field(
         metadata={
-            "comment": "34 kt Wind Radii Maximum Extent NE Quadrant",
-            "units": "nautical-miles",
+            "comment": "50 kt Wind maximum radius in the storms NW Quadrant",
+            "units": "m",
         }
     )
-    high_wind_radii_se: float = field(
+    max_high_wind_radius_ne: float = field(
         metadata={
-            "comment": "34 kt Wind Radii Maximum Extent SE Quadrant",
-            "units": "nautical-miles",
+            "comment": "64 kt Wind maximum radius in the storms NE Quadrant",
+            "units": "m",
         }
     )
-    high_wind_radii_sw: float = field(
+    max_high_wind_radius_se: float = field(
         metadata={
-            "comment": "34 kt Wind Radii Maximum Extent SW Quadrant",
-            "units": "nautical-miles",
+            "comment": "64 kt Wind maximum radius in the storms SE Quadrant",
+            "units": "m",
         }
     )
-    high_wind_radii_nw: float = field(
+    max_high_wind_radius_sw: float = field(
         metadata={
-            "comment": "34 kt Wind Radii Maximum Extent NW Quadrant",
-            "units": "nautical-miles",
+            "comment": "64 kt Wind maximum radius in the storms SW Quadrant",
+            "units": "m",
         }
     )
-    max_sustained_radii: float = field(
-        metadata={"long_name": "Radius of Maximum Wind", "units": "nautical-miles"}
+    max_high_wind_radius_nw: float = field(
+        metadata={
+            "comment": "64 kt Wind maximum radius in the storms NW Quadrant",
+            "units": "m",
+        }
+    )
+    max_sustained_wind_speed_radius: float = field(
+        metadata={
+            "standard_name": "radius_of_tropical_cyclone_maximum_sustained_wind_speed",
+            "units": "m",
+        }
     )
 
 
@@ -226,11 +241,14 @@ class TrackData:
             return results[0].time
         return sorted(self.data, key=lambda x: x.time)[0].time
 
+    def get_rowsize(self) -> int:
+        return len(self.data)
+
     def to_xarray_dataset(self, id_: int) -> xr.Dataset:
         return xr.Dataset(
             {
                 "basin": (["traj"], np.array([self.header.basin])),
-                "name": (["traj"], np.array([self.header.name])),
+                "atcf_identifier": (["traj"], np.array([self.header.atcf_identifier])),
                 "year": (["traj"], np.array([self.header.year])),
                 "rowsize": (["traj"], np.array([self.header.rowsize])),
                 "record_identifier": (
@@ -248,54 +266,58 @@ class TrackData:
                     np.array([line.wind_speed for line in self.data]),
                 ),
                 "pressure": (["obs"], np.array([line.pressure for line in self.data])),
-                "low_wind_radii_ne": (
+                "max_low_wind_radius_ne": (
                     ["obs"],
-                    np.array([line.low_wind_radii_ne for line in self.data]),
+                    np.array([line.max_low_wind_radius_ne for line in self.data]),
                 ),
-                "low_wind_radii_se": (
+                "max_low_wind_radius_se": (
                     ["obs"],
-                    np.array([line.low_wind_radii_se for line in self.data]),
+                    np.array([line.max_low_wind_radius_se for line in self.data]),
                 ),
-                "low_wind_radii_sw": (
+                "max_low_wind_radius_sw": (
                     ["obs"],
-                    np.array([line.low_wind_radii_sw for line in self.data]),
+                    np.array([line.max_low_wind_radius_sw for line in self.data]),
                 ),
-                "low_wind_radii_nw": (
+                "max_low_wind_radius_nw": (
                     ["obs"],
-                    np.array([line.low_wind_radii_nw for line in self.data]),
+                    np.array([line.max_low_wind_radius_nw for line in self.data]),
                 ),
-                "med_wind_radii_ne": (
+                "max_med_wind_radius_ne": (
                     ["obs"],
-                    np.array([line.med_wind_radii_ne for line in self.data]),
+                    np.array([line.max_med_wind_radius_ne for line in self.data]),
                 ),
-                "med_wind_radii_se": (
+                "max_med_wind_radius_se": (
                     ["obs"],
-                    np.array([line.med_wind_radii_se for line in self.data]),
+                    np.array([line.max_med_wind_radius_se for line in self.data]),
                 ),
-                "med_wind_radii_sw": (
+                "max_med_wind_radius_sw": (
                     ["obs"],
-                    np.array([line.med_wind_radii_sw for line in self.data]),
+                    np.array([line.max_med_wind_radius_sw for line in self.data]),
                 ),
-                "med_wind_radii_nw": (
+                "max_med_wind_radius_nw": (
                     ["obs"],
-                    np.array([line.med_wind_radii_nw for line in self.data]),
+                    np.array([line.max_med_wind_radius_nw for line in self.data]),
                 ),
-                "high_wind_radii_ne": (
+                "max_high_wind_radius_ne": (
                     ["obs"],
-                    np.array([line.high_wind_radii_ne for line in self.data]),
+                    np.array([line.max_high_wind_radius_ne for line in self.data]),
                 ),
-                "high_wind_radii_se": (
+                "max_high_wind_radius_se": (
                     ["obs"],
-                    np.array([line.high_wind_radii_se for line in self.data]),
+                    np.array([line.max_high_wind_radius_se for line in self.data]),
                 ),
-                "high_wind_radii_sw": (
+                "max_high_wind_radius_sw": (
                     ["obs"],
-                    np.array([line.high_wind_radii_sw for line in self.data]),
+                    np.array([line.max_high_wind_radius_sw for line in self.data]),
                 ),
-                "high_wind_radii_nw": (
+                "max_high_wind_radius_nw": (
                     ["obs"],
-                    np.array([line.high_wind_radii_nw for line in self.data]),
+                    np.array([line.max_high_wind_radius_nw for line in self.data]),
                 ),
+                "max_sustained_wind_speed_radius": (
+                    ["obs"],
+                    np.array([line.max_sustained_wind_speed_radius for line in self.data])
+                )
             },
             coords={
                 "id": (["traj"], np.array([id_])),
@@ -305,9 +327,6 @@ class TrackData:
                 ),
             },
         )
-
-    def get_rowsize(self) -> int:
-        return len(self.data)
 
 
 def _map_heading(coordinate: str) -> float:
@@ -320,7 +339,7 @@ def _map_heading(coordinate: str) -> float:
     raise ValueError(f"Invalid cardinal direction: {cardinal_direction}")
 
 
-def _get_download_requests(basin: BasinOption):
+def _get_download_requests(basin: BasinOption, tmp_path: str):
     download_requests: list[tuple[str, str, None]] = list()
 
     if basin & BasinOption.ATLANTIC == BasinOption.ATLANTIC:
@@ -335,13 +354,13 @@ def _get_download_requests(basin: BasinOption):
     return download_requests
 
 
-def to_raggedarray(basin: BasinOption = BasinOption.BOTH) -> RaggedArray:
-    download_requests = _get_download_requests(basin)
+def to_raggedarray(basin: BasinOption = BasinOption.BOTH, tmp_path: str = _DEFAULT_FILE_PATH, convert: bool = True) -> RaggedArray:
+    download_requests = _get_download_requests(basin, tmp_path)
     download_with_progress(download_requests)
     track_data = list()
 
     for _, fp, _ in download_requests:
-        track_data.extend(extract_track_data(fp))
+        track_data.extend(_extract_track_data(fp, convert))
 
     track_data = sorted(track_data, key=lambda td: td.get_genesis_date())
     track_data_map: dict[int, TrackData] = {
@@ -376,7 +395,7 @@ def to_raggedarray(basin: BasinOption = BasinOption.BOTH) -> RaggedArray:
     return ra
 
 
-def extract_track_data(datafile_path: str) -> list[TrackData]:
+def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
     datapage = StringIO()
     with open(datafile_path, "rb") as file:
         while (data := file.read()) != b"":
@@ -393,6 +412,14 @@ def extract_track_data(datafile_path: str) -> list[TrackData]:
         lambda cols, data_line_count: len(cols) == 4 and data_line_count == 0
     )
     is_data_line = lambda cols, data_line_count: len(cols) == 21 and data_line_count > 0
+    if convert:
+        nm_to_m = lambda x: x * _METERS_IN_NAUTICAL_MILES # nautical-miles to meters
+        k_to_mps = lambda x: x * _METERS_IN_NAUTICAL_MILES / 3600 # knots to meters per second
+        mb_to_pa = lambda x: x * _PASCAL_PER_MILLI_BAR # millibar to pascal
+    else:
+        nm_to_m = lambda x: x
+        k_to_mps = lambda x: x
+        mb_to_pa = lambda x: x
 
     while (line := datapage.readline()) != "":
         if is_html_line(line) or line == "\r\n":
@@ -408,9 +435,8 @@ def extract_track_data(datafile_path: str) -> list[TrackData]:
             data_line_count = int(cols[2])
             header = HeaderLine(
                 basin=cols[0][:2],
-                cyclone_number=int(cols[0][2:4]),
+                atcf_identifier=cols[0],
                 year=int(cols[0][4:7]),
-                name=cols[1],
                 rowsize=data_line_count,
             )
             if current_header is None:
@@ -438,21 +464,21 @@ def extract_track_data(datafile_path: str) -> list[TrackData]:
                     system_status=SystemStatus(cols[3]),
                     lat=_map_heading(cols[4]),
                     lon=_map_heading(cols[5]),
-                    wind_speed=float(cols[6]),
-                    pressure=float(cols[7]),
-                    low_wind_radii_ne=float(cols[8]),
-                    low_wind_radii_se=float(cols[9]),
-                    low_wind_radii_sw=float(cols[10]),
-                    low_wind_radii_nw=float(cols[11]),
-                    med_wind_radii_ne=float(cols[12]),
-                    med_wind_radii_se=float(cols[13]),
-                    med_wind_radii_sw=float(cols[14]),
-                    med_wind_radii_nw=float(cols[15]),
-                    high_wind_radii_ne=float(cols[16]),
-                    high_wind_radii_se=float(cols[17]),
-                    high_wind_radii_sw=float(cols[18]),
-                    high_wind_radii_nw=float(cols[19]),
-                    max_sustained_radii=float(cols[20]),
+                    wind_speed=k_to_mps(float(cols[6])),
+                    pressure=mb_to_pa(float(cols[7])),
+                    max_low_wind_radius_ne=nm_to_m(float(cols[8])),
+                    max_low_wind_radius_se=nm_to_m(float(cols[9])),
+                    max_low_wind_radius_sw=nm_to_m(float(cols[10])),
+                    max_low_wind_radius_nw=nm_to_m(float(cols[11])),
+                    max_med_wind_radius_ne=nm_to_m(float(cols[12])),
+                    max_med_wind_radius_se=nm_to_m(float(cols[13])),
+                    max_med_wind_radius_sw=nm_to_m(float(cols[14])),
+                    max_med_wind_radius_nw=nm_to_m(float(cols[15])),
+                    max_high_wind_radius_ne=nm_to_m(float(cols[16])),
+                    max_high_wind_radius_se=nm_to_m(float(cols[17])),
+                    max_high_wind_radius_sw=nm_to_m(float(cols[18])),
+                    max_high_wind_radius_nw=nm_to_m(float(cols[19])),
+                    max_sustained_wind_speed_radius=nm_to_m(float(cols[20])),
                 )
             )
             data_line_count -= 1
