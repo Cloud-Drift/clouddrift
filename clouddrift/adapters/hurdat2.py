@@ -19,7 +19,9 @@ _PACIFIC_BASIN_URL = "https://www.aoml.noaa.gov/hrd/hurdat/hurdat2-nepac.html"
 _DEFAULT_FILE_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", _DEFAULT_NAME)
 os.makedirs(_DEFAULT_FILE_PATH, exist_ok=True)
 
-_METERS_IN_NAUTICAL_MILES = 1825 # source: https://en.wikipedia.org/wiki/Nautical_mile#cite_note-BIPM-2
+_METERS_IN_NAUTICAL_MILES = (
+    1825  # source: https://en.wikipedia.org/wiki/Nautical_mile#cite_note-BIPM-2
+)
 _PASCAL_PER_MILLI_BAR = 100
 
 
@@ -91,8 +93,8 @@ class HeaderLine:
     )
     atcf_identifier: str = field(
         metadata={
-            "standard_name": "automated_tropical_cyclone_forecasting_system_storm_identifier", 
-            "comment": "The Automated Tropical Cyclone Forecasting System (ATCF) storm identifier is an 8 character string which identifies a tropical cyclone. The storm identifier has the form BBCCYYYY, where BB is the ocean basin, specifically: AL - North Atlantic basin, north of the Equator; SL - South Atlantic basin, south of the Equator; EP - North East Pacific basin, eastward of 140 degrees west longitude; CP - North Central Pacific basin, between the dateline and 140 degrees west longitude; WP - North West Pacific basin, westward of the dateline; IO - North Indian Ocean basin, north of the Equator between 40 and 100 degrees east longitude; SH - South Pacific Ocean basin and South Indian Ocean basin. CC is the cyclone number. Numbers 01 through 49 are reserved for tropical and subtropical cyclones. A cyclone number is assigned to each tropical or subtropical cyclone in each basin as it develops. Numbers are assigned in chronological order. Numbers 50 through 79 are reserved for internal use by operational forecast centers. Numbers 80 through 89 are reserved for training, exercises and testing. Numbers 90 through 99 are reserved for tropical disturbances having the potential to become tropical or subtropical cyclones. The 90's are assigned sequentially and reused throughout the calendar year. YYYY is the four-digit year. This is calendar year for the northern hemisphere. For the southern hemisphere, the year begins July 1, with calendar year plus one. Reference: Miller, R.J., Schrader, A.J., Sampson, C.R., & Tsui, T.L. (1990), The Automated Tropical Cyclone Forecasting System (ATCF), American Meteorological Society Computer Techniques, 5, 653 - 660."
+            "standard_name": "automated_tropical_cyclone_forecasting_system_storm_identifier",
+            "comment": "The Automated Tropical Cyclone Forecasting System (ATCF) storm identifier is an 8 character string which identifies a tropical cyclone. The storm identifier has the form BBCCYYYY, where BB is the ocean basin, specifically: AL - North Atlantic basin, north of the Equator; SL - South Atlantic basin, south of the Equator; EP - North East Pacific basin, eastward of 140 degrees west longitude; CP - North Central Pacific basin, between the dateline and 140 degrees west longitude; WP - North West Pacific basin, westward of the dateline; IO - North Indian Ocean basin, north of the Equator between 40 and 100 degrees east longitude; SH - South Pacific Ocean basin and South Indian Ocean basin. CC is the cyclone number. Numbers 01 through 49 are reserved for tropical and subtropical cyclones. A cyclone number is assigned to each tropical or subtropical cyclone in each basin as it develops. Numbers are assigned in chronological order. Numbers 50 through 79 are reserved for internal use by operational forecast centers. Numbers 80 through 89 are reserved for training, exercises and testing. Numbers 90 through 99 are reserved for tropical disturbances having the potential to become tropical or subtropical cyclones. The 90's are assigned sequentially and reused throughout the calendar year. YYYY is the four-digit year. This is calendar year for the northern hemisphere. For the southern hemisphere, the year begins July 1, with calendar year plus one. Reference: Miller, R.J., Schrader, A.J., Sampson, C.R., & Tsui, T.L. (1990), The Automated Tropical Cyclone Forecasting System (ATCF), American Meteorological Society Computer Techniques, 5, 653 - 660.",
         }
     )
     year: int = field(metadata={"long_name": "Year"})
@@ -105,7 +107,10 @@ class DataLine:
         metadata={"comments": "Computed property from YYY-MM-DD HH:MM in UTC"}
     )
     record_identifier: RecordIdentifier = field(
-        metadata={"standard_name": "Record Idenfier", "comments": RecordIdentifier.__doc__}
+        metadata={
+            "standard_name": "Record Idenfier",
+            "comments": RecordIdentifier.__doc__,
+        }
     )
     system_status: SystemStatus = field(
         metadata={"standard_name": "System Status", "comments": SystemStatus.__doc__}
@@ -124,18 +129,18 @@ class DataLine:
             "comment": "Longitude is positive eastward; its units of degree_east (or equivalent) indicate this explicitly. In a latitude-longitude system defined with respect to a rotated North Pole, the standard name of grid_longitude should be used instead of longitude. Grid longitude is positive in the grid-eastward direction, but its units should be plain degree.",
         }
     )
-    wind_speed: float = field( # TODO: needs conversion
+    wind_speed: float = field(  # TODO: needs conversion
         metadata={
             "standard_name": "wind_speed",
             "units": "m s-1",
-            "comment": "Speed is the magnitude of velocity. Wind is defined as a two-dimensional (horizontal) air velocity vector, with no vertical component. (Vertical motion in the atmosphere has the standard name upward_air_velocity.) The wind speed is the magnitude of the wind velocity."
+            "comment": "Speed is the magnitude of velocity. Wind is defined as a two-dimensional (horizontal) air velocity vector, with no vertical component. (Vertical motion in the atmosphere has the standard name upward_air_velocity.) The wind speed is the magnitude of the wind velocity.",
         }
     )
     pressure: float = field(
         metadata={
             "standard_name": "air_pressure",
             "units": "Pa",
-            "comment": "Air pressure is the force per unit area which would be exerted when the moving gas molecules of which the air is composed strike a theoretical surface of any orientation."
+            "comment": "Air pressure is the force per unit area which would be exerted when the moving gas molecules of which the air is composed strike a theoretical surface of any orientation.",
         }
     )
     max_low_wind_radius_ne: float = field(
@@ -316,8 +321,10 @@ class TrackData:
                 ),
                 "max_sustained_wind_speed_radius": (
                     ["obs"],
-                    np.array([line.max_sustained_wind_speed_radius for line in self.data])
-                )
+                    np.array(
+                        [line.max_sustained_wind_speed_radius for line in self.data]
+                    ),
+                ),
             },
             coords={
                 "id": (["traj"], np.array([id_])),
@@ -354,7 +361,11 @@ def _get_download_requests(basin: BasinOption, tmp_path: str):
     return download_requests
 
 
-def to_raggedarray(basin: BasinOption = BasinOption.BOTH, tmp_path: str = _DEFAULT_FILE_PATH, convert: bool = True) -> RaggedArray:
+def to_raggedarray(
+    basin: BasinOption = BasinOption.BOTH,
+    tmp_path: str = _DEFAULT_FILE_PATH,
+    convert: bool = True,
+) -> RaggedArray:
     download_requests = _get_download_requests(basin, tmp_path)
     download_with_progress(download_requests)
     track_data = list()
@@ -413,9 +424,11 @@ def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
     )
     is_data_line = lambda cols, data_line_count: len(cols) == 21 and data_line_count > 0
     if convert:
-        nm_to_m = lambda x: x * _METERS_IN_NAUTICAL_MILES # nautical-miles to meters
-        k_to_mps = lambda x: x * _METERS_IN_NAUTICAL_MILES / 3600 # knots to meters per second
-        mb_to_pa = lambda x: x * _PASCAL_PER_MILLI_BAR # millibar to pascal
+        nm_to_m = lambda x: x * _METERS_IN_NAUTICAL_MILES  # nautical-miles to meters
+        k_to_mps = (
+            lambda x: x * _METERS_IN_NAUTICAL_MILES / 3600
+        )  # knots to meters per second
+        mb_to_pa = lambda x: x * _PASCAL_PER_MILLI_BAR  # millibar to pascal
     else:
         nm_to_m = lambda x: x
         k_to_mps = lambda x: x

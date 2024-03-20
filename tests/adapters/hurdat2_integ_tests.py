@@ -21,9 +21,16 @@ class hurdat2_integration_tests(unittest.TestCase):
         ds = ra.to_xarray()
         ds_non_converted = ra_non_converted.to_xarray()
 
-        assert np.allclose(ds["wind_speed"], ds_non_converted["wind_speed"] * hurdat2._METERS_IN_NAUTICAL_MILES / 3600)
+        assert np.allclose(
+            ds["wind_speed"],
+            ds_non_converted["wind_speed"] * hurdat2._METERS_IN_NAUTICAL_MILES / 3600,
+        )
         assert np.allclose(ds["pressure"], ds_non_converted["pressure"] * 100)
-        assert np.allclose(ds["max_sustained_wind_speed_radius"], ds_non_converted["max_sustained_wind_speed_radius"] * hurdat2._METERS_IN_NAUTICAL_MILES )
+        assert np.allclose(
+            ds["max_sustained_wind_speed_radius"],
+            ds_non_converted["max_sustained_wind_speed_radius"]
+            * hurdat2._METERS_IN_NAUTICAL_MILES,
+        )
 
     @classmethod
     def tearDownClass(cls):
