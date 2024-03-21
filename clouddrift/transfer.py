@@ -460,28 +460,25 @@ def _wind_transfer_free_slip(
     """
     Transfer function from wind stress to oceanic velocity with free-slip boundary condition.
     """
-    # this should consider the cases when mu = 0
+
     zo = np.divide(delta**2, mu)
+
     s = np.sign(coriolis_frequency) * np.sign(1 + omega / coriolis_frequency)
 
     xiz, xih, xi0 = _xis(s, zo, delta, z, omega, coriolis_frequency, bld)
 
-    coeff = (
-        sqrt(2)
-        * _rot(-s * np.pi / 4)
-        / (
-            delta
-            * density
-            * np.abs(coriolis_frequency)
-            * sqrt(np.abs(1 + omega / coriolis_frequency))
+    if delta != 0 and mu != 0:
+        coeff = (
+            sqrt(2)
+            * _rot(-s * np.pi / 4)
+            / (
+                delta
+                * density
+                * np.abs(coriolis_frequency)
+                * sqrt(np.abs(1 + omega / coriolis_frequency))
+            )
         )
-    )
-    k0z, i0z, k1h, i1h, k10, i10 = _bessels_freeslip(xiz, xih, xi0=xi0)
-
-    K0 = 0.5 * delta**2 * np.abs(coriolis_frequency)
-    K1 = 0.5 * mu * np.abs(coriolis_frequency)
-
-    if K0 != 0 and K1 != 0:
+        k0z, i0z, k1h, i1h, k10, i10 = _bessels_freeslip(xiz, xih, xi0=xi0)
         numer = i0z * k1h + i1h * k0z
         denom = i1h * k10 - i10 * k1h
         G = coeff * np.divide(numer, denom)
@@ -510,35 +507,12 @@ def _wind_transfer_free_slip(
         G = coeff * np.cosh(cosharg) / np.sinh(sinharg)
 
     elif delta == 0:
+        k0z, i0z, k1h, i1h, _, _ = _bessels_freeslip(xiz, xih)
+
+        K1 = 0.5 * mu * np.abs(coriolis_frequency)
+
         coeff = 2 / (density * K1)
-        argument = (
-            2
-            * np.exp(1j * s * np.pi / 4)
-            * sqrt(
-                (z / (K1 / np.abs(coriolis_frequency)))
-                * np.abs(1 + omega / coriolis_frequency)
-            )
-        )
-        k0z = kv(0, argument)
-        k1h = kv(
-            1,
-            2
-            * np.exp(1j * s * np.pi / 4)
-            * sqrt(
-                (bld / (K1 / np.abs(coriolis_frequency)))
-                * np.abs(1 + omega / coriolis_frequency)
-            ),
-        )
-        i0z = iv(0, argument)
-        i1h = iv(
-            1,
-            2
-            * np.exp(1j * s * np.pi / 4)
-            * sqrt(
-                (bld / (K1 / np.abs(coriolis_frequency)))
-                * np.abs(1 + omega / coriolis_frequency)
-            ),
-        )
+
         G = coeff * (k0z + k1h * i0z / i1h)
 
     return G
