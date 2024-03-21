@@ -234,10 +234,10 @@ def glad(decode_times: bool = True) -> xr.Dataset:
 
 
 def hurdat2(option: BasinOption = BasinOption.BOTH):
-    """Returns the hurricane (Atlantic Basin) v2 (HURDAT2) dataset as a ragged array
-    Xarray dataset.
+    """Returns the revised Atlantic hurricane database (HURDAT2) by Chris Landsea as a
+    ragged array Xarray dataset.
 
-    The function will first look for the ragged-array dataset on the local
+    The function will first look for the ragged array dataset on the local
     filesystem. If it is not found, the dataset will be downloaded using the
     corresponding adapter function and stored for later access.
 
@@ -250,11 +250,11 @@ def hurdat2(option: BasinOption = BasinOption.BOTH):
     Returns
     -------
     xarray.Dataset
-        HURDAT2 dataset as a ragged array
+        HURDAT2 dataset as a ragged array.
 
     Examples TODO - EVERYTHING BELOW NEEDS TO BE UPDATED
     --------
-    >>> from clouddrift.datasets import glad
+    >>> from clouddrift.datasets import hurdat2
     >>> ds = hurdat2()
     >>> ds
     <xarray.Dataset>
