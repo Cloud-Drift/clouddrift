@@ -27,16 +27,7 @@ to process various Lagrangian datasets, can be found in
 
 ## Contributing and scope
 
-We welcome contributions from the community.
-If you would like to propose an idea for a new feature or contribute your own
-implementation, please follow these steps:
-
-1. Open a new [issue](https://github.com/Cloud-Drift/clouddrift/issues) to discuss your proposal.
-2. Once we agree on a general way forward, [fork the repository](https://docs.github.com/en/github-ae@latest/get-started/quickstart/fork-a-repo) and [create a
-   new branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository) for your contribution.
-3. Write your code and [tests](https://docs.github.com/en/actions/automating-builds-and-tests). Please follow the same style as the rest of the
-   codebase and ensure that all new functionality is covered by your tests.
-4. Open a pull request and request a review.
+We welcome and invite contributions from the community in any shape or form! Please visit our [Contributing Guide](CONTRIBUTING.md) to get Started 😃
 
 The scope of CloudDrift includes:
 
@@ -125,37 +116,6 @@ pip install git+https://github.com/cloud-drift/clouddrift
 conda env create -f environment.yml
 ```
 with the environment [file](https://github.com/Cloud-Drift/clouddrift/blob/main/environment.yml) located in the main repository.
-
-### Development Tasks (Makefile assumes installation of micromamba for more info [visit here](https://mamba.readthedocs.io/en/latest/index.html))
-
-#### Setting up Development Environment
-```
-make dev
-```
-
-Install all of the packages required for development. It should be noted this will create/update a conda environment named `clouddrift`. Make sure to **activate** your environment after running this command!
-
-#### Running the CI Test Suite
-```
-make test
-```
-
-Execute our test suite and generate the coverage report.
-
-#### Running Ruff & Mypy
-```
-make check
-```
-
-Runs Ruff (styling, linting) and Mypy (Static type analysis).
-
-#### Precommit Check
-```
-make
-```
-
-Using the wildcard target, format the code, run styling, linting and static type analysis tools (Ruff & Mypy), and run the CI test suite. Essentially all the stuff the CI will check.
-
 
 ### Installing CloudDrift on unsupported platforms
 
