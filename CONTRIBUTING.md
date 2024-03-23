@@ -19,15 +19,15 @@ Thank you for helping make this a welcoming, friendly community for all.
 The front page for the Clouddrift project is on [clouddrift.org](https://clouddrift.org). This leads directly to some of the motivations behind building the library and a quick summary of the ragged array data structure. On the same web page you can also find links to examples showcasing the ragged array data structure and some of the datasets we transform and make available through the library.
 
 ### Reporting issues and requesting feature requests
-Running into a bug or having performance issues? fill in a [Bug report](https://github.com/cloud-drift/clouddrift/issues/new?assignees=&labels=bug&projects=&template=bug_report.md&title=%F0%9F%90%9B+%3Cnice+descriptive+title%3E)
+Running into a bug or having performance issues? fill in a [Bug report](https://github.com/cloud-drift/clouddrift/issues/new?assignees=&labels=bug&projects=&template=bug_report.md&title=%F0%9F%90%9B+%3Cnice+descriptive+title%3E).
 
-Have a feature in mind you'd like to see implemened, refactoring changes you want to suggest or tools you think would help improve the project? Create a [Feature request](https://github.com/cloud-drift/clouddrift/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.md&title=%3Cselect-one%3A+%E2%AD%90+%28feature%29+%7C++%F0%9F%94%8E+%28refactor%2Fdocs%29+%7C+%F0%9F%94%A7+%28tools%29%3E+%3Cdescriptive+title+here%3E)
+Have a feature in mind you'd like to see implemened, refactoring changes you want to suggest or tools you think would help improve the project? Create a [Feature request](https://github.com/cloud-drift/clouddrift/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.md&title=%3Cselect-one%3A+%E2%AD%90+%28feature%29+%7C++%F0%9F%94%8E+%28refactor%2Fdocs%29+%7C+%F0%9F%94%A7+%28tools%29%3E+%3Cdescriptive+title+here%3E).
 
 ### Contributing a pull request
 
 Feel free to [open pull requests in GitHub](https://github.com/Cloud-Drift/clouddrift/pulls) from your [forked repo](https://docs.github.com/en/get-started/quickstart/fork-a-repo) when you start working on the problem. We recommend opening the pull request early so that we can see your progress and communicate about it. (Note that you can `git commit --allow-empty` to make an empty commit and start a pull request before you even have new code.)
 
-Please [make the pull request a draft](https://github.blog/2019-02-14-introducing-draft-pull-requests/) to indicate that it is in an incomplete state and shouldn't be merged until you click "ready for review."
+Please [make the pull request a draft](https://github.blog/2019-02-14-introducing-draft-pull-requests/) to indicate that it is in an incomplete state and shouldn't be merged until you click "ready for review".
 
 ### Getting your pull request reviewed
 
@@ -134,7 +134,7 @@ with conda:
 conda install build twine docutils
 ```
 
-2. Generate the wheel (.whl) and tarball (tar.gz) distribution package(s)
+2. Generate the wheel (.whl) and tarball (tar.gz) distribution package(s):
 ```
 python -m build
 ```
