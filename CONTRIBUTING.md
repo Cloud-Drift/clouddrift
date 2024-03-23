@@ -42,9 +42,9 @@ examples:
 ⚡ improve dataset loading time
 ⭐ include new ibtracs dataset
 🐛 x feature doesn't work on windows 
-```
 
 Common emojis to use are as follow:
+
 ⭐ New / changed feature
 ❗ Deprecation of a feature
 ⛔ Removal of feature
@@ -52,6 +52,7 @@ Common emojis to use are as follow:
 ⚡ Performance/memory improvements
 🔍 Documentation, refactoring
 🔧 Tooling/Build scripts/CI (other non-application changes)
+```
 
 Almost all pull requests are merged with the "squash and merge" feature, so details about commit history within a pull request are hidden from the `main` branch's history. Feel free, therefore, to commit with any frequency you're comfortable with.
 
