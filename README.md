@@ -25,6 +25,27 @@ Example Jupyter notebooks that showcase the library, as well as scripts
 to process various Lagrangian datasets, can be found in
 [clouddrift-examples](https://github.com/Cloud-Drift/clouddrift-examples), [gdp-get-started](https://github.com/Cloud-Drift/gdp-get-started), [mosaic-get-started](https://github.com/Cloud-Drift/mosaic-get-started), or [a demo for the EarthCube community workshop 2023](https://github.com/Cloud-Drift/e3-comm-workshop-2023).
 
+## Contributing and scope
+
+We welcome and invite contributions from the community in any shape or form! Please visit our [Contributing Guide](CONTRIBUTING.md) to get Started 😃
+
+The scope of CloudDrift includes:
+
+* Working with contiguous ragged-array data; for example, see the
+  [`clouddrift.ragged`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.ragged.html) module.
+* Common scientific analysis of Lagrangian data, oceanographic or otherwise;
+  for example, see the
+  [`clouddrift.kinematics`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.kinematics.html),
+  [`clouddrift.signal`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.signal.html), and
+  [`clouddrift.wavelet`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.wavelet.html) modules.
+* Processing existing Lagrangian datasets into a common data structure and format;
+  for example, see the [`clouddrift.adapters.mosaic`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.adapters.mosaic.html) module.
+* Making cloud-optimized ragged-array datasets easily accessible; for example,
+  see the [`clouddrift.datasets`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.datasets.html) module.
+
+If you have an idea that does not fit into the scope of CloudDrift but you think
+it should, please open an issue to discuss it.
+
 ## Getting started
 
 ### Install CloudDrift
@@ -95,28 +116,6 @@ pip install git+https://github.com/cloud-drift/clouddrift
 conda env create -f environment.yml
 ```
 with the environment [file](https://github.com/Cloud-Drift/clouddrift/blob/main/environment.yml) located in the main repository.
-
-## Contributing and scope
-
-We welcome and invite contributions from the community in any shape or form! Please visit our [Contributing Guide](CONTRIBUTING.md) to get Started 😃
-
-The scope of CloudDrift includes:
-
-* Working with contiguous ragged-array data; for example, see the
-  [`clouddrift.ragged`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.ragged.html) module.
-* Common scientific analysis of Lagrangian data, oceanographic or otherwise;
-  for example, see the
-  [`clouddrift.kinematics`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.kinematics.html),
-  [`clouddrift.signal`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.signal.html), and
-  [`clouddrift.wavelet`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.wavelet.html) modules.
-* Processing existing Lagrangian datasets into a common data structure and format;
-  for example, see the [`clouddrift.adapters.mosaic`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.adapters.mosaic.html) module.
-* Making cloud-optimized ragged-array datasets easily accessible; for example,
-  see the [`clouddrift.datasets`](https://cloud-drift.github.io/clouddrift/_autosummary/clouddrift.datasets.html) module.
-
-If you have an idea that does not fit into the scope of CloudDrift but you think
-it should, please open an issue to discuss it.
-
 
 ### Installing CloudDrift on unsupported platforms
 
