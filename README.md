@@ -89,15 +89,6 @@ type:
 ```
 conda install matplotlib-base cartopy
 ```
-#### Locally (Makefile assumes installation of micromamba for more info [visit here](https://mamba.readthedocs.io/en/latest/index.html)):
-If you need to install an experimental/local version of the library, you can do that via:
-
-```
-make install-local
-``` 
-
-This build target will install the build dependencies `[build, twine, docutils]`.
-Generate the build / wheel file and finally install its using `micromamba`
 
 #### Development branch:
 
