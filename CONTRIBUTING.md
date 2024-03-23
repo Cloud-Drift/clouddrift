@@ -1,7 +1,18 @@
 # Contributing to Clouddrift
+
 Thank you for your interest in contributing! We look forward to seeing your ideas and working with you to improve the `clouddrift` library 😄
 
 It should be noted that this contributing guide took heavy inspiration from the [Awkward Array](https://github.com/scikit-hep/awkward/blob/main/CONTRIBUTING.md) project.
+
+## Code of Conduct
+This project follows `NumFOCUS <https://numfocus.org/code-of-conduct>`_ code of conduct, the short version is:
+
+- Be kind to others. Do not insult or put down others. Behave professionally. Remember that harassment and sexist, racist, or exclusionary jokes are not appropriate.
+- All communication should be appropriate for a professional audience including people of many different backgrounds. Sexual language and imagery is not appropriate.
+- We are dedicated to providing a harassment-free community for everyone, regardless of gender, sexual orientation, gender identity and expression, disability, physical appearance, body size, race, or religion.
+- We do not tolerate harassment of community members in any form.
+
+Thank you for helping make this a welcoming, friendly community for all.
 
 ### Where to start
 
@@ -59,14 +70,14 @@ Almost all pull requests are merged with the "squash and merge" feature, so deta
 
 ### Preparing your environment
 
-* Get the code
+1. Get the code
 
 ```
 git clone https://github.com/cloud-drift/clouddrift
 cd clouddrift/
 ```
 
-* Install library dependencies
+2. Install library dependencies
 
 with pip:
 
@@ -85,9 +96,9 @@ conda activate clouddrift
 
 ### Testing
 
-* Follow the steps in [Preparing your environment](#preparing-your-environment)
+* pre-requisite step: [Preparing your environment](#preparing-your-environment)
 
-* Install testing dependencies
+1. Install testing dependencies
 
 with pip:
 
@@ -101,7 +112,7 @@ with conda:
 conda install matplotlib-base cartopy
 ```
 
-* Run the test suite:
+2. Run the test suite:
 
 ```
 python -m unittest tests/*.py
@@ -111,7 +122,7 @@ python -m unittest tests/*.py
 This can be useful for understanding how the package is built, testing the process and can be leveraged for testing
 experimental versions of the library from a users perspective.
 
-* Install the build dependencies
+1. Install the build dependencies
 
 with pip:
 ```
@@ -123,12 +134,12 @@ with conda:
 conda install build twine docutils
 ```
 
-* Generate the wheel (.whl) and tarball (tar.gz) distribution package(s)
+2. Generate the wheel (.whl) and tarball (tar.gz) distribution package(s)
 ```
 python -m build
 ```
 
-* Install the distribution package
+3. Install the distribution package
 
 with pip:
 ```
@@ -139,7 +150,7 @@ pip install dist/clouddrift*.whl
 
 The Clouddrift project uses the `ruff` tool for formatting the code and linting. We also leverage `mypy` for static typing. Please see the section on [Automated Processes](#automated-processes) to learn about how these tools are used prior to accepting pull requests.
 
-* Install development dependencies 
+1. Install development dependencies 
 
 with pip:
 
@@ -153,25 +164,25 @@ with conda:
 conda install ruff mypy
 ```
 
-* Install any missing library type stubs:
+2. Install any missing library type stubs:
 
 ```
 mypy --install-types
 ```
 
-To format your code:
+* To format your code:
 
 ```
 ruff format clouddrift tests
 ```
 
-To Lint your code:
+* To Lint your code:
 
 ```
 ruff check clouddrift tests
 ```
 
-To perform static type analysis:
+* To perform static type analysis:
 
 ```
 mypy --config-file pyproject.toml
@@ -185,17 +196,20 @@ the process will fail and will block pull requests from being merged.
 ### Building documentation locally
 This is useful if you want to inspect the documentation that gets generated
 
-Go into the docs directory:
+* pre-requisite step: [Building locally and installing](#building-locally-and-installing) necessary for sphinx to find class/module references 
+
+
+1. Go into the docs directory:
 ```
 cd docs
 ```
 
-Install the Sphinx documentation generation dependencies:
+2. Install the Sphinx documentation generation dependencies:
 ```
 pip install -r requirements.txt
 ```
 
-Generate the new documentation:
+3. Generate the new documentation:
 ```
 make html
 ```
@@ -204,7 +218,7 @@ make html
 
 Currently, only one person can deploy releases:
 
-  * Kevin Santana ([jpivarski](https://github.com/jpivarski))
+  * Kevin Santana ([kevinsantana11](https://github.com/kevinsantana11))
 
 If you need your merged pull request to be deployed in a release, just ask!
 
