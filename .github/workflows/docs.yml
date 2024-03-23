@@ -25,6 +25,9 @@ jobs:
     - name: Build docs
       shell: bash -l {0}
       run: |
+        python -m pip install build twine docutils
+        python -m build
+        pip install dist/*.whl
         pushd docs
         pip install -r requirements.txt
         make html
