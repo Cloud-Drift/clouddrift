@@ -43,17 +43,18 @@ Getting started
 Reference
 ---------
 
-* :doc:`contributing`
 * :doc:`api`
+* contributing_
 
 .. toctree::
     :maxdepth: 2
     :hidden:
     :caption: Reference
 
-    contributing
+    Contributing <https://github.com/kevinsantana11/clouddrift/blob/dev-tools/CONTRIBUTING.md>
     api
 
+.. _contributing: https://github.com/kevinsantana11/clouddrift/blob/dev-tools/CONTRIBUTING.md
 .. Indices and tables
 .. ==================
 
