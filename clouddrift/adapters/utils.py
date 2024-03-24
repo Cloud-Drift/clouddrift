@@ -114,8 +114,8 @@ def _download_with_progress(
                     return
             else:
                 _logger.warning(
-                    "Cannot determine the file has been updated on the remote source. \
-                              'Last-Modified' header not present."
+                    "Cannot determine if the file has been updated on the remote source. "
+                    + "'Last-Modified' header not present in server response."
                 )
     _logger.debug(f"Downloading from {url} to {output}...")
 
