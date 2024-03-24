@@ -5,6 +5,7 @@ import tempfile
 from dataclasses import dataclass, field, fields
 from datetime import datetime, timezone
 from io import StringIO
+from typing import Literal, Union
 
 import numpy as np
 import xarray as xr
@@ -24,11 +25,7 @@ _METERS_IN_NAUTICAL_MILES = (
 )
 _PASCAL_PER_MILLI_BAR = 100
 
-
-class BasinOption(int, enum.Enum):
-    ATLANTIC = 1
-    PACIFIC = 2
-    BOTH = 3
+_BasinOption = Union[Literal["atlantic"], Literal["pacific"], Literal["both"]]
 
 
 class RecordIdentifier(str, enum.Enum):
@@ -103,7 +100,7 @@ class HeaderLine:
 
 @dataclass
 class DataLine:
-    time: float = field(
+    time: datetime = field(
         metadata={"comments": "Computed property from YYY-MM-DD HH:MM in UTC"}
     )
     record_identifier: RecordIdentifier = field(
@@ -119,28 +116,24 @@ class DataLine:
         metadata={
             "standard_name": "latitude",
             "units": "degree_north",
-            "comment": "Latitude is positive northward; its units of degree_north (or equivalent) indicate this explicitly. In a latitude-longitude system defined with respect to a rotated North Pole, the standard name of grid_latitude should be used instead of latitude. Grid latitude is positive in the grid-northward direction, but its units should be plain degree.",
         }
     )
     lon: float = field(
         metadata={
             "standard_name": "Longitude",
             "units": "degree_east",
-            "comment": "Longitude is positive eastward; its units of degree_east (or equivalent) indicate this explicitly. In a latitude-longitude system defined with respect to a rotated North Pole, the standard name of grid_longitude should be used instead of longitude. Grid longitude is positive in the grid-eastward direction, but its units should be plain degree.",
         }
     )
-    wind_speed: float = field(  # TODO: needs conversion
+    wind_speed: float = field(
         metadata={
             "standard_name": "wind_speed",
             "units": "m s-1",
-            "comment": "Speed is the magnitude of velocity. Wind is defined as a two-dimensional (horizontal) air velocity vector, with no vertical component. (Vertical motion in the atmosphere has the standard name upward_air_velocity.) The wind speed is the magnitude of the wind velocity.",
         }
     )
     pressure: float = field(
         metadata={
             "standard_name": "air_pressure",
             "units": "Pa",
-            "comment": "Air pressure is the force per unit area which would be exerted when the moving gas molecules of which the air is composed strike a theoretical surface of any orientation.",
         }
     )
     max_low_wind_radius_ne: float = field(
@@ -243,8 +236,8 @@ class TrackData:
             filter(lambda d: d.record_identifier == RecordIdentifier.GENESIS, self.data)
         )
         if len(results) > 0:
-            return results[0].time
-        return sorted(self.data, key=lambda x: x.time)[0].time
+            return results[0].time.timestamp()
+        return sorted(self.data, key=lambda x: x.time.timestamp())[0].time.timestamp()
 
     def get_rowsize(self) -> int:
         return len(self.data)
@@ -330,7 +323,7 @@ class TrackData:
                 "id": (["traj"], np.array([id_])),
                 "time": (
                     ["obs"],
-                    np.array([line.time for line in self.data], dtype=np.float64),
+                    np.array([int(line.time.timestamp() * 10**9) for line in self.data], dtype="datetime64[ns]"),
                 ),
             },
         )
@@ -346,15 +339,15 @@ def _map_heading(coordinate: str) -> float:
     raise ValueError(f"Invalid cardinal direction: {cardinal_direction}")
 
 
-def _get_download_requests(basin: BasinOption, tmp_path: str):
+def _get_download_requests(basin: _BasinOption, tmp_path: str):
     download_requests: list[tuple[str, str, None]] = list()
 
-    if basin & BasinOption.ATLANTIC == BasinOption.ATLANTIC:
+    if basin == "atlantic" or basin == "both":
         file_name = _ATLANTIC_BASIN_URL.split("/")[-1]
         fp = os.path.join(_DEFAULT_FILE_PATH, file_name)
         download_requests.append((_ATLANTIC_BASIN_URL, fp, None))
 
-    if basin & BasinOption.PACIFIC == BasinOption.PACIFIC:
+    if basin == "pacific" or basin == "both":
         file_name = _PACIFIC_BASIN_URL.split("/")[-1]
         fp = os.path.join(_DEFAULT_FILE_PATH, file_name)
         download_requests.append((_PACIFIC_BASIN_URL, fp, None))
@@ -362,7 +355,7 @@ def _get_download_requests(basin: BasinOption, tmp_path: str):
 
 
 def to_raggedarray(
-    basin: BasinOption = BasinOption.BOTH,
+    basin: _BasinOption = "both",
     tmp_path: str = _DEFAULT_FILE_PATH,
     convert: bool = True,
 ) -> RaggedArray:
@@ -472,7 +465,7 @@ def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
                         hour=int(cols[1][:2]),
                         minute=int(cols[1][2:4]),
                         tzinfo=timezone.utc,
-                    ).timestamp(),
+                    ),
                     record_identifier=RecordIdentifier(cols[2]),
                     system_status=SystemStatus(cols[3]),
                     lat=_map_heading(cols[4]),
