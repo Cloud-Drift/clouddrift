@@ -5,7 +5,7 @@ Thank you for your interest in contributing! We look forward to seeing your idea
 It should be noted that this contributing guide took heavy inspiration from the [Awkward Array](https://github.com/scikit-hep/awkward/blob/main/CONTRIBUTING.md) project.
 
 ## Code of Conduct
-This project follows `NumFOCUS <https://numfocus.org/code-of-conduct>`_ code of conduct, the short version is:
+This project follows [NumFOCUS code of conduct](https://numfocus.org/code-of-conduct>). The short version is:
 
 - Be kind to others. Do not insult or put down others. Behave professionally. Remember that harassment and sexist, racist, or exclusionary jokes are not appropriate.
 - All communication should be appropriate for a professional audience including people of many different backgrounds. Sexual language and imagery is not appropriate.
@@ -96,9 +96,9 @@ conda activate clouddrift
 
 ### Testing
 
-* pre-requisite step: [Preparing your environment](#preparing-your-environment)
+1. pre-requisite step: [Preparing your environment](#preparing-your-environment)
 
-1. Install testing dependencies
+2. Install testing dependencies
 
 with pip:
 
@@ -112,7 +112,7 @@ with conda:
 conda install matplotlib-base cartopy
 ```
 
-2. Run the test suite:
+3. Run the test suite:
 
 ```
 python -m unittest tests/*.py
@@ -148,7 +148,7 @@ pip install dist/clouddrift*.whl
 
 ### Automatic formatting and linting
 
-The Clouddrift project uses the `ruff` tool for formatting the code and linting. We also leverage `mypy` for static typing. Please see the section on [Automated Processes](#automated-processes) to learn about how these tools are used prior to accepting pull requests.
+The Clouddrift project uses the [`ruff`](https://github.com/astral-sh/ruff) tool for formatting the code and linting. We also leverage [`mypy`](https://github.com/python/mypy) for static typing. Please see the section on [Automated Processes](#automated-processes) to learn about how these tools are used prior to accepting pull requests.
 
 1. Install development dependencies 
 
