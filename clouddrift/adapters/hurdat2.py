@@ -20,16 +20,15 @@ _PACIFIC_BASIN_URL = "https://www.aoml.noaa.gov/hrd/hurdat/hurdat2-nepac.html"
 _DEFAULT_FILE_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", _DEFAULT_NAME)
 os.makedirs(_DEFAULT_FILE_PATH, exist_ok=True)
 
-_METERS_IN_NAUTICAL_MILES = (
-    1825  # source: https://en.wikipedia.org/wiki/Nautical_mile#cite_note-BIPM-2
-)
-_PASCAL_PER_MILLI_BAR = 100
+_METERS_IN_NAUTICAL_MILES = 1825
+_PASCAL_PER_MILLIBAR = 100
 
 _BasinOption = Union[Literal["atlantic"], Literal["pacific"], Literal["both"]]
 
 
 class RecordIdentifier(str, enum.Enum):
-    """C – Closest approach to a coast, not followed by a landfall
+    """
+    C – Closest approach to a coast, not followed by a landfall
     G – Genesis
     I – An intensity peak in terms of both pressure and wind
     L – Landfall (center of system crossing a coastline)
@@ -37,9 +36,10 @@ class RecordIdentifier(str, enum.Enum):
     R – Provides additional detail on the intensity of the cyclone when rapid changes are underway
     S – Change of status of the system
     T – Provides additional detail on the track (position) of the cyclone
-    W – Maximum sustained wind speed"""
+    W – Maximum sustained wind speed
+    """
 
-    CLOSES_TO_COAST = "C"
+    CLOSEST_TO_COAST = "C"
     GENESIS = "G"
     INTENSITY_PEAK = "I"
     LANDFALL = "L"
@@ -52,7 +52,8 @@ class RecordIdentifier(str, enum.Enum):
 
 
 class SystemStatus(str, enum.Enum):
-    """TD – Tropical cyclone of tropical depression intensity (< 34 knots)
+    """
+    TD – Tropical cyclone of tropical depression intensity (< 34 knots)
     TS – Tropical cyclone of tropical storm intensity (34-63 knots)
     HU – Tropical cyclone of hurricane intensity (> 64 knots)
     EX – Extratropical cyclone (of any intensity)
@@ -64,7 +65,8 @@ class SystemStatus(str, enum.Enum):
     ET - UNKNOWN found in Northeast Pacific Basin
     PT - UNKNOWN found in Northeast Pacific Basin
     ST - UNKNOWN found in Northeast Pacific Basin
-    TY - UNKNOWN found in Northeast Pacific Basin"""
+    TY - UNKNOWN found in Northeast Pacific Basin
+    """
 
     TD = "TD"
     TS = "TS"
@@ -120,7 +122,7 @@ class DataLine:
     )
     lon: float = field(
         metadata={
-            "standard_name": "Longitude",
+            "standard_name": "longitude",
             "units": "degree_east",
         }
     )
@@ -421,7 +423,7 @@ def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
         k_to_mps = (
             lambda x: x * _METERS_IN_NAUTICAL_MILES / 3600
         )  # knots to meters per second
-        mb_to_pa = lambda x: x * _PASCAL_PER_MILLI_BAR  # millibar to pascal
+        mb_to_pa = lambda x: x * _PASCAL_PER_MILLIBAR  # millibar to pascal
     else:
         nm_to_m = lambda x: x
         k_to_mps = lambda x: x

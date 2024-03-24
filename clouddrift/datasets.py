@@ -225,7 +225,7 @@ def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataA
     """Returns the hurricane (Atlantic Basin) v2 (HURDAT2) dataset as a ragged array
     Xarray dataset.
 
-    The function will first look for the ragged-array dataset on the local
+    The function will first look for the ragged array dataset on the local
     filesystem. If it is not found, the dataset will be downloaded using the
     corresponding adapter function and stored for later access.
 
@@ -245,7 +245,7 @@ def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataA
     Returns
     -------
     xarray.Dataset
-        HURDAT2 dataset as a ragged array
+        HURDAT2 dataset as a ragged array.
 
     Examples TODO - EVERYTHING BELOW NEEDS TO BE UPDATED
     --------
