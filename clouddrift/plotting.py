@@ -1,5 +1,5 @@
 """
-This module provides a function to easily and efficiently plot trajectories stored in a ragged array.
+This module provides a function to easily and efficiently plot the rows of a ragged array.
 """
 
 from typing import Optional, Union
@@ -21,12 +21,12 @@ def plot_ragged(
     tolerance: Optional[Union[float, int]] = 180,
     **kwargs,
 ):
-    """Plot trajectories from a ragged array dataset on a Matplotlib Axes
+    """Plot individually the rows of a ragged array dataset on a Matplotlib Axes
     or a Cartopy GeoAxes object ``ax``.
 
     This function wraps Matplotlib's ``plot`` function (``plt.plot``) and
     ``LineCollection`` (``matplotlib.collections``) to efficiently plot
-    trajectories from a ragged array dataset.
+    the rows of a ragged array dataset.
 
     Parameters
     ----------
@@ -41,12 +41,12 @@ def plot_ragged(
     *args : tuple
         Additional arguments to pass to ``ax.plot``.
     colors : array-like
-        Colors to use for plotting. If colors is the same shape as longitude and latitude,
-        the trajectories are splitted into segments and each segment is colored according
-        to the corresponding color value. If colors is the same shape as rowsize, the
-        trajectories are uniformly colored according to the corresponding color value.
+        Values to map on the current colormap. If ``colors`` is the shape of ``rowsize``,
+        the data points of each row are uniformly colored according to the color value for the row.
+        If ``colors`` is the shape of ``longitude`` and ``latitude``, the data points are colored according
+        to the color value for each data point.
     tolerance : float
-        Longitude tolerance gap between data points (in degrees) for segmenting trajectories.
+        Longitude tolerance gap between data points (in degrees) for segmenting rows.
         For periodic domains, the tolerance parameter should be set to the maximum allowed gap
         between data points. Defaults to 180.
     **kwargs : dict
@@ -88,7 +88,8 @@ def plot_ragged(
     >>> fig.colorbar(l, cax=cax)
 
     To plot the same trajectories, but assigning a different color to each
-    observation based on time and specifying a colormap:
+    data point based on a transformation of the time variable mapped onto
+    the ``inferno`` colormap:
 
     >>> fig = plt.figure()
     >>> ax = fig.add_subplot(1, 1, 1)
