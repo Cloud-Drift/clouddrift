@@ -247,7 +247,6 @@ def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataA
     xarray.Dataset
         HURDAT2 dataset as a ragged array.
 
-    Examples TODO - EVERYTHING BELOW NEEDS TO BE UPDATED
     --------
     >>> from clouddrift.datasets import hurdat2
     >>> ds = hurdat2()
