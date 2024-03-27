@@ -10,10 +10,10 @@ class hurdat2_integration_tests(unittest.TestCase):
     def test_load_create_ragged_array(self):
         ra = hurdat2.to_raggedarray()
         ds = ra.to_xarray()
-        assert "atcf_identifier" in ds.coords
+        assert "id" in ds.coords
         assert "time" in ds.coords
         assert len(ds.coords["time"]) == len(ra.coords["time"])
-        assert len(ds.coords["atcf_identifier"]) == len(ra.coords["atcf_identifier"])
+        assert len(ds.coords["id"]) == len(ra.coords["id"])
 
     def test_conversion(self):
         ra = hurdat2.to_raggedarray()
