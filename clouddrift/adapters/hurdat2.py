@@ -18,7 +18,6 @@ _ATLANTIC_BASIN_URL = "https://www.aoml.noaa.gov/hrd/hurdat/hurdat2.html"
 _PACIFIC_BASIN_URL = "https://www.aoml.noaa.gov/hrd/hurdat/hurdat2-nepac.html"
 
 _DEFAULT_FILE_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", _DEFAULT_NAME)
-os.makedirs(_DEFAULT_FILE_PATH, exist_ok=True)
 
 _METERS_IN_NAUTICAL_MILES = 1825
 _PASCAL_PER_MILLIBAR = 100
@@ -84,7 +83,7 @@ class SystemStatus(str, enum.Enum):
 
 @dataclass
 class HeaderLine:
-    atcf_identifier: str = field(
+    id: str = field(
         metadata={
             "standard_name": "automated_tropical_cyclone_forecasting_system_storm_identifier",
             "comment": "The Automated Tropical Cyclone Forecasting System (ATCF) storm identifier is an 8 character string which identifies a tropical cyclone. The storm identifier has the form BBCCYYYY, where BB is the ocean basin, specifically: AL - North Atlantic basin, north of the Equator; SL - South Atlantic basin, south of the Equator; EP - North East Pacific basin, eastward of 140 degrees west longitude; CP - North Central Pacific basin, between the dateline and 140 degrees west longitude; WP - North West Pacific basin, westward of the dateline; IO - North Indian Ocean basin, north of the Equator between 40 and 100 degrees east longitude; SH - South Pacific Ocean basin and South Indian Ocean basin. CC is the cyclone number. Numbers 01 through 49 are reserved for tropical and subtropical cyclones. A cyclone number is assigned to each tropical or subtropical cyclone in each basin as it develops. Numbers are assigned in chronological order. Numbers 50 through 79 are reserved for internal use by operational forecast centers. Numbers 80 through 89 are reserved for training, exercises and testing. Numbers 90 through 99 are reserved for tropical disturbances having the potential to become tropical or subtropical cyclones. The 90's are assigned sequentially and reused throughout the calendar year. YYYY is the four-digit year. This is calendar year for the northern hemisphere. For the southern hemisphere, the year begins July 1, with calendar year plus one. Reference: Miller, R.J., Schrader, A.J., Sampson, C.R., & Tsui, T.L. (1990), The Automated Tropical Cyclone Forecasting System (ATCF), American Meteorological Society Computer Techniques, 5, 653 - 660.",
@@ -312,7 +311,7 @@ class TrackData:
                 ),
             },
             coords={
-                "atcf_identifier": (["traj"], np.array([self.header.atcf_identifier])),
+                "id": (["traj"], np.array([self.header.id])),
                 "time": (
                     ["obs"],
                     np.array([int(line.time.timestamp() * 10**9) for line in self.data], dtype="datetime64[ns]"),
@@ -351,6 +350,7 @@ def to_raggedarray(
     tmp_path: str = _DEFAULT_FILE_PATH,
     convert: bool = True,
 ) -> RaggedArray:
+    os.makedirs(_DEFAULT_FILE_PATH, exist_ok=True) # generate temp directory for hurdat related intermerdiary data
     download_requests = _get_download_requests(basin, tmp_path)
     download_with_progress(download_requests)
     track_data = list()
@@ -362,7 +362,7 @@ def to_raggedarray(
     data_fields = list()
 
     for f in fields(HeaderLine):
-        if f.name != "atcf_identifier":
+        if f.name != "id":
             metadata_fields.append(f.name)
 
     for f in fields(DataLine):
@@ -371,7 +371,7 @@ def to_raggedarray(
 
     ra = RaggedArray.from_files(
         indices=list(range(0, len(track_data))),
-        name_coords=["atcf_identifier", "time"],
+        name_coords=["id", "time"],
         name_meta=metadata_fields,
         name_data=data_fields,
         name_dims={"traj": "rows", "obs": "obs"},
@@ -427,7 +427,7 @@ def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
         if is_header_line(cols, data_line_count):
             data_line_count = int(cols[2])
             header = HeaderLine(
-                atcf_identifier=cols[0],
+                id=cols[0],
                 basin=cols[0][:2],
                 year=int(cols[0][4:7]),
                 rowsize=data_line_count,
