@@ -27,16 +27,7 @@ to process various Lagrangian datasets, can be found in
 
 ## Contributing and scope
 
-We welcome contributions from the community.
-If you would like to propose an idea for a new feature or contribute your own
-implementation, please follow these steps:
-
-1. Open a new [issue](https://github.com/Cloud-Drift/clouddrift/issues) to discuss your proposal.
-2. Once we agree on a general way forward, [fork the repository](https://docs.github.com/en/github-ae@latest/get-started/quickstart/fork-a-repo) and [create a
-   new branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository) for your contribution.
-3. Write your code and [tests](https://docs.github.com/en/actions/automating-builds-and-tests). Please follow the same style as the rest of the
-   codebase and ensure that all new functionality is covered by your tests.
-4. Open a pull request and request a review.
+We welcome and invite contributions from the community in any shape or form! Please visit our [Contributing Guide](CONTRIBUTING.md) to get Started 😃
 
 The scope of CloudDrift includes:
 
@@ -116,41 +107,6 @@ pip install git+https://github.com/cloud-drift/clouddrift
 conda env create -f environment.yml
 ```
 with the environment [file](https://github.com/Cloud-Drift/clouddrift/blob/main/environment.yml) located in the main repository.
-
-### Run the tests
-
-To run the tests, you need to first download the CloudDrift source code from
-GitHub:
-
-```
-git clone https://github.com/cloud-drift/clouddrift
-cd clouddrift/
-```
-
-and create the virtual environment.
-
-With pip:
-
-```
-python3 -m venv .venv
-source .venv/bin/activate
-pip install .
-pip install matplotlib cartopy
-```
-
-With Conda:
-
-```
-conda env create -f environment.yml
-conda activate clouddrift
-conda install matplotlib-base cartopy
-```
-
-Then, run the tests like this:
-
-```
-python -m unittest tests/*.py
-```
 
 ### Installing CloudDrift on unsupported platforms
 
