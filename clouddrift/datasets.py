@@ -222,19 +222,18 @@ def glad(decode_times: bool = True) -> xr.Dataset:
 
 
 def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataArray:
-    """Returns the hurricane (Atlantic Basin) v2 (HURDAT2) dataset as a ragged array
-    Xarray dataset.
+    """Returns the revised hurricane database (HURDAT2) as a ragged array xarray dataset.
 
     The function will first look for the ragged array dataset on the local
     filesystem. If it is not found, the dataset will be downloaded using the
     corresponding adapter function and stored for later access.
 
-    The upstream data is available at https://www.aoml.noaa.gov/hrd/hurdat/hurdat2.html
+    The upstream data is available at https://www.aoml.noaa.gov/hrd/hurdat/hurdat2.html.
 
     Parameters
     ----------
-    option : "atlantic", "pacific", "both" (default)
-        Specify which basin to download storm data for. Current available options are the 
+    basin : "atlantic", "pacific", "both" (default)
+        Specify which ocean basin to download storm data for. Current available options are the 
         Atlantic Ocean "atlantic", Pacific Ocean "pacific" and, both "both" to download
         storm data for both oceans.
     decode_times : bool, optional
@@ -247,7 +246,6 @@ def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataA
     xarray.Dataset
         HURDAT2 dataset as a ragged array.
 
-    --------
     >>> from clouddrift.datasets import hurdat2
     >>> ds = hurdat2()
     >>> ds
@@ -282,7 +280,7 @@ def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataA
 
     Reference
     ---------
-    Özgökmen, Tamay. 2013. GLAD experiment CODE-style drifter trajectories (low-pass filtered, 15 minute interval records), northern Gulf of Mexico near DeSoto Canyon, July-October 2012. Distributed by: Gulf of Mexico Research Initiative Information and Data Cooperative (GRIIDC), Harte Research Institute, Texas A&M University–Corpus Christi. doi:10.7266/N7VD6WC8
+    https://www.aoml.noaa.gov/hrd/hurdat/Data_Storm.html.
     """
     return _dataset_filecache("hurdat2.nc", decode_times, lambda: adapters.hurdat2.to_raggedarray(basin).to_xarray())
 
