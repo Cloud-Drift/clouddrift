@@ -83,7 +83,7 @@ def sample_ragged_array() -> RaggedArray:
         ["id", "time"],
         name_meta=["rowsize"],
         name_data=["test", "lat", "lon"],
-        name_dims={"rows": "rows", "obs": "obs"}
+        name_dims={"rows": "rows", "obs": "obs"},
     )
 
     return ra
