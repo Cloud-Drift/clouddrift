@@ -552,7 +552,7 @@ def yomaha(decode_times: bool = True) -> xr.Dataset:
     return _dataset_filecache("yomaha.nc", decode_times, adapters.yomaha.to_xarray)
 
 
-def andro(decode_times: bool = True) -> xr.Dataset:
+def andro(decode_times: bool = False) -> xr.Dataset:
     """Returns the ANDRO as a ragged array Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
@@ -613,9 +613,9 @@ def andro(decode_times: bool = True) -> xr.Dataset:
     Kolodziejczyk Nicolas (2022). ANDRO: An Argo-based deep displacement dataset.
     SEANOE. https://doi.org/10.17882/47077
     """
-    return _dataset_filecache("andro.nc", decode_times, adapters.andro.to_xarray, "h5netcdf")
+    return _dataset_filecache("andro.nc", decode_times, adapters.andro.to_xarray)
 
-def _dataset_filecache(filename: str, decode_times: bool, get_ds: Callable[[], xr.Dataset], engine=None):
+def _dataset_filecache(filename: str, decode_times: bool, get_ds: Callable[[], xr.Dataset]):
     clouddrift_path = (
         os.path.expanduser("~/.clouddrift")
         if not os.getenv("CLOUDDRIFT_PATH")
@@ -627,4 +627,4 @@ def _dataset_filecache(filename: str, decode_times: bool, get_ds: Callable[[], x
         ds = get_ds()
         os.makedirs(os.path.dirname(fp), exist_ok=True)
         ds.to_netcdf(fp)
-    return xr.open_dataset(fp, engine=engine, decode_times=decode_times)
+    return xr.open_dataset(fp, decode_times=decode_times)
