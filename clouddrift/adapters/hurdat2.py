@@ -5,7 +5,7 @@ import tempfile
 from dataclasses import dataclass, field, fields
 from datetime import datetime, timezone
 from io import StringIO
-from typing import Literal, Union
+from typing import Literal
 
 import numpy as np
 import xarray as xr
@@ -23,8 +23,7 @@ os.makedirs(_DEFAULT_FILE_PATH, exist_ok=True)
 _METERS_IN_NAUTICAL_MILES = 1825
 _PASCAL_PER_MILLIBAR = 100
 
-_BasinOption = Union[Literal["atlantic"], Literal["pacific"], Literal["both"]]
-
+_BasinOption = Literal["atlantic", "pacific", "both"]
 
 class RecordIdentifier(str, enum.Enum):
     """
@@ -85,15 +84,15 @@ class SystemStatus(str, enum.Enum):
 
 @dataclass
 class HeaderLine:
-    basin: str = field(
-        metadata={
-            "comments": "Basin of origin, possible values: AL - North Atlantic basin, north of the Equator; SL - South Atlantic basin, south of the Equator; EP - North East Pacific basin, eastward of 140 degrees west longitude; CP - North Central Pacific basin, between the dateline and 140 degrees west longitude; WP - North West Pacific basin, westward of the dateline; IO - North Indian Ocean basin, north of the Equator between 40 and 100 degrees east longitude; SH - South Pacific Ocean basin and South Indian Ocean basin",
-        }
-    )
     atcf_identifier: str = field(
         metadata={
             "standard_name": "automated_tropical_cyclone_forecasting_system_storm_identifier",
             "comment": "The Automated Tropical Cyclone Forecasting System (ATCF) storm identifier is an 8 character string which identifies a tropical cyclone. The storm identifier has the form BBCCYYYY, where BB is the ocean basin, specifically: AL - North Atlantic basin, north of the Equator; SL - South Atlantic basin, south of the Equator; EP - North East Pacific basin, eastward of 140 degrees west longitude; CP - North Central Pacific basin, between the dateline and 140 degrees west longitude; WP - North West Pacific basin, westward of the dateline; IO - North Indian Ocean basin, north of the Equator between 40 and 100 degrees east longitude; SH - South Pacific Ocean basin and South Indian Ocean basin. CC is the cyclone number. Numbers 01 through 49 are reserved for tropical and subtropical cyclones. A cyclone number is assigned to each tropical or subtropical cyclone in each basin as it develops. Numbers are assigned in chronological order. Numbers 50 through 79 are reserved for internal use by operational forecast centers. Numbers 80 through 89 are reserved for training, exercises and testing. Numbers 90 through 99 are reserved for tropical disturbances having the potential to become tropical or subtropical cyclones. The 90's are assigned sequentially and reused throughout the calendar year. YYYY is the four-digit year. This is calendar year for the northern hemisphere. For the southern hemisphere, the year begins July 1, with calendar year plus one. Reference: Miller, R.J., Schrader, A.J., Sampson, C.R., & Tsui, T.L. (1990), The Automated Tropical Cyclone Forecasting System (ATCF), American Meteorological Society Computer Techniques, 5, 653 - 660.",
+        }
+    )
+    basin: str = field(
+        metadata={
+            "comments": "Basin of origin, possible values: AL - North Atlantic basin, north of the Equator; SL - South Atlantic basin, south of the Equator; EP - North East Pacific basin, eastward of 140 degrees west longitude; CP - North Central Pacific basin, between the dateline and 140 degrees west longitude; WP - North West Pacific basin, westward of the dateline; IO - North Indian Ocean basin, north of the Equator between 40 and 100 degrees east longitude; SH - South Pacific Ocean basin and South Indian Ocean basin",
         }
     )
     year: int = field(metadata={"long_name": "Year"})
@@ -233,22 +232,13 @@ class TrackData:
     header: HeaderLine
     data: list[DataLine]
 
-    def get_genesis_date(self) -> float:
-        results = list(
-            filter(lambda d: d.record_identifier == RecordIdentifier.GENESIS, self.data)
-        )
-        if len(results) > 0:
-            return results[0].time.timestamp()
-        return sorted(self.data, key=lambda x: x.time.timestamp())[0].time.timestamp()
-
     def get_rowsize(self) -> int:
         return len(self.data)
 
-    def to_xarray_dataset(self, id_: int) -> xr.Dataset:
+    def to_xarray_dataset(self) -> xr.Dataset:
         return xr.Dataset(
             {
                 "basin": (["traj"], np.array([self.header.basin])),
-                "atcf_identifier": (["traj"], np.array([self.header.atcf_identifier])),
                 "year": (["traj"], np.array([self.header.year])),
                 "rowsize": (["traj"], np.array([self.header.rowsize])),
                 "record_identifier": (
@@ -322,7 +312,7 @@ class TrackData:
                 ),
             },
             coords={
-                "id": (["traj"], np.array([id_])),
+                "atcf_identifier": (["traj"], np.array([self.header.atcf_identifier])),
                 "time": (
                     ["obs"],
                     np.array([int(line.time.timestamp() * 10**9) for line in self.data], dtype="datetime64[ns]"),
@@ -368,16 +358,11 @@ def to_raggedarray(
     for _, fp, _ in download_requests:
         track_data.extend(_extract_track_data(fp, convert))
 
-    track_data = sorted(track_data, key=lambda td: td.get_genesis_date())
-    track_data_map: dict[int, TrackData] = {
-        idx: track_data[idx] for idx in range(0, len(track_data))
-    }
-
     metadata_fields = list()
     data_fields = list()
 
     for f in fields(HeaderLine):
-        if f.name != "id":
+        if f.name != "atcf_identifier":
             metadata_fields.append(f.name)
 
     for f in fields(DataLine):
@@ -385,13 +370,13 @@ def to_raggedarray(
             data_fields.append(f.name)
 
     ra = RaggedArray.from_files(
-        indices=list(track_data_map.keys()),
-        name_coords=["id", "time"],
+        indices=list(range(0, len(track_data))),
+        name_coords=["atcf_identifier", "time"],
         name_meta=metadata_fields,
         name_data=data_fields,
         name_dims={"traj": "rows", "obs": "obs"},
-        rowsize_func=lambda idx: track_data_map[idx].get_rowsize(),
-        preprocess_func=lambda idx: track_data_map[idx].to_xarray_dataset(idx),
+        rowsize_func=lambda idx: track_data[idx].get_rowsize(),
+        preprocess_func=lambda idx: track_data[idx].to_xarray_dataset(),
         attrs_global=TrackData.global_attrs,
         attrs_variables={
             field.name: field.metadata
@@ -442,8 +427,8 @@ def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
         if is_header_line(cols, data_line_count):
             data_line_count = int(cols[2])
             header = HeaderLine(
-                basin=cols[0][:2],
                 atcf_identifier=cols[0],
+                basin=cols[0][:2],
                 year=int(cols[0][4:7]),
                 rowsize=data_line_count,
             )
