@@ -5,7 +5,7 @@ import tempfile
 from dataclasses import dataclass, field, fields
 from datetime import datetime, timezone
 from io import StringIO
-from typing import Any, Literal, Union
+from typing import Any, Literal, TypeVar, Union
 
 import numpy as np
 import xarray as xr
@@ -23,6 +23,7 @@ _METERS_IN_NAUTICAL_MILES = 1825
 _PASCAL_PER_MILLIBAR = 100
 
 _BasinOption = Literal["atlantic", "pacific", "both"]
+
 
 class RecordIdentifier(str, enum.Enum):
     """
@@ -314,7 +315,10 @@ class TrackData:
                 "id": (["traj"], np.array([self.header.id])),
                 "time": (
                     ["obs"],
-                    np.array([int(line.time.timestamp() * 10**9) for line in self.data], dtype="datetime64[ns]"),
+                    np.array(
+                        [int(line.time.timestamp() * 10**9) for line in self.data],
+                        dtype="datetime64[ns]",
+                    ),
                 ),
             },
         )
@@ -350,7 +354,9 @@ def to_raggedarray(
     tmp_path: str = _DEFAULT_FILE_PATH,
     convert: bool = True,
 ) -> RaggedArray:
-    os.makedirs(_DEFAULT_FILE_PATH, exist_ok=True) # generate temp directory for hurdat related intermerdiary data
+    os.makedirs(
+        _DEFAULT_FILE_PATH, exist_ok=True
+    )  # generate temp directory for hurdat related intermerdiary data
     download_requests = _get_download_requests(basin, tmp_path)
     download_with_progress(download_requests)
     track_data = list()
@@ -385,11 +391,13 @@ def to_raggedarray(
     )
     return ra
 
-def _apply_or_nan(val: Any, cond: bool, func) -> Union[Any, None]:
+
+def _apply_or_nan(val: str, cond: bool, func) -> float:
     """If `val` is None or condition is true return nan otherwise apply the `func` to `val` and return the result"""
     if val is None or cond:
         return np.nan
     return func(val)
+
 
 def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
     datapage = StringIO()
@@ -409,7 +417,9 @@ def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
     )
     is_data_line = lambda cols, data_line_count: len(cols) == 21 and data_line_count > 0
     if convert:
-        nm_to_m = lambda x: float(x) * _METERS_IN_NAUTICAL_MILES  # nautical-miles to meters
+        nm_to_m = (
+            lambda x: float(x) * _METERS_IN_NAUTICAL_MILES
+        )  # nautical-miles to meters
         k_to_mps = (
             lambda x: float(x) * _METERS_IN_NAUTICAL_MILES / 3600
         )  # knots to meters per second

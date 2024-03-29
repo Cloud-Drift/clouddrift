@@ -233,14 +233,14 @@ def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataA
     Parameters
     ----------
     basin : "atlantic", "pacific", "both" (default)
-        Specify which ocean basin to download storm data for. Current available options are the 
+        Specify which ocean basin to download storm data for. Current available options are the
         Atlantic Ocean "atlantic", Pacific Ocean "pacific" and, both "both" to download
         storm data for both oceans.
     decode_times : bool, optional
         If True, decode the time coordinate into a datetime object. If False, the time
         coordinate will be an int64 or float64 array of increments since the origin
         time indicated in the units attribute. Default is True.
-        
+
     Returns
     -------
     xarray.Dataset
@@ -289,7 +289,11 @@ def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataA
     ---------
     https://www.aoml.noaa.gov/hrd/hurdat/Data_Storm.html.
     """
-    return _dataset_filecache("hurdat2.nc", decode_times, lambda: adapters.hurdat2.to_raggedarray(basin).to_xarray())
+    return _dataset_filecache(
+        "hurdat2.nc",
+        decode_times,
+        lambda: adapters.hurdat2.to_raggedarray(basin).to_xarray(),
+    )
 
 
 def mosaic(decode_times: bool = True) -> xr.Dataset:
@@ -351,6 +355,7 @@ def mosaic(decode_times: bool = True) -> xr.Dataset:
         rowsize                     (traj) int64 ...
     """
     return _dataset_filecache("mosaic.nc", decode_times, adapters.mosaic.to_xarray)
+
 
 def spotters(decode_times: bool = True) -> xr.Dataset:
     """Returns the Sofar Ocean Spotter drifters ragged array dataset as an Xarray dataset.
@@ -483,7 +488,9 @@ def subsurface_floats(decode_times: bool = True) -> xr.Dataset:
     ----------
     WOCE Subsurface Float Data Assembly Center (WFDAC) https://www.aoml.noaa.gov/phod/float_traj/index.php
     """
-    return _dataset_filecache("subsurface_floats.nc", decode_times, adapters.subsurface_floats.to_xarray)
+    return _dataset_filecache(
+        "subsurface_floats.nc", decode_times, adapters.subsurface_floats.to_xarray
+    )
 
 
 def yomaha(decode_times: bool = True) -> xr.Dataset:
@@ -615,7 +622,10 @@ def andro(decode_times: bool = False) -> xr.Dataset:
     """
     return _dataset_filecache("andro.nc", decode_times, adapters.andro.to_xarray)
 
-def _dataset_filecache(filename: str, decode_times: bool, get_ds: Callable[[], xr.Dataset]):
+
+def _dataset_filecache(
+    filename: str, decode_times: bool, get_ds: Callable[[], xr.Dataset]
+):
     clouddrift_path = (
         os.path.expanduser("~/.clouddrift")
         if not os.getenv("CLOUDDRIFT_PATH")
