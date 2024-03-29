@@ -5,7 +5,7 @@ import tempfile
 from dataclasses import dataclass, field, fields
 from datetime import datetime, timezone
 from io import StringIO
-from typing import Literal
+from typing import Any, Literal, Union
 
 import numpy as np
 import xarray as xr
@@ -385,6 +385,11 @@ def to_raggedarray(
     )
     return ra
 
+def _apply_or_nan(val: Any, cond: bool, func) -> Union[Any, None]:
+    """If `val` is None or condition is true return nan otherwise apply the `func` to `val` and return the result"""
+    if val is None or cond:
+        return np.nan
+    return func(val)
 
 def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
     datapage = StringIO()
@@ -404,15 +409,15 @@ def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
     )
     is_data_line = lambda cols, data_line_count: len(cols) == 21 and data_line_count > 0
     if convert:
-        nm_to_m = lambda x: x * _METERS_IN_NAUTICAL_MILES  # nautical-miles to meters
+        nm_to_m = lambda x: float(x) * _METERS_IN_NAUTICAL_MILES  # nautical-miles to meters
         k_to_mps = (
-            lambda x: x * _METERS_IN_NAUTICAL_MILES / 3600
+            lambda x: float(x) * _METERS_IN_NAUTICAL_MILES / 3600
         )  # knots to meters per second
-        mb_to_pa = lambda x: x * _PASCAL_PER_MILLIBAR  # millibar to pascal
+        mb_to_pa = lambda x: float(x) * _PASCAL_PER_MILLIBAR  # millibar to pascal
     else:
-        nm_to_m = lambda x: x
-        k_to_mps = lambda x: x
-        mb_to_pa = lambda x: x
+        nm_to_m = lambda x: float(x)
+        k_to_mps = lambda x: float(x)
+        mb_to_pa = lambda x: float(x)
 
     while (line := datapage.readline()) != "":
         if is_html_line(line) or line == "\r\n":
@@ -457,21 +462,47 @@ def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
                     system_status=SystemStatus(cols[3]),
                     lat=_map_heading(cols[4]),
                     lon=_map_heading(cols[5]),
-                    wind_speed=k_to_mps(float(cols[6])),
-                    pressure=mb_to_pa(float(cols[7])),
-                    max_low_wind_radius_ne=nm_to_m(float(cols[8])),
-                    max_low_wind_radius_se=nm_to_m(float(cols[9])),
-                    max_low_wind_radius_sw=nm_to_m(float(cols[10])),
-                    max_low_wind_radius_nw=nm_to_m(float(cols[11])),
-                    max_med_wind_radius_ne=nm_to_m(float(cols[12])),
-                    max_med_wind_radius_se=nm_to_m(float(cols[13])),
-                    max_med_wind_radius_sw=nm_to_m(float(cols[14])),
-                    max_med_wind_radius_nw=nm_to_m(float(cols[15])),
-                    max_high_wind_radius_ne=nm_to_m(float(cols[16])),
-                    max_high_wind_radius_se=nm_to_m(float(cols[17])),
-                    max_high_wind_radius_sw=nm_to_m(float(cols[18])),
-                    max_high_wind_radius_nw=nm_to_m(float(cols[19])),
-                    max_sustained_wind_speed_radius=nm_to_m(float(cols[20])),
+                    wind_speed=_apply_or_nan(cols[6], float(cols[6]) < 0, k_to_mps),
+                    pressure=_apply_or_nan(cols[7], cols[7] == "-999", mb_to_pa),
+                    max_low_wind_radius_ne=_apply_or_nan(
+                        cols[8], cols[8] == "-999", nm_to_m
+                    ),
+                    max_low_wind_radius_se=_apply_or_nan(
+                        cols[9], cols[9] == "-999", nm_to_m
+                    ),
+                    max_low_wind_radius_sw=_apply_or_nan(
+                        cols[10], cols[10] == "-999", nm_to_m
+                    ),
+                    max_low_wind_radius_nw=_apply_or_nan(
+                        cols[11], cols[11] == "-999", nm_to_m
+                    ),
+                    max_med_wind_radius_ne=_apply_or_nan(
+                        cols[12], cols[12] == "-999", nm_to_m
+                    ),
+                    max_med_wind_radius_se=_apply_or_nan(
+                        cols[13], cols[13] == "-999", nm_to_m
+                    ),
+                    max_med_wind_radius_sw=_apply_or_nan(
+                        cols[14], cols[14] == "-999", nm_to_m
+                    ),
+                    max_med_wind_radius_nw=_apply_or_nan(
+                        cols[15], cols[15] == "-999", nm_to_m
+                    ),
+                    max_high_wind_radius_ne=_apply_or_nan(
+                        cols[16], cols[16] == "-999", nm_to_m
+                    ),
+                    max_high_wind_radius_se=_apply_or_nan(
+                        cols[17], cols[17] == "-999", nm_to_m
+                    ),
+                    max_high_wind_radius_sw=_apply_or_nan(
+                        cols[18], cols[18] == "-999", nm_to_m
+                    ),
+                    max_high_wind_radius_nw=_apply_or_nan(
+                        cols[19], cols[19] == "-999", nm_to_m
+                    ),
+                    max_sustained_wind_speed_radius=_apply_or_nan(
+                        cols[20], cols[20] == "-999", nm_to_m
+                    ),
                 )
             )
             data_line_count -= 1
