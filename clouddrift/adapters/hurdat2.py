@@ -5,7 +5,7 @@ import tempfile
 from dataclasses import dataclass, field, fields
 from datetime import datetime, timezone
 from io import StringIO
-from typing import Any, Literal, TypeVar, Union
+from typing import Literal
 
 import numpy as np
 import xarray as xr
