@@ -444,7 +444,7 @@ def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
             header = HeaderLine(
                 id=cols[0],
                 basin=cols[0][:2],
-                year=int(cols[0][4:7]),
+                year=int(cols[0][4:8]),
                 rowsize=data_line_count,
             )
             if current_header is None:
