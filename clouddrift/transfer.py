@@ -14,10 +14,10 @@ from clouddrift.sphere import EARTH_DAY_SECONDS
 
 
 def response_to_wind_stress(
-        tau: Union[np.ndarray, xr.DataArray],
-        transfer_function: Union[np.ndarray, xr.DataArray],
-        dt: float,
-        ) -> np.ndarray:
+    tau: Union[np.ndarray, xr.DataArray],
+    transfer_function: Union[np.ndarray, xr.DataArray],
+    dt: float,
+) -> np.ndarray:
     """
     Compute the response of the ocean to wind stress forcing given the transfer function.
 
@@ -29,16 +29,16 @@ def response_to_wind_stress(
             Transfer function from wind stress to oceanic velocity in units of kg-1 m 2 s.
         dt: float
             Time step of the wind stress forcing in seconds.
-    
+
     Returns
     -------
         u: np.ndarray
             Oceanic velocity response to the wind stress forcing in units of m s-1.
-    
+
     Examples
     --------
         To calculate the response of the ocean to wind stress forcing:
-        
+
         >>> tau = np.random.randn(100)
         >>> G = np.random.randn(100)
         >>> dt = 3600
@@ -47,13 +47,14 @@ def response_to_wind_stress(
 
     return np.fft.ifft(np.fft.fft(tau) * np.fft.fft(transfer_function) * dt)
 
+
 def slab_wind_transfer(
-        omega: Union[float, np.ndarray],
-        cor_freq: float, 
-        friction: float, 
-        bld: float, 
-        density: Optional[float] = 1025.0,
-        ) -> np.ndarray:
+    omega: Union[float, np.ndarray],
+    cor_freq: float,
+    friction: float,
+    bld: float,
+    density: Optional[float] = 1025.0,
+) -> np.ndarray:
     """
     Compute the the transfer function in the case of a ocean slab layer.
 

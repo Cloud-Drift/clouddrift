@@ -92,9 +92,7 @@ class TransferFunctionTestShapes(unittest.TestCase):
 
 class TransferFunctionTestInputs(unittest.TestCase):
     def setUp(self):
-        self.omega = (
-            2 * np.pi * np.array([-2, -1.5, -0.5, 0, 0.5, 1, 1.5, 2])
-        )
+        self.omega = 2 * np.pi * np.array([-2, -1.5, -0.5, 0, 0.5, 1, 1.5, 2])
         self.z = np.array([0, 10, 20, 30])
         self.cor_freq = 2 * np.pi * 1.5
         self.delta = 10
@@ -243,20 +241,21 @@ class TransferFunctionSurfaceValues(unittest.TestCase):
             )
         )
 
+
 class TransferFunctionValues(unittest.TestCase):
     # test for values reported in Lilly and Elipot 2021
     def setUp(self):
-        self.omega = np.arange(-10,10+0.01,0.01) * 2 * np.pi
-        self.z = np.arange(0,50,5)
+        self.omega = np.arange(-10, 10 + 0.01, 0.01) * 2 * np.pi
+        self.z = np.arange(0, 50, 5)
         self.cor_freq = 2 * np.pi * 1.5
         self.delta = 20
         self.z0 = 20
         self.mu = self.delta**2 / self.z0
         self.bld = 50
         self.density = 1025
-    
+
     def test_values_finite_bld(self):
-        idx = np.abs(self.omega+self.cor_freq).argmin()
+        idx = np.abs(self.omega + self.cor_freq).argmin()
         G, _, _ = wind_transfer(
             self.omega,
             self.z,
@@ -267,12 +266,23 @@ class TransferFunctionValues(unittest.TestCase):
             boundary_condition="no-slip",
             density=self.density,
         )
-        
-        expected_values = np.array([0.1252763+0*1j, 0.10296194+0*1j,  0.08472979+0*1j,  0.06931472+0*1j,  0.05596158+0*1j,  0.04418328+0*1j, 
- 0.03364722+0*1j,  0.02411621+0*1j,  0.01541507+0*1j,  0.0074108+0*1j
-        ])
-        Gp = G*np.abs(self.cor_freq/EARTH_DAY_SECONDS)*self.density
-        self.assertTrue(np.allclose(Gp[:,idx], expected_values, atol=1e-8))
+
+        expected_values = np.array(
+            [
+                0.1252763 + 0 * 1j,
+                0.10296194 + 0 * 1j,
+                0.08472979 + 0 * 1j,
+                0.06931472 + 0 * 1j,
+                0.05596158 + 0 * 1j,
+                0.04418328 + 0 * 1j,
+                0.03364722 + 0 * 1j,
+                0.02411621 + 0 * 1j,
+                0.01541507 + 0 * 1j,
+                0.0074108 + 0 * 1j,
+            ]
+        )
+        Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
+        self.assertTrue(np.allclose(Gp[:, idx], expected_values, atol=1e-8))
 
     def test_values_infinite_bld(self):
         idx = np.abs(self.omega).argmin()
@@ -286,18 +296,26 @@ class TransferFunctionValues(unittest.TestCase):
             boundary_condition="no-slip",
             density=self.density,
         )
-        
-        expected_values = np.array([0.04850551-0.0396564j,
-                                    0.02829943-0.03744607j,
-                                    0.01520417-0.03297259j,
-                                    0.00668176-0.02797499j,  0.00117548-0.02317678j, -0.00230945-0.01886255j,
-                                    -0.00442761-0.01511781j, -0.00561905-0.01193716j, -0.0061842-0.00927553j,
-                                    -0.00633045-0.00707324j
-        ])
-        Gp = G*np.abs(self.cor_freq/EARTH_DAY_SECONDS)*self.density
+
+        expected_values = np.array(
+            [
+                0.04850551 - 0.0396564j,
+                0.02829943 - 0.03744607j,
+                0.01520417 - 0.03297259j,
+                0.00668176 - 0.02797499j,
+                0.00117548 - 0.02317678j,
+                -0.00230945 - 0.01886255j,
+                -0.00442761 - 0.01511781j,
+                -0.00561905 - 0.01193716j,
+                -0.0061842 - 0.00927553j,
+                -0.00633045 - 0.00707324j,
+            ]
+        )
+        Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
         print(np.shape(Gp))
         print(expected_values)
-        self.assertTrue(np.allclose(Gp[:,idx], expected_values, atol=1e-8))
+        self.assertTrue(np.allclose(Gp[:, idx], expected_values, atol=1e-8))
+
 
 class TransferFunctionTestGradient(unittest.TestCase):
     delta = 10 ** np.arange(-1, 0.05, 3)
