@@ -24,12 +24,18 @@ class hurdat2_integration_tests(unittest.TestCase):
         assert np.allclose(
             ds["wind_speed"],
             ds_non_converted["wind_speed"] * hurdat2._METERS_IN_NAUTICAL_MILES / 3600,
+            equal_nan=True
         )
-        assert np.allclose(ds["pressure"], ds_non_converted["pressure"] * 100)
+
+        assert np.allclose(
+            ds["pressure"],
+            ds_non_converted["pressure"] * 100,
+            equal_nan=True
+        )
         assert np.allclose(
             ds["max_sustained_wind_speed_radius"],
-            ds_non_converted["max_sustained_wind_speed_radius"]
-            * hurdat2._METERS_IN_NAUTICAL_MILES,
+            ds_non_converted["max_sustained_wind_speed_radius"] * hurdat2._METERS_IN_NAUTICAL_MILES,
+            equal_nan=True
         )
 
     @classmethod
