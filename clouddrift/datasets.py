@@ -290,7 +290,7 @@ def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataA
     https://www.aoml.noaa.gov/hrd/hurdat/Data_Storm.html.
     """
     return _dataset_filecache(
-        "hurdat2.nc",
+        f"hurdat2_{basin}.nc",
         decode_times,
         lambda: adapters.hurdat2.to_raggedarray(basin).to_xarray(),
     )
