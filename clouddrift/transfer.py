@@ -6,129 +6,46 @@ velocity.
 from typing import Optional, Tuple, Union
 
 import numpy as np
+import xarray as xr
 from numpy.lib.scimath import sqrt
-from scipy.interpolate import interp1d
 from scipy.special import factorial, iv, kv  # type: ignore
 
 from clouddrift.sphere import EARTH_DAY_SECONDS
 
 
-def kpp_wind_transfer(
-        omega: Union[float, np.ndarray],
-        cor_freq: float, 
-        a: list[float], 
-        zh: np.ndarray,
-        zout: Optional[np.ndarray] = None,
-        density: Optional[float] = 1025.0,
+def response_to_wind_stress(
+        tau: Union[np.ndarray, xr.DataArray],
+        transfer_function: Union[np.ndarray, xr.DataArray],
+        dt: float,
         ) -> np.ndarray:
     """
-    Transfer function from wind stress to oceanic velocity based on the KPP model. Numerical solution.
+    Compute the response of the ocean to wind stress forcing given the transfer function.
 
     Parameters
     ----------
-        omega: array_like or float
-            Angular frequency of the wind stress forcing in radians per day.
-        cor_freq: float
-            Coriolis frequency, in radians per day.
-        a: list[float]
-            First two coefficients of the cubic profile of the eddy viscosity profile.
-        zh: array_like
-            Depth levels for the numerical computation of the transfer function, positive downwards, in meters.
-        zout: array_like, optional
-            Depths at which to return the transfer function. Default is None and the transfer function
-            is returned at the same depths as the computation depth levels. Otherwise the transfer function is
-            interpolated to the specified depths.
-        density: float, optional, default 1025.
-
+        tau: array_like
+            Wind stress forcing in units of N m-2.
+        transfer_function: array_like
+            Transfer function from wind stress to oceanic velocity in units of kg-1 m 2 s.
+        dt: float
+            Time step of the wind stress forcing in seconds.
+    
     Returns
     -------
-        G: np.ndarray
-            The transfer function from wind stress to oceanic velocity in units of kg-1 m 2 s.
-
+        u: np.ndarray
+            Oceanic velocity response to the wind stress forcing in units of m s-1.
+    
     Examples
     --------
-        To calculate the KPP-style transfer function:
-
-         >>> omega = 0
-         >>> z = np.linspace(0, 100, 100)
-         >>> cor_freq = 2 * np.pi * 1
-         >>> a = [1e-4, 1e-4]
-         >>> zh = np.linspace(0, 100, 100)
-         >>> G = kpp_wind_transfer(omega, cor_freq, a, zh)
-
-    Raises
-    ------
-    ValueError
-        If the depth levels are not positive and monotonically increasing.
-    ValueError
-        If the density is not positive.
+        To calculate the response of the ocean to wind stress forcing:
+        
+        >>> tau = np.random.randn(100)
+        >>> G = np.random.randn(100)
+        >>> dt = 3600
+        >>> u = response_to_wind_stress(tau, G, dt)
     """
-    # check that z is monotonic and positive
-    if not np.all(np.diff(zh) > 0) and zh[0] != 0:
-        raise ValueError("Depth z must be monotonically increasing from 0.")
 
-    # check that the density is positive
-    if density < 0:
-        raise ValueError("Density density must be positive.")
-    
-    # check that all values of zout are within zh[0] and zh[-1]
-    if zout is not None:
-        if not (np.min(zout) >= np.min(zh) and np.max(zout) <= np.max(zh)):
-            raise ValueError("All values in zout must be within the range of values in zh.")
-
-    # convert to radians per second
-    cor_freq_ = cor_freq / EARTH_DAY_SECONDS
-    omega_ = np.reshape(omega/EARTH_DAY_SECONDS, (-1,))
-    
-    # make sure zout is an array
-    if zout is not None:
-        zout = np.atleast_1d(zout)
-
-    z = np.reshape(zh, (-1,))
-    h = zh[-1]
-
-    a0 = a[0]
-    a1 = a[1]
-    a2 = -3 * a0 / h**2 - 2 * a1 / h
-    a3 = 2 * a0 / h**3 + a1 / h**2
-
-    up0 = -1 / (density * a0)  # du/dz at z=0
-    uN = 0  # u at z=h
-
-    N = len(z) - 1
-    dz = h / N
-
-    kappa = a0 + a1 * z + a2 * z**2 + a3 * z**3
-    kappap = a1 + 2 * a2 * z + 3 * a3 * z**2
-    
-    if zout is None:
-        G = np.zeros((N + 1, len(omega_)), dtype=complex)
-    else:
-        G = np.zeros((len(zout), len(omega_)), dtype=complex)
-
-    for m, om in enumerate(omega_):
-        alpha = 1j * (om + cor_freq_)
-        b = np.zeros(N, dtype=complex)
-        b[0] = up0 * (2 * kappa[0] / dz - kappap[0])
-
-        D1 = kappa[1:-1] / dz**2 - kappap[1:-1] / (2 * dz)
-        D2 = -alpha - 2 * kappa[:-1] / dz**2
-        D3 = np.concatenate(([2 * kappa[0] / dz**2], kappa[1:-2] / dz**2 + kappap[1:-2] / (2 * dz)))
-
-        # Construct the tridiagonal matrix A
-        A = np.diag(D1, -1) + np.diag(D2, 0) + np.diag(D3, 1)
-
-        # Solve the system A * u = b for u
-        u = np.linalg.solve(A, b)
-        u = np.append(u, uN)  # Append uN to the solution vector u
-
-        if zout is None:
-            G[:, m] = u
-        else:
-            f = interp1d(z, u, axis = 0, kind = 'linear')
-            G[:, m] = f(zout)
-
-    return G
+    return np.fft.ifft(np.fft.fft(tau) * np.fft.fft(transfer_function) * dt)
 
 def slab_wind_transfer(
         omega: Union[float, np.ndarray],
