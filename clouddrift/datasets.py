@@ -8,10 +8,12 @@ they will be downloaded from their upstream repositories and stored for later ac
 import os
 import platform
 from io import BytesIO
+from typing import Callable
 
 import xarray as xr
 
 from clouddrift import adapters
+from clouddrift.adapters.hurdat2 import _BasinOption
 
 
 def gdp1h(decode_times: bool = True) -> xr.Dataset:
@@ -216,20 +218,82 @@ def glad(decode_times: bool = True) -> xr.Dataset:
     ---------
     Özgökmen, Tamay. 2013. GLAD experiment CODE-style drifter trajectories (low-pass filtered, 15 minute interval records), northern Gulf of Mexico near DeSoto Canyon, July-October 2012. Distributed by: Gulf of Mexico Research Initiative Information and Data Cooperative (GRIIDC), Harte Research Institute, Texas A&M University–Corpus Christi. doi:10.7266/N7VD6WC8
     """
-    clouddrift_path = (
-        os.path.expanduser("~/.clouddrift")
-        if not os.getenv("CLOUDDRIFT_PATH")
-        else os.getenv("CLOUDDRIFT_PATH")
+    return _dataset_filecache("glad.nc", decode_times, adapters.glad.to_xarray)
+
+
+def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataArray:
+    """Returns the revised hurricane database (HURDAT2) as a ragged array xarray dataset.
+
+    The function will first look for the ragged array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access.
+
+    The upstream data is available at https://www.aoml.noaa.gov/hrd/hurdat/hurdat2.html.
+
+    Parameters
+    ----------
+    basin : "atlantic", "pacific", "both" (default)
+        Specify which ocean basin to download storm data for. Current available options are the
+        Atlantic Ocean "atlantic", Pacific Ocean "pacific" and, both "both" to download
+        storm data for both oceans.
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
+
+    Returns
+    -------
+    xarray.Dataset
+        HURDAT2 dataset as a ragged array.
+
+    >>> from clouddrift.datasets import hurdat2
+    >>> ds = hurdat2()
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:                          (traj: ..., obs: ...)
+    Coordinates:
+        atcf_identifier                  (traj) <U8 ...
+        time                             (obs) datetime64[ns] ...
+    Dimensions without coordinates: traj, obs
+    Data variables: (12/23)
+        basin                            (traj) <U2 ...
+        year                             (traj) int64 ...
+        rowsize                          (traj) int64 ...
+        record_identifier                (obs) <U1 ...
+        system_status                    (obs) <U2 ...
+        ...                               ...
+        max_med_wind_radius_nw           (obs) float64 ...
+        max_high_wind_radius_ne          (obs) float64 ...
+        max_high_wind_radius_se          (obs) float64 ...
+        max_high_wind_radius_sw          (obs) float64 ...
+        max_high_wind_radius_nw          (obs) float64 ...
+        max_sustained_wind_speed_radius  (obs) float64 ...
+    Attributes:
+        title:            HURricane DATa 2nd generation (HURDAT2)
+        date_created:     ...
+        publisher_name:   NOAA AOML Hurricane Research Division
+        publisher_email:  AOML.HRDWebmaster@noaa.gov
+        publisher_url:    https://www.aoml.noaa.gov/hrd/hurdat/Data_Storm.html
+        institution:      NOAA Atlantic Oceanographic and Meteorological Laboratory
+        summary:          The National Hurricane Center (NHC) conducts a post-sto...
+    ...
+
+    If you would like to select a specific ocean basin like the Atlantic Ocean you would do so like this:
+    >>> from clouddrift.datasets import hurdat2
+    >>> ds = hurdat2(basin="atlantic")
+    >>> ds
+    <xarray.Dataset>
+    ...
+
+    Reference
+    ---------
+    https://www.aoml.noaa.gov/hrd/hurdat/Data_Storm.html.
+    """
+    return _dataset_filecache(
+        f"hurdat2_{basin}.nc",
+        decode_times,
+        lambda: adapters.hurdat2.to_raggedarray(basin).to_xarray(),
     )
-    glad_path = f"{clouddrift_path}/data/glad.nc"
-    if not os.path.exists(glad_path):
-        print(f"{glad_path} not found; download from upstream repository.")
-        ds = adapters.glad.to_xarray()
-        os.makedirs(os.path.dirname(glad_path), exist_ok=True)
-        ds.to_netcdf(glad_path)
-    else:
-        ds = xr.open_dataset(glad_path, decode_times=decode_times)
-    return ds
 
 
 def mosaic(decode_times: bool = True) -> xr.Dataset:
@@ -290,20 +354,7 @@ def mosaic(decode_times: bool = True) -> xr.Dataset:
         Data Authors                (traj) object ...
         rowsize                     (traj) int64 ...
     """
-    clouddrift_path = (
-        os.path.expanduser("~/.clouddrift")
-        if not os.getenv("CLOUDDRIFT_PATH")
-        else os.getenv("CLOUDDRIFT_PATH")
-    )
-    mosaic_path = f"{clouddrift_path}/data/mosaic.nc"
-    if not os.path.exists(mosaic_path):
-        print(f"{mosaic_path} not found; download from upstream repository.")
-        ds = adapters.mosaic.to_xarray()
-        os.makedirs(os.path.dirname(mosaic_path), exist_ok=True)
-        ds.to_netcdf(mosaic_path)
-    else:
-        ds = xr.open_dataset(mosaic_path, decode_times=decode_times)
-    return ds
+    return _dataset_filecache("mosaic.nc", decode_times, adapters.mosaic.to_xarray)
 
 
 def spotters(decode_times: bool = True) -> xr.Dataset:
@@ -437,20 +488,9 @@ def subsurface_floats(decode_times: bool = True) -> xr.Dataset:
     ----------
     WOCE Subsurface Float Data Assembly Center (WFDAC) https://www.aoml.noaa.gov/phod/float_traj/index.php
     """
-
-    clouddrift_path = (
-        os.path.expanduser("~/.clouddrift")
-        if not os.getenv("CLOUDDRIFT_PATH")
-        else os.getenv("CLOUDDRIFT_PATH")
+    return _dataset_filecache(
+        "subsurface_floats.nc", decode_times, adapters.subsurface_floats.to_xarray
     )
-
-    local_file = f"{clouddrift_path}/data/subsurface_floats.nc"
-    if not os.path.exists(local_file):
-        print(f"{local_file} not found; download from upstream repository.")
-        ds = adapters.subsurface_floats.to_xarray()
-    else:
-        ds = xr.open_dataset(local_file, decode_times=decode_times)
-    return ds
 
 
 def yomaha(decode_times: bool = True) -> xr.Dataset:
@@ -516,23 +556,10 @@ def yomaha(decode_times: bool = True) -> xr.Dataset:
     assessed  from trajectories of Argo floats at parking level and at the sea
     surface. IPRC Technical Note, 4(2), 1-16.
     """
-    clouddrift_path = (
-        os.path.expanduser("~/.clouddrift")
-        if not os.getenv("CLOUDDRIFT_PATH")
-        else os.getenv("CLOUDDRIFT_PATH")
-    )
-    local_file = f"{clouddrift_path}/data/yomaha.nc"
-    if not os.path.exists(local_file):
-        print(f"{local_file} not found; download from upstream repository.")
-        ds = adapters.yomaha.to_xarray()
-        os.makedirs(os.path.dirname(local_file), exist_ok=True)
-        ds.to_netcdf(local_file)
-    else:
-        ds = xr.open_dataset(local_file, decode_times=decode_times)
-    return ds
+    return _dataset_filecache("yomaha.nc", decode_times, adapters.yomaha.to_xarray)
 
 
-def andro(decode_times: bool = True) -> xr.Dataset:
+def andro(decode_times: bool = False) -> xr.Dataset:
     """Returns the ANDRO as a ragged array Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
@@ -593,17 +620,21 @@ def andro(decode_times: bool = True) -> xr.Dataset:
     Kolodziejczyk Nicolas (2022). ANDRO: An Argo-based deep displacement dataset.
     SEANOE. https://doi.org/10.17882/47077
     """
+    return _dataset_filecache("andro.nc", decode_times, adapters.andro.to_xarray)
+
+
+def _dataset_filecache(
+    filename: str, decode_times: bool, get_ds: Callable[[], xr.Dataset]
+):
     clouddrift_path = (
         os.path.expanduser("~/.clouddrift")
         if not os.getenv("CLOUDDRIFT_PATH")
         else os.getenv("CLOUDDRIFT_PATH")
     )
-    local_file = f"{clouddrift_path}/data/andro.nc"
-    if not os.path.exists(local_file):
-        print(f"{local_file} not found; download from upstream repository.")
-        ds = adapters.andro.to_xarray()
-        os.makedirs(os.path.dirname(local_file), exist_ok=True)
-        ds.to_netcdf(local_file)
-    else:
-        ds = xr.open_dataset(local_file, decode_times=decode_times)
-    return ds
+    fp = f"{clouddrift_path}/data/{filename}"
+    if not os.path.exists(fp):
+        print(f"{fp} not found; download from upstream repository.")
+        ds = get_ds()
+        os.makedirs(os.path.dirname(fp), exist_ok=True)
+        ds.to_netcdf(fp)
+    return xr.open_dataset(fp, decode_times=decode_times)
