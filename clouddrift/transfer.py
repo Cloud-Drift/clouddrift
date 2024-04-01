@@ -130,7 +130,7 @@ def kpp_wind_transfer(
 
     return G
 
-def slab_transfer(
+def slab_wind_transfer(
         omega: Union[float, np.ndarray],
         cor_freq: float, 
         friction: float, 
