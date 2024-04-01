@@ -98,13 +98,15 @@ class RaggedArray:
     @classmethod
     def from_files(
         cls,
-        indices: list,
+        indices: list[int],
         preprocess_func: Callable[[int], xr.Dataset],
         name_coords: list,
         name_meta: list = list(),
         name_data: list = list(),
         name_dims: dict[str, DimNames] = {},
         rowsize_func: Optional[Callable[[int], int]] = None,
+        attrs_global: Optional[dict] = None,
+        attrs_variables: Optional[dict] = None,
         **kwargs,
     ):
         """Generate a ragged array archive from a list of files
@@ -146,12 +148,19 @@ class RaggedArray:
             name_dims,
             **kwargs,
         )
-        attrs_global, attrs_variables = cls.attributes(
+
+        extracted_attrs_global, extracted_attrs_variables = cls.attributes(
             preprocess_func(indices[0], **kwargs),
             name_coords,
             name_meta,
             name_data,
         )
+
+        if attrs_global is None:
+            attrs_global = extracted_attrs_global
+
+        if attrs_variables is None:
+            attrs_variables = extracted_attrs_variables
 
         return RaggedArray(
             coords, metadata, data, attrs_global, attrs_variables, name_dims, coord_dims

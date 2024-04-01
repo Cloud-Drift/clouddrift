@@ -45,9 +45,9 @@ def download_with_progress(
         retry_protocol = custom_retry_protocol  # type: ignore
 
     executor = concurrent.futures.ThreadPoolExecutor()
-    futures: dict[concurrent.futures.Future, Tuple[str, Union[BufferedIOBase, str]]] = (
-        dict()
-    )
+    futures: dict[
+        concurrent.futures.Future, Tuple[str, Union[BufferedIOBase, str]]
+    ] = dict()
     bar = None
 
     for src, dst, exp_size in download_map:
@@ -114,8 +114,8 @@ def _download_with_progress(
                     return
             else:
                 _logger.warning(
-                    "Cannot determine the file has been updated on the remote source. \
-                              'Last-Modified' header not present."
+                    "Cannot determine if the file has been updated on the remote source. "
+                    + "'Last-Modified' header not present in server response."
                 )
     _logger.debug(f"Downloading from {url} to {output}...")
 
