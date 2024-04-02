@@ -53,7 +53,7 @@ def slab_wind_transfer(
     cor_freq: float,
     friction: float,
     bld: float,
-    density: Optional[float] = 1025.0,
+    density: float = 1025.0,
 ) -> np.ndarray:
     """
     Compute the the transfer function in the case of a ocean slab layer.
@@ -68,7 +68,7 @@ def slab_wind_transfer(
             Friction coefficient, in s-1.
         bld: float
             Thickness of the slab layer, in meters.
-        density: float, optional
+        density: float
             Seawater density, in kg m-3. Default is 1025.
     """
     # check that the boundary layer depth is positive
@@ -98,9 +98,9 @@ def wind_transfer(
     delta: float,
     mu: float,
     bld: float,
-    boundary_condition: Optional[str] = "no-slip",
-    method: Optional[str] = "lilly",
-    density: Optional[float] = 1025.0,
+    boundary_condition: str = "no-slip",
+    method: str = "lilly",
+    density: float = 1025.0,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute the transfer function from wind stress to oceanic velocity based on the physically-based
@@ -120,13 +120,13 @@ def wind_transfer(
             Madsen depth, in meters.
         bld: float
             Boundary layer depth, in meters.
-        boundary_condition: str, optional
+        boundary_condition: str
             Bottom boundary condition at the base of the ocean surface boundary layer.
             Options are "no-slip" (Default) or "free-slip".
-        method: str, optional
+        method: str
             Method to compute the transfer function. Options are "lilly" (Default and preferred method)
             or "elipot".
-        density: float, optional
+        density: float
             Seawater density, in kg m-3. Default is 1025.
 
     Returns
@@ -772,7 +772,7 @@ def _besseltildes_noslip(
     xiz: Union[float, np.ndarray],
     xih: Union[float, np.ndarray],
     xi0: Union[float, np.ndarray],
-    nterms: Optional[int] = 30,
+    nterms: int = 30,
 ) -> Tuple[
     Union[float, np.ndarray],
     Union[float, np.ndarray],
@@ -798,7 +798,7 @@ def _besseltildes_noslip(
 def kvtilde(
     nu: int,
     z: Union[float, np.ndarray],
-    nterms: Optional[int] = 30,
+    nterms: int = 30,
 ) -> Union[float, np.ndarray]:
     """
     Compute the n-term expansion about the large-argument exponential behavior of the modified Bessel
@@ -835,7 +835,7 @@ def kvtilde(
 def ivtilde(
     nu: int,
     z: Union[float, np.ndarray],
-    nterms: Optional[int] = 30,
+    nterms: int = 30,
 ) -> Union[float, np.ndarray]:
     """
     Compute the n-term expansion about the large-argument exponential behavior of the
