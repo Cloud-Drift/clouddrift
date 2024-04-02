@@ -479,6 +479,102 @@ class TransferFunctionValues(unittest.TestCase):
             np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True)
         )
 
+    def test_values_free_slip(self):
+        idx = np.abs(self.omega).argmin()
+        G, _, _ = wind_transfer(
+            self.omega,
+            self.z,
+            self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+        )
+
+        expected_values = np.array(
+            [
+                0.04653128 - 0.0365929j,
+                0.02616164 - 0.03449013j,
+                0.01266338 - 0.03030143j,
+                0.00359447 - 0.02574129j,
+                -0.00253419 - 0.02152846j,
+                -0.00666497 - 0.01794904j,
+                -0.00940876 - 0.01509089j,
+                -0.01116722 - 0.01294936j,
+                -0.01220577 - 0.01147741j,
+                -0.01269919 - 0.01061011j,
+            ]
+        )
+        Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
+        self.assertTrue(
+            np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True)
+        )
+
+    def test_values_free_slip_mu_is_zero(self):
+        idx = np.abs(self.omega).argmin()
+        G, _, _ = wind_transfer(
+            self.omega,
+            self.z,
+            self.cor_freq,
+            self.delta,
+            0,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+        )
+
+        expected_values = np.array(
+            [
+                0.05083587 - 0.04953873j,
+                0.02890206 - 0.0468502j,
+                0.01278664 - 0.04048806j,
+                0.00171537 - 0.03247495j,
+                -0.00529895 - 0.02420514j,
+                -0.00928086 - 0.01656615j,
+                -0.01118 - 0.01006565j,
+                -0.01180644 - 0.00494948j,
+                -0.01179884 - 0.00130261j,
+                -0.01161306 + 0.00087116j,
+            ]
+        )
+        Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
+        self.assertTrue(
+            np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True)
+        )
+
+    # def test_values_free_slip_delta_is_zero(self):
+    #     idx = np.abs(self.omega).argmin()
+    #     G, _, _ = wind_transfer(
+    #         self.omega,
+    #         self.z,
+    #         self.cor_freq,
+    #         0,
+    #         self.mu,
+    #         self.bld,
+    #         boundary_condition="free-slip",
+    #         density=self.density,
+    #     )
+
+    #     expected_values = np.array(
+    #         [
+    #             np.nan + np.nan * 1j,
+    #             0.0150223 - 0.07199065j,
+    #             -0.00915018 - 0.04153115j,
+    #             -0.01422336 - 0.02519934j,
+    #             -0.01402997 - 0.0156096j,
+    #             -0.0120768 - 0.00973228j,
+    #             -0.00956707 - 0.00603436j,
+    #             -0.00696735 - 0.00364922j,
+    #             -0.00446539 - 0.00205173j,
+    #             -0.00213448 - 0.0009083j,
+    #         ]
+    #     )
+    #     Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
+    #     self.assertTrue(
+    #         np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True)
+    #     )
+
 
 class TransferFunctionTestGradient(unittest.TestCase):
     delta = 10 ** np.arange(-1, 0.05, 3)
