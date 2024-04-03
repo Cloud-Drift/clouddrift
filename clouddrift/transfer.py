@@ -15,8 +15,11 @@ from clouddrift.sphere import EARTH_DAY_SECONDS
 
 def response_to_wind_stress(
     tau: Union[np.ndarray, xr.DataArray],
-    transfer_function: Union[np.ndarray, xr.DataArray],
     dt: float,
+    latitude: Union[float, np.ndarray],
+    transfer_function: Union[np.ndarray, xr.DataArray],
+    *args,
+    window: Optional[Union[int,np.ndarray]] = None,
 ) -> np.ndarray:
     """
     Compute the response of the ocean to wind stress forcing given the transfer function.
@@ -24,11 +27,18 @@ def response_to_wind_stress(
     Parameters
     ----------
         tau: array_like
-            Wind stress forcing in units of N m-2.
-        transfer_function: array_like
-            Transfer function from wind stress to oceanic velocity in units of kg-1 m 2 s.
+            Wind stress time series in units of N m-2.
         dt: float
             Time step of the wind stress forcing in seconds.
+        transfer_function: array_like
+            Transfer function from wind stress to oceanic velocity in units of kg-1 m 2 s.
+        *args
+            Additional arguments to pass to the transfer function.
+        latitude: float or array_like
+            Latitude in degrees. Can be a float for a constant value or an array_like
+            the size of the wind stress time series.
+        window: int or array_like
+            Window length for the transfer function in number of points.
 
     Returns
     -------
@@ -40,12 +50,23 @@ def response_to_wind_stress(
         To calculate the response of the ocean to wind stress forcing:
 
         >>> tau = np.random.randn(100)
-        >>> G = np.random.randn(100)
+        >>> lat = 45
         >>> dt = 3600
-        >>> u = response_to_wind_stress(tau, G, dt)
+        >>> u = response_to_wind_stress(tau, dt, lat, slab_wind_transfer, friction, bld, density)
     """
 
-    return np.fft.ifft(np.fft.fft(tau) * np.fft.fft(transfer_function) * dt)
+    if isinstance(latitude, np.ndarray):
+        if latitude.size != tau.size:
+            raise ValueError("latitude as array_like must have the same size as tau")
+    elif not isinstance(latitude, float):
+        raise TypeError("latitude must be a float or an array_like the same size as tau")
+    
+    # no sliding window
+    if window is None:
+        omega = np.fft.fftfreq(len(tau), dt) * 2 * np.pi
+        # sort the *args by their names
+        sorted_args = sorted(args, key=lambda x: x.__name__)
+        return np.fft.ifft(np.fft.fft(tau) * np.fft.fft(transfer_function(omega, *sorted_args))).real
 
 
 def slab_wind_transfer(
