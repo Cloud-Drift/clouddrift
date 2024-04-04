@@ -155,8 +155,7 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     :func:`gdp1h`
     """
     url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/experimental/gdp6h_ragged_sep23.zarr"
-    ds = xr.open_dataset(url, decode_times=False, engine="zarr")
-    ds = ds.rename_vars({"ID": "id"}).assign_coords({"id": ds.ID}).drop_vars(["ids"])
+    ds = xr.open_dataset(url, decode_times=decode_times, engine="zarr")
     return ds
 
 
