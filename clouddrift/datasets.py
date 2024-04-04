@@ -154,15 +154,8 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     --------
     :func:`gdp1h`
     """
-    url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/gdp6h_ragged_may23.nc#mode=bytes"
-
-    if platform.system() == "Windows":
-        buffer = BytesIO()
-        adapters.utils.download_with_progress([(f"{url}#mode=bytes", buffer, None)])
-        ds = xr.open_dataset(buffer, decode_times=decode_times)
-    else:
-        ds = xr.open_dataset(f"{url}", decode_times=decode_times)
-
+    url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/experimental/gdp6h_ragged_sep23.zarr"
+    ds = xr.open_dataset(url, decode_times=False, engine="zarr")
     ds = ds.rename_vars({"ID": "id"}).assign_coords({"id": ds.ID}).drop_vars(["ids"])
     return ds
 
