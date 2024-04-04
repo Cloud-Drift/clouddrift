@@ -23,7 +23,7 @@ _standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
     retry=retry_if_exception(
         lambda ex: isinstance(ex, (requests.Timeout, requests.HTTPError))
     ),
-    wait=wait_exponential_jitter(initial=0.25),
+    wait=wait_exponential_jitter(initial=1.25),
     stop=stop_after_attempt(10),
     before=lambda rcs: _logger.debug(
         f"calling {str(rcs.fn)}, attempt: {rcs.attempt_number}"
