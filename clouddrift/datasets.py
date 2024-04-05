@@ -6,8 +6,6 @@ they will be downloaded from their upstream repositories and stored for later ac
 """
 
 import os
-import platform
-from io import BytesIO
 from typing import Callable
 
 import xarray as xr
