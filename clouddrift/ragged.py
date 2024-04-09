@@ -292,6 +292,8 @@ def prune(
 
     Examples
     --------
+    >>> from clouddrift.ragged import prune
+    >>> import numpy as np
     >>> prune(np.array([1, 2, 3, 0, -1, -2]), np.array([3, 1, 2]),2)
     (array([ 1,  2,  3, -1, -2]), array([3, 2]))
 
@@ -475,6 +477,8 @@ def segment(
     --------
     The simplest use of ``segment`` is to provide a tolerance value that is
     used to divide an array into segments:
+    >>> from clouddrift.ragged import segment, subset
+    >>> import numpy as np
 
     >>> x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
     >>> segment(x, 0.5)
@@ -597,24 +601,27 @@ def subset(
     a single drifter trajectory and the `row_dim_name` is "traj" and the `obs_dim_name` is "obs".
 
     Retrieve a region, like the Gulf of Mexico, using ranges of latitude and longitude:
-    >>> from clouddrift.adapters import gdp1h
-    >>> ds = gdp1h.to_raggedarray(n_random_id=5).to_xarray()
+    >>> from clouddrift.datasets import gdp1h
+    >>> from clouddrift.ragged import subset
+    >>> import numpy as np
+
+    >>> ds = gdp1h()
     ...
 
     >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)}, row_dim_name="traj")
-    <xarray.Dataset>
+    <xarray.Dataset> ...
     ...
 
     The parameter `full_rows` can be used to retrieve trajectories passing through a region, for example all trajectories passing through the Gulf of Mexico:
 
     >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)}, full_rows=True, row_dim_name="traj")
-    <xarray.Dataset>
+    <xarray.Dataset> ...
     ...
 
     Retrieve drogued trajectory segments:
 
     >>> subset(ds, {"drogue_status": True}, row_dim_name="traj")
-    <xarray.Dataset>
+    <xarray.Dataset> ...
     Dimensions:                (traj: ..., obs: ...)
     Coordinates:
         id                     (traj) int64 ...
@@ -624,7 +631,7 @@ def subset(
     Retrieve trajectory segments with temperature higher than 25°C (303.15K):
 
     >>> subset(ds, {"sst": (303.15, np.inf)}, row_dim_name="traj")
-    <xarray.Dataset>
+    <xarray.Dataset> ...
     ...
 
     You can use the same approach to return only the trajectories that are
@@ -632,13 +639,13 @@ def subset(
     the entire dataset):
 
     >>> subset(ds, {"rowsize": (0, 1000)}, row_dim_name="traj")
-    <xarray.Dataset>
+    <xarray.Dataset> ...
     ...
 
     Retrieve specific drifters using their IDs:
 
     >>> subset(ds, {"id": [2578, 2582, 2583]}, row_dim_name="traj")
-    <xarray.Dataset>
+    <xarray.Dataset> ...
     ...
 
     Sometimes, you may want to retrieve specific rows of a ragged array.
@@ -647,12 +654,14 @@ def subset(
 
     >>> rows = [5, 6, 7]
     >>> subset(ds, {"traj": rows}, row_dim_name="traj")
-    <xarray.Dataset>
+    <xarray.Dataset> ...
     ...
 
     Retrieve a specific time period:
 
     >>> subset(ds, {"time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))}, row_dim_name="traj")
+    <xarray.Dataset> ...
+    ...
 
     Note that to subset time variable, the range has to be defined as a function
     type of the variable. By default, ``xarray`` uses ``np.datetime64`` to
@@ -662,44 +671,36 @@ def subset(
     Those criteria can also be combined:
 
     >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78), "drogue_status": True, "sst": (303.15, np.inf), "time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))}, row_dim_name="traj")
+    <xarray.Dataset> ...
+    ...
 
     You can also use a function to filter the data. For example, retrieve every other observation
     of each trajectory:
 
     >>> func = (lambda arr: ((arr - arr[0]) % 2) == 0)
-    >>> subset(ds, {"time": func}, row_dim_name="traj")
-    <xarray.Dataset>
-    Dimensions:                (traj: ..., obs: ...)
-    Coordinates:
-        id                     (traj) int64 ...
-        time                   (obs) float64 ...
+    >>> subset(ds, {"id": func}, row_dim_name="traj")
+    <xarray.Dataset> ...
     ...
 
     The filtering function can accept several input variables passed as a tuple. For example, retrieve
     drifters released in the Mediterranean Sea, but exclude those released in the Bay of Biscay and the Black Sea:
 
-    >>> in_med = lambda lat, lon: np.all(
-    ...     -6.0327 <= lon <= 36.2173,
-    ...     30.2639 <= lat <= 45.7833
-    ... )
-    >>> in_biscay = lambda lon, lat: np.all(
-    ...     lon <= -0.1462,
-    ...     lat >= 43.2744,
-    ... )
-    >>> in_blacksea = lambda lon, lat: np.all(
-    ...     lon >= 27.4437,
-    ...     lat >= 40.9088
-    ... )
-    >>> mediterranean_mask = lambda lon, lat: np.logical_and(
-    ...     in_med,
-    ...     np.logical_not(
-    ...         np.logical_and(
-    ...             in_biscay,
-    ...             in_blacksea
-    ...         )
-    ...     )
-    ... )
+    >>> def mediterranean_mask(lon: xr.DataArray, lat: xr.DataArray) -> xr.DataArray:
+    ...    # Mediterranean Sea bounding box
+    ...    in_med = np.logical_and(-6.0327 <= lon, np.logical_and(lon <= 36.2173,
+    ...                                                           np.logical_and(30.2639 <= lat, lat <= 45.7833)))
+    ...    # Bay of Biscay
+    ...    in_biscay = np.logical_and(lon <= -0.1462, lat >= 43.2744)
+    ...    # Black Sea
+    ...    in_blacksea = np.logical_and(lon >= 27.4437, lat >= 40.9088)
+    ...    return np.logical_and(in_med, np.logical_not(np.logical_or(in_biscay, in_blacksea)))
     >>> subset(ds, {("start_lon", "start_lat"): mediterranean_mask}, row_dim_name="traj")
+    <xarray.Dataset> Size: ...
+    Dimensions:                (traj: ..., obs: ...)
+    Coordinates:
+        id                     (traj) int64 ...
+        time                   (obs) datetime64[ns] ...
+    ...
 
     Raises
     ------
@@ -819,25 +820,27 @@ def unpack(
     --------
 
     Unpacking longitude arrays from a ragged Xarray Dataset:
+    >>> from clouddrift.ragged import unpack
+    >>> from clouddrift.datasets import gdp1h
 
-    .. code-block:: python
+    >>> ds = gdp1h()
 
-        lon = unpack(ds.lon, ds["rowsize"]) # return a list[xr.DataArray] (slower)
-        lon = unpack(ds.lon.values, ds["rowsize"]) # return a list[np.ndarray] (faster)
-        first_lon = unpack(ds.lon.values, ds["rowsize"], rows=0) # return only the first row
-        first_two_lons = unpack(ds.lon.values, ds["rowsize"], rows=[0, 1]) # return first two rows
+    >>> lon = unpack(ds.lon, ds["rowsize"]) # return a list[xr.DataArray] (slower)
+    >>> lon = unpack(ds.lon.values, ds["rowsize"]) # return a list[np.ndarray] (faster)
+    >>> first_lon = unpack(ds.lon.values, ds["rowsize"], rows=0) # return only the first row
+    >>> first_two_lons = unpack(ds.lon.values, ds["rowsize"], rows=[0, 1]) # return first two rows
 
     Looping over trajectories in a ragged Xarray Dataset to compute velocities
     for each:
 
-    .. code-block:: python
+    >>> from clouddrift.kinematics import velocity_from_position
 
-        for lon, lat, time in list(zip(
-            unpack(ds.lon.values, ds["rowsize"]),
-            unpack(ds.lat.values, ds["rowsize"]),
-            unpack(ds.time.values, ds["rowsize"])
-        )):
-            u, v = velocity_from_position(lon, lat, time)
+    >>> for lon, lat, time in list(zip(
+    ...     unpack(ds.lon.values, ds["rowsize"]),
+    ...     unpack(ds.lat.values, ds["rowsize"]),
+    ...     unpack(ds.time.values, ds["rowsize"])
+    ... )):
+    ...     u, v = velocity_from_position(lon, lat, time)
     """
     indices = rowsize_to_index(rowsize)
 
@@ -876,9 +879,12 @@ def _mask_var(
 
     Examples
     --------
+    >>> import xarray as xr
+    >>> from clouddrift.ragged import _mask_var
+
     >>> x = xr.DataArray(data=np.arange(0, 5))
     >>> _mask_var(x, (2, 4))
-    <xarray.DataArray (dim_0: 5)>
+    <xarray.DataArray (dim_0: 5)> ...
     array([False, False,  True,  True,  True])
     Dimensions without coordinates: dim_0
 
@@ -886,20 +892,20 @@ def _mask_var(
     array([ True, False,  True, False,  True])
 
     >>> _mask_var(x, 4)
-    <xarray.DataArray (dim_0: 5)>
+    <xarray.DataArray (dim_0: 5)> ...
     array([False, False, False, False,  True])
     Dimensions without coordinates: dim_0
 
     >>> rowsize = xr.DataArray(data=[2, 3])
     >>> _mask_var(x, lambda arr: arr==arr[0]+1, rowsize, "dim_0")
-    <xarray.DataArray (dim_0: 5)>
+    <xarray.DataArray (dim_0: 5)> ...
     array([False,  True, False,  True, False])
     Dimensions without coordinates: dim_0
 
     >>> y = xr.DataArray(data=np.arange(0, 5)+2)
     >>> rowsize = xr.DataArray(data=[2, 3])
     >>> _mask_var([x, y], lambda var1, var2: ((var1 * var2) % 2) == 0, rowsize, "dim_0")
-    <xarray.DataArray (dim_0: 5)>
+    <xarray.DataArray (dim_0: 5)> ...
     array([ True, False,  True, False,  True])
     Dimensions without coordinates: dim_0
 
