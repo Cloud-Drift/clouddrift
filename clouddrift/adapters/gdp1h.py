@@ -146,10 +146,8 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds["end_date"].data = gdp.decode_date(np.array([ds.end_date.data[0]]))
     ds["drogue_lost_date"].data = gdp.decode_date(
         np.array([ds.drogue_lost_date.data[0]])
-    ).astype("datetime64[s]")
-    ds["time"].data = gdp.decode_date(np.array([ds.time.data[0]])).astype(
-        "datetime64[s]"
     )
+    ds["time"].data = gdp.decode_date(np.array([ds.time.data[0]]))
 
     # convert fill values to nan
     for var in [
@@ -201,8 +199,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
 
     for var in target_dtype.keys():
         if var in ds.keys():
-            dtype = target_dtype[var]
-            ds[var].data = ds[var].data.astype(dtype)
+            ds[var].data = ds[var].data.astype(target_dtype[var])
         else:
             warnings.warn(f"Variable {var} not found in upstream data; skipping.")
 
