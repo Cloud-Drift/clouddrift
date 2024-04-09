@@ -44,6 +44,7 @@ jobs:
         with:
           file: ./coverage.xml
   doctest:
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
