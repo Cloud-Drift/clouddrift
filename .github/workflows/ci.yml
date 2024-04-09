@@ -13,7 +13,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  test:
+  unittest:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -43,3 +43,19 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage.xml
+  doctest:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest"]
+        python-version: ["3.9"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yml
+          environment-name: clouddrift
+      - name: Run doc tests
+        shell: bash -l {0}
+        run: |
+              python -m unittest tests/docexamples.py
