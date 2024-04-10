@@ -44,17 +44,13 @@ jobs:
         with:
           file: ./coverage.xml
   doctest:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest"]
         python-version: ["3.9"]
     steps:
-      - name: Set Swap Space
-        uses: pierotofy/set-swap-space@master
-        with:
-          swap-size-gb: 10
       - uses: actions/checkout@v4
       - uses: mamba-org/setup-micromamba@v1
         with:
