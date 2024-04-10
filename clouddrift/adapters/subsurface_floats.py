@@ -15,7 +15,8 @@ import os
 import tempfile
 import warnings
 from datetime import datetime
-from typing import Hashable, List, Union
+from typing import List, Union
+from collections.abc import Hashable
 
 import numpy as np
 import pandas as pd
@@ -38,7 +39,7 @@ def download(file: str):
 
 
 def to_xarray(
-    tmp_path: Union[str, None] = None,
+    tmp_path: str | None = None,
 ):
     if tmp_path is None:
         tmp_path = SUBSURFACE_FLOATS_TMP_PATH
@@ -49,7 +50,7 @@ def to_xarray(
     source_data = scipy.io.loadmat(local_file)
 
     # metadata
-    meta_variables: List[Hashable] = [
+    meta_variables: list[Hashable] = [
         "expList",
         "expName",
         "expOrg",

@@ -9,10 +9,10 @@ import xarray as xr
 
 
 def analytic_signal(
-    x: Union[np.ndarray, xr.DataArray],
-    boundary: Optional[str] = "mirror",
-    time_axis: Optional[int] = -1,
-) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+    x: np.ndarray | xr.DataArray,
+    boundary: str | None = "mirror",
+    time_axis: int | None = -1,
+) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     """Return the analytic signal from a real-valued signal or the analytic and
     conjugate analytic signals from a complex-valued signal.
 
@@ -160,10 +160,10 @@ def analytic_signal(
 
 
 def cartesian_to_rotary(
-    ua: Union[np.ndarray, xr.DataArray],
-    va: Union[np.ndarray, xr.DataArray],
-    time_axis: Optional[int] = -1,
-) -> Tuple[np.ndarray, np.ndarray]:
+    ua: np.ndarray | xr.DataArray,
+    va: np.ndarray | xr.DataArray,
+    time_axis: int | None = -1,
+) -> tuple[np.ndarray, np.ndarray]:
     """Return rotary signals (wp,wn) from analytic Cartesian signals (ua,va).
 
     If ua is the analytic signal from real-valued signal u, and va the analytic signal
@@ -236,9 +236,9 @@ def cartesian_to_rotary(
 
 
 def ellipse_parameters(
-    xa: Union[np.ndarray, xr.DataArray],
-    ya: Union[np.ndarray, xr.DataArray],
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    xa: np.ndarray | xr.DataArray,
+    ya: np.ndarray | xr.DataArray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Return the instantaneous parameters of a modulated elliptical signal from its analytic Cartesian signals.
 
     Parameters
@@ -321,11 +321,11 @@ def ellipse_parameters(
 
 
 def modulated_ellipse_signal(
-    kappa: Union[np.ndarray, xr.DataArray],
-    lambda_: Union[np.ndarray, xr.DataArray],
-    theta: Union[np.ndarray, xr.DataArray],
-    phi: Union[np.ndarray, xr.DataArray],
-) -> Tuple[np.ndarray, np.ndarray]:
+    kappa: np.ndarray | xr.DataArray,
+    lambda_: np.ndarray | xr.DataArray,
+    theta: np.ndarray | xr.DataArray,
+    phi: np.ndarray | xr.DataArray,
+) -> tuple[np.ndarray, np.ndarray]:
     """Return the analytic Cartesian signals (xa, ya) from the instantaneous parameters of a modulated elliptical signal.
 
     This function is the inverse of :func:`ellipse_parameters`.
@@ -396,10 +396,10 @@ def modulated_ellipse_signal(
 
 
 def rotary_to_cartesian(
-    wp: Union[np.ndarray, xr.DataArray],
-    wn: Union[np.ndarray, xr.DataArray],
-    time_axis: Optional[int] = -1,
-) -> Tuple[np.ndarray, np.ndarray]:
+    wp: np.ndarray | xr.DataArray,
+    wn: np.ndarray | xr.DataArray,
+    time_axis: int | None = -1,
+) -> tuple[np.ndarray, np.ndarray]:
     """Return Cartesian analytic signals (ua, va) from rotary signals (wp, wn)
     as ua = wp + wn and va = -1j * (wp - wn).
 

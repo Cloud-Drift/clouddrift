@@ -14,8 +14,8 @@ EARTH_ROTATION_RATE = 2 * np.pi / EARTH_DAY_SECONDS
 
 
 def cumulative_distance(
-    longitude: Union[list, np.ndarray, xr.DataArray],
-    latitude: Union[list, np.ndarray, xr.DataArray],
+    longitude: list | np.ndarray | xr.DataArray,
+    latitude: list | np.ndarray | xr.DataArray,
 ) -> np.ndarray:
     """Return the cumulative great circle distance in meters along a sequence of geographical locations.
 
@@ -53,11 +53,11 @@ def cumulative_distance(
 
 
 def distance(
-    lon1: Union[float, list, np.ndarray, xr.DataArray],
-    lat1: Union[float, list, np.ndarray, xr.DataArray],
-    lon2: Union[float, list, np.ndarray, xr.DataArray],
-    lat2: Union[float, list, np.ndarray, xr.DataArray],
-) -> Union[float, np.ndarray]:
+    lon1: float | list | np.ndarray | xr.DataArray,
+    lat1: float | list | np.ndarray | xr.DataArray,
+    lon2: float | list | np.ndarray | xr.DataArray,
+    lat2: float | list | np.ndarray | xr.DataArray,
+) -> float | np.ndarray:
     """Return elementwise great circle distance in meters between one or more
     points from arrays of their latitudes and longitudes, using the Haversine
     formula.
@@ -133,11 +133,11 @@ def distance(
 
 
 def bearing(
-    lon1: Union[float, list, np.ndarray, xr.DataArray],
-    lat1: Union[float, list, np.ndarray, xr.DataArray],
-    lon2: Union[float, list, np.ndarray, xr.DataArray],
-    lat2: Union[float, list, np.ndarray, xr.DataArray],
-) -> Union[float, np.ndarray]:
+    lon1: float | list | np.ndarray | xr.DataArray,
+    lat1: float | list | np.ndarray | xr.DataArray,
+    lon2: float | list | np.ndarray | xr.DataArray,
+    lat2: float | list | np.ndarray | xr.DataArray,
+) -> float | np.ndarray:
     """Return elementwise initial (forward) bearing in radians from arrays of
     latitude and longitude in degrees, based on the spherical law of cosines.
 
@@ -209,7 +209,7 @@ def bearing(
 
 def position_from_distance_and_bearing(
     lon: float, lat: float, distance: float, bearing: float
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """Return elementwise new position in degrees from arrays of latitude and
     longitude in degrees, distance in meters, and bearing in radians, based on
     the spherical law of cosines.
@@ -269,7 +269,7 @@ def position_from_distance_and_bearing(
     return np.rad2deg(lon2_rad), np.rad2deg(lat2_rad)
 
 
-def recast_lon(lon: np.ndarray, lon0: Optional[float] = -180) -> np.ndarray:
+def recast_lon(lon: np.ndarray, lon0: float | None = -180) -> np.ndarray:
     """Recast (convert) longitude values to a selected range of 360 degrees
     starting from ``lon0``.
 
@@ -376,7 +376,7 @@ def recast_lon180(lon: np.ndarray) -> np.ndarray:
 
 def plane_to_sphere(
     x: np.ndarray, y: np.ndarray, lon_origin: float = 0, lat_origin: float = 0
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Convert Cartesian coordinates on a plane to spherical coordinates.
 
     The arrays of input zonal and meridional displacements ``x`` and ``y`` are
@@ -452,7 +452,7 @@ def plane_to_sphere(
 
 def sphere_to_plane(
     lon: np.ndarray, lat: np.ndarray, lon_origin: float = 0, lat_origin: float = 0
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Convert spherical coordinates to a tangent (Cartesian) plane.
 
     The arrays of input longitudes and latitudes are assumed to be following
@@ -528,10 +528,10 @@ def sphere_to_plane(
 
 
 def spherical_to_cartesian(
-    lon: Union[float, list, np.ndarray, xr.DataArray],
-    lat: Union[float, list, np.ndarray, xr.DataArray],
-    radius: Optional[float] = EARTH_RADIUS_METERS,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    lon: float | list | np.ndarray | xr.DataArray,
+    lat: float | list | np.ndarray | xr.DataArray,
+    radius: float | None = EARTH_RADIUS_METERS,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Converts latitude and longitude on a spherical body to
      three-dimensional Cartesian coordinates.
 
@@ -593,10 +593,10 @@ def spherical_to_cartesian(
 
 
 def cartesian_to_spherical(
-    x: Union[float, np.ndarray, xr.DataArray],
-    y: Union[float, np.ndarray, xr.DataArray],
-    z: Union[float, np.ndarray, xr.DataArray],
-) -> Tuple[np.ndarray, np.ndarray]:
+    x: float | np.ndarray | xr.DataArray,
+    y: float | np.ndarray | xr.DataArray,
+    z: float | np.ndarray | xr.DataArray,
+) -> tuple[np.ndarray, np.ndarray]:
     """Converts Cartesian three-dimensional coordinates to latitude and longitude on a
     spherical body.
 
@@ -654,7 +654,7 @@ def cartesian_to_spherical(
         lon = np.where(
             np.logical_and(x == 0, y == 0),
             0,
-            recast_lon180(np.rad2deg(np.imag(np.log((x + 1j * y))))),
+            recast_lon180(np.rad2deg(np.imag(np.log(x + 1j * y)))),
         )
     lat = np.rad2deg(np.arcsin(z))
 
@@ -662,12 +662,12 @@ def cartesian_to_spherical(
 
 
 def cartesian_to_tangentplane(
-    u: Union[float, np.ndarray],
-    v: Union[float, np.ndarray],
-    w: Union[float, np.ndarray],
-    longitude: Union[float, np.ndarray],
-    latitude: Union[float, np.ndarray],
-) -> Union[Tuple[float], Tuple[np.ndarray]]:
+    u: float | np.ndarray,
+    v: float | np.ndarray,
+    w: float | np.ndarray,
+    longitude: float | np.ndarray,
+    latitude: float | np.ndarray,
+) -> tuple[float] | tuple[np.ndarray]:
     """
     Project a three-dimensional Cartesian vector on a plane tangent to
     a spherical Earth.
@@ -727,11 +727,11 @@ def cartesian_to_tangentplane(
 
 
 def tangentplane_to_cartesian(
-    up: Union[float, np.ndarray],
-    vp: Union[float, np.ndarray],
-    longitude: Union[float, np.ndarray],
-    latitude: Union[float, np.ndarray],
-) -> Union[Tuple[float], Tuple[np.ndarray]]:
+    up: float | np.ndarray,
+    vp: float | np.ndarray,
+    longitude: float | np.ndarray,
+    latitude: float | np.ndarray,
+) -> tuple[float] | tuple[np.ndarray]:
     """
     Return the three-dimensional Cartesian components of a vector contained in
     a plane tangent to a spherical Earth.
@@ -784,8 +784,8 @@ def tangentplane_to_cartesian(
 
 
 def coriolis_frequency(
-    latitude: Union[float, np.ndarray],
-) -> Union[float, np.ndarray]:
+    latitude: float | np.ndarray,
+) -> float | np.ndarray:
     """
     Return the Coriolis frequency or commonly known `f` parameter in geophysical fluid dynamics.
 

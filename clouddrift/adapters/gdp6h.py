@@ -39,8 +39,8 @@ GDP_DATA = [
 def download(
     url: str,
     tmp_path: str,
-    drifter_ids: Union[list, None] = None,
-    n_random_id: Union[int, None] = None,
+    drifter_ids: list | None = None,
+    n_random_id: int | None = None,
 ):
     """Download individual NetCDF files from the AOML server.
 
@@ -448,8 +448,8 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
 
 
 def to_raggedarray(
-    drifter_ids: Optional[list[int]] = None,
-    n_random_id: Optional[int] = None,
+    drifter_ids: list[int] | None = None,
+    n_random_id: int | None = None,
     tmp_path: str = GDP_TMP_PATH,
 ) -> RaggedArray:
     """Download and process individual GDP 6-hourly files and return a

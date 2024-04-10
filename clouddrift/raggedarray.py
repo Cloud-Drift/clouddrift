@@ -26,8 +26,8 @@ class RaggedArray:
         coords: dict,
         metadata: dict,
         data: dict,
-        attrs_global: Optional[dict] = {},
-        attrs_variables: Optional[dict] = {},
+        attrs_global: dict | None = {},
+        attrs_variables: dict | None = {},
         name_dims: dict[str, DimNames] = {},
         coord_dims: dict[str, str] = {},
     ):
@@ -104,9 +104,9 @@ class RaggedArray:
         name_meta: list = list(),
         name_data: list = list(),
         name_dims: dict[str, DimNames] = {},
-        rowsize_func: Optional[Callable[[int], int]] = None,
-        attrs_global: Optional[dict] = None,
-        attrs_variables: Optional[dict] = None,
+        rowsize_func: Callable[[int], int] | None = None,
+        attrs_global: dict | None = None,
+        attrs_variables: dict | None = None,
         **kwargs,
     ):
         """Generate a ragged array archive from a list of files
@@ -342,7 +342,7 @@ class RaggedArray:
     def allocate(
         preprocess_func: Callable[[int], xr.Dataset],
         indices: list,
-        rowsize: Union[list, np.ndarray, xr.DataArray],
+        rowsize: list | np.ndarray | xr.DataArray,
         name_coords: list,
         name_meta: list,
         name_data: list,

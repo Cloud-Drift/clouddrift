@@ -77,8 +77,8 @@ class cartesian_to_rotary_tests(unittest.TestCase):
         self.assertEqual(np.shape(ua), np.shape(wn))
 
     def test_array(self):
-        ua = np.random.random((99)) + 1j * np.random.random((99))
-        va = np.random.random((99)) + 1j * np.random.random((99))
+        ua = np.random.random(99) + 1j * np.random.random(99)
+        va = np.random.random(99) + 1j * np.random.random(99)
         wp, wn = cartesian_to_rotary(ua, va)
         self.assertTrue(np.allclose(np.real(ua) + 1j * np.real(va), wp + np.conj(wn)))
 
@@ -230,8 +230,8 @@ class rotary_to_cartesian_tests(unittest.TestCase):
         self.assertEqual(np.shape(va), np.shape(wp))
 
     def test_array(self):
-        wp = np.random.random((100)) + 1j * np.random.random((100))
-        wn = np.random.random((100)) + 1j * np.random.random((100))
+        wp = np.random.random(100) + 1j * np.random.random(100)
+        wn = np.random.random(100) + 1j * np.random.random(100)
         ua, va = rotary_to_cartesian(wp, wn)
         self.assertTrue(np.allclose(np.real(ua) + 1j * np.real(va), wp + np.conj(wn)))
 
@@ -252,8 +252,8 @@ class rotary_to_cartesian_tests(unittest.TestCase):
         self.assertTrue(np.allclose(np.real(ua) + 1j * np.real(va), wp + np.conj(wn)))
 
     def test_invert_rotary_to_cartesian(self):
-        wp = np.random.random((100)) + 1j * np.random.random((100))
-        wn = np.random.random((100)) + 1j * np.random.random((100))
+        wp = np.random.random(100) + 1j * np.random.random(100)
+        wn = np.random.random(100) + 1j * np.random.random(100)
         ua, va = rotary_to_cartesian(wp, wn)
         wp_, wn_ = cartesian_to_rotary(ua, va)
         self.assertTrue(np.allclose(wp, wp_))

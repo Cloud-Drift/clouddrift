@@ -13,12 +13,12 @@ from clouddrift.ragged import rowsize_to_index, segment
 
 def plot_ragged(
     ax,
-    longitude: Union[list, np.ndarray, pd.Series, xr.DataArray],
-    latitude: Union[list, np.ndarray, pd.Series, xr.DataArray],
-    rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
+    longitude: list | np.ndarray | pd.Series | xr.DataArray,
+    latitude: list | np.ndarray | pd.Series | xr.DataArray,
+    rowsize: list | np.ndarray | pd.Series | xr.DataArray,
     *args,
-    colors: Optional[Union[list, np.ndarray, pd.Series, xr.DataArray]] = None,
-    tolerance: Optional[Union[float, int]] = 180,
+    colors: list | np.ndarray | pd.Series | xr.DataArray | None = None,
+    tolerance: float | int | None = 180,
     **kwargs,
 ):
     """Plot individually the rows of a ragged array dataset on a Matplotlib Axes

@@ -11,7 +11,8 @@ import tempfile
 import urllib.request
 import warnings
 from datetime import datetime, timedelta
-from typing import Optional, Sequence, Union
+from typing import Optional, Union
+from collections.abc import Sequence
 
 import numpy as np
 import xarray as xr
@@ -59,8 +60,8 @@ _logger = logging.getLogger(__name__)
 def download(
     url: str,
     tmp_path: str,
-    drifter_ids: Union[list[int], None] = None,
-    n_random_id: Union[int, None] = None,
+    drifter_ids: list[int] | None = None,
+    n_random_id: int | None = None,
 ):
     """Download individual NetCDF files from the AOML server.
 
@@ -523,10 +524,10 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
 
 
 def to_raggedarray(
-    drifter_ids: Optional[list[int]] = None,
-    n_random_id: Optional[int] = None,
+    drifter_ids: list[int] | None = None,
+    n_random_id: int | None = None,
     url: str = GDP_DATA_URL,
-    tmp_path: Optional[str] = None,
+    tmp_path: str | None = None,
 ) -> RaggedArray:
     """Download and process individual GDP hourly files and return a RaggedArray
     instance with the data.

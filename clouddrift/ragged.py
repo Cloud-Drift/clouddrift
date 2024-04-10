@@ -5,7 +5,8 @@ Transformational and inquiry functions for ragged arrays.
 import warnings
 from concurrent import futures
 from datetime import timedelta
-from typing import Callable, Iterable, Tuple, Union
+from typing import Tuple, Union
+from collections.abc import Callable, Iterable
 
 import numpy as np
 import pandas as pd
@@ -14,14 +15,14 @@ import xarray as xr
 
 def apply_ragged(
     func: callable,
-    arrays: Union[list[Union[np.ndarray, xr.DataArray]], np.ndarray, xr.DataArray],
-    rowsize: Union[list[int], np.ndarray[int], xr.DataArray],
+    arrays: list[np.ndarray | xr.DataArray] | np.ndarray | xr.DataArray,
+    rowsize: list[int] | np.ndarray[int] | xr.DataArray,
     *args: tuple,
-    rows: Union[int, Iterable[int]] = None,
+    rows: int | Iterable[int] = None,
     axis: int = 0,
     executor: futures.Executor = futures.ThreadPoolExecutor(max_workers=None),
     **kwargs: dict,
-) -> Union[tuple[np.ndarray], np.ndarray]:
+) -> tuple[np.ndarray] | np.ndarray:
     """Apply a function to a ragged array.
 
     The function ``func`` will be applied to each contiguous row of ``arrays`` as
@@ -154,7 +155,7 @@ def apply_ragged(
 
 
 def chunk(
-    x: Union[list, np.ndarray, xr.DataArray, pd.Series],
+    x: list | np.ndarray | xr.DataArray | pd.Series,
     length: int,
     overlap: int = 0,
     align: str = "start",
@@ -263,10 +264,10 @@ def chunk(
 
 
 def prune(
-    ragged: Union[list, np.ndarray, pd.Series, xr.DataArray],
-    rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
+    ragged: list | np.ndarray | pd.Series | xr.DataArray,
+    rowsize: list | np.ndarray | pd.Series | xr.DataArray,
     min_rowsize: float,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Within a ragged array, removes arrays less than a specified row size.
 
     Parameters
@@ -317,8 +318,8 @@ def prune(
 
 
 def ragged_to_regular(
-    ragged: Union[np.ndarray, pd.Series, xr.DataArray],
-    rowsize: Union[list, np.ndarray, pd.Series, xr.DataArray],
+    ragged: np.ndarray | pd.Series | xr.DataArray,
+    rowsize: list | np.ndarray | pd.Series | xr.DataArray,
     fill_value: float = np.nan,
 ) -> np.ndarray:
     """Convert a ragged array to a two-dimensional array such that each contiguous segment
@@ -414,7 +415,7 @@ def regular_to_ragged(
     return array[valid], np.sum(valid, axis=1)
 
 
-def rowsize_to_index(rowsize: Union[list, np.ndarray, xr.DataArray]) -> np.ndarray:
+def rowsize_to_index(rowsize: list | np.ndarray | xr.DataArray) -> np.ndarray:
     """Convert a list of row sizes to a list of indices.
 
     This function is typically used to obtain the indices of data rows organized
@@ -442,7 +443,7 @@ def rowsize_to_index(rowsize: Union[list, np.ndarray, xr.DataArray]) -> np.ndarr
 
 def segment(
     x: np.ndarray,
-    tolerance: Union[float, np.timedelta64, timedelta, pd.Timedelta],
+    tolerance: float | np.timedelta64 | timedelta | pd.Timedelta,
     rowsize: np.ndarray[int] = None,
 ) -> np.ndarray[int]:
     """Divide an array into segments based on a tolerance value.
@@ -742,7 +743,7 @@ def subset(
 def unpack(
     ragged_array: np.ndarray,
     rowsize: np.ndarray[int],
-    rows: Union[int, Iterable[int]] = None,
+    rows: int | Iterable[int] = None,
     axis: int = 0,
 ) -> list[np.ndarray]:
     """Unpack a ragged array into a list of regular arrays.
@@ -806,8 +807,8 @@ def unpack(
 
 
 def _mask_var(
-    var: Union[xr.DataArray, list[xr.DataArray]],
-    criterion: Union[tuple, list, np.ndarray, xr.DataArray, bool, float, int, Callable],
+    var: xr.DataArray | list[xr.DataArray],
+    criterion: tuple | list | np.ndarray | xr.DataArray | bool | float | int | Callable,
     rowsize: xr.DataArray = None,
     dim_name: str = "dim_0",
 ) -> xr.DataArray:

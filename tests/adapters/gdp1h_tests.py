@@ -8,7 +8,7 @@ from tests.adapters.utils import MultiPatcher
 
 
 class gdp1h_tests(unittest.TestCase):
-    drifter_files: List[str]
+    drifter_files: list[str]
     response_mock: Mock
     gdp_mock: Mock
 
