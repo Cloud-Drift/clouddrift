@@ -601,11 +601,11 @@ def subset(
     a single drifter trajectory and the `row_dim_name` is "traj" and the `obs_dim_name` is "obs".
 
     Retrieve a region, like the Gulf of Mexico, using ranges of latitude and longitude:
-    >>> from clouddrift.datasets import gdp1h
+    >>> from clouddrift.datasets import gdp6h
     >>> from clouddrift.ragged import subset
     >>> import numpy as np
 
-    >>> ds = gdp1h()
+    >>> ds = gdp6h()
     ...
 
     >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78)}, row_dim_name="traj")
@@ -630,7 +630,7 @@ def subset(
 
     Retrieve trajectory segments with temperature higher than 25°C (303.15K):
 
-    >>> subset(ds, {"sst": (303.15, np.inf)}, row_dim_name="traj")
+    >>> subset(ds, {"temp": (303.15, np.inf)}, row_dim_name="traj")
     <xarray.Dataset> ...
     ...
 
@@ -670,7 +670,7 @@ def subset(
 
     Those criteria can also be combined:
 
-    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78), "drogue_status": True, "sst": (303.15, np.inf), "time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))}, row_dim_name="traj")
+    >>> subset(ds, {"lat": (21, 31), "lon": (-98, -78), "drogue_status": True, "temp": (303.15, np.inf), "time": (np.datetime64("2000-01-01"), np.datetime64("2020-01-31"))}, row_dim_name="traj")
     <xarray.Dataset> ...
     ...
 
@@ -821,9 +821,9 @@ def unpack(
 
     Unpacking longitude arrays from a ragged Xarray Dataset:
     >>> from clouddrift.ragged import unpack
-    >>> from clouddrift.datasets import gdp1h
+    >>> from clouddrift.datasets import gdp6h
 
-    >>> ds = gdp1h()
+    >>> ds = gdp6h()
 
     >>> lon = unpack(ds.lon, ds["rowsize"]) # return a list[xr.DataArray] (slower)
     >>> lon = unpack(ds.lon.values, ds["rowsize"]) # return a list[np.ndarray] (faster)
