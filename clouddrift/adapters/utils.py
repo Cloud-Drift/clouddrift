@@ -45,9 +45,7 @@ def download_with_progress(
         retry_protocol = custom_retry_protocol  # type: ignore
 
     executor = concurrent.futures.ThreadPoolExecutor()
-    futures: dict[
-        concurrent.futures.Future, tuple[str, BufferedIOBase | str]
-    ] = dict()
+    futures: dict[concurrent.futures.Future, tuple[str, BufferedIOBase | str]] = dict()
     bar = None
 
     for src, dst, exp_size in download_map:

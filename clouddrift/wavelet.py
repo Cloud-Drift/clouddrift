@@ -15,7 +15,6 @@ Any other code that is added to this module and that is specific to Python and
 not the MATLAB implementation is licensed under CloudDrift's MIT license.
 """
 
-
 import numpy as np
 from scipy.special import gamma as _gamma
 from scipy.special import gammaln as _lgamma

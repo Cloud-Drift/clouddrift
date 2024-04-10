@@ -2,7 +2,6 @@
 Functions for kinematic computations.
 """
 
-
 import numpy as np
 import pandas as pd
 import xarray as xr
