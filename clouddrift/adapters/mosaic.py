@@ -61,9 +61,10 @@ def get_dataframes() -> tuple[pd.DataFrame, pd.DataFrame]:
     )
     sorted_data_urls = [data_urls[i] for i in sorted_indices]
     buffers = [BytesIO(b"") for _ in range(len(sorted_data_urls))]
-    requests = [(url, BytesIO(b""), None) for url in sorted_data_urls]
+    requests = [(url, buffers[idx], None) for idx, url in enumerate(sorted_data_urls)]
 
     download_with_progress(requests, desc="Downloading data")
+    [b.seek(0) for b in buffers]
     dfs = [pd.read_csv(b) for b in buffers]
     obs_df = pd.concat(dfs)
 
