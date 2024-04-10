@@ -14,9 +14,8 @@ Example
 import os
 import tempfile
 import warnings
-from datetime import datetime
-from typing import List, Union
 from collections.abc import Hashable
+from datetime import datetime
 
 import numpy as np
 import pandas as pd

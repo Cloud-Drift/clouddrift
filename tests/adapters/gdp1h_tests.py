@@ -1,6 +1,5 @@
 import os
 import unittest
-from typing import List
 from unittest.mock import Mock, patch
 
 from clouddrift.adapters import gdp1h

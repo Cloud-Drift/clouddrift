@@ -10,9 +10,8 @@ import re
 import tempfile
 import urllib.request
 import warnings
-from datetime import datetime, timedelta
-from typing import Optional, Union
 from collections.abc import Sequence
+from datetime import datetime, timedelta
 
 import numpy as np
 import xarray as xr

@@ -22,7 +22,6 @@ Example
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from io import BytesIO
-from typing import Tuple
 
 import numpy as np
 import pandas as pd

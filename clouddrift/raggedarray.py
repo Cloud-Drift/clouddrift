@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import warnings
 from collections.abc import Callable
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal
 
 import awkward as ak  # type: ignore
 import numpy as np

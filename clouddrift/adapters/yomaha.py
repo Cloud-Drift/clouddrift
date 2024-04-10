@@ -24,7 +24,6 @@ import tempfile
 import warnings
 from datetime import datetime
 from io import BytesIO
-from typing import Union
 
 import numpy as np
 import pandas as pd

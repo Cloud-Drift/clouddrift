@@ -3,10 +3,9 @@ Transformational and inquiry functions for ragged arrays.
 """
 
 import warnings
+from collections.abc import Callable, Iterable
 from concurrent import futures
 from datetime import timedelta
-from typing import Tuple, Union
-from collections.abc import Callable, Iterable
 
 import numpy as np
 import pandas as pd

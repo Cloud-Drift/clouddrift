@@ -3,7 +3,6 @@ This module provides functions for spherical geometry calculations.
 """
 
 import warnings
-from typing import Optional, Tuple, Union
 
 import numpy as np
 import xarray as xr

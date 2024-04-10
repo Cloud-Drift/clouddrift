@@ -2,7 +2,6 @@
 This module provides a function to easily and efficiently plot the rows of a ragged array.
 """
 
-from typing import Optional, Union
 
 import numpy as np
 import pandas as pd

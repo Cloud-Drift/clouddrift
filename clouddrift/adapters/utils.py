@@ -2,10 +2,9 @@ import concurrent.futures
 import logging
 import os
 import traceback
+from collections.abc import Callable, Sequence
 from datetime import datetime
 from io import BufferedIOBase, StringIO
-from typing import Tuple, Union
-from collections.abc import Callable, Sequence
 
 import requests
 from requests import Response

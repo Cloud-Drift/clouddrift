@@ -4,7 +4,7 @@ Functions to analyze pairs of contiguous data segments.
 
 import itertools
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import List, Optional, Tuple, Union
+from typing import Union
 
 import numpy as np
 import pandas as pd

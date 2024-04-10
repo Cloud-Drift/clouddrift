@@ -2,7 +2,6 @@
 Functions for kinematic computations.
 """
 
-from typing import Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd

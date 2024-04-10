@@ -10,7 +10,6 @@ import re
 import tempfile
 import urllib.request
 import warnings
-from typing import Optional, Union
 
 import numpy as np
 import xarray as xr
