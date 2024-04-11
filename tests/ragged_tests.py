@@ -488,7 +488,7 @@ class apply_ragged_tests(unittest.TestCase):
 
     def test_with_axis(self):
         # Test that axis=0 is the default.
-        x = np.arange((6)).reshape((3, 2))
+        x = np.arange(6).reshape((3, 2))
         func = lambda x: x**2
         rowsize = [2, 1]
         y = apply_ragged(func, x, rowsize, axis=0)

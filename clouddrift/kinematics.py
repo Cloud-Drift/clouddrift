@@ -2,8 +2,6 @@
 Functions for kinematic computations.
 """
 
-from typing import Optional, Tuple, Union
-
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -23,9 +21,9 @@ from clouddrift.wavelet import morse_logspace_freq, morse_wavelet, wavelet_trans
 
 
 def kinetic_energy(
-    u: Union[float, list, np.ndarray, xr.DataArray, pd.Series],
-    v: Optional[Union[float, list, np.ndarray, xr.DataArray, pd.Series]] = None,
-) -> Union[float, np.ndarray, xr.DataArray]:
+    u: float | list | np.ndarray | xr.DataArray | pd.Series,
+    v: float | list | np.ndarray | xr.DataArray | pd.Series | None = None,
+) -> float | np.ndarray | xr.DataArray:
     """Compute kinetic energy from zonal and meridional velocities.
 
     Parameters
@@ -65,10 +63,10 @@ def kinetic_energy(
 def inertial_oscillation_from_position(
     longitude: np.ndarray,
     latitude: np.ndarray,
-    relative_bandwidth: Optional[float] = None,
-    wavelet_duration: Optional[float] = None,
-    time_step: Optional[float] = 3600.0,
-    relative_vorticity: Optional[Union[float, np.ndarray]] = 0.0,
+    relative_bandwidth: float | None = None,
+    wavelet_duration: float | None = None,
+    time_step: float | None = 3600.0,
+    relative_vorticity: float | np.ndarray | None = 0.0,
 ) -> np.ndarray:
     """Extract inertial oscillations from consecutive geographical positions.
 
@@ -262,11 +260,11 @@ def inertial_oscillation_from_position(
 
 
 def residual_position_from_displacement(
-    longitude: Union[float, np.ndarray, xr.DataArray],
-    latitude: Union[float, np.ndarray, xr.DataArray],
-    x: Union[float, np.ndarray],
-    y: Union[float, np.ndarray],
-) -> Union[Tuple[float], Tuple[np.ndarray]]:
+    longitude: float | np.ndarray | xr.DataArray,
+    latitude: float | np.ndarray | xr.DataArray,
+    x: float | np.ndarray,
+    y: float | np.ndarray,
+) -> tuple[float] | tuple[np.ndarray]:
     """
     Return residual longitudes and latitudes along a trajectory on the spherical Earth
     after correcting for zonal and meridional displacements x and y in meters.
@@ -326,10 +324,10 @@ def position_from_velocity(
     time: np.ndarray,
     x_origin: float,
     y_origin: float,
-    coord_system: Optional[str] = "spherical",
-    integration_scheme: Optional[str] = "forward",
-    time_axis: Optional[int] = -1,
-) -> Tuple[np.ndarray, np.ndarray]:
+    coord_system: str | None = "spherical",
+    integration_scheme: str | None = "forward",
+    time_axis: int | None = -1,
+) -> tuple[np.ndarray, np.ndarray]:
     """Compute positions from arrays of velocities and time and a pair of origin
     coordinates.
 
@@ -530,10 +528,10 @@ def velocity_from_position(
     x: np.ndarray,
     y: np.ndarray,
     time: np.ndarray,
-    coord_system: Optional[str] = "spherical",
-    difference_scheme: Optional[str] = "forward",
-    time_axis: Optional[int] = -1,
-) -> Tuple[xr.DataArray, xr.DataArray]:
+    coord_system: str | None = "spherical",
+    difference_scheme: str | None = "forward",
+    time_axis: int | None = -1,
+) -> tuple[xr.DataArray, xr.DataArray]:
     """Compute velocity from arrays of positions and time.
 
     x and y can be provided as longitude and latitude in degrees if
@@ -779,9 +777,9 @@ def spin(
     u: np.ndarray,
     v: np.ndarray,
     time: np.ndarray,
-    difference_scheme: Optional[str] = "forward",
-    time_axis: Optional[int] = -1,
-) -> Union[float, np.ndarray]:
+    difference_scheme: str | None = "forward",
+    time_axis: int | None = -1,
+) -> float | np.ndarray:
     """Compute spin continuously from velocities and times.
 
     Spin is traditionally (Sawford, 1999; Veneziani et al., 2005) defined as
