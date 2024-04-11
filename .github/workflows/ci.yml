@@ -33,7 +33,7 @@ jobs:
             cartopy
       - name: Run unit tests
         shell: bash -l {0}
-        run: coverage run -m unittest discover -s tests -p "*.py"
+        run: coverage run -m unittest discover -s tests -p "*_tests.py"
       - name: Create coverage report
         shell: bash -l {0}
         run: |
@@ -49,7 +49,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest"]
-        python-version: ["3.9"]
+        python-version: ["3.10"]
     steps:
       - uses: actions/checkout@v4
       - uses: mamba-org/setup-micromamba@v1
