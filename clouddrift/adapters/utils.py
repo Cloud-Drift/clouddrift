@@ -2,7 +2,7 @@ import concurrent.futures
 import logging
 import os
 from datetime import datetime
-from io import BufferedIOBase, StringIO
+from io import BufferedIOBase
 from typing import Callable, Sequence, Tuple, Union
 
 import requests
@@ -17,11 +17,15 @@ from tenacity import (
 )
 from tqdm import tqdm
 
+
 def _before_call(rcs: RetryCallState):
     if rcs.attempt_number > 1:
         src = rcs.args[0]
         dst = "io-buffer" if isinstance(rcs.args[1], BufferedIOBase) else rcs.args[1]
-        _logger.warn(f"retrying download request for (dst, src): {(src, dst)}, attempt: {rcs.attempt_number}")
+        _logger.warn(
+            f"retrying download request for (dst, src): {(src, dst)}, attempt: {rcs.attempt_number}"
+        )
+
 
 _CHUNK_SIZE = 1024
 _logger = logging.getLogger(__name__)
@@ -31,8 +35,9 @@ _standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
     ),
     wait=wait_exponential_jitter(initial=0.25),
     stop=stop_after_attempt(10),
-    before=_before_call
+    before=_before_call,
 )
+
 
 def download_with_progress(
     download_map: Sequence[Tuple[str, Union[BufferedIOBase, str], Union[float, None]]],
@@ -48,9 +53,9 @@ def download_with_progress(
         retry_protocol = custom_retry_protocol  # type: ignore
 
     executor = concurrent.futures.ThreadPoolExecutor()
-    futures: dict[
-        concurrent.futures.Future, Tuple[str, Union[BufferedIOBase, str]]
-    ] = dict()
+    futures: dict[concurrent.futures.Future, Tuple[str, Union[BufferedIOBase, str]]] = (
+        dict()
+    )
     bar = None
 
     for src, dst, exp_size in download_map:
