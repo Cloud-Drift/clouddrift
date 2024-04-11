@@ -58,3 +58,7 @@ class datasets_tests(unittest.TestCase):
     def test_yomaha_opens(self):
         with datasets.yomaha() as ds:
             self.assertTrue(ds)
+
+    def test_mosaic_opens(self):
+        with datasets.mosaic() as ds:
+            self.assertTrue(ds)
