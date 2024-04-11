@@ -13,13 +13,13 @@ from scipy.special import factorial, iv, kv  # type: ignore
 from clouddrift.sphere import EARTH_DAY_SECONDS
 
 
-def response_to_wind_stress(
-    tau: Union[np.ndarray, xr.DataArray],
+def ocean_response_to_wind_stress(
+    tau: np.ndarray | xr.DataArray,
     dt: float,
-    latitude: Union[float, np.ndarray],
-    transfer_function: Union[np.ndarray, xr.DataArray],
+    latitude: float | np.ndarray,
+    transfer_function: np.ndarray | xr.DataArray,
     *args,
-    window: Optional[Union[int,np.ndarray]] = None,
+    window: int | np.ndarray | None = None,
 ) -> np.ndarray:
     """
     Compute the response of the ocean to wind stress forcing given the transfer function.
@@ -52,25 +52,29 @@ def response_to_wind_stress(
         >>> tau = np.random.randn(100)
         >>> lat = 45
         >>> dt = 3600
-        >>> u = response_to_wind_stress(tau, dt, lat, slab_wind_transfer, friction, bld, density)
+        >>> u = ocean_response_to_wind_stress(tau, dt, lat, slab_wind_transfer, friction, bld, density)
     """
 
     if isinstance(latitude, np.ndarray):
         if latitude.size != tau.size:
             raise ValueError("latitude as array_like must have the same size as tau")
     elif not isinstance(latitude, float):
-        raise TypeError("latitude must be a float or an array_like the same size as tau")
-    
+        raise TypeError(
+            "latitude must be a float or an array_like the same size as tau"
+        )
+
     # no sliding window
     if window is None:
         omega = np.fft.fftfreq(len(tau), dt) * 2 * np.pi
         # sort the *args by their names
         sorted_args = sorted(args, key=lambda x: x.__name__)
-        return np.fft.ifft(np.fft.fft(tau) * np.fft.fft(transfer_function(omega, *sorted_args))).real
+        return np.fft.ifft(
+            np.fft.fft(tau) * np.fft.fft(transfer_function(omega, *sorted_args))
+        ).real
 
 
 def slab_wind_transfer(
-    omega: Union[float, np.ndarray],
+    omega: float | np.ndarray,
     cor_freq: float,
     friction: float,
     bld: float,
@@ -113,8 +117,8 @@ def slab_wind_transfer(
 
 
 def wind_transfer(
-    omega: Union[float, np.ndarray],
-    z: Union[float, np.ndarray],
+    omega: float | np.ndarray,
+    z: float | np.ndarray,
     cor_freq: float,
     delta: float,
     mu: float,
@@ -122,7 +126,7 @@ def wind_transfer(
     boundary_condition: str = "no-slip",
     method: str = "lilly",
     density: float = 1025.0,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute the transfer function from wind stress to oceanic velocity based on the physically-based
     models of Elipot and Gille (2009) and Lilly and Elipot (2021).
@@ -734,16 +738,16 @@ def _wind_transfer_elipot_free_slip(
 
 
 def _bessels_freeslip(
-    xiz: Union[float, np.ndarray],
-    xih: Union[float, np.ndarray],
-    xi0: Optional[Union[float, np.ndarray, None]] = None,
-) -> Tuple[
-    Union[float, np.ndarray],
-    Union[float, np.ndarray],
-    Union[float, np.ndarray],
-    Union[float, np.ndarray],
-    Union[float, np.ndarray],
-    Union[float, np.ndarray],
+    xiz: float | np.ndarray,
+    xih: float | np.ndarray,
+    xi0: float | np.ndarray | None | None = None,
+) -> tuple[
+    float | np.ndarray,
+    float | np.ndarray,
+    float | np.ndarray,
+    float | np.ndarray,
+    float | np.ndarray,
+    float | np.ndarray,
 ]:
     """
     Compute the Bessel functions for the free-slip boundary condition for the xsi(z), xsi(h), and xsi(0) functions.
@@ -762,16 +766,16 @@ def _bessels_freeslip(
 
 
 def _bessels_noslip(
-    xiz: Union[float, np.ndarray],
-    xih: Union[float, np.ndarray],
-    xi0: Union[float, np.ndarray, None] = None,
-) -> Tuple[
-    Union[float, np.ndarray],
-    Union[float, np.ndarray],
-    Union[float, np.ndarray],
-    Union[float, np.ndarray],
-    Union[float, np.ndarray],
-    Union[float, np.ndarray],
+    xiz: float | np.ndarray,
+    xih: float | np.ndarray,
+    xi0: float | np.ndarray | None = None,
+) -> tuple[
+    float | np.ndarray,
+    float | np.ndarray,
+    float | np.ndarray,
+    float | np.ndarray,
+    float | np.ndarray,
+    float | np.ndarray,
 ]:
     """
     Compute the Bessel functions for the no-slip boundary condition for the xsi(z), xsi(h), and xsi(0) functions.
@@ -790,17 +794,17 @@ def _bessels_noslip(
 
 
 def _besseltildes_noslip(
-    xiz: Union[float, np.ndarray],
-    xih: Union[float, np.ndarray],
-    xi0: Union[float, np.ndarray],
+    xiz: float | np.ndarray,
+    xih: float | np.ndarray,
+    xi0: float | np.ndarray,
     nterms: int = 30,
-) -> Tuple[
-    Union[float, np.ndarray],
-    Union[float, np.ndarray],
-    Union[float, np.ndarray],
-    Union[float, np.ndarray],
-    Union[float, np.ndarray],
-    Union[float, np.ndarray],
+) -> tuple[
+    float | np.ndarray,
+    float | np.ndarray,
+    float | np.ndarray,
+    float | np.ndarray,
+    float | np.ndarray,
+    float | np.ndarray,
 ]:
     """
     Compute the n-term expansion about the large-argument exponential behavior of Bessel functions
@@ -818,9 +822,9 @@ def _besseltildes_noslip(
 
 def kvtilde(
     nu: int,
-    z: Union[float, np.ndarray],
+    z: float | np.ndarray,
     nterms: int = 30,
-) -> Union[float, np.ndarray]:
+) -> float | np.ndarray:
     """
     Compute the n-term expansion about the large-argument exponential behavior of the modified Bessel
     function of the second kind of real order (kv).
@@ -855,9 +859,9 @@ def kvtilde(
 
 def ivtilde(
     nu: int,
-    z: Union[float, np.ndarray],
+    z: float | np.ndarray,
     nterms: int = 30,
-) -> Union[float, np.ndarray]:
+) -> float | np.ndarray:
     """
     Compute the n-term expansion about the large-argument exponential behavior of the
     Modified Bessel function of the first kind of real order (iv).
@@ -894,13 +898,11 @@ def _xis(
     s: float,
     zo: float,
     delta: float,
-    z: Union[float, np.ndarray],
-    omega: Union[float, np.ndarray],
+    z: float | np.ndarray,
+    omega: float | np.ndarray,
     coriolis_frequency: float,
     bld: float,
-) -> Tuple[
-    Union[float, np.ndarray], Union[float, np.ndarray], Union[float, np.ndarray]
-]:
+) -> tuple[float | np.ndarray, float | np.ndarray, float | np.ndarray]:
     """
     Compute the complex-valued "xsi" functions.
     """
