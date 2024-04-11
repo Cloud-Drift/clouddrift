@@ -26,11 +26,14 @@ jobs:
         with:
           environment-file: environment.yml
           environment-name: clouddrift
+          create-args: >-
+            python=${{ matrix.python-version }}
+            coverage
+            matplotlib-base
+            cartopy
       - name: Run unit tests
         shell: bash -l {0}
-        run: |
-              micromamba install coverage matplotlib-base cartopy
-              coverage run -m unittest discover -s tests -p "*.py"
+        run: coverage run -m unittest discover -s tests -p "*.py"
       - name: Create coverage report
         shell: bash -l {0}
         run: |
