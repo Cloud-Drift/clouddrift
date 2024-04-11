@@ -2,9 +2,9 @@ import concurrent.futures
 import logging
 import os
 import traceback
+from collections.abc import Callable, Sequence
 from datetime import datetime
 from io import BufferedIOBase, StringIO
-from typing import Callable, Sequence, Tuple, Union
 
 import requests
 from requests import Response
@@ -32,10 +32,10 @@ _standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
 
 
 def download_with_progress(
-    download_map: Sequence[Tuple[str, Union[BufferedIOBase, str], Union[float, None]]],
-    show_list_progress: Union[bool, None] = None,
+    download_map: Sequence[tuple[str, BufferedIOBase | str, float | None]],
+    show_list_progress: bool | None = None,
     desc: str = "Downloading files",
-    custom_retry_protocol: Union[Callable[[WrappedFn], WrappedFn], None] = None,
+    custom_retry_protocol: Callable[[WrappedFn], WrappedFn] | None = None,
 ):
     if show_list_progress is None:
         show_list_progress = len(download_map) > 20
@@ -45,9 +45,7 @@ def download_with_progress(
         retry_protocol = custom_retry_protocol  # type: ignore
 
     executor = concurrent.futures.ThreadPoolExecutor()
-    futures: dict[
-        concurrent.futures.Future, Tuple[str, Union[BufferedIOBase, str]]
-    ] = dict()
+    futures: dict[concurrent.futures.Future, tuple[str, BufferedIOBase | str]] = dict()
     bar = None
 
     for src, dst, exp_size in download_map:
@@ -93,7 +91,7 @@ def download_with_progress(
 
 def _download_with_progress(
     url: str,
-    output: Union[BufferedIOBase, str],
+    output: BufferedIOBase | str,
     expected_size: float,
     show_progress: bool,
 ):
@@ -121,8 +119,8 @@ def _download_with_progress(
     _logger.debug(f"Downloading from {url} to {output}...")
 
     force_close = False
-    response: Union[Response, None] = None
-    buffer: Union[BufferedIOBase, None] = None
+    response: Response | None = None
+    buffer: BufferedIOBase | None = None
     bar = None
 
     try:

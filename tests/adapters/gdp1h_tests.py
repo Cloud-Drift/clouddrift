@@ -1,6 +1,5 @@
 import os
 import unittest
-from typing import List
 from unittest.mock import Mock, patch
 
 from clouddrift.adapters import gdp1h
@@ -8,7 +7,7 @@ from tests.adapters.utils import MultiPatcher
 
 
 class gdp1h_tests(unittest.TestCase):
-    drifter_files: List[str]
+    drifter_files: list[str]
     response_mock: Mock
     gdp_mock: Mock
 

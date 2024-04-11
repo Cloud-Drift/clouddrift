@@ -22,7 +22,6 @@ Example
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from io import BytesIO
-from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -79,7 +78,7 @@ def get_dataframes() -> tuple[pd.DataFrame, pd.DataFrame]:
     return obs_df, sensors
 
 
-def get_file_urls(xml: bytes) -> Tuple[list[str], list[str]]:
+def get_file_urls(xml: bytes) -> tuple[list[str], list[str]]:
     """Pass the MOSAiC XML string and return the list of filenames and URLs."""
     filenames = [
         tag.text

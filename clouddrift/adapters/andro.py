@@ -21,7 +21,6 @@ import os
 import tempfile
 import warnings
 from datetime import datetime
-from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -35,7 +34,7 @@ ANDRO_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "andro")
 ANDRO_VERSION = "2022-03-04"
 
 
-def to_xarray(tmp_path: Union[str, None] = None):
+def to_xarray(tmp_path: str | None = None):
     if tmp_path is None:
         tmp_path = ANDRO_TMP_PATH
         os.makedirs(tmp_path, exist_ok=True)

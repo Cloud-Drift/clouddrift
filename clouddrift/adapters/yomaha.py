@@ -24,7 +24,6 @@ import tempfile
 import warnings
 from datetime import datetime
 from io import BytesIO
-from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -71,7 +70,7 @@ def download(tmp_path: str):
         buffer.close()
 
 
-def to_xarray(tmp_path: Union[str, None] = None):
+def to_xarray(tmp_path: str | None = None):
     if tmp_path is None:
         tmp_path = YOMAHA_TMP_PATH
         os.makedirs(tmp_path, exist_ok=True)

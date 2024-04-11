@@ -15,8 +15,6 @@ Any other code that is added to this module and that is specific to Python and
 not the MATLAB implementation is licensed under CloudDrift's MIT license.
 """
 
-from typing import Optional, Tuple, Union
-
 import numpy as np
 from scipy.special import gamma as _gamma
 from scipy.special import gammaln as _lgamma
@@ -27,12 +25,12 @@ def morse_wavelet_transform(
     gamma: float,
     beta: float,
     radian_frequency: np.ndarray,
-    complex: Optional[bool] = False,
-    order: Optional[int] = 1,
-    normalization: Optional[str] = "bandpass",
-    boundary: Optional[str] = "mirror",
-    time_axis: Optional[int] = -1,
-) -> Union[Tuple[np.ndarray], np.ndarray]:
+    complex: bool | None = False,
+    order: int | None = 1,
+    normalization: str | None = "bandpass",
+    boundary: str | None = "mirror",
+    time_axis: int | None = -1,
+) -> tuple[np.ndarray] | np.ndarray:
     """
     Apply a continuous wavelet transform to an input signal using the generalized Morse
     wavelets of Olhede and Walden (2002). The wavelet transform is normalized differently
@@ -204,10 +202,10 @@ def morse_wavelet_transform(
 def wavelet_transform(
     x: np.ndarray,
     wavelet: np.ndarray,
-    boundary: Optional[str] = "mirror",
-    time_axis: Optional[int] = -1,
-    freq_axis: Optional[int] = -2,
-    order_axis: Optional[int] = -3,
+    boundary: str | None = "mirror",
+    time_axis: int | None = -1,
+    freq_axis: int | None = -2,
+    order_axis: int | None = -3,
 ) -> np.ndarray:
     """
     Apply a continuous wavelet transform to an input signal using an input wavelet
@@ -349,9 +347,9 @@ def morse_wavelet(
     gamma: float,
     beta: float,
     radian_frequency: np.ndarray,
-    order: Optional[int] = 1,
-    normalization: Optional[str] = "bandpass",
-) -> Tuple[np.ndarray, np.ndarray]:
+    order: int | None = 1,
+    normalization: str | None = "bandpass",
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Compute the generalized Morse wavelets of Olhede and Walden (2002), doi: 10.1109/TSP.2002.804066.
 
@@ -494,8 +492,8 @@ def _morse_wavelet_first_family(
     beta: float,
     norm_radian_frequency: np.ndarray,
     wavezero: np.ndarray,
-    order: Optional[int] = 1,
-    normalization: Optional[str] = "bandpass",
+    order: int | None = 1,
+    normalization: str | None = "bandpass",
 ) -> np.ndarray:
     """
     Derive first family of Morse wavelets. Internal use only.
@@ -525,9 +523,9 @@ def _morse_wavelet_first_family(
 
 
 def morse_freq(
-    gamma: Union[np.ndarray, float],
-    beta: Union[np.ndarray, float],
-) -> Union[Tuple[np.ndarray], Tuple[float]]:
+    gamma: np.ndarray | float,
+    beta: np.ndarray | float,
+) -> tuple[np.ndarray] | tuple[float]:
     """
     Frequency measures for generalized Morse wavelets. This functions calculates
     three different measures fm, fe, and fi of the frequency of the lowest-order generalized Morse
@@ -607,9 +605,9 @@ def morse_logspace_freq(
     gamma: float,
     beta: float,
     length: int,
-    highset: Optional[Tuple[float]] = (0.1, np.pi),
-    lowset: Optional[Tuple[float]] = (5, 0),
-    density: Optional[int] = 4,
+    highset: tuple[float] | None = (0.1, np.pi),
+    lowset: tuple[float] | None = (5, 0),
+    density: int | None = 4,
 ) -> np.ndarray:
     """
     Compute logarithmically-spaced frequencies for generalized Morse wavelets
@@ -693,7 +691,7 @@ def _morsehigh(
     gamma: np.ndarray,
     beta: np.ndarray,
     eta: float,
-) -> Union[np.ndarray, float]:
+) -> np.ndarray | float:
     """High-frequency cutoff of the generalized Morse wavelets.
     gamma and be should be arrays of the same length. Internal use only.
     """
@@ -715,9 +713,9 @@ def _morsehigh(
 
 
 def morse_properties(
-    gamma: Union[np.ndarray, float],
-    beta: Union[np.ndarray, float],
-) -> Union[Tuple[np.ndarray], Tuple[float]]:
+    gamma: np.ndarray | float,
+    beta: np.ndarray | float,
+) -> tuple[np.ndarray] | tuple[float]:
     """
     Calculate the properties of the demodulated generalized Morse wavelets.
     See Lilly and Olhede (2009), doi: 10.1109/TSP.2008.2007607.
@@ -757,10 +755,10 @@ def morse_properties(
 
 
 def morse_amplitude(
-    gamma: Union[np.ndarray, float],
-    beta: Union[np.ndarray, float],
-    order: Optional[np.int64] = 1,
-    normalization: Optional[str] = "bandpass",
+    gamma: np.ndarray | float,
+    beta: np.ndarray | float,
+    order: np.int64 | None = 1,
+    normalization: str | None = "bandpass",
 ) -> float:
     """
     Calculate the amplitude coefficient of the generalized Morse wavelets.
@@ -815,7 +813,7 @@ def morse_amplitude(
 
 
 def _laguerre(
-    x: Union[np.ndarray, float],
+    x: np.ndarray | float,
     k: float,
     c: float,
 ) -> np.ndarray:

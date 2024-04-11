@@ -83,18 +83,18 @@ def sample_ragged_array() -> RaggedArray:
 
 class kinetic_energy_tests(unittest.TestCase):
     def test_values_1d_velocity(self):
-        u = np.random.random((100))
+        u = np.random.random(100)
         self.assertTrue(np.all(kinetic_energy(u) == u**2 / 2))
 
     def test_1d_velocity_kwarg(self):
-        u = np.random.random((100))
+        u = np.random.random(100)
         self.assertTrue(
             np.all(kinetic_energy(u) == kinetic_energy(u, np.zeros_like(u)))
         )
 
     def test_values_2d_velocity(self):
-        u = np.random.random((100))
-        v = np.random.random((100))
+        u = np.random.random(100)
+        v = np.random.random(100)
         self.assertTrue(np.all(kinetic_energy(u, v) == (u**2 + v**2) / 2))
 
 
@@ -472,8 +472,8 @@ class spin_tests(unittest.TestCase):
         )
 
     def test_known_zero_spin(self):
-        u = np.ones((10))
-        v = np.ones((10))
+        u = np.ones(10)
+        v = np.ones(10)
         time = np.arange(10.0)
         self.assertTrue(np.all(spin(u, v, time) == 0))
 
@@ -492,11 +492,11 @@ class spin_tests(unittest.TestCase):
         with self.assertRaises(IndexError):
             spin(np.array([0]), np.array([0]), np.array([0]))
         with self.assertRaises(ValueError):
-            spin(np.ones((4)), np.ones((4)), np.arange(3.0))
+            spin(np.ones(4), np.ones(4), np.arange(3.0))
         with self.assertRaises(ValueError):
             u = np.random.random((4, 3))
             v = np.random.random((4, 3))
-            time = np.arange((4.0))
+            time = np.arange(4.0)
             spin(u, v, time)
         with self.assertRaises(ValueError):
-            spin(np.ones((4)), np.ones((4)), np.arange(4.0), time_axis=2)
+            spin(np.ones(4), np.ones(4), np.arange(4.0), time_axis=2)

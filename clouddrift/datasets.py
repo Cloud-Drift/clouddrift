@@ -6,7 +6,7 @@ they will be downloaded from their upstream repositories and stored for later ac
 """
 
 import os
-from typing import Callable
+from collections.abc import Callable
 
 import xarray as xr
 

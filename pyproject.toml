@@ -13,7 +13,7 @@ authors = [
 ]
 description = "Accelerating the use of Lagrangian data for atmospheric, oceanic, and climate sciences"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -46,7 +46,7 @@ ignore = ["E731", "E741"]
 select = ["E4", "E7", "E9", "F", "I"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 follow_imports = "normal"
 files = [
   "clouddrift/**/*.py",

@@ -21,7 +21,7 @@ class morse_wavelet_transform_tests(unittest.TestCase):
     def test_morse_wavelet_transform_real(self):
         length = 1023
         radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
-        x = np.random.random((length))
+        x = np.random.random(length)
         wtx = morse_wavelet_transform(x, 3, 10, radian_frequency)
         wavelet, _ = morse_wavelet(length, 3, 10, radian_frequency)
         wtx2 = wavelet_transform(x, wavelet)
@@ -30,7 +30,7 @@ class morse_wavelet_transform_tests(unittest.TestCase):
     def test_morse_wavelet_transform_complex(self):
         length = 1024
         radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
-        x = np.random.random((length)) + 1j * np.random.random((length))
+        x = np.random.random(length) + 1j * np.random.random(length)
         wtx_p, wtx_n = morse_wavelet_transform(x, 3, 10, radian_frequency, complex=True)
         wavelet, _ = morse_wavelet(length, 3, 10, radian_frequency)
         wtx2 = wavelet_transform(x, wavelet)
@@ -41,8 +41,8 @@ class morse_wavelet_transform_tests(unittest.TestCase):
     def test_morse_wavelet_transform_rotary_bandpass(self):
         length = 2048
         radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
-        x = np.random.random((length))
-        y = np.random.random((length))
+        x = np.random.random(length)
+        y = np.random.random(length)
         z = x + 1j * y
         wtx = morse_wavelet_transform(x, 3, 10, radian_frequency, complex=False)
         wty = morse_wavelet_transform(y, 3, 10, radian_frequency, complex=False)
@@ -58,8 +58,8 @@ class morse_wavelet_transform_tests(unittest.TestCase):
     def test_morse_wavelet_transform_rotary_energy(self):
         length = 1023
         radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
-        x = np.random.random((length))
-        y = np.random.random((length))
+        x = np.random.random(length)
+        y = np.random.random(length)
         z = x + 1j * y
         wtx = morse_wavelet_transform(
             x, 3, 10, radian_frequency, complex=False, normalization="energy"
@@ -102,7 +102,7 @@ class wavelet_transform_tests(unittest.TestCase):
         wave, wavef = morse_wavelet(
             length, 2, 4, radian_frequency, order=1, normalization="bandpass"
         )
-        x = np.random.random((length))
+        x = np.random.random(length)
         w1 = wavelet_transform(x - np.mean(x), wave, boundary="mirror")
         w2 = wavelet_transform(x - np.mean(x), wave, boundary="periodic")
         w3 = wavelet_transform(x - np.mean(x), wave, boundary="zeros")
@@ -118,8 +118,8 @@ class wavelet_transform_tests(unittest.TestCase):
         wave, wavef = morse_wavelet(
             length, 2, 4, radian_frequency, order=1, normalization="bandpass"
         )
-        x = np.random.random((length))
-        y = np.random.random((length))
+        x = np.random.random(length)
+        y = np.random.random(length)
         wx = wavelet_transform(x, wave, boundary="mirror")
         wy = wavelet_transform(y, wave, boundary="mirror")
         wp = wavelet_transform(
