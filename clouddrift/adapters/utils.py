@@ -3,7 +3,7 @@ import logging
 import os
 from datetime import datetime
 from io import BufferedIOBase
-from typing import Callable, Sequence, Tuple, Union
+from typing import Callable, Sequence
 
 import requests
 from requests import Response
@@ -33,7 +33,9 @@ _standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
     retry=retry_if_exception(
         lambda ex: isinstance(ex, (requests.Timeout, requests.HTTPError))
     ),
-    wait=wait_exponential_jitter(initial=1.25), # ~ 20-25 minutes total time before completely failing
+    wait=wait_exponential_jitter(
+        initial=1.25
+    ),  # ~ 20-25 minutes total time before completely failing
     stop=stop_after_attempt(10),
     before=_before_call,
 )
