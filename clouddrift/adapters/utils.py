@@ -23,7 +23,7 @@ _standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
     retry=retry_if_exception(
         lambda ex: isinstance(ex, (requests.Timeout, requests.HTTPError))
     ),
-    wait=wait_exponential_jitter(initial=0.25),
+    wait=wait_exponential_jitter(initial=1.25), # ~ 20-25 minutes total time before completely failing
     stop=stop_after_attempt(10),
     before=lambda rcs: _logger.debug(
         f"calling {str(rcs.fn)}, attempt: {rcs.attempt_number}"
@@ -80,9 +80,10 @@ def download_with_progress(
         )
         for x in futures.keys():
             (src, dst) = futures[x]
-            if isinstance(dst, (str,)) and os.path.exists(dst):
+            if isinstance(dst, (str,)) and os.path.exists(dst) and not x.done():
                 os.remove(dst)
-            x.cancel()
+            if not x.done():
+                x.cancel()
         raise e
     finally:
         executor.shutdown(True)
