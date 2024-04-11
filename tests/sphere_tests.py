@@ -268,13 +268,13 @@ class sphere_to_plane_tests(unittest.TestCase):
         self.assertTrue(
             np.allclose(x, np.array([0.0, np.deg2rad(EARTH_RADIUS_METERS)]))
         )
-        self.assertTrue(np.allclose(y, np.zeros((2))))
+        self.assertTrue(np.allclose(y, np.zeros(2)))
 
         x, y = sphere_to_plane(np.array([0.0, 0.0]), np.array([0.0, 1.0]))
         self.assertTrue(
             np.allclose(y, np.array([0.0, np.deg2rad(EARTH_RADIUS_METERS)]))
         )
-        self.assertTrue(np.allclose(x, np.zeros((2))))
+        self.assertTrue(np.allclose(x, np.zeros(2)))
 
     def test_with_origin(self):
         lon_origin = 5
@@ -336,8 +336,8 @@ class sphere_to_plane_tests(unittest.TestCase):
 
 class sphere_to_plane_roundtrip(unittest.TestCase):
     def test_roundtrip(self):
-        expected_lon = 2 * np.cumsum(np.random.random((100)))
-        expected_lat = np.cumsum(np.random.random((100)))
+        expected_lon = 2 * np.cumsum(np.random.random(100))
+        expected_lat = np.cumsum(np.random.random(100))
 
         x, y = sphere_to_plane(expected_lon, expected_lat)
         lon, lat = plane_to_sphere(x, y)

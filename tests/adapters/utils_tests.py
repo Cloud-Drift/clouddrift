@@ -205,7 +205,7 @@ class utils_tests(unittest.TestCase):
             self.gen_future_mock(),
             self.gen_future_mock(),
             self.gen_future_mock(Exception("just a test exception that is expected")),
-            self.gen_future_mock(),
+            self.gen_future_mock(complete=True),
         ]
 
         futures_mock = Mock()
@@ -235,12 +235,14 @@ class utils_tests(unittest.TestCase):
             )
             assert tpe_mock.submit.call_count == len(mocked_futures)
             assert self.bar_mock.update.call_count == 2
-            assert os_mock.remove.call_count == len(mocked_futures)
+            assert os_mock.remove.call_count == len(mocked_futures) - 1
             tpe_mock.shutdown.assert_called_once()
-            [fut_mock.cancel.assert_called_once() for fut_mock in mocked_futures]
+            [fut_mock.cancel.assert_called_once() for fut_mock in mocked_futures[:-1]]
+            mocked_futures[-1].cancel.assert_not_called()
 
-    def gen_future_mock(self, ex=None):
+    def gen_future_mock(self, ex=None, complete=False):
         future = Mock()
         future.exception = Mock(return_value=ex)
+        future.done = Mock(return_value=complete)
         future.cancel = Mock()
         return future

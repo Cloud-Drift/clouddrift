@@ -33,17 +33,17 @@ _standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
     retry=retry_if_exception(
         lambda ex: isinstance(ex, (requests.Timeout, requests.HTTPError))
     ),
-    wait=wait_exponential_jitter(initial=0.25),
+    wait=wait_exponential_jitter(initial=1.25), # ~ 20-25 minutes total time before completely failing
     stop=stop_after_attempt(10),
     before=_before_call,
 )
 
 
 def download_with_progress(
-    download_map: Sequence[Tuple[str, Union[BufferedIOBase, str], Union[float, None]]],
-    show_list_progress: Union[bool, None] = None,
+    download_map: Sequence[tuple[str, BufferedIOBase | str, float | None]],
+    show_list_progress: bool | None = None,
     desc: str = "Downloading files",
-    custom_retry_protocol: Union[Callable[[WrappedFn], WrappedFn], None] = None,
+    custom_retry_protocol: Callable[[WrappedFn], WrappedFn] | None = None,
 ):
     if show_list_progress is None:
         show_list_progress = len(download_map) > 20
@@ -53,9 +53,7 @@ def download_with_progress(
         retry_protocol = custom_retry_protocol  # type: ignore
 
     executor = concurrent.futures.ThreadPoolExecutor()
-    futures: dict[concurrent.futures.Future, Tuple[str, Union[BufferedIOBase, str]]] = (
-        dict()
-    )
+    futures: dict[concurrent.futures.Future, tuple[str, BufferedIOBase | str]] = dict()
     bar = None
 
     for src, dst, exp_size in download_map:
@@ -88,9 +86,10 @@ def download_with_progress(
         )
         for x in futures.keys():
             (src, dst) = futures[x]
-            if isinstance(dst, (str,)) and os.path.exists(dst):
+            if isinstance(dst, (str,)) and os.path.exists(dst) and not x.done():
                 os.remove(dst)
-            x.cancel()
+            if not x.done():
+                x.cancel()
         raise e
     finally:
         executor.shutdown(True)
@@ -100,7 +99,7 @@ def download_with_progress(
 
 def _download_with_progress(
     url: str,
-    output: Union[BufferedIOBase, str],
+    output: BufferedIOBase | str,
     expected_size: float,
     show_progress: bool,
 ):
@@ -128,8 +127,8 @@ def _download_with_progress(
     _logger.debug(f"Downloading from {url} to {output}...")
 
     force_close = False
-    response: Union[Response, None] = None
-    buffer: Union[BufferedIOBase, None] = None
+    response: Response | None = None
+    buffer: BufferedIOBase | None = None
     bar = None
 
     try:
