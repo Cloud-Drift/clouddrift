@@ -16,7 +16,7 @@ authors:
     equal-contrib: true
     affiliation: 2
   - name: Milan Curcic
-    orcid: 
+    orcid: 0000-0002-8822-7749
     equal-contrib: true
     affiliation: 1
   - name: Kevin Santana
@@ -24,14 +24,14 @@ authors:
     equal-contrib: true
     affiliation: 1
   - name: Rick Lumpkin
-    orcid: 
+    orcid: 0000-0002-6690-1704
     equal-contrib: true
     affiliation: 3
 
 affiliations:
  - name: Rosenstiel School of Marine, Atmospheric, and Earth science, University of Miami
    index: 1
- - name: ?
+ - name: Florida State University
    index: 2
  - name: NOAA Atlantic Oceanographic and Meteorological Laboratory
    index: 3
@@ -42,6 +42,7 @@ bibliography: paper.bib
 
 # Summary
 
+Lagrangian data in Earth sciences are unique because they do not conform to established standards related to dimensions, coordinates, and organizational structures. In addition, because they convolve spatial and temporal information, Lagrangian data necessitate specific processing and analysis tools for their scientific and operational exploitations. The Clouddrift Python library offers tools to process and analyze Lagrangian data with an emphasis on the ragged array representation.
 
 # Statement of need
 
@@ -62,7 +63,7 @@ The scope of the Clouddrift library includes:
 
 # Acknowledgements
 
-The development of the Clouddrift library is a result of NSF Award #2126413: *EarthCube Capabilities: CloudDrift: a platform for accelerating research with Lagrangian climate data*. SE, PM, MC, and KS have been partially supported by this award. 
+The development of the Clouddrift library is a result of [NSF Award #2126413: *EarthCube Capabilities: CloudDrift: a platform for accelerating research with Lagrangian climate data*](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2126413). SE, PM, MC, and KS have been partially supported by this award. 
 
 # References
 
