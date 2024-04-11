@@ -53,7 +53,7 @@ In Earth, Ocean, Geo-, and Atmospheric Science, Eulerian typically refers to a t
 The scope of the Clouddrift library includes: 
 
 1. Working with contiguous ragged array representations of data, wether they originate from geosciences or any other field. Ragged array representations are typically useful when the data lengths of the instances of a feature (variable) are not all equal. With such representations the data for each features are stored contiguously in memory, and the number of elements that each feature has is contained in a count variable which Clouddrift calls *rowsize*. A graphical representation of the application of the ragged array structure to Lagrangian data is displayed in \autoref{fig:ragged_array}
-![Ragged array representation for Lagrangian data.\label{fig:ragged_array}](./docs/img/ragged_array.png.png).       
+![Ragged array representation for Lagrangian data.\label{fig:ragged_array}](./docs/img/ragged_array.png).       
 
 2. Delivering functions and methods to perform scientific analysis of Lagrangian data, oceanographic or otherwise [@Lacasce:2008,@Vansebille:2018], structured as ragged arrays or otherwise. A straightforward example of Lagrangian analysis provided by Clouddrift is the derivation of Lagrangian velocities from a sequence of Lagrangian positions, and vice versa. Another more involved example is the discovery of pairs of Lagrangian data prescribed by distances in space and time. Both of these methods are currently available with Clouddrift.
 
