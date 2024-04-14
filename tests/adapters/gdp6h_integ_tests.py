@@ -1,14 +1,26 @@
+import logging
 import os
 import shutil
 import unittest
 
 import numpy as np
 
-from clouddrift.adapters import gdp6h
+from clouddrift.adapters import gdp6h, utils
+
+_logger = logging.getLogger(__name__)
 
 
 class gdp6h_integration_tests(unittest.TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        utils._DEFAULT_SHOW_PROGRESS = False
+
+    def tearDown(self) -> None:
+        super().tearDown()
+        utils._DEFAULT_SHOW_PROGRESS = True
+
     def test_load_subset_and_create_aggregate(self):
+        _logger.info("test gdp6h adapter, load, subset and create aggregate")
         ra = gdp6h.to_raggedarray(n_random_id=5, tmp_path=gdp6h.GDP_TMP_PATH)
         assert "rowsize" in ra.metadata
         assert "temp" in ra.data
