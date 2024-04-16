@@ -56,11 +56,38 @@ The scope of the Clouddrift library includes:
 ![Ragged array representation for Lagrangian data.\label{fig:ragged_array}](ragged_array.png)       
 A graphical representation of the application of the ragged array structure to Lagrangian data is displayed in \autoref{fig:ragged_array}.
 
+
 2. **Delivering functions and methods to perform scientific analysis of Lagrangian data, oceanographic or otherwise [@Lacasce:2008;@Vansebille:2018], structured as ragged arrays or otherwise**. A straightforward example of Lagrangian analysis provided by Clouddrift is the derivation of Lagrangian velocities from a sequence of Lagrangian positions, and vice versa. Another more involved example is the discovery of pairs of Lagrangian data prescribed by distances in space and time. Both of these methods are currently available with Clouddrift.
+
+*Example:* The following example combines the use of the clouddrift function `velocity_from_position` from the `clouddrift.kinematics` module, with the function `apply_ragged` from the `clouddrift.ragged` module, in order to calculate the velocities of multiple particles, the coordinates of which are found in the ragged arrays `x`, `y`, and `t` that share row sizes 2, 3, and 4:  
+```
+from clouddrift.kinematics import velocity_from_position
+from clouddrift.ragged import apply_ragged
+
+rowsize = [2, 3, 4]
+x = np.array([1, 2, 10, 12, 14, 30, 33, 36, 39])
+y = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8])
+t = np.array([1, 2, 1, 2, 3, 1, 2, 3, 4])
+
+u1, v1 = apply_ragged(velocity_from_position, [x, y, t], rowsize, coord_system="cartesian")
+```
 
 3. **Processing publicly available Lagrangian datasets into the common ragged array data structure and format**. Through data *adapters*, this type of processing includes not only converting Lagrangian data from typically regular arrays to ragged arrays but also aggregating data and metadata from multiple data files into a single data file. The canonical example of the Clouddrift library is constituted of the data from the NOAA Global Drifter Program [@Elipot:2022].
 
+*Example:* The following example locally builds an xarray dataset, with ragged array representations, of the latest dataset of position, velocity, and sea surface temperature from the Global Drifter Program quality-controlled 6-hour interpolated data from ocean surface drifting buoys:
+```
+from clouddrift.adapters import gdp6h
+ds = gdp6h.to_raggedarray().to_xarray()
+```
+
 4. **Making cloud-optimized ragged array datasets easily accessible**. This involves opening in a local computing environment, without unnecessary download, Lagrangian datasets available from cloud servers, as well as opening Lagrangian dataset which have been seamlessly processed by the Clouddrift data *adapters*.    
+
+*Example:* The following simple command remotely opens without download the hourly location, current velocity, and temperature collected from Global Drifter Program drifters world-wide, distributed as a zarr archive stored in a cloud storage as part of the [Registry of Open Data on AWS]](https://registry.opendata.aws/noaa-oar-hourly-gdp/):
+
+```
+from clouddrift.datasets import gdp1h
+ds = gdp1h()
+```
 
 # Acknowledgements
 
