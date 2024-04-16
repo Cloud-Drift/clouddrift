@@ -100,7 +100,6 @@ y/
 .idea
 *.swp
 *.DS_Store
-.vscode/
 Icon*
 .spyderproject
 .spyproject

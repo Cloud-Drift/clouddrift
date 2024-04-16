@@ -67,6 +67,13 @@ Common emojis to use are as follow:
 
 Almost all pull requests are merged with the "squash and merge" feature, so details about commit history within a pull request are hidden from the `main` branch's history. Feel free, therefore, to commit with any frequency you're comfortable with.
 
+### VS Code Developer Quickstart
+If you utilize VS Code as your primary IDE you can leverage the automation `tasks` we provide. These automation tasks enable a **one-click** experience when downloading dependencies, running pre-commit processes (linting, styling, type checking, uni testing) and building docs, served and inspected locally.
+
+The only pre-requisite is to have `conda` installed on your development machine. For more info on this please visit [anaconda installation guide](https://docs.anaconda.com/free/anaconda/install/)
+
+Its strongly recommended to download and use the `vscode-taskexplorer` [extension](https://marketplace.visualstudio.com/items?itemName=spmeesseman.vscode-taskexplorer) by Scott Meesseman (provides GUI task interaction in the explorer):
+
 
 ### Preparing your environment
 
@@ -87,7 +94,7 @@ source .venv/bin/activate
 pip install .
 ```
 
-with conda:
+with conda (recommended):
 
 ```
 conda env create -f environment.yml
@@ -115,7 +122,7 @@ conda install matplotlib-base cartopy
 3. Run the test suite:
 
 ```
-python -m unittest tests/*.py
+python -m unittest discover -s tests -p "*.py"
 ```
 
 ### Building locally and installing 
