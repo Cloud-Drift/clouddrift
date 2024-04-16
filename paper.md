@@ -42,7 +42,7 @@ bibliography: paper.bib
 
 # Summary
 
-Lagrangian data in Earth sciences are unique because they do not conform to established standards related to dimensions, coordinates, and organizational structures. In addition, because they convolve spatial and temporal information, Lagrangian data necessitate specific processing and analysis tools for their scientific and operational exploitations. The Clouddrift Python library offers tools to process and analyze Lagrangian data with an emphasis on the ragged array representation.
+Lagrangian data in Earth sciences are unique because they do not conform to established standards related to dimensions, coordinates, and organizational structures. In addition, because they convolve spatial and temporal information, Lagrangian data necessitate specific processing and analysis tools for their scientific and operational exploitations. The Clouddrift Python library addresses those challenges by offering tools to process and analyze Lagrangian data with an emphasis on the ragged array representation.
 
 # Statement of need
 
