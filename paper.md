@@ -82,7 +82,7 @@ ds = gdp6h.to_raggedarray().to_xarray()
 
 4. **Making cloud-optimized ragged array datasets easily accessible**. This involves opening in a local computing environment, without unnecessary download, Lagrangian datasets available from cloud servers, as well as opening Lagrangian dataset which have been seamlessly processed by the Clouddrift data *adapters*.    
 
-*Example:* The following simple command remotely opens without download the hourly location, current velocity, and temperature collected from Global Drifter Program drifters world-wide, distributed as a zarr archive stored in a cloud storage as part of the [Registry of Open Data on AWS]](https://registry.opendata.aws/noaa-oar-hourly-gdp/):
+*Example:* The following simple command remotely opens without download the hourly location, current velocity, and temperature collected from Global Drifter Program drifters world-wide, distributed as a zarr archive with ragged array representations and stored in a cloud storage as part of the [Registry of Open Data on AWS]](https://registry.opendata.aws/noaa-oar-hourly-gdp/):
 
 ```
 from clouddrift.datasets import gdp1h
