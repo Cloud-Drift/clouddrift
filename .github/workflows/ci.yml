@@ -28,12 +28,16 @@ jobs:
           environment-name: clouddrift
           create-args: >-
             python=${{ matrix.python-version }}
+            pytest
             coverage
             matplotlib-base
             cartopy
       - name: Run unit tests
         shell: bash -l {0}
-        run: coverage run -m unittest discover -s tests -p "*_tests.py"
+        run: coverage run -m pytest tests/*_tests.py tests/adapters/*_tests.py
+      - name: Display report
+        shell: bash -l {0}
+        run: coverage report
       - name: Create coverage report
         shell: bash -l {0}
         run: |
@@ -58,5 +62,4 @@ jobs:
           environment-name: clouddrift
       - name: Run doc tests
         shell: bash -l {0}
-        run: |
-              python -m unittest tests/docexamples.py
+        run: pytest --doctest-modules clouddrift/ragged.py

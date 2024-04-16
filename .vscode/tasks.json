@@ -44,7 +44,7 @@
         {
             "label": "[SETUP] Install Testing Dependencies",
             "type": "shell",
-            "command": "conda install -n clouddrift matplotlib-base cartopy",
+            "command": "conda install -n clouddrift pytest matplotlib-base cartopy",
             "group": {
                 "kind": "none",
                 "isDefault": true
@@ -129,9 +129,24 @@
 
         },
         {
-            "label": "[TASK] Run test suite",
+            "label": "[TASK] Run NEW/UPDATED tests",
             "type": "shell",
-            "command": "conda run -n clouddrift python -m unittest discover -s tests -p '*.py'",
+            "command": "conda run -n clouddrift pytest tests/*_tests.py tests/adapters/*_tests.py",
+            "group": {
+                "kind": "none",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "new",
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "[TASK] Run ALL tests",
+            "type": "shell",
+            "command": "conda run -n clouddrift pytest tests/*_tests.py tests/adapters/*_tests.py",
             "group": {
                 "kind": "none",
                 "isDefault": true
