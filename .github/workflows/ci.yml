@@ -60,6 +60,9 @@ jobs:
         with:
           environment-file: environment.yml
           environment-name: clouddrift
+          create-args: >-
+            python=${{ matrix.python-version }}
+            pytest
       - name: Run doc tests
         shell: bash -l {0}
         run: pytest --doctest-modules clouddrift/ragged.py
