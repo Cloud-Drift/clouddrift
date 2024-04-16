@@ -17,7 +17,7 @@ from tenacity import (
 )
 from tqdm import tqdm
 
-_DEFAULT_SHOW_PROGRESS = True # purely to de-noise our test suite output, should never be used/configured outside of that.
+_DISABLE_SHOW_PROGRESS = False # purely to de-noise our test suite output, should never be used/configured outside of that.
 
 
 def _before_call(rcs: RetryCallState):
@@ -50,7 +50,7 @@ def download_with_progress(
     custom_retry_protocol: Callable[[WrappedFn], WrappedFn] | None = None,
 ):
     if show_list_progress is None:
-        show_list_progress = _DEFAULT_SHOW_PROGRESS and len(download_map) > 20
+        show_list_progress = len(download_map) > 20
     if custom_retry_protocol is None:
         retry_protocol = _standard_retry_protocol
     else:
@@ -67,12 +67,12 @@ def download_with_progress(
                 src,
                 dst,
                 exp_size or 0,
-                _DEFAULT_SHOW_PROGRESS and not show_list_progress,
+                not show_list_progress,
             )
         ] = (src, dst)
     try:
         if show_list_progress:
-            bar = tqdm(desc=desc, total=len(futures), unit="Files")
+            bar = tqdm(desc=desc, total=len(futures), unit="Files", disable=_DISABLE_SHOW_PROGRESS)
 
         for fut in concurrent.futures.as_completed(futures):
             (src, dst) = futures[fut]
@@ -151,6 +151,7 @@ def _download_with_progress(
                 unit_scale=True,
                 unit_divisor=1024,
                 nrows=2,
+                disable=_DISABLE_SHOW_PROGRESS
             )
 
         for chunk in response.iter_content(_CHUNK_SIZE):

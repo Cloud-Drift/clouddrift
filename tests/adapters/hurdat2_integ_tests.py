@@ -1,15 +1,12 @@
-import logging
 import shutil
-import unittest
 
 import numpy as np
 
+import tests.utils as testutils
 from clouddrift.adapters import hurdat2, utils
 
-_logger = logging.getLogger(__name__)
 
-
-class hurdat2_integration_tests(unittest.TestCase):
+class hurdat2_integration_tests(testutils.DisableProgressTestCase):
     def setUp(self) -> None:
         super().setUp()
         utils._DEFAULT_SHOW_PROGRESS = False
@@ -19,7 +16,6 @@ class hurdat2_integration_tests(unittest.TestCase):
         utils._DEFAULT_SHOW_PROGRESS = True
 
     def test_load_create_ragged_array(self):
-        _logger.info("test hurdat2 adapter, create ragged array")
         ra = hurdat2.to_raggedarray()
         ds = ra.to_xarray()
         assert "id" in ds.coords
@@ -28,7 +24,6 @@ class hurdat2_integration_tests(unittest.TestCase):
         assert len(ds.coords["id"]) == len(ra.coords["id"])
 
     def test_conversion(self):
-        _logger.info("test hurdat2 adapter with/without conversion")
         ra = hurdat2.to_raggedarray()
         ra_non_converted = hurdat2.to_raggedarray(convert=False)
         ds = ra.to_xarray()
