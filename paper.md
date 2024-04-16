@@ -35,6 +35,8 @@ affiliations:
    index: 2
  - name: NOAA Atlantic Oceanographic and Meteorological Laboratory
    index: 3
+ - name: Frost Institute for Data Science and Computing, University of Miami
+   index: 4
 date: 10 April 2024
 bibliography: paper.bib
 
