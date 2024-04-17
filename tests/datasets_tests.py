@@ -1,15 +1,11 @@
-import unittest
-
 import numpy as np
 
+import tests.utils as testutils
 from clouddrift import datasets
 from clouddrift.ragged import apply_ragged, subset
 
-if __name__ == "__main__":
-    unittest.main()
 
-
-class datasets_tests(unittest.TestCase):
+class datasets_tests(testutils.DisableProgressTestCase):
     def test_gdp1h(self):
         with datasets.gdp1h() as ds:
             self.assertTrue(ds)

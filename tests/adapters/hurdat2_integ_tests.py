@@ -1,12 +1,12 @@
 import shutil
-import unittest
 
 import numpy as np
 
+import tests.utils as testutils
 from clouddrift.adapters import hurdat2
 
 
-class hurdat2_integration_tests(unittest.TestCase):
+class hurdat2_integration_tests(testutils.DisableProgressTestCase):
     def test_load_create_ragged_array(self):
         ra = hurdat2.to_raggedarray()
         ds = ra.to_xarray()

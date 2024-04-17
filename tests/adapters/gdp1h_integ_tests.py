@@ -1,13 +1,13 @@
 import os
 import shutil
-import unittest
 
 import numpy as np
 
+import tests.utils as testutils
 from clouddrift.adapters import gdp1h
 
 
-class gdp1h_integration_tests(unittest.TestCase):
+class gdp1h_integration_tests(testutils.DisableProgressTestCase):
     def test_load_subset_and_create_aggregate(self):
         test_tasks = [
             (gdp1h.GDP_TMP_PATH, gdp1h.GDP_DATA_URL),
