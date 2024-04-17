@@ -3,18 +3,10 @@ import shutil
 import numpy as np
 
 import tests.utils as testutils
-from clouddrift.adapters import hurdat2, utils
+from clouddrift.adapters import hurdat2
 
 
 class hurdat2_integration_tests(testutils.DisableProgressTestCase):
-    def setUp(self) -> None:
-        super().setUp()
-        utils._DEFAULT_SHOW_PROGRESS = False
-
-    def tearDown(self) -> None:
-        super().tearDown()
-        utils._DEFAULT_SHOW_PROGRESS = True
-
     def test_load_create_ragged_array(self):
         ra = hurdat2.to_raggedarray()
         ds = ra.to_xarray()
