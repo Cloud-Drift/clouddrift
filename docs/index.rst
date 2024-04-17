@@ -19,6 +19,7 @@ The scope of the Clouddrift library includes:
 4. **Making cloud-optimized ragged array datasets easily accessible**. This involves opening in a local computing environment, without unnecessary download, Lagrangian datasets available from cloud servers, as well as opening Lagrangian dataset which have been seamlessly processed by the Clouddrift data *adapters*.    
 
 CloudDrift's analysis functions are principally centered around the ragged-array data structure:
+
 .. image:: img/ragged_array.png
   :width: 800
   :align: center

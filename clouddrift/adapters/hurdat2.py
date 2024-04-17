@@ -1,3 +1,8 @@
+"""
+This module defines functions used to adapt the HURDAT2 cyclone track data as
+a ragged-array dataset.
+"""
+
 import enum
 import os
 import re

@@ -161,7 +161,7 @@
         {
             "label": "[TASK] Build distribution package",
             "type": "shell",
-            "command": "conda run -n clouddrift python -m build",
+            "command": "rm -rf dist/ && conda run -n clouddrift python -m build",
             "group": {
                 "kind": "none",
                 "isDefault": true
@@ -178,7 +178,8 @@
             "label": "[TASK] Install distribution package",
             "type": "shell",
             "dependsOn": ["[TASK] Build distribution package"],
-            "command": "conda run -n clouddrift pip install dist/clouddrift-*.whl",
+            // No cache dir to prevent caching previous builds using the same version number.
+            "command": "conda run -n clouddrift pip uninstall clouddrift -y && conda run -n clouddrift pip install --no-cache-dir dist/clouddrift-*.whl",
             "group": {
                 "kind": "none",
                 "isDefault": true
@@ -195,7 +196,7 @@
             "label": "[TASK] Generate documentation site",
             "type": "shell",
             "dependsOn": ["[TASK] Install distribution package"],
-            "command": "cd docs && make html",
+            "command": "cd docs && make clean && make html",
             "group": {
                 "kind": "none",
                 "isDefault": true
