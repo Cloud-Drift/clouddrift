@@ -110,19 +110,34 @@ conda activate clouddrift
 with pip:
 
 ```
-pip install matplotlib cartopy
+pip install pytest matplotlib cartopy coverage
 ```
 
 with conda:
 
 ```
-conda install matplotlib-base cartopy
+conda install pytest matplotlib-base cartopy coverage
 ```
 
 3. Run the test suite:
 
 ```
-python -m unittest discover -s tests -p "*.py"
+pytest tests/*_tests.py tests/adapters/*_tests.py
+```
+
+  a. Run the docstring tests:
+  ```
+  pytest --doctest-modules clouddrift/ragged.py
+  ```
+
+4. Run the test suite (with coverage):
+```
+coverage run -m pytest tests/*_tests.py tests/adapters/*_tests.py 
+```
+
+5. Read the report:
+```
+coverage report
 ```
 
 ### Building locally and installing 
@@ -197,7 +212,7 @@ mypy --config-file pyproject.toml
 
 ### Automated Processes
 
-* `unittest` `ruff` and `mypy` are executed as part of the CI process. If any unit tests fail or styling, linting or typing errors are found
+* `pytest` `ruff` and `mypy` are executed as part of the CI process. If any unit tests fail or styling, linting or typing errors are found
 the process will fail and will block pull requests from being merged.
 
 ### Building documentation locally
