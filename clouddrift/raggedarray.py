@@ -18,7 +18,7 @@ from tqdm import tqdm
 from clouddrift.ragged import rowsize_to_index
 
 DimNames = Literal["rows", "obs"]
-_DISABLE_SHOW_PROGRESS = False # purely to de-noise our test suite output, should never be used/configured outside of that.
+_DISABLE_SHOW_PROGRESS = False  # purely to de-noise our test suite output, should never be used/configured outside of that.
 
 
 class RaggedArray:
@@ -297,7 +297,7 @@ class RaggedArray:
             total=len(indices),
             desc="Retrieving the number of obs",
             ncols=80,
-            disable=_DISABLE_SHOW_PROGRESS
+            disable=_DISABLE_SHOW_PROGRESS,
         ):
             rowsize[i] = rowsize_func(index, **kwargs)
         return rowsize
@@ -420,7 +420,7 @@ class RaggedArray:
             total=len(indices),
             desc="Filling the Ragged Array",
             ncols=80,
-            disable=_DISABLE_SHOW_PROGRESS
+            disable=_DISABLE_SHOW_PROGRESS,
         ):
             with preprocess_func(index, **kwargs) as ds:
                 size = rowsize[i]
