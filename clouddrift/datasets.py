@@ -236,6 +236,8 @@ def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataA
     xarray.Dataset
         HURDAT2 dataset as a ragged array.
 
+    Standard usage of the dataset.
+
     >>> from clouddrift.datasets import hurdat2
     >>> ds = hurdat2()
     >>> ds
@@ -268,7 +270,8 @@ def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataA
         summary:          The National Hurricane Center (NHC) conducts a post-sto...
     ...
 
-    If you would like to select a specific ocean basin like the Atlantic Ocean you would do so like this:
+    To only retrieve records for the Atlantic Ocean basin.
+
     >>> from clouddrift.datasets import hurdat2
     >>> ds = hurdat2(basin="atlantic")
     >>> ds

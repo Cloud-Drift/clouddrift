@@ -12,6 +12,8 @@
 import os
 import sys
 
+import clouddrift
+
 sys.path.insert(0, os.path.abspath("../.."))
 
 # -- Project information -----------------------------------------------------
@@ -19,6 +21,7 @@ sys.path.insert(0, os.path.abspath("../.."))
 project = "CloudDrift"
 copyright = "2022-2023, CloudDrift"
 author = "Philippe Miron"
+version = clouddrift.version
 
 # -- General configuration ---------------------------------------------------
 
