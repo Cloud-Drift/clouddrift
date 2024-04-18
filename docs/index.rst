@@ -1,6 +1,9 @@
 CloudDrift, a platform for accelerating research with Lagrangian climate data
 =============================================================================
 
+Version: |version|
+----------------------
+
 Lagrangian data typically refers to oceanic and atmosphere information acquired by observing platforms drifting with the flow they are embedded within, but also refers more broadly to the data originating from uncrewed platforms, vehicles, and animals that gather data along their unrestricted and often complex paths. Because such paths traverse both spatial and temporal dimensions, Lagrangian data can convolve spatial and temporal information that cannot always readily be organized in common data structures and stored in standard file formats with the help of common libraries and standards.
 
 As such, for both originators and users, Lagrangian data present challenges that the CloudDrift project aims to overcome. This project is funded by the `NSF EarthCube program <https://www.earthcube.org/info>`_ through `EarthCube Capabilities Grant No. 2126413 <https://www.nsf.gov/awardsearch/showAward?AWD_ID=2126413>`_.
