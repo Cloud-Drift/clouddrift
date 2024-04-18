@@ -56,6 +56,7 @@ examples:
 
 Common emojis to use are as follow:
 
+++ version increment
 ⭐ New / changed feature
 ❗ Deprecation of a feature
 ⛔ Removal of feature
