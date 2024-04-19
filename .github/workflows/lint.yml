@@ -16,43 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: chartboost/ruff-action@v1
-      name: Lint
-
-# Controls when the workflow will run
-on:
-  # Triggers on push or pull request events but only for the main branch
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-jobs:
-  ruff:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: chartboost/ruff-action@v1
       - uses: chartboost/ruff-action@v1
         with:
-          args: format --check
-  mypy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: mamba-org/setup-micromamba@v1
-        with:
-          environment-file: environment.yml
-          environment-name: clouddrift
-      - run: pip install mypy
-        shell: micromamba-shell {0}
-      - run: mypy --install-types --non-interactive --config-file pyproject.toml
-        shell: micromamba-shell {0}
-      - run: mypy
-        shell: micromamba-shell {0}
-
-
+            args: format --check
   mypy:
     runs-on: ubuntu-latest
     steps:
