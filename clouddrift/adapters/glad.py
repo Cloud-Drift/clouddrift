@@ -43,7 +43,7 @@ def get_dataframe() -> pd.DataFrame:
         "v",
         "velocity_error",
     ]
-    df = pd.read_csv(buf, delim_whitespace=True, skiprows=5, names=column_names)
+    df = pd.read_csv(buf, sep=r"\s+", skiprows=5, names=column_names)
     df["obs"] = pd.to_datetime(df["date"] + " " + df["time"])
     df.drop(["date", "time"], axis=1, inplace=True)
     return df
