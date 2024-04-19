@@ -77,7 +77,8 @@ def to_xarray(tmp_path: str | None = None):
         "lat_lp",
         "time_lp",
         # first fix current cycle
-        "lon_fc", "lat_fc",
+        "lon_fc",
+        "lat_fc",
         "time_fc",
         # last fix current cycle
         "lon_lc",
