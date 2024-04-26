@@ -6,6 +6,7 @@ and six-hourly (``clouddrift.adapters.gdp6h``) GDP modules.
 """
 
 import os
+import tempfile
 
 import numpy as np
 import pandas as pd
@@ -15,6 +16,10 @@ from clouddrift.adapters.utils import download_with_progress
 from clouddrift.raggedarray import DimNames
 
 GDP_DIMS: dict[str, DimNames] = {"traj": "rows", "obs": "obs"}
+GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
+os.makedirs(
+    GDP_TMP_PATH, exist_ok=True
+)  # generate temp directory for hurdat related intermerdiary data
 
 GDP_COORDS = [
     "id",
@@ -105,10 +110,11 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
     df : pd.DataFrame
         List of drifters from a single directory file as a pandas DataFrame.
     """
-    GDP_DIRECTORY_FILE_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/"
-    df = pd.read_csv(
-        os.path.join(GDP_DIRECTORY_FILE_URL, filename), delimiter=r"\s+", header=None
-    )
+    gdp_dir_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata"
+    url = f"{gdp_dir_url}/{filename}"
+    path = os.path.join(GDP_TMP_PATH, filename)
+    download_with_progress([(url, path)])
+    df = pd.read_csv(path, delimiter=r"\s+", header=None)
 
     # Combine the date and time columns to easily parse dates below.
     df[4] += " " + df[5]

@@ -44,7 +44,7 @@ _standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
 
 
 def download_with_progress(
-    download_map: Sequence[tuple[str, BufferedIOBase | str, float | None]],
+    download_map: Sequence[tuple[str, BufferedIOBase | str] | tuple[str, BufferedIOBase | str, float]],
     show_list_progress: bool | None = None,
     desc: str = "Downloading files",
     custom_retry_protocol: Callable[[WrappedFn], WrappedFn] | None = None,
@@ -60,13 +60,18 @@ def download_with_progress(
     futures: dict[concurrent.futures.Future, tuple[str, BufferedIOBase | str]] = dict()
     bar = None
 
-    for src, dst, exp_size in download_map:
+    for request in download_map:
+        if len(request) > 2:
+            src, dst, exp_size = request
+        else:
+            src, dst = request
+            exp_size = None
         futures[
             executor.submit(
                 retry_protocol(_download_with_progress),
                 src,
                 dst,
-                exp_size or 0,
+                exp_size,
                 not show_list_progress,
             )
         ] = (src, dst)
@@ -90,15 +95,14 @@ def download_with_progress(
                 raise ex
     except Exception as e:
         _logger.error(
-            f"Got the following exception: {str(e)}, cancelling all other jobs and cleaning up \
-              any created resources."
-        )
+            f"Got the following exception: {str(e)}, cancelling and cleaning up unfinished tasks." + 
+            " Retry the process again to start where you left off")
         for x in futures.keys():
             (src, dst) = futures[x]
-            if isinstance(dst, (str,)) and os.path.exists(dst) and not x.done():
-                os.remove(dst)
             if not x.done():
                 x.cancel()
+            if isinstance(dst, (str,)) and os.path.exists(dst) and not x.done():
+                os.remove(dst)
         raise e
     finally:
         executor.shutdown(True)
@@ -109,7 +113,7 @@ def download_with_progress(
 def _download_with_progress(
     url: str,
     output: BufferedIOBase | str,
-    expected_size: float,
+    expected_size: float | None,
     show_progress: bool,
 ):
     if isinstance(output, str) and os.path.exists(output):
@@ -148,13 +152,16 @@ def _download_with_progress(
         else:
             buffer = output
 
+        if response.headers.get("Content-Length") is not None:
+            expected_size = float(response.headers.get("Content-Length"))
+
         if show_progress:
             bar = tqdm(
                 desc=url,
-                total=float(response.headers.get("Content-Length", expected_size)),
+                total=expected_size,
                 unit="B",
                 unit_scale=True,
-                unit_divisor=1024,
+                unit_divisor=_CHUNK_SIZE,
                 nrows=2,
                 disable=_DISABLE_SHOW_PROGRESS,
             )
