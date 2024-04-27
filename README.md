@@ -1,2 +1,5 @@
+
 # clouddrift
-Project aims at accelerating the use of Lagrangian data for atmospheric, oceanic, and climate sciences
+This branch is used for uploading a paper to JOSS [Journal of Open Source Software](https://joss.theoj.org/)
+
+Instruction and information about this integration can be found [here](https://joss.readthedocs.io/en/latest/submitting.html#)
