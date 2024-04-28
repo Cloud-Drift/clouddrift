@@ -1,0 +1,26 @@
+name: Generate JOSS PDF Paper
+on:
+  # manual trigger
+  workflow_dispatch:
+  # Triggers the workflow on push event for paper branch
+  pull_request:
+    branches: [ "paper" ]
+jobs:
+  paper:
+    runs-on: ubuntu-latest
+    name: Paper Draft
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: paper
+      - name: Build draft PDF
+        uses: openjournals/openjournals-draft-action@master
+        with:
+          journal: joss
+          paper-path: paper.md
+      - name: Upload
+        uses: actions/upload-artifact@v1
+        with:
+          name: paper
+          path: paper.pdf
