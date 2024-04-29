@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   # Triggers the workflow on push event for paper branch
   pull_request:
-    branches: [ "paper" ]
+    branches: paper
 jobs:
   paper:
     runs-on: ubuntu-latest
