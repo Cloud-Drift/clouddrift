@@ -60,7 +60,7 @@ The scope of the Clouddrift library includes:
 
 2. **Delivering functions and methods to perform scientific analysis of Lagrangian data, oceanographic or otherwise [@Lacasce:2008;@Vansebille:2018], structured as ragged arrays or otherwise**. A straightforward example of Lagrangian analysis provided by Clouddrift is the derivation of Lagrangian velocities from a sequence of Lagrangian positions, and vice versa. Another more involved example is the discovery of pairs of Lagrangian data prescribed by distances in space and time. Both of these methods are currently available with Clouddrift.
 
-*Example:* The following example combines the use of the clouddrift function `velocity_from_position` from the `clouddrift.kinematics` module, with the function `apply_ragged` from the `clouddrift.ragged` module, in order to calculate the velocities of multiple particles, the coordinates of which are found in the ragged arrays `x`, `y`, and `t` that share row sizes 2, 3, and 4:
+The following example combines the use of the clouddrift function `velocity_from_position` from the `clouddrift.kinematics` module, with the function `apply_ragged` from the `clouddrift.ragged` module, in order to calculate the velocities of multiple particles, the coordinates of which are found in the ragged arrays `x`, `y`, and `t` that share row sizes 2, 3, and 4:
 ```
 from clouddrift.kinematics import velocity_from_position
 from clouddrift.ragged import apply_ragged
