@@ -44,7 +44,9 @@ _standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
 
 
 def download_with_progress(
-    download_map: Sequence[tuple[str, BufferedIOBase | str] | tuple[str, BufferedIOBase | str, float]],
+    download_map: Sequence[
+        tuple[str, BufferedIOBase | str] | tuple[str, BufferedIOBase | str, float]
+    ],
     show_list_progress: bool | None = None,
     desc: str = "Downloading files",
     custom_retry_protocol: Callable[[WrappedFn], WrappedFn] | None = None,
@@ -95,8 +97,9 @@ def download_with_progress(
                 raise ex
     except Exception as e:
         _logger.error(
-            f"Got the following exception: {str(e)}, cancelling and cleaning up unfinished tasks." + 
-            " Retry the process again to start where you left off")
+            f"Got the following exception: {str(e)}, cancelling and cleaning up unfinished tasks."
+            + " Retry the process again to start where you left off"
+        )
         for x in futures.keys():
             (src, dst) = futures[x]
             if not x.done():
