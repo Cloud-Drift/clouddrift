@@ -95,6 +95,19 @@ class ParsingConfiguration:
         return variable_config_map
 
 
+def _future_years_mask(df):
+    return df["obsYear"] > datetime.datetime.now().year
+
+def _future_years_mask_sen(df):
+    return df["posObsYear"] > datetime.datetime.now().year
+
+def _future_years_mask_pos(df):
+    return df["senObsYear"] > datetime.datetime.now().year
+
+def _bad_drogue_values_mask(df):
+    return df["drogue"].astype(np.str_).str.match(r"[\.]{2,}")
+
+
 def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
     return {
         "position": ParsingConfiguration(
@@ -116,8 +129,8 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
                 )
             },
             remove=[
-                lambda df: df["obsYear"] > datetime.datetime.now().year,
-                lambda df: df["drogue"].str.match(r"[\.]{2,}")
+                _future_years_mask,
+                _bad_drogue_values_mask
             ],
             coords=["id", "obsDatetime"],
         ),
@@ -154,8 +167,8 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
                 )
             },
             remove=[
-                lambda df: df["obsYear"] > datetime.datetime.now().year,
-                lambda df: df["drogue"].str.match(r"[\.]{2,}")
+                _future_years_mask,
+                _bad_drogue_values_mask
             ],
             coords=["id", "obsDatetime"],
         ),
@@ -209,9 +222,9 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
                 ),
             },
             remove=[
-                lambda df: df["posObsYear"] > datetime.datetime.now().year,
-                lambda df: df["senObsYear"] > datetime.datetime.now().year,
-                lambda df: df["drogue"].astype(np.str_).str.match(r"([\d]*\.){2,}")
+                _future_years_mask_pos,
+                _future_years_mask_sen,
+                _bad_drogue_values_mask
             ],
             coords=["id", "posObsDatetime", "sensorObsDatetime"],
         ),
@@ -234,83 +247,84 @@ def _get_download_list(kind: _RecordKind) -> list[tuple[str, str]]:
     return requests
 
 
-def setup_rowsize(df: pd.DataFrame, config: ParsingConfiguration):
-    def wrapped_rowsize(id_) -> int:
-        traj_data_df = df[df["id"] == id_[0]]
-        coords = config.get_coords_config_map("obs", traj_data_df)
-        _, var = coords[
-            list(coords.keys())[0]
-        ]  # any of the coords will work, to determine the rowsize
-        return len(var)
+def rowsize(id_, **kwargs) -> int:
+    df: pd.DataFrame = kwargs.get("data_df")
+    config: ParsingConfiguration = kwargs.get("config")
 
-    return wrapped_rowsize
+    traj_data_df = df[df["id"] == id_[0]]
+    coords = config.get_coords_config_map("obs", traj_data_df)
+    _, var = coords[
+        list(coords.keys())[0]
+    ]  # any of the coords will work, to determine the rowsize
+    return len(var)
 
 
-def setup_preprocess(
-    md_df: pd.DataFrame, data_df: pd.DataFrame, config: ParsingConfiguration
-):
-    def wrapped_preprocess(id_) -> xr.Dataset:
-        traj_md_df = md_df[md_df["ID"] == id_[0]]
-        traj_data_df = data_df[data_df["id"] == id_[0]]
+def preprocess(id_, **kwargs) -> xr.Dataset:
+    md_df: pd.DataFrame = kwargs.get("md_df")
+    data_df: pd.DataFrame = kwargs.get("data_df")
+    config: ParsingConfiguration = kwargs.get("config")
 
-        variables = {
-            "wmo_number": (
-                ["traj"],
-                traj_md_df[["WMO_number"]].values[0].astype(np.int64),
-            ),
-            "program_number": (
-                ["traj"],
-                traj_md_df[["program_number"]].values[0].astype(np.int64),
-            ),
-            "buoys_type": (
-                ["traj"],
-                traj_md_df[["buoys_type"]].values[0].astype(np.str_),
-            ),
-            "start_date": (
-                ["traj"],
-                traj_md_df[["Start_date"]].values[0].astype(np.datetime64),
-            ),
-            "start_lat": (
-                ["traj"],
-                traj_md_df[["Start_lat"]].values[0].astype(np.float64),
-            ),
-            "start_lon": (
-                ["traj"],
-                traj_md_df[["Start_lon"]].values[0].astype(np.float64),
-            ),
-            "end_date": (
-                ["traj"],
-                traj_md_df[["End_date"]].values[0].astype(np.datetime64),
-            ),
-            "end_lat": (["traj"], traj_md_df[["End_lat"]].values[0].astype(np.float64)),
-            "end_lon": (["traj"], traj_md_df[["End_lon"]].values[0].astype(np.float64)),
-            "drogue_off_date": (
-                ["traj"],
-                traj_md_df[["Drogue_off_date"]].values[0].astype(np.datetime64),
-            ),
-            "death_code": (
-                ["traj"],
-                traj_md_df[["death_code"]].values[0].astype(np.int64),
-            ),
-        }
+    traj_md_df = md_df[md_df["ID"] == id_[0]]
+    traj_data_df = data_df[data_df["id"] == id_[0]]
 
-        data_variables = config.get_vars_config_map("obs", traj_data_df)
-        coords = config.get_coords_config_map("obs", traj_data_df)
-        row_coord = {
-            "id": (["traj"], traj_md_df[["ID"]].values[0].astype(np.int64)),
-        }
+    variables = {
+        "wmo_number": (
+            ["traj"],
+            traj_md_df[["WMO_number"]].values[0].astype(np.int64),
+        ),
+        "program_number": (
+            ["traj"],
+            traj_md_df[["program_number"]].values[0].astype(np.int64),
+        ),
+        "buoys_type": (
+            ["traj"],
+            traj_md_df[["buoys_type"]].values[0].astype(np.str_),
+        ),
+        "start_date": (
+            ["traj"],
+            traj_md_df[["Start_date"]].values[0].astype(np.datetime64),
+        ),
+        "start_lat": (
+            ["traj"],
+            traj_md_df[["Start_lat"]].values[0].astype(np.float64),
+        ),
+        "start_lon": (
+            ["traj"],
+            traj_md_df[["Start_lon"]].values[0].astype(np.float64),
+        ),
+        "end_date": (
+            ["traj"],
+            traj_md_df[["End_date"]].values[0].astype(np.datetime64),
+        ),
+        "end_lat": (["traj"], traj_md_df[["End_lat"]].values[0].astype(np.float64)),
+        "end_lon": (["traj"], traj_md_df[["End_lon"]].values[0].astype(np.float64)),
+        "drogue_off_date": (
+            ["traj"],
+            traj_md_df[["Drogue_off_date"]].values[0].astype(np.datetime64),
+        ),
+        "death_code": (
+            ["traj"],
+            traj_md_df[["death_code"]].values[0].astype(np.int64),
+        ),
+    }
 
-        variables.update(data_variables)
-        coords.update(row_coord)
+    data_variables = config.get_vars_config_map("obs", traj_data_df)
+    coords = config.get_coords_config_map("obs", traj_data_df)
+    row_coord = {
+        "id": (["traj"], traj_md_df[["ID"]].values[0].astype(np.int64)),
+    }
 
-        dataset = xr.Dataset(variables, coords=coords)
-        return dataset
+    variables.update(data_variables)
+    coords.update(row_coord)
 
-    return wrapped_preprocess
+    dataset = xr.Dataset(variables, coords=coords)
+    return dataset
 
 
 def to_raggedarray(
-    kind: _RecordKind = "both", tmp_path: str = _TMP_PATH, max: int | None = None
+    kind: _RecordKind = "both",
+    tmp_path: str = _TMP_PATH,
+    max: int | None = None,
 ) -> RaggedArray:
     config = _get_parsing_config(kind)
     requests = _get_download_list(kind)
@@ -348,11 +362,10 @@ def to_raggedarray(
     gdp_metadata_df = get_gdp_metadata()
     ra = RaggedArray.from_files(
         indices=gdp_metadata_df[["ID"]].values,
-        preprocess_func=setup_preprocess(gdp_metadata_df, df, config),
-        rowsize_func=setup_rowsize(df, config),
+        preprocess_func=preprocess,
+        rowsize_func=rowsize,
         name_coords=config.coords,
         name_meta=[
-            "id",
             "wmo_number",
             "program_number",
             "buoys_type",
@@ -376,5 +389,8 @@ def to_raggedarray(
             "sensor6",
         ],
         name_dims={"traj": "rows", "obs": "obs"},
+        md_df=gdp_metadata_df,
+        data_df=df,
+        config=config
     )
     return ra
