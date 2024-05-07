@@ -6,8 +6,17 @@ Datasets and Awkward Arrays.
 
 from __future__ import annotations
 
+import asyncio
+import logging
+
+# import multiprocessing.dummy as mp
+import math
+import multiprocessing as mp
+import os
+import typing
 import warnings
 from collections.abc import Callable
+from itertools import batched
 from typing import Any, Literal
 
 import awkward as ak  # type: ignore
@@ -19,6 +28,18 @@ from clouddrift.ragged import rowsize_to_index
 
 DimNames = Literal["rows", "obs"]
 _DISABLE_SHOW_PROGRESS = False  # purely to de-noise our test suite output, should never be used/configured outside of that.
+_logger = logging.getLogger(__name__)
+
+_NamedNdArrayDict = dict[str, np.ndarray]
+_JobResult = typing.NamedTuple(
+    "_JobResult",
+    [
+        ("coords", _NamedNdArrayDict),
+        ("metadata", _NamedNdArrayDict),
+        ("data", _NamedNdArrayDict),
+        ("coord_dims", dict[str, str]),
+    ],
+)
 
 
 class RaggedArray:
@@ -108,6 +129,7 @@ class RaggedArray:
         rowsize_func: Callable[[int], int] | None = None,
         attrs_global: dict | None = None,
         attrs_variables: dict | None = None,
+        parallelized: bool = False,
         **kwargs,
     ):
         """Generate a ragged array archive from a list of files
@@ -138,17 +160,32 @@ class RaggedArray:
             if rowsize_func
             else lambda i, **kwargs: preprocess_func(i, **kwargs).sizes["obs"]
         )
-        rowsize = cls.number_of_observations(rowsize_func, indices, **kwargs)
-        coords, metadata, data, coord_dims = cls.allocate(
-            preprocess_func,
-            indices,
-            rowsize,
-            name_coords,
-            name_meta,
-            name_data,
-            name_dims,
-            **kwargs,
-        )
+
+        if parallelized:
+            async def parallel_exec():
+                return await cls._get_vars_parallel(
+                    indices,
+                    preprocess_func,
+                    name_coords,
+                    name_meta,
+                    name_data,
+                    name_dims,
+                    rowsize_func,
+                    **kwargs,
+                )
+            results = asyncio.run(parallel_exec())
+            coords, metadata, data, coord_dims = results
+        else:
+            coords, metadata, data, coord_dims = cls._get_vars_serial(
+                indices,
+                preprocess_func,
+                name_coords,
+                name_meta,
+                name_data,
+                name_dims,
+                rowsize_func,
+                **kwargs,
+            )
 
         extracted_attrs_global, extracted_attrs_variables = cls.attributes(
             preprocess_func(indices[0], **kwargs),
@@ -166,6 +203,157 @@ class RaggedArray:
         return RaggedArray(
             coords, metadata, data, attrs_global, attrs_variables, name_dims, coord_dims
         )
+
+    @classmethod
+    def _get_vars_serial(
+        cls,
+        indices: list[int],
+        preprocess_func: Callable[[int], xr.Dataset],
+        name_coords: list,
+        name_meta: list = list(),
+        name_data: list = list(),
+        name_dims: dict[str, DimNames] = {},
+        rowsize_func: Callable[[int], int] | None = None,
+        chunk_size: int = 5000,
+        **kwargs,
+    ):
+        coords: _NamedNdArrayDict = dict()
+        metadata: _NamedNdArrayDict = dict()
+        data: _NamedNdArrayDict = dict()
+        coord_dims: dict[str, str] | None = None
+
+        for ids in tqdm(
+            batched(indices, chunk_size),
+            desc="processing chunks",
+            total=len(indices) // chunk_size,
+            unit="chunk",
+            ncols=80,
+            disable=_DISABLE_SHOW_PROGRESS,
+        ):
+            results = cls._segment_and_allocate(
+                ids,
+                preprocess_func,
+                rowsize_func,
+                name_coords,
+                name_meta,
+                name_data,
+                name_dims,
+                **kwargs,
+            )
+            res_coords, res_metadata, res_data, res_coords_dims = results
+            coords, metadata, data = (
+                cls._concat(coords, res_coords),
+                cls._concat(metadata, res_metadata),
+                cls._concat(data, res_data),
+            )
+
+            if coord_dims is None:
+                coord_dims = res_coords_dims
+        return coords, metadata, data, coord_dims
+
+    @classmethod
+    async def _get_vars_parallel(
+        cls,
+        indices: list[int],
+        preprocess_func: Callable[[int], xr.Dataset],
+        name_coords: list,
+        name_meta: list = list(),
+        name_data: list = list(),
+        name_dims: dict[str, DimNames] = {},
+        rowsize_func: Callable[[int], int] | None = None,
+        chunk_size: int = 1000,
+        **kwargs,
+    ):
+        coords: _NamedNdArrayDict = dict()
+        metadata: _NamedNdArrayDict = dict()
+        data: _NamedNdArrayDict = dict()
+        coord_dims: dict[str, str] | None = None
+
+        with (
+            mp.Pool(os.cpu_count()) as pool,
+            tqdm(
+                batched(indices, chunk_size),
+                desc="processing chunks",
+                total=math.ceil(len(indices) / chunk_size),
+                unit="chunk",
+                ncols=80,
+                disable=_DISABLE_SHOW_PROGRESS,
+            ) as bar,
+        ):
+            async_jobs = [
+                pool.apply_async(
+                    cls._segment_and_allocate,
+                    (ids, preprocess_func, rowsize_func, name_coords, name_meta, name_data, name_dims),
+                    kwds=kwargs,
+                    callback=lambda: bar.update(chunk_size)
+                )
+                for ids in batched(indices, chunk_size)
+            ]
+
+            results: list[_JobResult] = await asyncio.gather(*[await job.get() for job in async_jobs])
+
+            for result in tqdm(
+                results.get(),
+                total=len(indices),
+                unit="chunk",
+                desc="Merging chunks",
+                ncols=80,
+                disable=_DISABLE_SHOW_PROGRESS,
+            ):
+                res_coords, res_metadata, res_data, res_coords_dims = result
+                coords, metadata, data = (
+                    cls._concat(coords, res_coords),
+                    cls._concat(metadata, res_metadata),
+                    cls._concat(data, res_data),
+                )
+
+                if coord_dims is None:
+                    coord_dims = res_coords_dims
+            return coords, metadata, data, coord_dims
+
+    @classmethod
+    def _concat(
+        cls, base: _NamedNdArrayDict, update: _NamedNdArrayDict
+    ) -> _NamedNdArrayDict:
+        res = dict()
+        for key in base.keys():
+            cur_val = base[key]
+            update_val = update[key]
+            fin_val = np.concatenate(cur_val, update_val)
+            res[key] = fin_val
+        return res
+
+    @classmethod
+    def _segment_and_allocate(
+        cls,
+        indices: list[int],
+        preprocess_func,
+        rowsize_func,
+        name_coords,
+        name_meta,
+        name_data,
+        name_dims,
+
+        **kwargs,
+    ) -> _JobResult:
+        try:
+            rowsize = cls.number_of_observations(rowsize_func, indices, **kwargs)
+            coords, metadata, data, coord_dims = cls.allocate(
+                preprocess_func,
+                indices,
+                rowsize,
+                name_coords,
+                name_meta,
+                name_data,
+                name_dims,
+                **kwargs,
+            )
+            return (coords, metadata, data, coord_dims)
+        except Exception as e:
+            _logger.error(
+                f"Exception preparing and allocating dataset variables, e: {e}"
+            )
+            raise e
 
     @classmethod
     def from_netcdf(cls, filename: str, rows_dim_name="rows", obs_dim_name="obs"):
@@ -291,15 +479,8 @@ class RaggedArray:
             Number of observations
         """
         rowsize = np.zeros(len(indices), dtype="int")
-
-        for i, index in tqdm(
-            enumerate(indices),
-            total=len(indices),
-            desc="Retrieving the number of obs",
-            ncols=80,
-            disable=_DISABLE_SHOW_PROGRESS,
-        ):
-            rowsize[i] = rowsize_func(index, **kwargs)
+        for index, id_ in enumerate(indices):
+            rowsize[index] = rowsize_func(id_, **kwargs)
         return rowsize
 
     @staticmethod
@@ -350,7 +531,7 @@ class RaggedArray:
         name_data: list,
         name_dims: dict[str, DimNames],
         **kwargs,
-    ) -> tuple[dict, dict, dict, dict]:
+    ) -> _JobResult:
         """
         Iterate through the files and fill for the ragged array associated
         with coordinates, and selected metadata and data variables.
@@ -415,27 +596,28 @@ class RaggedArray:
         ds.close()
 
         # loop and fill the ragged array
-        for i, index in tqdm(
+        for index, id_ in tqdm(
             enumerate(indices),
+            desc="Loading variables into memory",
             total=len(indices),
-            desc="Filling the Ragged Array",
+            unit="row",
             ncols=80,
-            disable=_DISABLE_SHOW_PROGRESS,
+            disable=_DISABLE_SHOW_PROGRESS
         ):
-            with preprocess_func(index, **kwargs) as ds:
-                size = rowsize[i]
-                oid = index_traj[i]
+            with preprocess_func(id_, **kwargs) as ds:
+                size = rowsize[index]
+                oid = index_traj[index]
 
                 for var in name_coords:
                     dim = ds[var].dims[-1]
                     if name_dims[dim] == "obs":
                         coords[var][oid : oid + size] = ds[var].data
                     else:
-                        coords[var][i] = ds[var].data[0]
+                        coords[var][index] = ds[var].data[0]
 
                 for var in name_meta:
                     try:
-                        metadata[var][i] = ds[var][0].data
+                        metadata[var][index] = ds[var][0].data
                     except KeyError:
                         warnings.warn(
                             f"Variable {var} requested but not found; skipping."
