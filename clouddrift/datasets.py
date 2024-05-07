@@ -11,6 +11,7 @@ from collections.abc import Callable
 import xarray as xr
 
 from clouddrift import adapters
+from clouddrift.adapters.gdp.rawfiles import _RecordKind
 from clouddrift.adapters.hurdat2 import _BasinOption
 
 
@@ -155,6 +156,25 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/experimental/gdp6h_ragged_sep23.zarr"
     ds = xr.open_dataset(url, decode_times=decode_times, engine="zarr")
     return ds
+
+
+def gdpraw(
+    decode_times: bool = True,
+    kind: _RecordKind = "both",
+    tmp_path: str = adapters.rawfiles._TMP_PATH,
+    max: int | None = None,
+    parallelized: bool = False,
+) -> xr.Dataset:
+    """
+    TODO: Add docs
+    """
+    return _dataset_filecache(
+        "gdpraw.nc",
+        decode_times,
+        lambda: adapters.rawfiles.to_raggedarray(
+            kind, tmp_path, max, parallelized
+        ).to_xarray(),
+    )
 
 
 def glad(decode_times: bool = True) -> xr.Dataset:
