@@ -145,28 +145,14 @@ coverage report
 This can be useful for understanding how the package is built, testing the process and can be leveraged for testing
 experimental versions of the library from a users perspective.
 
-1. Install the build dependencies
+
+1. pre-requisite step: [Preparing your environment](#preparing-your-environment)
+
+2. Build the distribution package and install it
 
 with pip:
 ```
-pip install build twine docutils
-```
-
-with conda:
-```
-conda install build twine docutils
-```
-
-2. Generate the wheel (.whl) and tarball (tar.gz) distribution package(s):
-```
-python -m build
-```
-
-3. Install the distribution package
-
-with pip:
-```
-pip install dist/clouddrift*.whl
+pip install .
 ```
 
 ### Automatic formatting and linting

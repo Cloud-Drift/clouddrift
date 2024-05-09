@@ -112,16 +112,42 @@ If you need the latest development version, you can install it directly from thi
 ##### pip:
 
 In your virtual environment, type:
+1. Get the code
 
+```bash
+git clone https://github.com/cloud-drift/clouddrift
+cd clouddrift/
 ```
-pip install git+https://github.com/cloud-drift/clouddrift
+
+2. Install dependencies and local version of `clouddrift`
+```bash
+pip install .
 ```
 
 ##### Conda:
+
+1. Get the code
+
+```bash
+git clone https://github.com/cloud-drift/clouddrift
+cd clouddrift/
 ```
-conda env create -f environment.yml
+
+2. Install the library dependencies
+```bash
+conda env create -f environment.yml # creates a new env with the dependencies
+conda env update -f environment.yml # install dependencies in current environment
 ```
-with the environment [file](https://github.com/Cloud-Drift/clouddrift/blob/main/environment.yml) located in the main repository.
+
+2a. Make sure if you **created** an environment to activate it:
+```bash
+conda activate clouddrift
+```
+
+3. Install local version of `clouddrift`
+```bash
+pip install .
+```
 
 ### Installing `clouddrift` on unsupported platforms
 
