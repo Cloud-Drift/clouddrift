@@ -163,7 +163,6 @@ def gdpraw(
     kind: _RecordKind = "both",
     tmp_path: str = adapters.rawfiles._TMP_PATH,
     max: int | None = None,
-    parallelized: bool = False,
 ) -> xr.Dataset:
     """
     TODO: Add docs
@@ -172,7 +171,7 @@ def gdpraw(
         "gdpraw.nc",
         decode_times,
         lambda: adapters.rawfiles.to_raggedarray(
-            kind, tmp_path, max, parallelized
+            kind, tmp_path, max
         ).to_xarray(),
     )
 

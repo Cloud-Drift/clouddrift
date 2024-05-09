@@ -105,7 +105,7 @@ def _future_years_mask_pos(df):
     return df["senObsYear"] > datetime.datetime.now().year
 
 def _bad_drogue_values_mask(df):
-    return df["drogue"].astype(np.str_).str.match(r"[\.]{2,}")
+    return df["drogue"].astype(np.str_).str.match(r"(\d+[\.]+){2,}")
 
 
 def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
