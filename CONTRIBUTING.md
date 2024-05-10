@@ -142,7 +142,7 @@ coverage report
 ```
 
 ### Building locally and installing 
-This can be useful for understanding how the package is built, testing the process and can be leveraged for testing
+This can be useful for understanding how the package is built, testing the process, and can be leveraged for testing
 experimental versions of the library from a users perspective.
 
 
