@@ -26,6 +26,32 @@ _TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdpraw")
 _FILNAME_TEMPLATE = "buoydata_{start}_{end}_{suffix}.dat.gz"
 _SECONDS_IN_DAY = 86_400
 
+_DATA_VARS= [
+    "lat",
+    "lon",
+    "drogue",
+    "sst",
+    "voltage",
+    "sensor4",
+    "sensor5",
+    "sensor6",
+]
+
+_METADATA_VARS = [
+    "rowsize",
+    "wmo_number",
+    "program_number",
+    "buoys_type",
+    "start_date",
+    "start_lat",
+    "start_lon",
+    "end_date",
+    "end_lat",
+    "end_lon",
+    "drogue_off_date",
+    "death_code",
+]
+
 _RecordKind = Literal["position"] | Literal["sensor"] | Literal["raw"]
 
 _logger = logging.getLogger(__name__)
@@ -335,44 +361,22 @@ def preprocess(id_, **kwargs) -> xr.Dataset:
     dataset = xr.Dataset(variables, coords=coords)
     return dataset
 
-def _chunk_task(df_chunk: pd.DataFrame, chunk_id: str, pos: int, gdp_metadata_df: pd.DataFrame, config: ParsingConfiguration):
+def _chunk_task(df_chunk: pd.DataFrame, chunk_id: str, gdp_metadata_df: pd.DataFrame, config: ParsingConfiguration):
     ids = np.unique(df_chunk[["id"]].values)
     ra = RaggedArray.from_files(
         indices=ids,
         preprocess_func=preprocess,
         rowsize_func=rowsize,
         name_coords=config.coords,
-        name_meta=[
-            "rowsize",
-            "wmo_number",
-            "program_number",
-            "buoys_type",
-            "start_date",
-            "start_lat",
-            "start_lon",
-            "end_date",
-            "end_lat",
-            "end_lon",
-            "drogue_off_date",
-            "death_code",
-        ],
-        name_data=[
-            "lat",
-            "lon",
-            "drogue",
-            "sst",
-            "voltage",
-            "sensor4",
-            "sensor5",
-            "sensor6",
-        ],
+        name_meta=_METADATA_VARS,
+        name_data=_DATA_VARS,
         name_dims={"traj": "rows", "obs": "obs"},
         md_df=gdp_metadata_df,
         data_df=df_chunk,
         config=config,
-        tqdm=dict(position=pos)
+        tqdm=dict(disable=True)
     )
-    zarr_path = f"{os.path.join(_TMP_PATH, chunk_id)}.zarr"
+    zarr_path = f"{os.path.join(_TMP_PATH, "chunks", chunk_id)}.zarr"
     ra.to_xarray().to_zarr(zarr_path)
     return zarr_path, ids
 
@@ -381,12 +385,10 @@ def get_dataset(
     kind: _RecordKind = "both",
     tmp_path: str = _TMP_PATH,
     max: int | None = None,
-    chunk_size: int = 500_000
+    chunk_size: int = 100_000
 ) -> xr.Dataset:
     os.makedirs(tmp_path, exist_ok=True)
-
-    agg_path = asyncio.run(_async_get(kind, chunk_size, tmp_path, max))
-    xr.open_dataset(agg_path)
+    return asyncio.run(_async_get(kind, chunk_size, tmp_path, max))
 
 
 async def _async_get(
@@ -408,7 +410,6 @@ async def _async_get(
 
     with mp.Pool(os.cpu_count() // 2) as pool:
         all_async_jobs = list[AsyncResult]()
-        index = 1
         for fp in destinations:
             filename = fp.split(os.path.sep)[-1]
             # it has two extensions since its a tarball (tar) compressed (gzip)
@@ -427,16 +428,15 @@ async def _async_get(
             for idx, df_chunk in enumerate(df_chunks):
                 ajob = pool.apply_async(
                     _chunk_task,
-                    [df_chunk, f"{filename_minus_ext}-{idx}", index, gdp_metadata_df, config]
+                    [df_chunk, f"{filename_minus_ext}-{idx}", gdp_metadata_df, config]
                 ) 
                 all_async_jobs.append(ajob)
-                index+=1
 
         bar = tqdm(
             desc="Loading file chunks",
             unit="chunk",
             ncols=80,
-            total=len(all_async_jobs)
+            total=len(all_async_jobs),
         )
 
         traj_chunk_datasets: dict[int, list[xr.Dataset]] = defaultdict(list)
@@ -449,12 +449,14 @@ async def _async_get(
             bar.update()
 
         traj_datasets = list()
-        for id_ in traj_chunk_datasets.keys():
+        for id_ in tqdm(traj_chunk_datasets.keys(), desc="merging trajectories", unit="traj", ncols=80):
             datasets = traj_chunk_datasets[id_]
-            t_dataset = xr.combine_by_coords(datasets, coords=["id"])
-            traj_datasets.append(t_dataset)
+            new_rowsize = sum([ds.rowsize.values[0] for ds in datasets])
+            traj_dataset = xr.concat(datasets, dim="obs", coords="minimal", data_vars=_DATA_VARS, compat="override")
+            traj_dataset["rowsize"] = xr.DataArray(np.array([new_rowsize], dtype=np.int64), coords=traj_dataset["rowsize"].coords)
+            traj_datasets.append(traj_dataset)
 
-        agg_ds = xr.combine_by_coords(traj_datasets, coords=["id"])
+        agg_ds = xr.concat(traj_datasets, dim="obs", data_vars="all", coords="all")
         bar.close()
         agg_path = os.path.join(_TMP_PATH, f"gdpraw_{kind}_aggregate.zarr")
         agg_ds.to_zarr(agg_path)

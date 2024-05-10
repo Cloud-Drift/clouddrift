@@ -297,7 +297,7 @@ class RaggedArray:
             total=len(indices),
             desc="Retrieving the number of obs",
             ncols=80,
-            disable=_DISABLE_SHOW_PROGRESS,
+            disable=kwargs.get("tqdm", dict()).get("disable", None) or _DISABLE_SHOW_PROGRESS,
         ):
             rowsize[i] = rowsize_func(index, **kwargs)
         return rowsize
@@ -420,7 +420,7 @@ class RaggedArray:
             total=len(indices),
             desc="Filling the Ragged Array",
             ncols=80,
-            disable=_DISABLE_SHOW_PROGRESS,
+            disable=kwargs.get("tqdm", dict()).get("disable", None) or _DISABLE_SHOW_PROGRESS,
         ):
             with preprocess_func(index, **kwargs) as ds:
                 size = rowsize[i]
