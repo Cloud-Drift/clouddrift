@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import asyncio
 import datetime
 import logging
+import multiprocessing as mp
 import os
 import tempfile
 from dataclasses import dataclass
+from multiprocessing.pool import AsyncResult
 from typing import Callable, Literal
 
 import numpy as np
@@ -231,7 +234,7 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
     }.get(kind)
 
 
-def _get_download_list(kind: _RecordKind) -> list[tuple[str, str]]:
+def _get_download_list(tmp_path: str, kind: _RecordKind) -> list[tuple[str, str]]:
     suffix = {
         "position": "edited_pfiles",
         "sensor": "edited_sfiles",
@@ -243,7 +246,7 @@ def _get_download_list(kind: _RecordKind) -> list[tuple[str, str]]:
 
     for start, end in batches:
         filename = _FILNAME_TEMPLATE.format(start=start, end=end, suffix=suffix)
-        requests.append((f"{_DATA_URL}/{filename}", os.path.join(_TMP_PATH, filename)))
+        requests.append((f"{_DATA_URL}/{filename}", os.path.join(tmp_path, filename)))
     return requests
 
 
@@ -251,7 +254,7 @@ def rowsize(id_, **kwargs) -> int:
     df: pd.DataFrame = kwargs.get("data_df")
     config: ParsingConfiguration = kwargs.get("config")
 
-    traj_data_df = df[df["id"] == id_[0]]
+    traj_data_df = df[df["id"] == id_]
     coords = config.get_coords_config_map("obs", traj_data_df)
     _, var = coords[
         list(coords.keys())[0]
@@ -264,8 +267,8 @@ def preprocess(id_, **kwargs) -> xr.Dataset:
     data_df: pd.DataFrame = kwargs.get("data_df")
     config: ParsingConfiguration = kwargs.get("config")
 
-    traj_md_df = md_df[md_df["ID"] == id_[0]]
-    traj_data_df = data_df[data_df["id"] == id_[0]]
+    traj_md_df = md_df[md_df["ID"] == id_]
+    traj_data_df = data_df[data_df["id"] == id_]
 
     variables = {
         "wmo_number": (
@@ -320,48 +323,10 @@ def preprocess(id_, **kwargs) -> xr.Dataset:
     dataset = xr.Dataset(variables, coords=coords)
     return dataset
 
-
-def to_raggedarray(
-    kind: _RecordKind = "both",
-    tmp_path: str = _TMP_PATH,
-    max: int | None = None,
-) -> RaggedArray:
-    config = _get_parsing_config(kind)
-    requests = _get_download_list(kind)
-    destinations = [dst for (_, dst) in requests]
-    os.makedirs(tmp_path, exist_ok=True)
-
-    if max:
-        requests = requests[:max]
-        destinations = destinations[:max]
-
-    download_with_progress(requests)
-
-    df: pd.DataFrame = None
-    for fp in tqdm(destinations, desc="loading data files"):
-        before = datetime.datetime.now()
-
-        cur_df = pd.read_csv(
-            fp,
-            sep=r"\s+",
-            header=None,
-            names=config.cols,
-            engine="c",
-            compression="gzip",
-        )
-
-        after = datetime.datetime.now()
-
-        _logger.debug(f"elapsed time to load {len(cur_df)} records :: {after - before}")
-
-        if df is None:
-            df = cur_df
-        else:
-            df = pd.concat([df, cur_df])
-
-    gdp_metadata_df = get_gdp_metadata()
+def _chunk_task(df_chunk: pd.DataFrame, chunk_id: str, pos: int, gdp_metadata_df: pd.DataFrame, config: ParsingConfiguration):
+    ids = df_chunk[["id"]].values
     ra = RaggedArray.from_files(
-        indices=gdp_metadata_df[["ID"]].values,
+        indices=np.unique(ids),
         preprocess_func=preprocess,
         rowsize_func=rowsize,
         name_coords=config.coords,
@@ -390,7 +355,87 @@ def to_raggedarray(
         ],
         name_dims={"traj": "rows", "obs": "obs"},
         md_df=gdp_metadata_df,
-        data_df=df,
-        config=config
+        data_df=df_chunk,
+        config=config,
+        tqdm=dict(position=pos)
     )
-    return ra
+    zarr_path = f"{os.path.join(_TMP_PATH, chunk_id)}.zarr"
+    ra.to_xarray().to_zarr(zarr_path)
+    return zarr_path
+
+
+def get_dataset(
+    kind: _RecordKind = "both",
+    tmp_path: str = _TMP_PATH,
+    max: int | None = None,
+    chunk_size: int = 150_000
+) -> xr.Dataset:
+    os.makedirs(tmp_path, exist_ok=True)
+
+    agg_path = asyncio.run(_async_get(kind, chunk_size, tmp_path, max))
+    xr.open_dataset(agg_path)
+
+
+async def _async_get(
+    kind: _RecordKind,
+    chunk_size: int,
+    tmp_path: str,
+    max: int | None = None,
+) -> str:
+    config = _get_parsing_config(kind)
+    requests = _get_download_list(tmp_path, kind)
+    destinations = [dst for (_, dst) in requests]
+
+    if max:
+        requests = requests[:max]
+        destinations = destinations[:max]
+
+    download_with_progress(requests)
+    gdp_metadata_df = get_gdp_metadata()
+
+    with mp.Pool(os.cpu_count() // 2) as pool:
+        all_async_jobs = list[AsyncResult]()
+        index = 1
+        for fp in destinations:
+            filename = fp.split(os.path.sep)[-1]
+            # it has two extensions since its a tarball (tar) compressed (gzip)
+            filename_minus_ext = filename[:-7] 
+
+            df_chunks = pd.read_csv(
+                fp,
+                sep=r"\s+",
+                header=None,
+                names=config.cols,
+                engine="c",
+                compression="gzip",
+                chunksize=chunk_size
+            )
+
+            for idx, df_chunk in enumerate(df_chunks):
+                ajob = pool.apply_async(
+                    _chunk_task,
+                    [df_chunk, f"{filename_minus_ext}-{idx}", index, gdp_metadata_df, config]
+                ) 
+                all_async_jobs.append(ajob)
+                index+=1
+
+        bar = tqdm(
+            desc="Loading file chunks",
+            unit="chunk",
+            ncols=80,
+            total=len(all_async_jobs)
+        )
+
+        chunk_datasets = list()
+        for ajob in all_async_jobs:
+            fp = ajob.get()
+            chunk_ds = xr.open_dataset(fp, engine="zarr")
+            chunk_datasets.append(chunk_ds)
+            bar.update()
+
+        ds = xr.concat(chunk_datasets, "traj")
+
+        bar.close()
+        agg_path = os.path.join(_TMP_PATH, f"gdpraw_{kind}_aggregate.zarr")
+        ds.to_zarr(agg_path)
+        return agg_path

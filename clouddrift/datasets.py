@@ -167,13 +167,7 @@ def gdpraw(
     """
     TODO: Add docs
     """
-    return _dataset_filecache(
-        "gdpraw.nc",
-        decode_times,
-        lambda: adapters.rawfiles.to_raggedarray(
-            kind, tmp_path, max
-        ).to_xarray(),
-    )
+    return adapters.rawfiles.get_dataset(kind, tmp_path, max)
 
 
 def glad(decode_times: bool = True) -> xr.Dataset:
