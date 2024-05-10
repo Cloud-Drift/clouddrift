@@ -6,6 +6,7 @@ import logging
 import multiprocessing as mp
 import os
 import tempfile
+from collections import defaultdict
 from dataclasses import dataclass
 from multiprocessing.pool import AsyncResult
 from typing import Callable, Literal
@@ -17,6 +18,7 @@ from tqdm import tqdm
 
 from clouddrift.adapters.gdp import get_gdp_metadata
 from clouddrift.adapters.utils import download_with_progress
+from clouddrift.ragged import subset
 from clouddrift.raggedarray import RaggedArray
 
 _DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst"
@@ -270,7 +272,17 @@ def preprocess(id_, **kwargs) -> xr.Dataset:
     traj_md_df = md_df[md_df["ID"] == id_]
     traj_data_df = data_df[data_df["id"] == id_]
 
+    coords = config.get_coords_config_map("obs", traj_data_df)
+    _, var = coords[
+        list(coords.keys())[0]
+    ]  # any of the coords will work, to determine the rowsize
+    rowsize = len(var)
+
     variables = {
+        "rowsize": (
+            ["traj"],
+            np.array([rowsize], dtype=np.int64)
+        ),
         "wmo_number": (
             ["traj"],
             traj_md_df[["WMO_number"]].values[0].astype(np.int64),
@@ -324,13 +336,14 @@ def preprocess(id_, **kwargs) -> xr.Dataset:
     return dataset
 
 def _chunk_task(df_chunk: pd.DataFrame, chunk_id: str, pos: int, gdp_metadata_df: pd.DataFrame, config: ParsingConfiguration):
-    ids = df_chunk[["id"]].values
+    ids = np.unique(df_chunk[["id"]].values)
     ra = RaggedArray.from_files(
-        indices=np.unique(ids),
+        indices=ids,
         preprocess_func=preprocess,
         rowsize_func=rowsize,
         name_coords=config.coords,
         name_meta=[
+            "rowsize",
             "wmo_number",
             "program_number",
             "buoys_type",
@@ -361,14 +374,14 @@ def _chunk_task(df_chunk: pd.DataFrame, chunk_id: str, pos: int, gdp_metadata_df
     )
     zarr_path = f"{os.path.join(_TMP_PATH, chunk_id)}.zarr"
     ra.to_xarray().to_zarr(zarr_path)
-    return zarr_path
+    return zarr_path, ids
 
 
 def get_dataset(
     kind: _RecordKind = "both",
     tmp_path: str = _TMP_PATH,
     max: int | None = None,
-    chunk_size: int = 150_000
+    chunk_size: int = 500_000
 ) -> xr.Dataset:
     os.makedirs(tmp_path, exist_ok=True)
 
@@ -426,16 +439,23 @@ async def _async_get(
             total=len(all_async_jobs)
         )
 
-        chunk_datasets = list()
+        traj_chunk_datasets: dict[int, list[xr.Dataset]] = defaultdict(list)
         for ajob in all_async_jobs:
-            fp = ajob.get()
-            chunk_ds = xr.open_dataset(fp, engine="zarr")
-            chunk_datasets.append(chunk_ds)
+            fp, ids = ajob.get()
+            for id_ in ids:
+                f_ds = xr.open_dataset(fp, engine="zarr")
+                id_f_ds = subset(f_ds, dict(id=id_), row_dim_name="traj")
+                traj_chunk_datasets[id_].append(id_f_ds)
             bar.update()
 
-        ds = xr.concat(chunk_datasets, "traj")
+        traj_datasets = list()
+        for id_ in traj_chunk_datasets.keys():
+            datasets = traj_chunk_datasets[id_]
+            t_dataset = xr.combine_by_coords(datasets, coords=["id"])
+            traj_datasets.append(t_dataset)
 
+        agg_ds = xr.combine_by_coords(traj_datasets, coords=["id"])
         bar.close()
         agg_path = os.path.join(_TMP_PATH, f"gdpraw_{kind}_aggregate.zarr")
-        ds.to_zarr(agg_path)
-        return agg_path
+        agg_ds.to_zarr(agg_path)
+        return agg_ds
