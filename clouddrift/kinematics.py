@@ -659,6 +659,15 @@ def velocity_from_position(
     y_ = np.swapaxes(y, time_axis, -1)
     time_ = np.swapaxes(time, time_axis, -1)
 
+    # Convert to numpy arrays to insure consistent operations
+    if isinstance(x_, xr.DataArray):
+        x_ = x_.to_numpy()
+    if isinstance(y_, xr.DataArray):
+        y_ = y_.to_numpy()
+    if isinstance(time_, xr.DataArray):
+        time_ = time_.to_numpy()
+
+    # Initialize arrays for dx, dy, and dt
     dx = np.empty(x_.shape)
     dy = np.empty(y_.shape)
     dt = np.empty(time_.shape)

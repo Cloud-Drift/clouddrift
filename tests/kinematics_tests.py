@@ -275,7 +275,7 @@ class position_from_velocity_tests(unittest.TestCase):
         self.assertTrue(np.allclose(lon, self.lon, atol=1e-2))
         self.assertTrue(np.allclose(lat, self.lat, atol=1e-2))
 
-    def test_works_with_xarray(self):
+    def test_works_with_xarray_forward(self):
         lon, lat = position_from_velocity(
             xr.DataArray(data=self.uf),
             xr.DataArray(data=self.vf),
@@ -286,6 +286,30 @@ class position_from_velocity_tests(unittest.TestCase):
         )
         self.assertTrue(np.allclose(lon, self.lon))
         self.assertTrue(np.allclose(lat, self.lat))
+
+    def test_works_with_xarray_backward(self):
+        lon, lat = position_from_velocity(
+            xr.DataArray(data=self.ub),
+            xr.DataArray(data=self.vb),
+            xr.DataArray(data=self.time),
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="backward",
+        )
+        self.assertTrue(np.allclose(lon, self.lon))
+        self.assertTrue(np.allclose(lat, self.lat))
+
+    def test_works_with_xarray_centered(self):
+        lon, lat = position_from_velocity(
+            xr.DataArray(data=self.uc),
+            xr.DataArray(data=self.vc),
+            xr.DataArray(data=self.time),
+            self.lon[0],
+            self.lat[0],
+            integration_scheme="centered",
+        )
+        self.assertTrue(np.allclose(lon, self.lon, atol=1e-2))
+        self.assertTrue(np.allclose(lat, self.lat, atol=1e-2))
 
     def test_works_with_2d_array(self):
         uf = np.reshape(np.tile(self.uf, 4), (4, self.uf.size))
@@ -388,13 +412,29 @@ class velocity_from_position_tests(unittest.TestCase):
         self.assertTrue(np.all(np.isclose(self.ub, u_expected)))
         self.assertTrue(np.all(np.isclose(self.uc, u_expected)))
 
-    def test_works_with_xarray(self):
+    def test_works_with_xarray_forward(self):
         lon = xr.DataArray(data=self.lon, coords={"time": self.time})
         lat = xr.DataArray(data=self.lat, coords={"time": self.time})
         time = xr.DataArray(data=self.time, coords={"time": self.time})
-        uf, vf = velocity_from_position(lon, lat, time)
+        uf, vf = velocity_from_position(lon, lat, time, difference_scheme="forward")
         self.assertTrue(np.all(uf == self.uf))
         self.assertTrue(np.all(vf == self.vf))
+
+    def test_works_with_xarray_backward(self):
+        lon = xr.DataArray(data=self.lon, coords={"time": self.time})
+        lat = xr.DataArray(data=self.lat, coords={"time": self.time})
+        time = xr.DataArray(data=self.time, coords={"time": self.time})
+        ub, vb = velocity_from_position(lon, lat, time, difference_scheme="backward")
+        self.assertTrue(np.all(ub == self.ub))
+        self.assertTrue(np.all(vb == self.vb))
+
+    def test_works_with_xarray_centered(self):
+        lon = xr.DataArray(data=self.lon, coords={"time": self.time})
+        lat = xr.DataArray(data=self.lat, coords={"time": self.time})
+        time = xr.DataArray(data=self.time, coords={"time": self.time})
+        uc, vc = velocity_from_position(lon, lat, time, difference_scheme="centered")
+        self.assertTrue(np.all(uc == self.uc))
+        self.assertTrue(np.all(vc == self.vc))
 
     def test_works_with_2d_array(self):
         lon = np.reshape(np.tile(self.lon, 4), (4, self.lon.size))
