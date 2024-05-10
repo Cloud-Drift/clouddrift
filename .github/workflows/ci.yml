@@ -34,7 +34,7 @@ jobs:
             cartopy
       - name: Run unit tests
         shell: bash -l {0}
-        run: coverage run -m pytest tests/*_tests.py tests/adapters/*_tests.py
+        run: coverage run -m pytest -c pyproject.toml
       - name: Display report
         shell: bash -l {0}
         run: coverage report
