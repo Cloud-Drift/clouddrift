@@ -53,6 +53,10 @@ files = [
   "tests/**/*.py",
 ]
 
+[tool.pytest.ini_options]
+testpaths = ["tests/*_tests.py", "tests/adapters/*_tests.py"]
+
+
 [[tool.mypy.overrides]]
 module = [
   "clouddrift.kinematics",
