@@ -97,6 +97,7 @@ venv.bak/
 y/
 
 # IDEs
+.vscode
 .idea
 *.swp
 *.DS_Store
