@@ -8,7 +8,7 @@ import shutil
 import tempfile
 import warnings
 from collections import defaultdict
-from concurrent.futures import Future, ProcessPoolExecutor, as_completed, wait
+from concurrent.futures import Future, ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
 from typing import Callable, Literal
 
@@ -364,7 +364,8 @@ def preprocess(id_, **kwargs) -> xr.Dataset:
 
 
 def _process_chunk(df_chunk: pd.DataFrame, chunk_id: str, gdp_metadata_df: pd.DataFrame, config: ParsingConfiguration):
-    zarr_path = f"{os.path.join(_TMP_PATH, "chunks", f"{chunk_id}")}.zarr"
+    filename = f"{chunk_id}.zarr"
+    zarr_path = os.path.join(_TMP_PATH, "chunks", filename)
 
     # remove the current zar archive if it exists
     if os.path.exists(zarr_path):
