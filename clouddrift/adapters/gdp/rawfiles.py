@@ -260,7 +260,9 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
     }.get(kind)
 
     if cfg is None:
-        raise ValueError(f"The {kind} kind doesn't have an associated parsing configuration")
+        raise ValueError(
+            f"The {kind} kind doesn't have an associated parsing configuration"
+        )
     return cfg
 
 
@@ -285,7 +287,9 @@ def rowsize(id_, **kwargs) -> int:
     config: ParsingConfiguration | None = kwargs.get("config")
 
     if df is None or config is None:
-        raise KeyError("Missing `data_df` or `config`, please pass them into the `from_files` method")
+        raise KeyError(
+            "Missing `data_df` or `config`, please pass them into the `from_files` method"
+        )
 
     traj_data_df = df[df["id"] == id_]
     coords = config.get_coords_config_map("obs", traj_data_df)
@@ -301,7 +305,9 @@ def preprocess(id_, **kwargs) -> xr.Dataset:
     config: ParsingConfiguration | None = kwargs.get("config")
 
     if md_df is None or data_df is None or config is None:
-        raise KeyError("Missing `md_df` or `data_df` or `config`, please pass them into the `from_files` method")
+        raise KeyError(
+            "Missing `md_df` or `data_df` or `config`, please pass them into the `from_files` method"
+        )
 
     traj_md_df = md_df[md_df["ID"] == id_]
     traj_data_df = data_df[data_df["id"] == id_]
