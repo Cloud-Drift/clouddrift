@@ -24,7 +24,7 @@ from clouddrift.raggedarray import RaggedArray
 
 _DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst"
 _TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdpraw")
-_FILNAME_TEMPLATE = "buoydata_{start}_{end}_{suffix}.dat.gz"
+_FILENAME_TEMPLATE = "buoydata_{start}_{end}_{suffix}.dat.gz"
 _SECONDS_IN_DAY = 86_400
 
 _DATA_VARS = [
@@ -277,7 +277,7 @@ def _get_download_list(tmp_path: str, kind: _RecordKind) -> list[tuple[str, str]
     requests = list()
 
     for start, end in batches:
-        filename = _FILNAME_TEMPLATE.format(start=start, end=end, suffix=suffix)
+        filename = _FILENAME_TEMPLATE.format(start=start, end=end, suffix=suffix)
         requests.append((f"{_DATA_URL}/{filename}", os.path.join(tmp_path, filename)))
     return requests
 
@@ -524,6 +524,8 @@ def get_dataset(
     requests = _get_download_list(tmp_path, kind)
     destinations = [dst for (_, dst) in requests]
 
+    os.makedirs(tmp_path, exist_ok=True)
+
     if max:
         requests = requests[:max]
         destinations = destinations[:max]
@@ -531,7 +533,6 @@ def get_dataset(
     download_with_progress(requests)
     gdp_metadata_df = get_gdp_metadata()
 
-    os.makedirs(tmp_path, exist_ok=True)
     drifter_datasets = asyncio.run(
         _parallel_get(destinations, gdp_metadata_df, config, chunk_size)
     )
