@@ -201,7 +201,7 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
             remove=[_future_years_mask, _bad_drogue_values_mask],
             coords=["id", "obsDatetime"],
         ),
-        "both": ParsingConfiguration(
+        "raw": ParsingConfiguration(
             cols=[
                 "id",
                 "posObsMonth",
@@ -270,7 +270,7 @@ def _get_download_list(tmp_path: str, kind: _RecordKind) -> list[tuple[str, str]
     suffix = {
         "position": "edited_pfiles",
         "sensor": "edited_sfiles",
-        "both": "rawfiles",
+        "raw": "rawfiles",
     }.get(kind)
     batches = [(1, 5000), (5001, 10_000), (10_001, 15_000), (15_001, "current")]
 
