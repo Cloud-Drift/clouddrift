@@ -110,6 +110,7 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
     df : pd.DataFrame
         List of drifters from a single directory file as a pandas DataFrame.
     """
+    os.makedirs(GDP_TMP_PATH, exist_ok=True)
     gdp_dir_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata"
     url = f"{gdp_dir_url}/{filename}"
     path = os.path.join(GDP_TMP_PATH, filename)
