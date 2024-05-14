@@ -3,18 +3,19 @@ from __future__ import annotations
 import asyncio
 import datetime
 import logging
-import multiprocessing as mp
 import os
+import shutil
 import tempfile
+import warnings
 from collections import defaultdict
+from concurrent.futures import Future, ProcessPoolExecutor, as_completed, wait
 from dataclasses import dataclass
-from multiprocessing.pool import AsyncResult
 from typing import Callable, Literal
 
 import numpy as np
 import pandas as pd
 import xarray as xr
-from tqdm import tqdm
+from tqdm.asyncio import tqdm
 
 from clouddrift.adapters.gdp import get_gdp_metadata
 from clouddrift.adapters.utils import download_with_progress
@@ -361,10 +362,25 @@ def preprocess(id_, **kwargs) -> xr.Dataset:
     dataset = xr.Dataset(variables, coords=coords)
     return dataset
 
-def _chunk_task(df_chunk: pd.DataFrame, chunk_id: str, gdp_metadata_df: pd.DataFrame, config: ParsingConfiguration):
-    ids = np.unique(df_chunk[["id"]].values)
+
+def _process_chunk(df_chunk: pd.DataFrame, chunk_id: str, gdp_metadata_df: pd.DataFrame, config: ParsingConfiguration):
+    zarr_path = f"{os.path.join(_TMP_PATH, "chunks", f"{chunk_id}")}.zarr"
+
+    # remove the current zar archive if it exists
+    if os.path.exists(zarr_path):
+        shutil.rmtree(zarr_path)
+    
+    ids_in_data = np.unique(df_chunk[['id']].values)
+    ids_with_md = np.intersect1d(ids_in_data, gdp_metadata_df[["ID"]].values)
+
+    if len(ids_in_data) > len(ids_with_md):
+        warnings.warn(
+            "Data has drifter ids not found in the metadata table. "
+            + "Please inspect the following ids"
+        )
+
     ra = RaggedArray.from_files(
-        indices=ids,
+        indices=ids_with_md,
         preprocess_func=preprocess,
         rowsize_func=rowsize,
         name_coords=config.coords,
@@ -376,9 +392,106 @@ def _chunk_task(df_chunk: pd.DataFrame, chunk_id: str, gdp_metadata_df: pd.DataF
         config=config,
         tqdm=dict(disable=True)
     )
-    zarr_path = f"{os.path.join(_TMP_PATH, "chunks", chunk_id)}.zarr"
     ra.to_xarray().to_zarr(zarr_path)
-    return zarr_path, ids
+    return zarr_path, ids_with_md
+
+
+def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset]):
+    new_rowsize = sum([ds.rowsize.values[0] for ds in datasets])
+    traj_dataset = xr.concat(datasets, dim="obs", coords="minimal", data_vars=_DATA_VARS, compat="override")
+    traj_dataset["rowsize"] = xr.DataArray(np.array([new_rowsize], dtype=np.int64), coords=traj_dataset["rowsize"].coords)
+    return traj_dataset
+
+
+async def _parallel_get(
+    sources: list[str],
+    gdp_metadata_df: pd.DataFrame,
+    config: ParsingConfiguration,
+    chunk_size: int,
+) -> list[xr.Dataset]:
+
+    with ProcessPoolExecutor(max_workers=os.cpu_count() // 2) as ppe:
+        drifter_chunked_datasets: dict[int, list[xr.Dataset]] = defaultdict(list)
+        for fp in tqdm(
+            sources,
+            desc="Loading files",
+            unit="file",
+            ncols=80,
+            total=len(sources),
+            position=0
+        ):
+            filename = fp.split(os.path.sep)[-1]
+            # it has two extensions since its a tarball (tar) compressed (gzip)
+            filename_minus_ext = filename[:-7] 
+            file_chunks = pd.read_csv(
+                fp,
+                sep=r"\s+",
+                header=None,
+                names=config.cols,
+                engine="c",
+                compression="gzip",
+                chunksize=chunk_size
+            )
+
+            joblist = list[Future]()
+            for idx, chunk in enumerate(file_chunks):
+                ajob = ppe.submit(
+                    _process_chunk,
+                    chunk, f"{filename_minus_ext}-{idx}", gdp_metadata_df, config,
+                ) 
+                joblist.append(ajob)
+
+            bar = tqdm(
+                desc="Processing file chunks",
+                unit="chunk",
+                ncols=80,
+                total=len(joblist),
+                position=1
+            )
+
+            bad_chunks = 0
+            for ajob in as_completed(joblist):
+                if ajob.exception() is not None:
+                    bad_chunks += 1
+                    continue
+
+                fp, ids = ajob.result()
+                for id_ in ids:
+                    f_ds = xr.open_dataset(fp, engine="zarr")
+                    id_f_ds = subset(f_ds, dict(id=id_), row_dim_name="traj")
+                    drifter_chunked_datasets[id_].append(id_f_ds)
+                bar.update()
+            _logger.info(
+                f"{bad_chunks} (chunksize: {chunk_size}) dropped." 
+                + " Note dropped chunks could have been empty"
+            )
+
+        joblist = list[Future]()
+        for id_ in drifter_chunked_datasets.keys():
+            datasets = drifter_chunked_datasets[id_]
+
+            ajob = ppe.submit(
+                _combine_chunked_drifter_datasets,
+                *[datasets]
+            ) 
+            joblist.append(ajob)
+
+        bar.close()
+        bar = tqdm(
+            desc="merging drifter chunks",
+            unit="drifter",
+            ncols=80,
+            total=len(drifter_chunked_datasets.keys()),
+            position=2
+        )
+
+        drifter_datasets = list[xr.Dataset]()
+        for ajob in as_completed(joblist):
+            dataset = ajob.result()
+            drifter_datasets.append(dataset)
+            bar.update()
+        bar.close()
+        return drifter_datasets
 
 
 def get_dataset(
@@ -387,16 +500,6 @@ def get_dataset(
     max: int | None = None,
     chunk_size: int = 100_000
 ) -> xr.Dataset:
-    os.makedirs(tmp_path, exist_ok=True)
-    return asyncio.run(_async_get(kind, chunk_size, tmp_path, max))
-
-
-async def _async_get(
-    kind: _RecordKind,
-    chunk_size: int,
-    tmp_path: str,
-    max: int | None = None,
-) -> str:
     config = _get_parsing_config(kind)
     requests = _get_download_list(tmp_path, kind)
     destinations = [dst for (_, dst) in requests]
@@ -408,56 +511,13 @@ async def _async_get(
     download_with_progress(requests)
     gdp_metadata_df = get_gdp_metadata()
 
-    with mp.Pool(os.cpu_count() // 2) as pool:
-        all_async_jobs = list[AsyncResult]()
-        for fp in destinations:
-            filename = fp.split(os.path.sep)[-1]
-            # it has two extensions since its a tarball (tar) compressed (gzip)
-            filename_minus_ext = filename[:-7] 
+    os.makedirs(tmp_path, exist_ok=True)
+    drifter_datasets = asyncio.run(_parallel_get(destinations, gdp_metadata_df, config, chunk_size))
+    obs_ds = xr.concat([ds.drop_dims("traj") for ds in drifter_datasets], dim="obs", data_vars=_DATA_VARS)
+    traj_ds = xr.concat([ds.drop_dims("obs") for ds in drifter_datasets], dim="traj", data_vars=_METADATA_VARS)
 
-            df_chunks = pd.read_csv(
-                fp,
-                sep=r"\s+",
-                header=None,
-                names=config.cols,
-                engine="c",
-                compression="gzip",
-                chunksize=chunk_size
-            )
+    agg_ds = xr.merge([obs_ds, traj_ds])
 
-            for idx, df_chunk in enumerate(df_chunks):
-                ajob = pool.apply_async(
-                    _chunk_task,
-                    [df_chunk, f"{filename_minus_ext}-{idx}", gdp_metadata_df, config]
-                ) 
-                all_async_jobs.append(ajob)
-
-        bar = tqdm(
-            desc="Loading file chunks",
-            unit="chunk",
-            ncols=80,
-            total=len(all_async_jobs),
-        )
-
-        traj_chunk_datasets: dict[int, list[xr.Dataset]] = defaultdict(list)
-        for ajob in all_async_jobs:
-            fp, ids = ajob.get()
-            for id_ in ids:
-                f_ds = xr.open_dataset(fp, engine="zarr")
-                id_f_ds = subset(f_ds, dict(id=id_), row_dim_name="traj")
-                traj_chunk_datasets[id_].append(id_f_ds)
-            bar.update()
-
-        traj_datasets = list()
-        for id_ in tqdm(traj_chunk_datasets.keys(), desc="merging trajectories", unit="traj", ncols=80):
-            datasets = traj_chunk_datasets[id_]
-            new_rowsize = sum([ds.rowsize.values[0] for ds in datasets])
-            traj_dataset = xr.concat(datasets, dim="obs", coords="minimal", data_vars=_DATA_VARS, compat="override")
-            traj_dataset["rowsize"] = xr.DataArray(np.array([new_rowsize], dtype=np.int64), coords=traj_dataset["rowsize"].coords)
-            traj_datasets.append(traj_dataset)
-
-        agg_ds = xr.concat(traj_datasets, dim="obs", data_vars="all", coords="all")
-        bar.close()
-        agg_path = os.path.join(_TMP_PATH, f"gdpraw_{kind}_aggregate.zarr")
-        agg_ds.to_zarr(agg_path)
-        return agg_ds
+    agg_path = os.path.join(_TMP_PATH, f"gdpraw_{kind}_aggregate.zarr")
+    agg_ds.to_zarr(agg_path)
+    return agg_ds
