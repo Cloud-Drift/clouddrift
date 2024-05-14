@@ -60,7 +60,7 @@ def get_dataframes() -> tuple[pd.DataFrame, pd.DataFrame]:
     )
     sorted_data_urls = [data_urls[i] for i in sorted_indices]
     buffers = [BytesIO() for _ in range(len(sorted_data_urls))]
-    requests = [(url, buffer, None) for url, buffer in zip(sorted_data_urls, buffers)]
+    requests = [(url, buffer) for url, buffer in zip(sorted_data_urls, buffers)]
 
     download_with_progress(requests, desc="Downloading data")
     [b.seek(0) for b in buffers]

@@ -99,7 +99,7 @@ def download(
 
     download_with_progress(
         [
-            (url, os.path.join(tmp_path, os.path.basename(url)), None)
+            (url, os.path.join(tmp_path, os.path.basename(url)))
             for url in drifter_urls
         ]
     )

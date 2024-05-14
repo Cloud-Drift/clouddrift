@@ -160,7 +160,7 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
 
 def gdpraw(
     decode_times: bool = True,
-    kind: _RecordKind = "both",
+    kind: _RecordKind = "raw",
     tmp_path: str = adapters.rawfiles._TMP_PATH,
     max: int | None = None,
 ) -> xr.Dataset:

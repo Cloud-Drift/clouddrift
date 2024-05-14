@@ -155,8 +155,8 @@ def _download_with_progress(
         else:
             buffer = output
 
-        if response.headers.get("Content-Length") is not None:
-            expected_size = float(response.headers.get("Content-Length"))
+        if (content_length := response.headers.get("Content-Length")) is not None:
+            expected_size = float(content_length)
 
         if show_progress:
             bar = tqdm(

@@ -78,9 +78,9 @@ def _parse_datetime_with_day_ratio(
 class ParsingConfiguration:
     cols: list[str]
     coords: list[str]
-    col_dtypes: dict[str, np.dtype]
+    col_dtypes: dict[str, type]
     remove: list[Callable[[pd.DataFrame], pd.DataFrame]]
-    transform: dict[str, tuple[list[str], Callable[..., np.ndarray]]]
+    transform: dict[str, tuple[str, list[str], Callable[..., pd.DataFrame]]]
 
     def get_vars_config_map(self, dim_name: str, df: pd.DataFrame):
         all_config_map = self._get_all_config_map(dim_name, df)
@@ -144,7 +144,7 @@ def _bad_drogue_values_mask(df):
 
 
 def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
-    return {
+    cfg = {
         "position": ParsingConfiguration(
             cols=["id", "obsMonth", "obsDay", "obsYear", "lat", "lon", "qualityIndex"],
             col_dtypes={
@@ -259,6 +259,10 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
         ),
     }.get(kind)
 
+    if cfg is None:
+        raise ValueError(f"The {kind} kind doesn't have an associated parsing configuration")
+    return cfg
+
 
 def _get_download_list(tmp_path: str, kind: _RecordKind) -> list[tuple[str, str]]:
     suffix = {
@@ -277,8 +281,11 @@ def _get_download_list(tmp_path: str, kind: _RecordKind) -> list[tuple[str, str]
 
 
 def rowsize(id_, **kwargs) -> int:
-    df: pd.DataFrame = kwargs.get("data_df")
-    config: ParsingConfiguration = kwargs.get("config")
+    df: pd.DataFrame | None = kwargs.get("data_df")
+    config: ParsingConfiguration | None = kwargs.get("config")
+
+    if df is None or config is None:
+        raise KeyError("Missing `data_df` or `config`, please pass them into the `from_files` method")
 
     traj_data_df = df[df["id"] == id_]
     coords = config.get_coords_config_map("obs", traj_data_df)
@@ -289,9 +296,12 @@ def rowsize(id_, **kwargs) -> int:
 
 
 def preprocess(id_, **kwargs) -> xr.Dataset:
-    md_df: pd.DataFrame = kwargs.get("md_df")
-    data_df: pd.DataFrame = kwargs.get("data_df")
-    config: ParsingConfiguration = kwargs.get("config")
+    md_df: pd.DataFrame | None = kwargs.get("md_df")
+    data_df: pd.DataFrame | None = kwargs.get("data_df")
+    config: ParsingConfiguration | None = kwargs.get("config")
+
+    if md_df is None or data_df is None or config is None:
+        raise KeyError("Missing `md_df` or `data_df` or `config`, please pass them into the `from_files` method")
 
     traj_md_df = md_df[md_df["ID"] == id_]
     traj_data_df = data_df[data_df["id"] == id_]
@@ -413,7 +423,8 @@ async def _parallel_get(
     config: ParsingConfiguration,
     chunk_size: int,
 ) -> list[xr.Dataset]:
-    with ProcessPoolExecutor(max_workers=os.cpu_count() // 2) as ppe:
+    max_workers = (os.cpu_count() or 0) // 2
+    with ProcessPoolExecutor(max_workers=max_workers) as ppe:
         drifter_chunked_datasets: dict[int, list[xr.Dataset]] = defaultdict(list)
         for fp in tqdm(
             sources,
@@ -498,7 +509,7 @@ async def _parallel_get(
 
 
 def get_dataset(
-    kind: _RecordKind = "both",
+    kind: _RecordKind = "raw",
     tmp_path: str = _TMP_PATH,
     max: int | None = None,
     chunk_size: int = 100_000,
