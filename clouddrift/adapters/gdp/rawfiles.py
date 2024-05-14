@@ -27,7 +27,7 @@ _TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdpraw")
 _FILNAME_TEMPLATE = "buoydata_{start}_{end}_{suffix}.dat.gz"
 _SECONDS_IN_DAY = 86_400
 
-_DATA_VARS= [
+_DATA_VARS = [
     "lat",
     "lon",
     "drogue",
@@ -130,11 +130,14 @@ class ParsingConfiguration:
 def _future_years_mask(df):
     return df["obsYear"] > datetime.datetime.now().year
 
+
 def _future_years_mask_sen(df):
     return df["posObsYear"] > datetime.datetime.now().year
 
+
 def _future_years_mask_pos(df):
     return df["senObsYear"] > datetime.datetime.now().year
+
 
 def _bad_drogue_values_mask(df):
     return df["drogue"].astype(np.str_).str.match(r"(\d+[\.]+){2,}")
@@ -160,10 +163,7 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
                     _parse_datetime_with_day_ratio,
                 )
             },
-            remove=[
-                _future_years_mask,
-                _bad_drogue_values_mask
-            ],
+            remove=[_future_years_mask, _bad_drogue_values_mask],
             coords=["id", "obsDatetime"],
         ),
         "sensor": ParsingConfiguration(
@@ -198,10 +198,7 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
                     _parse_datetime_with_day_ratio,
                 )
             },
-            remove=[
-                _future_years_mask,
-                _bad_drogue_values_mask
-            ],
+            remove=[_future_years_mask, _bad_drogue_values_mask],
             coords=["id", "obsDatetime"],
         ),
         "both": ParsingConfiguration(
@@ -256,7 +253,7 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
             remove=[
                 _future_years_mask_pos,
                 _future_years_mask_sen,
-                _bad_drogue_values_mask
+                _bad_drogue_values_mask,
             ],
             coords=["id", "posObsDatetime", "sensorObsDatetime"],
         ),
@@ -306,10 +303,7 @@ def preprocess(id_, **kwargs) -> xr.Dataset:
     rowsize = len(var)
 
     variables = {
-        "rowsize": (
-            ["traj"],
-            np.array([rowsize], dtype=np.int64)
-        ),
+        "rowsize": (["traj"], np.array([rowsize], dtype=np.int64)),
         "wmo_number": (
             ["traj"],
             traj_md_df[["WMO_number"]].values[0].astype(np.int64),
@@ -363,15 +357,20 @@ def preprocess(id_, **kwargs) -> xr.Dataset:
     return dataset
 
 
-def _process_chunk(df_chunk: pd.DataFrame, chunk_id: str, gdp_metadata_df: pd.DataFrame, config: ParsingConfiguration):
+def _process_chunk(
+    df_chunk: pd.DataFrame,
+    chunk_id: str,
+    gdp_metadata_df: pd.DataFrame,
+    config: ParsingConfiguration,
+):
     filename = f"{chunk_id}.zarr"
     zarr_path = os.path.join(_TMP_PATH, "chunks", filename)
 
     # remove the current zar archive if it exists
     if os.path.exists(zarr_path):
         shutil.rmtree(zarr_path)
-    
-    ids_in_data = np.unique(df_chunk[['id']].values)
+
+    ids_in_data = np.unique(df_chunk[["id"]].values)
     ids_with_md = np.intersect1d(ids_in_data, gdp_metadata_df[["ID"]].values)
 
     if len(ids_in_data) > len(ids_with_md):
@@ -391,7 +390,7 @@ def _process_chunk(df_chunk: pd.DataFrame, chunk_id: str, gdp_metadata_df: pd.Da
         md_df=gdp_metadata_df,
         data_df=df_chunk,
         config=config,
-        tqdm=dict(disable=True)
+        tqdm=dict(disable=True),
     )
     ra.to_xarray().to_zarr(zarr_path)
     return zarr_path, ids_with_md
@@ -399,8 +398,12 @@ def _process_chunk(df_chunk: pd.DataFrame, chunk_id: str, gdp_metadata_df: pd.Da
 
 def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset]):
     new_rowsize = sum([ds.rowsize.values[0] for ds in datasets])
-    traj_dataset = xr.concat(datasets, dim="obs", coords="minimal", data_vars=_DATA_VARS, compat="override")
-    traj_dataset["rowsize"] = xr.DataArray(np.array([new_rowsize], dtype=np.int64), coords=traj_dataset["rowsize"].coords)
+    traj_dataset = xr.concat(
+        datasets, dim="obs", coords="minimal", data_vars=_DATA_VARS, compat="override"
+    )
+    traj_dataset["rowsize"] = xr.DataArray(
+        np.array([new_rowsize], dtype=np.int64), coords=traj_dataset["rowsize"].coords
+    )
     return traj_dataset
 
 
@@ -410,7 +413,6 @@ async def _parallel_get(
     config: ParsingConfiguration,
     chunk_size: int,
 ) -> list[xr.Dataset]:
-
     with ProcessPoolExecutor(max_workers=os.cpu_count() // 2) as ppe:
         drifter_chunked_datasets: dict[int, list[xr.Dataset]] = defaultdict(list)
         for fp in tqdm(
@@ -419,11 +421,11 @@ async def _parallel_get(
             unit="file",
             ncols=80,
             total=len(sources),
-            position=0
+            position=0,
         ):
             filename = fp.split(os.path.sep)[-1]
             # it has two extensions since its a tarball (tar) compressed (gzip)
-            filename_minus_ext = filename[:-7] 
+            filename_minus_ext = filename[:-7]
             file_chunks = pd.read_csv(
                 fp,
                 sep=r"\s+",
@@ -431,15 +433,18 @@ async def _parallel_get(
                 names=config.cols,
                 engine="c",
                 compression="gzip",
-                chunksize=chunk_size
+                chunksize=chunk_size,
             )
 
             joblist = list[Future]()
             for idx, chunk in enumerate(file_chunks):
                 ajob = ppe.submit(
                     _process_chunk,
-                    chunk, f"{filename_minus_ext}-{idx}", gdp_metadata_df, config,
-                ) 
+                    chunk,
+                    f"{filename_minus_ext}-{idx}",
+                    gdp_metadata_df,
+                    config,
+                )
                 joblist.append(ajob)
 
             bar = tqdm(
@@ -447,7 +452,7 @@ async def _parallel_get(
                 unit="chunk",
                 ncols=80,
                 total=len(joblist),
-                position=1
+                position=1,
             )
 
             bad_chunks = 0
@@ -463,7 +468,7 @@ async def _parallel_get(
                     drifter_chunked_datasets[id_].append(id_f_ds)
                 bar.update()
             _logger.info(
-                f"{bad_chunks} (chunksize: {chunk_size}) dropped." 
+                f"{bad_chunks} (chunksize: {chunk_size}) dropped."
                 + " Note dropped chunks could have been empty"
             )
 
@@ -471,10 +476,7 @@ async def _parallel_get(
         for id_ in drifter_chunked_datasets.keys():
             datasets = drifter_chunked_datasets[id_]
 
-            ajob = ppe.submit(
-                _combine_chunked_drifter_datasets,
-                *[datasets]
-            ) 
+            ajob = ppe.submit(_combine_chunked_drifter_datasets, *[datasets])
             joblist.append(ajob)
 
         bar.close()
@@ -483,7 +485,7 @@ async def _parallel_get(
             unit="drifter",
             ncols=80,
             total=len(drifter_chunked_datasets.keys()),
-            position=2
+            position=2,
         )
 
         drifter_datasets = list[xr.Dataset]()
@@ -499,7 +501,7 @@ def get_dataset(
     kind: _RecordKind = "both",
     tmp_path: str = _TMP_PATH,
     max: int | None = None,
-    chunk_size: int = 100_000
+    chunk_size: int = 100_000,
 ) -> xr.Dataset:
     config = _get_parsing_config(kind)
     requests = _get_download_list(tmp_path, kind)
@@ -513,9 +515,19 @@ def get_dataset(
     gdp_metadata_df = get_gdp_metadata()
 
     os.makedirs(tmp_path, exist_ok=True)
-    drifter_datasets = asyncio.run(_parallel_get(destinations, gdp_metadata_df, config, chunk_size))
-    obs_ds = xr.concat([ds.drop_dims("traj") for ds in drifter_datasets], dim="obs", data_vars=_DATA_VARS)
-    traj_ds = xr.concat([ds.drop_dims("obs") for ds in drifter_datasets], dim="traj", data_vars=_METADATA_VARS)
+    drifter_datasets = asyncio.run(
+        _parallel_get(destinations, gdp_metadata_df, config, chunk_size)
+    )
+    obs_ds = xr.concat(
+        [ds.drop_dims("traj") for ds in drifter_datasets],
+        dim="obs",
+        data_vars=_DATA_VARS,
+    )
+    traj_ds = xr.concat(
+        [ds.drop_dims("obs") for ds in drifter_datasets],
+        dim="traj",
+        data_vars=_METADATA_VARS,
+    )
 
     agg_ds = xr.merge([obs_ds, traj_ds])
 
