@@ -97,7 +97,7 @@ def cast_float64_variables_to_float32(
     return ds
 
 
-def parse_directory_file(filename: str) -> pd.DataFrame:
+def parse_directory_file(filename: str, tmp_path: str) -> pd.DataFrame:
     """Read a GDP directory file that contains metadata of drifter releases.
 
     Parameters
@@ -110,10 +110,9 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
     df : pd.DataFrame
         List of drifters from a single directory file as a pandas DataFrame.
     """
-    os.makedirs(GDP_TMP_PATH, exist_ok=True)
     gdp_dir_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata"
     url = f"{gdp_dir_url}/{filename}"
-    path = os.path.join(GDP_TMP_PATH, filename)
+    path = os.path.join(tmp_path, filename)
     download_with_progress([(url, path)])
     df = pd.read_csv(path, delimiter=r"\s+", header=None)
 
@@ -145,7 +144,7 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
     return df
 
 
-def get_gdp_metadata() -> pd.DataFrame:
+def get_gdp_metadata(tmp_path: str = GDP_TMP_PATH) -> pd.DataFrame:
     """Download and parse GDP metadata and return it as a Pandas DataFrame.
 
     Returns
@@ -160,13 +159,13 @@ def get_gdp_metadata() -> pd.DataFrame:
     while True:
         name = directory_file_pattern.format(low=start, high=start + 4999)
         try:
-            dfs.append(parse_directory_file(name))
+            dfs.append(parse_directory_file(name, tmp_path))
             start += 5000
         except Exception:
             break
 
     name = directory_file_pattern.format(low=start, high="current")
-    dfs.append(parse_directory_file(name))
+    dfs.append(parse_directory_file(name, tmp_path))
 
     df = pd.concat(dfs)
     df.sort_values(["Start_date"], inplace=True, ignore_index=True)

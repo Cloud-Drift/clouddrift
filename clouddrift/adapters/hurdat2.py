@@ -344,12 +344,12 @@ def _get_download_requests(basin: _BasinOption, tmp_path: str):
 
     if basin == "atlantic" or basin == "both":
         file_name = _ATLANTIC_BASIN_URL.split("/")[-1]
-        fp = os.path.join(_DEFAULT_FILE_PATH, file_name)
+        fp = os.path.join(tmp_path, file_name)
         download_requests.append((_ATLANTIC_BASIN_URL, fp, None))
 
     if basin == "pacific" or basin == "both":
         file_name = _PACIFIC_BASIN_URL.split("/")[-1]
-        fp = os.path.join(_DEFAULT_FILE_PATH, file_name)
+        fp = os.path.join(tmp_path, file_name)
         download_requests.append((_PACIFIC_BASIN_URL, fp, None))
     return download_requests
 
@@ -360,7 +360,7 @@ def to_raggedarray(
     convert: bool = True,
 ) -> RaggedArray:
     os.makedirs(
-        _DEFAULT_FILE_PATH, exist_ok=True
+        tmp_path, exist_ok=True
     )  # generate temp directory for hurdat related intermerdiary data
     download_requests = _get_download_requests(basin, tmp_path)
     download_with_progress(download_requests)

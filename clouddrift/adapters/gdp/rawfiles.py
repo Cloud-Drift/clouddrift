@@ -378,9 +378,10 @@ def _process_chunk(
     chunk_id: str,
     gdp_metadata_df: pd.DataFrame,
     config: ParsingConfiguration,
+    tmp_path: str,
 ):
     filename = f"{chunk_id}.zarr"
-    zarr_path = os.path.join(_TMP_PATH, "chunks", filename)
+    zarr_path = os.path.join(tmp_path, "chunks", filename)
 
     # remove the current zar archive if it exists
     if os.path.exists(zarr_path):
@@ -428,6 +429,7 @@ async def _parallel_get(
     gdp_metadata_df: pd.DataFrame,
     config: ParsingConfiguration,
     chunk_size: int,
+    tmp_path: str,
 ) -> list[xr.Dataset]:
     max_workers = (os.cpu_count() or 0) // 2
     with ProcessPoolExecutor(max_workers=max_workers) as ppe:
@@ -461,6 +463,7 @@ async def _parallel_get(
                     f"{filename_minus_ext}-{idx}",
                     gdp_metadata_df,
                     config,
+                    tmp_path,
                 )
                 joblist.append(ajob)
 
@@ -531,10 +534,10 @@ def get_dataset(
         destinations = destinations[:max]
 
     download_with_progress(requests)
-    gdp_metadata_df = get_gdp_metadata()
+    gdp_metadata_df = get_gdp_metadata(tmp_path)
 
     drifter_datasets = asyncio.run(
-        _parallel_get(destinations, gdp_metadata_df, config, chunk_size)
+        _parallel_get(destinations, gdp_metadata_df, config, chunk_size, tmp_path)
     )
     obs_ds = xr.concat(
         [ds.drop_dims("traj") for ds in drifter_datasets],
@@ -549,6 +552,6 @@ def get_dataset(
 
     agg_ds = xr.merge([obs_ds, traj_ds])
 
-    agg_path = os.path.join(_TMP_PATH, f"gdpraw_{kind}_aggregate.zarr")
+    agg_path = os.path.join(tmp_path, f"gdpraw_{kind}_aggregate.zarr")
     agg_ds.to_zarr(agg_path)
     return agg_ds
