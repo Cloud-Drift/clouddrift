@@ -409,18 +409,41 @@ def _process_chunk(
         config=config,
         tqdm=dict(disable=True),
     )
-    ra.to_xarray().to_zarr(zarr_path)
-    return zarr_path, ids_with_md
+    ds = ra.to_xarray()
+    ds.to_zarr(zarr_path)
+    return ds, ids_with_md
 
 
-def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset]):
-    new_rowsize = sum([ds.rowsize.values[0] for ds in datasets])
+def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset], config: ParsingConfiguration):
+    """When combining drifter chunks, sort variables using the sort key associated to the dimension.
+    A sort key is generated per coordinate and is associated its last dimension.
+    """
     traj_dataset = xr.concat(
         datasets, dim="obs", coords="minimal", data_vars=_DATA_VARS, compat="override"
     )
+
+    new_rowsize = sum([ds.rowsize.values[0] for ds in datasets])
     traj_dataset["rowsize"] = xr.DataArray(
         np.array([new_rowsize], dtype=np.int64), coords=traj_dataset["rowsize"].coords
     )
+
+    dim_sort_key_map = dict[str, np.ndarray]()
+    for coord_name in config.coords:
+        coord = traj_dataset.coords[coord_name]
+        vals: np.ndarray = coord.data
+        sort_key = vals.argsort()
+        dim = coord.dims[-1]
+        dim_sort_key_map[dim] = sort_key
+        sorted_coord = coord.isel({dim: sort_key})
+        traj_dataset.coords[coord_name] = sorted_coord
+    
+    for varname in _DATA_VARS:
+        var = traj_dataset[varname]
+        dim = var.dims[-1]
+        sort_key = dim_sort_key_map[dim]
+        sorted_var = var.isel({dim: sort_key})
+        traj_dataset[varname] = sorted_var
+
     return traj_dataset
 
 
@@ -455,6 +478,7 @@ async def _parallel_get(
                 chunksize=chunk_size,
             )
 
+
             joblist = list[Future]()
             for idx, chunk in enumerate(file_chunks):
                 ajob = ppe.submit(
@@ -481,9 +505,8 @@ async def _parallel_get(
                     bad_chunks += 1
                     continue
 
-                fp, ids = ajob.result()
+                f_ds, ids = ajob.result()
                 for id_ in ids:
-                    f_ds = xr.open_dataset(fp, engine="zarr")
                     id_f_ds = subset(f_ds, dict(id=id_), row_dim_name="traj")
                     drifter_chunked_datasets[id_].append(id_f_ds)
                 bar.update()
@@ -492,12 +515,12 @@ async def _parallel_get(
                 + " Note dropped chunks could have been empty"
             )
 
-        joblist = list[Future]()
+        jobmap = dict[Future, int]()
         for id_ in drifter_chunked_datasets.keys():
             datasets = drifter_chunked_datasets[id_]
 
-            ajob = ppe.submit(_combine_chunked_drifter_datasets, *[datasets])
-            joblist.append(ajob)
+            ajob = ppe.submit(_combine_chunked_drifter_datasets, datasets, config)
+            jobmap[ajob] = id_
 
         bar.close()
         bar = tqdm(
@@ -508,9 +531,18 @@ async def _parallel_get(
             position=2,
         )
 
+        os.makedirs(os.path.join(tmp_path, "drifters"), exist_ok=True)
+
         drifter_datasets = list[xr.Dataset]()
-        for ajob in as_completed(joblist):
-            dataset = ajob.result()
+        for ajob in as_completed(jobmap.keys()):
+            id_ = jobmap[ajob]
+            zarr_path = os.path.join(tmp_path, "drifters", f"drifter-{id_}.zarr")
+
+            if os.path.exists(zarr_path):
+                shutil.rmtree(zarr_path)
+
+            dataset: xr.Dataset = ajob.result()
+            dataset.to_zarr(zarr_path).close()
             drifter_datasets.append(dataset)
             bar.update()
         bar.close()
@@ -552,6 +584,10 @@ def get_dataset(
 
     agg_ds = xr.merge([obs_ds, traj_ds])
 
-    agg_path = os.path.join(tmp_path, f"gdpraw_{kind}_aggregate.zarr")
-    agg_ds.to_zarr(agg_path)
+    zarr_path = os.path.join(tmp_path, f"gdpraw_{kind}_aggregate.zarr")
+
+    if os.path.exists(zarr_path):
+        shutil.rmtree(zarr_path)
+
+    agg_ds.to_zarr(zarr_path)
     return agg_ds
