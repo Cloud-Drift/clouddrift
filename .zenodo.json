@@ -2,7 +2,7 @@
     "creators": [
         {
             "orcid": "0000-0001-6051-5426",
-            "affiliation": "Rosenstiel School of Marine, Atmospheric, and Earth science, University of Miami",
+            "affiliation": "Rosenstiel School of Marine, Atmospheric, and Earth Science, University of Miami",
             "name": "Shane, Elipot"
         },
         {
@@ -12,17 +12,17 @@
         },
         {
             "orcid": "0000-0002-8822-7749",
-            "affiliation": "Rosenstiel School of Marine, Atmospheric, and Earth science, University of Miami",
+            "affiliation": "Rosenstiel School of Marine, Atmospheric, and Earth Science, University of Miami",
             "name": "Milan, Curcic"
         },
         {
             "orcid": "0009-0003-8383-1212",
-            "affiliation": "Rosenstiel School of Marine, Atmospheric, and Earth science, University of Miami",
+            "affiliation": "Rosenstiel School of Marine, Atmospheric, and Earth Science, University of Miami",
             "name": "Kevin, Santana"
         }
     ],
 
     "license": "MIT",
 
-    "grants": [{"id":"2126413"}]
+    "grants": [{"id":"10.13039/100000001::2126413"}]
 }
