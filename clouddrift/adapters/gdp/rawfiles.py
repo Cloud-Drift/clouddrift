@@ -81,6 +81,7 @@ class ParsingConfiguration:
     col_dtypes: dict[str, type]
     remove: list[Callable[[pd.DataFrame], pd.DataFrame]]
     transform: dict[str, tuple[str, list[str], Callable[..., pd.DataFrame]]]
+    sortCoord: str
 
     def get_vars_config_map(self, dim_name: str, df: pd.DataFrame):
         all_config_map = self._get_all_config_map(dim_name, df)
@@ -165,6 +166,7 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
             },
             remove=[_future_years_mask, _bad_drogue_values_mask],
             coords=["id", "obsDatetime"],
+            sortCoord="obsDatetime"
         ),
         "sensor": ParsingConfiguration(
             cols=[
@@ -200,6 +202,7 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
             },
             remove=[_future_years_mask, _bad_drogue_values_mask],
             coords=["id", "obsDatetime"],
+            sortCoord="obsDatetime"
         ),
         "raw": ParsingConfiguration(
             cols=[
@@ -256,6 +259,7 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
                 _bad_drogue_values_mask,
             ],
             coords=["id", "posObsDatetime", "sensorObsDatetime"],
+            sortCoord="posObsDatetime"
         ),
     }.get(kind)
 
@@ -427,20 +431,18 @@ def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset], config: Parsin
         np.array([new_rowsize], dtype=np.int64), coords=traj_dataset["rowsize"].coords
     )
 
-    dim_sort_key_map = dict[str, np.ndarray]()
+    vals: np.ndarray = traj_dataset.coords[config.sortCoord].data
+    sort_key = vals.argsort()
+
     for coord_name in config.coords:
         coord = traj_dataset.coords[coord_name]
-        vals: np.ndarray = coord.data
-        sort_key = vals.argsort()
         dim = coord.dims[-1]
-        dim_sort_key_map[dim] = sort_key
         sorted_coord = coord.isel({dim: sort_key})
         traj_dataset.coords[coord_name] = sorted_coord
     
     for varname in _DATA_VARS:
         var = traj_dataset[varname]
         dim = var.dims[-1]
-        sort_key = dim_sort_key_map[dim]
         sorted_var = var.isel({dim: sort_key})
         traj_dataset[varname] = sorted_var
 
