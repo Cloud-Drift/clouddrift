@@ -59,10 +59,10 @@ _logger = logging.getLogger(__name__)
 
 
 def _parse_datetime_with_day_ratio(
-    monthSeries: np.ndarray, day_series: np.ndarray, year_series: np.ndarray
+    month_series: np.ndarray, day_series: np.ndarray, year_series: np.ndarray
 ):
     values = list()
-    for month, day_with_ratio, year in zip(monthSeries, day_series, year_series):
+    for month, day_with_ratio, year in zip(month_series, day_series, year_series):
         day = day_with_ratio // 1
         dayratio = day_with_ratio - day
         seconds = dayratio * _SECONDS_IN_DAY
@@ -150,9 +150,9 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
             cols=["id", "obsMonth", "obsDay", "obsYear", "lat", "lon", "qualityIndex"],
             col_dtypes={
                 "id": np.int64,
-                "obsMonth": np.int8,
-                "obsDay": np.float16,
-                "obsYear": np.int16,
+                "obsMonth": np.int32,
+                "obsDay": np.float32,
+                "obsYear": np.int32,
                 "lat": np.float32,
                 "lon": np.float32,
                 "qualityIndex": np.float32,
@@ -414,8 +414,12 @@ def _process_chunk(
         tqdm=dict(disable=True),
     )
     ds = ra.to_xarray()
-    ds.to_zarr(zarr_path)
-    return ds, ids_with_md
+
+    drifter_ds_map: dict[int, xr.Dataset] = defaultdict(list)
+    for id_ in ids_with_md:
+        id_f_ds = subset(ds, dict(id=id_), row_dim_name="traj")
+        drifter_ds_map[id_] = id_f_ds
+    return drifter_ds_map
 
 
 def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset], config: ParsingConfiguration):
@@ -431,14 +435,18 @@ def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset], config: Parsin
         np.array([new_rowsize], dtype=np.int64), coords=traj_dataset["rowsize"].coords
     )
 
-    vals: np.ndarray = traj_dataset.coords[config.sortCoord].data
+    sort_coord = traj_dataset.coords[config.sortCoord]
+    vals: np.ndarray = sort_coord.data
+    sort_coord_dim = sort_coord.dims[-1]
     sort_key = vals.argsort()
 
     for coord_name in config.coords:
         coord = traj_dataset.coords[coord_name]
         dim = coord.dims[-1]
-        sorted_coord = coord.isel({dim: sort_key})
-        traj_dataset.coords[coord_name] = sorted_coord
+
+        if dim == sort_coord_dim:
+            sorted_coord = coord.isel({dim: sort_key})
+            traj_dataset.coords[coord_name] = sorted_coord
     
     for varname in _DATA_VARS:
         var = traj_dataset[varname]
@@ -482,6 +490,7 @@ async def _parallel_get(
 
 
             joblist = list[Future]()
+            jobmap = dict[Future, pd.DataFrame]()
             for idx, chunk in enumerate(file_chunks):
                 ajob = ppe.submit(
                     _process_chunk,
@@ -491,6 +500,7 @@ async def _parallel_get(
                     config,
                     tmp_path,
                 )
+                jobmap[ajob] = chunk
                 joblist.append(ajob)
 
             bar = tqdm(
@@ -501,21 +511,17 @@ async def _parallel_get(
                 position=1,
             )
 
-            bad_chunks = 0
-            for ajob in as_completed(joblist):
+            for ajob in as_completed(jobmap.keys()):
                 if ajob.exception() is not None:
-                    bad_chunks += 1
+                    chunk = jobmap[ajob]
+                    _logger.warn(f"bad chunk detected, exception: {ajob.exception()}, ignoring {len(chunk)} rows")
                     continue
 
-                f_ds, ids = ajob.result()
-                for id_ in ids:
-                    id_f_ds = subset(f_ds, dict(id=id_), row_dim_name="traj")
-                    drifter_chunked_datasets[id_].append(id_f_ds)
+                job_drifter_ds_map: dict[int, xr.Dataset] = ajob.result()
+                for id_ in job_drifter_ds_map.keys():
+                    drifter_ds = job_drifter_ds_map[id_]
+                    drifter_chunked_datasets[id_].append(drifter_ds)
                 bar.update()
-            _logger.info(
-                f"{bad_chunks} (chunksize: {chunk_size}) dropped."
-                + " Note dropped chunks could have been empty"
-            )
 
         jobmap = dict[Future, int]()
         for id_ in drifter_chunked_datasets.keys():
@@ -544,7 +550,6 @@ async def _parallel_get(
                 shutil.rmtree(zarr_path)
 
             dataset: xr.Dataset = ajob.result()
-            dataset.to_zarr(zarr_path).close()
             drifter_datasets.append(dataset)
             bar.update()
         bar.close()
