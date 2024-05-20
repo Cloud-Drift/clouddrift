@@ -27,6 +27,11 @@ _TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdpraw")
 _FILENAME_TEMPLATE = "buoydata_{start}_{end}_{suffix}.dat.gz"
 _SECONDS_IN_DAY = 86_400
 
+_COORDS = [
+    "id",
+    "obs_index"
+]
+
 _DATA_VARS = [
     "lat",
     "lon",
@@ -58,6 +63,33 @@ _RecordKind = Literal["position"] | Literal["sensor"] | Literal["raw"]
 _logger = logging.getLogger(__name__)
 
 
+@dataclass
+class ParsingConfiguration:
+    cols: list[str]
+    col_dtypes: dict[str, type]
+    remove: list[Callable[[pd.DataFrame], pd.DataFrame]]
+    transform: dict[str, tuple[list[str], Callable[..., pd.DataFrame]]]
+
+    def apply_remove(self, df: pd.DataFrame):
+        temp_df = df
+        for filter_ in self.remove:
+            mask = filter_(temp_df)
+            temp_df = temp_df[~mask]
+        return temp_df
+
+    def apply_transform(self, df: pd.DataFrame):
+        tmp_df = df
+        for output_col in self.transform.keys():
+            input_cols, func = self.transform[output_col]
+            args = list()
+            for col in input_cols:
+                arg = df[[col]].values.flatten()
+                args.append(arg)
+            tmp_df = tmp_df.assign(**{output_col: func(*args)})
+            tmp_df = tmp_df.drop(input_cols, axis=1)
+        return tmp_df
+
+
 def _parse_datetime_with_day_ratio(
     month_series: np.ndarray, day_series: np.ndarray, year_series: np.ndarray
 ):
@@ -74,70 +106,12 @@ def _parse_datetime_with_day_ratio(
     return np.array(values, dtype="datetime64[ns]")
 
 
-@dataclass
-class ParsingConfiguration:
-    cols: list[str]
-    coords: list[str]
-    col_dtypes: dict[str, type]
-    remove: list[Callable[[pd.DataFrame], pd.DataFrame]]
-    transform: dict[str, tuple[str, list[str], Callable[..., pd.DataFrame]]]
-    sortCoord: str
-
-    def get_vars_config_map(self, dim_name: str, df: pd.DataFrame):
-        all_config_map = self._get_all_config_map(dim_name, df)
-        return {
-            col: all_config_map[col]
-            for col in all_config_map.keys()
-            if col not in self.coords
-        }
-
-    def get_coords_config_map(self, dim_name: str, df: pd.DataFrame):
-        all_config_map = self._get_all_config_map(dim_name, df)
-        return {col: all_config_map[col] for col in self.coords}
-
-    def _get_all_config_map(self, dim_name: str, df: pd.DataFrame):
-        post_remove = self._apply_remove(df)
-        pre_transform = dict()
-
-        for col in self.cols:
-            data_array = (
-                post_remove[[col]].to_numpy().flatten().astype(self.col_dtypes[col])
-            )
-            pre_transform[col] = ([dim_name], data_array)
-        post_transform = self._apply_transform(pre_transform)
-        return post_transform
-
-    def _apply_remove(self, df: pd.DataFrame):
-        temp_df = df
-        for filter_ in self.remove:
-            mask = filter_(temp_df)
-            temp_df = temp_df[~mask]
-        return temp_df
-
-    def _apply_transform(
-        self, variable_config_map: dict[str, tuple[list[str], pd.DataFrame]]
-    ):
-        for output_col in self.transform.keys():
-            dim, input_cols, func = self.transform[output_col]
-            args = list()
-            for col in input_cols:
-                _, variable = variable_config_map[col]
-                args.append(variable)
-            variable_config_map[output_col] = ([dim], func(*args))
-            [variable_config_map.pop(col) for col in input_cols]
-        return variable_config_map
+def _bad_years_mask_sen(df):
+    return (df["posObsYear"] > datetime.datetime.now().year) | (df["posObsYear"] < 0)
 
 
-def _future_years_mask(df):
-    return df["obsYear"] > datetime.datetime.now().year
-
-
-def _future_years_mask_sen(df):
-    return df["posObsYear"] > datetime.datetime.now().year
-
-
-def _future_years_mask_pos(df):
-    return df["senObsYear"] > datetime.datetime.now().year
+def _bad_years_mask_pos(df):
+    return (df["senObsYear"] > datetime.datetime.now().year) | (df["senObsYear"] < 0)
 
 
 def _bad_drogue_values_mask(df):
@@ -146,64 +120,6 @@ def _bad_drogue_values_mask(df):
 
 def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
     cfg = {
-        "position": ParsingConfiguration(
-            cols=["id", "obsMonth", "obsDay", "obsYear", "lat", "lon", "qualityIndex"],
-            col_dtypes={
-                "id": np.int64,
-                "obsMonth": np.int32,
-                "obsDay": np.float32,
-                "obsYear": np.int32,
-                "lat": np.float32,
-                "lon": np.float32,
-                "qualityIndex": np.float32,
-            },
-            transform={
-                "obsDatetime": (
-                    "obs",
-                    ["obsMonth", "obsDay", "obsYear"],
-                    _parse_datetime_with_day_ratio,
-                )
-            },
-            remove=[_future_years_mask, _bad_drogue_values_mask],
-            coords=["id", "obsDatetime"],
-            sortCoord="obsDatetime"
-        ),
-        "sensor": ParsingConfiguration(
-            cols=[
-                "id",
-                "obsMonth",
-                "obsDay",
-                "obsYear",
-                "drogue",
-                "sst",
-                "voltage",
-                "sensor4",
-                "sensor5",
-                "sensor6",
-            ],
-            col_dtypes={
-                "id": np.int64,
-                "obsMonth": np.int8,
-                "obsDay": np.float16,
-                "obsYear": np.int16,
-                "drogue": np.float16,
-                "sst": np.float32,
-                "voltage": np.float32,
-                "sensor4": np.float32,
-                "sensor5": np.float32,
-                "sensor6": np.float32,
-            },
-            transform={
-                "obsDatetime": (
-                    "obs",
-                    ["obsMonth", "obsDay", "obsYear"],
-                    _parse_datetime_with_day_ratio,
-                )
-            },
-            remove=[_future_years_mask, _bad_drogue_values_mask],
-            coords=["id", "obsDatetime"],
-            sortCoord="obsDatetime"
-        ),
         "raw": ParsingConfiguration(
             cols=[
                 "id",
@@ -226,15 +142,15 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
             col_dtypes={
                 "id": np.int64,
                 "posObsMonth": np.int8,
-                "posObsDay": np.float16,
+                "posObsDay": np.float64,
                 "posObsYear": np.int16,
                 "lat": np.float32,
                 "lon": np.float32,
                 "qualityIndex": np.float32,
                 "senObsMonth": np.int8,
-                "senObsDay": np.float16,
+                "senObsDay": np.float64,
                 "senObsYear": np.int16,
-                "drogue": np.float16,
+                "drogue": np.float32,
                 "sst": np.float32,
                 "voltage": np.float32,
                 "sensor4": np.float32,
@@ -243,23 +159,19 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
             },
             transform={
                 "posObsDatetime": (
-                    "obs",
                     ["posObsMonth", "posObsDay", "posObsYear"],
                     _parse_datetime_with_day_ratio,
                 ),
                 "sensorObsDatetime": (
-                    "obs",
                     ["senObsMonth", "senObsDay", "senObsYear"],
                     _parse_datetime_with_day_ratio,
                 ),
             },
             remove=[
-                _future_years_mask_pos,
-                _future_years_mask_sen,
+                _bad_years_mask_pos,
+                _bad_years_mask_sen,
                 _bad_drogue_values_mask,
-            ],
-            coords=["id", "posObsDatetime", "sensorObsDatetime"],
-            sortCoord="posObsDatetime"
+            ]
         ),
     }.get(kind)
 
@@ -296,11 +208,7 @@ def rowsize(id_, **kwargs) -> int:
         )
 
     traj_data_df = df[df["id"] == id_]
-    coords = config.get_coords_config_map("obs", traj_data_df)
-    _, var = coords[
-        list(coords.keys())[0]
-    ]  # any of the coords will work, to determine the rowsize
-    return len(var)
+    return len(traj_data_df)
 
 
 def preprocess(id_, **kwargs) -> xr.Dataset:
@@ -315,12 +223,7 @@ def preprocess(id_, **kwargs) -> xr.Dataset:
 
     traj_md_df = md_df[md_df["ID"] == id_]
     traj_data_df = data_df[data_df["id"] == id_]
-
-    coords = config.get_coords_config_map("obs", traj_data_df)
-    _, var = coords[
-        list(coords.keys())[0]
-    ]  # any of the coords will work, to determine the rowsize
-    rowsize = len(var)
+    rowsize = len(traj_data_df)
 
     variables = {
         "rowsize": (["traj"], np.array([rowsize], dtype=np.int64)),
@@ -364,14 +267,18 @@ def preprocess(id_, **kwargs) -> xr.Dataset:
         ),
     }
 
-    data_variables = config.get_vars_config_map("obs", traj_data_df)
-    coords = config.get_coords_config_map("obs", traj_data_df)
-    row_coord = {
+    data_var_names = _DATA_VARS + list(config.transform.keys())
+    data_vars = dict()
+    for var_name in data_var_names:
+        type_  = config.col_dtypes.get(var_name)
+        data_vars[var_name] = (["obs"], traj_data_df[[var_name]].values.flatten().astype(type_))
+
+    coords = {
         "id": (["traj"], traj_md_df[["ID"]].values[0].astype(np.int64)),
+        "obs_index": (["obs"], traj_data_df[["obs_index"]].values.flatten().astype(np.int32)),
     }
 
-    variables.update(data_variables)
-    coords.update(row_coord)
+    variables.update(data_vars)
 
     dataset = xr.Dataset(variables, coords=coords)
     return dataset
@@ -379,17 +286,15 @@ def preprocess(id_, **kwargs) -> xr.Dataset:
 
 def _process_chunk(
     df_chunk: pd.DataFrame,
-    chunk_id: str,
+    start_idx: int,
+    end_idx: int,
     gdp_metadata_df: pd.DataFrame,
     config: ParsingConfiguration,
-    tmp_path: str,
 ):
-    filename = f"{chunk_id}.zarr"
-    zarr_path = os.path.join(tmp_path, "chunks", filename)
-
-    # remove the current zar archive if it exists
-    if os.path.exists(zarr_path):
-        shutil.rmtree(zarr_path)
+    df_chunk = df_chunk.assign(obs_index=range(start_idx, end_idx))
+    df_chunk = config.apply_remove(df_chunk)
+    df_chunk = df_chunk.astype(config.col_dtypes)
+    df_chunk = config.apply_transform(df_chunk)
 
     ids_in_data = np.unique(df_chunk[["id"]].values)
     ids_with_md = np.intersect1d(ids_in_data, gdp_metadata_df[["ID"]].values)
@@ -404,7 +309,7 @@ def _process_chunk(
         indices=ids_with_md,
         preprocess_func=preprocess,
         rowsize_func=rowsize,
-        name_coords=config.coords,
+        name_coords=_COORDS,
         name_meta=_METADATA_VARS,
         name_data=_DATA_VARS,
         name_dims={"traj": "rows", "obs": "obs"},
@@ -422,7 +327,7 @@ def _process_chunk(
     return drifter_ds_map
 
 
-def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset], config: ParsingConfiguration):
+def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset]):
     """When combining drifter chunks, sort variables using the sort key associated to the dimension.
     A sort key is generated per coordinate and is associated its last dimension.
     """
@@ -435,12 +340,12 @@ def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset], config: Parsin
         np.array([new_rowsize], dtype=np.int64), coords=traj_dataset["rowsize"].coords
     )
 
-    sort_coord = traj_dataset.coords[config.sortCoord]
+    sort_coord = traj_dataset.coords["obs_index"]
     vals: np.ndarray = sort_coord.data
     sort_coord_dim = sort_coord.dims[-1]
     sort_key = vals.argsort()
 
-    for coord_name in config.coords:
+    for coord_name in _COORDS:
         coord = traj_dataset.coords[coord_name]
         dim = coord.dims[-1]
 
@@ -467,6 +372,7 @@ async def _parallel_get(
     max_workers = (os.cpu_count() or 0) // 2
     with ProcessPoolExecutor(max_workers=max_workers) as ppe:
         drifter_chunked_datasets: dict[int, list[xr.Dataset]] = defaultdict(list)
+        start_idx = 0
         for fp in tqdm(
             sources,
             desc="Loading files",
@@ -475,9 +381,6 @@ async def _parallel_get(
             total=len(sources),
             position=0,
         ):
-            filename = fp.split(os.path.sep)[-1]
-            # it has two extensions since its a tarball (tar) compressed (gzip)
-            filename_minus_ext = filename[:-7]
             file_chunks = pd.read_csv(
                 fp,
                 sep=r"\s+",
@@ -495,11 +398,12 @@ async def _parallel_get(
                 ajob = ppe.submit(
                     _process_chunk,
                     chunk,
-                    f"{filename_minus_ext}-{idx}",
+                    start_idx,
+                    start_idx + len(chunk),
                     gdp_metadata_df,
                     config,
-                    tmp_path,
                 )
+                start_idx += len(chunk)
                 jobmap[ajob] = chunk
                 joblist.append(ajob)
 
@@ -515,7 +419,7 @@ async def _parallel_get(
                 if ajob.exception() is not None:
                     chunk = jobmap[ajob]
                     _logger.warn(f"bad chunk detected, exception: {ajob.exception()}, ignoring {len(chunk)} rows")
-                    continue
+                    raise ajob.exception()
 
                 job_drifter_ds_map: dict[int, xr.Dataset] = ajob.result()
                 for id_ in job_drifter_ds_map.keys():
@@ -527,7 +431,7 @@ async def _parallel_get(
         for id_ in drifter_chunked_datasets.keys():
             datasets = drifter_chunked_datasets[id_]
 
-            ajob = ppe.submit(_combine_chunked_drifter_datasets, datasets, config)
+            ajob = ppe.submit(_combine_chunked_drifter_datasets, datasets)
             jobmap[ajob] = id_
 
         bar.close()
