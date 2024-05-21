@@ -343,7 +343,7 @@ def _process_chunk(
     return drifter_ds_map
 
 
-def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset]):
+def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset], config: ParsingConfiguration):
     """When combining drifter chunks, sort variables using the sort key associated to the dimension.
     A sort key is generated per coordinate and is associated its last dimension.
     """
@@ -369,7 +369,7 @@ def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset]):
             sorted_coord = coord.isel({dim: sort_key})
             traj_dataset.coords[coord_name] = sorted_coord
     
-    for varname in _DATA_VARS:
+    for varname in _DATA_VARS + list(config.transform.keys()):
         var = traj_dataset[varname]
         dim = var.dims[-1]
         sorted_var = var.isel({dim: sort_key})
@@ -447,7 +447,7 @@ async def _parallel_get(
         for id_ in drifter_chunked_datasets.keys():
             datasets = drifter_chunked_datasets[id_]
 
-            ajob = ppe.submit(_combine_chunked_drifter_datasets, datasets)
+            ajob = ppe.submit(_combine_chunked_drifter_datasets, datasets, config)
             jobmap[ajob] = id_
 
         bar.close()
