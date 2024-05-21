@@ -162,11 +162,13 @@ def gdpraw(
     kind: _RecordKind = "raw",
     tmp_path: str = adapters.rawfiles._TMP_PATH,
     max: int | None = None,
+    decode_times: bool= True
 ) -> xr.Dataset:
     """
     TODO: Add docs
     """
-    return adapters.rawfiles.get_dataset(kind, tmp_path, max)
+    file_selection_label = "all" if max is None else f"first-{max}"
+    return _dataset_filecache(f"gdpraw_{kind}_{file_selection_label}.zarr", decode_times, lambda: adapters.rawfiles.get_dataset(kind, tmp_path, max))
 
 
 def glad(decode_times: bool = True) -> xr.Dataset:
@@ -635,15 +637,24 @@ def andro(decode_times: bool = False) -> xr.Dataset:
 def _dataset_filecache(
     filename: str, decode_times: bool, get_ds: Callable[[], xr.Dataset]
 ):
+    _, ext = os.path.splitext(filename)
     clouddrift_path = (
         os.path.expanduser("~/.clouddrift")
         if not os.getenv("CLOUDDRIFT_PATH")
         else os.getenv("CLOUDDRIFT_PATH")
     )
     fp = f"{clouddrift_path}/data/{filename}"
+    os.makedirs(os.path.dirname(fp), exist_ok=True)
+
     if not os.path.exists(fp):
-        print(f"{fp} not found; download from upstream repository.")
         ds = get_ds()
-        os.makedirs(os.path.dirname(fp), exist_ok=True)
-        ds.to_netcdf(fp)
-    return xr.open_dataset(fp, decode_times=decode_times)
+        if ext == ".nc":
+            ds.to_netcdf(fp)
+        else:
+            ds.to_zarr(fp)
+
+    engine = None
+    if ext == ".zarr":
+        engine = "zarr"
+
+    return xr.open_dataset(fp, decode_times=decode_times, engine=engine)

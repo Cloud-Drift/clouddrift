@@ -410,7 +410,7 @@ async def _parallel_get(
 
             joblist = list[Future]()
             jobmap = dict[Future, pd.DataFrame]()
-            for idx, chunk in enumerate(file_chunks):
+            for _, chunk in enumerate(file_chunks):
                 ajob = ppe.submit(
                     _process_chunk,
                     chunk,
@@ -510,11 +510,4 @@ def get_dataset(
     )
 
     agg_ds = xr.merge([obs_ds, traj_ds])
-
-    zarr_path = os.path.join(tmp_path, f"gdpraw_{kind}_aggregate.zarr")
-
-    if os.path.exists(zarr_path):
-        shutil.rmtree(zarr_path)
-
-    agg_ds.to_zarr(zarr_path)
     return agg_ds
