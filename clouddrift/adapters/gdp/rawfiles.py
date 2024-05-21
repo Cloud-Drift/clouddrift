@@ -114,6 +114,14 @@ def _bad_years_mask_pos(df):
     return (df["senObsYear"] > datetime.datetime.now().year) | (df["senObsYear"] < 0)
 
 
+def _bad_month_mask_sen(df):
+    return df["senObsMonth"].astype(np.str_).str.contains(r"[\D]")
+
+
+def _bad_month_mask_pos(df):
+    return df["posObsMonth"].astype(np.str_).str.contains(r"[\D]")
+
+
 def _bad_drogue_values_mask(df):
     return df["drogue"].astype(np.str_).str.match(r"(\d+[\.]+){2,}")
 
@@ -170,6 +178,8 @@ def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
             remove=[
                 _bad_years_mask_pos,
                 _bad_years_mask_sen,
+                _bad_month_mask_pos,
+                _bad_month_mask_sen,
                 _bad_drogue_values_mask,
             ]
         ),
@@ -299,10 +309,18 @@ def _process_chunk(
     ids_in_data = np.unique(df_chunk[["id"]].values)
     ids_with_md = np.intersect1d(ids_in_data, gdp_metadata_df[["ID"]].values)
 
-    if len(ids_in_data) > len(ids_with_md):
+    drifter_ds_map: dict[int, xr.Dataset] = defaultdict(list)
+
+    if len(ids_with_md) < 1:
         warnings.warn(
-            "Data has drifter ids not found in the metadata table. "
-            + "Please inspect the following ids"
+            f"Chunk ({len(df_chunk)} rows) has drifter ids not found in the metadata table. "
+            + f"Ignoring all rows. ids: ({ids_in_data})."
+        )
+        return drifter_ds_map
+    elif len(ids_in_data) > len(ids_with_md):
+        warnings.warn(
+            "Chunk has drifter ids not found in the metadata table. " 
+            + f"These drifters will be ignored. ids: {np.setdiff1d(ids_in_data, ids_with_md)}"
         )
 
     ra = RaggedArray.from_files(
@@ -320,7 +338,6 @@ def _process_chunk(
     )
     ds = ra.to_xarray()
 
-    drifter_ds_map: dict[int, xr.Dataset] = defaultdict(list)
     for id_ in ids_with_md:
         id_f_ds = subset(ds, dict(id=id_), row_dim_name="traj")
         drifter_ds_map[id_] = id_f_ds
