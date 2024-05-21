@@ -103,7 +103,7 @@ def _parse_datetime_with_day_ratio(
             + datetime.timedelta(days=int(day), seconds=seconds)
         ).timestamp() * 10**9
         values.append(int(dt_ns))
-    return np.array(values, dtype="datetime64[ns]")
+    return np.array(values).astype("datetime64[ns]")
 
 
 def _bad_years_mask_sen(df):
@@ -280,8 +280,7 @@ def preprocess(id_, **kwargs) -> xr.Dataset:
     data_var_names = _DATA_VARS + list(config.transform.keys())
     data_vars = dict()
     for var_name in data_var_names:
-        type_  = config.col_dtypes.get(var_name)
-        data_vars[var_name] = (["obs"], traj_data_df[[var_name]].values.flatten().astype(type_))
+        data_vars[var_name] = (["obs"], traj_data_df[[var_name]].values.flatten())
 
     coords = {
         "id": (["traj"], traj_md_df[["ID"]].values[0].astype(np.int64)),
@@ -329,7 +328,7 @@ def _process_chunk(
         rowsize_func=rowsize,
         name_coords=_COORDS,
         name_meta=_METADATA_VARS,
-        name_data=_DATA_VARS,
+        name_data=_DATA_VARS + list(config.transform.keys()),
         name_dims={"traj": "rows", "obs": "obs"},
         md_df=gdp_metadata_df,
         data_df=df_chunk,
