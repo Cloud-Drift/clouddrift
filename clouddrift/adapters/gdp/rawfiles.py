@@ -10,7 +10,7 @@ import warnings
 from collections import defaultdict
 from concurrent.futures import Future, ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
-from typing import Callable, Literal
+from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -27,14 +27,11 @@ _TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdpraw")
 _FILENAME_TEMPLATE = "buoydata_{start}_{end}_{suffix}.dat.gz"
 _SECONDS_IN_DAY = 86_400
 
-_COORDS = [
-    "id",
-    "obs_index"
-]
+_COORDS = ["id", "obs_index"]
 
 _DATA_VARS = [
-    "lat",
-    "lon",
+    "latitude",
+    "longitude",
     "drogue",
     "sst",
     "voltage",
@@ -58,7 +55,94 @@ _METADATA_VARS = [
     "death_code",
 ]
 
-_RecordKind = Literal["position"] | Literal["sensor"] | Literal["raw"]
+var_attrs = {
+    "id": {"long_name": "Global Drifter Program Buoy ID", "units": "-"},
+    "rowsize": {
+        "long_name": "Number of observations per trajectory",
+        "sample_dimension": "obs",
+        "units": "-",
+    },
+    "wmo_number": {
+        "long_name": "World Meteorological Organization buoy identification number",
+        "units": "-",
+    },
+    "current_program": {
+        "long_name": "Current Program",
+        "units": "-",
+        "_FillValue": "-1",
+    },
+    "buoys_type": {
+        "long_name": "Buoy type (see https://www.aoml.noaa.gov/phod/dac/dirall.html)",
+        "units": "-",
+    },
+    "start_date": {
+        "long_name": "First good date and time derived by DAC quality control",
+        "units": "seconds since 1970-01-01 00:00:00",
+    },
+    "start_lon": {
+        "long_name": "First good longitude derived by DAC quality control",
+        "units": "degrees_east",
+    },
+    "start_lat": {
+        "long_name": "Last good latitude derived by DAC quality control",
+        "units": "degrees_north",
+    },
+    "end_date": {
+        "long_name": "Last good date and time derived by DAC quality control",
+        "units": "seconds since 1970-01-01 00:00:00",
+    },
+    "end_lon": {
+        "long_name": "Last good longitude derived by DAC quality control",
+        "units": "degrees_east",
+    },
+    "end_lat": {
+        "long_name": "Last good latitude derived by DAC quality control",
+        "units": "degrees_north",
+    },
+    "drogue_off_date": {
+        "long_name": "Date and time of drogue loss",
+        "units": "seconds since 1970-01-01 00:00:00",
+    },
+    "death_code": {
+        "long_name": "Type of death",
+        "units": "-",
+        "comments": "0 (buoy still alive), 1 (buoy ran aground), 2 (picked up by vessel), 3 (stop transmitting), 4 (sporadic transmissions), 5 (bad batteries), 6 (inactive status)",
+    },
+    "longitude": {"long_name": "Longitude", "units": "degrees_east"},
+    "latitude": {"long_name": "Latitude", "units": "degrees_north"},
+    "drogue": {
+        "long_name": "Status indicating the presence of the drogue",
+        "units": "-",
+        "flag_values": "1,0",
+        "flag_meanings": "drogued, undrogued",
+    },
+    "sst": {
+        "long_name": "Fitted sea water temperature",
+        "units": "Kelvin",
+        "comments": "Estimated near-surface sea water temperature from drifting buoy measurements. It is the sum of the fitted near-surface non-diurnal sea water temperature and fitted diurnal sea water temperature anomaly. Discrepancies may occur because of rounding.",
+    },
+    "voltage": {
+        "long_name": "Voltage",
+        "units": "V",
+    },
+}
+
+attrs = {
+    "title": "Global Drifter Program raw drifter dataset with no post processing",
+    "Conventions": "CF-1.6",
+    "date_created": datetime.datetime.now().isoformat(),
+    "publisher_name": "GDP Drifter DAC",
+    "publisher_email": "aoml.dftr@noaa.gov",
+    "publisher_url": "https://www.aoml.noaa.gov/phod/gdp",
+    "license": "freely available",
+    "processing_level": "raw files",
+    "metadata_link": "https://www.aoml.noaa.gov/phod/dac/dirall.html",
+    "contributor_name": "NOAA Global Drifter Program",
+    "contributor_role": "Data Acquisition Center",
+    "institution": "NOAA Atlantic Oceanographic and Meteorological Laboratory",
+    "acknowledgement": "Elipot, Shane; Sykulski, Adam; Lumpkin, Rick; Centurioni, Luca; Pazos, Mayra (2022). Hourly location, current velocity, and temperature collected from Global Drifter Program drifters world-wide. [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://doi.org/10.25921/x46c-3620. Accessed [date]. Elipot et al. (2022): A Dataset of Hourly Sea Surface Temperature From Drifting Buoys, Scientific Data, 9, 567, https://dx.doi.org/10.1038/s41597-022-01670-2. Elipot et al. (2016): A global surface drifter dataset at hourly resolution, J. Geophys. Res.-Oceans, 121, https://dx.doi.org/10.1002/2016JC011716.",
+    "summary": "Global Drifter Program hourly data",
+}
 
 _logger = logging.getLogger(__name__)
 
@@ -126,78 +210,8 @@ def _bad_drogue_values_mask(df):
     return df["drogue"].astype(np.str_).str.match(r"(\d+[\.]+){2,}")
 
 
-def _get_parsing_config(kind: _RecordKind) -> ParsingConfiguration:
-    cfg = {
-        "raw": ParsingConfiguration(
-            cols=[
-                "id",
-                "posObsMonth",
-                "posObsDay",
-                "posObsYear",
-                "lat",
-                "lon",
-                "senObsMonth",
-                "senObsDay",
-                "senObsYear",
-                "drogue",
-                "sst",
-                "voltage",
-                "sensor4",
-                "sensor5",
-                "sensor6",
-                "qualityIndex",
-            ],
-            col_dtypes={
-                "id": np.int64,
-                "posObsMonth": np.int8,
-                "posObsDay": np.float64,
-                "posObsYear": np.int16,
-                "lat": np.float32,
-                "lon": np.float32,
-                "qualityIndex": np.float32,
-                "senObsMonth": np.int8,
-                "senObsDay": np.float64,
-                "senObsYear": np.int16,
-                "drogue": np.float32,
-                "sst": np.float32,
-                "voltage": np.float32,
-                "sensor4": np.float32,
-                "sensor5": np.float32,
-                "sensor6": np.float32,
-            },
-            transform={
-                "posObsDatetime": (
-                    ["posObsMonth", "posObsDay", "posObsYear"],
-                    _parse_datetime_with_day_ratio,
-                ),
-                "sensorObsDatetime": (
-                    ["senObsMonth", "senObsDay", "senObsYear"],
-                    _parse_datetime_with_day_ratio,
-                ),
-            },
-            remove=[
-                _bad_years_mask_pos,
-                _bad_years_mask_sen,
-                _bad_month_mask_pos,
-                _bad_month_mask_sen,
-                _bad_drogue_values_mask,
-            ]
-        ),
-    }.get(kind)
-
-    if cfg is None:
-        raise ValueError(
-            f"The {kind} kind doesn't have an associated parsing configuration"
-        )
-    return cfg
-
-
-def _get_download_list(tmp_path: str, kind: _RecordKind) -> list[tuple[str, str]]:
-    suffix = {
-        "position": "edited_pfiles",
-        "sensor": "edited_sfiles",
-        "raw": "rawfiles",
-    }.get(kind)
+def _get_download_list(tmp_path: str) -> list[tuple[str, str]]:
+    suffix = "rawfiles"
     batches = [(1, 5000), (5001, 10_000), (10_001, 15_000), (15_001, "current")]
 
     requests = list()
@@ -284,7 +298,10 @@ def preprocess(id_, **kwargs) -> xr.Dataset:
 
     coords = {
         "id": (["traj"], traj_md_df[["ID"]].values[0].astype(np.int64)),
-        "obs_index": (["obs"], traj_data_df[["obs_index"]].values.flatten().astype(np.int32)),
+        "obs_index": (
+            ["obs"],
+            traj_data_df[["obs_index"]].values.flatten().astype(np.int32),
+        ),
     }
 
     variables.update(data_vars)
@@ -308,7 +325,7 @@ def _process_chunk(
     ids_in_data = np.unique(df_chunk[["id"]].values)
     ids_with_md = np.intersect1d(ids_in_data, gdp_metadata_df[["ID"]].values)
 
-    drifter_ds_map: dict[int, xr.Dataset] = defaultdict(list)
+    drifter_ds_map = dict[int, xr.Dataset]()
 
     if len(ids_with_md) < 1:
         warnings.warn(
@@ -318,7 +335,7 @@ def _process_chunk(
         return drifter_ds_map
     elif len(ids_in_data) > len(ids_with_md):
         warnings.warn(
-            "Chunk has drifter ids not found in the metadata table. " 
+            "Chunk has drifter ids not found in the metadata table. "
             + f"These drifters will be ignored. ids: {np.setdiff1d(ids_in_data, ids_with_md)}"
         )
 
@@ -343,7 +360,9 @@ def _process_chunk(
     return drifter_ds_map
 
 
-def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset], config: ParsingConfiguration):
+def _combine_chunked_drifter_datasets(
+    datasets: list[xr.Dataset], config: ParsingConfiguration
+):
     """When combining drifter chunks, sort variables using the sort key associated to the dimension.
     A sort key is generated per coordinate and is associated its last dimension.
     """
@@ -368,7 +387,7 @@ def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset], config: Parsin
         if dim == sort_coord_dim:
             sorted_coord = coord.isel({dim: sort_key})
             traj_dataset.coords[coord_name] = sorted_coord
-    
+
     for varname in _DATA_VARS + list(config.transform.keys()):
         var = traj_dataset[varname]
         dim = var.dims[-1]
@@ -407,7 +426,6 @@ async def _parallel_get(
                 chunksize=chunk_size,
             )
 
-
             joblist = list[Future]()
             jobmap = dict[Future, pd.DataFrame]()
             for _, chunk in enumerate(file_chunks):
@@ -432,10 +450,12 @@ async def _parallel_get(
             )
 
             for ajob in as_completed(jobmap.keys()):
-                if ajob.exception() is not None:
+                if (exc := ajob.exception()) is not None:
                     chunk = jobmap[ajob]
-                    _logger.warn(f"bad chunk detected, exception: {ajob.exception()}, ignoring {len(chunk)} rows")
-                    raise ajob.exception()
+                    _logger.warn(
+                        f"bad chunk detected, exception: {ajob.exception()}, ignoring {len(chunk)} rows"
+                    )
+                    raise exc
 
                 job_drifter_ds_map: dict[int, xr.Dataset] = ajob.result()
                 for id_ in job_drifter_ds_map.keys():
@@ -443,12 +463,12 @@ async def _parallel_get(
                     drifter_chunked_datasets[id_].append(drifter_ds)
                 bar.update()
 
-        jobmap = dict[Future, int]()
+        combine_jobmap = dict[Future, int]()
         for id_ in drifter_chunked_datasets.keys():
             datasets = drifter_chunked_datasets[id_]
 
             ajob = ppe.submit(_combine_chunked_drifter_datasets, datasets, config)
-            jobmap[ajob] = id_
+            combine_jobmap[ajob] = id_
 
         bar.close()
         bar = tqdm(
@@ -462,8 +482,8 @@ async def _parallel_get(
         os.makedirs(os.path.join(tmp_path, "drifters"), exist_ok=True)
 
         drifter_datasets = list[xr.Dataset]()
-        for ajob in as_completed(jobmap.keys()):
-            id_ = jobmap[ajob]
+        for ajob in as_completed(combine_jobmap.keys()):
+            id_ = combine_jobmap[ajob]
             zarr_path = os.path.join(tmp_path, "drifters", f"drifter-{id_}.zarr")
 
             if os.path.exists(zarr_path):
@@ -477,13 +497,66 @@ async def _parallel_get(
 
 
 def get_dataset(
-    kind: _RecordKind = "raw",
     tmp_path: str = _TMP_PATH,
     max: int | None = None,
     chunk_size: int = 100_000,
 ) -> xr.Dataset:
-    config = _get_parsing_config(kind)
-    requests = _get_download_list(tmp_path, kind)
+    config = ParsingConfiguration(
+        cols=[
+            "id",
+            "posObsMonth",
+            "posObsDay",
+            "posObsYear",
+            "latitude",
+            "longitude",
+            "senObsMonth",
+            "senObsDay",
+            "senObsYear",
+            "drogue",
+            "sst",
+            "voltage",
+            "sensor4",
+            "sensor5",
+            "sensor6",
+            "qualityIndex",
+        ],
+        col_dtypes={
+            "id": np.int64,
+            "posObsMonth": np.int8,
+            "posObsDay": np.float64,
+            "posObsYear": np.int16,
+            "latitude": np.float32,
+            "longitude": np.float32,
+            "qualityIndex": np.float32,
+            "senObsMonth": np.int8,
+            "senObsDay": np.float64,
+            "senObsYear": np.int16,
+            "drogue": np.float32,
+            "sst": np.float32,
+            "voltage": np.float32,
+            "sensor4": np.float32,
+            "sensor5": np.float32,
+            "sensor6": np.float32,
+        },
+        transform={
+            "posObsDatetime": (
+                ["posObsMonth", "posObsDay", "posObsYear"],
+                _parse_datetime_with_day_ratio,
+            ),
+            "sensorObsDatetime": (
+                ["senObsMonth", "senObsDay", "senObsYear"],
+                _parse_datetime_with_day_ratio,
+            ),
+        },
+        remove=[
+            _bad_years_mask_pos,
+            _bad_years_mask_sen,
+            _bad_month_mask_pos,
+            _bad_month_mask_sen,
+            _bad_drogue_values_mask,
+        ],
+    )
+    requests = _get_download_list(tmp_path)
     destinations = [dst for (_, dst) in requests]
 
     os.makedirs(tmp_path, exist_ok=True)
@@ -510,4 +583,10 @@ def get_dataset(
     )
 
     agg_ds = xr.merge([obs_ds, traj_ds])
+
+    for var_name in _DATA_VARS + _METADATA_VARS + list(config.transform.keys()):
+        if var_name in var_attrs.keys():
+            agg_ds[var_name].assign_attrs(**var_attrs[var_name])
+    agg_ds.assign_attrs(attrs)
+
     return agg_ds

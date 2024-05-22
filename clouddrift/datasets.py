@@ -11,7 +11,6 @@ from collections.abc import Callable
 import xarray as xr
 
 from clouddrift import adapters
-from clouddrift.adapters.gdp.rawfiles import _RecordKind
 from clouddrift.adapters.hurdat2 import _BasinOption
 
 
@@ -159,16 +158,46 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
 
 
 def gdpraw(
-    kind: _RecordKind = "raw",
     tmp_path: str = adapters.rawfiles._TMP_PATH,
     max: int | None = None,
-    decode_times: bool= True
+    decode_times: bool = True,
 ) -> xr.Dataset:
-    """
-    TODO: Add docs
+    """Returns the NOAA Global Drifter Program (GDP) raw dataset as a ragged array
+    Xarray dataset.
+
+    The data is accessed from a public HTTPS server at NOAA's Atlantic
+    Oceanographic and Meteorological Laboratory (AOML) accessible at
+    https://www.aoml.noaa.gov/phod/gdp/index.php.
+
+    Parameters
+    ----------
+    tmp_path: str, default adapter temp path (default)
+        Temporary path where intermediary files are stored.
+    max: int, optional
+        Maximum number of files to retrieve and parse to generate the aggregate file. Mainly used
+        for testing purposes.
+    decode_times : bool, True (default)
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
+
+    Returns
+    -------
+    xarray.Dataset
+        raw GDP dataset as a ragged array
+
+    Examples
+    --------
+    >>> from clouddrift.datasets import gdpraw
+    >>> ds = gdpraw()
+    >>> ds
     """
     file_selection_label = "all" if max is None else f"first-{max}"
-    return _dataset_filecache(f"gdpraw_{kind}_{file_selection_label}.zarr", decode_times, lambda: adapters.rawfiles.get_dataset(kind, tmp_path, max))
+    return _dataset_filecache(
+        f"gdpraw_agg_{file_selection_label}.zarr",
+        decode_times,
+        lambda: adapters.rawfiles.get_dataset(tmp_path, max),
+    )
 
 
 def glad(decode_times: bool = True) -> xr.Dataset:
