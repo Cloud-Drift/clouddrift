@@ -20,7 +20,7 @@ type:
 
 .. code-block:: text
 
-  pip install matplotlib-base cartopy
+  pip install matplotlib cartopy
 
 Conda
 -----
@@ -43,7 +43,7 @@ type:
 
 .. code-block:: text
 
-  conda install matplotlib-base cartopy
+  conda install matplotlib cartopy
 
 Developers
 ----------

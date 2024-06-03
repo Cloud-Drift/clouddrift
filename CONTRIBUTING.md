@@ -117,7 +117,7 @@ pip install pytest matplotlib cartopy coverage
 with conda:
 
 ```
-conda install pytest matplotlib-base cartopy coverage
+conda install pytest matplotlib cartopy coverage
 ```
 
 3. Run the test suite:

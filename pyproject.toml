@@ -37,6 +37,16 @@ dependencies = [
     "tenacity>=8.2.3"
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "coverage"
+]
+plotting = [
+    "matplotlib",
+    "cartopy"
+]
+
 [project.urls]
 Homepage = "https://github.com/Cloud-Drift/clouddrift"
 Documentation = "https://cloud-drift.github.io/clouddrift"

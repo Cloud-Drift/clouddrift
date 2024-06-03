@@ -102,7 +102,7 @@ To install optional dependencies needed by the `clouddrift.plotting` module,
 type:
 
 ```
-conda install matplotlib-base cartopy
+conda install matplotlib cartopy
 ```
 
 #### Development branch:
