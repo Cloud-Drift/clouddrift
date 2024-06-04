@@ -20,7 +20,7 @@ type:
 
 .. code-block:: text
 
-  pip install matplotlib cartopy
+  pip install clouddrift[plotting]
 
 Conda
 -----
