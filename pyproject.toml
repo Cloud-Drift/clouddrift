@@ -38,9 +38,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+complete = ["clouddrift[dev,plotting]"]
 dev = [
-    "pytest",
     "coverage"
+    "pytest",
+    "mypy",
+    "ruff",
 ]
 plotting = [
     "matplotlib",
