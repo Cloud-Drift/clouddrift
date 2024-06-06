@@ -36,24 +36,25 @@ GDP_DATA = [
 
 
 def download(
-    url: str,
-    tmp_path: str,
-    drifter_ids: list | None = None,
+    url: str = GDP_DATA_URL,
+    tmp_path: str = GDP_TMP_PATH,
+    drifter_ids: list[int] | None = None,
     n_random_id: int | None = None,
 ):
     """Download individual NetCDF files from the AOML server.
 
     Parameters
     ----------
-    drifter_ids : list
-        List of drifter to retrieve (Default: all)
-    n_random_id : int
-        Randomly select n_random_id drifter IDs to download (Default: None)
     url : str
         URL from which to download the data (Default: GDP_DATA_URL). Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL.
     tmp_path : str, optional
         Path to the directory where the individual NetCDF files are stored
         (default varies depending on operating system; /tmp/clouddrift/gdp6h on Linux)
+    drifter_ids : list
+        List of drifter to retrieve (Default: all)
+    n_random_id : int
+        Randomly select n_random_id drifter IDs to download (Default: None)
+
 
     Returns
     -------

@@ -57,8 +57,8 @@ _logger = logging.getLogger(__name__)
 
 
 def download(
-    url: str,
-    tmp_path: str,
+    url: str = GDP_DATA_URL,
+    tmp_path: str = GDP_TMP_PATH,
     drifter_ids: list[int] | None = None,
     n_random_id: int | None = None,
 ):
