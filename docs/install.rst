@@ -6,6 +6,8 @@ Installation
 Required dependencies
 ---------------------
 
+CloudDrift requires the following dependencies:
+
 - `python <https://github.com/python>`_ (3.10 or later)
 - `aiohttp <https://github.com/aio-libs/aiohttp>`_ (3.8.4 or later)
 - `awkward <https://github.com/scikit-hep/awkward>`_ (2.0.0 or later)
@@ -22,10 +24,10 @@ Required dependencies
 - `zarr <https://github.com/zarr-developers/zarr-python>`_ (2.14.2 or later)
 - `tenacity <https://github.com/jd/tenacity>`_ (8.2.3 or later)
 
+if you install CloudDrift using pip or Conda, these dependencies will be installed automatically.
+
 Optional dependencies
 ---------------------
-
-Note: If you are using pip to install xarray, optional dependencies can be installed by specifying extras, such as `pip install clouddrift[plotting] clouddrift[dev] clouddrift[docs]`. There is also `clouddrift[all]` to install automatically all optional dependencies.
 
 For plotting
 ^^^^^^^^^^^^
@@ -50,12 +52,22 @@ For building the documentation
 - `sphinx-book-theme <https://github.com/executablebooks/sphinx-book-theme>`_
 - `sphinx-copybutton <https://github.com/executablebooks/sphinx-copybutton>`_
 
+Note: If you are using pip to install xarray, optional dependencies can be installed by specifying extras, such as:
+
+.. code-block:: text
+
+  pip install clouddrift[plotting] clouddrift[dev] clouddrift[docs]
+
+There is also `clouddrift[all]` to install automatically all optional dependencies.
+
+Installation instructions
+-------------------------
 
 You can install the latest release of CloudDrift using pip or Conda.
 You can also install the latest development (unreleased) version from GitHub.
 
 pip
----
+^^^
 
 In your virtual environment, type:
 
@@ -71,7 +83,7 @@ type:
   pip install clouddrift[plotting]
 
 Conda
------
+^^^^^
 
 First add ``conda-forge`` to your channels in your Conda environment:
 
@@ -94,7 +106,7 @@ type:
   conda install matplotlib cartopy
 
 Developers
-----------
+^^^^^^^^^^
 
 If you need the latest development version, get it from GitHub using pip:
 
