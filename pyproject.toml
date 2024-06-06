@@ -38,16 +38,24 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-complete = ["clouddrift[dev,plotting]"]
+all = ["clouddrift[dev,docs,plotting]"]
 dev = [
-    "coverage"
+    "build",
+    "coverage",
+    "docutils",
     "pytest",
     "mypy",
     "ruff",
+    "twine",
+]
+docs = [
+  "sphinx",
+  "sphinx-book-theme",
+  "sphinx-copybutton",
 ]
 plotting = [
     "matplotlib",
-    "cartopy"
+    "cartopy",
 ]
 
 [project.urls]

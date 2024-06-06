@@ -52,7 +52,7 @@ examples:
 
 ⚡ improve dataset loading time
 ⭐ include new ibtracs dataset
-🐛 x feature doesn't work on windows 
+🐛 x feature doesn't work on windows
 
 Common emojis to use are as follow:
 
@@ -111,7 +111,7 @@ conda activate clouddrift
 with pip:
 
 ```
-pip install pytest matplotlib cartopy coverage
+pip install clouddrift[dev,plotting]
 ```
 
 with conda:
@@ -133,7 +133,7 @@ pytest tests/*_tests.py tests/adapters/*_tests.py
 
 4. Run the test suite (with coverage):
 ```
-coverage run -m pytest tests/*_tests.py tests/adapters/*_tests.py 
+coverage run -m pytest tests/*_tests.py tests/adapters/*_tests.py
 ```
 
 5. Read the report:
@@ -141,7 +141,7 @@ coverage run -m pytest tests/*_tests.py tests/adapters/*_tests.py
 coverage report
 ```
 
-### Building locally and installing 
+### Building locally and installing
 This can be useful for understanding how the package is built, testing the process, and can be leveraged for testing
 experimental versions of the library from a users perspective.
 
@@ -159,12 +159,12 @@ pip install .
 
 The Clouddrift project uses the [`ruff`](https://github.com/astral-sh/ruff) tool for formatting the code and linting. We also leverage [`mypy`](https://github.com/python/mypy) for static typing. Please see the section on [Automated Processes](#automated-processes) to learn about how these tools are used prior to accepting pull requests.
 
-1. Install development dependencies 
+1. Install development dependencies
 
 with pip:
 
 ```
-pip install ruff mypy
+pip install clouddrift[dev]
 ```
 
 with conda:
@@ -205,7 +205,7 @@ the process will fail and will block pull requests from being merged.
 ### Building documentation locally
 This is useful if you want to inspect the documentation that gets generated
 
-* pre-requisite step: [Building locally and installing](#building-locally-and-installing) necessary for sphinx to find class/module references 
+* pre-requisite step: [Building locally and installing](#building-locally-and-installing) necessary for sphinx to find class/module references
 
 
 1. Go into the docs directory:
@@ -215,7 +215,7 @@ cd docs
 
 2. Install the Sphinx documentation generation dependencies:
 ```
-pip install -r requirements.txt
+pip install clouddrift[docs]
 ```
 
 3. Generate the new documentation:
@@ -237,7 +237,7 @@ To make an `clouddrift` release you must do it as part of a pull request:
 * Be sure to increase the version number in `pyproject.toml` in accordance with the [Semantic Versioning Specification](https://semver.org/)
 * Once the PR is merged locally update your local main branch
   * `git checkout main`
-  * `git pull` 
+  * `git pull`
 * Tag the release with the new version number as so: vX.Y.Z (e.g. - v0.32.0, v1.10.0, etc...)
   * `git tag vX.Y.Z` (e.g. - `git tag v0.32.0`)
 * Push the tag up (origin here is the remote repository for the `clouddrift` repository of the `Cloud-Drift` organization on GitHub)
