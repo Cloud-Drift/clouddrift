@@ -62,6 +62,7 @@ The scope of the Clouddrift library includes:
 
 *Example*: The following example illustrates how to combine two functions from the Clouddrift library in order to calculate Lagrangian velocities from ragged arrays of Cartesian positions and times that share row sizes 2, 3, and 4:
 ```
+import numpy as np
 from clouddrift.kinematics import velocity_from_position
 from clouddrift.ragged import apply_ragged
 
