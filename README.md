@@ -80,7 +80,7 @@ To install optional dependencies needed by the `clouddrift.plotting` module,
 type:
 
 ```
-pip install matplotlib cartopy
+pip install clouddrift[plotting]
 ```
 
 ##### Conda:
