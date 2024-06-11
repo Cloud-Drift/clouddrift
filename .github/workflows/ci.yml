@@ -30,7 +30,7 @@ jobs:
             python=${{ matrix.python-version }}
             pytest
             coverage
-            matplotlib-base
+            matplotlib
             cartopy
       - name: Run unit tests
         shell: bash -l {0}

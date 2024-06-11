@@ -29,7 +29,7 @@ jobs:
         python -m build
         pip install dist/*.whl
         pushd docs
-        pip install -r requirements.txt
+        pip install clouddrift[docs]
         make html
     - name: Upload HTML artificat
       uses: actions/upload-artifact@v4

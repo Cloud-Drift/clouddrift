@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "clouddrift"
-version = "0.35.1"
+version = "0.36.0"
 authors = [
   { name="Shane Elipot", email="selipot@miami.edu" },
   { name="Philippe Miron", email="philippemiron@gmail.com" },
@@ -35,6 +35,27 @@ dependencies = [
     "xarray>=2023.5.0",
     "zarr>=2.14.2",
     "tenacity>=8.2.3"
+]
+
+[project.optional-dependencies]
+all = ["clouddrift[dev,docs,plotting]"]
+dev = [
+    "build",
+    "coverage",
+    "docutils",
+    "pytest",
+    "mypy",
+    "ruff",
+    "twine",
+]
+docs = [
+  "sphinx",
+  "sphinx-book-theme",
+  "sphinx-copybutton",
+]
+plotting = [
+    "matplotlib",
+    "cartopy",
 ]
 
 [project.urls]
