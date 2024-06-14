@@ -18,7 +18,7 @@ authors:
   - name: Milan Curcic
     orcid: 0000-0002-8822-7749
     equal-contrib: true
-    affiliation: 1, 4
+    affiliation: 1, 3
   - name: Kevin Santana
     orcid: 0009-0003-8383-1212
     equal-contrib: true
@@ -26,16 +26,16 @@ authors:
   - name: Rick Lumpkin
     orcid: 0000-0002-6690-1704
     equal-contrib: true
-    affiliation: 3
+    affiliation: 4
 
 affiliations:
  - name: Rosenstiel School of Marine, Atmospheric, and Earth Science, University of Miami
    index: 1
  - name: Florida State University
    index: 2
- - name: NOAA Atlantic Oceanographic and Meteorological Laboratory
-   index: 3
  - name: Frost Institute for Data Science and Computing, University of Miami
+   index: 3
+ - name: NOAA Atlantic Oceanographic and Meteorological Laboratory
    index: 4
 date: 10 April 2024
 bibliography: paper.bib
