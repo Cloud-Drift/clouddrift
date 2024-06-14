@@ -61,7 +61,6 @@ Attributes: (12/16)
     publisher_url:     https://www.aoml.noaa.gov/phod/gdp
     summary:           Global Drifter Program hourly data
     title:             Global Drifter Program hourly drifting buoy collection
-    title:             Global Drifter Program hourly drifting buoy collection
 
 The ``gdp1h`` function returns an Xarray ``Dataset`` instance of the ragged-array dataset.
 While the dataset is quite large, around a dozen GB, it is not downloaded to your
