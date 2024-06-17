@@ -27,16 +27,14 @@
 It is funded by [NSF EarthCube](https://www.earthcube.org/info) through the
 [EarthCube Capabilities Grant No. 2126413](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2126413).
 
-Read the [documentation](https://cloud-drift.github.io/clouddrift) or explore
-the [Jupyter Notebook Examples](https://github.com/Cloud-Drift/clouddrift-examples).
+Read the [documentation](https://cloud-drift.github.io/clouddrift).
 
 ## Using `clouddrift`
 
 Start by reading the [documentation](https://cloud-drift.github.io/clouddrift).
 
 Example Jupyter notebooks that showcase the library, as well as scripts
-to process various Lagrangian datasets, can be found in
-[clouddrift-examples](https://github.com/Cloud-Drift/clouddrift-examples), [gdp-get-started](https://github.com/Cloud-Drift/gdp-get-started), [mosaic-get-started](https://github.com/Cloud-Drift/mosaic-get-started), or [a demo for the EarthCube community workshop 2023](https://github.com/Cloud-Drift/e3-comm-workshop-2023).
+to process various Lagrangian datasets, can be found in [gdp-get-started](https://github.com/Cloud-Drift/gdp-get-started), [mosaic-get-started](https://github.com/Cloud-Drift/mosaic-get-started), [hurdat2-get-started](https://github.com/Cloud-Drift/hurdat2-get-started), or [a demo for the EarthCube community workshop 2023](https://github.com/Cloud-Drift/e3-comm-workshop-2023).
 
 ## Contributing and scope
 
