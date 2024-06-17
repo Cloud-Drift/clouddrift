@@ -17,8 +17,6 @@
 [![Twitter/X](https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white)](https://twitter.com/CloudDrift2)
 
 ### 📚 Binders
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Cloud-Drift/clouddrift-examples/main?labpath=notebooks) : **general clouddrift examples**
-
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Cloud-Drift/mosaic-get-started/HEAD) : **MOSAiC get started (🧊 sea ice trajectories)**
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Cloud-Drift/gdp-get-started/HEAD) : **GDP get started (🌊 ocean drifter trajectories)**
