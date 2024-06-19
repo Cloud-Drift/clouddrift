@@ -11,7 +11,7 @@ in the future.
 import clouddrift.adapters.andro as andro
 import clouddrift.adapters.gdp.gdp1h as gdp1h
 import clouddrift.adapters.gdp.gdp6h as gdp6h
-import clouddrift.adapters.gdp.rawfiles as rawfiles
+import clouddrift.adapters.gdp.source as gdp_source
 import clouddrift.adapters.glad as glad
 import clouddrift.adapters.hurdat2 as hurdat2
 import clouddrift.adapters.mosaic as mosaic
@@ -28,6 +28,6 @@ __all__ = [
     "mosaic",
     "subsurface_floats",
     "yomaha",
-    "rawfiles",
+    "gdp_source",
     "utils",
 ]

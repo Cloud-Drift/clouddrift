@@ -78,6 +78,7 @@ def gdp1h(decode_times: bool = True) -> xr.Dataset:
     --------
     :func:`gdp6h`
     """
+
     url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/latest/gdp-v2.01.zarr"
     ds = xr.open_dataset(url, engine="zarr", decode_times=decode_times)
     ds = ds.rename_vars({"ID": "id"}).assign_coords({"id": ds.ID}).drop_vars(["ids"])
@@ -157,12 +158,12 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     return ds
 
 
-def gdpraw(
-    tmp_path: str = adapters.rawfiles._TMP_PATH,
+def gdp_source(
+    tmp_path: str = adapters.gdp_source._TMP_PATH,
     max: int | None = None,
     decode_times: bool = True,
 ) -> xr.Dataset:
-    """Returns the NOAA Global Drifter Program (GDP) raw dataset as a ragged array
+    """Returns the NOAA Global Drifter Program (GDP) source dataset as a ragged array
     Xarray dataset.
 
     The data is accessed from a public HTTPS server at NOAA's Atlantic
@@ -184,19 +185,39 @@ def gdpraw(
     Returns
     -------
     xarray.Dataset
-        raw GDP dataset as a ragged array
+        source GDP dataset as a ragged array
 
     Examples
     --------
-    >>> from clouddrift.datasets import gdpraw
-    >>> ds = gdpraw()
+    >>> from clouddrift.datasets import gdp_source
+    >>> ds = gdp_source()
     >>> ds
+    <xarray.Dataset> Size: ...
+    Dimensions:            (traj: ..., obs: ...)
+    Coordinates:
+        id                 (traj) int64 222kB ...
+        obs_index          (obs) int32 1GB ...
+    Dimensions without coordinates: traj, obs
+    Data variables: (12/22)
+        buoys_type         (traj) <U5 ...
+        death_code         (traj) int64 ...
+        drogue             (obs) float32 ...
+        drogue_off_date    (traj) datetime64[ns] ...
+        end_date           (traj) datetime64[ns] ...
+        end_lat            (traj) float64 222kB ...
+        ...                 ...
+        sst                (obs) float32 ...
+        start_date         (traj) datetime64[ns] ...
+        start_lat          (traj) float64 ...
+        start_lon          (traj) float64 ...
+        voltage            (obs) float32 ...
+        wmo_number         (traj) int64 ...
     """
     file_selection_label = "all" if max is None else f"first-{max}"
     return _dataset_filecache(
-        f"gdpraw_agg_{file_selection_label}.zarr",
+        f"gdpsource_agg_{file_selection_label}.zarr",
         decode_times,
-        lambda: adapters.rawfiles.get_dataset(tmp_path, max),
+        lambda: adapters.gdp_source.get_dataset(tmp_path, max),
     )
 
 
@@ -666,6 +687,7 @@ def andro(decode_times: bool = False) -> xr.Dataset:
 def _dataset_filecache(
     filename: str, decode_times: bool, get_ds: Callable[[], xr.Dataset]
 ):
+    os.path
     _, ext = os.path.splitext(filename)
     clouddrift_path = (
         os.path.expanduser("~/.clouddrift")

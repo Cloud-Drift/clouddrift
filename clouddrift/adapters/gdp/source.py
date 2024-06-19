@@ -23,7 +23,7 @@ from clouddrift.ragged import subset
 from clouddrift.raggedarray import RaggedArray
 
 _DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst"
-_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdpraw")
+_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdpsource")
 _FILENAME_TEMPLATE = "buoydata_{start}_{end}_{suffix}.dat.gz"
 _SECONDS_IN_DAY = 86_400
 
@@ -128,14 +128,14 @@ var_attrs = {
 }
 
 attrs = {
-    "title": "Global Drifter Program raw drifter dataset with no post processing",
+    "title": "Global Drifter Program source drifter dataset with no post processing",
     "Conventions": "CF-1.6",
     "date_created": datetime.datetime.now().isoformat(),
     "publisher_name": "GDP Drifter DAC",
     "publisher_email": "aoml.dftr@noaa.gov",
     "publisher_url": "https://www.aoml.noaa.gov/phod/gdp",
     "license": "freely available",
-    "processing_level": "raw files",
+    "processing_level": "source files",
     "metadata_link": "https://www.aoml.noaa.gov/phod/dac/dirall.html",
     "contributor_name": "NOAA Global Drifter Program",
     "contributor_role": "Data Acquisition Center",
