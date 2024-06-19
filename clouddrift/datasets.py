@@ -163,12 +163,16 @@ def gdp_source(
     max: int | None = None,
     decode_times: bool = True,
 ) -> xr.Dataset:
-    """Returns the NOAA Global Drifter Program (GDP) source dataset as a ragged array
+    """Returns the NOAA Global Drifter Program (GDP) source (raw) dataset as a ragged array
     Xarray dataset.
 
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored as zarr archive for later access.
+
     The data is accessed from a public HTTPS server at NOAA's Atlantic
-    Oceanographic and Meteorological Laboratory (AOML) accessible at
-    https://www.aoml.noaa.gov/phod/gdp/index.php.
+    Oceanographic and Meteorological Laboratory (AOML) at
+    https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst/.
 
     Parameters
     ----------
