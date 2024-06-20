@@ -117,9 +117,9 @@ var_attrs = {
         "flag_meanings": "drogued, undrogued",
     },
     "sst": {
-        "long_name": "Fitted sea water temperature",
-        "units": "Kelvin",
-        "comments": "Estimated near-surface sea water temperature from drifting buoy measurements. It is the sum of the fitted near-surface non-diurnal sea water temperature and fitted diurnal sea water temperature anomaly. Discrepancies may occur because of rounding.",
+        "long_name": "sea water temperature",
+        "units": "degree_Celsius",
+        "comments": "sea water temperature from drifting buoy measurements",
     },
     "voltage": {
         "long_name": "Voltage",
@@ -128,7 +128,7 @@ var_attrs = {
 }
 
 attrs = {
-    "title": "Global Drifter Program source drifter dataset with no post processing",
+    "title": "Global Drifter Program source (raw) drifter dataset",
     "Conventions": "CF-1.6",
     "date_created": datetime.datetime.now().isoformat(),
     "publisher_name": "GDP Drifter DAC",
@@ -140,8 +140,7 @@ attrs = {
     "contributor_name": "NOAA Global Drifter Program",
     "contributor_role": "Data Acquisition Center",
     "institution": "NOAA Atlantic Oceanographic and Meteorological Laboratory",
-    "acknowledgement": "Elipot, Shane; Sykulski, Adam; Lumpkin, Rick; Centurioni, Luca; Pazos, Mayra (2022). Hourly location, current velocity, and temperature collected from Global Drifter Program drifters world-wide. [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://doi.org/10.25921/x46c-3620. Accessed [date]. Elipot et al. (2022): A Dataset of Hourly Sea Surface Temperature From Drifting Buoys, Scientific Data, 9, 567, https://dx.doi.org/10.1038/s41597-022-01670-2. Elipot et al. (2016): A global surface drifter dataset at hourly resolution, J. Geophys. Res.-Oceans, 121, https://dx.doi.org/10.1002/2016JC011716.",
-    "summary": "Global Drifter Program hourly data",
+    "summary": "Global Drifter Program source (raw) data",
 }
 
 _logger = logging.getLogger(__name__)
