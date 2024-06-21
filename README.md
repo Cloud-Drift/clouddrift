@@ -16,12 +16,15 @@
 [![Bluesky](https://img.shields.io/badge/Bluesky-0285FF?logo=bluesky&logoColor=fff&style=for-the-badge)](https://bsky.app/profile/clouddrift.bsky.social)
 [![Twitter/X](https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white)](https://twitter.com/CloudDrift2)
 
-### 📚 Binders
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Cloud-Drift/mosaic-get-started/HEAD) : **MOSAiC get started (🧊 sea ice trajectories)**
+### 📚 Binders and examples
+- [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Cloud-Drift/mosaic-get-started/HEAD) : **MOSAiC get started (🧊 sea ice trajectories)**
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Cloud-Drift/gdp-get-started/HEAD) : **GDP get started (🌊 ocean drifter trajectories)**
+- [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Cloud-Drift/gdp-get-started/HEAD) : **GDP get started (🌊 ocean drifter trajectories)**
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Cloud-Drift/hurdat2-get-started/HEAD) : **HURDAT2 get started (🌀 cyclone/hurricane trajectories from 1852 - 2022)**
+- [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Cloud-Drift/hurdat2-get-started/HEAD) : **HURDAT2 get started (🌀 cyclone/hurricane trajectories from 1852 - 2022)**
+
+- [HYCOM-OceanTrack](https://github.com/selipot/hycom-oceantrack): A repository with notebook examples using `clouddrift` with a very large , analysis-ready cloud-optimized, Lagrangian dataset hosted in the cloud: [HYCOM OceanTrack: Integrated HYCOM Eulerian Fields and Lagrangian Trajectories Dataset](https://registry.opendata.aws/hycom-global-drifters/index.html).
+
 
 `clouddrift` is a Python package that accelerates the use of Lagrangian data for atmospheric, oceanic, and climate sciences.
 It is funded by [NSF EarthCube](https://www.earthcube.org/info) through the
