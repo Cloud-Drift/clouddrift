@@ -533,11 +533,11 @@ def get_dataset(
             "sensor6": np.float32,
         },
         transform={
-            "posObsDatetime": (
+            "position_datetime": (
                 ["posObsMonth", "posObsDay", "posObsYear"],
                 _parse_datetime_with_day_ratio,
             ),
-            "sensorObsDatetime": (
+            "sensor_datetime": (
                 ["senObsMonth", "senObsDay", "senObsYear"],
                 _parse_datetime_with_day_ratio,
             ),
