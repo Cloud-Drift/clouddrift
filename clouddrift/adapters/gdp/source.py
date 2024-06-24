@@ -38,6 +38,7 @@ _DATA_VARS = [
     "sensor4",
     "sensor5",
     "sensor6",
+    "qualityIndex"
 ]
 
 _METADATA_VARS = [
@@ -482,12 +483,6 @@ async def _parallel_get(
 
         drifter_datasets = list[xr.Dataset]()
         for ajob in as_completed(combine_jobmap.keys()):
-            id_ = combine_jobmap[ajob]
-            zarr_path = os.path.join(tmp_path, "drifters", f"drifter-{id_}.zarr")
-
-            if os.path.exists(zarr_path):
-                shutil.rmtree(zarr_path)
-
             dataset: xr.Dataset = ajob.result()
             drifter_datasets.append(dataset)
             bar.update()
