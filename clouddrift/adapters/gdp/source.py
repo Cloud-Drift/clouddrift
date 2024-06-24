@@ -37,7 +37,7 @@ _DATA_VARS = [
     "sensor4",
     "sensor5",
     "sensor6",
-    "qualityIndex"
+    "qualityIndex",
 ]
 
 _METADATA_VARS = [
