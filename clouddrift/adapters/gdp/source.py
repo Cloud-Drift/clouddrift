@@ -4,7 +4,6 @@ import asyncio
 import datetime
 import logging
 import os
-import shutil
 import tempfile
 import warnings
 from collections import defaultdict
