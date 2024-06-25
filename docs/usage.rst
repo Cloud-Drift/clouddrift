@@ -81,7 +81,7 @@ Attributes:
     long_name:  Longitude
     units:      degrees_east
 
-You see that this array is very long--it has 165754333 elements.
+You see that this array is very long--it has 197214787 elements.
 This is because in a ragged array, many varying-length arrays are laid out as a
 contiguous 1-dimensional array in memory.
 
@@ -252,9 +252,74 @@ CloudDrift provides an easy way to convert custom Lagrangian datasets into
     # Alternatively, convert to Awkward Array for analysis
     ds = ra.to_awkward()
 
-This snippet is specific to the hourly GDP dataset, however, you can use the
+The snippet above is specific to the hourly GDP dataset, however, you can use the
 ``RaggedArray`` class directly to convert other custom datasets into a ragged
 array structure that is analysis ready via Xarray or Awkward Array packages.
 The functions to do that are defined in the ``clouddrift.adapters`` submodule.
 You can use these examples as a reference to ingest your own or other custom
-Lagrangian datasets into ``RaggedArray``.
+Lagrangian datasets into ``RaggedArray``. Next, we provide a simple example on 
+how to build ragged array datasets from simulated data:
+
+.. code-block:: python
+
+    # create a synthetic Lagrangian data of 8 trajectories of random walks
+    import numpy as np
+
+    rowsize = [100,65,7,22,56,78,99,70]
+    x = []
+    y = []
+    for i in range(len(rowsize)):
+        x.append(np.cumsum(np.random.normal(0,1,rowsize[i]) + np.random.uniform(0,1,1)))
+        y.append(np.cumsum(np.random.normal(0,1,rowsize[i]) + np.random.uniform(0,1,1)))
+    x = np.concatenate(x)
+    y = np.concatenate(y)
+
+    # create an instance of the RaggedArray class
+    from clouddrift.raggedarray import RaggedArray
+
+    # define the actual coordinates
+    coords = {"time": np.arange(len(x)), "id": np.arange(len(rowsize))}
+    # define the data
+    data = {"x": x, "y": y}
+    # define the metadata which here include the `rowsize` parameter
+    metadata = {"rowsize": rowsize}
+
+    # map the names of the dimensions to what the class expects, that is 
+    # what are the names of "rows" and "obs"
+    name_dims = {"traj": "rows", "obs": "obs"}
+    # map the dimensions of the coordinates defined above 
+    coord_dims = {"time": "obs", "id": "traj"}
+    # define some attributes for the dataset and its variables
+    attrs_global = {"title":"An example of synthetic data"}
+    attrs_variables = {"id" : {"long_name": "trajectory id"},
+                    "time": {"long_name": "time"},
+                    "x": {"long_name": "x coordinate"},
+                    "y": {"long_name": "y coordinate"},
+                    "rowsize": {"long_name": "number of observations in each trajectory"}}
+    # instantiate the RaggedArray class
+    ra = RaggedArray(
+        coords, metadata, data, attrs_global, attrs_variables, name_dims, coord_dims
+    )
+
+    # convert the RaggedArray to awkward and xarray datasets for further analysis and manipulations
+    ds_ak = ra.to_awkward()
+    ds = ra.to_xarray()
+    ds
+    <xarray.Dataset> Size: 12kB
+    Dimensions:  (traj: 8, obs: 497)
+    Coordinates:
+        time     (obs) int64 4kB 0 1 2 3 4 5 6 7 ... 489 490 491 492 493 494 495 496
+        id       (traj) int64 64B 0 1 2 3 4 5 6 7
+    Dimensions without coordinates: traj, obs
+    Data variables:
+        rowsize  (traj) int64 64B 100 65 7 22 56 78 99 70
+        x        (obs) float64 4kB -0.3243 -0.2817 0.1442 1.31 ... 13.18 13.07 14.02
+        y        (obs) float64 4kB 1.25 2.073 3.493 3.44 ... 11.56 9.913 10.11 11.03
+    Attributes:
+        title:    An example of synthetic data
+
+    # as an example, plot the trajectories thanks to the plotting function provided by clouddrift
+    from clouddrift.plotting import plot_ragged
+
+    fig, ax = plt.subplots()
+    plot_ragged(ax,ds["x"],ds["y"],ds["rowsize"])
