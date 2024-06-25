@@ -257,7 +257,7 @@ The snippet above is specific to the hourly GDP dataset, however, you can use th
 array structure that is analysis ready via Xarray or Awkward Array packages.
 The functions to do that are defined in the ``clouddrift.adapters`` submodule.
 You can use these examples as a reference to ingest your own or other custom
-Lagrangian datasets into ``RaggedArray``. Next, we provide a simple example on 
+Lagrangian datasets into ``RaggedArray``. We provide below a simple example on 
 how to build ragged array datasets from simulated data:
 
 .. code-block:: python
@@ -301,8 +301,10 @@ how to build ragged array datasets from simulated data:
         coords, metadata, data, attrs_global, attrs_variables, name_dims, coord_dims
     )
 
-    # convert the RaggedArray to awkward and xarray datasets for further analysis and manipulations
-    ds_ak = ra.to_awkward()
+Next the ragged array object ``ra`` can be used to generate xarray and awkward datasets for further analysis and manipulations:
+
+.. code-block:: python
+    # convert the RaggedArray to a xarray dataset
     ds = ra.to_xarray()
     ds
     <xarray.Dataset> Size: 12kB
@@ -323,3 +325,24 @@ how to build ragged array datasets from simulated data:
 
     fig, ax = plt.subplots()
     plot_ragged(ax,ds["x"],ds["y"],ds["rowsize"])
+
+    # or convert the RaggedArray to an awkward array
+    ak = ra.to_awkward()
+    [{rowsize: 100, obs: {time: [...], ...}},
+    {rowsize: 65, obs: {time: [...], id: 1, ...}},
+    {rowsize: 7, obs: {time: [...], id: 2, ...}},
+    {rowsize: 22, obs: {time: [...], id: 3, ...}},
+    {rowsize: 56, obs: {time: [...], id: 4, ...}},
+    {rowsize: 78, obs: {time: [...], id: 5, ...}},
+    {rowsize: 99, obs: {time: [...], id: 6, ...}},
+    {rowsize: 70, obs: {time: [...], id: 7, ...}}]
+    -----------------------------------------------------------------------------------------------------
+    type: 8 * struct[{
+    rowsize: int64[parameters={"attrs": {"long_name": "number of observations in each trajectory"}}],
+    obs: {
+        time: [var * int64, parameters={"attrs": {"long_name": "time"}}],
+        id: int64[parameters={"attrs": {"long_name": "trajectory id"}}],
+        x: [var * float64, parameters={"attrs": {"long_name": "x coordinate"}}],
+        y: [var * float64, parameters={"attrs": {"long_name": "y coordinate"}}]
+    }
+    }, parameters={"attrs": {"title": "An example of synthetic data"}}]
