@@ -301,10 +301,11 @@ how to build ragged array datasets from simulated data:
         coords, metadata, data, attrs_global, attrs_variables, name_dims, coord_dims
     )
 
-Next the ragged array object ``ra`` can be used to generate xarray and awkward datasets for further analysis and manipulations:
+Next the ragged array object ``ra`` can be used to generate xarray and awkward datasets for further analysis and processing:
 
 .. code-block:: python
-    # convert the RaggedArray to a xarray dataset
+
+    # convert to xarray dataset
     ds = ra.to_xarray()
     ds
     <xarray.Dataset> Size: 12kB
@@ -320,14 +321,9 @@ Next the ragged array object ``ra`` can be used to generate xarray and awkward d
     Attributes:
         title:    An example of synthetic data
 
-    # as an example, plot the trajectories thanks to the plotting function provided by clouddrift
-    from clouddrift.plotting import plot_ragged
-
-    fig, ax = plt.subplots()
-    plot_ragged(ax,ds["x"],ds["y"],ds["rowsize"])
-
-    # or convert the RaggedArray to an awkward array
-    ak = ra.to_awkward()
+    # convert to awkward array
+    ds_ak = ra.to_awkward()
+    ds_ak
     [{rowsize: 100, obs: {time: [...], ...}},
     {rowsize: 65, obs: {time: [...], id: 1, ...}},
     {rowsize: 7, obs: {time: [...], id: 2, ...}},
@@ -338,11 +334,11 @@ Next the ragged array object ``ra`` can be used to generate xarray and awkward d
     {rowsize: 70, obs: {time: [...], id: 7, ...}}]
     -----------------------------------------------------------------------------------------------------
     type: 8 * struct[{
-    rowsize: int64[parameters={"attrs": {"long_name": "number of observations in each trajectory"}}],
-    obs: {
-        time: [var * int64, parameters={"attrs": {"long_name": "time"}}],
-        id: int64[parameters={"attrs": {"long_name": "trajectory id"}}],
-        x: [var * float64, parameters={"attrs": {"long_name": "x coordinate"}}],
-        y: [var * float64, parameters={"attrs": {"long_name": "y coordinate"}}]
-    }
+        rowsize: int64[parameters={"attrs": {"long_name": "number of observations in each trajectory"}}],
+        obs: {
+            time: [var * int64, parameters={"attrs": {"long_name": "time"}}],
+            id: int64[parameters={"attrs": {"long_name": "trajectory id"}}],
+            x: [var * float64, parameters={"attrs": {"long_name": "x coordinate"}}],
+            y: [var * float64, parameters={"attrs": {"long_name": "y coordinate"}}]
+        }
     }, parameters={"attrs": {"title": "An example of synthetic data"}}]
