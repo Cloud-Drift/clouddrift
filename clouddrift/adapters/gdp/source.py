@@ -55,7 +55,7 @@ _METADATA_VARS = [
     "death_code",
 ]
 
-var_attrs = {
+VARS_ATTRS: dict = {
     "id": {"long_name": "Global Drifter Program Buoy ID", "units": "-"},
     "rowsize": {
         "long_name": "Number of observations per trajectory",
@@ -66,7 +66,7 @@ var_attrs = {
         "long_name": "World Meteorological Organization buoy identification number",
         "units": "-",
     },
-    "current_program": {
+    "program_number": {
         "long_name": "Current Program",
         "units": "-",
         "_FillValue": "-1",
@@ -77,7 +77,6 @@ var_attrs = {
     },
     "start_date": {
         "long_name": "First good date and time derived by DAC quality control",
-        "units": "seconds since 1970-01-01 00:00:00",
     },
     "start_lon": {
         "long_name": "First good longitude derived by DAC quality control",
@@ -89,7 +88,6 @@ var_attrs = {
     },
     "end_date": {
         "long_name": "Last good date and time derived by DAC quality control",
-        "units": "seconds since 1970-01-01 00:00:00",
     },
     "end_lon": {
         "long_name": "Last good longitude derived by DAC quality control",
@@ -101,7 +99,6 @@ var_attrs = {
     },
     "drogue_off_date": {
         "long_name": "Date and time of drogue loss",
-        "units": "seconds since 1970-01-01 00:00:00",
     },
     "death_code": {
         "long_name": "Type of death",
@@ -125,10 +122,26 @@ var_attrs = {
         "long_name": "Voltage",
         "units": "V",
     },
+    "sensor4": {
+        "long_name": "Sensor 4",
+        "units": "-",
+    },
+    "sensor5": {
+        "long_name": "Sensor 5",
+        "units": "-",
+    },
+    "sensor6": {
+        "long_name": "Sensor 6",
+        "units": "-",
+    },
+    "qualityIndex": {
+        "long_name": "Quality Index",
+        "units": "-",
+    },
 }
 
-attrs = {
-    "title": "Global Drifter Program source (raw) drifter dataset",
+ATTRS = {
+    "title": "Global Drifter Program source drifter dataset",
     "Conventions": "CF-1.6",
     "date_created": datetime.datetime.now().isoformat(),
     "publisher_name": "GDP Drifter DAC",
@@ -402,6 +415,7 @@ async def _parallel_get(
     config: ParsingConfiguration,
     chunk_size: int,
     tmp_path: str,
+    max_chunks: int | None
 ) -> list[xr.Dataset]:
     max_workers = (os.cpu_count() or 0) // 2
     with ProcessPoolExecutor(max_workers=max_workers) as ppe:
@@ -427,7 +441,9 @@ async def _parallel_get(
 
             joblist = list[Future]()
             jobmap = dict[Future, pd.DataFrame]()
-            for _, chunk in enumerate(file_chunks):
+            for idx, chunk in enumerate(file_chunks):
+                if max_chunks is not None and idx >= max_chunks:
+                    break
                 ajob = ppe.submit(
                     _process_chunk,
                     chunk,
@@ -493,6 +509,7 @@ def get_dataset(
     tmp_path: str = _TMP_PATH,
     max: int | None = None,
     chunk_size: int = 100_000,
+    max_chunks: int | None = None
 ) -> xr.Dataset:
     config = ParsingConfiguration(
         cols=[
@@ -562,7 +579,7 @@ def get_dataset(
     gdp_metadata_df = get_gdp_metadata(tmp_path)
 
     drifter_datasets = asyncio.run(
-        _parallel_get(destinations, gdp_metadata_df, config, chunk_size, tmp_path)
+        _parallel_get(destinations, gdp_metadata_df, config, chunk_size, tmp_path, max_chunks)
     )
     obs_ds = xr.concat(
         [ds.drop_dims("traj") for ds in drifter_datasets],
@@ -578,8 +595,8 @@ def get_dataset(
     agg_ds = xr.merge([obs_ds, traj_ds])
 
     for var_name in _DATA_VARS + _METADATA_VARS + list(config.transform.keys()):
-        if var_name in var_attrs.keys():
-            agg_ds[var_name].assign_attrs(**var_attrs[var_name])
-    agg_ds.assign_attrs(attrs)
+        if var_name in VARS_ATTRS.keys():
+            agg_ds[var_name].attrs = VARS_ATTRS[var_name]
+    agg_ds.attrs = ATTRS
 
     return agg_ds
