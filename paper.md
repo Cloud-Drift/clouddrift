@@ -41,20 +41,20 @@ date: 10 April 2024
 bibliography: paper.bib
 
 ---
- 
+
 # Summary
 
 Lagrangian data in Earth sciences are unique because they do not conform to established standards related to dimensions, coordinates, and organizational structures. In addition, because they convolve spatial and temporal information, Lagrangian data need specific processing and analysis tools for their scientific and operational use. The clouddrift Python library addresses these challenges by offering tools to process and analyze Lagrangian data with an emphasis on the ragged array representation.
 
 # Statement of need
 
-In Earth, Ocean, Geo-, and Atmospheric Science, *Eulerian data* typically refers to a type of data acquired or simulated at a particular fixed point or region in space. Eulerian data are defined on fixed spatiotemporal grids with monotonic coordinates (e.g. latitude, longitude, depth, time) for which popular Python tools such as [Xarray](https://docs.xarray.dev/en/stable/) [@Hoyer:2017] are naturally suited. In contrast, *Lagrangian data* are acquired by observing platforms that move with the flow they are embedded in, for example, uncrewed platforms, vehicles, virtual particles, atmospheric phenomena such as tropical cyclones, and even animals that gather data along their natural but complex paths. Because such paths traverse both spatial and temporal dimensions, Lagrangian data often convolve spatial and temporal information that cannot consistently and readily be organized, cataloged, and stored in common data structures and file formats with the help of common libraries and standards. As an example, the concepts of dimensions and coordinates for Lagrangian data are ambiguous and not clearly established. As such, for both data generators and data users, Lagrangian data present challenges that the clouddrift Python library aims to overcome. 
+In Earth, Ocean, Geo-, and Atmospheric Science, *Eulerian data* typically refers to a type of data acquired or simulated at a particular fixed point or region in space. Eulerian data are defined on fixed spatiotemporal grids with monotonic coordinates (e.g. latitude, longitude, depth, time) for which popular Python tools such as [Xarray](https://docs.xarray.dev/en/stable/) [@Hoyer:2017] are naturally suited. In contrast, *Lagrangian data* are acquired by observing platforms that move with the flow they are embedded in, for example, uncrewed platforms, vehicles, virtual particles, atmospheric phenomena such as tropical cyclones, and even animals that gather data along their natural but complex paths. Because such paths traverse both spatial and temporal dimensions, Lagrangian data often convolve spatial and temporal information that cannot consistently and readily be organized, cataloged, and stored in common data structures and file formats with the help of common libraries and standards. As an example, the concepts of dimensions and coordinates for Lagrangian data are ambiguous and not clearly established. As such, for both data generators and data users, Lagrangian data present challenges that the clouddrift Python library aims to overcome.
 
 The clouddrift library is distinct from other tools designed to simulate particle trajectories in oceanic and atmospheric models, such as [OceanParcels](https://oceanparcels.org) [@Delandmeter:2019], or [HYSPLIT](https://www.ready.noaa.gov/HYSPLIT.php) [@Stein:2015]. Unlike these softwares, clouddrift's primary intent is to provide specific tools to analyze data from observational and numerical Lagrangian experiments. The second intent is to transform Lagrangian datasets into analysis-ready cloud-optimized datasets using consistent data structures and methodologies, an objective similar to [Pangeo-Forge](https://pangeo-forge.org) for Earth data [@Stern:2022]. While clouddrift shares some goals with argopy [@Maze:2020], a Python library for accessing and manipulating the Argo dataset (a specific Lagrangian oceanographic dataset), clouddrift aims to be dataset-agnostic and extends beyond just Earth data. Additionally, clouddrift incorporates oceanographic analysis functions from jLab, a Matlab data analysis package [@Lilly:2021], in compliance with its license. Clouddrift core Python dependencies include NumPy [@Harris:2020] and SciPy [@Virtanen:2020] for data analysis, as well as Xarray [@Hoyer:2017], pandas [@reback2020pandas;@mckinney-proc-scipy-2010], and [Awkward Array](https://awkward-array.org/doc/main/index.html) for its data processing and manipulation functions.
 
 # Scope and key features
 
-The scope of the clouddrift library includes: 
+The scope of the clouddrift library includes:
 
 1. **Working with contiguous ragged array representations of data, whether they originate from geosciences or any other field**. Ragged array representations are useful when the data lengths of the instances of a feature (variable) are not all equal. With such representations the data for each feature are stored contiguously in memory, and the number of elements that each feature has is contained in a count variable which clouddrift calls *rowsize*. A graphical representation of the application of the ragged array structure to Lagrangian data is displayed in \autoref{fig:raggedarray}.
 
@@ -85,7 +85,7 @@ from clouddrift.adapters import gdp6h
 ds = gdp6h.to_raggedarray().to_xarray()
 ```
 
-4. **Making cloud-optimized ragged array datasets easily accessible**. This involves opening in a computing environment, without unnecessary download, Lagrangian datasets available from cloud servers, as well as opening Lagrangian datasets that have been seamlessly processed by the clouddrift data *adapters*.    
+4. **Making cloud-optimized ragged array datasets easily accessible**. This involves opening in a computing environment, without unnecessary download, Lagrangian datasets available from cloud servers, as well as opening Lagrangian datasets that have been seamlessly processed by the clouddrift data *adapters*.
 
 *Example:* The following simple command remotely opens without downloading the hourly location, current velocity, and temperature collected from Global Drifter Program drifters worldwide, distributed as a Zarr archive with ragged array representations and stored in cloud storage as part of the [Registry of Open Data on AWS](https://registry.opendata.aws/noaa-oar-hourly-gdp/):
 
@@ -96,6 +96,6 @@ ds = gdp1h()
 
 # Acknowledgements
 
-The development of the clouddrift library is a result of [NSF Award #2126413: *EarthCube Capabilities: CloudDrift: a platform for accelerating research with Lagrangian climate data*](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2126413). SE, PM, MC, and KS have been partially supported by this award. 
+The development of the clouddrift library is a result of [NSF Award #2126413: *EarthCube Capabilities: CloudDrift: a platform for accelerating research with Lagrangian climate data*](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2126413). SE, PM, MC, and KS have been partially supported by this award.
 
 # References
