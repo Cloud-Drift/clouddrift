@@ -62,10 +62,10 @@ Reference
     :hidden:
     :caption: Reference
 
-    Contributing <https://github.com/kevinsantana11/clouddrift/blob/dev-tools/CONTRIBUTING.md>
+    Contributing <https://github.com/Cloud-Drift/clouddrift/blob/main/CONTRIBUTING.md>
     api
 
-.. _contributing: https://github.com/kevinsantana11/clouddrift/blob/dev-tools/CONTRIBUTING.md
+.. _contributing: https://github.com/Cloud-Drift/clouddrift/blob/main/CONTRIBUTING.md
 .. Indices and tables
 .. ==================
 
