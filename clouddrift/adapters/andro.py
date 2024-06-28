@@ -41,7 +41,7 @@ def to_xarray(tmp_path: str | None = None):
 
     # get or update dataset
     local_file = f"{tmp_path}/{ANDRO_URL.split('/')[-1]}"
-    download_with_progress([(ANDRO_URL, local_file, None)])
+    download_with_progress([(ANDRO_URL, local_file)])
 
     # parse with panda
     col_names = [

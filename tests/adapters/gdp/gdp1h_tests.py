@@ -93,7 +93,6 @@ class gdp1h_tests(unittest.TestCase):
                     (
                         f"some-url.com/drifter_hourly_{did}.nc",
                         os.path.join("../some/path", f"drifter_hourly_{did}.nc"),
-                        None,
                     )
                     for did in drifter_ids
                 ]
