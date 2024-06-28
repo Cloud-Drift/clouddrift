@@ -415,7 +415,7 @@ async def _parallel_get(
     config: ParsingConfiguration,
     chunk_size: int,
     tmp_path: str,
-    max_chunks: int | None
+    max_chunks: int | None,
 ) -> list[xr.Dataset]:
     max_workers = (os.cpu_count() or 0) // 2
     with ProcessPoolExecutor(max_workers=max_workers) as ppe:
@@ -509,7 +509,7 @@ def get_dataset(
     tmp_path: str = _TMP_PATH,
     max: int | None = None,
     chunk_size: int = 100_000,
-    max_chunks: int | None = None
+    max_chunks: int | None = None,
 ) -> xr.Dataset:
     config = ParsingConfiguration(
         cols=[
@@ -579,7 +579,9 @@ def get_dataset(
     gdp_metadata_df = get_gdp_metadata(tmp_path)
 
     drifter_datasets = asyncio.run(
-        _parallel_get(destinations, gdp_metadata_df, config, chunk_size, tmp_path, max_chunks)
+        _parallel_get(
+            destinations, gdp_metadata_df, config, chunk_size, tmp_path, max_chunks
+        )
     )
     obs_ds = xr.concat(
         [ds.drop_dims("traj") for ds in drifter_datasets],

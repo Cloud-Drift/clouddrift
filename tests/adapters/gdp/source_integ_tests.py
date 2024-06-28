@@ -16,7 +16,7 @@ class gdp_source_files_integration(unittest.TestCase):
         aggregate dataset is performed in parallel per chunk (default 100_000 rows).
 
         Each chunk will contain a separate dataset per drifter in the chunk. Since two chunks
-        may contain rows for one drifter (chunking can split a drifters trajectory) we join 
+        may contain rows for one drifter (chunking can split a drifters trajectory) we join
         these partitioned segments in parallel per drifter.
         """
         ds = gdp_source.get_dataset(max=1, chunk_size=1_000, max_chunks=100)
@@ -26,7 +26,9 @@ class gdp_source_files_integration(unittest.TestCase):
         for drifter_obs_index in all_drifter_obs_index:
             obs_index_diffs = np.diff(drifter_obs_index, axis=0)
             all_match = np.all(obs_index_diffs == 1)
-            self.assertEqual(all_match.T, True, "obs_index values not monotonically increasing")
+            self.assertEqual(
+                all_match.T, True, "obs_index values not monotonically increasing"
+            )
 
         agg_path = os.path.join(gdp_source._TMP_PATH, "aggregate")
         os.makedirs(agg_path, exist_ok=True)
