@@ -552,7 +552,7 @@ def yomaha(decode_times: bool = True) -> xr.Dataset:
     return _dataset_filecache("yomaha.nc", decode_times, adapters.yomaha.to_xarray)
 
 
-def andro(decode_times: bool = False) -> xr.Dataset:
+def andro(decode_times: bool = True) -> xr.Dataset:
     """Returns the ANDRO as a ragged array Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
