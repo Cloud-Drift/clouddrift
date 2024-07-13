@@ -49,7 +49,12 @@ class datasets_tests(testutils.DisableProgressTestCase):
 
     def test_andro_opens(self):
         with datasets.andro() as ds:
-            self.assertTrue(ds)
+            self.assertTrue(ds is not None)
+            self.assertTrue(len(ds.variables) > 0)
+            self.assertTrue(len(ds["lon_d"]) > 0)
+
+            self.assertTrue(len(ds.lat_d[np.logical_or(ds.lat_d > 90, ds.lat_d < -90)]) == 0)
+            self.assertTrue(len(ds.lat_d[np.logical_or(ds.lon_d > 180, ds.lon_d < -180)]) == 0)
 
     def test_yomaha_opens(self):
         with datasets.yomaha() as ds:
