@@ -212,8 +212,8 @@ class prune_tests(unittest.TestCase):
 
         for data in [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]:
             x_new, rowsize_new = prune(data, rowsize, minimum)
-            self.assertTrue(type(x_new) is np.ndarray)
-            self.assertTrue(type(rowsize_new) is np.ndarray)
+            self.assertTrue(isinstance(x_new, np.ndarray))
+            self.assertTrue(isinstance(rowsize_new, np.ndarray))
             np.testing.assert_equal(x_new, [1, 2, 3, 1, 2, 3, 4])
             np.testing.assert_equal(rowsize_new, [3, 4])
 
@@ -293,7 +293,7 @@ class segment_tests(unittest.TestCase):
     def test_segment(self):
         x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
         tol = 0.5
-        self.assertTrue(type(segment(x, tol)) is np.ndarray)
+        self.assertTrue(isinstance(segment(x, tol), np.ndarray))
         self.assertTrue(np.all(segment(x, tol) == np.array([1, 3, 2, 4, 1])))
         self.assertTrue(np.all(segment(np.array(x), tol) == np.array([1, 3, 2, 4, 1])))
         self.assertTrue(
@@ -317,7 +317,7 @@ class segment_tests(unittest.TestCase):
         tol = 0.5
         rowsize = [6, 5]
         segment_sizes = segment(x, tol, rowsize)
-        self.assertTrue(type(segment_sizes) is np.ndarray)
+        self.assertTrue(isinstance(segment_sizes, np.ndarray))
         self.assertTrue(np.all(segment_sizes == np.array([1, 3, 2, 4, 1])))
 
     def test_segment_positive_and_negative_tolerance(self):
@@ -762,7 +762,7 @@ class unpack_tests(unittest.TestCase):
         lon = unpack(ds.lon, ds["rowsize"])
 
         self.assertTrue(isinstance(lon, list))
-        self.assertTrue(np.all([type(a) is xr.DataArray for a in lon]))
+        self.assertTrue(np.all([isinstance(a, xr.DataArray) for a in lon]))
         self.assertTrue(
             np.all([lon[n].size == ds["rowsize"][n] for n in range(len(lon))])
         )
@@ -771,7 +771,7 @@ class unpack_tests(unittest.TestCase):
         lon = unpack(ds.lon.values, ds["rowsize"])
 
         self.assertTrue(isinstance(lon, list))
-        self.assertTrue(np.all([type(a) is np.ndarray for a in lon]))
+        self.assertTrue(np.all([isinstance(a, np.ndarray) for a in lon]))
         self.assertTrue(
             np.all([lon[n].size == ds["rowsize"][n] for n in range(len(lon))])
         )

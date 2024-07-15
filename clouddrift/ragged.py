@@ -109,7 +109,7 @@ def apply_ragged(
         If empty ``arrays``.
     """
     # make sure the arrays is iterable
-    if type(arrays) not in [list, tuple]:
+    if not isinstance(arrays, (list, tuple)):
         arrays = [arrays]
     # validate rowsize
     for arr in arrays:
@@ -520,10 +520,10 @@ def segment(
     """
 
     # for compatibility with datetime list or np.timedelta64 arrays
-    if type(tolerance) in [np.timedelta64, timedelta]:
+    if isinstance(tolerance, (np.timedelta64, timedelta)):
         tolerance = pd.Timedelta(tolerance)
 
-    if type(tolerance) == pd.Timedelta:
+    if isinstance(tolerance, pd.Timedelta):
         positive_tol = tolerance >= pd.Timedelta("0 seconds")
     else:
         positive_tol = tolerance >= 0
