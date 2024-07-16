@@ -103,19 +103,19 @@ def distance(
     # Input coordinates are in degrees; convert to radians.
     # If any of the input arrays are xr.DataArray, extract the values first
     # because Xarray enforces alignment between coordinates.
-    if type(lat1) is xr.DataArray:
+    if isinstance(lat1, xr.DataArray):
         lat1_rad = np.deg2rad(lat1.values)
     else:
         lat1_rad = np.deg2rad(lat1)
-    if type(lon1) is xr.DataArray:
+    if isinstance(lon1, xr.DataArray):
         lon1_rad = np.deg2rad(lon1.values)
     else:
         lon1_rad = np.deg2rad(lon1)
-    if type(lat2) is xr.DataArray:
+    if isinstance(lat2, xr.DataArray):
         lat2_rad = np.deg2rad(lat2.values)
     else:
         lat2_rad = np.deg2rad(lat2)
-    if type(lon2) is xr.DataArray:
+    if isinstance(lon2, xr.DataArray):
         lon2_rad = np.deg2rad(lon2.values)
     else:
         lon2_rad = np.deg2rad(lon2)
@@ -178,19 +178,19 @@ def bearing(
     # Input coordinates are in degrees; convert to radians.
     # If any of the input arrays are xr.DataArray, extract the values first
     # because Xarray enforces alignment between coordinates.
-    if type(lat1) is xr.DataArray:
+    if isinstance(lat1, xr.DataArray):
         lat1_rad = np.deg2rad(lat1.values)
     else:
         lat1_rad = np.deg2rad(lat1)
-    if type(lon1) is xr.DataArray:
+    if isinstance(lon1, xr.DataArray):
         lon1_rad = np.deg2rad(lon1.values)
     else:
         lon1_rad = np.deg2rad(lon1)
-    if type(lat2) is xr.DataArray:
+    if isinstance(lat2, xr.DataArray):
         lat2_rad = np.deg2rad(lat2.values)
     else:
         lat2_rad = np.deg2rad(lat2)
-    if type(lon2) is xr.DataArray:
+    if isinstance(lon2, xr.DataArray):
         lon2_rad = np.deg2rad(lon2.values)
     else:
         lon2_rad = np.deg2rad(lon2)
