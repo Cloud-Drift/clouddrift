@@ -35,7 +35,8 @@ dependencies = [
     "scipy>=1.11.2",
     "xarray>=2023.5.0",
     "zarr>=2.14.2",
-    "tenacity>=8.2.3"
+    "tenacity>=8.2.3",
+    "fsspec>=2024.3.1"
 ]
 
 [project.optional-dependencies]
