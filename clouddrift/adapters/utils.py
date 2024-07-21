@@ -37,7 +37,13 @@ _logger = logging.getLogger(__name__)
 _standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
     retry=retry_if_exception(
         lambda ex: isinstance(
-            ex, (requests.Timeout, requests.ConnectionError, urllib.error.HTTPError, urllib.error.URLError)
+            ex,
+            (
+                requests.Timeout,
+                requests.ConnectionError,
+                urllib.error.HTTPError,
+                urllib.error.URLError,
+            ),
         )
     ),
     wait=wait_exponential_jitter(
