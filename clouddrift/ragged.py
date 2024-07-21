@@ -523,7 +523,7 @@ def segment(
     if type(tolerance) in [np.timedelta64, timedelta]:
         tolerance = pd.Timedelta(tolerance)
 
-    if type(tolerance) == pd.Timedelta:
+    if isinstance(tolerance, pd.Timedelta):
         positive_tol = tolerance >= pd.Timedelta("0 seconds")
     else:
         positive_tol = tolerance >= 0
