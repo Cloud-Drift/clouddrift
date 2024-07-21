@@ -94,7 +94,7 @@ def download(
                 f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(drifter_urls)} listed trajectories."
             )
         else:
-            rng = np.random.RandomState(42)
+            rng = np.random.Generator(np.random.MT19937(42))
             drifter_urls = list(rng.choice(drifter_urls, n_random_id, replace=False))
 
     download_with_progress(

@@ -103,7 +103,7 @@ def download(
                 f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(filelist)} listed trajectories."
             )
         else:
-            rng = np.random.RandomState(42)
+            rng = np.random.Generator(np.random.MT19937(42))
             filelist = sorted(rng.choice(filelist, n_random_id, replace=False))
 
     download_with_progress(
