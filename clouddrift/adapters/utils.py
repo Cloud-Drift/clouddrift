@@ -24,7 +24,7 @@ _DISABLE_SHOW_PROGRESS = False  # purely to de-noise our test suite output, shou
 def _before_call(rcs: RetryCallState):
     if rcs.attempt_number > 1:
         _logger.warn(
-            f"retrying request for (fn, args): {(rcs.fn.__name__, rcs.args)}, attempt: {rcs.attempt_number}"
+            f"retrying request for (fn, args): {(rcs.fn, rcs.args)}, attempt: {rcs.attempt_number}"
         )
 
 
