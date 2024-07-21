@@ -1,6 +1,9 @@
 import concurrent.futures
 import logging
 import os
+import urllib
+import urllib.error
+import urllib.request
 from datetime import datetime
 from io import BufferedIOBase
 from typing import Callable, Sequence
@@ -34,7 +37,7 @@ _logger = logging.getLogger(__name__)
 _standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
     retry=retry_if_exception(
         lambda ex: isinstance(
-            ex, (requests.Timeout, requests.ConnectionError, requests.HTTPError)
+            ex, (requests.Timeout, requests.ConnectionError, urllib.error.HTTPError, urllib.error.URLError)
         )
     ),
     wait=wait_exponential_jitter(
