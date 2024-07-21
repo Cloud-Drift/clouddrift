@@ -78,7 +78,9 @@ def download(
     drifter_urls: list[str] = []
     added = set()
     for dir in directory_list:
-        urlpath = standard_retry_protocol(lambda: urllib.request.urlopen(f"{url}/{dir}"))()
+        urlpath = standard_retry_protocol(
+            lambda: urllib.request.urlopen(f"{url}/{dir}")
+        )()
         string = urlpath.read().decode("utf-8")
         filelist = list(set(re.compile(pattern).findall(string)))
         for f in filelist:
