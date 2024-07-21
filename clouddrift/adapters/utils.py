@@ -2,8 +2,6 @@ import concurrent.futures
 import logging
 import os
 import urllib
-import urllib.error
-import urllib.request
 from datetime import datetime
 from io import BufferedIOBase
 from typing import Callable, Sequence
