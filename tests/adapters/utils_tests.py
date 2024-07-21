@@ -82,9 +82,7 @@ class utils_tests(unittest.TestCase):
             ]
         ) as _:
             buffer = Mock()
-            utils._download_with_progress(
-                "some.url.com", buffer, 0, False
-            )
+            utils._download_with_progress("some.url.com", buffer, 0, False)
             self.requests_mock.get.assert_called()
 
     def test_progress_mechanism_disabled_files(self):
@@ -168,9 +166,7 @@ class utils_tests(unittest.TestCase):
             ]
         ) as mock:
             buffer = Mock()
-            utils._download_with_progress(
-                "some.url.com", buffer, 0, True
-            )
+            utils._download_with_progress("some.url.com", buffer, 0, True)
             mock[0].assert_called()
             self.bar_mock.update.assert_called()
 
@@ -188,9 +184,7 @@ class utils_tests(unittest.TestCase):
             ]
         ) as mock:
             buffer = Mock()
-            utils._download_with_progress(
-                "some.url.com", buffer, 0, False
-            )
+            utils._download_with_progress("some.url.com", buffer, 0, False)
             mock[0].assert_not_called()
             self.bar_mock.update.assert_not_called()
 

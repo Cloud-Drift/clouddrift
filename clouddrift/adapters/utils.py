@@ -3,7 +3,7 @@ import logging
 import os
 import urllib
 from datetime import datetime
-from io import BufferedIOBase
+from io import BufferedIOBase, BufferedWriter
 from typing import Callable, Sequence
 
 import requests
@@ -30,7 +30,7 @@ def _before_call(rcs: RetryCallState):
         )
 
 
-_CHUNK_SIZE = 1_048_576 # 1MiB
+_CHUNK_SIZE = 1_048_576  # 1MiB
 _logger = logging.getLogger(__name__)
 _standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
     retry=retry_if_exception(
@@ -65,6 +65,7 @@ def download_with_progress(
     else:
         retry_protocol = custom_retry_protocol  # type: ignore
 
+    buffer: BufferedIOBase | BufferedWriter
     executor = concurrent.futures.ThreadPoolExecutor()
     futures: dict[concurrent.futures.Future, tuple[str, BufferedIOBase | str]] = dict()
     bar = None
@@ -125,7 +126,7 @@ def download_with_progress(
 
 def _download_with_progress(
     url: str,
-    output: BufferedIOBase,
+    output: BufferedIOBase | BufferedWriter,
     expected_size: float,
     show_progress: bool,
 ):
