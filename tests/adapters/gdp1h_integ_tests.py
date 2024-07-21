@@ -18,7 +18,17 @@ class gdp1h_integration_tests(testutils.DisableProgressTestCase):
             with self.subTest(
                 f"test downloading and creating ragged array for: ({url})"
             ):
-                ra = gdp1h.to_raggedarray(drifter_ids=[63123, 92905, 101877, 300234060218770, 300234062951460], tmp_path=path, url=url)
+                ra = gdp1h.to_raggedarray(
+                    drifter_ids=[
+                        63123,
+                        92905,
+                        101877,
+                        300234060218770,
+                        300234062951460,
+                    ],
+                    tmp_path=path,
+                    url=url,
+                )
 
                 assert "rowsize" in ra.metadata
                 assert "sst" in ra.data
