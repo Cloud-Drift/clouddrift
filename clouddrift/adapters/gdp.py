@@ -106,9 +106,13 @@ def parse_directory_file(filename: str) -> pd.DataFrame:
         List of drifters from a single directory file as a pandas DataFrame.
     """
     GDP_DIRECTORY_FILE_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/"
-    df = standard_retry_protocol(lambda: pd.read_csv(
-        os.path.join(GDP_DIRECTORY_FILE_URL, filename), delimiter=r"\s+", header=None
-    ))()
+    df = standard_retry_protocol(
+        lambda: pd.read_csv(
+            os.path.join(GDP_DIRECTORY_FILE_URL, filename),
+            delimiter=r"\s+",
+            header=None,
+        )
+    )()
 
     # Combine the date and time columns to easily parse dates below.
     df[4] += " " + df[5]
