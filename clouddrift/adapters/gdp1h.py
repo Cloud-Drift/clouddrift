@@ -139,6 +139,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         fp,
         decode_times=False,
         decode_coords=False,
+        engine = "netcdf4",
     )
 
     # parse the date with custom function
