@@ -28,7 +28,7 @@ import pandas as pd
 import requests
 import xarray as xr
 
-from clouddrift.adapters.utils import download_with_progress
+from clouddrift.adapters.utils import download_with_progress, standard_retry_protocol
 
 MOSAIC_VERSION = "2022"
 
@@ -101,7 +101,7 @@ def get_repository_metadata() -> bytes:
     Pass this string to other get_* functions to extract the data you need.
     """
     url = "https://arcticdata.io/metacat/d1/mn/v2/object/doi:10.18739/A2KP7TS83"
-    r = requests.get(url)
+    r = standard_retry_protocol(lambda: requests.get(url))()
     return r.content
 
 

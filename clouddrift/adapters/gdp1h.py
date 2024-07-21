@@ -17,7 +17,7 @@ import numpy as np
 import xarray as xr
 
 import clouddrift.adapters.gdp as gdp
-from clouddrift.adapters.utils import download_with_progress
+from clouddrift.adapters.utils import download_with_progress, standard_retry_protocol
 from clouddrift.raggedarray import RaggedArray
 
 GDP_VERSION = "2.01"
@@ -89,7 +89,7 @@ def download(
 
     # retrieve all drifter ID numbers
     if drifter_ids is None:
-        urlpath = urllib.request.urlopen(url)
+        urlpath = standard_retry_protocol(lambda: urllib.request.urlopen(url))()
         string = urlpath.read().decode("utf-8")
         filelist: Sequence[str] = re.compile(pattern).findall(string)  # noqa: F821
     else:

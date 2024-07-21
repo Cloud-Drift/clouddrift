@@ -32,7 +32,8 @@ def _before_call(rcs: RetryCallState):
 
 _CHUNK_SIZE = 1_048_576  # 1MiB
 _logger = logging.getLogger(__name__)
-_standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
+
+standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
     retry=retry_if_exception(
         lambda ex: isinstance(
             ex,
@@ -61,7 +62,7 @@ def download_with_progress(
     if show_list_progress is None:
         show_list_progress = len(download_map) > 20
     if custom_retry_protocol is None:
-        retry_protocol = _standard_retry_protocol
+        retry_protocol = standard_retry_protocol
     else:
         retry_protocol = custom_retry_protocol  # type: ignore
 
