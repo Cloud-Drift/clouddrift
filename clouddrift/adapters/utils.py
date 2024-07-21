@@ -30,7 +30,7 @@ def _before_call(rcs: RetryCallState):
         )
 
 
-_CHUNK_SIZE = 1024
+_CHUNK_SIZE = 1_048_576 # 1MiB
 _logger = logging.getLogger(__name__)
 _standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
     retry=retry_if_exception(
@@ -70,11 +70,16 @@ def download_with_progress(
     bar = None
 
     for src, dst, exp_size in download_map:
+        if isinstance(dst, (str,)):
+            buffer = open(dst, "wb")
+        else:
+            buffer = dst
+
         futures[
             executor.submit(
                 retry_protocol(_download_with_progress),
                 src,
-                dst,
+                buffer,
                 exp_size or 0,
                 not show_list_progress,
             )
@@ -104,10 +109,13 @@ def download_with_progress(
         )
         for x in futures.keys():
             (src, dst) = futures[x]
-            if isinstance(dst, (str,)) and os.path.exists(dst) and not x.done():
-                os.remove(dst)
             if not x.done():
                 x.cancel()
+
+            if isinstance(dst, (str,)) and os.path.exists(dst):
+                os.remove(dst)
+            elif isinstance(dst, (BufferedIOBase,)):
+                dst.close()
         raise e
     finally:
         executor.shutdown(True)
@@ -117,7 +125,7 @@ def download_with_progress(
 
 def _download_with_progress(
     url: str,
-    output: BufferedIOBase | str,
+    output: BufferedIOBase,
     expected_size: float,
     show_progress: bool,
 ):
@@ -144,18 +152,11 @@ def _download_with_progress(
                 )
     _logger.debug(f"Downloading from {url} to {output}...")
 
-    force_close = False
     response: Response | None = None
-    buffer: BufferedIOBase | None = None
     bar = None
 
     try:
         response = requests.get(url, timeout=5, stream=True)
-
-        if isinstance(output, str):
-            buffer = open(output, "wb")
-        else:
-            buffer = output
 
         if show_progress:
             bar = tqdm(
@@ -171,22 +172,12 @@ def _download_with_progress(
         for chunk in response.iter_content(_CHUNK_SIZE):
             if not chunk:
                 break
-            buffer.write(chunk)
+            output.write(chunk)
             if bar is not None:
                 bar.update(len(chunk))
-    except Exception as e:
-        force_close = True
-        error_msg = f"Error downloading data file: {url} to: {output}, error: {e}"
-        _logger.debug(error_msg)
-        raise e
     finally:
         if response is not None:
             response.close()
-        if buffer is not None and (
-            not isinstance(output, BufferedIOBase) or force_close
-        ):
-            _logger.debug(f"closing buffer {buffer}")
-            buffer.close()
         if bar is not None:
             bar.close()
 
