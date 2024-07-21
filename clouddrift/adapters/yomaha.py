@@ -62,10 +62,7 @@ def download(tmp_path: str):
             f"decompressing {filename_gz} into {decompressed_fp}. Original Size: {sys.getsizeof(buffer)}"
         )
         buffer.seek(0)
-        data = buffer.read()
-        while data:
-            file.write(gzip.decompress(data))
-            data = buffer.read()
+        file.write(gzip.decompress(buffer.getbuffer()))
         _logger.debug(f"Decompressed size of {filename_gz}: {sys.getsizeof(file)}")
         buffer.close()
 
