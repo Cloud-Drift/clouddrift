@@ -238,8 +238,8 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         ("traj"),
         gdp.cut_str(ds.attrs.get("PurchaserFunding", ""), 20),
     )
-    ds["SensorUpgrade"] = (("traj"), gdp.cut_str(ds.attrs.get(".SensorUpgrade"), 20))
-    ds["Transmissions"] = (("traj"), gdp.cut_str(ds.attrs.get("Transmissions"), 20))
+    ds["SensorUpgrade"] = (("traj"), gdp.cut_str(ds.attrs.get("SensorUpgrade", ""), 20))
+    ds["Transmissions"] = (("traj"), gdp.cut_str(ds.attrs.get("Transmissions", ""), 20))
     ds["DeployingCountry"] = (
         ("traj"),
         gdp.cut_str(ds.attrs.get("DeployingCountry", ""), 20),
