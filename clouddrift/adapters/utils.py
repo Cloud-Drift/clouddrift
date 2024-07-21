@@ -33,7 +33,9 @@ _CHUNK_SIZE = 1024
 _logger = logging.getLogger(__name__)
 _standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
     retry=retry_if_exception(
-        lambda ex: isinstance(ex, (requests.Timeout, requests.ConnectionError, requests.HTTPError))
+        lambda ex: isinstance(
+            ex, (requests.Timeout, requests.ConnectionError, requests.HTTPError)
+        )
     ),
     wait=wait_exponential_jitter(
         initial=1.25
