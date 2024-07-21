@@ -61,8 +61,9 @@ Common emojis to use are as follow:
 ❗ Deprecation of a feature
 ⛔ Removal of feature
 🐛 Bugfix
+🧹 Chore / refactoring / migration / dependency deprecation related
 ⚡ Performance/memory improvements
-🔍 Documentation, refactoring
+🔍 Documentation
 🔧 Tooling/Build scripts/CI (other non-application changes)
 ```
 
