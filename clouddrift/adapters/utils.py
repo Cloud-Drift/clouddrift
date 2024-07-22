@@ -44,8 +44,7 @@ standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
         )
     ),
     wait=wait_exponential_jitter(
-        initial=1.25,
-        jitter=10
+        initial=1.25, jitter=10
     ),  # ~ 20-25 minutes total time before completely failing
     stop=stop_after_attempt(10),
     before=_before_call,
