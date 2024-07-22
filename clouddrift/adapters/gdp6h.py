@@ -78,10 +78,10 @@ def download(
     drifter_urls: list[str] = []
     added = set()
     for dir in directory_list:
-        urlpath = standard_retry_protocol(
-            lambda: urllib.request.urlopen(f"{url}/{dir}")
+        dirdata = standard_retry_protocol(
+            lambda: urllib.request.urlopen(f"{url}/{dir}").read()
         )()
-        string = urlpath.read().decode("utf-8")
+        string = dirdata.decode("utf-8")
         filelist = list(set(re.compile(pattern).findall(string)))
         for f in filelist:
             did = int(f.split("_")[2].removesuffix(".nc"))
