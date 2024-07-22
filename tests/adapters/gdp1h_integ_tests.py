@@ -18,7 +18,17 @@ class gdp1h_integration_tests(testutils.DisableProgressTestCase):
             with self.subTest(
                 f"test downloading and creating ragged array for: ({url})"
             ):
-                ra = gdp1h.to_raggedarray(n_random_id=5, tmp_path=path, url=url)
+                ra = gdp1h.to_raggedarray(
+                    drifter_ids=[
+                        63123,
+                        92905,
+                        101877,
+                        300234060218770,
+                        300234062951460,
+                    ],
+                    tmp_path=path,
+                    url=url,
+                )
 
                 assert "rowsize" in ra.metadata
                 assert "sst" in ra.data
@@ -29,6 +39,7 @@ class gdp1h_integration_tests(testutils.DisableProgressTestCase):
                 assert len(ra.data["ve"]) == len(ra.coords["time"])
                 assert len(ra.data["sst"]) == len(ra.coords["time"])
                 assert len(ra.metadata["rowsize"]) == len(ra.coords["id"])
+                self.assertTrue(np.any(~ra.metadata["location_type"]))
 
                 agg_path = os.path.join(gdp1h.GDP_TMP_PATH, "aggregate")
                 os.makedirs(agg_path, exist_ok=True)
