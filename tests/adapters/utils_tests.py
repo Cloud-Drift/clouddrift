@@ -81,9 +81,8 @@ class utils_tests(unittest.TestCase):
                 ),
             ]
         ) as _:
-            utils._download_with_progress(
-                "some.url.com", "./some/path/existing-file.nc", 0, False
-            )
+            buffer = Mock()
+            utils._download_with_progress("some.url.com", buffer, 0, False)
             self.requests_mock.get.assert_called()
 
     def test_progress_mechanism_disabled_files(self):
@@ -166,9 +165,8 @@ class utils_tests(unittest.TestCase):
                 patch("clouddrift.adapters.utils.requests", self.requests_mock),
             ]
         ) as mock:
-            utils._download_with_progress(
-                "some.url.com", "./some/path/existing-file.nc", 0, True
-            )
+            buffer = Mock()
+            utils._download_with_progress("some.url.com", buffer, 0, True)
             mock[0].assert_called()
             self.bar_mock.update.assert_called()
 
@@ -185,9 +183,8 @@ class utils_tests(unittest.TestCase):
                 patch("clouddrift.adapters.utils.requests", self.requests_mock),
             ]
         ) as mock:
-            utils._download_with_progress(
-                "some.url.com", "./some/path/existing-file.nc", 0, False
-            )
+            buffer = Mock()
+            utils._download_with_progress("some.url.com", buffer, 0, False)
             mock[0].assert_not_called()
             self.bar_mock.update.assert_not_called()
 
@@ -235,7 +232,7 @@ class utils_tests(unittest.TestCase):
             )
             assert tpe_mock.submit.call_count == len(mocked_futures)
             assert self.bar_mock.update.call_count == 2
-            assert os_mock.remove.call_count == len(mocked_futures) - 1
+            assert os_mock.remove.call_count == len(mocked_futures)
             tpe_mock.shutdown.assert_called_once()
             [fut_mock.cancel.assert_called_once() for fut_mock in mocked_futures[:-1]]
             mocked_futures[-1].cancel.assert_not_called()

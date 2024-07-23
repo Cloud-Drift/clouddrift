@@ -15,7 +15,7 @@ import numpy as np
 import xarray as xr
 
 import clouddrift.adapters.gdp as gdp
-from clouddrift.adapters.utils import download_with_progress
+from clouddrift.adapters.utils import download_with_progress, standard_retry_protocol
 from clouddrift.raggedarray import RaggedArray
 
 GDP_VERSION = "September 2023"
@@ -78,8 +78,10 @@ def download(
     drifter_urls: list[str] = []
     added = set()
     for dir in directory_list:
-        urlpath = urllib.request.urlopen(f"{url}/{dir}")
-        string = urlpath.read().decode("utf-8")
+        dirdata = standard_retry_protocol(
+            lambda: urllib.request.urlopen(f"{url}/{dir}").read()
+        )()
+        string = dirdata.decode("utf-8")
         filelist = list(set(re.compile(pattern).findall(string)))
         for f in filelist:
             did = int(f.split("_")[2].removesuffix(".nc"))

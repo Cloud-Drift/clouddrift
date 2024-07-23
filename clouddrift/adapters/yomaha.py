@@ -19,7 +19,7 @@ Lebedev, K. V., Yoshinari, H., Maximenko, N. A., & Hacker, P. W. (2007). Velocit
 import gzip
 import logging
 import os
-import sys
+import shutil
 import tempfile
 import warnings
 from datetime import datetime
@@ -57,17 +57,11 @@ def download(tmp_path: str):
     download_with_progress([(YOMAHA_URLS[-1], buffer, None)])
 
     decompressed_fp = os.path.join(tmp_path, filename)
-    with open(decompressed_fp, "wb") as file:
-        _logger.debug(
-            f"decompressing {filename_gz} into {decompressed_fp}. Original Size: {sys.getsizeof(buffer)}"
-        )
-        buffer.seek(0)
-        data = buffer.read()
-        while data:
-            file.write(gzip.decompress(data))
-            data = buffer.read()
-        _logger.debug(f"Decompressed size of {filename_gz}: {sys.getsizeof(file)}")
-        buffer.close()
+    with (
+        open(decompressed_fp, "wb") as file,
+        gzip.open(buffer, "rb") as compressed_file,
+    ):
+        shutil.copyfileobj(compressed_file, file)
 
 
 def to_xarray(tmp_path: str | None = None):
