@@ -11,14 +11,14 @@ from clouddrift.kinematics import velocity_from_position
 from clouddrift.ragged import (
     apply_ragged,
     chunk,
+    index_to_row,
     prune,
     ragged_to_regular,
     regular_to_ragged,
+    rowsize_to_rowvector,
     segment,
     subset,
     unpack,
-    rowsize_to_rowvector,
-    index_to_row,
 )
 from clouddrift.raggedarray import RaggedArray
 
