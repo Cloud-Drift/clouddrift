@@ -825,12 +825,12 @@ class rowsize_to_rowvector_tests(unittest.TestCase):
     def test_rowsize_to_rowvector_zero(self):
         rowsize = [2, 3, 0, 4]
         with self.assertRaises(ValueError):
-            rowvector = rowsize_to_rowvector(rowsize)
+            rowsize_to_rowvector(rowsize)
 
     def test_rowsize_to_rowvector_negative(self):
         rowsize = [2, 3, -1, 4]
         with self.assertRaises(ValueError):
-            rowvector = rowsize_to_rowvector(rowsize)
+            rowsize_to_rowvector(rowsize)
 
     def test_rowsize_to_rowvector_array_like(self):
         rowsize = np.array([2, 3, 4])
