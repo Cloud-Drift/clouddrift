@@ -15,7 +15,6 @@ from clouddrift.ragged import (
     prune,
     ragged_to_regular,
     regular_to_ragged,
-    rowsize_to_rowvector,
     segment,
     subset,
     unpack,
