@@ -911,27 +911,33 @@ def index_to_row(
     To obtain the row index of observation 5 within a ragged array of three consecutive
     rows of sizes 2, 4, and 3:
     >>> index_to_row(5, [2, 4, 3])
-    1
+    [1]
 
     To obtain the row indices of observations 0, 2, and 4 within a ragged array of three consecutive
     rows of sizes 2, 4, and 3:
     >>> index_to_row([0, 2, 4], [2, 4, 3])
-    [0, 1, 2]
+    [0, 1, 1]
 
     """
     # if index is an integer, convert it to a list
-    if isinstance(index, int):
+    if isinstance(index, int) | isinstance(index, float):
         index_list = [index]
     else:
         index_list = index
 
-    # if index is not a list of integers, raise an error
-    if not all(isinstance(i, int) for i in index_list):
+    # if index is not a list of integers or integer-likes, raise an error
+    if not all(
+        isinstance(i, int) or (isinstance(i, float) and i % 1 == 0) for i in index_list
+    ):
         raise ValueError("The index must be an integer or a list of integers.")
 
-    rowvector_flattened = rowsize_to_rowvector(rowsize)
+    rowsize_index = rowsize_to_index(rowsize)
 
-    return [rowvector_flattened[i] for i in index_list]
+    # test that no index is out of bounds
+    if any((i < rowsize_index[0]) | (i >= rowsize_index[-1]) for i in index_list):
+        raise ValueError("Input index out of bounds based on input rowsize")
+
+    return (np.searchsorted(rowsize_index, index_list, side="right") - 1).tolist()
 
 
 def _mask_var(

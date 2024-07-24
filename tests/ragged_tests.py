@@ -854,3 +854,21 @@ class index_to_row_tests(unittest.TestCase):
         index = list(range(10))
         row = index_to_row(index, rowsize)
         self.assertTrue(np.all(row == np.array([0, 0, 1, 1, 1, 1, 1, 2, 2, 2])))
+
+    def test_index_to_row_integer(self):
+        rowsize = [2, 5, 3]
+        index = 1.2
+        with self.assertRaises(ValueError):
+            index_to_row(index, rowsize)
+
+    def test_index_to_row_out_of_bounds(self):
+        rowsize = [2, 5, 3]
+        index = 10
+        with self.assertRaises(ValueError):
+            index_to_row(index, rowsize)
+
+    def test_index_to_row_negative(self):
+        rowsize = [2, 5, 3]
+        index = -1
+        with self.assertRaises(ValueError):
+            index_to_row(index, rowsize)
