@@ -17,6 +17,8 @@ from clouddrift.ragged import (
     segment,
     subset,
     unpack,
+    rowsize_to_rowvector,
+    index_to_row,
 )
 from clouddrift.raggedarray import RaggedArray
 
@@ -807,3 +809,48 @@ class unpack_tests(unittest.TestCase):
                 for a, b in zip(unpack(x, rowsize, np.int64(0)), unpack(x, rowsize)[:1])
             )
         )
+
+
+class rowsize_to_rowvector_tests(unittest.TestCase):
+    def test_rowsize_to_rowvector(self):
+        rowsize = [2, 3, 4]
+        rowvector = rowsize_to_rowvector(rowsize)
+        self.assertTrue(np.all(rowvector == np.array([0, 0, 1, 1, 1, 2, 2, 2, 2])))
+
+    def test_rowsize_to_rowvector_empty(self):
+        rowsize = []
+        rowvector = rowsize_to_rowvector(rowsize)
+        self.assertTrue(rowvector == [])
+
+    def test_rowsize_to_rowvector_zero(self):
+        rowsize = [2, 3, 0, 4]
+        with self.assertRaises(ValueError):
+            rowvector = rowsize_to_rowvector(rowsize)
+
+    def test_rowsize_to_rowvector_negative(self):
+        rowsize = [2, 3, -1, 4]
+        with self.assertRaises(ValueError):
+            rowvector = rowsize_to_rowvector(rowsize)
+
+    def test_rowsize_to_rowvector_array_like(self):
+        rowsize = np.array([2, 3, 4])
+        rowvector = rowsize_to_rowvector(rowsize)
+        self.assertTrue(np.all(rowvector == np.array([0, 0, 1, 1, 1, 2, 2, 2, 2])))
+
+        rowsize = xr.DataArray(data=[2, 3, 4])
+        rowvector = rowsize_to_rowvector(rowsize)
+        self.assertTrue(np.all(rowvector == np.array([0, 0, 1, 1, 1, 2, 2, 2, 2])))
+
+
+class index_to_row_tests(unittest.TestCase):
+    def test_index_to_row(self):
+        rowsize = [2, 5, 3]
+        index = list(range(10))
+        row = index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == [0, 0, 1, 1, 1, 1, 1, 2, 2, 2]))
+
+    def test_index_to_row_array_like(self):
+        rowsize = xr.DataArray(data=[2, 5, 3])
+        index = list(range(10))
+        row = index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == np.array([0, 0, 1, 1, 1, 1, 1, 2, 2, 2])))
