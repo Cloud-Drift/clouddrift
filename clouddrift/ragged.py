@@ -854,40 +854,6 @@ def unpack(
     return [unpacked[i] for i in rows]
 
 
-def rowsize_to_rowvector(
-    rowsize: list[int] | np.ndarray | xr.DataArray,
-) -> list:
-    """Obtain a list of repeated row indices from a list of row sizes of a ragged array.
-
-    Parameters
-    ----------
-    rowsize : list or np.ndarray or xr.DataArray
-        A sequence of row sizes greater than zero.
-
-    Returns
-    -------
-    list
-        A list of repeated row indices.
-
-    Examples
-    --------
-    To obtain the repeated row indices within a ragged array of three consecutive rows of sizes 2, 4, and 3:
-    >>> rowsize_to_rowvector([2, 4, 3])
-    [0, 0, 1, 1, 1, 1, 2, 2, 2]
-    """
-    # test is there is any zero or negative rowsizes
-    if any(i <= 0 for i in rowsize):
-        raise ValueError("The row sizes must be greater than zero.")
-
-    if isinstance(rowsize, xr.DataArray):
-        rowsize = rowsize.values
-
-    rowvector = [[i] * rowsize[i] for i in range(len(rowsize))]
-    rowvector_flattened = [item for sublist in rowvector for item in sublist]
-
-    return rowvector_flattened
-
-
 def index_to_row(
     index: int | list[int],
     rowsize: list[int] | np.ndarray | xr.DataArray,
