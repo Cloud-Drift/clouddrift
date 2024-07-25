@@ -13,7 +13,10 @@ coverage:
       default:
         threshold: 10%
 
-comment: off
+comment:
+  require_changes: true
+  layout: "condensed_header, condensed_files, condensed_footer"
+  hide_project_coverage: TRUE
 
 # which folders/files to ignore
 ignore:
