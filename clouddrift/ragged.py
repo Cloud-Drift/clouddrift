@@ -855,14 +855,14 @@ def unpack(
 
 
 def index_to_row(
-    index: int | list[int],
+    index: int | list[int] | np.ndarray,
     rowsize: list[int] | np.ndarray | xr.DataArray,
 ) -> list:
     """Obtain a list of row indices from a list of observation indices of a ragged array.
 
     Parameters
     ----------
-    index : int or list
+    index : int or list or np.ndarray
         A integer observation index or a list of observation indices of a ragged array.
     rowsize : list or np.ndarray or xr.DataArray
         A sequence of row sizes of a ragged array.
@@ -900,7 +900,7 @@ def index_to_row(
     rowsize_index = rowsize_to_index(rowsize)
 
     # test that no index is out of bounds
-    if any((i < rowsize_index[0]) | (i >= rowsize_index[-1]) for i in index_list):
+    if any([(i < rowsize_index[0]) | (i >= rowsize_index[-1]) for i in index_list]):
         raise ValueError("Input index out of bounds based on input rowsize")
 
     return (np.searchsorted(rowsize_index, index_list, side="right") - 1).tolist()
