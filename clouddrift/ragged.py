@@ -855,7 +855,7 @@ def unpack(
 
 
 def obs_index_to_row(
-    index: int | list[int] | np.ndarray,
+    index: int | list[int] | np.ndarray | xr.DataArray,
     rowsize: list[int] | np.ndarray | xr.DataArray,
 ) -> list:
     """Obtain a list of row indices from a list of observation indices of a ragged array.
