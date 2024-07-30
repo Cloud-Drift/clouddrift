@@ -885,15 +885,19 @@ def index_to_row(
     [0, 1, 1]
 
     """
-    # if index is an integer, convert it to a list
-    if isinstance(index, int) | isinstance(index, float):
+    # convert index to list if it is not
+    if isinstance(index, xr.DataArray):
+        index_list = [int(i) for i in index.values]
+    elif isinstance(index, np.ndarray):
+        index_list = [int(i) for i in index]
+    elif isinstance(index, int):
         index_list = [index]
     else:
         index_list = index
 
     # if index is not a list of integers or integer-likes, raise an error
     if not all(
-        isinstance(i, int) or (isinstance(i, float) and i % 1 == 0) for i in index_list
+        isinstance(i, int) for i in index_list
     ):
         raise ValueError("The index must be an integer or a list of integers.")
 
