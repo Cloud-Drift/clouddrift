@@ -854,7 +854,7 @@ def unpack(
     return [unpacked[i] for i in rows]
 
 
-def index_to_row(
+def obs_index_to_row(
     index: int | list[int] | np.ndarray,
     rowsize: list[int] | np.ndarray | xr.DataArray,
 ) -> list:
@@ -876,12 +876,12 @@ def index_to_row(
     --------
     To obtain the row index of observation 5 within a ragged array of three consecutive
     rows of sizes 2, 4, and 3:
-    >>> index_to_row(5, [2, 4, 3])
+    >>> obs_index_to_row(5, [2, 4, 3])
     [1]
 
     To obtain the row indices of observations 0, 2, and 4 within a ragged array of three consecutive
     rows of sizes 2, 4, and 3:
-    >>> index_to_row([0, 2, 4], [2, 4, 3])
+    >>> obs_index_to_row([0, 2, 4], [2, 4, 3])
     [0, 1, 1]
 
     """
