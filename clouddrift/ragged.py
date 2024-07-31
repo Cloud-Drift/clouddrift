@@ -896,9 +896,7 @@ def obs_index_to_row(
         index_list = index
 
     # if index is not a list of integers or integer-likes, raise an error
-    if not all(
-        isinstance(i, int) for i in index_list
-    ):
+    if not all(isinstance(i, int) for i in index_list):
         raise ValueError("The index must be an integer or a list of integers.")
 
     rowsize_index = rowsize_to_index(rowsize)
