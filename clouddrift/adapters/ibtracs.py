@@ -8,11 +8,11 @@ import xarray as xr
 from clouddrift.adapters.utils import download_with_progress
 from clouddrift.raggedarray import RaggedArray
 
+_DEFAULT_FILE_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "ibtracs")
+
 _SOURCE_BASE_URI = "https://www.ncei.noaa.gov/data/international-best-track-archive-for-climate-stewardship-ibtracs"
 
 _SOURCE_URL_FMT = "{base_uri}/{version}/access/netcdf/IBTrACS.{kind}.{version}.nc"
-
-_DEFAULT_FILE_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "ibtracs")
 
 _Version: TypeAlias = Literal["v03r09"] | Literal["v04r00"] | Literal["v04r01"]
 
@@ -37,35 +37,32 @@ def _rowsize(idx: int, **kwargs):
         raise ValueError("kwargs dataset missing")
     return len(ds.isel(storm=idx)["time"].data)
 
+
 def _preprocess(idx: int, **kwargs):
     ds: xr.Dataset | None = kwargs.get("dataset")
     data_vars: list[str] | None = kwargs.get("data_vars")
     md_vars: list[str] | None = kwargs.get("md_vars")
-    ds = ds.isel(storm=idx)
 
-    if any([ds is None, data_vars is None, md_vars is None]):
+    if ds is not None and data_vars is not None and md_vars is not None:
+        ds = ds.isel(storm=idx)
+        vars = dict()
+
+        for var in data_vars + list(ds.coords):
+            if var != "time":
+                vars.update({var: (ds[var].dims, ds[var].data)})
+
+        for var in md_vars:
+            vars.update({var: (("storm",), np.array([ds[var].data]))})
+
+        return xr.Dataset(
+            vars,
+            {
+                "id": (("storm",), np.array([idx])),
+                "time": (("date_time",), np.array(ds["time"].data)),
+            },
+        )
+    else:
         raise ValueError("kwargs dataset, data vars and md_vars missing")
-
-    vars = dict()
-
-    for var in data_vars + list(ds.coords):
-        if var != "time":
-            vars.update({
-                var: (ds[var].dims, ds[var].data)
-            })
-
-    for var in md_vars:
-            vars.update({
-                var: (("storm",), np.array([ds[var].data]))
-            })
-
-    return xr.Dataset(vars, {
-        "id": (("storm",), np.array([idx])),
-        "time": (
-            ("date_time"),
-            np.array(ds["time"].data)
-        ),
-    })
 
 
 def _kind_map(kind: _Kind):
@@ -116,11 +113,10 @@ def to_raggedarray(
         preprocess_func=_preprocess,
         attrs_global=ds.attrs,
         attrs_variables={
-            var_name: ds[var_name].attrs
-            for var_name in data_vars + md_vars
+            var_name: ds[var_name].attrs for var_name in data_vars + md_vars
         },
         dataset=ds,
         data_vars=data_vars,
-        md_vars=md_vars
+        md_vars=md_vars,
     )
     return ra.to_xarray()
