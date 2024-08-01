@@ -11,6 +11,7 @@ from clouddrift.kinematics import velocity_from_position
 from clouddrift.ragged import (
     apply_ragged,
     chunk,
+    obs_index_to_row,
     prune,
     ragged_to_regular,
     regular_to_ragged,
@@ -807,3 +808,59 @@ class unpack_tests(unittest.TestCase):
                 for a, b in zip(unpack(x, rowsize, np.int64(0)), unpack(x, rowsize)[:1])
             )
         )
+
+
+class obs_index_to_row_tests(unittest.TestCase):
+    def test_obs_index_to_row(self):
+        index = list(range(10))
+        rowsize = [2, 5, 3]
+        row = obs_index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == [0, 0, 1, 1, 1, 1, 1, 2, 2, 2]))
+
+    def test_obs_index_to_row_array_like_rowsize(self):
+        index = list(range(10))
+        rowsize = xr.DataArray(data=[2, 5, 3])
+        row = obs_index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == np.array([0, 0, 1, 1, 1, 1, 1, 2, 2, 2])))
+
+    def test_obs_index_to_row_array_rowsize(self):
+        index = list(range(10))
+        rowsize = np.array([2, 5, 3])
+        row = obs_index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == np.array([0, 0, 1, 1, 1, 1, 1, 2, 2, 2])))
+
+    def test_obs_index_to_row_array_like_index(self):
+        index = xr.DataArray(data=list(range(10)))
+        rowsize = [2, 5, 3]
+        row = obs_index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == np.array([0, 0, 1, 1, 1, 1, 1, 2, 2, 2])))
+
+    def test_obs_index_to_row_array_index(self):
+        index = np.array(range(10))
+        rowsize = [2, 5, 3]
+        row = obs_index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == np.array([0, 0, 1, 1, 1, 1, 1, 2, 2, 2])))
+
+    def test_obs_index_to_row_array_like(self):
+        index = xr.DataArray(data=list(range(10)))
+        rowsize = xr.DataArray(data=[2, 5, 3])
+        row = obs_index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == np.array([0, 0, 1, 1, 1, 1, 1, 2, 2, 2])))
+
+    def test_obs_index_to_row_array(self):
+        index = np.array(range(10))
+        rowsize = np.array([2, 5, 3])
+        row = obs_index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == np.array([0, 0, 1, 1, 1, 1, 1, 2, 2, 2])))
+
+    def test_obs_index_to_row_out_of_bounds(self):
+        index = 10
+        rowsize = [2, 5, 3]
+        with self.assertRaises(ValueError):
+            obs_index_to_row(index, rowsize)
+
+    def test_obs_index_to_row_negative(self):
+        index = -1
+        rowsize = [2, 5, 3]
+        with self.assertRaises(ValueError):
+            obs_index_to_row(index, rowsize)

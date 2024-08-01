@@ -854,6 +854,60 @@ def unpack(
     return [unpacked[i] for i in rows]
 
 
+def obs_index_to_row(
+    index: int | list[int] | np.ndarray | xr.DataArray,
+    rowsize: list[int] | np.ndarray | xr.DataArray,
+) -> list:
+    """Obtain a list of row indices from a list of observation indices of a ragged array.
+
+    Parameters
+    ----------
+    index : int or list or np.ndarray
+        A integer observation index or a list of observation indices of a ragged array.
+    rowsize : list or np.ndarray or xr.DataArray
+        A sequence of row sizes of a ragged array.
+
+    Returns
+    -------
+    list
+        A list of row indices.
+
+    Examples
+    --------
+    To obtain the row index of observation 5 within a ragged array of three consecutive
+    rows of sizes 2, 4, and 3:
+    >>> obs_index_to_row(5, [2, 4, 3])
+    [1]
+
+    To obtain the row indices of observations 0, 2, and 4 within a ragged array of three consecutive
+    rows of sizes 2, 4, and 3:
+    >>> obs_index_to_row([0, 2, 4], [2, 4, 3])
+    [0, 1, 1]
+
+    """
+    # convert index to list if it is not
+    if isinstance(index, xr.DataArray):
+        index_list = [int(i) for i in index.values]
+    elif isinstance(index, np.ndarray):
+        index_list = [int(i) for i in index]
+    elif isinstance(index, int):
+        index_list = [index]
+    else:
+        index_list = index
+
+    # if index is not a list of integers or integer-likes, raise an error
+    if not all(isinstance(i, int) for i in index_list):
+        raise ValueError("The index must be an integer or a list of integers.")
+
+    rowsize_index = rowsize_to_index(rowsize)
+
+    # test that no index is out of bounds
+    if any([(i < rowsize_index[0]) | (i >= rowsize_index[-1]) for i in index_list]):
+        raise ValueError("Input index out of bounds based on input rowsize")
+
+    return (np.searchsorted(rowsize_index, index_list, side="right") - 1).tolist()
+
+
 def _mask_var(
     var: xr.DataArray | list[xr.DataArray],
     criterion: tuple | list | np.ndarray | xr.DataArray | bool | float | int | Callable,
