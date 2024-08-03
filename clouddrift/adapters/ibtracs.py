@@ -108,7 +108,7 @@ def to_raggedarray(
         name_coords=["id", "time"],
         name_meta=md_vars,
         name_data=data_vars,
-        name_dims={"storm": "rows", "date_time": "obs"},
+        name_dims={"storm": "rows", "obs": "obs"},
         rowsize_func=_rowsize,
         preprocess_func=_preprocess,
         attrs_global=ds.attrs,
