@@ -22,8 +22,8 @@ def chance_pair(
     lat2: array_like,
     time1: array_like | None = None,
     time2: array_like | None = None,
-    space_distance: float | None = 0,
-    time_distance: float | None = 0,
+    space_distance: float = 0,
+    time_distance: float = 0,
 ):
     """Given two sets of longitudes, latitudes, and times arrays, return in pairs
     the indices of collocated data points that are within prescribed distances
@@ -165,9 +165,9 @@ def chance_pairs_from_ragged(
     lon: array_like,
     lat: array_like,
     rowsize: array_like,
-    space_distance: float | None = 0,
+    space_distance: float = 0,
     time: array_like | None = None,
-    time_distance: float | None = 0,
+    time_distance: float = 0,
 ) -> list[tuple[tuple[int, int], tuple[np.ndarray, np.ndarray]]]:
     """Return all chance pairs of contiguous trajectories in a ragged array,
     and their collocated points in space and (optionally) time, given input
@@ -300,7 +300,7 @@ def pair_bounding_box_overlap(
     lat1: array_like,
     lon2: array_like,
     lat2: array_like,
-    distance: float | None = 0,
+    distance: float = 0,
 ) -> tuple[np.ndarray[bool], np.ndarray[bool]]:
     """Given two arrays of longitudes and latitudes, return boolean masks for
     their overlapping bounding boxes.
@@ -477,7 +477,7 @@ def pair_time_distance(
 def pair_time_overlap(
     time1: array_like,
     time2: array_like,
-    distance: float | None = 0,
+    distance: float = 0,
 ) -> tuple[np.ndarray[int], np.ndarray[int]]:
     """Given two arrays of times (or any other monotonically increasing
     quantity), return indices where the times are within a prescribed distance.
