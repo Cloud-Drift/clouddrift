@@ -17,7 +17,7 @@ from tqdm import tqdm
 
 from clouddrift.ragged import rowsize_to_index
 
-DimNames = Literal["rows", "obs"]
+DimNames = Literal["rows", "obs"] | str
 _DISABLE_SHOW_PROGRESS = False  # purely to de-noise our test suite output, should never be used/configured outside of that.
 
 
@@ -31,6 +31,7 @@ class RaggedArray:
         attrs_variables: dict | None = {},
         name_dims: dict[str, DimNames] = {},
         coord_dims: dict[str, str] = {},
+        var_dims:dict[str, list[str]] = {}
     ):
         self.coords = coords
         self.coord_dims = coord_dims
@@ -40,6 +41,7 @@ class RaggedArray:
         self.attrs_variables = attrs_variables
         self.name_dims = name_dims
         self._coord_dims = coord_dims
+        self._var_dims = var_dims
         self.validate_attributes()
 
     @classmethod
@@ -139,7 +141,7 @@ class RaggedArray:
             else lambda i, **kwargs: preprocess_func(i, **kwargs).sizes["obs"]
         )
         rowsize = cls.number_of_observations(rowsize_func, indices, **kwargs)
-        coords, metadata, data, coord_dims = cls.allocate(
+        coords, metadata, data, coord_dims, var_dims = cls.allocate(
             preprocess_func,
             indices,
             rowsize,
@@ -164,7 +166,7 @@ class RaggedArray:
             attrs_variables = extracted_attrs_variables
 
         return RaggedArray(
-            coords, metadata, data, attrs_global, attrs_variables, name_dims, coord_dims
+            coords, metadata, data, attrs_global, attrs_variables, name_dims, coord_dims, var_dims
         )
 
     @classmethod
@@ -387,21 +389,29 @@ class RaggedArray:
         for alias in name_dims.keys():
             if name_dims[alias] == "rows":
                 dim_sizes[alias] = nb_rows
-            else:
+            elif name_dims[alias] == "obs":
                 dim_sizes[alias] = nb_obs
+            else:
+                dim_sizes[alias] = ds.sizes[alias]
 
         # allocate memory
         coords = {}
         coord_dims: dict[str, str] = {}
         for var in name_coords:
-            dim = ds[var].dims[-1]
+            if len(ds[var].dims) > 1:
+                dim = ds[var].dims[1]
+            else:
+                dim = ds[var].dims[0]
+
             dim_size = dim_sizes[dim]
             coords[var] = np.zeros(dim_size, dtype=ds[var].dtype)
             coord_dims[var] = dim
 
+        var_dims = {}
         metadata = {}
         for var in name_meta:
             try:
+                var_dims[var] = ds[var].dims
                 metadata[var] = np.zeros(nb_rows, dtype=ds[var].dtype)
             except KeyError:
                 warnings.warn(f"Variable {var} requested but not found; skipping.")
@@ -409,7 +419,13 @@ class RaggedArray:
         data = {}
         for var in name_data:
             if var in ds.keys():
-                data[var] = np.zeros(nb_obs, dtype=ds[var].dtype)
+                dims = list()
+                for dim in ds[var].dims:
+                    size = dim_sizes[dim]
+                    dims.append(size)
+
+                var_dims[var] = ds[var].dims
+                data[var] = np.zeros(dims, dtype=ds[var].dtype)
             else:
                 warnings.warn(f"Variable {var} requested but not found; skipping.")
         ds.close()
@@ -449,7 +465,7 @@ class RaggedArray:
                             f"Variable {var} requested but not found; skipping."
                         )
 
-        return coords, metadata, data, coord_dims
+        return coords, metadata, data, coord_dims, var_dims
 
     def validate_attributes(self):
         """Validate that each variable has an assigned attribute tag."""
@@ -475,8 +491,6 @@ class RaggedArray:
         xr.Dataset
             Xarray Dataset containing the ragged arrays and their attributes
         """
-        dim_name_map = {v: k for k, v in self.name_dims.items()}
-
         xr_coords = {}
         for var in self.coords.keys():
             xr_coords[var] = (
@@ -488,14 +502,14 @@ class RaggedArray:
         xr_data = {}
         for var in self.metadata.keys():
             xr_data[var] = (
-                [dim_name_map["rows"]],
+                self._var_dims[var],
                 self.metadata[var],
                 self.attrs_variables[var],
             )
 
         for var in self.data.keys():
             xr_data[var] = (
-                [dim_name_map["obs"]],
+                self._var_dims[var],
                 self.data[var],
                 self.attrs_variables[var],
             )
