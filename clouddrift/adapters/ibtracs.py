@@ -52,13 +52,13 @@ def _preprocess(idx: int, **kwargs):
                 vars.update({var: (ds[var].dims, ds[var].data)})
 
         for var in md_vars:
-            vars.update({var: (("storm",), np.array([ds[var].data]))})
+            vars.update({var: (("storm",), [ds[var].data])})
 
         return xr.Dataset(
             vars,
             {
                 "id": (("storm",), np.array([idx])),
-                "time": (("date_time",), np.array(ds["time"].data)),
+                "time": (("obs",), ds["time"].data),
             },
         )
     else:
@@ -86,6 +86,7 @@ def to_raggedarray(
     download_with_progress([(src_url, dst_path, None)])
 
     ds = xr.open_dataset(dst_path, engine="netcdf4")
+    ds = ds.rename_dims({"date_time": "obs"})
 
     data_vars = list()
     md_vars = list()
@@ -98,7 +99,7 @@ def to_raggedarray(
         var: xr.DataArray = ds[var_name]
 
         # Avoid loading the data variables that also utilize the quadrant dimension for now
-        if "date_time" in var.dims and len(var.dims) == 2:
+        if "obs" in var.dims and len(var.dims) >= 2:
             data_vars.append(var_name)
         elif len(var.dims) == 1 and var.dims[0] == "storm":
             md_vars.append(var_name)
@@ -108,7 +109,7 @@ def to_raggedarray(
         name_coords=["id", "time"],
         name_meta=md_vars,
         name_data=data_vars,
-        name_dims={"storm": "rows", "obs": "obs"},
+        name_dims={"storm": "rows", "obs": "obs", "quadrant": "quadrant"},
         rowsize_func=_rowsize,
         preprocess_func=_preprocess,
         attrs_global=ds.attrs,
