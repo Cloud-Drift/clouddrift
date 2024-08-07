@@ -46,7 +46,7 @@ YOMAHA_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "yomaha")
 
 def download(tmp_path: str):
     download_requests = [
-        (url, f"{tmp_path}/{url.split('/')[-1]}", None) for url in YOMAHA_URLS[:-1]
+        (url, f"{tmp_path}/{url.split('/')[-1]}") for url in YOMAHA_URLS[:-1]
     ]
     download_with_progress(download_requests)
 
@@ -54,7 +54,7 @@ def download(tmp_path: str):
     filename = filename_gz.removesuffix(".gz")
 
     buffer = BytesIO()
-    download_with_progress([(YOMAHA_URLS[-1], buffer, None)])
+    download_with_progress([(YOMAHA_URLS[-1], buffer)])
 
     decompressed_fp = os.path.join(tmp_path, filename)
     with (
