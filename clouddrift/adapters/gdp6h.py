@@ -100,10 +100,7 @@ def download(
             drifter_urls = list(rng.choice(drifter_urls, n_random_id, replace=False))
 
     download_with_progress(
-        [
-            (url, os.path.join(tmp_path, os.path.basename(url)), None)
-            for url in drifter_urls
-        ]
+        [(url, os.path.join(tmp_path, os.path.basename(url))) for url in drifter_urls]
     )
 
     # Download the metadata so we can order the drifter IDs by end date.
