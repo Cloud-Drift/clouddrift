@@ -207,7 +207,11 @@ def glad(decode_times: bool = True) -> xr.Dataset:
     return _dataset_filecache("glad.nc", decode_times, adapters.glad.to_xarray)
 
 
-def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataArray:
+def hurdat2(
+    basin: _BasinOption = "both",
+    decode_times: bool = True,
+    tmp_path: str = adapters.hurdat2._DEFAULT_FILE_PATH,
+) -> xr.DataArray:
     """Returns the revised hurricane database (HURDAT2) as a ragged array xarray dataset.
 
     The function will first look for the ragged array dataset on the local
@@ -281,7 +285,7 @@ def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataA
     return _dataset_filecache(
         f"hurdat2_{basin}.nc",
         decode_times,
-        lambda: adapters.hurdat2.to_raggedarray(basin).to_xarray(),
+        lambda: adapters.hurdat2.to_raggedarray(basin, tmp_path).to_xarray(),
     )
 
 
