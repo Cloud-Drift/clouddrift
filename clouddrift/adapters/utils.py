@@ -52,7 +52,9 @@ standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
 
 
 def download_with_progress(
-    download_map: Sequence[tuple[str, BufferedIOBase | str, float | None]],
+    download_map: Sequence[
+        tuple[str, BufferedIOBase | str] | tuple[str, BufferedIOBase | str, float]
+    ],
     show_list_progress: bool | None = None,
     desc: str = "Downloading files",
     custom_retry_protocol: Callable[[WrappedFn], WrappedFn] | None = None,
@@ -66,10 +68,19 @@ def download_with_progress(
 
     buffer: BufferedIOBase | BufferedWriter
     executor = concurrent.futures.ThreadPoolExecutor()
-    futures: dict[concurrent.futures.Future, tuple[str, BufferedIOBase | str]] = dict()
+    futures: dict[
+        concurrent.futures.Future,
+        tuple[str, BufferedIOBase | str, BufferedIOBase | BufferedWriter],
+    ] = dict()
     bar = None
 
-    for src, dst, exp_size in download_map:
+    for request in download_map:
+        if len(request) > 2:
+            src, dst, exp_size = request
+        else:
+            src, dst = request
+            exp_size = None
+
         if isinstance(dst, (str,)):
             buffer = open(dst, "wb")
         else:
@@ -80,10 +91,11 @@ def download_with_progress(
                 retry_protocol(_download_with_progress),
                 src,
                 buffer,
-                exp_size or 0,
+                exp_size,
                 not show_list_progress,
             )
-        ] = (src, dst)
+        ] = (src, dst, buffer)
+
     try:
         if show_list_progress:
             bar = tqdm(
@@ -94,7 +106,11 @@ def download_with_progress(
             )
 
         for fut in concurrent.futures.as_completed(futures):
-            (src, dst) = futures[fut]
+            src, dst, buffer = futures[fut]
+
+            if isinstance(dst, (str,)):
+                buffer.close()
+
             ex = fut.exception(0)
             if ex is None:
                 _logger.debug(f"Finished download job: ({src}, {dst})")
@@ -108,14 +124,13 @@ def download_with_progress(
               any created resources."
         )
         for x in futures.keys():
-            (src, dst) = futures[x]
+            src, dst, buffer = futures[x]
+
             if not x.done():
                 x.cancel()
 
             if isinstance(dst, (str,)) and os.path.exists(dst):
                 os.remove(dst)
-            elif isinstance(dst, (BufferedIOBase,)):
-                dst.close()
         raise e
     finally:
         executor.shutdown(True)
@@ -126,7 +141,7 @@ def download_with_progress(
 def _download_with_progress(
     url: str,
     output: BufferedIOBase | BufferedWriter,
-    expected_size: float,
+    expected_size: float | None,
     show_progress: bool,
 ):
     if isinstance(output, str) and os.path.exists(output):
@@ -158,13 +173,16 @@ def _download_with_progress(
     try:
         response = requests.get(url, timeout=5, stream=True)
 
+        if (content_length := response.headers.get("Content-Length")) is not None:
+            expected_size = float(content_length)
+
         if show_progress:
             bar = tqdm(
                 desc=url,
-                total=float(response.headers.get("Content-Length", expected_size)),
+                total=expected_size,
                 unit="B",
                 unit_scale=True,
-                unit_divisor=1024,
+                unit_divisor=_CHUNK_SIZE,
                 nrows=2,
                 disable=_DISABLE_SHOW_PROGRESS,
             )

@@ -198,7 +198,7 @@ def fetch_netcdf(url: str, file: str):
     file : str
         Name of the file to save.
     """
-    download_with_progress([(url, file, None)])
+    download_with_progress([(url, file)])
 
 
 def decode_date(t):
