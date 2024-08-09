@@ -8,8 +8,8 @@ import xarray as xr
 
 def analytic_signal(
     x: np.ndarray | xr.DataArray,
-    boundary: str | None = "mirror",
-    time_axis: int | None = -1,
+    boundary: str = "mirror",
+    time_axis: int = -1,
 ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     """Return the analytic signal from a real-valued signal or the analytic and
     conjugate analytic signals from a complex-valued signal.
@@ -160,7 +160,7 @@ def analytic_signal(
 def cartesian_to_rotary(
     ua: np.ndarray | xr.DataArray,
     va: np.ndarray | xr.DataArray,
-    time_axis: int | None = -1,
+    time_axis: int = -1,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Return rotary signals (wp,wn) from analytic Cartesian signals (ua,va).
 
@@ -396,7 +396,7 @@ def modulated_ellipse_signal(
 def rotary_to_cartesian(
     wp: np.ndarray | xr.DataArray,
     wn: np.ndarray | xr.DataArray,
-    time_axis: int | None = -1,
+    time_axis: int = -1,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Return Cartesian analytic signals (ua, va) from rotary signals (wp, wn)
     as ua = wp + wn and va = -1j * (wp - wn).

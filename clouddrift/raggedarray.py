@@ -27,8 +27,8 @@ class RaggedArray:
         coords: dict,
         metadata: dict,
         data: dict,
-        attrs_global: dict | None = {},
-        attrs_variables: dict | None = {},
+        attrs_global: dict = {},
+        attrs_variables: dict = {},
         name_dims: dict[str, DimNames] = {},
         coord_dims: dict[str, str] = {},
     ):

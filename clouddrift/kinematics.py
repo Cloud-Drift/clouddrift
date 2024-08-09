@@ -65,8 +65,8 @@ def inertial_oscillation_from_position(
     latitude: np.ndarray,
     relative_bandwidth: float | None = None,
     wavelet_duration: float | None = None,
-    time_step: float | None = 3600.0,
-    relative_vorticity: float | np.ndarray | None = 0.0,
+    time_step: float = 3600.0,
+    relative_vorticity: float | np.ndarray = 0.0,
 ) -> np.ndarray:
     """Extract inertial oscillations from consecutive geographical positions.
 
@@ -324,9 +324,9 @@ def position_from_velocity(
     time: np.ndarray,
     x_origin: float,
     y_origin: float,
-    coord_system: str | None = "spherical",
-    integration_scheme: str | None = "forward",
-    time_axis: int | None = -1,
+    coord_system: str = "spherical",
+    integration_scheme: str = "forward",
+    time_axis: int = -1,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Compute positions from arrays of velocities and time and a pair of origin
     coordinates.
@@ -528,9 +528,9 @@ def velocity_from_position(
     x: np.ndarray,
     y: np.ndarray,
     time: np.ndarray,
-    coord_system: str | None = "spherical",
-    difference_scheme: str | None = "forward",
-    time_axis: int | None = -1,
+    coord_system: str = "spherical",
+    difference_scheme: str = "forward",
+    time_axis: int = -1,
 ) -> tuple[xr.DataArray, xr.DataArray]:
     """Compute velocity from arrays of positions and time.
 
@@ -786,8 +786,8 @@ def spin(
     u: np.ndarray,
     v: np.ndarray,
     time: np.ndarray,
-    difference_scheme: str | None = "forward",
-    time_axis: int | None = -1,
+    difference_scheme: str = "forward",
+    time_axis: int = -1,
 ) -> float | np.ndarray:
     """Compute spin continuously from velocities and times.
 
