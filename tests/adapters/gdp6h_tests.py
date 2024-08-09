@@ -93,7 +93,6 @@ class gdp6h_tests(unittest.TestCase):
                     (
                         f"some-url.com/netcdf_1_5000/drifter_6h_{did}.nc",
                         os.path.join("../some/path", f"drifter_6h_{did}.nc"),
-                        None,
                     )
                     for did in ret_drifter_ids
                 ]
