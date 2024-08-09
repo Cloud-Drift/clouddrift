@@ -83,7 +83,7 @@ def to_raggedarray(
 
     filename = src_url.split("/")[-1]
     dst_path = os.path.join(tmp_path, filename)
-    download_with_progress([(src_url, dst_path, None)])
+    download_with_progress([(src_url, dst_path)])
 
     ds = xr.open_dataset(dst_path, engine="netcdf4")
     ds = ds.rename_dims({"date_time": "obs"})

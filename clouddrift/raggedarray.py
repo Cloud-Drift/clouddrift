@@ -31,7 +31,7 @@ class RaggedArray:
         attrs_variables: dict | None = {},
         name_dims: dict[str, DimNames] = {},
         coord_dims: dict[str, str] = {},
-        var_dims:dict[str, list[str]] = {}
+        var_dims: dict[str, list[str]] = {},
     ):
         self.coords = coords
         self.coord_dims = coord_dims
@@ -166,7 +166,14 @@ class RaggedArray:
             attrs_variables = extracted_attrs_variables
 
         return RaggedArray(
-            coords, metadata, data, attrs_global, attrs_variables, name_dims, coord_dims, var_dims
+            coords,
+            metadata,
+            data,
+            attrs_global,
+            attrs_variables,
+            name_dims,
+            coord_dims,
+            var_dims,
         )
 
     @classmethod
@@ -352,7 +359,7 @@ class RaggedArray:
         name_data: list,
         name_dims: dict[str, DimNames],
         **kwargs,
-    ) -> tuple[dict, dict, dict, dict]:
+    ) -> tuple[dict, dict, dict, dict, dict]:
         """
         Iterate through the files and fill for the ragged array associated
         with coordinates, and selected metadata and data variables.
@@ -421,8 +428,8 @@ class RaggedArray:
             if var in ds.keys():
                 dims = list()
                 for dim in ds[var].dims:
-                    size = dim_sizes[dim]
-                    dims.append(size)
+                    dimsize = dim_sizes[dim]
+                    dims.append(dimsize)
 
                 var_dims[var] = ds[var].dims
                 data[var] = np.zeros(dims, dtype=ds[var].dtype)
@@ -439,7 +446,11 @@ class RaggedArray:
             disable=_DISABLE_SHOW_PROGRESS,
         ):
             with preprocess_func(index, **kwargs) as ds:
-                size = rowsize[i]
+                if isinstance(rowsize, (list, np.ndarray)):
+                    size = rowsize[i]
+                elif isinstance(rowsize, (xr.DataArray,)):
+                    size = rowsize.data[i]
+
                 oid = index_traj[i]
 
                 for var in name_coords:
