@@ -153,6 +153,82 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     return ds
 
 
+def gdp_source(
+    tmp_path: str = adapters.gdp_source._TMP_PATH,
+    max: int | None = None,
+    skip_download: bool = False,
+    use_fill_values: bool = True,
+    decode_times: bool = True,
+) -> xr.Dataset:
+    """Returns the NOAA Global Drifter Program (GDP) source (raw) dataset as a ragged array
+    Xarray dataset.
+
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored as zarr archive for later access.
+
+    The data is accessed from a public HTTPS server at NOAA's Atlantic
+    Oceanographic and Meteorological Laboratory (AOML) at
+    https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst/.
+
+    Parameters
+    ----------
+    tmp_path: str, default adapter temp path (default)
+        Temporary path where intermediary files are stored.
+    max: int, optional
+        Maximum number of files to retrieve and parse to generate the aggregate file. Mainly used
+        for testing purposes.
+    skip_download: bool, False (default)
+        If True, skips downloading the data files and the code assumes the files have already been downloaded.
+        This is mainly used to skip downloading files if the remote doesn't provide the HTTP  Last-Modified header.
+    use_fill_values: bool, True (default)
+        If True, when drifters are found with no associated metadata, ignore the associated observations.
+    decode_times : bool, True (default)
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
+
+    Returns
+    -------
+    xarray.Dataset
+        source GDP dataset as a ragged array
+
+    Examples
+    --------
+    >>> from clouddrift.datasets import gdp_source
+    >>> ds = gdp_source()
+    >>> ds
+    <xarray.Dataset> Size: ...
+    Dimensions:            (traj: ..., obs: ...)
+    Coordinates:
+        id                 (traj) int64 222kB ...
+        obs_index          (obs) int32 1GB ...
+    Dimensions without coordinates: traj, obs
+    Data variables: (12/22)
+        buoys_type         (traj) <U5 ...
+        death_code         (traj) int64 ...
+        drogue             (obs) float32 ...
+        drogue_off_date    (traj) datetime64[ns] ...
+        end_date           (traj) datetime64[ns] ...
+        end_lat            (traj) float64 222kB ...
+        ...                 ...
+        sst                (obs) float32 ...
+        start_date         (traj) datetime64[ns] ...
+        start_lat          (traj) float64 ...
+        start_lon          (traj) float64 ...
+        voltage            (obs) float32 ...
+        wmo_number         (traj) int64 ...
+    """
+    file_selection_label = "all" if max is None else f"first-{max}"
+    return _dataset_filecache(
+        f"gdpsource_agg_{file_selection_label}.zarr",
+        decode_times,
+        lambda: adapters.gdp_source.to_raggedarray(
+            tmp_path, skip_download, max, use_fill_values=use_fill_values
+        ),
+    )
+
+
 def glad(decode_times: bool = True) -> xr.Dataset:
     """Returns the Grand LAgrangian Deployment (GLAD) dataset as a ragged array
     Xarray dataset.
@@ -619,15 +695,27 @@ def andro(decode_times: bool = True) -> xr.Dataset:
 def _dataset_filecache(
     filename: str, decode_times: bool, get_ds: Callable[[], xr.Dataset]
 ):
+    os.path
+    _, ext = os.path.splitext(filename)
     clouddrift_path = (
         os.path.expanduser("~/.clouddrift")
         if not os.getenv("CLOUDDRIFT_PATH")
         else os.getenv("CLOUDDRIFT_PATH")
     )
     fp = f"{clouddrift_path}/data/{filename}"
+    os.makedirs(os.path.dirname(fp), exist_ok=True)
+
     if not os.path.exists(fp):
-        print(f"{fp} not found; download from upstream repository.")
         ds = get_ds()
-        os.makedirs(os.path.dirname(fp), exist_ok=True)
-        ds.to_netcdf(fp)
-    return xr.open_dataset(fp, decode_times=decode_times)
+        if ext == ".nc":
+            ds.to_netcdf(fp)
+        elif ext == ".zarr":
+            ds.to_zarr(fp)
+        else:
+            ds.to_netcdf(fp)
+
+    engine = None
+    if ext == ".zarr":
+        engine = "zarr"
+
+    return xr.open_dataset(fp, decode_times=decode_times, engine=engine)

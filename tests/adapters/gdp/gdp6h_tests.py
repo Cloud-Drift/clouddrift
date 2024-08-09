@@ -2,7 +2,7 @@ import os
 import unittest
 from unittest.mock import Mock, patch
 
-import clouddrift.adapters.gdp6h as gdp6h
+from clouddrift.adapters import gdp6h
 from tests.adapters.utils import MultiPatcher
 
 

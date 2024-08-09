@@ -104,7 +104,7 @@ def download(
     )
 
     # Download the metadata so we can order the drifter IDs by end date.
-    gdp_metadata = gdp.get_gdp_metadata()
+    gdp_metadata = gdp.get_gdp_metadata(tmp_path)
     drifter_ids = [
         int(os.path.basename(f).split("_")[2].split(".")[0]) for f in drifter_urls
     ]

@@ -110,7 +110,7 @@ def download(
         [(f"{url}/{f}", os.path.join(tmp_path, f)) for f in filelist]
     )
     # Download the metadata so we can order the drifter IDs by end date.
-    gdp_metadata = gdp.get_gdp_metadata()
+    gdp_metadata = gdp.get_gdp_metadata(tmp_path)
 
     return gdp.order_by_date(
         gdp_metadata, [int(f.split("_")[-1].removesuffix(".nc")) for f in filelist]
