@@ -6,6 +6,7 @@ import warnings
 from collections.abc import Callable, Iterable
 from concurrent import futures
 from datetime import timedelta
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -16,12 +17,12 @@ def apply_ragged(
     func: callable,
     arrays: list[np.ndarray | xr.DataArray] | np.ndarray | xr.DataArray,
     rowsize: list[int] | np.ndarray[int] | xr.DataArray,
-    *args: tuple,
+    *args: Any,
     rows: int | Iterable[int] = None,
     axis: int = 0,
     executor: futures.Executor = futures.ThreadPoolExecutor(max_workers=None),
-    **kwargs: dict,
-) -> tuple[np.ndarray] | np.ndarray:
+    **kwargs: Any,
+) -> tuple[np.ndarray, np.ndarray] | np.ndarray:
     """Apply a function to a ragged array.
 
     The function ``func`` will be applied to each contiguous row of ``arrays`` as
@@ -450,9 +451,9 @@ def rowsize_to_index(rowsize: list | np.ndarray | xr.DataArray) -> np.ndarray:
 
 
 def segment(
-    x: np.ndarray,
+    x: list | np.ndarray | xr.DataArray | pd.Series,
     tolerance: float | np.timedelta64 | timedelta | pd.Timedelta,
-    rowsize: np.ndarray[int] = None,
+    rowsize: np.ndarray[int] | None = None,
 ) -> np.ndarray[int]:
     """Divide an array into segments based on a tolerance value.
 
@@ -789,7 +790,7 @@ def subset(
 def unpack(
     ragged_array: np.ndarray,
     rowsize: np.ndarray[int],
-    rows: int | Iterable[int] = None,
+    rows: int | np.int_ | Iterable[int] | None = None,
     axis: int = 0,
 ) -> list[np.ndarray]:
     """Unpack a ragged array into a list of regular arrays.

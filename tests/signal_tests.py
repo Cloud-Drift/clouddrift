@@ -28,12 +28,12 @@ class analytic_signal_tests(unittest.TestCase):
 
     def test_real_odd(self):
         x = np.random.rand(99)
-        z = analytic_signal(x)
+        z, _ = analytic_signal(x)
         self.assertTrue(np.allclose(x, z.real))
 
     def test_real_even(self):
         x = np.random.rand(100)
-        z = analytic_signal(x)
+        z, _ = analytic_signal(x)
         self.assertTrue(np.allclose(x, z.real))
 
     def test_imag_odd(self):
@@ -48,9 +48,9 @@ class analytic_signal_tests(unittest.TestCase):
 
     def test_boundary(self):
         x = np.random.rand(99)
-        z1 = analytic_signal(x, boundary="mirror")
-        z2 = analytic_signal(x, boundary="zeros")
-        z3 = analytic_signal(x, boundary="periodic")
+        z1, _ = analytic_signal(x, boundary="mirror")
+        z2, _ = analytic_signal(x, boundary="zeros")
+        z3, _ = analytic_signal(x, boundary="periodic")
         self.assertTrue(np.allclose(x, z1.real))
         self.assertTrue(np.allclose(x, z2.real))
         self.assertTrue(np.allclose(x, z3.real))
@@ -58,13 +58,13 @@ class analytic_signal_tests(unittest.TestCase):
     def test_ndarray(self):
         x = np.random.random((9, 11, 13))
         for n in range(3):
-            z = analytic_signal(x, time_axis=n)
+            z, _ = analytic_signal(x, time_axis=n)
             self.assertTrue(np.allclose(x, z.real))
 
     def test_xarray(self):
         x = xr.DataArray(data=np.random.random((9, 11, 13)))
         for n in range(3):
-            z = analytic_signal(x, time_axis=n)
+            z, _ = analytic_signal(x, time_axis=n)
             self.assertTrue(np.allclose(x, z.real))
 
 
@@ -97,8 +97,8 @@ class cartesian_to_rotary_tests(unittest.TestCase):
     def test_invert_cartesian_to_rotary(self):
         u = np.random.rand(99)
         v = np.random.rand(99)
-        ua = analytic_signal(u)
-        va = analytic_signal(v)
+        ua, _ = analytic_signal(u)
+        va, _ = analytic_signal(v)
         wp, wn = cartesian_to_rotary(ua, va)
         ua_, va_ = rotary_to_cartesian(wp, wn)
         self.assertTrue(np.allclose(ua, ua_))

@@ -12,4 +12,5 @@ class MultiPatcher:
         return [p.start() for p in self._patches]
 
     def __exit__(self, *_):
-        [p.stop() for p in self._patches]
+        for p in self._patches:
+            p.stop()

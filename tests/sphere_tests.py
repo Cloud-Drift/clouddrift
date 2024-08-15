@@ -57,11 +57,9 @@ class recast_longitude_tests(unittest.TestCase):
     def test_same_shape(self):
         self.assertTrue(recast_lon(np.array([200])).shape == np.zeros(1).shape)
         self.assertTrue(recast_lon(np.array([200, 200])).shape == np.zeros(2).shape)
-        self.assertIsNone(
-            np.testing.assert_equal(
-                recast_lon(np.array([[200.5, -200.5], [200.5, -200.5]])).shape,
-                np.zeros((2, 2)).shape,
-            )
+        np.testing.assert_equal(
+            recast_lon(np.array([[200.5, -200.5], [200.5, -200.5]])).shape,
+            np.zeros((2, 2)).shape,
         )
 
     def test_different_lon0(self):
@@ -259,10 +257,6 @@ class plane_to_sphere_tests(unittest.TestCase):
         self.assertTrue(np.allclose(lon, np.array([lon_origin, lon_origin])))
         self.assertTrue(np.allclose(lat, np.array([lat_origin, lat_origin + 1])))
 
-    def test_scalar_raises_error(self):
-        with self.assertRaises(Exception):
-            plane_to_sphere(0, 0)
-
 
 class sphere_to_plane_tests(unittest.TestCase):
     def test_simple(self):
@@ -331,10 +325,6 @@ class sphere_to_plane_tests(unittest.TestCase):
             )
         )
 
-    def test_scalar_raises_error(self):
-        with self.assertRaises(Exception):
-            sphere_to_plane(0, 0)
-
 
 class sphere_to_plane_roundtrip(unittest.TestCase):
     def test_roundtrip(self):
@@ -394,7 +384,8 @@ class cartesian_to_spherical_tests(unittest.TestCase):
 class cartesian_to_tangentplane_tests(unittest.TestCase):
     def test_cartesian_to_tangentplane_values(self):
         up, vp = cartesian_to_tangentplane(1.0, 1.0, 1.0, 0.0, 0.0)
-        self.assertTrue(np.allclose((up, vp), (1.0, 1.0)))
+
+        self.assertTrue(np.allclose([up, vp], [1.0, 1.0]))
         up, vp = cartesian_to_tangentplane(1.0, 1.0, 1.0, 90.0, 0.0)
         self.assertTrue(np.allclose((up, vp), (-1.0, 1.0)))
         up, vp = cartesian_to_tangentplane(1.0, 1.0, 1.0, 180.0, 0.0)

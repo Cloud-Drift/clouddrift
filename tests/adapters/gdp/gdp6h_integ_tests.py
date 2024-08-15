@@ -24,4 +24,4 @@ class gdp6h_integration_tests(testutils.DisableProgressTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        [shutil.rmtree(dir) for dir in [gdp6h.GDP_TMP_PATH]]
+        shutil.rmtree(gdp6h.GDP_TMP_PATH)

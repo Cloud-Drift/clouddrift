@@ -20,6 +20,7 @@ from clouddrift.ragged import (
     unpack,
 )
 from clouddrift.raggedarray import RaggedArray
+from clouddrift.typing import _ArrayTypes, _TimeDeltaTypes
 
 if __name__ == "__main__":
     unittest.main()
@@ -211,7 +212,9 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 2, 4]
         minimum = 3
 
-        for data in [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]:
+        for data in list[_ArrayTypes](
+            [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
+        ):
             x_new, rowsize_new = prune(data, rowsize, minimum)
             self.assertTrue(isinstance(x_new, np.ndarray))
             self.assertTrue(isinstance(rowsize_new, np.ndarray))
@@ -223,7 +226,10 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 2, 4]
         minimum = 1
 
-        for data in [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]:
+        data: _ArrayTypes
+        for data in list[_ArrayTypes](
+            [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
+        ):
             x_new, rowsize_new = prune(data, rowsize, minimum)
             np.testing.assert_equal(x_new, data)
             np.testing.assert_equal(rowsize_new, rowsize)
@@ -233,7 +239,10 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 2, 4]
         minimum = 5
 
-        for data in [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]:
+        data: _ArrayTypes
+        for data in list[_ArrayTypes](
+            [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
+        ):
             x_new, rowsize_new = prune(data, rowsize, minimum)
             np.testing.assert_equal(x_new, np.array([]))
             np.testing.assert_equal(rowsize_new, np.array([]))
@@ -266,17 +275,23 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 2, 4]
         minimum = 3
 
-        for data in [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]:
+        data: _ArrayTypes
+        for data in list[_ArrayTypes](
+            [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
+        ):
             x_new, rowsize_new = prune(data, rowsize, minimum)
             np.testing.assert_equal(x_new, [1, 2, np.nan, 1, 2, np.nan, 4])
             np.testing.assert_equal(rowsize_new, [3, 4])
 
     def test_prune_empty(self):
-        x = []
-        rowsize = []
+        x: list[int] = []
+        rowsize: list[int] = []
         minimum = 3
 
-        for data in [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]:
+        data: _ArrayTypes
+        for data in list[_ArrayTypes](
+            [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
+        ):
             with self.assertRaises(IndexError):
                 x_new, rowsize_new = prune(data, rowsize, minimum)
 
@@ -285,7 +300,10 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 3]
         minimum = 3
 
-        for data in [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]:
+        data: _ArrayTypes
+        for data in list[_ArrayTypes](
+            [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
+        ):
             with self.assertRaises(ValueError):
                 x_new, rowsize_new = prune(data, rowsize, minimum)
 
@@ -304,9 +322,7 @@ class segment_tests(unittest.TestCase):
     def test_segment_zero_tolerance(self):
         x = [1, 2, 2, 3, 3, 3, 4, 4, 4, 4]
         tol = 0
-        self.assertIsNone(
-            np.testing.assert_equal(segment(x, tol), np.array([1, 2, 3, 4]))
-        )
+        np.testing.assert_equal(segment(x, tol), np.array([1, 2, 3, 4]))
 
     def test_segment_negative_tolerance(self):
         x = [0, 1, 1, 1, 2, 0, 3, 3, 3, 4]
@@ -316,7 +332,7 @@ class segment_tests(unittest.TestCase):
     def test_segment_rowsize(self):
         x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
         tol = 0.5
-        rowsize = [6, 5]
+        rowsize = np.array([6, 5])
         segment_sizes = segment(x, tol, rowsize)
         self.assertTrue(isinstance(segment_sizes, np.ndarray))
         self.assertTrue(np.all(segment_sizes == np.array([1, 3, 2, 4, 1])))
@@ -327,9 +343,9 @@ class segment_tests(unittest.TestCase):
         self.assertTrue(np.all(segment_sizes == np.array([2, 2, 2, 2])))
 
     def test_segment_rowsize_raises(self):
-        x = [0, 1, 2, 3]
+        x = np.array([0, 1, 2, 3])
         tol = 0.5
-        rowsize = [1, 2]  # rowsize is too short
+        rowsize = np.array([1, 2])  # rowsize is too short
         with self.assertRaises(ValueError):
             segment(x, tol, rowsize)
 
@@ -341,10 +357,11 @@ class segment_tests(unittest.TestCase):
             datetime(2023, 2, 1),
             datetime(2023, 2, 2),
         ]
-        for tol in [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]:
-            self.assertIsNone(
-                np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
-            )
+        tol: _TimeDeltaTypes
+        for tol in list[_TimeDeltaTypes](
+            [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]
+        ):
+            np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
 
     def test_segments_numpy(self):
         x = np.array(
@@ -356,17 +373,19 @@ class segment_tests(unittest.TestCase):
                 np.datetime64("2023-02-02"),
             ]
         )
-        for tol in [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]:
-            self.assertIsNone(
-                np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
-            )
+        for tol in list[_TimeDeltaTypes](
+            [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]
+        ):
+            np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
 
     def test_segments_pandas(self):
-        x = pd.to_datetime(["1/1/2023", "1/2/2023", "1/3/2023", "2/1/2023", "2/2/2023"])
-        for tol in [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]:
-            self.assertIsNone(
-                np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
-            )
+        x: pd.Series = pd.to_datetime(
+            pd.Series(["1/1/2023", "1/2/2023", "1/3/2023", "2/1/2023", "2/2/2023"])
+        )
+        for tol in list[_TimeDeltaTypes](
+            [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]
+        ):
+            np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
 
 
 class ragged_to_regular_tests(unittest.TestCase):
@@ -503,8 +522,8 @@ class apply_ragged_tests(unittest.TestCase):
         # ragged axis 1 is th same as applying it to the transpose over ragged
         # axis 0.
         rowsize = [1, 1]
-        y0 = apply_ragged(func, x.T, rowsize, axis=0)
-        y1 = apply_ragged(func, x, rowsize, axis=1)
+        y0, _ = apply_ragged(func, x.T, rowsize, axis=0)
+        y1, _ = apply_ragged(func, x, rowsize, axis=1)
         self.assertTrue(np.all(y0 == y1.T))
 
         # Test that axis=1 works with reduction over the non-ragged axis.
@@ -570,10 +589,7 @@ class apply_ragged_tests(unittest.TestCase):
         with self.assertRaises(ValueError):
             for use_threads in [True, False]:
                 apply_ragged(
-                    lambda x: x**2,
-                    np.array([1, 2, 3, 4]),
-                    [2],
-                    use_threads=use_threads,
+                    lambda x: x**2, np.array([1, 2, 3, 4]), [2], use_threads=use_threads
                 )
 
 

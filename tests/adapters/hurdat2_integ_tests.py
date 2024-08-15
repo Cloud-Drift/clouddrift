@@ -39,4 +39,4 @@ class hurdat2_integration_tests(testutils.DisableProgressTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        [shutil.rmtree(dir) for dir in [hurdat2._DEFAULT_FILE_PATH]]
+        shutil.rmtree(hurdat2._DEFAULT_FILE_PATH)

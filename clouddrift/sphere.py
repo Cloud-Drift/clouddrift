@@ -3,6 +3,7 @@ This module provides functions for spherical geometry calculations.
 """
 
 import warnings
+from typing import TypeVar
 
 import numpy as np
 import xarray as xr
@@ -207,7 +208,10 @@ def bearing(
 
 
 def position_from_distance_and_bearing(
-    lon: float, lat: float, distance: float, bearing: float
+    lon: float | np.ndarray,
+    lat: float | np.ndarray,
+    distance: float | np.ndarray,
+    bearing: float | np.ndarray,
 ) -> tuple[float, float]:
     """Return elementwise new position in degrees from arrays of latitude and
     longitude in degrees, distance in meters, and bearing in radians, based on
@@ -660,13 +664,12 @@ def cartesian_to_spherical(
     return lon, lat
 
 
+T = TypeVar("T", bound=float | np.ndarray)
+
+
 def cartesian_to_tangentplane(
-    u: float | np.ndarray,
-    v: float | np.ndarray,
-    w: float | np.ndarray,
-    longitude: float | np.ndarray,
-    latitude: float | np.ndarray,
-) -> tuple[float, float] | tuple[np.ndarray, np.ndarray]:
+    u: T, v: T, w: T, longitude: T, latitude: T
+) -> tuple[T, T]:
     """
     Project a three-dimensional Cartesian vector on a plane tangent to
     a spherical Earth.
@@ -725,12 +728,12 @@ def cartesian_to_tangentplane(
     return u_projected, v_projected
 
 
+T = TypeVar("T", bound=float | np.ndarray)
+
+
 def tangentplane_to_cartesian(
-    up: float | np.ndarray,
-    vp: float | np.ndarray,
-    longitude: float | np.ndarray,
-    latitude: float | np.ndarray,
-) -> tuple[float, float, float] | tuple[np.ndarray, np.ndarray, np.ndarray]:
+    up: T, vp: T, longitude: T, latitude: T
+) -> tuple[T, T, T]:
     """
     Return the three-dimensional Cartesian components of a vector contained in
     a plane tangent to a spherical Earth.

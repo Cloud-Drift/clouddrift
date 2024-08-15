@@ -44,8 +44,8 @@ class morse_wavelet_transform_tests(unittest.TestCase):
         x = np.random.random(length)
         y = np.random.random(length)
         z = x + 1j * y
-        wtx = morse_wavelet_transform(x, 3, 10, radian_frequency, complex=False)
-        wty = morse_wavelet_transform(y, 3, 10, radian_frequency, complex=False)
+        wtx, _ = morse_wavelet_transform(x, 3, 10, radian_frequency, complex=False)
+        wty, _ = morse_wavelet_transform(y, 3, 10, radian_frequency, complex=False)
         wp = 0.5 * (wtx + 1j * wty)
         wn = 0.5 * (wtx - 1j * wty)
         wp2, _ = morse_wavelet_transform(z, 3, 10, radian_frequency, complex=True)
@@ -61,10 +61,10 @@ class morse_wavelet_transform_tests(unittest.TestCase):
         x = np.random.random(length)
         y = np.random.random(length)
         z = x + 1j * y
-        wtx = morse_wavelet_transform(
+        wtx, _ = morse_wavelet_transform(
             x, 3, 10, radian_frequency, complex=False, normalization="energy"
         )
-        wty = morse_wavelet_transform(
+        wty, _ = morse_wavelet_transform(
             y, 3, 10, radian_frequency, complex=False, normalization="energy"
         )
         wp = (wtx + 1j * wty) / np.sqrt(2)

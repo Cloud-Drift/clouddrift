@@ -344,9 +344,9 @@ def wavelet_transform(
 
 def morse_wavelet(
     length: int,
-    gamma: float,
-    beta: float,
-    radian_frequency: np.ndarray,
+    gamma: float | np.ndarray,
+    beta: float | np.ndarray,
+    radian_frequency: float | np.ndarray,
     order: int = 1,
     normalization: str = "bandpass",
 ) -> tuple[np.ndarray, np.ndarray]:

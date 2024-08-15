@@ -37,7 +37,7 @@ class datasets_tests(testutils.DisableProgressTestCase):
             )
             self.assertTrue(ds_sub)
             mean_lon = apply_ragged(np.mean, [ds_sub.longitude], ds_sub.rowsize)
-            self.assertTrue(mean_lon.size == 2)
+            self.assertTrue(len(mean_lon) == 2)
 
     def test_spotters_opens(self):
         with datasets.spotters() as ds:

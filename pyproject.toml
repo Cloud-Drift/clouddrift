@@ -70,6 +70,7 @@ select = ["E4", "E7", "E9", "F", "I"]
 [tool.mypy]
 python_version = "3.10"
 follow_imports = "normal"
+check_untyped_defs = true
 files = [
   "clouddrift/**/*.py",
   "tests/**/*.py",

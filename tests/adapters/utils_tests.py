@@ -57,9 +57,7 @@ class utils_tests(unittest.TestCase):
                 ),
             ]
         ) as _:
-            utils._download_with_progress(
-                "some.url.com", "./some/path/existing-file.nc", 0, False
-            )
+            utils._download_with_progress("some.url.com", Mock(), 0, False)
             self.requests_mock.get.assert_not_called()
 
     def test_download_new_update(self):
@@ -129,7 +127,7 @@ class utils_tests(unittest.TestCase):
         """
 
         mocked_futures = [self.gen_future_mock() for _ in range(0, 21)]
-        download_requests = [("src0", "dst", None) for _ in range(0, 21)]
+        download_requests = [("src0", "dst") for _ in range(0, 21)]
 
         tpe_mock = Mock()
         tpe_mock.__enter__ = Mock(return_value=tpe_mock)

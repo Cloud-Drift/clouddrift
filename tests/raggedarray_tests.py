@@ -7,6 +7,7 @@ import numpy as np
 import xarray as xr
 
 from clouddrift import RaggedArray
+from clouddrift.raggedarray import DimNames
 
 NETCDF_ARCHIVE = "test_archive.nc"
 PARQUET_ARCHIVE = "test_archive.parquet"
@@ -16,6 +17,19 @@ if __name__ == "__main__":
 
 
 class raggedarray_tests(TestCase):
+    ra: RaggedArray
+    drifter_id: list[int]
+    rowsize: list[int]
+    nb_traj: int
+    nb_obs: int
+    attrs_global: dict[str, str]
+    variables_coords: list[tuple[str, str]]
+    name_coords: list[str]
+    name_meta: list[str]
+    name_data: list[str]
+    name_dims: dict[str, DimNames]
+    coord_dims: dict[str, str]
+
     @classmethod
     def setUpClass(self):
         """
@@ -43,7 +57,7 @@ class raggedarray_tests(TestCase):
 
             xr_coords["time"] = (
                 ["obs"],
-                np.ones(self.rowsize[i], dtype="int") * self.drifter_id[i],
+                (np.ones(self.rowsize[i], dtype="int") * self.drifter_id[i]).tolist(),
                 {"long_name": "variable time", "units": "-"},
             )
 
@@ -55,7 +69,7 @@ class raggedarray_tests(TestCase):
             )
             xr_data["temp"] = (
                 ["obs"],
-                np.random.rand(self.rowsize[i]),
+                np.random.rand(self.rowsize[i]).tolist(),
                 {"long_name": "variable temp", "units": "-"},
             )
 
