@@ -284,10 +284,10 @@ class morse_freq_tests(unittest.TestCase):
 class morse_logspace_freq_tests(unittest.TestCase):
     def test_morse_logspace_freq_high(self):
         # here we are not testing the morse_logspace_freq function
-        gamma = np.array([3])
-        beta = np.array([4])
+        gamma = 4
+        beta = 4
         eta = 0.1
-        fhigh = _morsehigh(gamma, beta, eta)
+        fhigh = _morsehigh(np.ndarray([gamma]), np.ndarray([beta]), eta)
         _, waveletfft = morse_wavelet(10000, gamma, beta, fhigh)
         self.assertTrue(
             np.isclose(
