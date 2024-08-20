@@ -43,7 +43,11 @@ def sample_ragged_array() -> RaggedArray:
     }
     coords: dict[str, list[list[int]] | list[int]] = {"id": drifter_id, "time": t}
     metadata = {"rowsize": rowsize}
-    data: dict[str, list[list[int]] | list[list[bool]]] = {"test": test, "lat": latitude, "lon": longitude}
+    data: dict[str, list[list[int]] | list[list[bool]]] = {
+        "test": test,
+        "lat": latitude,
+        "lon": longitude,
+    }
 
     # append xr.Dataset to a list
     list_ds = []

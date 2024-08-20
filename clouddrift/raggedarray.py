@@ -352,7 +352,12 @@ class RaggedArray:
         name_data: list[str],
         name_dims: dict[str, DimNames],
         **kwargs,
-    ) -> tuple[dict[str, NDArray[Any]], dict[str, NDArray[Any]], dict[str, NDArray[Any]], dict[str, str]]:
+    ) -> tuple[
+        dict[str, NDArray[Any]],
+        dict[str, NDArray[Any]],
+        dict[str, NDArray[Any]],
+        dict[str, str],
+    ]:
         """
         Iterate through the files and fill for the ragged array associated
         with coordinates, and selected metadata and data variables.

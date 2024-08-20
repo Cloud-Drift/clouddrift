@@ -271,7 +271,9 @@ def str_to_float(value: str, default: float = np.nan) -> float:
         return default
 
 
-def cut_str(value: str, max_length: int) -> np.chararray[typing.Any, np.dtype[np.bytes_]]:
+def cut_str(
+    value: str, max_length: int
+) -> np.chararray[typing.Any, np.dtype[np.bytes_]]:
     """Cut a string to a specific length and return it as a numpy chararray.
 
     Parameters

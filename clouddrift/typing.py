@@ -6,7 +6,9 @@ import pandas as pd
 import xarray as xr
 
 T = TypeVar("T")
-_SupportedArrayTypes = list[Any] | np.ndarray[Any, np.dtype[Any]] | xr.DataArray | pd.Series[Any]
+_SupportedArrayTypes = (
+    list[Any] | np.ndarray[Any, np.dtype[Any]] | xr.DataArray | pd.Series[Any]
+)
 _ArrayTypes = _SupportedArrayTypes
 
 _SupportedTimeDeltaTypes = pd.Timedelta | timedelta | np.timedelta64
