@@ -1,12 +1,11 @@
 from collections.abc import Sequence
-from typing import Any
 from unittest.mock import Mock, _patch
 
 
 class MultiPatcher:
-    _patches: Sequence[_patch[Any]]
+    _patches: Sequence[_patch]  # type: ignore
 
-    def __init__(self, patches: Sequence[_patch[Any]]):
+    def __init__(self, patches: Sequence[_patch]):  # type: ignore
         self._patches = patches
 
     def __enter__(self) -> Sequence[Mock]:
