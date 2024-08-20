@@ -7,10 +7,12 @@ and six-hourly (``clouddrift.adapters.gdp6h``) GDP modules.
 
 import os
 import tempfile
+import typing
 
 import numpy as np
 import pandas as pd
 import xarray as xr
+from numpy.typing import NDArray
 
 from clouddrift.adapters.utils import download_with_progress
 from clouddrift.raggedarray import DimNames
@@ -269,7 +271,7 @@ def str_to_float(value: str, default: float = np.nan) -> float:
         return default
 
 
-def cut_str(value: str, max_length: int) -> np.chararray:
+def cut_str(value: str, max_length: int) -> np.chararray[typing.Any, np.dtype[np.bytes_]]:
     """Cut a string to a specific length and return it as a numpy chararray.
 
     Parameters
@@ -289,7 +291,7 @@ def cut_str(value: str, max_length: int) -> np.chararray:
     return charar
 
 
-def drogue_presence(lost_time, time) -> np.ndarray:
+def drogue_presence(lost_time, time) -> NDArray[typing.Any]:
     """Create drogue status from the drogue lost time and the trajectory time.
 
     Parameters

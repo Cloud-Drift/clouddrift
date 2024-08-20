@@ -13,6 +13,7 @@ from typing import Any, Literal
 import awkward as ak  # type: ignore
 import numpy as np
 import xarray as xr
+from numpy.typing import NDArray
 from tqdm import tqdm
 
 from clouddrift.ragged import rowsize_to_index
@@ -24,11 +25,11 @@ _DISABLE_SHOW_PROGRESS = False  # purely to de-noise our test suite output, shou
 class RaggedArray:
     def __init__(
         self,
-        coords: dict,
-        metadata: dict,
-        data: dict,
-        attrs_global: dict = {},
-        attrs_variables: dict = {},
+        coords: dict[str, NDArray[Any]],
+        metadata: dict[str, NDArray[Any]],
+        data: dict[str, NDArray[Any]],
+        attrs_global: dict[str, str] = {},
+        attrs_variables: dict[str, dict[str, str]] = {},
         name_dims: dict[str, DimNames] = {},
         coord_dims: dict[str, str] = {},
     ):
@@ -46,7 +47,7 @@ class RaggedArray:
     def from_awkward(
         cls,
         array: ak.Array,
-        name_coords: list,
+        name_coords: list[str],
         name_dims: dict[str, DimNames],
         coord_dims: dict[str, str],
     ):
@@ -101,13 +102,13 @@ class RaggedArray:
         cls,
         indices: list[int],
         preprocess_func: Callable[[int], xr.Dataset],
-        name_coords: list,
-        name_meta: list = list(),
-        name_data: list = list(),
+        name_coords: list[str],
+        name_meta: list[str] = list(),
+        name_data: list[str] = list(),
         name_dims: dict[str, DimNames] = {},
         rowsize_func: Callable[[int], int] | None = None,
-        attrs_global: dict | None = None,
-        attrs_variables: dict | None = None,
+        attrs_global: dict[str, str] | None = None,
+        attrs_variables: dict[str, dict[str, str]] | None = None,
         **kwargs,
     ):
         """Generate a ragged array archive from a list of files
@@ -189,7 +190,7 @@ class RaggedArray:
     def from_parquet(
         cls,
         filename: str,
-        name_coords: list,
+        name_coords: list[str],
         name_dims: dict[str, DimNames],
         coord_dims: dict[str, str],
     ):
@@ -235,9 +236,9 @@ class RaggedArray:
         RaggedArray
             A RaggedArray instance
         """
-        coords = {}
-        metadata = {}
-        data = {}
+        coords: dict[str, NDArray[Any]] = {}
+        metadata: dict[str, NDArray[Any]] = {}
+        data: dict[str, NDArray[Any]] = {}
         coord_dims = {}
         name_dims: dict[str, DimNames] = {rows_dim_name: "rows", obs_dim_name: "obs"}
         attrs_global = {}
@@ -253,6 +254,7 @@ class RaggedArray:
             attrs_variables[var] = ds[var].attrs
 
         for var in ds.data_vars.keys():
+            var = str(var)
             if len(ds[var]) == ds.sizes.get(rows_dim_name):
                 metadata[var] = ds[var].data
             elif len(ds[var]) == ds.sizes.get(obs_dim_name):
@@ -273,8 +275,8 @@ class RaggedArray:
 
     @staticmethod
     def number_of_observations(
-        rowsize_func: Callable[[int], int], indices: list, **kwargs
-    ) -> np.ndarray:
+        rowsize_func: Callable[[int], int], indices: list[int], **kwargs
+    ) -> NDArray[np.int_]:
         """Iterate through the files and evaluate the number of observations.
 
         Parameters
@@ -305,10 +307,10 @@ class RaggedArray:
     @staticmethod
     def attributes(
         ds: xr.Dataset,
-        name_coords: list,
-        name_meta: list,
-        name_data: list,
-    ) -> tuple[dict, dict]:
+        name_coords: list[str],
+        name_meta: list[str],
+        name_data: list[str],
+    ) -> tuple[dict[str, str], dict[str, dict[str, str]]]:
         """Return global attributes and the attributes of all variables
         (name_coords, name_meta, and name_data) from an Xarray Dataset.
 
@@ -343,14 +345,14 @@ class RaggedArray:
     @staticmethod
     def allocate(
         preprocess_func: Callable[[int], xr.Dataset],
-        indices: list,
-        rowsize: list | np.ndarray | xr.DataArray,
-        name_coords: list,
-        name_meta: list,
-        name_data: list,
+        indices: list[int],
+        rowsize: list[Any] | NDArray[Any] | xr.DataArray,
+        name_coords: list[str],
+        name_meta: list[str],
+        name_data: list[str],
         name_dims: dict[str, DimNames],
         **kwargs,
-    ) -> tuple[dict, dict, dict, dict]:
+    ) -> tuple[dict[str, NDArray[Any]], dict[str, NDArray[Any]], dict[str, NDArray[Any]], dict[str, str]]:
         """
         Iterate through the files and fill for the ragged array associated
         with coordinates, and selected metadata and data variables.
@@ -394,7 +396,7 @@ class RaggedArray:
         coords = {}
         coord_dims: dict[str, str] = {}
         for var in name_coords:
-            dim = ds[var].dims[-1]
+            dim = str(ds[var].dims[-1])
             dim_size = dim_sizes[dim]
             coords[var] = np.zeros(dim_size, dtype=ds[var].dtype)
             coord_dims[var] = dim
@@ -427,7 +429,7 @@ class RaggedArray:
                 oid = index_traj[i]
 
                 for var in name_coords:
-                    dim = ds[var].dims[-1]
+                    dim = str(ds[var].dims[-1])
                     if name_dims[dim] == "obs":
                         coords[var][oid : oid + size] = ds[var].data
                     else:

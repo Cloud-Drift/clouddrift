@@ -41,9 +41,9 @@ def sample_ragged_array() -> RaggedArray:
         "title": "test trajectories",
         "history": "version xyz",
     }
-    coords: dict[str, list] = {"id": drifter_id, "time": t}
+    coords: dict[str, list[list[int]] | list[int]] = {"id": drifter_id, "time": t}
     metadata = {"rowsize": rowsize}
-    data: dict[str, list] = {"test": test, "lat": latitude, "lon": longitude}
+    data: dict[str, list[list[int]] | list[list[bool]]] = {"test": test, "lat": latitude, "lon": longitude}
 
     # append xr.Dataset to a list
     list_ds = []
@@ -56,7 +56,7 @@ def sample_ragged_array() -> RaggedArray:
         )
         xr_coords["time"] = (
             ["obs"],
-            coords["time"][i],
+            [coords["time"][i]],
             {"long_name": "variable time", "units": "-"},
         )
 
@@ -208,7 +208,7 @@ class chunk_tests(unittest.TestCase):
 
 class prune_tests(unittest.TestCase):
     def test_prune(self):
-        x = [1, 2, 3, 1, 2, 1, 2, 3, 4]
+        x: list[int] = [1, 2, 3, 1, 2, 1, 2, 3, 4]
         rowsize = [3, 2, 4]
         minimum = 3
 
@@ -379,7 +379,7 @@ class segment_tests(unittest.TestCase):
             np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
 
     def test_segments_pandas(self):
-        x: pd.Series = pd.to_datetime(
+        x: pd.Series[pd.Timestamp] = pd.to_datetime(
             pd.Series(["1/1/2023", "1/2/2023", "1/3/2023", "2/1/2023", "2/2/2023"])
         )
         for tol in list[_TimeDeltaTypes](

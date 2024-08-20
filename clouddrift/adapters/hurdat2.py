@@ -390,7 +390,7 @@ def to_raggedarray(
         preprocess_func=lambda idx: track_data[idx].to_xarray_dataset(),
         attrs_global=TrackData.global_attrs,
         attrs_variables={
-            field.name: field.metadata
+            field.name: dict(field.metadata)
             for field in fields(HeaderLine) + fields(DataLine)
         },
     )

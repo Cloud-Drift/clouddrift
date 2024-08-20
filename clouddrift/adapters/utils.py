@@ -63,7 +63,7 @@ def download_with_progress(
     if custom_retry_protocol is None:
         retry_protocol = standard_retry_protocol
     else:
-        retry_protocol = custom_retry_protocol  # type: ignore
+        retry_protocol = custom_retry_protocol
 
     executor = concurrent.futures.ThreadPoolExecutor()
     futures: dict[
