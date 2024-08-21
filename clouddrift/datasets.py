@@ -182,7 +182,8 @@ def gdp_source(
         If True, skips downloading the data files and the code assumes the files have already been downloaded.
         This is mainly used to skip downloading files if the remote doesn't provide the HTTP  Last-Modified header.
     use_fill_values: bool, True (default)
-        If True, when drifters are found with no associated metadata, ignore the associated observations.
+        When True, missing metadata fields are replaced with fill values. When False and no metadata
+        is found for a given drifter its observations are ignored.
     decode_times : bool, True (default)
         If True, decode the time coordinate into a datetime object. If False, the time
         coordinate will be an int64 or float64 array of increments since the origin
