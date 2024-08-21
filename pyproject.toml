@@ -75,15 +75,15 @@ warn_unused_configs = true
 warn_redundant_casts =true
 warn_unused_ignores = true
 strict_equality = true
-strict_concatenate = true
+extra_checks = true
 disallow_subclassing_any = true
 disallow_untyped_decorators = true
 disallow_any_generics = true
+no_implicit_reexport = true
 
 disallow_untyped_calls = false
 disallow_incomplete_defs = false
 disallow_untyped_defs = false
-no_implicit_reexport = false
 warn_return_any = false
 
 files = [
