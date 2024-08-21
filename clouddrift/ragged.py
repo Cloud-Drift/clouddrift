@@ -13,6 +13,8 @@ import pandas as pd
 import xarray as xr
 
 _Out = t.TypeVar("_Out", bound=tuple[np.ndarray, np.ndarray] | np.ndarray)
+
+
 def apply_ragged(
     func: Callable[..., _Out],
     arrays: list[np.ndarray | xr.DataArray] | np.ndarray | xr.DataArray,
