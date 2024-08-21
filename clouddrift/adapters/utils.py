@@ -1,15 +1,14 @@
 import concurrent.futures
 import logging
 import os
+import typing as t
 import urllib
 from datetime import datetime
 from io import BufferedIOBase, BufferedWriter
-from typing import Callable, Sequence
 
 import requests
 from tenacity import (
     RetryCallState,
-    WrappedFn,
     retry,
     retry_if_exception,
     stop_after_attempt,
@@ -30,7 +29,10 @@ def _before_call(rcs: RetryCallState):
 _CHUNK_SIZE = 1_048_576  # 1MiB
 _logger = logging.getLogger(__name__)
 
-standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
+_Func = t.Callable[..., t.Any]
+_Wrapper = t.Callable[[_Func], _Func]
+
+standard_retry_protocol: _Wrapper = retry(
     retry=retry_if_exception(
         lambda ex: isinstance(
             ex,
@@ -51,12 +53,12 @@ standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
 
 
 def download_with_progress(
-    download_map: Sequence[
+    download_map: t.Sequence[
         tuple[str, BufferedIOBase | str] | tuple[str, BufferedIOBase | str, float]
     ],
     show_list_progress: bool | None = None,
     desc: str = "Downloading files",
-    custom_retry_protocol: Callable[[WrappedFn], WrappedFn] | None = None,
+    custom_retry_protocol: _Wrapper | None = None,
 ):
     if show_list_progress is None:
         show_list_progress = len(download_map) > 20
