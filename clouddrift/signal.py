@@ -10,7 +10,7 @@ def analytic_signal(
     x: np.ndarray | xr.DataArray,
     boundary: str = "periodic",
     time_axis: int = -1,
-) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
+) -> np.ndarray:
     """Return the analytic signal from a real-valued signal or the analytic and
     conjugate analytic signals from a complex-valued signal.
 

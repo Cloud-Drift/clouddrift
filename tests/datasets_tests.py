@@ -1,3 +1,5 @@
+import typing as t
+
 import numpy as np
 
 import tests.utils as testutils
@@ -36,8 +38,11 @@ class datasets_tests(testutils.DisableProgressTestCase):
                 row_dim_name="traj",
             )
             self.assertTrue(ds_sub)
-            mean_lon = apply_ragged(np.mean, [ds_sub.longitude], ds_sub.rowsize)
+            mean_lon = apply_ragged(self._mean, [ds_sub.longitude], ds_sub.rowsize)
             self.assertTrue(len(mean_lon) == 2)
+
+    def _mean(self, x: np.ndarray[t.Any, t.Any]) -> np.ndarray[t.Any, t.Any]:
+        return np.mean(x)
 
     def test_spotters_opens(self):
         with datasets.spotters() as ds:

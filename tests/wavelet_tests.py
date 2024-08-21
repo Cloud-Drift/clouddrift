@@ -22,7 +22,7 @@ class morse_wavelet_transform_tests(unittest.TestCase):
         length = 1023
         radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
         x = np.random.random(length)
-        wtx = morse_wavelet_transform(x, 3, 10, radian_frequency)
+        wtx = morse_wavelet_transform(x, 3, 10, radian_frequency, False)
         wavelet, _ = morse_wavelet(length, 3, 10, radian_frequency)
         wtx2 = wavelet_transform(x, wavelet)
         self.assertTrue(np.allclose(wtx, wtx2))
@@ -44,8 +44,8 @@ class morse_wavelet_transform_tests(unittest.TestCase):
         x = np.random.random(length)
         y = np.random.random(length)
         z = x + 1j * y
-        wtx, _ = morse_wavelet_transform(x, 3, 10, radian_frequency, complex=False)
-        wty, _ = morse_wavelet_transform(y, 3, 10, radian_frequency, complex=False)
+        wtx = morse_wavelet_transform(x, 3, 10, radian_frequency, complex=False)
+        wty = morse_wavelet_transform(y, 3, 10, radian_frequency, complex=False)
         wp = 0.5 * (wtx + 1j * wty)
         wn = 0.5 * (wtx - 1j * wty)
         wp2, _ = morse_wavelet_transform(z, 3, 10, radian_frequency, complex=True)
@@ -61,10 +61,10 @@ class morse_wavelet_transform_tests(unittest.TestCase):
         x = np.random.random(length)
         y = np.random.random(length)
         z = x + 1j * y
-        wtx, _ = morse_wavelet_transform(
+        wtx = morse_wavelet_transform(
             x, 3, 10, radian_frequency, complex=False, normalization="energy"
         )
-        wty, _ = morse_wavelet_transform(
+        wty = morse_wavelet_transform(
             y, 3, 10, radian_frequency, complex=False, normalization="energy"
         )
         wp = (wtx + 1j * wty) / np.sqrt(2)
@@ -82,7 +82,7 @@ class morse_wavelet_transform_tests(unittest.TestCase):
         f = 0.2
         t = np.arange(0, 1000)
         x = np.cos(2 * np.pi * t * f)
-        wtx = morse_wavelet_transform(x, 3, 10, 2 * np.pi * np.array([f]))
+        wtx = morse_wavelet_transform(x, 3, 10, 2 * np.pi * np.array([f]), False)
         self.assertTrue(np.isclose(np.var(x), 0.5 * np.var(wtx), atol=1e-2))
 
     def test_morse_wavelet_transform_exp(self):
@@ -287,7 +287,7 @@ class morse_logspace_freq_tests(unittest.TestCase):
         gamma = 4
         beta = 4
         eta = 0.1
-        fhigh = _morsehigh(np.ndarray([gamma]), np.ndarray([beta]), eta)
+        fhigh = _morsehigh(np.array([gamma]), np.array([beta]), eta)
         _, waveletfft = morse_wavelet(10000, gamma, beta, fhigh)
         self.assertTrue(
             np.isclose(

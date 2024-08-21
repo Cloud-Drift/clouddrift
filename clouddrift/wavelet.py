@@ -15,9 +15,39 @@ Any other code that is added to this module and that is specific to Python and
 not the MATLAB implementation is licensed under CloudDrift's MIT license.
 """
 
+import typing as t
+
 import numpy as np
 from scipy.special import gamma as _gamma
 from scipy.special import gammaln as _lgamma
+
+
+@t.overload
+def morse_wavelet_transform(
+    x: np.ndarray,
+    gamma: float,
+    beta: float,
+    radian_frequency: np.ndarray,
+    complex: t.Literal[True],
+    order: int = 1,
+    normalization: str = "bandpass",
+    boundary: str = "mirror",
+    time_axis: int = -1,
+) -> tuple[np.ndarray, np.ndarray]: ...
+
+
+@t.overload
+def morse_wavelet_transform(
+    x: np.ndarray,
+    gamma: float,
+    beta: float,
+    radian_frequency: np.ndarray,
+    complex: t.Literal[False],
+    order: int = 1,
+    normalization: str = "bandpass",
+    boundary: str = "mirror",
+    time_axis: int = -1,
+) -> np.ndarray: ...
 
 
 def morse_wavelet_transform(
@@ -25,12 +55,12 @@ def morse_wavelet_transform(
     gamma: float,
     beta: float,
     radian_frequency: np.ndarray,
-    complex: bool = False,
+    complex: bool,
     order: int = 1,
     normalization: str = "bandpass",
     boundary: str = "periodic",
     time_axis: int = -1,
-) -> tuple[np.ndarray, np.ndarray] | np.ndarray:
+):
     """
     Apply a continuous wavelet transform to an input signal using the generalized Morse
     wavelets of Olhede and Walden (2002). The wavelet transform is normalized differently
@@ -185,18 +215,9 @@ def morse_wavelet_transform(
             wtx_n = wavelet_transform(
                 np.conj(x / np.sqrt(2)), wavelet, boundary=boundary, time_axis=time_axis
             )
-        wtx = wtx_p, wtx_n
+        return wtx_p, wtx_n
 
-    elif not complex:
-        # real case
-        wtx = wavelet_transform(x, wavelet, boundary=boundary, time_axis=time_axis)
-
-    else:
-        raise ValueError(
-            "`complex` optional argument must be boolean 'True' or 'False'"
-        )
-
-    return wtx
+    return wavelet_transform(x, wavelet, boundary=boundary, time_axis=time_axis)
 
 
 def wavelet_transform(

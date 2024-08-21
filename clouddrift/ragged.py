@@ -2,27 +2,27 @@
 Transformational and inquiry functions for ragged arrays.
 """
 
+import typing as t
 import warnings
 from collections.abc import Callable, Iterable
 from concurrent import futures
 from datetime import timedelta
-from typing import Any
 
 import numpy as np
 import pandas as pd
 import xarray as xr
 
-
+_Out = t.TypeVar("_Out", bound=tuple[np.ndarray, np.ndarray] | np.ndarray)
 def apply_ragged(
-    func: callable,
+    func: Callable[..., _Out],
     arrays: list[np.ndarray | xr.DataArray] | np.ndarray | xr.DataArray,
     rowsize: list[int] | np.ndarray[int] | xr.DataArray,
-    *args: Any,
+    *args: t.Any,
     rows: int | Iterable[int] = None,
     axis: int = 0,
     executor: futures.Executor = futures.ThreadPoolExecutor(max_workers=None),
-    **kwargs: Any,
-) -> tuple[np.ndarray, np.ndarray] | np.ndarray:
+    **kwargs: t.Any,
+) -> _Out:
     """Apply a function to a ragged array.
 
     The function ``func`` will be applied to each contiguous row of ``arrays`` as

@@ -531,7 +531,7 @@ def velocity_from_position(
     coord_system: str = "spherical",
     difference_scheme: str = "forward",
     time_axis: int = -1,
-) -> tuple[xr.DataArray, xr.DataArray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Compute velocity from arrays of positions and time.
 
     x and y can be provided as longitude and latitude in degrees if

@@ -41,7 +41,6 @@ def sample_ragged_array() -> RaggedArray:
         "title": "test trajectories",
         "history": "version xyz",
     }
-    coords: dict[str, list[list[int]] | list[int]] = {"id": drifter_id, "time": t}
     metadata = {"rowsize": rowsize}
     data: dict[str, list[list[int]] | list[list[bool]]] = {
         "test": test,
@@ -55,12 +54,12 @@ def sample_ragged_array() -> RaggedArray:
         xr_coords = {}
         xr_coords["id"] = (
             ["rows"],
-            [coords["id"][i]],
+            [drifter_id[i]],
             {"long_name": "variable id", "units": "-"},
         )
         xr_coords["time"] = (
             ["obs"],
-            [coords["time"][i]],
+            t[i],
             {"long_name": "variable time", "units": "-"},
         )
 
@@ -526,8 +525,8 @@ class apply_ragged_tests(unittest.TestCase):
         # ragged axis 1 is th same as applying it to the transpose over ragged
         # axis 0.
         rowsize = [1, 1]
-        y0, _ = apply_ragged(func, x.T, rowsize, axis=0)
-        y1, _ = apply_ragged(func, x, rowsize, axis=1)
+        y0 = apply_ragged(func, x.T, rowsize, axis=0)
+        y1 = apply_ragged(func, x, rowsize, axis=1)
         self.assertTrue(np.all(y0 == y1.T))
 
         # Test that axis=1 works with reduction over the non-ragged axis.
