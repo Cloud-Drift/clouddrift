@@ -790,8 +790,8 @@ def subset(
 
 
 def unpack(
-    ragged_array: np.ndarray,
-    rowsize: np.ndarray[int],
+    ragged_array: np.ndarray | xr.DataArray,
+    rowsize: np.ndarray[int] | xr.DataArray,
     rows: int | np.int_ | Iterable[int] | None = None,
     axis: int = 0,
 ) -> list[np.ndarray]:

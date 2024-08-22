@@ -5,10 +5,10 @@ import datetime
 import logging
 import os
 import tempfile
+import typing as t
 import warnings
 from collections import defaultdict
 from concurrent.futures import Future, ProcessPoolExecutor, as_completed
-from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -56,7 +56,7 @@ _METADATA_VARS = [
     "death_code",
 ]
 
-_VARS_FILL_MAP: dict = {
+_VARS_FILL_MAP: dict[str, int | str | np.datetime64] = {
     "wmo_number": -999,
     "program_number": -999,
     "buoys_type": "N/A",
@@ -70,7 +70,7 @@ _VARS_FILL_MAP: dict = {
     "death_code": -999,
 }
 
-_VAR_DTYPES: dict = {
+_VAR_DTYPES: dict[str, type | np.dtype[np.datetime64]] = {
     "rowsize": np.int64,
     "wmo_number": np.int64,
     "program_number": np.int64,
@@ -126,7 +126,7 @@ _INPUT_COLS_DTYPES = {
 }
 
 
-VARS_ATTRS: dict = {
+VARS_ATTRS: dict[str, dict[str, str]] = {
     "id": {"long_name": "Global Drifter Program Buoy ID", "units": "-"},
     "rowsize": {
         "long_name": "Number of observations per trajectory",
@@ -334,7 +334,9 @@ def _preprocess(id_, **kwargs) -> xr.Dataset:
     return dataset
 
 
-def _apply_remove(df: pd.DataFrame, filters: list[Callable]) -> pd.DataFrame:
+def _apply_remove(
+    df: pd.DataFrame, filters: list[t.Callable[..., t.Any]]
+) -> pd.DataFrame:
     temp_df = df
     for filter_ in filters:
         mask = filter_(temp_df)
@@ -344,7 +346,7 @@ def _apply_remove(df: pd.DataFrame, filters: list[Callable]) -> pd.DataFrame:
 
 def _apply_transform(
     df: pd.DataFrame,
-    transforms: dict[str, tuple[list[str], Callable]],
+    transforms: dict[str, tuple[list[str], t.Callable[..., t.Any]]],
 ) -> pd.DataFrame:
     tmp_df = df
     for output_col in transforms.keys():
@@ -359,8 +361,10 @@ def _apply_transform(
 
 
 def _parse_datetime_with_day_ratio(
-    month_series: np.ndarray, day_series: np.ndarray, year_series: np.ndarray
-) -> np.ndarray:
+    month_series: np.ndarray[t.Any, np.dtype[np.int_]],
+    day_series: np.ndarray[t.Any, np.dtype[np.float_]],
+    year_series: np.ndarray[t.Any, np.dtype[np.int_]],
+) -> np.ndarray[t.Any, np.dtype[np.datetime64]]:
     values = list()
     for month, day_with_ratio, year in zip(month_series, day_series, year_series):
         day = day_with_ratio // 1
@@ -479,7 +483,7 @@ def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset]) -> xr.Dataset:
     )
 
     sort_coord = traj_dataset.coords["obs_index"]
-    vals: np.ndarray = sort_coord.data
+    vals: np.ndarray[t.Any, np.dtype[np.int_]] = sort_coord.data
     sort_coord_dim = sort_coord.dims[-1]
     sort_key = vals.argsort()
 
@@ -531,8 +535,8 @@ async def _parallel_get(
                 chunksize=chunk_size,
             )
 
-            joblist = list[Future]()
-            jobmap = dict[Future, pd.DataFrame]()
+            joblist = list[Future[dict[int, xr.Dataset]]]()
+            jobmap = dict[Future[dict[int, xr.Dataset]], pd.DataFrame]()
             for idx, chunk in enumerate(file_chunks):
                 if max_chunks is not None and idx >= max_chunks:
                     break
@@ -568,7 +572,7 @@ async def _parallel_get(
                     drifter_chunked_datasets[id_].append(drifter_ds)
                 bar.update()
 
-        combine_jobmap = dict[Future, int]()
+        combine_jobmap = dict[Future[xr.Dataset], int]()
         for id_ in drifter_chunked_datasets.keys():
             datasets = drifter_chunked_datasets[id_]
 

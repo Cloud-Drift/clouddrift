@@ -44,4 +44,4 @@ class gdp_source_files_integration(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        [shutil.rmtree(dir) for dir in [gdp_source._TMP_PATH]]
+        shutil.rmtree(gdp_source._TMP_PATH)

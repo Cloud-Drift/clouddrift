@@ -158,10 +158,10 @@ def _download_with_progress(
                 )
 
     _logger.debug(f"Downloading from {url} to {output}...")
-    bar = None
-
     with requests.get(url, timeout=5, stream=True) as response:
-        buffer: BufferedWriter | BufferedIOBase | None = None
+        bar = None
+        buffer = None
+
         try:
             if isinstance(output, (str,)):
                 buffer = open(output, "wb")
@@ -181,6 +181,7 @@ def _download_with_progress(
                     nrows=2,
                     disable=_DISABLE_SHOW_PROGRESS,
                 )
+
             for chunk in response.iter_content(_CHUNK_SIZE):
                 if not chunk:
                     break
@@ -188,8 +189,6 @@ def _download_with_progress(
                 if bar is not None:
                     bar.update(len(chunk))
         finally:
-            if response is not None:
-                response.close()
             if bar is not None:
                 bar.close()
             if buffer is not None and isinstance(output, (str,)):
