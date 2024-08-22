@@ -361,9 +361,9 @@ def _apply_transform(
 
 
 def _parse_datetime_with_day_ratio(
-    month_series: np.ndarray[t.Any, np.dtype[np.int_]],
-    day_series: np.ndarray[t.Any, np.dtype[np.float_]],
-    year_series: np.ndarray[t.Any, np.dtype[np.int_]],
+    month_series: np.ndarray[t.Any, np.dtype[np.float32]],
+    day_series: np.ndarray[t.Any, np.dtype[np.float32]],
+    year_series: np.ndarray[t.Any, np.dtype[np.float32]],
 ) -> np.ndarray[t.Any, np.dtype[np.datetime64]]:
     values = list()
     for month, day_with_ratio, year in zip(month_series, day_series, year_series):
