@@ -41,7 +41,7 @@ jobs:
       - name: Create coverage report
         shell: bash -l {0}
         run: |
-              coverage xml
+              coverage xml -i
       - name: Upload coverage report to Codecov
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
         uses: codecov/codecov-action@v4
