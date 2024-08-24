@@ -37,7 +37,7 @@ jobs:
         run: coverage run -m pytest -c pyproject.toml
       - name: Display report
         shell: bash -l {0}
-        run: coverage report
+        run: coverage report -i
       - name: Create coverage report
         shell: bash -l {0}
         run: |
