@@ -14,6 +14,9 @@
 [![Available on pypi](https://img.shields.io/pypi/v/clouddrift.svg?style=flat-square&color=blue)](https://pypi.org/project/clouddrift/)
 
 ### 👥 Social
+
+**[Join the Email Distribution List](http://eepurl.com/iNt1M2)**
+
 [![Bluesky](https://img.shields.io/badge/Bluesky-0285FF?logo=bluesky&logoColor=fff&style=for-the-badge)](https://bsky.app/profile/clouddrift.bsky.social)
 [![Twitter/X](https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white)](https://twitter.com/CloudDrift2)
 
