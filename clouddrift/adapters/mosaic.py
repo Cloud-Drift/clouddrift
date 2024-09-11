@@ -28,7 +28,7 @@ import pandas as pd
 import requests
 import xarray as xr
 
-from clouddrift.adapters.utils import download_with_progress
+from clouddrift.adapters.utils import download_with_progress, standard_retry_protocol
 
 MOSAIC_VERSION = "2022"
 
@@ -59,10 +59,11 @@ def get_dataframes() -> tuple[pd.DataFrame, pd.DataFrame]:
         range(len(sensor_ids)), key=lambda k: order_index[sensor_ids[k]]
     )
     sorted_data_urls = [data_urls[i] for i in sorted_indices]
-    buffers = [BytesIO(b"") for _ in range(len(sorted_data_urls))]
-    requests = [(url, BytesIO(b""), None) for url in sorted_data_urls]
+    buffers = [BytesIO() for _ in range(len(sorted_data_urls))]
+    requests = [(url, buffer) for url, buffer in zip(sorted_data_urls, buffers)]
 
     download_with_progress(requests, desc="Downloading data")
+    [b.seek(0) for b in buffers]
     dfs = [pd.read_csv(b) for b in buffers]
     obs_df = pd.concat(dfs)
 
@@ -100,7 +101,7 @@ def get_repository_metadata() -> bytes:
     Pass this string to other get_* functions to extract the data you need.
     """
     url = "https://arcticdata.io/metacat/d1/mn/v2/object/doi:10.18739/A2KP7TS83"
-    r = requests.get(url)
+    r = standard_retry_protocol(lambda: requests.get(url))()
     return r.content
 
 

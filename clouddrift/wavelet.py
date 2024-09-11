@@ -25,12 +25,12 @@ def morse_wavelet_transform(
     gamma: float,
     beta: float,
     radian_frequency: np.ndarray,
-    complex: bool | None = False,
-    order: int | None = 1,
-    normalization: str | None = "bandpass",
-    boundary: str | None = "mirror",
-    time_axis: int | None = -1,
-) -> tuple[np.ndarray] | np.ndarray:
+    complex: bool = False,
+    order: int = 1,
+    normalization: str = "bandpass",
+    boundary: str = "mirror",
+    time_axis: int = -1,
+) -> tuple[np.ndarray, np.ndarray] | np.ndarray:
     """
     Apply a continuous wavelet transform to an input signal using the generalized Morse
     wavelets of Olhede and Walden (2002). The wavelet transform is normalized differently
@@ -202,10 +202,10 @@ def morse_wavelet_transform(
 def wavelet_transform(
     x: np.ndarray,
     wavelet: np.ndarray,
-    boundary: str | None = "mirror",
-    time_axis: int | None = -1,
-    freq_axis: int | None = -2,
-    order_axis: int | None = -3,
+    boundary: str = "mirror",
+    time_axis: int = -1,
+    freq_axis: int = -2,
+    order_axis: int = -3,
 ) -> np.ndarray:
     """
     Apply a continuous wavelet transform to an input signal using an input wavelet
@@ -347,8 +347,8 @@ def morse_wavelet(
     gamma: float,
     beta: float,
     radian_frequency: np.ndarray,
-    order: int | None = 1,
-    normalization: str | None = "bandpass",
+    order: int = 1,
+    normalization: str = "bandpass",
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Compute the generalized Morse wavelets of Olhede and Walden (2002), doi: 10.1109/TSP.2002.804066.
@@ -492,8 +492,8 @@ def _morse_wavelet_first_family(
     beta: float,
     norm_radian_frequency: np.ndarray,
     wavezero: np.ndarray,
-    order: int | None = 1,
-    normalization: str | None = "bandpass",
+    order: int = 1,
+    normalization: str = "bandpass",
 ) -> np.ndarray:
     """
     Derive first family of Morse wavelets. Internal use only.
@@ -525,7 +525,7 @@ def _morse_wavelet_first_family(
 def morse_freq(
     gamma: np.ndarray | float,
     beta: np.ndarray | float,
-) -> tuple[np.ndarray] | tuple[float]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray] | tuple[float, float, float]:
     """
     Frequency measures for generalized Morse wavelets. This functions calculates
     three different measures fm, fe, and fi of the frequency of the lowest-order generalized Morse
@@ -605,9 +605,9 @@ def morse_logspace_freq(
     gamma: float,
     beta: float,
     length: int,
-    highset: tuple[float] | None = (0.1, np.pi),
-    lowset: tuple[float] | None = (5, 0),
-    density: int | None = 4,
+    highset: tuple[float, float] = (0.1, np.pi),
+    lowset: tuple[float, float] = (5, 0),
+    density: int = 4,
 ) -> np.ndarray:
     """
     Compute logarithmically-spaced frequencies for generalized Morse wavelets
@@ -715,7 +715,7 @@ def _morsehigh(
 def morse_properties(
     gamma: np.ndarray | float,
     beta: np.ndarray | float,
-) -> tuple[np.ndarray] | tuple[float]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray] | tuple[float, float, float]:
     """
     Calculate the properties of the demodulated generalized Morse wavelets.
     See Lilly and Olhede (2009), doi: 10.1109/TSP.2008.2007607.
@@ -757,8 +757,8 @@ def morse_properties(
 def morse_amplitude(
     gamma: np.ndarray | float,
     beta: np.ndarray | float,
-    order: np.int64 | None = 1,
-    normalization: str | None = "bandpass",
+    order: int = 1,
+    normalization: str = "bandpass",
 ) -> float:
     """
     Calculate the amplitude coefficient of the generalized Morse wavelets.

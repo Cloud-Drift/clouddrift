@@ -29,9 +29,9 @@ import xarray as xr
 from clouddrift.adapters.utils import download_with_progress
 
 # order of the URLs is important
-ANDRO_URL = "https://www.seanoe.org/data/00360/47077/data/91950.dat"
+ANDRO_URL = "https://www.seanoe.org/data/00360/47077/data/109566.dat"
 ANDRO_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "andro")
-ANDRO_VERSION = "2022-03-04"
+ANDRO_VERSION = "2024-03-25"
 
 
 def to_xarray(tmp_path: str | None = None):
@@ -41,7 +41,7 @@ def to_xarray(tmp_path: str | None = None):
 
     # get or update dataset
     local_file = f"{tmp_path}/{ANDRO_URL.split('/')[-1]}"
-    download_with_progress([(ANDRO_URL, local_file, None)])
+    download_with_progress([(ANDRO_URL, local_file)])
 
     # parse with panda
     col_names = [
@@ -325,7 +325,7 @@ def to_xarray(tmp_path: str | None = None):
 
     # global attributes
     attrs = {
-        "title": "ANDRO: An Argo-based deep displacement dataset",
+        "title": "ANDRO: An Argo-based deep displacement dataset (Quality controlled data)",
         "history": f"Dataset updated on {ANDRO_VERSION}",
         "date_created": datetime.now().isoformat(),
         "publisher_name": "SEANOE (SEA scieNtific Open data Edition)",

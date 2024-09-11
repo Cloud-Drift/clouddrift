@@ -16,7 +16,7 @@ def plot_ragged(
     rowsize: list | np.ndarray | pd.Series | xr.DataArray,
     *args,
     colors: list | np.ndarray | pd.Series | xr.DataArray | None = None,
-    tolerance: float | int | None = 180,
+    tolerance: float | int = 180,
     **kwargs,
 ):
     """Plot individually the rows of a ragged array dataset on a Matplotlib Axes

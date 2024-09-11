@@ -78,9 +78,8 @@ def gdp1h(decode_times: bool = True) -> xr.Dataset:
     --------
     :func:`gdp6h`
     """
-    url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/latest/gdp-v2.01.zarr"
+    url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/latest/gdp-v2.01.1.zarr"
     ds = xr.open_dataset(url, engine="zarr", decode_times=decode_times)
-    ds = ds.rename_vars({"ID": "id"}).assign_coords({"id": ds.ID}).drop_vars(["ids"])
     return ds
 
 
@@ -88,13 +87,10 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     """Returns the NOAA Global Drifter Program (GDP) 6-hourly dataset as a ragged array
     Xarray dataset.
 
-    The data is accessed from a public HTTPS server at NOAA's Atlantic
+    The data is accessed from zarr archive hosted on a public AWS S3 bucket accessible at
+    s3://noaa-oar-hourly-gdp-pds/experimental/. Original data source from NOAA's Atlantic
     Oceanographic and Meteorological Laboratory (AOML) accessible at
-    https://www.aoml.noaa.gov/phod/gdp/index.php. It should be noted that the data loading
-    method is platform dependent. Linux and Darwin (macOS) machines lazy load the datasets leveraging the
-    byte-range feature of the netCDF-c library (dataset loading engine used by xarray).
-    Windows machines download the entire dataset into a memory buffer which is then passed
-    to xarray.
+    https://www.aoml.noaa.gov/phod/gdp/index.php.
 
     Parameters
     ----------
@@ -157,6 +153,83 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     return ds
 
 
+def gdp_source(
+    tmp_path: str = adapters.gdp_source._TMP_PATH,
+    max: int | None = None,
+    skip_download: bool = False,
+    use_fill_values: bool = True,
+    decode_times: bool = True,
+) -> xr.Dataset:
+    """Returns the NOAA Global Drifter Program (GDP) source (raw) dataset as a ragged array
+    Xarray dataset.
+
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored as zarr archive for later access.
+
+    The data is accessed from a public HTTPS server at NOAA's Atlantic
+    Oceanographic and Meteorological Laboratory (AOML) at
+    https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst/.
+
+    Parameters
+    ----------
+    tmp_path: str, default adapter temp path (default)
+        Temporary path where intermediary files are stored.
+    max: int, optional
+        Maximum number of files to retrieve and parse to generate the aggregate file. Mainly used
+        for testing purposes.
+    skip_download: bool, False (default)
+        If True, skips downloading the data files and the code assumes the files have already been downloaded.
+        This is mainly used to skip downloading files if the remote doesn't provide the HTTP  Last-Modified header.
+    use_fill_values: bool, True (default)
+        When True, missing metadata fields are replaced with fill values. When False and no metadata
+        is found for a given drifter its observations are ignored.
+    decode_times : bool, True (default)
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
+
+    Returns
+    -------
+    xarray.Dataset
+        source GDP dataset as a ragged array
+
+    Examples
+    --------
+    >>> from clouddrift.datasets import gdp_source
+    >>> ds = gdp_source()
+    >>> ds
+    <xarray.Dataset> Size: ...
+    Dimensions:            (traj: ..., obs: ...)
+    Coordinates:
+        id                 (traj) int64 222kB ...
+        obs_index          (obs) int32 1GB ...
+    Dimensions without coordinates: traj, obs
+    Data variables: (12/22)
+        buoys_type         (traj) <U5 ...
+        death_code         (traj) int64 ...
+        drogue             (obs) float32 ...
+        drogue_off_date    (traj) datetime64[ns] ...
+        end_date           (traj) datetime64[ns] ...
+        end_lat            (traj) float64 222kB ...
+        ...                 ...
+        sst                (obs) float32 ...
+        start_date         (traj) datetime64[ns] ...
+        start_lat          (traj) float64 ...
+        start_lon          (traj) float64 ...
+        voltage            (obs) float32 ...
+        wmo_number         (traj) int64 ...
+    """
+    file_selection_label = "all" if max is None else f"first-{max}"
+    return _dataset_filecache(
+        f"gdpsource_agg_{file_selection_label}.zarr",
+        decode_times,
+        lambda: adapters.gdp_source.to_raggedarray(
+            tmp_path, skip_download, max, use_fill_values=use_fill_values
+        ),
+    )
+
+
 def glad(decode_times: bool = True) -> xr.Dataset:
     """Returns the Grand LAgrangian Deployment (GLAD) dataset as a ragged array
     Xarray dataset.
@@ -211,7 +284,11 @@ def glad(decode_times: bool = True) -> xr.Dataset:
     return _dataset_filecache("glad.nc", decode_times, adapters.glad.to_xarray)
 
 
-def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataArray:
+def hurdat2(
+    basin: _BasinOption = "both",
+    decode_times: bool = True,
+    tmp_path: str = adapters.hurdat2._DEFAULT_FILE_PATH,
+) -> xr.DataArray:
     """Returns the revised hurricane database (HURDAT2) as a ragged array xarray dataset.
 
     The function will first look for the ragged array dataset on the local
@@ -235,6 +312,8 @@ def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataA
     -------
     xarray.Dataset
         HURDAT2 dataset as a ragged array.
+
+    Standard usage of the dataset.
 
     >>> from clouddrift.datasets import hurdat2
     >>> ds = hurdat2()
@@ -268,7 +347,8 @@ def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataA
         summary:          The National Hurricane Center (NHC) conducts a post-sto...
     ...
 
-    If you would like to select a specific ocean basin like the Atlantic Ocean you would do so like this:
+    To only retrieve records for the Atlantic Ocean basin.
+
     >>> from clouddrift.datasets import hurdat2
     >>> ds = hurdat2(basin="atlantic")
     >>> ds
@@ -282,7 +362,7 @@ def hurdat2(basin: _BasinOption = "both", decode_times: bool = True) -> xr.DataA
     return _dataset_filecache(
         f"hurdat2_{basin}.nc",
         decode_times,
-        lambda: adapters.hurdat2.to_raggedarray(basin).to_xarray(),
+        lambda: adapters.hurdat2.to_raggedarray(basin, tmp_path).to_xarray(),
     )
 
 
@@ -549,7 +629,7 @@ def yomaha(decode_times: bool = True) -> xr.Dataset:
     return _dataset_filecache("yomaha.nc", decode_times, adapters.yomaha.to_xarray)
 
 
-def andro(decode_times: bool = False) -> xr.Dataset:
+def andro(decode_times: bool = True) -> xr.Dataset:
     """Returns the ANDRO as a ragged array Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
@@ -573,36 +653,36 @@ def andro(decode_times: bool = False) -> xr.Dataset:
     >>> from clouddrift.datasets import andro
     >>> ds = andro()
     >>> ds
-    <xarray.Dataset>
-    Dimensions:     (obs: 1360753, traj: 9996)
+    <xarray.Dataset> Size: 110MB
+    Dimensions:     (obs: 510630, traj: 3344)
     Coordinates:
-        time_d      (obs) datetime64[ns] ...
-        time_s      (obs) datetime64[ns] ...
-        time_lp     (obs) datetime64[ns] ...
-        time_lc     (obs) datetime64[ns] ...
-        id          (traj) int64 ...
+        time_d      (obs) datetime64[ns] 4MB ...
+        time_s      (obs) datetime64[ns] 4MB ...
+        time_lp     (obs) datetime64[ns] 4MB ...
+        time_lc     (obs) datetime64[ns] 4MB ...
+        id          (traj) float32 13kB ...
     Dimensions without coordinates: obs, traj
     Data variables: (12/33)
-        lon_d       (obs) float64 ...
-        lat_d       (obs) float64 ...
-        pres_d      (obs) float32 ...
-        temp_d      (obs) float32 ...
-        sal_d       (obs) float32 ...
-        ve_d        (obs) float32 ...
+        lon_d       (obs) float64 4MB ...
+        lat_d       (obs) float64 4MB ...
+        pres_d      (obs) float32 2MB ...
+        temp_d      (obs) float32 2MB ...
+        sal_d       (obs) float32 2MB ...
+        ve_d        (obs) float32 2MB ...
         ...          ...
-        lon_lc      (obs) float64 ...
-        lat_lc      (obs) float64 ...
-        surf_fix    (obs) int64 ...
-        cycle       (obs) int64 ...
-        profile_id  (obs) float32 ...
-        rowsize     (traj) int64 ...
+        lon_lc      (obs) float64 4MB ...
+        lat_lc      (obs) float64 4MB ...
+        surf_fix    (obs) float32 2MB ...
+        cycle       (obs) float32 2MB ...
+        profile_id  (obs) float32 2MB ...
+        rowsize     (traj) int64 27kB ...
     Attributes:
-        title:           ANDRO: An Argo-based deep displacement dataset
-        history:         2022-03-04
-        date_created:    2023-12-08T00:52:00.937120
+        title:           ANDRO: An Argo-based deep displacement dataset (Quality ...
+        history:         Dataset updated on 2024-03-25
+        date_created:    2024-07-02T12:11:50.643492
         publisher_name:  SEANOE (SEA scieNtific Open data Edition)
         publisher_url:   https://www.seanoe.org/data/00360/47077/
-        license:         freely available
+        license:         Creative Commons Attribution 4.0 International License (...
 
     Reference
     ---------
@@ -616,15 +696,27 @@ def andro(decode_times: bool = False) -> xr.Dataset:
 def _dataset_filecache(
     filename: str, decode_times: bool, get_ds: Callable[[], xr.Dataset]
 ):
+    os.path
+    _, ext = os.path.splitext(filename)
     clouddrift_path = (
         os.path.expanduser("~/.clouddrift")
         if not os.getenv("CLOUDDRIFT_PATH")
         else os.getenv("CLOUDDRIFT_PATH")
     )
     fp = f"{clouddrift_path}/data/{filename}"
+    os.makedirs(os.path.dirname(fp), exist_ok=True)
+
     if not os.path.exists(fp):
-        print(f"{fp} not found; download from upstream repository.")
         ds = get_ds()
-        os.makedirs(os.path.dirname(fp), exist_ok=True)
-        ds.to_netcdf(fp)
-    return xr.open_dataset(fp, decode_times=decode_times)
+        if ext == ".nc":
+            ds.to_netcdf(fp)
+        elif ext == ".zarr":
+            ds.to_zarr(fp)
+        else:
+            ds.to_netcdf(fp)
+
+    engine = None
+    if ext == ".zarr":
+        engine = "zarr"
+
+    return xr.open_dataset(fp, decode_times=decode_times, engine=engine)

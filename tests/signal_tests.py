@@ -24,7 +24,7 @@ class analytic_signal_tests(unittest.TestCase):
     def test_imag(self):
         x = np.random.rand(99) + 1j * np.random.rand(99)
         z = analytic_signal(x)
-        self.assertTrue(type(z) == tuple)
+        self.assertTrue(isinstance(z, tuple))
 
     def test_real_odd(self):
         x = np.random.rand(99)

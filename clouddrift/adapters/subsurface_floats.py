@@ -34,7 +34,7 @@ SUBSURFACE_FLOATS_TMP_PATH = os.path.join(
 
 
 def download(file: str):
-    download_with_progress([(SUBSURFACE_FLOATS_DATA_URL, file, None)])
+    download_with_progress([(SUBSURFACE_FLOATS_DATA_URL, file)])
 
 
 def to_xarray(

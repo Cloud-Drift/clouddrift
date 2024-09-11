@@ -103,19 +103,19 @@ def distance(
     # Input coordinates are in degrees; convert to radians.
     # If any of the input arrays are xr.DataArray, extract the values first
     # because Xarray enforces alignment between coordinates.
-    if type(lat1) is xr.DataArray:
+    if isinstance(lat1, xr.DataArray):
         lat1_rad = np.deg2rad(lat1.values)
     else:
         lat1_rad = np.deg2rad(lat1)
-    if type(lon1) is xr.DataArray:
+    if isinstance(lon1, xr.DataArray):
         lon1_rad = np.deg2rad(lon1.values)
     else:
         lon1_rad = np.deg2rad(lon1)
-    if type(lat2) is xr.DataArray:
+    if isinstance(lat2, xr.DataArray):
         lat2_rad = np.deg2rad(lat2.values)
     else:
         lat2_rad = np.deg2rad(lat2)
-    if type(lon2) is xr.DataArray:
+    if isinstance(lon2, xr.DataArray):
         lon2_rad = np.deg2rad(lon2.values)
     else:
         lon2_rad = np.deg2rad(lon2)
@@ -178,19 +178,19 @@ def bearing(
     # Input coordinates are in degrees; convert to radians.
     # If any of the input arrays are xr.DataArray, extract the values first
     # because Xarray enforces alignment between coordinates.
-    if type(lat1) is xr.DataArray:
+    if isinstance(lat1, xr.DataArray):
         lat1_rad = np.deg2rad(lat1.values)
     else:
         lat1_rad = np.deg2rad(lat1)
-    if type(lon1) is xr.DataArray:
+    if isinstance(lon1, xr.DataArray):
         lon1_rad = np.deg2rad(lon1.values)
     else:
         lon1_rad = np.deg2rad(lon1)
-    if type(lat2) is xr.DataArray:
+    if isinstance(lat2, xr.DataArray):
         lat2_rad = np.deg2rad(lat2.values)
     else:
         lat2_rad = np.deg2rad(lat2)
-    if type(lon2) is xr.DataArray:
+    if isinstance(lon2, xr.DataArray):
         lon2_rad = np.deg2rad(lon2.values)
     else:
         lon2_rad = np.deg2rad(lon2)
@@ -254,7 +254,7 @@ def position_from_distance_and_bearing(
     lat_rad = np.deg2rad(lat)
     lon_rad = np.deg2rad(lon)
 
-    distance_rad = distance / EARTH_RADIUS_METERS
+    distance_rad = np.asarray(distance) / EARTH_RADIUS_METERS
 
     lat2_rad = np.arcsin(
         np.sin(lat_rad) * np.cos(distance_rad)
@@ -268,7 +268,7 @@ def position_from_distance_and_bearing(
     return np.rad2deg(lon2_rad), np.rad2deg(lat2_rad)
 
 
-def recast_lon(lon: np.ndarray, lon0: float | None = -180) -> np.ndarray:
+def recast_lon(lon: np.ndarray, lon0: float = -180) -> np.ndarray:
     """Recast (convert) longitude values to a selected range of 360 degrees
     starting from ``lon0``.
 
@@ -529,7 +529,7 @@ def sphere_to_plane(
 def spherical_to_cartesian(
     lon: float | list | np.ndarray | xr.DataArray,
     lat: float | list | np.ndarray | xr.DataArray,
-    radius: float | None = EARTH_RADIUS_METERS,
+    radius: float = EARTH_RADIUS_METERS,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Converts latitude and longitude on a spherical body to
      three-dimensional Cartesian coordinates.
@@ -666,7 +666,7 @@ def cartesian_to_tangentplane(
     w: float | np.ndarray,
     longitude: float | np.ndarray,
     latitude: float | np.ndarray,
-) -> tuple[float] | tuple[np.ndarray]:
+) -> tuple[float, float] | tuple[np.ndarray, np.ndarray]:
     """
     Project a three-dimensional Cartesian vector on a plane tangent to
     a spherical Earth.
@@ -730,7 +730,7 @@ def tangentplane_to_cartesian(
     vp: float | np.ndarray,
     longitude: float | np.ndarray,
     latitude: float | np.ndarray,
-) -> tuple[float] | tuple[np.ndarray]:
+) -> tuple[float, float, float] | tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Return the three-dimensional Cartesian components of a vector contained in
     a plane tangent to a spherical Earth.

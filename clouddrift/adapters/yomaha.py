@@ -19,7 +19,7 @@ Lebedev, K. V., Yoshinari, H., Maximenko, N. A., & Hacker, P. W. (2007). Velocit
 import gzip
 import logging
 import os
-import sys
+import shutil
 import tempfile
 import warnings
 from datetime import datetime
@@ -46,7 +46,7 @@ YOMAHA_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "yomaha")
 
 def download(tmp_path: str):
     download_requests = [
-        (url, f"{tmp_path}/{url.split('/')[-1]}", None) for url in YOMAHA_URLS[:-1]
+        (url, f"{tmp_path}/{url.split('/')[-1]}") for url in YOMAHA_URLS[:-1]
     ]
     download_with_progress(download_requests)
 
@@ -54,20 +54,14 @@ def download(tmp_path: str):
     filename = filename_gz.removesuffix(".gz")
 
     buffer = BytesIO()
-    download_with_progress([(YOMAHA_URLS[-1], buffer, None)])
+    download_with_progress([(YOMAHA_URLS[-1], buffer)])
 
     decompressed_fp = os.path.join(tmp_path, filename)
-    with open(decompressed_fp, "wb") as file:
-        _logger.debug(
-            f"decompressing {filename_gz} into {decompressed_fp}. Original Size: {sys.getsizeof(buffer)}"
-        )
-        buffer.seek(0)
-        data = buffer.read()
-        while data:
-            file.write(gzip.decompress(data))
-            data = buffer.read()
-        _logger.debug(f"Decompressed size of {filename_gz}: {sys.getsizeof(file)}")
-        buffer.close()
+    with (
+        open(decompressed_fp, "wb") as file,
+        gzip.open(buffer, "rb") as compressed_file,
+    ):
+        shutil.copyfileobj(compressed_file, file)
 
 
 def to_xarray(tmp_path: str | None = None):

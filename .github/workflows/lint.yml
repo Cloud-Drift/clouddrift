@@ -16,6 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: chartboost/ruff-action@v1
+      - uses: chartboost/ruff-action@v1
+        with:
+            args: format --check
   mypy:
     runs-on: ubuntu-latest
     steps:

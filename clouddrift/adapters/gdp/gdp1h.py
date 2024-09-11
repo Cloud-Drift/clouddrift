@@ -17,10 +17,10 @@ import numpy as np
 import xarray as xr
 
 import clouddrift.adapters.gdp as gdp
-from clouddrift.adapters.utils import download_with_progress
+from clouddrift.adapters.utils import download_with_progress, standard_retry_protocol
 from clouddrift.raggedarray import RaggedArray
 
-GDP_VERSION = "2.01"
+GDP_VERSION = "2.01.1"
 
 
 GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01"
@@ -57,8 +57,8 @@ _logger = logging.getLogger(__name__)
 
 
 def download(
-    url: str,
-    tmp_path: str,
+    url: str = GDP_DATA_URL,
+    tmp_path: str = GDP_TMP_PATH,
     drifter_ids: list[int] | None = None,
     n_random_id: int | None = None,
 ):
@@ -89,7 +89,7 @@ def download(
 
     # retrieve all drifter ID numbers
     if drifter_ids is None:
-        urlpath = urllib.request.urlopen(url)
+        urlpath = standard_retry_protocol(lambda: urllib.request.urlopen(url))()
         string = urlpath.read().decode("utf-8")
         filelist: Sequence[str] = re.compile(pattern).findall(string)  # noqa: F821
     else:
@@ -103,14 +103,14 @@ def download(
                 f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(filelist)} listed trajectories."
             )
         else:
-            rng = np.random.RandomState(42)
+            rng = np.random.Generator(np.random.MT19937(42))
             filelist = sorted(rng.choice(filelist, n_random_id, replace=False))
 
     download_with_progress(
-        [(f"{url}/{f}", os.path.join(tmp_path, f), None) for f in filelist]
+        [(f"{url}/{f}", os.path.join(tmp_path, f)) for f in filelist]
     )
     # Download the metadata so we can order the drifter IDs by end date.
-    gdp_metadata = gdp.get_gdp_metadata()
+    gdp_metadata = gdp.get_gdp_metadata(tmp_path)
 
     return gdp.order_by_date(
         gdp_metadata, [int(f.split("_")[-1].removesuffix(".nc")) for f in filelist]
@@ -139,6 +139,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         fp,
         decode_times=False,
         decode_coords=False,
+        engine="netcdf4",
     )
 
     # parse the date with custom function
@@ -212,87 +213,98 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     # convert attributes to variable
     ds["location_type"] = (
         ("traj"),
-        [False if ds.get("location_type") == "Argos" else True],
+        [False if ds.attrs.get("location_type") == "Argos" else True],
     )  # 0 for Argos, 1 for GPS
-    ds["DeployingShip"] = (("traj"), gdp.cut_str(ds.DeployingShip, 20))
+    ds["DeployingShip"] = (("traj"), gdp.cut_str(ds.attrs.get("DeployingShip", ""), 20))
     ds["DeploymentStatus"] = (
         ("traj"),
-        gdp.cut_str(ds.DeploymentStatus, 20),
+        gdp.cut_str(ds.attrs.get("DeploymentStatus", ""), 20),
     )
     ds["BuoyTypeManufacturer"] = (
         ("traj"),
-        gdp.cut_str(ds.BuoyTypeManufacturer, 20),
+        gdp.cut_str(ds.attrs.get("BuoyTypeManufacturer", ""), 20),
     )
     ds["BuoyTypeSensorArray"] = (
         ("traj"),
-        gdp.cut_str(ds.BuoyTypeSensorArray, 20),
+        gdp.cut_str(ds.attrs.get("BuoyTypeSensorArray", ""), 20),
     )
     ds["CurrentProgram"] = (
         ("traj"),
-        np.array([gdp.str_to_float(ds.CurrentProgram, -1)], dtype=np.int32),
+        np.array(
+            [gdp.str_to_float(ds.attrs.get("CurrentProgram", ""), -1)], dtype=np.int32
+        ),
     )
     ds["PurchaserFunding"] = (
         ("traj"),
-        gdp.cut_str(ds.PurchaserFunding, 20),
+        gdp.cut_str(ds.attrs.get("PurchaserFunding", ""), 20),
     )
-    ds["SensorUpgrade"] = (("traj"), gdp.cut_str(ds.SensorUpgrade, 20))
-    ds["Transmissions"] = (("traj"), gdp.cut_str(ds.Transmissions, 20))
+    ds["SensorUpgrade"] = (("traj"), gdp.cut_str(ds.attrs.get("SensorUpgrade", ""), 20))
+    ds["Transmissions"] = (("traj"), gdp.cut_str(ds.attrs.get("Transmissions", ""), 20))
     ds["DeployingCountry"] = (
         ("traj"),
-        gdp.cut_str(ds.DeployingCountry, 20),
+        gdp.cut_str(ds.attrs.get("DeployingCountry", ""), 20),
     )
     ds["DeploymentComments"] = (
         ("traj"),
-        np.array([gdp.str_to_float(ds.ManufactureYear, -1)], dtype=np.int16),
+        np.array(
+            [gdp.str_to_float(ds.attrs.get("ManufactureYear", ""), -1)], dtype=np.int16
+        ),
     )
     ds["ManufactureMonth"] = (
         ("traj"),
-        np.array([gdp.str_to_float(ds.ManufactureMonth, -1)], dtype=np.int16),
+        np.array(
+            [gdp.str_to_float(ds.attrs.get("ManufactureMonth", ""), -1)], dtype=np.int16
+        ),
     )
     ds["ManufactureSensorType"] = (
         ("traj"),
-        gdp.cut_str(ds.ManufactureSensorType, 20),
+        gdp.cut_str(ds.attrs.get("ManufactureSensorType", ""), 20),
     )
     ds["ManufactureVoltage"] = (
         ("traj"),
-        np.array([gdp.str_to_float(ds.ManufactureVoltage[:-2], -1)], dtype=np.int16),
+        np.array(
+            [gdp.str_to_float(ds.attrs.get("ManufactureVoltage", "")[:-2], -1)],
+            dtype=np.int16,
+        ),
     )  # e.g. 56 V
     ds["FloatDiameter"] = (
         ("traj"),
-        [gdp.str_to_float(ds.FloatDiameter[:-3])],
+        [gdp.str_to_float(ds.attrs.get("FloatDiameter", "")[:-3])],
     )  # e.g. 35.5 cm
     ds["SubsfcFloatPresence"] = (
         ("traj"),
-        np.array([gdp.str_to_float(ds.SubsfcFloatPresence)], dtype="bool"),
+        np.array(
+            [gdp.str_to_float(ds.attrs.get("SubsfcFloatPresence", ""))], dtype="bool"
+        ),
     )
-    ds["DrogueType"] = (("traj"), gdp.cut_str(ds.DrogueType, 7))
+    ds["DrogueType"] = (("traj"), gdp.cut_str(ds.attrs.get("DrogueType", ""), 7))
     ds["DrogueLength"] = (
         ("traj"),
-        [gdp.str_to_float(ds.DrogueLength[:-2])],
+        [gdp.str_to_float(ds.attrs.get("DrogueLength", "")[:-2])],
     )  # e.g. 4.8 m
     ds["DrogueBallast"] = (
         ("traj"),
-        [gdp.str_to_float(ds.DrogueBallast[:-3])],
+        [gdp.str_to_float(ds.attrs.get("DrogueBallast", "")[:-3])],
     )  # e.g. 1.4 kg
     ds["DragAreaAboveDrogue"] = (
         ("traj"),
-        [gdp.str_to_float(ds.DragAreaAboveDrogue[:-4])],
+        [gdp.str_to_float(ds.attrs.get("DragAreaAboveDrogue", "")[:-4])],
     )  # 10.66 m^2
     ds["DragAreaOfDrogue"] = (
         ("traj"),
-        [gdp.str_to_float(ds.DragAreaOfDrogue[:-4])],
+        [gdp.str_to_float(ds.attrs.get("DragAreaOfDrogue", "")[:-4])],
     )  # e.g. 416.6 m^2
     ds["DragAreaRatio"] = (
         ("traj"),
-        [gdp.str_to_float(ds.DragAreaRatio)],
+        [gdp.str_to_float(ds.attrs.get("DragAreaRatio", ""))],
     )  # e.g. 39.08
     ds["DrogueCenterDepth"] = (
         ("traj"),
-        [gdp.str_to_float(ds.DrogueCenterDepth[:-2])],
+        [gdp.str_to_float(ds.attrs.get("DrogueCenterDepth", "")[:-2])],
     )  # e.g. 20.0 m
     ds["DrogueDetectSensor"] = (
         ("traj"),
-        gdp.cut_str(ds.DrogueDetectSensor, 20),
+        gdp.cut_str(ds.attrs.get("DrogueDetectSensor", ""), 20),
     )
 
     # vars attributes

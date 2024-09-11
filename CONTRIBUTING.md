@@ -52,20 +52,29 @@ examples:
 
 ⚡ improve dataset loading time
 ⭐ include new ibtracs dataset
-🐛 x feature doesn't work on windows 
+🐛 x feature doesn't work on windows
 
 Common emojis to use are as follow:
 
+++ version increment
 ⭐ New / changed feature
 ❗ Deprecation of a feature
 ⛔ Removal of feature
 🐛 Bugfix
+🧹 Chore / refactoring / migration / dependency deprecation related
 ⚡ Performance/memory improvements
-🔍 Documentation, refactoring
+🔍 Documentation
 🔧 Tooling/Build scripts/CI (other non-application changes)
 ```
 
 Almost all pull requests are merged with the "squash and merge" feature, so details about commit history within a pull request are hidden from the `main` branch's history. Feel free, therefore, to commit with any frequency you're comfortable with.
+
+### VS Code Developer Quickstart
+If you utilize VS Code as your primary IDE you can leverage the automation `tasks` we provide. These automation tasks enable a **one-click** experience when downloading dependencies, running pre-commit processes (linting, styling, type checking, uni testing) and building docs, served and inspected locally.
+
+The only pre-requisite is to have `conda` installed on your development machine. For more info on this please visit [anaconda installation guide](https://docs.anaconda.com/free/anaconda/install/)
+
+Its strongly recommended to download and use the `vscode-taskexplorer` [extension](https://marketplace.visualstudio.com/items?itemName=spmeesseman.vscode-taskexplorer) by Scott Meesseman (provides GUI task interaction in the explorer):
 
 
 ### Preparing your environment
@@ -87,7 +96,7 @@ source .venv/bin/activate
 pip install .
 ```
 
-with conda:
+with conda (recommended):
 
 ```
 conda env create -f environment.yml
@@ -103,59 +112,60 @@ conda activate clouddrift
 with pip:
 
 ```
-pip install matplotlib cartopy
+pip install clouddrift[dev,plotting]
 ```
 
 with conda:
 
 ```
-conda install matplotlib-base cartopy
+conda install pytest matplotlib cartopy coverage
 ```
 
 3. Run the test suite:
 
 ```
-python -m unittest tests/*.py
+pytest tests/*_tests.py tests/adapters/*_tests.py
 ```
 
-### Building locally and installing 
-This can be useful for understanding how the package is built, testing the process and can be leveraged for testing
+  a. Run the docstring tests:
+  ```
+  pytest --doctest-modules clouddrift/ragged.py
+  ```
+
+4. Run the test suite (with coverage):
+```
+coverage run -m pytest tests/*_tests.py tests/adapters/*_tests.py
+```
+
+5. Read the report:
+```
+coverage report
+```
+
+### Building locally and installing
+This can be useful for understanding how the package is built, testing the process, and can be leveraged for testing
 experimental versions of the library from a users perspective.
 
-1. Install the build dependencies
+
+1. pre-requisite step: [Preparing your environment](#preparing-your-environment)
+
+2. Build the distribution package and install it
 
 with pip:
 ```
-pip install build twine docutils
-```
-
-with conda:
-```
-conda install build twine docutils
-```
-
-2. Generate the wheel (.whl) and tarball (tar.gz) distribution package(s):
-```
-python -m build
-```
-
-3. Install the distribution package
-
-with pip:
-```
-pip install dist/clouddrift*.whl
+pip install .
 ```
 
 ### Automatic formatting and linting
 
 The Clouddrift project uses the [`ruff`](https://github.com/astral-sh/ruff) tool for formatting the code and linting. We also leverage [`mypy`](https://github.com/python/mypy) for static typing. Please see the section on [Automated Processes](#automated-processes) to learn about how these tools are used prior to accepting pull requests.
 
-1. Install development dependencies 
+1. Install development dependencies
 
 with pip:
 
 ```
-pip install ruff mypy
+pip install clouddrift[dev]
 ```
 
 with conda:
@@ -190,13 +200,13 @@ mypy --config-file pyproject.toml
 
 ### Automated Processes
 
-* `unittest` `ruff` and `mypy` are executed as part of the CI process. If any unit tests fail or styling, linting or typing errors are found
+* `pytest` `ruff` and `mypy` are executed as part of the CI process. If any unit tests fail or styling, linting or typing errors are found
 the process will fail and will block pull requests from being merged.
 
 ### Building documentation locally
 This is useful if you want to inspect the documentation that gets generated
 
-* pre-requisite step: [Building locally and installing](#building-locally-and-installing) necessary for sphinx to find class/module references 
+* pre-requisite step: [Building locally and installing](#building-locally-and-installing) necessary for sphinx to find class/module references
 
 
 1. Go into the docs directory:
@@ -206,7 +216,7 @@ cd docs
 
 2. Install the Sphinx documentation generation dependencies:
 ```
-pip install -r requirements.txt
+pip install clouddrift[docs]
 ```
 
 3. Generate the new documentation:
@@ -228,7 +238,7 @@ To make an `clouddrift` release you must do it as part of a pull request:
 * Be sure to increase the version number in `pyproject.toml` in accordance with the [Semantic Versioning Specification](https://semver.org/)
 * Once the PR is merged locally update your local main branch
   * `git checkout main`
-  * `git pull` 
+  * `git pull`
 * Tag the release with the new version number as so: vX.Y.Z (e.g. - v0.32.0, v1.10.0, etc...)
   * `git tag vX.Y.Z` (e.g. - `git tag v0.32.0`)
 * Push the tag up (origin here is the remote repository for the `clouddrift` repository of the `Cloud-Drift` organization on GitHub)

@@ -11,6 +11,7 @@ from clouddrift.kinematics import velocity_from_position
 from clouddrift.ragged import (
     apply_ragged,
     chunk,
+    obs_index_to_row,
     prune,
     ragged_to_regular,
     regular_to_ragged,
@@ -212,8 +213,8 @@ class prune_tests(unittest.TestCase):
 
         for data in [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]:
             x_new, rowsize_new = prune(data, rowsize, minimum)
-            self.assertTrue(type(x_new) is np.ndarray)
-            self.assertTrue(type(rowsize_new) is np.ndarray)
+            self.assertTrue(isinstance(x_new, np.ndarray))
+            self.assertTrue(isinstance(rowsize_new, np.ndarray))
             np.testing.assert_equal(x_new, [1, 2, 3, 1, 2, 3, 4])
             np.testing.assert_equal(rowsize_new, [3, 4])
 
@@ -293,7 +294,7 @@ class segment_tests(unittest.TestCase):
     def test_segment(self):
         x = [0, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4]
         tol = 0.5
-        self.assertTrue(type(segment(x, tol)) is np.ndarray)
+        self.assertTrue(isinstance(segment(x, tol), np.ndarray))
         self.assertTrue(np.all(segment(x, tol) == np.array([1, 3, 2, 4, 1])))
         self.assertTrue(np.all(segment(np.array(x), tol) == np.array([1, 3, 2, 4, 1])))
         self.assertTrue(
@@ -317,7 +318,7 @@ class segment_tests(unittest.TestCase):
         tol = 0.5
         rowsize = [6, 5]
         segment_sizes = segment(x, tol, rowsize)
-        self.assertTrue(type(segment_sizes) is np.ndarray)
+        self.assertTrue(isinstance(segment_sizes, np.ndarray))
         self.assertTrue(np.all(segment_sizes == np.array([1, 3, 2, 4, 1])))
 
     def test_segment_positive_and_negative_tolerance(self):
@@ -762,7 +763,7 @@ class unpack_tests(unittest.TestCase):
         lon = unpack(ds.lon, ds["rowsize"])
 
         self.assertTrue(isinstance(lon, list))
-        self.assertTrue(np.all([type(a) is xr.DataArray for a in lon]))
+        self.assertTrue(np.all([isinstance(a, xr.DataArray) for a in lon]))
         self.assertTrue(
             np.all([lon[n].size == ds["rowsize"][n] for n in range(len(lon))])
         )
@@ -771,7 +772,7 @@ class unpack_tests(unittest.TestCase):
         lon = unpack(ds.lon.values, ds["rowsize"])
 
         self.assertTrue(isinstance(lon, list))
-        self.assertTrue(np.all([type(a) is np.ndarray for a in lon]))
+        self.assertTrue(np.all([isinstance(a, np.ndarray) for a in lon]))
         self.assertTrue(
             np.all([lon[n].size == ds["rowsize"][n] for n in range(len(lon))])
         )
@@ -807,3 +808,59 @@ class unpack_tests(unittest.TestCase):
                 for a, b in zip(unpack(x, rowsize, np.int64(0)), unpack(x, rowsize)[:1])
             )
         )
+
+
+class obs_index_to_row_tests(unittest.TestCase):
+    def test_obs_index_to_row(self):
+        index = list(range(10))
+        rowsize = [2, 5, 3]
+        row = obs_index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == [0, 0, 1, 1, 1, 1, 1, 2, 2, 2]))
+
+    def test_obs_index_to_row_array_like_rowsize(self):
+        index = list(range(10))
+        rowsize = xr.DataArray(data=[2, 5, 3])
+        row = obs_index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == np.array([0, 0, 1, 1, 1, 1, 1, 2, 2, 2])))
+
+    def test_obs_index_to_row_array_rowsize(self):
+        index = list(range(10))
+        rowsize = np.array([2, 5, 3])
+        row = obs_index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == np.array([0, 0, 1, 1, 1, 1, 1, 2, 2, 2])))
+
+    def test_obs_index_to_row_array_like_index(self):
+        index = xr.DataArray(data=list(range(10)))
+        rowsize = [2, 5, 3]
+        row = obs_index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == np.array([0, 0, 1, 1, 1, 1, 1, 2, 2, 2])))
+
+    def test_obs_index_to_row_array_index(self):
+        index = np.array(range(10))
+        rowsize = [2, 5, 3]
+        row = obs_index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == np.array([0, 0, 1, 1, 1, 1, 1, 2, 2, 2])))
+
+    def test_obs_index_to_row_array_like(self):
+        index = xr.DataArray(data=list(range(10)))
+        rowsize = xr.DataArray(data=[2, 5, 3])
+        row = obs_index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == np.array([0, 0, 1, 1, 1, 1, 1, 2, 2, 2])))
+
+    def test_obs_index_to_row_array(self):
+        index = np.array(range(10))
+        rowsize = np.array([2, 5, 3])
+        row = obs_index_to_row(index, rowsize)
+        self.assertTrue(np.all(row == np.array([0, 0, 1, 1, 1, 1, 1, 2, 2, 2])))
+
+    def test_obs_index_to_row_out_of_bounds(self):
+        index = 10
+        rowsize = [2, 5, 3]
+        with self.assertRaises(ValueError):
+            obs_index_to_row(index, rowsize)
+
+    def test_obs_index_to_row_negative(self):
+        index = -1
+        rowsize = [2, 5, 3]
+        with self.assertRaises(ValueError):
+            obs_index_to_row(index, rowsize)

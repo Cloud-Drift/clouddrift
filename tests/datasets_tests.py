@@ -1,15 +1,11 @@
-import unittest
-
 import numpy as np
 
+import tests.utils as testutils
 from clouddrift import datasets
 from clouddrift.ragged import apply_ragged, subset
 
-if __name__ == "__main__":
-    unittest.main()
 
-
-class datasets_tests(unittest.TestCase):
+class datasets_tests(testutils.DisableProgressTestCase):
     def test_gdp1h(self):
         with datasets.gdp1h() as ds:
             self.assertTrue(ds)
@@ -53,8 +49,21 @@ class datasets_tests(unittest.TestCase):
 
     def test_andro_opens(self):
         with datasets.andro() as ds:
-            self.assertTrue(ds)
+            self.assertTrue(ds is not None)
+            self.assertTrue(len(ds.variables) > 0)
+            self.assertTrue(len(ds["lon_d"]) > 0)
+
+            self.assertTrue(
+                len(ds.lat_d[np.logical_or(ds.lat_d > 90, ds.lat_d < -90)]) == 0
+            )
+            self.assertTrue(
+                len(ds.lat_d[np.logical_or(ds.lon_d > 180, ds.lon_d < -180)]) == 0
+            )
 
     def test_yomaha_opens(self):
         with datasets.yomaha() as ds:
+            self.assertTrue(ds)
+
+    def test_mosaic_opens(self):
+        with datasets.mosaic() as ds:
             self.assertTrue(ds)

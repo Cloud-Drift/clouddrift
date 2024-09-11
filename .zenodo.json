@@ -1,0 +1,33 @@
+{
+    "creators": [
+        {
+            "orcid": "0000-0001-6051-5426",
+            "affiliation": "Rosenstiel School of Marine, Atmospheric, and Earth Science, University of Miami",
+            "name": "Elipot, Shane"
+        },
+        {
+            "orcid": "0000-0002-8520-6221",
+            "affiliation": "Florida State University",
+            "name": "Miron, Philippe"
+        },
+        {
+            "orcid": "0000-0002-8822-7749",
+            "affiliation": "Rosenstiel School of Marine, Atmospheric, and Earth Science, University of Miami",
+            "name": "Curcic, Milan"
+        },
+        {
+            "orcid": "0009-0003-8383-1212",
+            "affiliation": "Rosenstiel School of Marine, Atmospheric, and Earth Science, University of Miami",
+            "name": "Santana, Kevin"
+        },
+        {
+            "orcid": "0000-0002-6690-1704",
+            "affiliation": "NOAA Atlantic Oceanographic and Meteorological Laboratory",
+            "name": "Lumpkin, Rick"
+        }
+    ],
+
+    "license": "MIT",
+
+    "grants": [{"id":"10.13039/100000001::2126413"}]
+}

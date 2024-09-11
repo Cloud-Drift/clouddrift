@@ -13,7 +13,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  test:
+  unittest:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -28,18 +28,41 @@ jobs:
           environment-name: clouddrift
           create-args: >-
             python=${{ matrix.python-version }}
+            pytest
             coverage
-            matplotlib-base
+            matplotlib
             cartopy
       - name: Run unit tests
         shell: bash -l {0}
-        run: coverage run -m unittest discover -s tests -p "*.py"
+        run: coverage run -m pytest -c pyproject.toml
+      - name: Display report
+        shell: bash -l {0}
+        run: coverage report -i
       - name: Create coverage report
         shell: bash -l {0}
         run: |
-              coverage xml
+              coverage xml -i
       - name: Upload coverage report to Codecov
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: ./coverage.xml
+  doctest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest"]
+        python-version: ["3.10"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yml
+          environment-name: clouddrift
+          create-args: >-
+            python=${{ matrix.python-version }}
+            pytest
+      - name: Run doc tests
+        shell: bash -l {0}
+        run: pytest --doctest-modules clouddrift/ragged.py

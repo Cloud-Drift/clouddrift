@@ -97,10 +97,10 @@ venv.bak/
 y/
 
 # IDEs
+.vscode
 .idea
 *.swp
 *.DS_Store
-.vscode/
 Icon*
 .spyderproject
 .spyproject
