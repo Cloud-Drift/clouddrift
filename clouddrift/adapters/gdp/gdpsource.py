@@ -11,12 +11,10 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import xarray as xr
-from dask import delayed
 from tqdm import tqdm
 
 from clouddrift.adapters.gdp import get_gdp_metadata
 from clouddrift.adapters.utils import download_with_progress
-from clouddrift.ragged import subset
 from clouddrift.raggedarray import RaggedArray
 
 _DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst"
@@ -407,8 +405,6 @@ def _process(
         ],
     )
 
-    drifter_ds_map = dict[int, xr.Dataset]()
-
     preremove_len = len(preremove_df)
     postremove_len = len(df_chunk)
 
@@ -418,7 +414,7 @@ def _process(
         )
 
     if postremove_len == 0:
-        return drifter_ds_map
+        raise ValueError("All rows removed from dataframe, please review filters")
 
     df_chunk = df_chunk.astype(_INPUT_COLS_DTYPES)
     df_chunk = _apply_transform(
@@ -462,7 +458,6 @@ def _process(
         tqdm={"disable": True},
     )
     return ra.to_xarray()
-
 
 
 def to_raggedarray(
