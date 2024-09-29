@@ -7,7 +7,6 @@ from io import BufferedIOBase, BufferedWriter
 from typing import Callable, Sequence
 
 import requests
-from requests import Response
 from tenacity import (
     RetryCallState,
     WrappedFn,
@@ -66,11 +65,10 @@ def download_with_progress(
     else:
         retry_protocol = custom_retry_protocol  # type: ignore
 
-    buffer: BufferedIOBase | BufferedWriter
     executor = concurrent.futures.ThreadPoolExecutor()
     futures: dict[
-        concurrent.futures.Future,
-        tuple[str, BufferedIOBase | str, BufferedIOBase | BufferedWriter],
+        concurrent.futures.Future[None],
+        tuple[str, BufferedIOBase | str],
     ] = dict()
     bar = None
 
@@ -81,20 +79,15 @@ def download_with_progress(
             src, dst = request
             exp_size = None
 
-        if isinstance(dst, (str,)):
-            buffer = open(dst, "wb")
-        else:
-            buffer = dst
-
         futures[
             executor.submit(
                 retry_protocol(_download_with_progress),
                 src,
-                buffer,
+                dst,
                 exp_size,
                 not show_list_progress,
             )
-        ] = (src, dst, buffer)
+        ] = (src, dst)
 
     try:
         if show_list_progress:
@@ -106,11 +99,7 @@ def download_with_progress(
             )
 
         for fut in concurrent.futures.as_completed(futures):
-            src, dst, buffer = futures[fut]
-
-            if isinstance(dst, (str,)):
-                buffer.close()
-
+            src, dst = futures[fut]
             ex = fut.exception(0)
             if ex is None:
                 _logger.debug(f"Finished download job: ({src}, {dst})")
@@ -124,7 +113,7 @@ def download_with_progress(
               any created resources."
         )
         for x in futures.keys():
-            src, dst, buffer = futures[x]
+            src, dst = futures[x]
 
             if not x.done():
                 x.cancel()
@@ -140,7 +129,7 @@ def download_with_progress(
 
 def _download_with_progress(
     url: str,
-    output: BufferedIOBase | BufferedWriter,
+    output: str | BufferedIOBase,
     expected_size: float | None,
     show_progress: bool,
 ):
@@ -165,39 +154,44 @@ def _download_with_progress(
                     "Cannot determine if the file has been updated on the remote source. "
                     + "'Last-Modified' header not present in server response."
                 )
-    _logger.debug(f"Downloading from {url} to {output}...")
 
-    response: Response | None = None
+    _logger.debug(f"Downloading from {url} to {output}...")
     bar = None
 
-    try:
-        response = requests.get(url, timeout=5, stream=True)
+    with requests.get(url, timeout=5, stream=True) as response:
+        buffer: BufferedWriter | BufferedIOBase | None = None
+        try:
+            if isinstance(output, (str,)):
+                buffer = open(output, "wb")
+            else:
+                buffer = output
 
-        if (content_length := response.headers.get("Content-Length")) is not None:
-            expected_size = float(content_length)
+            if (content_length := response.headers.get("Content-Length")) is not None:
+                expected_size = float(content_length)
 
-        if show_progress:
-            bar = tqdm(
-                desc=url,
-                total=expected_size,
-                unit="B",
-                unit_scale=True,
-                unit_divisor=_CHUNK_SIZE,
-                nrows=2,
-                disable=_DISABLE_SHOW_PROGRESS,
-            )
-
-        for chunk in response.iter_content(_CHUNK_SIZE):
-            if not chunk:
-                break
-            output.write(chunk)
+            if show_progress:
+                bar = tqdm(
+                    desc=url,
+                    total=expected_size,
+                    unit="B",
+                    unit_scale=True,
+                    unit_divisor=_CHUNK_SIZE,
+                    nrows=2,
+                    disable=_DISABLE_SHOW_PROGRESS,
+                )
+            for chunk in response.iter_content(_CHUNK_SIZE):
+                if not chunk:
+                    break
+                buffer.write(chunk)
+                if bar is not None:
+                    bar.update(len(chunk))
+        finally:
+            if response is not None:
+                response.close()
             if bar is not None:
-                bar.update(len(chunk))
-    finally:
-        if response is not None:
-            response.close()
-        if bar is not None:
-            bar.close()
+                bar.close()
+            if buffer is not None and isinstance(output, (str,)):
+                buffer.close()
 
 
 __all__ = ["download_with_progress"]

@@ -163,6 +163,7 @@ class recast_longitude_tests(unittest.TestCase):
         self.assertTrue(np.isclose(bearing(0, 0, 0, -0.1), -np.pi / 2))
         self.assertTrue(np.isclose(bearing(0, 0, 0.1, -0.1), -np.pi / 4))
 
+
 class position_from_distance_and_bearing_tests(unittest.TestCase):
     def test_position_from_distance_and_bearing_one_degree(self):
         self.assertTrue(
