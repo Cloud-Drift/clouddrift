@@ -156,7 +156,6 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
 def gdp_source(
     tmp_path: str = adapters.gdp_source._TMP_PATH,
     max: int | None = None,
-    skip_download: bool = False,
     use_fill_values: bool = True,
     decode_times: bool = True,
 ) -> xr.Dataset:
@@ -178,9 +177,6 @@ def gdp_source(
     max: int, optional
         Maximum number of files to retrieve and parse to generate the aggregate file. Mainly used
         for testing purposes.
-    skip_download: bool, False (default)
-        If True, skips downloading the data files and the code assumes the files have already been downloaded.
-        This is mainly used to skip downloading files if the remote doesn't provide the HTTP  Last-Modified header.
     use_fill_values: bool, True (default)
         When True, missing metadata fields are replaced with fill values. When False and no metadata
         is found for a given drifter its observations are ignored.
@@ -225,7 +221,7 @@ def gdp_source(
         f"gdpsource_agg_{file_selection_label}.zarr",
         decode_times,
         lambda: adapters.gdp_source.to_raggedarray(
-            tmp_path, skip_download, max, use_fill_values=use_fill_values
+            tmp_path, max, use_fill_values=use_fill_values
         ),
     )
 

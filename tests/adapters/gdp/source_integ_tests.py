@@ -19,7 +19,7 @@ class gdp_source_files_integration(unittest.TestCase):
         may contain rows for one drifter (chunking can split a drifters trajectory) we join
         these partitioned segments in parallel per drifter.
         """
-        ds = gdp_source.to_raggedarray(max=1, chunk_size=1_000, max_chunks=100)
+        ds = gdp_source.to_raggedarray(max=1)
         assert ds is not None
 
         all_drifter_obs_index = unpack(ds["obs_index"].data, ds["rowsize"])
