@@ -22,6 +22,8 @@ class utils_tests(unittest.TestCase):
         self.get_response_mock = Mock()
         self.get_response_mock.headers = dict()
         self.get_response_mock.iter_content = Mock(return_value=["a", "b", "c"])
+        self.get_response_mock.__enter__ = Mock(return_value=self.get_response_mock)
+        self.get_response_mock.__exit__ = Mock()
 
         self.requests_mock = Mock()
         self.requests_mock.head = Mock(return_value=self.head_response_mock)
@@ -92,9 +94,9 @@ class utils_tests(unittest.TestCase):
         """
         mocked_futures = [self.gen_future_mock() for _ in range(0, 3)]
         download_requests = [
-            ("src0", "dst", None),
-            ("src1", "dst", None),
-            ("src2", "dst", None),
+            ("src0", "dst"),
+            ("src1", "dst"),
+            ("src2", "dst"),
         ]
 
         tpe_mock = Mock()
