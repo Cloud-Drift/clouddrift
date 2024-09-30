@@ -444,8 +444,23 @@ def _process(
             + f" for missing metadata ids: {np.setdiff1d(ids_in_data, ids_with_md)}."
         )
 
+    if use_fill_values:
+        selected_ids = ids_in_data
+    else:
+        selected_ids = ids_with_md
+
+    gdp_start_dates = [
+        gdp_metadata_df[gdp_metadata_df["ID"] == id_][["Start_date"]].values.flatten()[
+            0
+        ]
+        for id_ in selected_ids
+    ]
+
+    start_date_sortkey = np.argsort(gdp_start_dates)
+    start_date_sorted_ids = selected_ids[start_date_sortkey]
+
     ra = RaggedArray.from_files(
-        indices=ids_in_data if use_fill_values else ids_with_md,
+        indices=start_date_sorted_ids,
         preprocess_func=_preprocess,
         rowsize_func=_rowsize,
         name_coords=_COORDS,
