@@ -53,17 +53,17 @@ _METADATA_VARS = [
 ]
 
 _VARS_FILL_MAP: dict = {
-    "wmo_number": np.NAN,
-    "program_number": np.NAN,
+    "wmo_number": np.NaN,
+    "program_number": np.NaN,
     "buoys_type": "N/A",
     "start_date": np.datetime64("NaT"),
-    "start_lat": np.NAN,
-    "start_lon": np.NAN,
+    "start_lat": np.NaN,
+    "start_lon": np.NaN,
     "end_date": np.datetime64("NaT"),
-    "end_lat": np.NAN,
-    "end_lon": np.NAN,
+    "end_lat": np.NaN,
+    "end_lon": np.NaN,
     "drogue_off_date": np.datetime64("NaT"),
-    "death_code": np.NAN,
+    "death_code": np.NaN,
 }
 
 _VAR_DTYPES: dict = {
