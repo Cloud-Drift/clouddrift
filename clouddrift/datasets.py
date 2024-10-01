@@ -166,9 +166,10 @@ def gdp_source(
     filesystem. If it is not found, the dataset will be downloaded using the
     corresponding adapter function and stored as zarr archive for later access.
 
-    The data is accessed from a public HTTPS server at NOAA's Atlantic
+    The drifter data is accessed from a public HTTPS server at NOAA's Atlantic
     Oceanographic and Meteorological Laboratory (AOML) at
-    https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst/.
+    https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst/ while the metadata is
+    retrieved from https://www.aoml.noaa.gov/ftp/pub/phod/buoydata.
 
     Parameters
     ----------

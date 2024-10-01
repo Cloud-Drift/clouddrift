@@ -180,10 +180,10 @@ VARS_ATTRS: dict = {
         "comments": "0 (buoy still alive), 1 (buoy ran aground), 2 (picked up by vessel), 3 (stop transmitting), 4 (sporadic transmissions), 5 (bad batteries), 6 (inactive status)",
     },
     "position_datetime": {
-        "comments": "Position datetime derived from the year, month, day and time (represented as a ratio of a day) columns found in the source dataset that represent when the position of the drifter was measured. This value is only different from the sensor_datetime when the position of the drifter was determined onboard the Argos satellites using the doppler shift.",
+        "comments": "Position datetime derived from the year, month, and day (represented as a ratio of a day) when the geographical coordinates of the drifter were obtained. May differ from sensor_datetime.",
     },
     "sensor_datetime": {
-        "comments": "Sensor datetime derived from the year, month, day and time (represented as a ratio of a day) columns found in the source dataset that represent when the sensor (like temp) data is recorded",
+        "comments": "Sensor datetime derived from the year, month, and day (represented as a ratio of a day) when sensor data were recorded.",
     },
     "longitude": {"long_name": "Longitude", "units": "degrees_east"},
     "latitude": {"long_name": "Latitude", "units": "degrees_north"},
@@ -219,6 +219,7 @@ VARS_ATTRS: dict = {
     "qualityIndex": {
         "long_name": "Quality Index",
         "units": "-",
+        "comments": "Definitions vary"
     },
 }
 
