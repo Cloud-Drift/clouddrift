@@ -219,7 +219,7 @@ VARS_ATTRS: dict = {
     "qualityIndex": {
         "long_name": "Quality Index",
         "units": "-",
-        "comments": "Definitions vary"
+        "comments": "Definitions vary",
     },
 }
 
