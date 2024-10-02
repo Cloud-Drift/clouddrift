@@ -173,17 +173,17 @@ def morse_wavelet_transform(
         # imaginary case, divide by 2 the wavelet and return analytic and conjugate analytic
         if normalization == "bandpass":
             wtx_p = wavelet_transform(
-                0.5 * x, wavelet, boundary="mirror", time_axis=time_axis
+                0.5 * x, wavelet, boundary=boundary, time_axis=time_axis
             )
             wtx_n = wavelet_transform(
-                np.conj(0.5 * x), wavelet, boundary="mirror", time_axis=time_axis
+                np.conj(0.5 * x), wavelet, boundary=boundary, time_axis=time_axis
             )
         elif normalization == "energy":
             wtx_p = wavelet_transform(
-                x / np.sqrt(2), wavelet, boundary="mirror", time_axis=time_axis
+                x / np.sqrt(2), wavelet, boundary=boundary, time_axis=time_axis
             )
             wtx_n = wavelet_transform(
-                np.conj(x / np.sqrt(2)), wavelet, boundary="mirror", time_axis=time_axis
+                np.conj(x / np.sqrt(2)), wavelet, boundary=boundary, time_axis=time_axis
             )
         wtx = wtx_p, wtx_n
 
