@@ -8,7 +8,7 @@ import xarray as xr
 
 def analytic_signal(
     x: np.ndarray | xr.DataArray,
-    boundary: str = "mirror",
+    boundary: str = "periodic",
     time_axis: int = -1,
 ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
     """Return the analytic signal from a real-valued signal or the analytic and
@@ -25,7 +25,7 @@ def analytic_signal(
 
     The calculation is performed along the last axis of the input array by default.
     Alternatively, the user can specify the time axis of the input. The user can also
-    specify the boundary conditions to be applied to the input array (default is "mirror").
+    specify the boundary conditions to be applied to the input array (default is "periodic").
 
     Parameters
     ----------
@@ -34,7 +34,7 @@ def analytic_signal(
     boundary : str, optional
         The boundary condition to be imposed at the edges of the time series.
         Allowed values are "mirror", "zeros", and "periodic".
-        Default is "mirror".
+        Default is "periodic".
     time_axis : int, optional
         Axis on which the time is defined (default is -1).
 
@@ -58,10 +58,10 @@ def analytic_signal(
     >>> w = np.random.rand(99)+1j*np.random.rand(99)
     >>> wp, wn = analytic_signal(w)
 
-    To specify that a periodic boundary condition should be used:
+    To specify that a mirror boundary condition should be used:
 
     >>> x = np.random.rand(99)
-    >>> xa = analytic_signal(x, boundary="periodic")
+    >>> xa = analytic_signal(x, boundary="mirror")
 
     To specify that the time axis is along the first axis and apply
     zero boundary conditions:
