@@ -28,7 +28,7 @@ def morse_wavelet_transform(
     complex: bool = False,
     order: int = 1,
     normalization: str = "bandpass",
-    boundary: str = "mirror",
+    boundary: str = "periodic",
     time_axis: int = -1,
 ) -> tuple[np.ndarray, np.ndarray] | np.ndarray:
     """
@@ -71,7 +71,7 @@ def morse_wavelet_transform(
         unity.
     boundary : str, optional
         The boundary condition to be imposed at the edges of the input signal ``x``.
-        Allowed values are ``"mirror"``, ``"zeros"``, and ``"periodic"``. Default is ``"mirror"``.
+        Allowed values are ``"mirror"``, ``"zeros"``, and ``"periodic"``. Default is ``"periodic"``.
     order : int, optional
         Order of Morse wavelets, default is 1.
 
@@ -125,11 +125,11 @@ def morse_wavelet_transform(
     >>> x = np.random.random((1024,10,15))
     >>> wtx = morse_wavelet_transform(x, 3, 4, np.array([2*np.pi*0.2]), time_axis=0)
 
-    The default way to handle the boundary conditions is to mirror the ends points
-    but this can be changed by specifying the chosen boundary method:
+    The default way to handle the boundary conditions is to assume periodicity of the
+    input but this can be changed by specifying another boundary condition:
 
     >>> x = np.random.random((10,15,1024))
-    >>> wtx = morse_wavelet_transform(x, 3, 4, np.array([2*np.pi*0.2]), boundary="periodic")
+    >>> wtx = morse_wavelet_transform(x, 3, 4, np.array([2*np.pi*0.2]), boundary="mirror")
 
     This function can be used to conduct a time-frequency analysis of the input signal by specifying
     a range of randian frequencies using the ``morse_logspace_freq`` function as an example:
@@ -202,7 +202,7 @@ def morse_wavelet_transform(
 def wavelet_transform(
     x: np.ndarray,
     wavelet: np.ndarray,
-    boundary: str = "mirror",
+    boundary: str = "periodic",
     time_axis: int = -1,
     freq_axis: int = -2,
     order_axis: int = -3,
@@ -223,7 +223,7 @@ def wavelet_transform(
         The normalization of the wavelets is assumed to be "bandpass", if not, use kwarg normalization="energy", see ``morse_wavelet``.
     boundary : str, optional
         The boundary condition to be imposed at the edges of the input signal ``x``.
-        Allowed values are ``"mirror"``, ``"zeros"``, and ``"periodic"``. Default is ``"mirror"``.
+        Allowed values are ``"mirror"``, ``"zeros"``, and ``"periodic"``. Default is ``"periodic"``.
     time_axis : int, optional
         Axis on which the time is defined for input ``x`` (default is last, or -1). Note that the time axis of the
         wavelets must be last.
