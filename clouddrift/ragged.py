@@ -859,6 +859,10 @@ def obs_index_to_row(
     rowsize: list[int] | np.ndarray | xr.DataArray,
 ) -> list:
     """Obtain a list of row indices from a list of observation indices of a ragged array.
+       A ragged array is constituted of rows of different sizes indicated by ``rowsize`` and is
+       also constituted of a continuous sequence of observations with indices 0 to its length - 1.
+       This function allows the user to obtain the row index of a given observation given its index.
+       This answers the question: "In which row is an observation located?"
 
     Parameters
     ----------
@@ -874,13 +878,15 @@ def obs_index_to_row(
 
     Examples
     --------
-    To obtain the row index of observation 5 within a ragged array of three consecutive
+    To obtain the row index of observation with index 5 within a ragged array of three consecutive
     rows of sizes 2, 4, and 3:
+
     >>> obs_index_to_row(5, [2, 4, 3])
     [1]
 
-    To obtain the row indices of observations 0, 2, and 4 within a ragged array of three consecutive
-    rows of sizes 2, 4, and 3:
+    To obtain the row indices of observations with indices 0, 2, and 4 within a ragged array of three
+    consecutive rows of sizes 2, 4, and 3:
+
     >>> obs_index_to_row([0, 2, 4], [2, 4, 3])
     [0, 1, 1]
 
