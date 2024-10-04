@@ -125,7 +125,7 @@ def morse_wavelet_transform(
     >>> x = np.random.random((1024,10,15))
     >>> wtx = morse_wavelet_transform(x, 3, 4, np.array([2*np.pi*0.2]), time_axis=0)
 
-    The default way to handle the boundary conditions is to assume periodicity of the 
+    The default way to handle the boundary conditions is to assume periodicity of the
     input but this can be changed by specifying another boundary condition:
 
     >>> x = np.random.random((10,15,1024))
