@@ -450,12 +450,14 @@ def _process(
     else:
         selected_ids = ids_with_md
 
-    gdp_start_dates = [
-        gdp_metadata_df[gdp_metadata_df["ID"] == id_][["Start_date"]].values.flatten()[
-            0
-        ]
-        for id_ in selected_ids
-    ]
+    gdp_start_dates = list()
+    for id_ in selected_ids:
+        selected_drifter = gdp_metadata_df[gdp_metadata_df["ID"] == id_]
+
+        if len(selected_drifter) == 0:
+            gdp_start_dates.append(np.datetime64("NaT"))
+        else:
+            gdp_start_dates.append(selected_drifter[["Start_date"]].values.flatten()[0])
 
     start_date_sortkey = np.argsort(gdp_start_dates)
     start_date_sorted_ids = selected_ids[start_date_sortkey]
