@@ -14,8 +14,7 @@ datasets. Currently available datasets are:
 - :func:`clouddrift.datasets.gdp6h`: 6-hourly GDP data from a ragged-array
   NetCDF file hosted by the public HTTPS server at
   `NOAA's Atlantic Oceanographic and Meteorological Laboratory (AOML) <https://www.aoml.noaa.gov/phod/gdp/index.php>`_.
-- :func:`clouddrift.datasets.gdp_source`: source GDP data without being pre-processed unlike
-the 6-hourly/1-hourly datasets that are derived from it.
+- :func:`clouddrift.datasets.gdp_source`: Source GDP data from which the 6-hourly and 1-hourly products are derived.
 - :func:`clouddrift.datasets.glad`: 15-minute Grand LAgrangian Deployment (GLAD)
   data produced by the Consortium for Advanced Research on Transport of
   Hydrocarbon in the Environment (CARTHE) and hosted upstream at the `Gulf of

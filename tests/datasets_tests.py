@@ -14,6 +14,17 @@ class datasets_tests(testutils.DisableProgressTestCase):
         with datasets.gdp6h() as ds:
             self.assertTrue(ds)
 
+    def test_gdpsource(self):
+        with datasets.gdp_source(max=1) as ds:
+            self.assertTrue(ds is not None)
+
+            start_dt_diffs = np.diff(ds["start_date"].data, axis=0)
+            self.assertEqual(
+                np.all(start_dt_diffs.astype(np.int64) >= 0).T,
+                True,
+                "Drifter segments not ordered by start date",
+            )
+
     def test_glad(self):
         with datasets.glad() as ds:
             self.assertTrue(ds)
