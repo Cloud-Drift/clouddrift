@@ -234,8 +234,8 @@ def gdp_source(
 
     An easy way to get around this limitation is to configure the dask temp directory to a path that lies on a
     partition with more memory. To figure this out you can use the standard `df` unix utility like so: `df -h`.
-    If you find a path with more memory you can configure dask to use that instead of the default path that lies
-    on the /tmp directory on unix like systems like so (make sure to add this line before starting any computation):
+    If you find a path with more memory you can configure dask to use that instead of the default path
+    like so (make sure to add this line before starting any computation):
 
     >>> import dask.config as daskc
     >>> daskc.set({"temporary-rirectory": "/home/ksantana/.clouddrift/tmp"})
