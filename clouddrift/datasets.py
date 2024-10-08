@@ -238,7 +238,7 @@ def gdp_source(
     like so (make sure to add this line before starting any computation):
 
     >>> import dask.config as daskc
-    >>> daskc.set({"temporary-rirectory": "/home/ksantana/.clouddrift/tmp"})
+    >>> daskc.set({"temporary-directory": "/home/ksantana/.clouddrift/tmp"})
 
     """
     file_selection_label = "all" if max is None else f"first-{max}"
