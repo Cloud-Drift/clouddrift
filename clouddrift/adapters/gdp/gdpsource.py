@@ -483,7 +483,28 @@ def to_raggedarray(
     max: int | None = None,
     use_fill_values: bool = True,
 ) -> xr.Dataset:
-    """Get the GDP source dataset."""
+    """Transforms the GDP source dataset into a ragged array xarray Dataset.
+
+    The drifter data is accessed from a public HTTPS server at NOAA's Atlantic
+    Oceanographic and Meteorological Laboratory (AOML) at
+    https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst/ while the metadata is
+    retrieved from https://www.aoml.noaa.gov/ftp/pub/phod/buoydata.
+
+    Parameters
+    ----------
+    tmp_path: str, default adapter temp path (default)
+        Temporary path where intermediary files are stored.
+    max: int, optional
+        Maximum number of files to retrieve and parse to generate the aggregate file. Mainly used
+        for testing purposes.
+    use_fill_values: bool, True (default)
+        When True, missing metadata fields are replaced with fill values. dataset.
+
+    Returns
+    -------
+    xarray.Dataset
+        source GDP dataset as a ragged array
+    """
 
     os.makedirs(tmp_path, exist_ok=True)
 

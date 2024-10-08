@@ -216,6 +216,30 @@ def gdp_source(
         start_lon          (traj) float64 ...
         voltage            (obs) float32 ...
         wmo_number         (traj) int64 ...
+
+    If you would like to take advantage of all your CPU cores and speed along the ragged array generation process
+    utilize the following snippet of code before running this function.
+
+    >>> from dask.distributed import LocalCluster
+    >>> cluster = LocalCluster()
+    >>> client = cluster.get_client()
+    >>> client.dashboard_link # Copy the link below into your browser to monitor the process.
+    'http://127.0.0.1:.../status'
+
+    Sometimes you may need to configure the temporary directory used to store intermediary computations in cases
+    where the temporary directory used lies on a partition with limited space. Some unix environments are partitioned
+    where / (root) directory has limited space, typically ~30GBs and then the /home or /Users directory takes up
+    whatever else remains. Since the /tmp directory (typical directory used for temporary data and computations) lies 
+    on the root directory it's limited by this partition size.
+
+    An easy way to get around this limitation is to configure the dask temp directory to a path that lies on a 
+    partition with more memory. To figure this out you can use the standard `df` unix utility like so: `df -h`.
+    If you find a path with more memory you can configure dask to use that instead of the default path that lies
+    on the /tmp directory on unix like systems like so (make sure to add this line before starting any computation):
+
+    >>> import dask.config as daskc
+    >>> daskc.set({"temporary-rirectory": "/home/ksantana/.clouddrift/tmp"})
+
     """
     file_selection_label = "all" if max is None else f"first-{max}"
     return _dataset_filecache(
