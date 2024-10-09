@@ -5,12 +5,13 @@ import datetime
 import logging
 import os
 import tempfile
-import typing as t
+import typing
 import warnings
 from collections import defaultdict
 from concurrent.futures import Future, ProcessPoolExecutor, as_completed
 
 import numpy as np
+import numpy.typing as np_typing
 import pandas as pd
 import xarray as xr
 from tqdm.asyncio import tqdm
@@ -335,7 +336,7 @@ def _preprocess(id_, **kwargs) -> xr.Dataset:
 
 
 def _apply_remove(
-    df: pd.DataFrame, filters: list[t.Callable[..., t.Any]]
+    df: pd.DataFrame, filters: list[typing.Callable[..., typing.Any]]
 ) -> pd.DataFrame:
     temp_df = df
     for filter_ in filters:
@@ -346,7 +347,7 @@ def _apply_remove(
 
 def _apply_transform(
     df: pd.DataFrame,
-    transforms: dict[str, tuple[list[str], t.Callable[..., t.Any]]],
+    transforms: dict[str, tuple[list[str], typing.Callable[..., typing.Any]]],
 ) -> pd.DataFrame:
     tmp_df = df
     for output_col in transforms.keys():
@@ -361,10 +362,10 @@ def _apply_transform(
 
 
 def _parse_datetime_with_day_ratio(
-    month_series: np.ndarray[t.Any, np.dtype[np.float32]],
-    day_series: np.ndarray[t.Any, np.dtype[np.float32]],
-    year_series: np.ndarray[t.Any, np.dtype[np.float32]],
-) -> np.ndarray[t.Any, np.dtype[np.datetime64]]:
+    month_series: np_typing.NDArray[np.float32],
+    day_series: np_typing.NDArray[np.float32],
+    year_series: np_typing.NDArray[np.float32],
+) -> np_typing.NDArray[np.datetime64]:
     values = list()
     for month, day_with_ratio, year in zip(month_series, day_series, year_series):
         day = day_with_ratio // 1
@@ -483,7 +484,7 @@ def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset]) -> xr.Dataset:
     )
 
     sort_coord = traj_dataset.coords["obs_index"]
-    vals: np.ndarray[t.Any, np.dtype[np.int_]] = sort_coord.data
+    vals: np_typing.NDArray[np.int_] = sort_coord.data
     sort_coord_dim = sort_coord.dims[-1]
     sort_key = vals.argsort()
 

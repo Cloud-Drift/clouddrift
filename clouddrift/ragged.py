@@ -2,29 +2,34 @@
 Transformational and inquiry functions for ragged arrays.
 """
 
-import typing as t
+import typing
 import warnings
 from collections.abc import Callable, Iterable
 from concurrent import futures
 from datetime import timedelta
 
 import numpy as np
+import numpy.typing as np_typing
 import pandas as pd
 import xarray as xr
 
-_Out = t.TypeVar("_Out", bound=tuple[np.ndarray, np.ndarray] | np.ndarray)
+import clouddrift.typing as cd_typing
+
+_ArrayOutput = typing.TypeVar(
+    "_ArrayOutput", bound=tuple[np.ndarray, np.ndarray] | np.ndarray
+)
 
 
 def apply_ragged(
-    func: Callable[..., _Out],
-    arrays: list[np.ndarray | xr.DataArray] | np.ndarray | xr.DataArray,
-    rowsize: list[int] | np.ndarray[int] | xr.DataArray,
-    *args: t.Any,
+    func: Callable[..., _ArrayOutput],
+    arrays: cd_typing.ArrayTypes,
+    rowsize: cd_typing.ArrayTypes,
+    *args: typing.Any,
     rows: int | Iterable[int] = None,
     axis: int = 0,
     executor: futures.Executor = futures.ThreadPoolExecutor(max_workers=None),
-    **kwargs: t.Any,
-) -> _Out:
+    **kwargs: typing.Any,
+) -> _ArrayOutput:
     """Apply a function to a ragged array.
 
     The function ``func`` will be applied to each contiguous row of ``arrays`` as
@@ -426,7 +431,7 @@ def regular_to_ragged(
     return array[valid], np.sum(valid, axis=1)
 
 
-def rowsize_to_index(rowsize: list | np.ndarray | xr.DataArray) -> np.ndarray:
+def rowsize_to_index(rowsize: cd_typing.ArrayTypes) -> np.ndarray:
     """Convert a list of row sizes to a list of indices.
 
     This function is typically used to obtain the indices of data rows organized
@@ -453,10 +458,10 @@ def rowsize_to_index(rowsize: list | np.ndarray | xr.DataArray) -> np.ndarray:
 
 
 def segment(
-    x: list | np.ndarray | xr.DataArray | pd.Series,
+    x: cd_typing.ArrayTypes,
     tolerance: float | np.timedelta64 | timedelta | pd.Timedelta,
-    rowsize: np.ndarray[int] | None = None,
-) -> np.ndarray[int]:
+    rowsize: np_typing.NDArray[np.int_] | None = None,
+) -> np_typing.NDArray[np.int_]:
     """Divide an array into segments based on a tolerance value.
 
     Parameters
@@ -790,11 +795,11 @@ def subset(
 
 
 def unpack(
-    ragged_array: np.ndarray | xr.DataArray,
-    rowsize: np.ndarray[int] | xr.DataArray,
+    ragged_array: cd_typing.ArrayTypes,
+    rowsize: cd_typing.ArrayTypes,
     rows: int | np.int_ | Iterable[int] | None = None,
     axis: int = 0,
-) -> list[np.ndarray]:
+) -> list[np_typing.NDArray[typing.Any]]:
     """Unpack a ragged array into a list of regular arrays.
 
     Unpacking a ``np.ndarray`` ragged array is about 2 orders of magnitude

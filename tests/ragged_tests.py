@@ -1,12 +1,13 @@
+import typing
 import unittest
 from concurrent import futures
 from datetime import datetime, timedelta
-from typing import Any
 
 import numpy as np
 import pandas as pd
 import xarray as xr
 
+import clouddrift.typing as cd_typing
 from clouddrift.kinematics import velocity_from_position
 from clouddrift.ragged import (
     apply_ragged,
@@ -20,7 +21,6 @@ from clouddrift.ragged import (
     unpack,
 )
 from clouddrift.raggedarray import RaggedArray
-from clouddrift.typing import _ArrayTypes, _TimeDeltaTypes
 
 if __name__ == "__main__":
     unittest.main()
@@ -63,7 +63,7 @@ def sample_ragged_array() -> RaggedArray:
             {"long_name": "variable time", "units": "-"},
         )
 
-        xr_data: dict[str, Any] = {}
+        xr_data: dict[str, typing.Any] = {}
         for var in metadata.keys():
             xr_data[var] = (
                 ["traj"],
@@ -215,7 +215,7 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 2, 4]
         minimum = 3
 
-        for data in list[_ArrayTypes](
+        for data in list[cd_typing.ArrayTypes](
             [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
         ):
             x_new, rowsize_new = prune(data, rowsize, minimum)
@@ -229,8 +229,8 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 2, 4]
         minimum = 1
 
-        data: _ArrayTypes
-        for data in list[_ArrayTypes](
+        data: cd_typing.ArrayTypes
+        for data in list[cd_typing.ArrayTypes](
             [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
         ):
             x_new, rowsize_new = prune(data, rowsize, minimum)
@@ -242,8 +242,8 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 2, 4]
         minimum = 5
 
-        data: _ArrayTypes
-        for data in list[_ArrayTypes](
+        data: cd_typing.ArrayTypes
+        for data in list[cd_typing.ArrayTypes](
             [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
         ):
             x_new, rowsize_new = prune(data, rowsize, minimum)
@@ -274,12 +274,12 @@ class prune_tests(unittest.TestCase):
         np.testing.assert_equal(rowsize_new, [5, 8])
 
     def test_prune_keep_nan(self):
-        x = [1, 2, np.nan, 1, 2, 1, 2, np.nan, 4]
+        x: list[int | float | np.float_] = [1, 2, np.nan, 1, 2, 1, 2, np.nan, 4]
         rowsize = [3, 2, 4]
         minimum = 3
 
-        data: _ArrayTypes
-        for data in list[_ArrayTypes](
+        data: cd_typing.ArrayTypes
+        for data in list[cd_typing.ArrayTypes](
             [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
         ):
             x_new, rowsize_new = prune(data, rowsize, minimum)
@@ -291,8 +291,8 @@ class prune_tests(unittest.TestCase):
         rowsize: list[int] = []
         minimum = 3
 
-        data: _ArrayTypes
-        for data in list[_ArrayTypes](
+        data: cd_typing.ArrayTypes
+        for data in list[cd_typing.ArrayTypes](
             [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
         ):
             with self.assertRaises(IndexError):
@@ -303,8 +303,8 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 3]
         minimum = 3
 
-        data: _ArrayTypes
-        for data in list[_ArrayTypes](
+        data: cd_typing.ArrayTypes
+        for data in list[cd_typing.ArrayTypes](
             [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
         ):
             with self.assertRaises(ValueError):
@@ -360,8 +360,8 @@ class segment_tests(unittest.TestCase):
             datetime(2023, 2, 1),
             datetime(2023, 2, 2),
         ]
-        tol: _TimeDeltaTypes
-        for tol in list[_TimeDeltaTypes](
+        tol: cd_typing.ToleranceTypes
+        for tol in list[cd_typing.ToleranceTypes](
             [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]
         ):
             np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
@@ -376,7 +376,7 @@ class segment_tests(unittest.TestCase):
                 np.datetime64("2023-02-02"),
             ]
         )
-        for tol in list[_TimeDeltaTypes](
+        for tol in list[cd_typing.ToleranceTypes](
             [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]
         ):
             np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
@@ -385,7 +385,7 @@ class segment_tests(unittest.TestCase):
         x: pd.Series[pd.Timestamp] = pd.to_datetime(
             pd.Series(["1/1/2023", "1/2/2023", "1/3/2023", "2/1/2023", "2/2/2023"])
         )
-        for tol in list[_TimeDeltaTypes](
+        for tol in list[cd_typing.ToleranceTypes](
             [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]
         ):
             np.testing.assert_equal(segment(x, tol), np.array([3, 2]))

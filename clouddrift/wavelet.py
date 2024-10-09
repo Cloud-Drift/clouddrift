@@ -15,51 +15,55 @@ Any other code that is added to this module and that is specific to Python and
 not the MATLAB implementation is licensed under CloudDrift's MIT license.
 """
 
-import typing as t
+import typing
 
 import numpy as np
+import numpy.typing as np_typing
 from scipy.special import gamma as _gamma
 from scipy.special import gammaln as _lgamma
 
 
-@t.overload
+@typing.overload
 def morse_wavelet_transform(
-    x: np.ndarray,
+    x: np_typing.NDArray[typing.Any],
     gamma: float,
     beta: float,
-    radian_frequency: np.ndarray,
-    complex: t.Literal[True],
+    radian_frequency: np_typing.NDArray[typing.Any],
+    complex: typing.Literal[True],
     order: int = 1,
     normalization: str = "bandpass",
     boundary: str = "mirror",
     time_axis: int = -1,
-) -> tuple[np.ndarray, np.ndarray]: ...
+) -> tuple[np_typing.NDArray[typing.Any], np_typing.NDArray[typing.Any]]: ...
 
 
-@t.overload
+@typing.overload
 def morse_wavelet_transform(
-    x: np.ndarray,
+    x: np_typing.NDArray[typing.Any],
     gamma: float,
     beta: float,
-    radian_frequency: np.ndarray,
-    complex: t.Literal[False],
+    radian_frequency: np_typing.NDArray[typing.Any],
+    complex: typing.Literal[False],
     order: int = 1,
     normalization: str = "bandpass",
     boundary: str = "mirror",
     time_axis: int = -1,
-) -> np.ndarray: ...
+) -> np_typing.NDArray[typing.Any]: ...
 
 
 def morse_wavelet_transform(
-    x: np.ndarray,
+    x: np_typing.NDArray[typing.Any],
     gamma: float,
     beta: float,
-    radian_frequency: np.ndarray,
-    complex: bool,
+    radian_frequency: np_typing.NDArray[typing.Any],
+    complex: bool = False,
     order: int = 1,
     normalization: str = "bandpass",
     boundary: str = "periodic",
     time_axis: int = -1,
+) -> (
+    tuple[np_typing.NDArray[typing.Any], np_typing.NDArray[typing.Any]]
+    | np_typing.NDArray[typing.Any]
 ):
     """
     Apply a continuous wavelet transform to an input signal using the generalized Morse
@@ -367,7 +371,7 @@ def morse_wavelet(
     length: int,
     gamma: float,
     beta: float,
-    radian_frequency: float | np.ndarray,
+    radian_frequency: np.ndarray,
     order: int = 1,
     normalization: str = "bandpass",
 ) -> tuple[np.ndarray, np.ndarray]:
@@ -511,7 +515,7 @@ def _morse_wavelet_first_family(
     fact: float,
     gamma: float,
     beta: float,
-    norm_radian_frequency: np.ndarray,
+    norm_radian_frequency: np_typing.NDArray[typing.Any],
     wavezero: np.ndarray,
     order: int = 1,
     normalization: str = "bandpass",

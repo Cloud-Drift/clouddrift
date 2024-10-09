@@ -2,7 +2,10 @@
 Functions for kinematic computations.
 """
 
+import typing
+
 import numpy as np
+import numpy.typing as np_typing
 import pandas as pd
 import xarray as xr
 
@@ -21,9 +24,18 @@ from clouddrift.wavelet import morse_logspace_freq, morse_wavelet, wavelet_trans
 
 
 def kinetic_energy(
-    u: float | list | np.ndarray | xr.DataArray | pd.Series,
-    v: float | list | np.ndarray | xr.DataArray | pd.Series | None = None,
-) -> float | np.ndarray | xr.DataArray:
+    u: float
+    | list[typing.Any]
+    | np_typing.NDArray[typing.Any]
+    | xr.DataArray
+    | pd.Series,
+    v: float
+    | list
+    | np_typing.NDArray[typing.Any]
+    | xr.DataArray
+    | pd.Series
+    | None = None,
+) -> float | np_typing.NDArray[np.float_] | xr.DataArray:
     """Compute kinetic energy from zonal and meridional velocities.
 
     Parameters

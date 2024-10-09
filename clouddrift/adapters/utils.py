@@ -1,7 +1,7 @@
 import concurrent.futures
 import logging
 import os
-import typing as t
+import typing
 import urllib
 from datetime import datetime
 from io import BufferedIOBase, BufferedWriter
@@ -29,8 +29,8 @@ def _before_call(rcs: RetryCallState):
 _CHUNK_SIZE = 1_048_576  # 1MiB
 _logger = logging.getLogger(__name__)
 
-_Func = t.Callable[..., t.Any]
-_Wrapper = t.Callable[[_Func], _Func]
+_Func = typing.Callable[..., typing.Any]
+_Wrapper = typing.Callable[[_Func], _Func]
 
 standard_retry_protocol: _Wrapper = retry(
     retry=retry_if_exception(
@@ -53,7 +53,7 @@ standard_retry_protocol: _Wrapper = retry(
 
 
 def download_with_progress(
-    download_map: t.Sequence[
+    download_map: typing.Sequence[
         tuple[str, BufferedIOBase | str] | tuple[str, BufferedIOBase | str, float]
     ],
     show_list_progress: bool | None = None,

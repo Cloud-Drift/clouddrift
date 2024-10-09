@@ -6,9 +6,9 @@ Datasets and Awkward Arrays.
 
 from __future__ import annotations
 
+import typing
 import warnings
 from collections.abc import Callable
-from typing import Any, Literal
 
 import awkward as ak  # type: ignore
 import numpy as np
@@ -16,18 +16,19 @@ import xarray as xr
 from numpy.typing import NDArray
 from tqdm import tqdm
 
+import clouddrift.typing as cd_typing
 from clouddrift.ragged import rowsize_to_index
 
-DimNames = Literal["rows", "obs"]
+DimNames = typing.Literal["rows", "obs"]
 _DISABLE_SHOW_PROGRESS = False  # purely to de-noise our test suite output, should never be used/configured outside of that.
 
 
 class RaggedArray:
     def __init__(
         self,
-        coords: dict[str, NDArray[Any]],
-        metadata: dict[str, NDArray[Any]],
-        data: dict[str, NDArray[Any]],
+        coords: dict[str, NDArray[typing.Any]],
+        metadata: dict[str, NDArray[typing.Any]],
+        data: dict[str, NDArray[typing.Any]],
         attrs_global: dict[str, str] = {},
         attrs_variables: dict[str, dict[str, str]] = {},
         name_dims: dict[str, DimNames] = {},
@@ -69,7 +70,7 @@ class RaggedArray:
         RaggedArray
             A RaggedArray instance
         """
-        coords: dict[str, Any] = {}
+        coords: dict[str, typing.Any] = {}
         metadata = {}
         data = {}
         attrs_variables = {}
@@ -100,8 +101,8 @@ class RaggedArray:
     @classmethod
     def from_files(
         cls,
-        indices: list[int],
-        preprocess_func: Callable[[int], xr.Dataset],
+        indices: cd_typing.ArrayTypes,
+        preprocess_func: Callable[[typing.Any], xr.Dataset],
         name_coords: list[str],
         name_meta: list[str] = list(),
         name_data: list[str] = list(),
@@ -236,9 +237,9 @@ class RaggedArray:
         RaggedArray
             A RaggedArray instance
         """
-        coords: dict[str, NDArray[Any]] = {}
-        metadata: dict[str, NDArray[Any]] = {}
-        data: dict[str, NDArray[Any]] = {}
+        coords: dict[str, NDArray[typing.Any]] = {}
+        metadata: dict[str, NDArray[typing.Any]] = {}
+        data: dict[str, NDArray[typing.Any]] = {}
         coord_dims = {}
         name_dims: dict[str, DimNames] = {rows_dim_name: "rows", obs_dim_name: "obs"}
         attrs_global = {}
@@ -275,7 +276,7 @@ class RaggedArray:
 
     @staticmethod
     def number_of_observations(
-        rowsize_func: Callable[[int], int], indices: list[int], **kwargs
+        rowsize_func: Callable[[int], int], indices: cd_typing.ArrayTypes, **kwargs
     ) -> NDArray[np.int_]:
         """Iterate through the files and evaluate the number of observations.
 
@@ -344,18 +345,18 @@ class RaggedArray:
 
     @staticmethod
     def allocate(
-        preprocess_func: Callable[[int], xr.Dataset],
-        indices: list[int],
-        rowsize: list[Any] | NDArray[Any] | xr.DataArray,
+        preprocess_func: Callable[[typing.Any], xr.Dataset],
+        indices: cd_typing.ArrayTypes,
+        rowsize: cd_typing.ArrayTypes,
         name_coords: list[str],
         name_meta: list[str],
         name_data: list[str],
         name_dims: dict[str, DimNames],
         **kwargs,
     ) -> tuple[
-        dict[str, NDArray[Any]],
-        dict[str, NDArray[Any]],
-        dict[str, NDArray[Any]],
+        dict[str, NDArray[typing.Any]],
+        dict[str, NDArray[typing.Any]],
+        dict[str, NDArray[typing.Any]],
         dict[str, str],
     ]:
         """

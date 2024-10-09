@@ -288,7 +288,12 @@ class morse_logspace_freq_tests(unittest.TestCase):
         beta = 4
         eta = 0.1
         fhigh = _morsehigh(np.array([gamma]), np.array([beta]), eta)
-        _, waveletfft = morse_wavelet(10000, gamma, beta, fhigh)
+
+        if isinstance(fhigh, np.ndarray):
+            _, waveletfft = morse_wavelet(10000, gamma, beta, fhigh)
+        else:
+            _, waveletfft = morse_wavelet(10000, gamma, beta, np.array(fhigh))
+
         self.assertTrue(
             np.isclose(
                 np.abs(0.5 * waveletfft[0, 0, int(10000 / 2) - 1]), eta, atol=1e-3

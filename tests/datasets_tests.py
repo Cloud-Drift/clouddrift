@@ -1,6 +1,7 @@
-import typing as t
+import typing
 
 import numpy as np
+import numpy.typing as np_typing
 
 import tests.utils as testutils
 from clouddrift import datasets
@@ -41,7 +42,7 @@ class datasets_tests(testutils.DisableProgressTestCase):
             mean_lon = apply_ragged(self._mean, [ds_sub.longitude], ds_sub.rowsize)
             self.assertTrue(len(mean_lon) == 2)
 
-    def _mean(self, x: np.ndarray[t.Any, t.Any]) -> np.ndarray[t.Any, t.Any]:
+    def _mean(self, x: np_typing.NDArray[typing.Any]) -> np_typing.NDArray[typing.Any]:
         return np.mean(x)
 
     def test_spotters_opens(self):

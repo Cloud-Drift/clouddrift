@@ -665,10 +665,11 @@ def cartesian_to_spherical(
 
 
 T = TypeVar("T", bound=float | np.ndarray)
+V = TypeVar("V", bound=float | np.ndarray)
 
 
 def cartesian_to_tangentplane(
-    u: T, v: T, w: T, longitude: T, latitude: T
+    u: T, v: T, w: T, longitude: V, latitude: V
 ) -> tuple[T, T]:
     """
     Project a three-dimensional Cartesian vector on a plane tangent to

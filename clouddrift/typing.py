@@ -1,23 +1,27 @@
-from datetime import timedelta
-from typing import TYPE_CHECKING, Any
+import datetime
+import typing
 
 import numpy as np
+import numpy.typing as np_typing
 import pandas as pd
 import xarray as xr
 
 # Subscripting the type for pandas series only works at type checking time
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     _SupportedArrayTypes = (
-        list[Any] | np.ndarray[Any, np.dtype[Any]] | xr.DataArray | pd.Series[Any]
+        list[typing.Any]
+        | np_typing.NDArray[typing.Any]
+        | pd.Series[typing.Any]
+        | xr.DataArray
     )
 else:
     _SupportedArrayTypes = (
-        list[Any] | np.ndarray[Any, np.dtype[Any]] | xr.DataArray | pd.Series
+        list[typing.Any] | np_typing.NDArray[typing.Any] | pd.Series | xr.DataArray
     )
 
-_ArrayTypes = _SupportedArrayTypes
+ArrayTypes: typing.TypeAlias = _SupportedArrayTypes
 
-_SupportedTimeDeltaTypes = pd.Timedelta | timedelta | np.timedelta64
-_TimeDeltaTypes = _SupportedTimeDeltaTypes
+_SupportedToleranceTypes = pd.Timedelta | datetime.timedelta | np.timedelta64
+ToleranceTypes: typing.TypeAlias = _SupportedToleranceTypes
 
-__all__ = ["_ArrayTypes", "_TimeDeltaTypes"]
+__all__ = ["ArrayTypes", "ToleranceTypes"]
