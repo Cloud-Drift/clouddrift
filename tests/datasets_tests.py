@@ -14,6 +14,10 @@ class datasets_tests(testutils.DisableProgressTestCase):
         with datasets.gdp6h() as ds:
             self.assertTrue(ds)
 
+    def test_ibtracs(self):
+        with datasets.ibtracs() as ds:
+            self.assertTrue(ds)
+
     def test_glad(self):
         with datasets.glad() as ds:
             self.assertTrue(ds)

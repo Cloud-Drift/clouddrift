@@ -12,6 +12,7 @@ import xarray as xr
 
 from clouddrift import adapters
 from clouddrift.adapters.hurdat2 import _BasinOption
+from clouddrift.adapters.ibtracs import _Kind, _Version
 
 
 def gdp1h(decode_times: bool = True) -> xr.Dataset:
@@ -363,6 +364,47 @@ def hurdat2(
         f"hurdat2_{basin}.nc",
         decode_times,
         lambda: adapters.hurdat2.to_raggedarray(basin, tmp_path).to_xarray(),
+    )
+
+
+def ibtracs(
+    version: _Version = "v04r01",
+    kind: _Kind = "LAST_3_YEARS",
+    tmp_path: str = adapters.ibtracs._DEFAULT_FILE_PATH,
+    decode_times: bool = True,
+) -> xr.Dataset:
+    """Returns International Best Track Archive for Climate Stewardship (IBTrACS) as a ragged array xarray dataset.
+
+    The function will first look for the ragged array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access.
+
+    The upstream data is available at https://www.ncei.noaa.gov/products/international-best-track-archive
+
+    Parameters
+    ----------
+    version : "v03r09", "v04r00", "v04r01" (default)
+        Specify the dataset version to retrieve. Default to the latest version.
+    kind: "ACTIVE", "ALL", "EP", "NA", "NI", "SA", "SI", "SP", "WP", "SINCE_1980", "LAST_3_YEARS" (default)
+        Specify the dataset kind to retrieve. Specifying the kind can speed up execution time of specific querries
+        and operations.
+
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
+
+    Returns
+    -------
+    xarray.Dataset
+        IBTRACS dataset as a ragged array.
+
+    Standard usage of the dataset.
+    """
+    return _dataset_filecache(
+        f"ibtracs_ra_{version}_{kind}.nc",
+        decode_times,
+        lambda: adapters.ibtracs.to_raggedarray(version, kind, tmp_path),
     )
 
 
