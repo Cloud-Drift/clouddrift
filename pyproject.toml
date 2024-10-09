@@ -106,7 +106,9 @@ module = [
   "clouddrift.signal",
   "clouddrift.sphere",
   "clouddrift.wavelet",
+  "clouddrift.transfer",
   "tests.kinematics_tests",
+  "tests.transfer_tests",
   "tests.pairs_tests",
   "tests.plotting_tests",
 ]
