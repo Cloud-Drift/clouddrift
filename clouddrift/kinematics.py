@@ -35,7 +35,7 @@ def kinetic_energy(
     | xr.DataArray
     | pd.Series
     | None = None,
-) -> float | np_typing.NDArray[np.float_] | xr.DataArray:
+) -> float | np_typing.NDArray[np.float64] | xr.DataArray:
     """Compute kinetic energy from zonal and meridional velocities.
 
     Parameters
