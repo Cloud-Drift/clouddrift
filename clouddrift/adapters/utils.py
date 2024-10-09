@@ -4,7 +4,7 @@ import os
 import typing
 import urllib
 from datetime import datetime
-from io import BufferedIOBase
+from io import BufferedIOBase, BufferedWriter
 
 import requests
 from tenacity import (
@@ -159,8 +159,8 @@ def _download_with_progress(
 
     _logger.debug(f"Downloading from {url} to {output}...")
     with requests.get(url, timeout=5, stream=True) as response:
+        buffer: BufferedWriter | BufferedIOBase | None = None
         bar = None
-        buffer = None
 
         try:
             if isinstance(output, (str,)):
