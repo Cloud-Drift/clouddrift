@@ -484,7 +484,7 @@ def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset]) -> xr.Dataset:
     )
 
     sort_coord = traj_dataset.coords["obs_index"]
-    vals: np_typing.NDArray[np.int_] = sort_coord.data
+    vals: np_typing.NDArray[np.int64] = sort_coord.data
     sort_coord_dim = sort_coord.dims[-1]
     sort_key = vals.argsort()
 

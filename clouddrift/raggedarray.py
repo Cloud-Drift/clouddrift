@@ -277,7 +277,7 @@ class RaggedArray:
     @staticmethod
     def number_of_observations(
         rowsize_func: Callable[[int], int], indices: cd_typing.ArrayTypes, **kwargs
-    ) -> NDArray[np.int_]:
+    ) -> NDArray[np.int64]:
         """Iterate through the files and evaluate the number of observations.
 
         Parameters

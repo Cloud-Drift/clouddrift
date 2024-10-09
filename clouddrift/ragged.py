@@ -460,8 +460,8 @@ def rowsize_to_index(rowsize: cd_typing.ArrayTypes) -> np.ndarray:
 def segment(
     x: cd_typing.ArrayTypes,
     tolerance: float | np.timedelta64 | timedelta | pd.Timedelta,
-    rowsize: np_typing.NDArray[np.int_] | None = None,
-) -> np_typing.NDArray[np.int_]:
+    rowsize: np_typing.NDArray[np.int64] | None = None,
+) -> np_typing.NDArray[np.int64]:
     """Divide an array into segments based on a tolerance value.
 
     Parameters
@@ -797,7 +797,7 @@ def subset(
 def unpack(
     ragged_array: cd_typing.ArrayTypes,
     rowsize: cd_typing.ArrayTypes,
-    rows: int | np.int_ | Iterable[int] | None = None,
+    rows: int | np.int64 | Iterable[int] | None = None,
     axis: int = 0,
 ) -> list[np_typing.NDArray[typing.Any]]:
     """Unpack a ragged array into a list of regular arrays.

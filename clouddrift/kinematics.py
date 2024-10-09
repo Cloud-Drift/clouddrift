@@ -2,13 +2,11 @@
 Functions for kinematic computations.
 """
 
-import typing
-
 import numpy as np
 import numpy.typing as np_typing
-import pandas as pd
 import xarray as xr
 
+import clouddrift.typing as cd_typing
 from clouddrift.sphere import (
     EARTH_RADIUS_METERS,
     bearing,
@@ -24,17 +22,8 @@ from clouddrift.wavelet import morse_logspace_freq, morse_wavelet, wavelet_trans
 
 
 def kinetic_energy(
-    u: float
-    | list[typing.Any]
-    | np_typing.NDArray[typing.Any]
-    | xr.DataArray
-    | pd.Series,
-    v: float
-    | list
-    | np_typing.NDArray[typing.Any]
-    | xr.DataArray
-    | pd.Series
-    | None = None,
+    u: float | cd_typing.ArrayTypes,
+    v: float | cd_typing.ArrayTypes,
 ) -> float | np_typing.NDArray[np.float64] | xr.DataArray:
     """Compute kinetic energy from zonal and meridional velocities.
 

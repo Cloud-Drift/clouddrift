@@ -42,6 +42,7 @@ class datasets_tests(testutils.DisableProgressTestCase):
             mean_lon = apply_ragged(self._mean, [ds_sub.longitude], ds_sub.rowsize)
             self.assertTrue(len(mean_lon) == 2)
 
+    # For static typing purposes
     def _mean(self, x: np_typing.NDArray[typing.Any]) -> np_typing.NDArray[typing.Any]:
         return np.mean(x)
 
