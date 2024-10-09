@@ -4,7 +4,7 @@ import os
 import typing
 import urllib
 from datetime import datetime
-from io import BufferedIOBase, BufferedWriter
+from io import BufferedIOBase
 
 import requests
 from tenacity import (

@@ -274,7 +274,7 @@ class prune_tests(unittest.TestCase):
         np.testing.assert_equal(rowsize_new, [5, 8])
 
     def test_prune_keep_nan(self):
-        x: list[int | float | np.float_] = [1, 2, np.nan, 1, 2, 1, 2, np.nan, 4]
+        x: list[int | float | np.float64] = [1, 2, np.nan, 1, 2, 1, 2, np.nan, 4]
         rowsize = [3, 2, 4]
         minimum = 3
 
