@@ -47,7 +47,5 @@ class gdp1h_integration_tests(testutils.DisableProgressTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        [
+        for dir in [gdp1h.GDP_TMP_PATH, gdp1h.GDP_TMP_PATH_EXPERIMENTAL]:
             shutil.rmtree(dir)
-            for dir in [gdp1h.GDP_TMP_PATH, gdp1h.GDP_TMP_PATH_EXPERIMENTAL]
-        ]

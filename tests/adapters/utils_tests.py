@@ -28,7 +28,6 @@ class utils_tests(unittest.TestCase):
         self.requests_mock = Mock()
         self.requests_mock.head = Mock(return_value=self.head_response_mock)
         self.requests_mock.get = Mock(return_value=self.get_response_mock)
-
         self.open_mock = mock_open()
 
         self.bar_mock = Mock()
@@ -57,9 +56,7 @@ class utils_tests(unittest.TestCase):
                 ),
             ]
         ) as _:
-            utils._download_with_progress(
-                "some.url.com", "./some/path/existing-file.nc", 0, False
-            )
+            utils._download_with_progress("some.url.com", "/some/path/here", 0, False)
             self.requests_mock.get.assert_not_called()
 
     def test_download_new_update(self):
@@ -129,7 +126,7 @@ class utils_tests(unittest.TestCase):
         """
 
         mocked_futures = [self.gen_future_mock() for _ in range(0, 21)]
-        download_requests = [("src0", "dst", None) for _ in range(0, 21)]
+        download_requests = [("src0", "dst") for _ in range(0, 21)]
 
         tpe_mock = Mock()
         tpe_mock.__enter__ = Mock(return_value=tpe_mock)
