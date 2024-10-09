@@ -23,7 +23,7 @@ from clouddrift.wavelet import morse_logspace_freq, morse_wavelet, wavelet_trans
 
 def kinetic_energy(
     u: float | cd_typing.ArrayTypes,
-    v: float | cd_typing.ArrayTypes,
+    v: float | cd_typing.ArrayTypes | None = None,
 ) -> float | np_typing.NDArray[np.float64] | xr.DataArray:
     """Compute kinetic energy from zonal and meridional velocities.
 
