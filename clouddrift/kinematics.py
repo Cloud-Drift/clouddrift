@@ -3,10 +3,9 @@ Functions for kinematic computations.
 """
 
 import numpy as np
-import numpy.typing as np_typing
 import xarray as xr
+from numpy.typing import NDArray
 
-import clouddrift.typing as cd_typing
 from clouddrift.sphere import (
     EARTH_RADIUS_METERS,
     bearing,
@@ -18,13 +17,14 @@ from clouddrift.sphere import (
     recast_lon360,
     spherical_to_cartesian,
 )
+from clouddrift.typing import ArrayTypes
 from clouddrift.wavelet import morse_logspace_freq, morse_wavelet, wavelet_transform
 
 
 def kinetic_energy(
-    u: float | cd_typing.ArrayTypes,
-    v: float | cd_typing.ArrayTypes | None = None,
-) -> float | np_typing.NDArray[np.float64] | xr.DataArray:
+    u: float | ArrayTypes,
+    v: float | ArrayTypes | None = None,
+) -> float | NDArray[np.float64] | xr.DataArray:
     """Compute kinetic energy from zonal and meridional velocities.
 
     Parameters

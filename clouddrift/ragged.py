@@ -9,11 +9,11 @@ from concurrent import futures
 from datetime import timedelta
 
 import numpy as np
-import numpy.typing as np_typing
 import pandas as pd
 import xarray as xr
+from numpy.typing import NDArray
 
-import clouddrift.typing as cd_typing
+from clouddrift.typing import ArrayTypes
 
 _ArrayOutput = typing.TypeVar(
     "_ArrayOutput", bound=tuple[np.ndarray, np.ndarray] | np.ndarray
@@ -22,8 +22,8 @@ _ArrayOutput = typing.TypeVar(
 
 def apply_ragged(
     func: Callable[..., _ArrayOutput],
-    arrays: cd_typing.ArrayTypes,
-    rowsize: cd_typing.ArrayTypes,
+    arrays: ArrayTypes,
+    rowsize: ArrayTypes,
     *args: typing.Any,
     rows: int | Iterable[int] = None,
     axis: int = 0,
@@ -431,7 +431,7 @@ def regular_to_ragged(
     return array[valid], np.sum(valid, axis=1)
 
 
-def rowsize_to_index(rowsize: cd_typing.ArrayTypes) -> np.ndarray:
+def rowsize_to_index(rowsize: ArrayTypes) -> np.ndarray:
     """Convert a list of row sizes to a list of indices.
 
     This function is typically used to obtain the indices of data rows organized
@@ -458,10 +458,10 @@ def rowsize_to_index(rowsize: cd_typing.ArrayTypes) -> np.ndarray:
 
 
 def segment(
-    x: cd_typing.ArrayTypes,
+    x: ArrayTypes,
     tolerance: float | np.timedelta64 | timedelta | pd.Timedelta,
-    rowsize: np_typing.NDArray[np.int64] | None = None,
-) -> np_typing.NDArray[np.int64]:
+    rowsize: NDArray[np.int64] | None = None,
+) -> NDArray[np.int64]:
     """Divide an array into segments based on a tolerance value.
 
     Parameters
@@ -795,11 +795,11 @@ def subset(
 
 
 def unpack(
-    ragged_array: cd_typing.ArrayTypes,
-    rowsize: cd_typing.ArrayTypes,
+    ragged_array: ArrayTypes,
+    rowsize: ArrayTypes,
     rows: int | np.int64 | Iterable[int] | None = None,
     axis: int = 0,
-) -> list[np_typing.NDArray[typing.Any]]:
+) -> list[NDArray[typing.Any]]:
     """Unpack a ragged array into a list of regular arrays.
 
     Unpacking a ``np.ndarray`` ragged array is about 2 orders of magnitude

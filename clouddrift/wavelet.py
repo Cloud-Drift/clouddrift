@@ -15,56 +15,53 @@ Any other code that is added to this module and that is specific to Python and
 not the MATLAB implementation is licensed under CloudDrift's MIT license.
 """
 
-import typing
+from typing import Any, Literal, overload
 
 import numpy as np
-import numpy.typing as np_typing
+from numpy.typing import NDArray
 from scipy.special import gamma as _gamma
 from scipy.special import gammaln as _lgamma
 
 
-@typing.overload
+@overload
 def morse_wavelet_transform(
-    x: np_typing.NDArray[typing.Any],
+    x: NDArray[Any],
     gamma: float,
     beta: float,
-    radian_frequency: np_typing.NDArray[typing.Any],
-    complex: typing.Literal[True],
+    radian_frequency: NDArray[Any],
+    complex: Literal[True],
     order: int = 1,
     normalization: str = "bandpass",
     boundary: str = "mirror",
     time_axis: int = -1,
-) -> tuple[np_typing.NDArray[typing.Any], np_typing.NDArray[typing.Any]]: ...
+) -> tuple[NDArray[Any], NDArray[Any]]: ...
 
 
-@typing.overload
+@overload
 def morse_wavelet_transform(
-    x: np_typing.NDArray[typing.Any],
+    x: NDArray[Any],
     gamma: float,
     beta: float,
-    radian_frequency: np_typing.NDArray[typing.Any],
-    complex: typing.Literal[False],
+    radian_frequency: NDArray[Any],
+    complex: Literal[False],
     order: int = 1,
     normalization: str = "bandpass",
     boundary: str = "mirror",
     time_axis: int = -1,
-) -> np_typing.NDArray[typing.Any]: ...
+) -> NDArray[Any]: ...
 
 
 def morse_wavelet_transform(
-    x: np_typing.NDArray[typing.Any],
+    x: NDArray[Any],
     gamma: float,
     beta: float,
-    radian_frequency: np_typing.NDArray[typing.Any],
+    radian_frequency: NDArray[Any],
     complex: bool = False,
     order: int = 1,
     normalization: str = "bandpass",
     boundary: str = "periodic",
     time_axis: int = -1,
-) -> (
-    tuple[np_typing.NDArray[typing.Any], np_typing.NDArray[typing.Any]]
-    | np_typing.NDArray[typing.Any]
-):
+) -> tuple[NDArray[Any], NDArray[Any]] | NDArray[Any]:
     """
     Apply a continuous wavelet transform to an input signal using the generalized Morse
     wavelets of Olhede and Walden (2002). The wavelet transform is normalized differently
@@ -515,7 +512,7 @@ def _morse_wavelet_first_family(
     fact: float,
     gamma: float,
     beta: float,
-    norm_radian_frequency: np_typing.NDArray[typing.Any],
+    norm_radian_frequency: NDArray[Any],
     wavezero: np.ndarray,
     order: int = 1,
     normalization: str = "bandpass",

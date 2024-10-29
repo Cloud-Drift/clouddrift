@@ -7,7 +7,6 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-import clouddrift.typing as cd_typing
 from clouddrift.kinematics import velocity_from_position
 from clouddrift.ragged import (
     apply_ragged,
@@ -21,6 +20,7 @@ from clouddrift.ragged import (
     unpack,
 )
 from clouddrift.raggedarray import RaggedArray
+from clouddrift.typing import ArrayTypes, ToleranceTypes
 
 if __name__ == "__main__":
     unittest.main()
@@ -215,7 +215,7 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 2, 4]
         minimum = 3
 
-        for data in list[cd_typing.ArrayTypes](
+        for data in list[ArrayTypes](
             [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
         ):
             x_new, rowsize_new = prune(data, rowsize, minimum)
@@ -229,8 +229,8 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 2, 4]
         minimum = 1
 
-        data: cd_typing.ArrayTypes
-        for data in list[cd_typing.ArrayTypes](
+        data: ArrayTypes
+        for data in list[ArrayTypes](
             [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
         ):
             x_new, rowsize_new = prune(data, rowsize, minimum)
@@ -242,8 +242,8 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 2, 4]
         minimum = 5
 
-        data: cd_typing.ArrayTypes
-        for data in list[cd_typing.ArrayTypes](
+        data: ArrayTypes
+        for data in list[ArrayTypes](
             [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
         ):
             x_new, rowsize_new = prune(data, rowsize, minimum)
@@ -278,8 +278,8 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 2, 4]
         minimum = 3
 
-        data: cd_typing.ArrayTypes
-        for data in list[cd_typing.ArrayTypes](
+        data: ArrayTypes
+        for data in list[ArrayTypes](
             [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
         ):
             x_new, rowsize_new = prune(data, rowsize, minimum)
@@ -291,8 +291,8 @@ class prune_tests(unittest.TestCase):
         rowsize: list[int] = []
         minimum = 3
 
-        data: cd_typing.ArrayTypes
-        for data in list[cd_typing.ArrayTypes](
+        data: ArrayTypes
+        for data in list[ArrayTypes](
             [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
         ):
             with self.assertRaises(IndexError):
@@ -303,8 +303,8 @@ class prune_tests(unittest.TestCase):
         rowsize = [3, 3]
         minimum = 3
 
-        data: cd_typing.ArrayTypes
-        for data in list[cd_typing.ArrayTypes](
+        data: ArrayTypes
+        for data in list[ArrayTypes](
             [x, np.array(x), pd.Series(data=x), xr.DataArray(data=x)]
         ):
             with self.assertRaises(ValueError):
@@ -360,8 +360,8 @@ class segment_tests(unittest.TestCase):
             datetime(2023, 2, 1),
             datetime(2023, 2, 2),
         ]
-        tol: cd_typing.ToleranceTypes
-        for tol in list[cd_typing.ToleranceTypes](
+        tol: ToleranceTypes
+        for tol in list[ToleranceTypes](
             [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]
         ):
             np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
@@ -376,7 +376,7 @@ class segment_tests(unittest.TestCase):
                 np.datetime64("2023-02-02"),
             ]
         )
-        for tol in list[cd_typing.ToleranceTypes](
+        for tol in list[ToleranceTypes](
             [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]
         ):
             np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
@@ -385,7 +385,7 @@ class segment_tests(unittest.TestCase):
         x: pd.Series[pd.Timestamp] = pd.to_datetime(
             pd.Series(["1/1/2023", "1/2/2023", "1/3/2023", "2/1/2023", "2/2/2023"])
         )
-        for tol in list[cd_typing.ToleranceTypes](
+        for tol in list[ToleranceTypes](
             [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]
         ):
             np.testing.assert_equal(segment(x, tol), np.array([3, 2]))

@@ -11,9 +11,9 @@ from collections import defaultdict
 from concurrent.futures import Future, ProcessPoolExecutor, as_completed
 
 import numpy as np
-import numpy.typing as np_typing
 import pandas as pd
 import xarray as xr
+from numpy.typing import NDArray
 from tqdm.asyncio import tqdm
 
 from clouddrift.adapters.gdp import get_gdp_metadata
@@ -362,10 +362,10 @@ def _apply_transform(
 
 
 def _parse_datetime_with_day_ratio(
-    month_series: np_typing.NDArray[np.float32],
-    day_series: np_typing.NDArray[np.float32],
-    year_series: np_typing.NDArray[np.float32],
-) -> np_typing.NDArray[np.datetime64]:
+    month_series: NDArray[np.float32],
+    day_series: NDArray[np.float32],
+    year_series: NDArray[np.float32],
+) -> NDArray[np.datetime64]:
     values = list()
     for month, day_with_ratio, year in zip(month_series, day_series, year_series):
         day = day_with_ratio // 1
@@ -484,7 +484,7 @@ def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset]) -> xr.Dataset:
     )
 
     sort_coord = traj_dataset.coords["obs_index"]
-    vals: np_typing.NDArray[np.int64] = sort_coord.data
+    vals: NDArray[np.int64] = sort_coord.data
     sort_coord_dim = sort_coord.dims[-1]
     sort_key = vals.argsort()
 

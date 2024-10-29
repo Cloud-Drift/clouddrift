@@ -1,7 +1,7 @@
 import typing
 
 import numpy as np
-import numpy.typing as np_typing
+from numpy.typing import NDArray
 
 import tests.utils as testutils
 from clouddrift import datasets
@@ -43,7 +43,7 @@ class datasets_tests(testutils.DisableProgressTestCase):
             self.assertTrue(len(mean_lon) == 2)
 
     # For static typing purposes
-    def _mean(self, x: np_typing.NDArray[typing.Any]) -> np_typing.NDArray[typing.Any]:
+    def _mean(self, x: NDArray[typing.Any]) -> NDArray[typing.Any]:
         return np.mean(x)
 
     def test_spotters_opens(self):
