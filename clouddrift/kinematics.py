@@ -3,8 +3,8 @@ Functions for kinematic computations.
 """
 
 import numpy as np
-import pandas as pd
 import xarray as xr
+from numpy.typing import NDArray
 
 from clouddrift.sphere import (
     EARTH_RADIUS_METERS,
@@ -17,13 +17,14 @@ from clouddrift.sphere import (
     recast_lon360,
     spherical_to_cartesian,
 )
+from clouddrift.typing import ArrayTypes
 from clouddrift.wavelet import morse_logspace_freq, morse_wavelet, wavelet_transform
 
 
 def kinetic_energy(
-    u: float | list | np.ndarray | xr.DataArray | pd.Series,
-    v: float | list | np.ndarray | xr.DataArray | pd.Series | None = None,
-) -> float | np.ndarray | xr.DataArray:
+    u: float | ArrayTypes,
+    v: float | ArrayTypes | None = None,
+) -> float | NDArray[np.float64] | xr.DataArray:
     """Compute kinetic energy from zonal and meridional velocities.
 
     Parameters
@@ -531,7 +532,7 @@ def velocity_from_position(
     coord_system: str = "spherical",
     difference_scheme: str = "forward",
     time_axis: int = -1,
-) -> tuple[xr.DataArray, xr.DataArray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Compute velocity from arrays of positions and time.
 
     x and y can be provided as longitude and latitude in degrees if

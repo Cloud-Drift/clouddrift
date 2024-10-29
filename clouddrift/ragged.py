@@ -2,6 +2,7 @@
 Transformational and inquiry functions for ragged arrays.
 """
 
+import typing
 import warnings
 from collections.abc import Callable, Iterable
 from concurrent import futures
@@ -10,18 +11,25 @@ from datetime import timedelta
 import numpy as np
 import pandas as pd
 import xarray as xr
+from numpy.typing import NDArray
+
+from clouddrift.typing import ArrayTypes
+
+_ArrayOutput = typing.TypeVar(
+    "_ArrayOutput", bound=tuple[np.ndarray, np.ndarray] | np.ndarray
+)
 
 
 def apply_ragged(
-    func: callable,
-    arrays: list[np.ndarray | xr.DataArray] | np.ndarray | xr.DataArray,
-    rowsize: list[int] | np.ndarray[int] | xr.DataArray,
-    *args: tuple,
+    func: Callable[..., _ArrayOutput],
+    arrays: ArrayTypes,
+    rowsize: ArrayTypes,
+    *args: typing.Any,
     rows: int | Iterable[int] = None,
     axis: int = 0,
     executor: futures.Executor = futures.ThreadPoolExecutor(max_workers=None),
-    **kwargs: dict,
-) -> tuple[np.ndarray] | np.ndarray:
+    **kwargs: typing.Any,
+) -> _ArrayOutput:
     """Apply a function to a ragged array.
 
     The function ``func`` will be applied to each contiguous row of ``arrays`` as
@@ -423,7 +431,7 @@ def regular_to_ragged(
     return array[valid], np.sum(valid, axis=1)
 
 
-def rowsize_to_index(rowsize: list | np.ndarray | xr.DataArray) -> np.ndarray:
+def rowsize_to_index(rowsize: ArrayTypes) -> np.ndarray:
     """Convert a list of row sizes to a list of indices.
 
     This function is typically used to obtain the indices of data rows organized
@@ -450,10 +458,10 @@ def rowsize_to_index(rowsize: list | np.ndarray | xr.DataArray) -> np.ndarray:
 
 
 def segment(
-    x: np.ndarray,
+    x: ArrayTypes,
     tolerance: float | np.timedelta64 | timedelta | pd.Timedelta,
-    rowsize: np.ndarray[int] = None,
-) -> np.ndarray[int]:
+    rowsize: NDArray[np.int64] | None = None,
+) -> NDArray[np.int64]:
     """Divide an array into segments based on a tolerance value.
 
     Parameters
@@ -787,11 +795,11 @@ def subset(
 
 
 def unpack(
-    ragged_array: np.ndarray,
-    rowsize: np.ndarray[int],
-    rows: int | Iterable[int] = None,
+    ragged_array: ArrayTypes,
+    rowsize: ArrayTypes,
+    rows: int | np.int64 | Iterable[int] | None = None,
     axis: int = 0,
-) -> list[np.ndarray]:
+) -> list[NDArray[typing.Any]]:
     """Unpack a ragged array into a list of regular arrays.
 
     Unpacking a ``np.ndarray`` ragged array is about 2 orders of magnitude

@@ -15,22 +15,53 @@ Any other code that is added to this module and that is specific to Python and
 not the MATLAB implementation is licensed under CloudDrift's MIT license.
 """
 
+from typing import Any, Literal, overload
+
 import numpy as np
+from numpy.typing import NDArray
 from scipy.special import gamma as _gamma
 from scipy.special import gammaln as _lgamma
 
 
+@overload
 def morse_wavelet_transform(
-    x: np.ndarray,
+    x: NDArray[Any],
     gamma: float,
     beta: float,
-    radian_frequency: np.ndarray,
+    radian_frequency: NDArray[Any],
+    complex: Literal[True],
+    order: int = 1,
+    normalization: str = "bandpass",
+    boundary: str = "mirror",
+    time_axis: int = -1,
+) -> tuple[NDArray[Any], NDArray[Any]]: ...
+
+
+@overload
+def morse_wavelet_transform(
+    x: NDArray[Any],
+    gamma: float,
+    beta: float,
+    radian_frequency: NDArray[Any],
+    complex: Literal[False],
+    order: int = 1,
+    normalization: str = "bandpass",
+    boundary: str = "mirror",
+    time_axis: int = -1,
+) -> NDArray[Any]: ...
+
+
+def morse_wavelet_transform(
+    x: NDArray[Any],
+    gamma: float,
+    beta: float,
+    radian_frequency: NDArray[Any],
     complex: bool = False,
     order: int = 1,
     normalization: str = "bandpass",
     boundary: str = "periodic",
     time_axis: int = -1,
-) -> tuple[np.ndarray, np.ndarray] | np.ndarray:
+) -> tuple[NDArray[Any], NDArray[Any]] | NDArray[Any]:
     """
     Apply a continuous wavelet transform to an input signal using the generalized Morse
     wavelets of Olhede and Walden (2002). The wavelet transform is normalized differently
@@ -185,18 +216,9 @@ def morse_wavelet_transform(
             wtx_n = wavelet_transform(
                 np.conj(x / np.sqrt(2)), wavelet, boundary=boundary, time_axis=time_axis
             )
-        wtx = wtx_p, wtx_n
+        return wtx_p, wtx_n
 
-    elif not complex:
-        # real case
-        wtx = wavelet_transform(x, wavelet, boundary=boundary, time_axis=time_axis)
-
-    else:
-        raise ValueError(
-            "`complex` optional argument must be boolean 'True' or 'False'"
-        )
-
-    return wtx
+    return wavelet_transform(x, wavelet, boundary=boundary, time_axis=time_axis)
 
 
 def wavelet_transform(
@@ -490,7 +512,7 @@ def _morse_wavelet_first_family(
     fact: float,
     gamma: float,
     beta: float,
-    norm_radian_frequency: np.ndarray,
+    norm_radian_frequency: NDArray[Any],
     wavezero: np.ndarray,
     order: int = 1,
     normalization: str = "bandpass",

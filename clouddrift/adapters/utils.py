@@ -1,15 +1,14 @@
 import concurrent.futures
 import logging
 import os
+import typing
 import urllib
 from datetime import datetime
 from io import BufferedIOBase, BufferedWriter
-from typing import Callable, Sequence
 
 import requests
 from tenacity import (
     RetryCallState,
-    WrappedFn,
     retry,
     retry_if_exception,
     stop_after_attempt,
@@ -30,7 +29,10 @@ def _before_call(rcs: RetryCallState):
 _CHUNK_SIZE = 1_048_576  # 1MiB
 _logger = logging.getLogger(__name__)
 
-standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
+_Func = typing.Callable[..., typing.Any]
+_Wrapper = typing.Callable[[_Func], _Func]
+
+standard_retry_protocol: _Wrapper = retry(
     retry=retry_if_exception(
         lambda ex: isinstance(
             ex,
@@ -51,19 +53,19 @@ standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
 
 
 def download_with_progress(
-    download_map: Sequence[
+    download_map: typing.Sequence[
         tuple[str, BufferedIOBase | str] | tuple[str, BufferedIOBase | str, float]
     ],
     show_list_progress: bool | None = None,
     desc: str = "Downloading files",
-    custom_retry_protocol: Callable[[WrappedFn], WrappedFn] | None = None,
+    custom_retry_protocol: _Wrapper | None = None,
 ):
     if show_list_progress is None:
         show_list_progress = len(download_map) > 20
     if custom_retry_protocol is None:
         retry_protocol = standard_retry_protocol
     else:
-        retry_protocol = custom_retry_protocol  # type: ignore
+        retry_protocol = custom_retry_protocol
 
     executor = concurrent.futures.ThreadPoolExecutor()
     futures: dict[
@@ -156,10 +158,10 @@ def _download_with_progress(
                 )
 
     _logger.debug(f"Downloading from {url} to {output}...")
-    bar = None
-
     with requests.get(url, timeout=5, stream=True) as response:
         buffer: BufferedWriter | BufferedIOBase | None = None
+        bar = None
+
         try:
             if isinstance(output, (str,)):
                 buffer = open(output, "wb")
@@ -179,6 +181,7 @@ def _download_with_progress(
                     nrows=2,
                     disable=_DISABLE_SHOW_PROGRESS,
                 )
+
             for chunk in response.iter_content(_CHUNK_SIZE):
                 if not chunk:
                     break
@@ -186,8 +189,6 @@ def _download_with_progress(
                 if bar is not None:
                     bar.update(len(chunk))
         finally:
-            if response is not None:
-                response.close()
             if bar is not None:
                 bar.close()
             if buffer is not None and isinstance(output, (str,)):

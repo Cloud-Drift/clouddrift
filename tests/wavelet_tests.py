@@ -22,7 +22,7 @@ class morse_wavelet_transform_tests(unittest.TestCase):
         length = 1023
         radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 50)
         x = np.random.random(length)
-        wtx = morse_wavelet_transform(x, 3, 10, radian_frequency)
+        wtx = morse_wavelet_transform(x, 3, 10, radian_frequency, False)
         wavelet, _ = morse_wavelet(length, 3, 10, radian_frequency)
         wtx2 = wavelet_transform(x, wavelet)
         self.assertTrue(np.allclose(wtx, wtx2))
@@ -82,7 +82,7 @@ class morse_wavelet_transform_tests(unittest.TestCase):
         f = 0.2
         t = np.arange(0, 1000)
         x = np.cos(2 * np.pi * t * f)
-        wtx = morse_wavelet_transform(x, 3, 10, 2 * np.pi * np.array([f]))
+        wtx = morse_wavelet_transform(x, 3, 10, 2 * np.pi * np.array([f]), False)
         self.assertTrue(np.isclose(np.var(x), 0.5 * np.var(wtx), atol=1e-2))
 
     def test_morse_wavelet_transform_exp(self):
@@ -284,11 +284,16 @@ class morse_freq_tests(unittest.TestCase):
 class morse_logspace_freq_tests(unittest.TestCase):
     def test_morse_logspace_freq_high(self):
         # here we are not testing the morse_logspace_freq function
-        gamma = np.array([3])
-        beta = np.array([4])
+        gamma = 4
+        beta = 4
         eta = 0.1
-        fhigh = _morsehigh(gamma, beta, eta)
-        _, waveletfft = morse_wavelet(10000, gamma, beta, fhigh)
+        fhigh = _morsehigh(np.array([gamma]), np.array([beta]), eta)
+
+        if isinstance(fhigh, np.ndarray):
+            _, waveletfft = morse_wavelet(10000, gamma, beta, fhigh)
+        else:
+            _, waveletfft = morse_wavelet(10000, gamma, beta, np.array(fhigh))
+
         self.assertTrue(
             np.isclose(
                 np.abs(0.5 * waveletfft[0, 0, int(10000 / 2) - 1]), eta, atol=1e-3
