@@ -65,7 +65,7 @@ Homepage = "https://github.com/Cloud-Drift/clouddrift"
 Documentation = "https://cloud-drift.github.io/clouddrift"
 
 [tool.ruff.lint]
-ignore = ["E731", "E741"]
+ignore = ["E731", "E741", "E712"]
 select = ["E4", "E7", "E9", "F", "I"]
 
 [tool.mypy]
