@@ -370,7 +370,7 @@ def _process(
 
     for filter_ in [
         # Filter out year values that are in the future or predating the GDP program
-        lambda df: df["id"] != np.NaN,
+        lambda df: df["id"] != np.nan,
         lambda df: df["posObsYear"] <= this_year,
         lambda df: df["posObsYear"] > 0,
         lambda df: df["senObsYear"] <= this_year,
@@ -437,10 +437,10 @@ def _process(
     mask = np.isin(gdp_metadata_df[["ID"]].values.flatten(), selected_ids)
     selected_metadata = gdp_metadata_df[mask]
 
-    # initialize with NaN to handle selected ids with no metadata, then populate with selected ids
+    # initialize with nan to handle selected ids with no metadata, then populate with selected ids
     start_dates = np.full(
-        selected_ids.shape, np.NaN
-    )  # Initialize with NaN for selected ids with no metadata
+        selected_ids.shape, np.nan
+    )  # Initialize with nan for selected ids with no metadata
     start_dates[: len(selected_metadata)] = selected_metadata[
         ["Start_date"]
     ].values.flatten()
