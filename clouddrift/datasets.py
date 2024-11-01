@@ -156,7 +156,6 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
 def gdp_source(
     tmp_path: str = adapters.gdp_source._TMP_PATH,
     max: int | None = None,
-    skip_download: bool = False,
     use_fill_values: bool = True,
     decode_times: bool = True,
 ) -> xr.Dataset:
@@ -167,9 +166,10 @@ def gdp_source(
     filesystem. If it is not found, the dataset will be downloaded using the
     corresponding adapter function and stored as zarr archive for later access.
 
-    The data is accessed from a public HTTPS server at NOAA's Atlantic
+    The drifter data is accessed from a public HTTPS server at NOAA's Atlantic
     Oceanographic and Meteorological Laboratory (AOML) at
-    https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst/.
+    https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst/ while the metadata is
+    retrieved from https://www.aoml.noaa.gov/ftp/pub/phod/buoydata.
 
     Parameters
     ----------
@@ -178,9 +178,6 @@ def gdp_source(
     max: int, optional
         Maximum number of files to retrieve and parse to generate the aggregate file. Mainly used
         for testing purposes.
-    skip_download: bool, False (default)
-        If True, skips downloading the data files and the code assumes the files have already been downloaded.
-        This is mainly used to skip downloading files if the remote doesn't provide the HTTP  Last-Modified header.
     use_fill_values: bool, True (default)
         When True, missing metadata fields are replaced with fill values. When False and no metadata
         is found for a given drifter its observations are ignored.
@@ -219,13 +216,37 @@ def gdp_source(
         start_lon          (traj) float64 ...
         voltage            (obs) float32 ...
         wmo_number         (traj) int64 ...
+
+    If you would like to take advantage of all your CPU cores and speed along the ragged array generation process
+    utilize the following snippet of code before running this function.
+
+    >>> from dask.distributed import LocalCluster
+    >>> cluster = LocalCluster()
+    >>> client = cluster.get_client()
+    >>> client.dashboard_link # Copy the link below into your browser to monitor the process.
+    'http://127.0.0.1:.../status'
+
+    Sometimes you may need to configure the temporary directory used to store intermediary computations in cases
+    where the temporary directory used lies on a partition with limited space. Some unix environments are partitioned
+    where / (root) directory has limited space, typically ~30GBs and then the /home or /Users directory takes up
+    whatever else remains. Since the /tmp directory (typical directory used for temporary data and computations) lies
+    on the root directory it's limited by this partition size.
+
+    An easy way to get around this limitation is to configure the dask temp directory to a path that lies on a
+    partition with more memory. To figure this out you can use the standard `df` unix utility like so: `df -h`.
+    If you find a path with more memory you can configure dask to use that instead of the default path
+    like so (make sure to add this line before starting any computation):
+
+    >>> import dask.config as daskc
+    >>> daskc.set({"temporary-directory": "/home/ksantana/.clouddrift/tmp"})
+
     """
     file_selection_label = "all" if max is None else f"first-{max}"
     return _dataset_filecache(
         f"gdpsource_agg_{file_selection_label}.zarr",
         decode_times,
         lambda: adapters.gdp_source.to_raggedarray(
-            tmp_path, skip_download, max, use_fill_values=use_fill_values
+            tmp_path, max, use_fill_values=use_fill_values
         ),
     )
 

@@ -1,3 +1,5 @@
+import unittest
+
 import numpy as np
 
 import tests.utils as testutils
@@ -13,6 +15,20 @@ class datasets_tests(testutils.DisableProgressTestCase):
     def test_gdp6h(self):
         with datasets.gdp6h() as ds:
             self.assertTrue(ds)
+
+    @unittest.skip(
+        "This test takes a really long time to execute and should only be executed locally"
+    )
+    def test_gdpsource(self):
+        with datasets.gdp_source(max=1) as ds:
+            self.assertTrue(ds is not None)
+
+            start_dt_diffs = np.diff(ds["start_date"].data, axis=0)
+            self.assertEqual(
+                np.all(start_dt_diffs.astype(np.int64) >= 0).T,
+                True,
+                "Drifter segments not ordered by start date",
+            )
 
     def test_glad(self):
         with datasets.glad() as ds:

@@ -35,7 +35,8 @@ dependencies = [
     "scipy>=1.11.2",
     "xarray>=2023.5.0",
     "zarr>=2.14.2",
-    "tenacity>=8.2.3"
+    "tenacity>=8.2.3",
+    "dask>=2024.5.0"
 ]
 
 [project.optional-dependencies]
@@ -64,7 +65,7 @@ Homepage = "https://github.com/Cloud-Drift/clouddrift"
 Documentation = "https://cloud-drift.github.io/clouddrift"
 
 [tool.ruff.lint]
-ignore = ["E731", "E741"]
+ignore = ["E731", "E741", "E712"]
 select = ["E4", "E7", "E9", "F", "I"]
 
 [tool.mypy]

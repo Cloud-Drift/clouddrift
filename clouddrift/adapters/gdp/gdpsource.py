@@ -1,23 +1,20 @@
 from __future__ import annotations
 
-import asyncio
 import datetime
-import logging
+import gzip
 import os
 import tempfile
 import warnings
-from collections import defaultdict
-from concurrent.futures import Future, ProcessPoolExecutor, as_completed
-from typing import Callable
+from typing import Any
 
+import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import xarray as xr
-from tqdm.asyncio import tqdm
+from tqdm import tqdm
 
 from clouddrift.adapters.gdp import get_gdp_metadata
 from clouddrift.adapters.utils import download_with_progress
-from clouddrift.ragged import subset
 from clouddrift.raggedarray import RaggedArray
 
 _DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst"
@@ -25,12 +22,11 @@ _TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdpsource")
 _FILENAME_TEMPLATE = "buoydata_{start}_{end}_{suffix}.dat.gz"
 _SECONDS_IN_DAY = 86_400
 
-_COORDS = ["id", "obs_index"]
+_COORDS = ["id", "position_datetime"]
 
 _DATA_VARS = [
     "latitude",
     "longitude",
-    "position_datetime",
     "sensor_datetime",
     "drogue",
     "sst",
@@ -57,17 +53,17 @@ _METADATA_VARS = [
 ]
 
 _VARS_FILL_MAP: dict = {
-    "wmo_number": -999,
-    "program_number": -999,
+    "wmo_number": np.nan,
+    "program_number": np.nan,
     "buoys_type": "N/A",
-    "start_date": np.datetime64("1970-01-01 00:00:00"),
-    "start_lat": -999,
-    "start_lon": -999,
-    "end_date": np.datetime64("1970-01-01 00:00:00"),
-    "end_lat": -999,
-    "end_lon": -999,
-    "drogue_off_date": np.datetime64("1970-01-01 00:00:00"),
-    "death_code": -999,
+    "start_date": np.datetime64("NaT"),
+    "start_lat": np.nan,
+    "start_lon": np.nan,
+    "end_date": np.datetime64("NaT"),
+    "end_lat": np.nan,
+    "end_lon": np.nan,
+    "drogue_off_date": np.datetime64("NaT"),
+    "death_code": np.nan,
 }
 
 _VAR_DTYPES: dict = {
@@ -107,22 +103,30 @@ _INPUT_COLS = [
 
 
 _INPUT_COLS_DTYPES = {
-    "id": np.int64,
-    "posObsMonth": np.int8,
+    "posObsMonth": np.float32,
     "posObsDay": np.float64,
-    "posObsYear": np.int16,
+    "posObsYear": np.float32,
     "latitude": np.float32,
     "longitude": np.float32,
     "qualityIndex": np.float32,
-    "senObsMonth": np.int8,
+    "senObsMonth": np.float32,
     "senObsDay": np.float64,
-    "senObsYear": np.int16,
+    "senObsYear": np.float32,
     "drogue": np.float32,
     "sst": np.float32,
     "voltage": np.float32,
     "sensor4": np.float32,
     "sensor5": np.float32,
     "sensor6": np.float32,
+}
+
+_INPUT_COLS_PREFILTER_DTYPES: dict[str, type[object]] = {
+    "id": np.float64,
+    "posObsMonth": np.str_,
+    "posObsYear": np.float64,
+    "senObsMonth": np.str_,
+    "senObsYear": np.float64,
+    "drogue": np.str_,
 }
 
 
@@ -176,10 +180,10 @@ VARS_ATTRS: dict = {
         "comments": "0 (buoy still alive), 1 (buoy ran aground), 2 (picked up by vessel), 3 (stop transmitting), 4 (sporadic transmissions), 5 (bad batteries), 6 (inactive status)",
     },
     "position_datetime": {
-        "comments": "Position datetime derived from the year, month, day and time (represented as a ratio of a day) columns found in the source dataset that represent when the position of the drifter was measured. This value is only different from the sensor_datetime when the position of the drifter was determined onboard the Argos satellites using the doppler shift.",
+        "comments": "Position datetime derived from the year, month, and day (represented as a ratio of a day) when the geographical coordinates of the drifter were obtained. May differ from sensor_datetime.",
     },
     "sensor_datetime": {
-        "comments": "Sensor datetime derived from the year, month, day and time (represented as a ratio of a day) columns found in the source dataset that represent when the sensor (like temp) data is recorded",
+        "comments": "Sensor datetime derived from the year, month, and day (represented as a ratio of a day) when sensor data were recorded.",
     },
     "longitude": {"long_name": "Longitude", "units": "degrees_east"},
     "latitude": {"long_name": "Latitude", "units": "degrees_north"},
@@ -215,6 +219,7 @@ VARS_ATTRS: dict = {
     "qualityIndex": {
         "long_name": "Quality Index",
         "units": "-",
+        "comments": "Definitions vary",
     },
 }
 
@@ -233,8 +238,6 @@ ATTRS = {
     "institution": "NOAA Atlantic Oceanographic and Meteorological Laboratory",
     "summary": "Global Drifter Program source (raw) data",
 }
-
-_logger = logging.getLogger(__name__)
 
 
 def _get_download_list(tmp_path: str) -> list[tuple[str, str]]:
@@ -263,7 +266,7 @@ def _rowsize(id_, **kwargs) -> int:
 
 def _preprocess(id_, **kwargs) -> xr.Dataset:
     md_df: pd.DataFrame | None = kwargs.get("md_df")
-    data_df: pd.DataFrame | None = kwargs.get("data_df")
+    data_df: pd.DataFrame | dd.DataFrame | None = kwargs.get("data_df")
     use_fill_values: bool = kwargs.get("use_fill_values", False)
 
     if md_df is None or data_df is None:
@@ -273,6 +276,8 @@ def _preprocess(id_, **kwargs) -> xr.Dataset:
 
     traj_md_df = md_df[md_df["ID"] == id_]
     traj_data_df = data_df[data_df["id"] == id_]
+    if isinstance(traj_data_df, dd.DataFrame):
+        traj_data_df = traj_data_df.compute()
     rowsize = len(traj_data_df)
 
     md_variables = {
@@ -323,9 +328,9 @@ def _preprocess(id_, **kwargs) -> xr.Dataset:
 
     coords = {
         "id": (["traj"], np.array([id_]).astype(np.int64)),
-        "obs_index": (
+        "position_datetime": (
             ["obs"],
-            traj_data_df[["obs_index"]].values.flatten().astype(np.int32),
+            traj_data_df[["position_datetime"]].values.flatten(),
         ),
     }
 
@@ -334,118 +339,121 @@ def _preprocess(id_, **kwargs) -> xr.Dataset:
     return dataset
 
 
-def _apply_remove(df: pd.DataFrame, filters: list[Callable]) -> pd.DataFrame:
-    temp_df = df
-    for filter_ in filters:
-        mask = filter_(temp_df)
-        temp_df = temp_df[~mask]
-    return temp_df
-
-
-def _apply_transform(
-    df: pd.DataFrame,
-    transforms: dict[str, tuple[list[str], Callable]],
-) -> pd.DataFrame:
-    tmp_df = df
-    for output_col in transforms.keys():
-        input_cols, func = transforms[output_col]
-        args = list()
-        for col in input_cols:
-            arg = df[[col]].values.flatten()
-            args.append(arg)
-        tmp_df = tmp_df.assign(**{output_col: func(*args)})
-        tmp_df = tmp_df.drop(input_cols, axis=1)
-    return tmp_df
-
-
 def _parse_datetime_with_day_ratio(
-    month_series: np.ndarray, day_series: np.ndarray, year_series: np.ndarray
-) -> np.ndarray:
-    values = list()
-    for month, day_with_ratio, year in zip(month_series, day_series, year_series):
+    month: float, day_with_ratio: float, year: float
+) -> Any:
+    try:
         day = day_with_ratio // 1
         dayratio = day_with_ratio - day
-        seconds = dayratio * _SECONDS_IN_DAY
-        dt_ns = (
-            datetime.datetime(year=int(year), month=int(month), day=int(1))
-            + datetime.timedelta(days=int(day), seconds=seconds)
-        ).timestamp() * 10**9
-        values.append(int(dt_ns))
-    return np.array(values).astype("datetime64[ns]")
+        second = dayratio * _SECONDS_IN_DAY
+        # seconds = (
+        #     datetime.datetime(year=int(year), month=int(month), day=int(day))
+        #     + datetime.timedelta(seconds=int(second))
+        # ).timestamp()
+        # return np.datetime64(int(seconds * 10**9)).astype(np.dtype("datetime64[ns]"))
+        return np.datetime64(
+            datetime.datetime(year=int(year), month=int(month), day=int(day))
+            + datetime.timedelta(seconds=int(second))
+        ).astype(np.dtype("datetime64[ns]"))
+    except Exception as _:
+        return np.datetime64("NaT", "ns")
 
 
-def _process_chunk(
-    df_chunk: pd.DataFrame,
-    start_idx: int,
-    end_idx: int,
+def _process(
+    df: dd.DataFrame | pd.DataFrame,
     gdp_metadata_df: pd.DataFrame,
     use_fill_values: bool,
-) -> dict[int, xr.Dataset]:
+) -> xr.Dataset:
     """Process each dataframe chunk. Return a dictionary mapping each drifter to a unique xarray Dataset."""
+    this_year = datetime.datetime.now().year
+    source_df = df
 
-    # Transform the initial dataframe filtering out rows with really anomolous values
-    # examples include: years in the future, years way in the past before GDP program, etc...
-    preremove_df_chunk = df_chunk.assign(obs_index=range(start_idx, end_idx))
-    df_chunk = _apply_remove(
-        preremove_df_chunk,
-        filters=[
-            # Filter out year values that are in the future or predating the GDP program
-            lambda df: (df["posObsYear"] > datetime.datetime.now().year)
-            | (df["posObsYear"] < 0),
-            lambda df: (df["senObsYear"] > datetime.datetime.now().year)
-            | (df["senObsYear"] < 0),
-            # Filter out month values that contain non-numeric characters
-            lambda df: df["senObsMonth"].astype(np.str_).str.contains(r"[\D]"),
-            lambda df: df["posObsMonth"].astype(np.str_).str.contains(r"[\D]"),
-            # Filter out drogue values that cannot be interpret as floating point values.
-            # (e.g. - have more than one decimal point)
-            lambda df: df["drogue"].astype(np.str_).str.match(r"(\d+[\.]+){2,}"),
-        ],
+    for filter_ in [
+        # Filter out year values that are in the future or predating the GDP program
+        lambda df: df["id"] != np.nan,
+        lambda df: df["posObsYear"] <= this_year,
+        lambda df: df["posObsYear"] > 0,
+        lambda df: df["senObsYear"] <= this_year,
+        lambda df: df["senObsYear"] > 0,
+        # Filter out month values that contain non-numeric characters
+        lambda df: df["senObsMonth"].astype(np.str_).str.contains(r"[\D]") == False,
+        lambda df: df["posObsMonth"].astype(np.str_).str.contains(r"[\D]") == False,
+        # Filter out drogue values that cannot be interpret as floating point values.
+        # (e.g. - have more than one decimal point)
+        lambda df: df["drogue"].astype(np.str_).str.match(r"(\d+[\.]+){2,}") == False,
+    ]:
+        df = df[filter_(df)]
+    clean_df = df
+
+    source_df_len = len(source_df)
+    clean_df_len = len(clean_df)
+    if source_df_len != clean_df_len:
+        warnings.warn(f"Filters removed {source_df_len - clean_df_len} rows from chunk")
+
+    if clean_df_len == 0:
+        raise ValueError("All rows removed from dataframe, please review filters")
+
+    df = clean_df.astype(_INPUT_COLS_DTYPES)
+
+    df["position_datetime"] = df.apply(
+        lambda row: _parse_datetime_with_day_ratio(
+            row["posObsMonth"], row["posObsDay"], row["posObsYear"]
+        ),
+        axis=1,
     )
 
-    drifter_ds_map = dict[int, xr.Dataset]()
-
-    preremove_len = len(preremove_df_chunk)
-    postremove_len = len(df_chunk)
-
-    if preremove_len != postremove_len:
-        warnings.warn(
-            f"Filters removed {preremove_len - postremove_len} rows from chunk"
-        )
-
-    if postremove_len == 0:
-        return drifter_ds_map
-
-    df_chunk = df_chunk.astype(_INPUT_COLS_DTYPES)
-    df_chunk = _apply_transform(
-        df_chunk,
-        {
-            "position_datetime": (
-                ["posObsMonth", "posObsDay", "posObsYear"],
-                _parse_datetime_with_day_ratio,
-            ),
-            "sensor_datetime": (
-                ["senObsMonth", "senObsDay", "senObsYear"],
-                _parse_datetime_with_day_ratio,
-            ),
-        },
+    df["sensor_datetime"] = df.apply(
+        lambda row: _parse_datetime_with_day_ratio(
+            row["senObsMonth"], row["senObsDay"], row["senObsYear"]
+        ),
+        axis=1,
     )
 
     # Find and process drifters found and documented in the drifter metadata.
-    ids_in_data = np.unique(df_chunk[["id"]].values)
-    ids_with_md = np.intersect1d(ids_in_data, gdp_metadata_df[["ID"]].values)
+    if isinstance(df, dd.DataFrame):
+        ids_in_data: Any = df[["id"]].values
+        ids_in_data = ids_in_data.compute().flatten()
 
-    if len(ids_with_md) < len(ids_in_data):
+    # ids_in_data = np.unique(all_ids)
+    ids_with_md = np.intersect1d(ids_in_data, gdp_metadata_df[["ID"]].values)
+    len_ids_with_md = len(ids_with_md)
+    len_ids_in_data = len(ids_in_data)
+
+    if len_ids_with_md < len_ids_in_data:
         warnings.warn(
             "Chunk has drifter ids not found in the metadata table. "
             + "Using fill values"
             if use_fill_values
             else "Ignoring data observations"
-            + f" for missing metadata ids: {np.setdiff1d(ids_in_data, ids_with_md)}."
+            + f" for missing metadata ids: {len(np.setdiff1d(ids_in_data, ids_with_md))}."
         )
 
+    if use_fill_values:
+        selected_ids = ids_in_data
+    else:
+        selected_ids = ids_with_md
+
+    # Get metadata for selected ids
+    mask = np.isin(gdp_metadata_df[["ID"]].values.flatten(), selected_ids)
+    selected_metadata = gdp_metadata_df[mask]
+
+    # initialize with nan to handle selected ids with no metadata, then populate with selected ids
+    start_dates = np.full(
+        selected_ids.shape, np.nan
+    )  # Initialize with nan for selected ids with no metadata
+    start_dates[: len(selected_metadata)] = selected_metadata[
+        ["Start_date"]
+    ].values.flatten()
+    start_date_sortkey = np.argsort(start_dates)
+    start_date_sorted_ids = selected_ids[start_date_sortkey]
+
+    if isinstance(df, dd.DataFrame):
+        df = df.set_index("id", drop=False).persist()
+    else:
+        df = df.set_index("id")
+
     ra = RaggedArray.from_files(
-        indices=ids_in_data if use_fill_values else ids_with_md,
+        indices=start_date_sorted_ids,
         preprocess_func=_preprocess,
         rowsize_func=_rowsize,
         name_coords=_COORDS,
@@ -453,157 +461,43 @@ def _process_chunk(
         name_data=_DATA_VARS,
         name_dims={"traj": "rows", "obs": "obs"},
         md_df=gdp_metadata_df,
-        data_df=df_chunk,
+        data_df=df,
         use_fill_values=use_fill_values,
-        tqdm=dict(disable=True),
+        tqdm={"disable": True},
     )
-    ds = ra.to_xarray()
-
-    for id_ in ids_with_md:
-        id_f_ds = subset(ds, dict(id=id_), row_dim_name="traj")
-        drifter_ds_map[id_] = id_f_ds
-    return drifter_ds_map
-
-
-def _combine_chunked_drifter_datasets(datasets: list[xr.Dataset]) -> xr.Dataset:
-    """Combines several drifter observations found in separate chunks, ordering them
-    by the observations row index.
-    """
-    traj_dataset = xr.concat(
-        datasets, dim="obs", coords="minimal", data_vars=_DATA_VARS, compat="override"
-    )
-
-    new_rowsize = sum([ds.rowsize.values[0] for ds in datasets])
-    traj_dataset["rowsize"] = xr.DataArray(
-        np.array([new_rowsize], dtype=np.int64), coords=traj_dataset["rowsize"].coords
-    )
-
-    sort_coord = traj_dataset.coords["obs_index"]
-    vals: np.ndarray = sort_coord.data
-    sort_coord_dim = sort_coord.dims[-1]
-    sort_key = vals.argsort()
-
-    for coord_name in _COORDS:
-        coord = traj_dataset.coords[coord_name]
-        dim = coord.dims[-1]
-
-        if dim == sort_coord_dim:
-            sorted_coord = coord.isel({dim: sort_key})
-            traj_dataset.coords[coord_name] = sorted_coord
-
-    for varname in _DATA_VARS:
-        var = traj_dataset[varname]
-        dim = var.dims[-1]
-        sorted_var = var.isel({dim: sort_key})
-        traj_dataset[varname] = sorted_var
-
-    return traj_dataset
-
-
-async def _parallel_get(
-    sources: list[str],
-    gdp_metadata_df: pd.DataFrame,
-    chunk_size: int,
-    tmp_path: str,
-    use_fill_values: bool,
-    max_chunks: int | None,
-) -> list[xr.Dataset]:
-    """Parallel process dataset in chunks leveraging multiprocessing."""
-    max_workers = (os.cpu_count() or 0) // 2
-    with ProcessPoolExecutor(max_workers=max_workers) as ppe:
-        drifter_chunked_datasets: dict[int, list[xr.Dataset]] = defaultdict(list)
-        start_idx = 0
-        for fp in tqdm(
-            sources,
-            desc="Loading files",
-            unit="file",
-            ncols=80,
-            total=len(sources),
-            position=0,
-        ):
-            file_chunks = pd.read_csv(
-                fp,
-                sep=r"\s+",
-                header=None,
-                names=_INPUT_COLS,
-                engine="c",
-                compression="gzip",
-                chunksize=chunk_size,
-            )
-
-            joblist = list[Future]()
-            jobmap = dict[Future, pd.DataFrame]()
-            for idx, chunk in enumerate(file_chunks):
-                if max_chunks is not None and idx >= max_chunks:
-                    break
-                ajob = ppe.submit(
-                    _process_chunk,
-                    chunk,
-                    start_idx,
-                    start_idx + len(chunk),
-                    gdp_metadata_df,
-                    use_fill_values,
-                )
-                start_idx += len(chunk)
-                jobmap[ajob] = chunk
-                joblist.append(ajob)
-
-            bar = tqdm(
-                desc="Processing file chunks",
-                unit="chunk",
-                ncols=80,
-                total=len(joblist),
-                position=1,
-            )
-
-            for ajob in as_completed(jobmap.keys()):
-                if (exc := ajob.exception()) is not None:
-                    chunk = jobmap[ajob]
-                    _logger.warn(f"bad chunk detected, exception: {ajob.exception()}")
-                    raise exc
-
-                job_drifter_ds_map: dict[int, xr.Dataset] = ajob.result()
-                for id_ in job_drifter_ds_map.keys():
-                    drifter_ds = job_drifter_ds_map[id_]
-                    drifter_chunked_datasets[id_].append(drifter_ds)
-                bar.update()
-
-        combine_jobmap = dict[Future, int]()
-        for id_ in drifter_chunked_datasets.keys():
-            datasets = drifter_chunked_datasets[id_]
-
-            combine_job = ppe.submit(_combine_chunked_drifter_datasets, datasets)
-            combine_jobmap[combine_job] = id_
-
-        bar.close()
-        bar = tqdm(
-            desc="merging drifter chunks",
-            unit="drifter",
-            ncols=80,
-            total=len(drifter_chunked_datasets.keys()),
-            position=2,
-        )
-
-        os.makedirs(os.path.join(tmp_path, "drifters"), exist_ok=True)
-
-        drifter_datasets = list[xr.Dataset]()
-        for combine_job in as_completed(combine_jobmap.keys()):
-            dataset: xr.Dataset = combine_job.result()
-            drifter_datasets.append(dataset)
-            bar.update()
-        bar.close()
-        return drifter_datasets
+    return ra.to_xarray()
 
 
 def to_raggedarray(
     tmp_path: str = _TMP_PATH,
-    skip_download: bool = False,
     max: int | None = None,
-    chunk_size: int = 100_000,
     use_fill_values: bool = True,
-    max_chunks: int | None = None,
+    skip_download: bool = False,
 ) -> xr.Dataset:
-    """Get the GDP source dataset."""
+    """Transforms the GDP source dataset into a ragged array xarray Dataset.
+
+    The drifter data is accessed from a public HTTPS server at NOAA's Atlantic
+    Oceanographic and Meteorological Laboratory (AOML) at
+    https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst/ while the metadata is
+    retrieved from https://www.aoml.noaa.gov/ftp/pub/phod/buoydata.
+
+    Parameters
+    ----------
+    tmp_path: str, default adapter temp path (default)
+        Temporary path where intermediary files are stored.
+    max: int, optional
+        Maximum number of files to retrieve and parse to generate the aggregate file. Mainly used
+        for testing purposes.
+    use_fill_values: bool, True (default)
+        When True, missing metadata fields are replaced with fill values. dataset.
+    skip_download: bool, False (default)
+        When True, skip downloading the files. This can be used when wanting
+
+    Returns
+    -------
+    xarray.Dataset
+        source GDP dataset as a ragged array
+    """
 
     os.makedirs(tmp_path, exist_ok=True)
 
@@ -611,7 +505,7 @@ def to_raggedarray(
 
     # Filter down for testing purposes.
     if max:
-        requests = [requests[max]]
+        requests = requests[:max]
 
     # Download necessary data and metadata files.
     if not skip_download:
@@ -619,44 +513,39 @@ def to_raggedarray(
 
     gdp_metadata_df = get_gdp_metadata(tmp_path)
 
-    # Run async process to parallelize data processing.
-    drifter_datasets = asyncio.run(
-        _parallel_get(
-            [dst for (_, dst) in requests],
-            gdp_metadata_df,
-            chunk_size,
-            tmp_path,
-            use_fill_values,
-            max_chunks,
-        )
+    data_files = list()
+    for compressed_data_file in tqdm(
+        [dst for (_, dst) in requests], desc="Decompressing files", unit="file"
+    ):
+        decompressed_fp = compressed_data_file[:-3]
+        data_files.append(decompressed_fp)
+        if not os.path.exists(decompressed_fp):
+            with (
+                gzip.open(compressed_data_file, "rb") as compr,
+                open(decompressed_fp, "wb") as decompr,
+            ):
+                decompr.write(compr.read())
+
+    wanted_dtypes = dict()
+    wanted_dtypes.update(_INPUT_COLS_DTYPES)
+    wanted_dtypes.update(_INPUT_COLS_PREFILTER_DTYPES)
+
+    df: dd.DataFrame = dd.read_csv(
+        data_files,
+        sep=r"\s+",
+        header=None,
+        names=_INPUT_COLS,
+        dtype=wanted_dtypes,
+        blocksize="1GB",
+        assume_missing=True,
     )
+    ds = _process(df, gdp_metadata_df, use_fill_values)
 
     # Sort the drifters by their start date.
-    deploy_date_id_map = {
-        ds["id"].data[0]: ds["start_date"].data[0] for ds in drifter_datasets
-    }
-    deploy_date_sort_key = np.argsort(list(deploy_date_id_map.values()))
-    sorted_drifter_datasets = [drifter_datasets[idx] for idx in deploy_date_sort_key]
-
-    # Concatenate drifter data and metadata variables separately.
-    obs_ds = xr.concat(
-        [ds.drop_dims("traj") for ds in sorted_drifter_datasets],
-        dim="obs",
-        data_vars=_DATA_VARS,
-    )
-    traj_ds = xr.concat(
-        [ds.drop_dims("obs") for ds in sorted_drifter_datasets],
-        dim="traj",
-        data_vars=_METADATA_VARS,
-    )
-
-    # Merge the separate datasets.
-    agg_ds = xr.merge([obs_ds, traj_ds])
-
     # Add variable metadata.
     for var_name in _DATA_VARS + _METADATA_VARS:
         if var_name in VARS_ATTRS.keys():
-            agg_ds[var_name].attrs = VARS_ATTRS[var_name]
-    agg_ds.attrs = ATTRS
+            ds[var_name].attrs = VARS_ATTRS[var_name]
+    ds.attrs = ATTRS
 
-    return agg_ds
+    return ds
