@@ -1,3 +1,5 @@
+import unittest
+
 import numpy as np
 
 import tests.utils as testutils
@@ -14,6 +16,9 @@ class datasets_tests(testutils.DisableProgressTestCase):
         with datasets.gdp6h() as ds:
             self.assertTrue(ds)
 
+    @unittest.skip(
+        "This test takes a really long time to execute and should only be executed locally"
+    )
     def test_gdpsource(self):
         with datasets.gdp_source(max=1) as ds:
             self.assertTrue(ds is not None)
