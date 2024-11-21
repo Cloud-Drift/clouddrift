@@ -116,6 +116,60 @@ def download(
         gdp_metadata, [int(f.split("_")[-1].removesuffix(".nc")) for f in filelist]
     )
 
+def verify(
+    directory: str
+    ) -> list[int]:
+    """Verify zero-byte files in the directory.
+
+    Parameters
+    ----------
+    directory : str
+        Path to the directory where the individual NetCDF files are stored.
+
+    Returns
+    -------
+    out : list[int]
+        List of zero-byte files
+    """
+    zero_byte_ids = [
+        int(filename.split("_")[2].split(".")[0])
+        for filename in os.listdir(directory)
+        if filename.startswith("drifter_hourly_") and filename.endswith(".nc") and os.path.getsize(os.path.join(directory, filename)) == 0
+    ]
+    return zero_byte_ids
+
+
+def fix(
+    url: str, 
+    directory: str
+    ) -> int:
+    """Download and fix zero-byte files from the AOML server.
+
+    Parameters
+    ----------
+    url : str
+        URL from which to download the data.
+    directory : str
+        Path to the directory where the individual NetCDF files are stored.
+
+    Returns
+    -------
+    out : int
+        0 if all zero-byte files are successfully redownloaded, otherwise the number of remaining zero-byte files.
+    """
+    zero_byte_ids = verify(directory)
+    attempts = 0
+    max_attempts = 2
+    while attempts < max_attempts and zero_byte_ids:
+        _logger.warning(f"Attempting to redownload zero-byte files: {zero_byte_ids}")
+        download(url, directory, zero_byte_ids, None)
+        zero_byte_ids = verify(directory)
+        attempts += 1
+
+    if zero_byte_ids:
+        _logger.error(f"Failed to download the following zero-byte files after {max_attempts} attempts: {zero_byte_ids}")
+        return len(zero_byte_ids)
+    return 0
 
 def preprocess(index: int, **kwargs) -> xr.Dataset:
     """Extract and preprocess the Lagrangian data and attributes.

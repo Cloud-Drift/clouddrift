@@ -97,3 +97,45 @@ class gdp1h_tests(unittest.TestCase):
                     for did in drifter_ids
                 ]
             )
+    def test_verify_identifies_zero_byte_files(self):
+        """
+        Test that the verify function correctly identifies files with 0 bytes
+        within a given directory.
+        """
+        with MultiPatcher(
+            [
+                patch("clouddrift.adapters.gdp1h.os.listdir", Mock(return_value=self.drifter_files)),
+                patch("clouddrift.adapters.gdp1h.os.path.getsize", side_effect=lambda x: 0 if "2.nc" in x else 100),
+            ]
+        ):
+            zero_byte_files = gdp1h.verify("../some/path")
+            assert zero_byte_files == [2]
+
+    def test_fix_redownloads_zero_byte_files(self):
+        """
+        Test that the fix function redownloads files identified as 0 bytes by the verify function.
+        """
+        with MultiPatcher(
+            [
+                patch("clouddrift.adapters.gdp1h.verify", Mock(side_effect=[[2, 3], []])),
+                patch("clouddrift.adapters.gdp1h.download", Mock()),
+            ]
+        ) as mocks:
+            result = gdp1h.fix("some-url.com", "../some/path")
+            mocks[1].assert_called_with("some-url.com", "../some/path", [2, 3], None)
+            assert result == 0
+
+    def test_fix_returns_files_still_needing_fix(self):
+        """
+        Test that the fix function returns the files that still need fixing if redownloading fails.
+        """
+        with MultiPatcher(
+            [
+                patch("clouddrift.adapters.gdp1h.verify", Mock(side_effect=[[2, 3], [2], [2]])),
+                patch("clouddrift.adapters.gdp1h.download", Mock()),
+            ]
+        ) as mocks:
+            result = gdp1h.fix("some-url.com", "../some/path")
+            mocks[1].assert_any_call("some-url.com", "../some/path", [2, 3], None)
+            mocks[1].assert_any_call("some-url.com", "../some/path", [2], None)
+            assert result == 1  # Expecting 1 files still needing fix
