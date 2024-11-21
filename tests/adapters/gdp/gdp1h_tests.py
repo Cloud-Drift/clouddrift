@@ -97,6 +97,7 @@ class gdp1h_tests(unittest.TestCase):
                     for did in drifter_ids
                 ]
             )
+
     def test_verify_identifies_zero_byte_files(self):
         """
         Test that the verify function correctly identifies files with 0 bytes
@@ -104,8 +105,14 @@ class gdp1h_tests(unittest.TestCase):
         """
         with MultiPatcher(
             [
-                patch("clouddrift.adapters.gdp1h.os.listdir", Mock(return_value=self.drifter_files)),
-                patch("clouddrift.adapters.gdp1h.os.path.getsize", side_effect=lambda x: 0 if "2.nc" in x else 100),
+                patch(
+                    "clouddrift.adapters.gdp1h.os.listdir",
+                    Mock(return_value=self.drifter_files),
+                ),
+                patch(
+                    "clouddrift.adapters.gdp1h.os.path.getsize",
+                    side_effect=lambda x: 0 if "2.nc" in x else 100,
+                ),
             ]
         ):
             zero_byte_files = gdp1h.verify("../some/path")
@@ -117,7 +124,9 @@ class gdp1h_tests(unittest.TestCase):
         """
         with MultiPatcher(
             [
-                patch("clouddrift.adapters.gdp1h.verify", Mock(side_effect=[[2, 3], []])),
+                patch(
+                    "clouddrift.adapters.gdp1h.verify", Mock(side_effect=[[2, 3], []])
+                ),
                 patch("clouddrift.adapters.gdp1h.download", Mock()),
             ]
         ) as mocks:
@@ -131,7 +140,10 @@ class gdp1h_tests(unittest.TestCase):
         """
         with MultiPatcher(
             [
-                patch("clouddrift.adapters.gdp1h.verify", Mock(side_effect=[[2, 3], [2], [2]])),
+                patch(
+                    "clouddrift.adapters.gdp1h.verify",
+                    Mock(side_effect=[[2, 3], [2], [2]]),
+                ),
                 patch("clouddrift.adapters.gdp1h.download", Mock()),
             ]
         ) as mocks:

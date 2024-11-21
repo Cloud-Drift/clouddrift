@@ -116,9 +116,8 @@ def download(
         gdp_metadata, [int(f.split("_")[-1].removesuffix(".nc")) for f in filelist]
     )
 
-def verify(
-    directory: str
-    ) -> list[int]:
+
+def verify(directory: str) -> list[int]:
     """Verify zero-byte files in the directory.
 
     Parameters
@@ -134,15 +133,14 @@ def verify(
     zero_byte_ids = [
         int(filename.split("_")[2].split(".")[0])
         for filename in os.listdir(directory)
-        if filename.startswith("drifter_hourly_") and filename.endswith(".nc") and os.path.getsize(os.path.join(directory, filename)) == 0
+        if filename.startswith("drifter_hourly_")
+        and filename.endswith(".nc")
+        and os.path.getsize(os.path.join(directory, filename)) == 0
     ]
     return zero_byte_ids
 
 
-def fix(
-    url: str, 
-    directory: str
-    ) -> int:
+def fix(url: str, directory: str) -> int:
     """Download and fix zero-byte files from the AOML server.
 
     Parameters
@@ -167,9 +165,12 @@ def fix(
         attempts += 1
 
     if zero_byte_ids:
-        _logger.error(f"Failed to download the following zero-byte files after {max_attempts} attempts: {zero_byte_ids}")
+        _logger.error(
+            f"Failed to download the following zero-byte files after {max_attempts} attempts: {zero_byte_ids}"
+        )
         return len(zero_byte_ids)
     return 0
+
 
 def preprocess(index: int, **kwargs) -> xr.Dataset:
     """Extract and preprocess the Lagrangian data and attributes.
