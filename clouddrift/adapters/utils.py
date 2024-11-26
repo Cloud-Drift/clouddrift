@@ -137,6 +137,28 @@ def _download_with_progress(
     attempt = 0
     max_attempts = 5
 
+    if isinstance(output, str) and os.path.exists(output):
+        _logger.debug(f"File exists {output} checking for updates...")
+        local_last_modified = os.path.getmtime(output)
+
+        # Get last modified time of the remote file
+        with requests.head(url, timeout=5) as res:
+            if "Last-Modified" in res.headers:
+                remote_last_modified = datetime.strptime(
+                    res.headers.get("Last-Modified", ""),
+                    "%a, %d %b %Y %H:%M:%S %Z",
+                )
+
+                # compare with local modified time
+                if local_last_modified >= remote_last_modified.timestamp():
+                    _logger.debug(f"File: {output} is up to date; skip download.")
+                    return
+            else:
+                _logger.warning(
+                    "Cannot determine if the file has been updated on the remote source. "
+                    + "'Last-Modified' header not present in server response."
+                )
+
     while attempt < max_attempts:
         attempt += 1
         if isinstance(temp_output, str) and os.path.exists(temp_output):
@@ -145,58 +167,62 @@ def _download_with_progress(
         _logger.debug(f"Downloading from {url} to {temp_output} (Attempt {attempt})...")
         bar = None
 
-        with requests.get(url, timeout=10, stream=True) as response:
-            buffer: BufferedWriter | BufferedIOBase | None = None
-            try:
-                if isinstance(temp_output, (str,)):
-                    buffer = open(temp_output, "wb")
-                else:
-                    buffer = temp_output
-
-                if (content_length := response.headers.get("Content-Length")) is not None:
-                    expected_size = float(content_length)
-
-                if show_progress:
-                    bar = tqdm(
-                        desc=url,
-                        total=expected_size,
-                        unit="B",
-                        unit_scale=True,
-                        unit_divisor=_CHUNK_SIZE,
-                        nrows=2,
-                        disable=_DISABLE_SHOW_PROGRESS,
-                    )
-                for chunk in response.iter_content(_CHUNK_SIZE):
-                    if not chunk:
-                        break
-                    buffer.write(chunk)
-                    if bar is not None:
-                        bar.update(len(chunk))
-            finally:
-                if response is not None:
-                    response.close()
-                if bar is not None:
-                    bar.close()
-                if buffer is not None and isinstance(temp_output, (str,)):
-                    buffer.close()
-
-        if isinstance(temp_output, str) and os.path.getsize(temp_output) > 0:
-            if isinstance(output, str) and os.path.exists(output):
+        try:
+            with requests.get(url, timeout=10, stream=True) as response:
+                buffer: BufferedWriter | BufferedIOBase | None = None
                 try:
-                    os.remove(output)
-                except OSError as e:
-                    _logger.error(f"Error removing existing file {output}: {e}")
-                    raise
-            try:
-                os.rename(temp_output, output)
-            except FileExistsError as e:
-                _logger.error(f"Error renaming file {temp_output} to {output}: {e}")
-                raise
-            _logger.debug(f"Download completed successfully: {output}")
-            return
-        else:
-            _logger.warning(f"Download failed or incomplete: {temp_output}")
+                    if isinstance(temp_output, (str,)):
+                        buffer = open(temp_output, "wb")
+                    else:
+                        buffer = temp_output
 
-        raise Exception(f"Failed to download {url} after {max_attempts} attempts")
+                    if (
+                        content_length := response.headers.get("Content-Length")
+                    ) is not None:
+                        expected_size = float(content_length)
+
+                    if show_progress:
+                        bar = tqdm(
+                            desc=url,
+                            total=expected_size,
+                            unit="B",
+                            unit_scale=True,
+                            unit_divisor=_CHUNK_SIZE,
+                            nrows=2,
+                            disable=_DISABLE_SHOW_PROGRESS,
+                        )
+                    for chunk in response.iter_content(_CHUNK_SIZE):
+                        if not chunk:
+                            break
+                        buffer.write(chunk)
+                        if bar is not None:
+                            bar.update(len(chunk))
+                finally:
+                    if buffer is not None and isinstance(temp_output, (str,)):
+                        buffer.close()
+                    if bar is not None:
+                        bar.close()
+
+            if isinstance(temp_output, str) and os.path.getsize(temp_output) > 0:
+                if isinstance(output, str) and os.path.exists(output):
+                    try:
+                        os.remove(output)
+                    except OSError as e:
+                        _logger.error(f"Error removing existing file {output}: {e}")
+                        raise
+                try:
+                    os.rename(temp_output, output)
+                except FileExistsError as e:
+                    _logger.error(f"Error renaming file {temp_output} to {output}: {e}")
+                    raise
+                _logger.debug(f"Download completed successfully: {output}")
+                return
+            else:
+                _logger.warning(f"Download failed or incomplete: {temp_output}")
+        except requests.RequestException as e:
+            _logger.error(f"Request failed: {e}")
+        except Exception as e:
+            _logger.error(f"Unexpected error: {e}")
+
 
 __all__ = ["download_with_progress"]
