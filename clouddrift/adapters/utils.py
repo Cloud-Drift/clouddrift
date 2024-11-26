@@ -210,13 +210,16 @@ def _download_with_progress(
                     except OSError as e:
                         _logger.error(f"Error removing existing file {output}: {e}")
                         raise
-                try:
-                    os.rename(temp_output, output)
-                except FileExistsError as e:
-                    _logger.error(f"Error renaming file {temp_output} to {output}: {e}")
-                    raise
-                _logger.debug(f"Download completed successfully: {output}")
-                return
+                if isinstance(output, str):  # Ensure output is a string before renaming
+                    try:
+                        os.rename(temp_output, output)
+                    except FileExistsError as e:
+                        _logger.error(
+                            f"Error renaming file {temp_output} to {output}: {e}"
+                        )
+                        raise
+                    _logger.debug(f"Download completed successfully: {output}")
+                    return
             else:
                 _logger.warning(f"Download failed or incomplete: {temp_output}")
         except requests.RequestException as e:
