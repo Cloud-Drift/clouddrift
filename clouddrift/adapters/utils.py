@@ -133,6 +133,7 @@ def _download_with_progress(
     expected_size: float | None,
     show_progress: bool,
 ):
+    # Use temp_output only if output is a string (file path)
     temp_output = output + ".part" if isinstance(output, str) else output
     attempt = 0
     max_attempts = 5
@@ -220,12 +221,17 @@ def _download_with_progress(
                         raise
                     _logger.debug(f"Download completed successfully: {output}")
                     return
+            elif isinstance(output, BufferedIOBase):
+                _logger.debug("Download completed successfully to buffer.")
+                return
             else:
                 _logger.warning(f"Download failed or incomplete: {temp_output}")
         except requests.RequestException as e:
             _logger.error(f"Request failed: {e}")
         except Exception as e:
             _logger.error(f"Unexpected error: {e}")
+
+    raise Exception(f"Failed to download {url} after {max_attempts} attempts")
 
 
 __all__ = ["download_with_progress"]
