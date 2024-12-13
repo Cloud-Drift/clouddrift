@@ -205,9 +205,9 @@ def _download_with_progress(
 
             if isinstance(temp_output, str) and os.path.getsize(temp_output) > 0:
                 # (temp_output = str <-> output = str)
-                if os.path.exists(output): # type: ignore
-                    os.remove(output) # type: ignore
-                os.rename(temp_output, output) # type: ignore
+                if os.path.exists(output):  # type: ignore
+                    os.remove(output)  # type: ignore
+                os.rename(temp_output, output)  # type: ignore
                 return
             elif isinstance(output, BufferedIOBase):
                 _logger.debug("Download completed successfully to buffer.")

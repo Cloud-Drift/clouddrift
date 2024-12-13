@@ -17,9 +17,9 @@ class utils_tests(unittest.TestCase):
     bar_mock: Mock
 
     def setUp(self) -> None:
-        '''
+        """
         Set up the mocks for the tests.
-        '''
+        """
 
         # Mock responses for requests.head and requests.get
         self.head_response_mock = Mock()
@@ -351,9 +351,7 @@ class utils_tests(unittest.TestCase):
 
         with MultiPatcher(
             [
-                patch(
-                    "clouddrift.adapters.utils.tqdm", Mock()
-                ),
+                patch("clouddrift.adapters.utils.tqdm", Mock()),
                 patch(
                     "clouddrift.adapters.utils.os.path.exists", Mock(return_value=False)
                 ),
@@ -412,7 +410,9 @@ class utils_tests(unittest.TestCase):
                 patch("clouddrift.adapters.utils.os.rename", Mock()),
                 patch(
                     "clouddrift.adapters.utils.requests.get",
-                    MagicMock(side_effect=[RequestException("Network error")] * max_attempts),
+                    MagicMock(
+                        side_effect=[RequestException("Network error")] * max_attempts
+                    ),
                 ),
                 patch("clouddrift.adapters.utils._logger.error", Mock()),
             ]
@@ -431,7 +431,7 @@ class utils_tests(unittest.TestCase):
 
             # Verify that _logger.error was called max_attempts times with appropriate messages
             expected_error_calls = [
-                call.error(f"Request failed: Network error") for _ in range(max_attempts)
+                call.error("Request failed: Network error") for _ in range(max_attempts)
             ]
             utils._logger.error.assert_has_calls(expected_error_calls, any_order=False)
             self.assertEqual(utils._logger.error.call_count, max_attempts)
@@ -440,7 +440,10 @@ class utils_tests(unittest.TestCase):
             utils.os.rename.assert_not_called()
 
             # Verify that the exception message contains the expected text
-            self.assertIn("Failed to download http://example.com/file after 5 attempts", str(context.exception))
+            self.assertIn(
+                "Failed to download http://example.com/file after 5 attempts",
+                str(context.exception),
+            )
 
             # Verify that buffer.write was not called
             buffer = Mock(spec=BufferedIOBase)
