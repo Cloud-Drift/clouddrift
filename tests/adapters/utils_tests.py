@@ -17,6 +17,10 @@ class utils_tests(unittest.TestCase):
     bar_mock: Mock
 
     def setUp(self) -> None:
+        '''
+        Set up the mocks for the tests.
+        '''
+
         # Mock responses for requests.head and requests.get
         self.head_response_mock = Mock()
         self.head_response_mock.headers = {"Last-Modified": "some-date-str"}
@@ -90,6 +94,7 @@ class utils_tests(unittest.TestCase):
         """
         Download the file from the server if there is an update to it remotely (BufferedIOBase).
         """
+
         now = datetime.now()
         datetime_mock = Mock()
         datetime_mock.strptime = Mock(return_value=now)
@@ -122,10 +127,10 @@ class utils_tests(unittest.TestCase):
         """
         Download the file from the server if there is an update to it remotely (file path).
         """
+
         now = datetime.now()
         datetime_mock = Mock()
         datetime_mock.strptime = Mock(return_value=now)
-
         with MultiPatcher(
             [
                 patch("clouddrift.adapters.utils.datetime", datetime_mock),
@@ -161,6 +166,7 @@ class utils_tests(unittest.TestCase):
         Ensure we don't show progress for the list of files when number of files is less than 20 and user
         does not specify whether the progress feature is enabled/disabled.
         """
+
         mocked_futures = [self.gen_future_mock() for _ in range(0, 3)]
         download_requests = [
             ("src0", "dst"),
@@ -227,6 +233,7 @@ class utils_tests(unittest.TestCase):
         """
         Ensure we do show progress per file when the user enables the feature.
         """
+
         tqdm_mock = Mock(return_value=self.bar_mock)
         with MultiPatcher(
             [
@@ -256,6 +263,7 @@ class utils_tests(unittest.TestCase):
         """
         Ensure we don't show progress per file when the user disables the feature.
         """
+
         tqdm_mock = Mock(return_value=self.bar_mock)
         with MultiPatcher(
             [
@@ -332,7 +340,7 @@ class utils_tests(unittest.TestCase):
         """
         Test that _download_with_progress raises an Exception after multiple empty chunks.
         """
-        # Arrange
+
         max_attempts = 5  # Assuming max_attempts is set to 5 in the function
 
         # Create a mock response that returns empty chunks
@@ -345,7 +353,7 @@ class utils_tests(unittest.TestCase):
             [
                 patch(
                     "clouddrift.adapters.utils.tqdm", Mock()
-                ),  # Mock tqdm to prevent actual progress bar
+                ),
                 patch(
                     "clouddrift.adapters.utils.os.path.exists", Mock(return_value=False)
                 ),
@@ -362,14 +370,11 @@ class utils_tests(unittest.TestCase):
             ]
         ):
             output_file = "output.file"
-
-            # Act & Assert
             with self.assertRaises(Exception) as context:
                 utils._download_with_progress(
                     "http://example.com/file", output_file, None, False
                 )
 
-            # Assertions
             # Verify that requests.get was called max_attempts times
             utils.requests.get.assert_called_with(
                 "http://example.com/file", timeout=10, stream=True
@@ -385,6 +390,61 @@ class utils_tests(unittest.TestCase):
 
             # Verify that the exception message contains the expected text
             self.assertIn("Failed to download", str(context.exception))
+
+    def test_download_request_exception_context_manager(self):
+        """
+        Test that _download_with_progress handles RequestException by logging errors
+        and raises an Exception after max_attempts using MultiPatcher.
+        """
+
+        max_attempts = 5  # Assuming max_attempts is set to 5 in the function
+
+        with MultiPatcher(
+            [
+                patch("clouddrift.adapters.utils.tqdm", Mock()),
+                patch(
+                    "clouddrift.adapters.utils.os.path.exists", Mock(return_value=False)
+                ),
+                patch(
+                    "clouddrift.adapters.utils.os.path.getsize", Mock(return_value=0)
+                ),
+                patch("clouddrift.adapters.utils.os.remove", Mock()),
+                patch("clouddrift.adapters.utils.os.rename", Mock()),
+                patch(
+                    "clouddrift.adapters.utils.requests.get",
+                    MagicMock(side_effect=[RequestException("Network error")] * max_attempts),
+                ),
+                patch("clouddrift.adapters.utils._logger.error", Mock()),
+            ]
+        ):
+            output_file = "output.file"
+            with self.assertRaises(Exception) as context:
+                utils._download_with_progress(
+                    "http://example.com/file", output_file, None, False
+                )
+
+            # Verify that requests.get was called max_attempts times
+            utils.requests.get.assert_called_with(
+                "http://example.com/file", timeout=10, stream=True
+            )
+            self.assertEqual(utils.requests.get.call_count, max_attempts)
+
+            # Verify that _logger.error was called max_attempts times with appropriate messages
+            expected_error_calls = [
+                call.error(f"Request failed: Network error") for _ in range(max_attempts)
+            ]
+            utils._logger.error.assert_has_calls(expected_error_calls, any_order=False)
+            self.assertEqual(utils._logger.error.call_count, max_attempts)
+
+            # Verify that os.rename was never called since download failed
+            utils.os.rename.assert_not_called()
+
+            # Verify that the exception message contains the expected text
+            self.assertIn("Failed to download http://example.com/file after 5 attempts", str(context.exception))
+
+            # Verify that buffer.write was not called
+            buffer = Mock(spec=BufferedIOBase)
+            buffer.write.assert_not_called()
 
     def gen_future_mock(self, ex=None, complete=False):
         future = Mock()

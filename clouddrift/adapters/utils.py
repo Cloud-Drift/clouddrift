@@ -205,20 +205,10 @@ def _download_with_progress(
 
             if isinstance(temp_output, str) and os.path.getsize(temp_output) > 0:
                 # (temp_output = str <-> output = str)
-                if os.path.exists(output):  # type: ignore
-                    try:
-                        os.remove(output)  # type: ignore
-                    except OSError as e:
-                        _logger.error(f"Error removing existing file {output}: {e}")
-                        raise
-                try:
-                    os.rename(temp_output, output)  # type: ignore
-                except OSError as e:
-                    _logger.error(f"Error renaming file {temp_output} to {output}: {e}")
-                    raise
-                _logger.debug(f"Download completed successfully: {output}")
+                if os.path.exists(output): # type: ignore
+                    os.remove(output) # type: ignore
+                os.rename(temp_output, output) # type: ignore
                 return
-
             elif isinstance(output, BufferedIOBase):
                 _logger.debug("Download completed successfully to buffer.")
                 return
