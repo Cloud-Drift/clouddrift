@@ -135,7 +135,6 @@ def _download_with_progress(
 ):
     # Use temp_output only if output is a string (file path)
     temp_output = output + ".part" if isinstance(output, str) else output
-    attempt = 0
     max_attempts = 5
 
     if isinstance(output, str) and os.path.exists(output):
@@ -144,9 +143,10 @@ def _download_with_progress(
 
         # Get last modified time of the remote file
         with requests.head(url, timeout=5) as res:
-            if "Last-Modified" in res.headers:
+            remote_last_modified_str = res.headers.get("Last-Modified")
+            if remote_last_modified_str:
                 remote_last_modified = datetime.strptime(
-                    res.headers.get("Last-Modified", ""),
+                    remote_last_modified_str,
                     "%a, %d %b %Y %H:%M:%S %Z",
                 )
 
@@ -160,8 +160,7 @@ def _download_with_progress(
                     + "'Last-Modified' header not present in server response."
                 )
 
-    while attempt < max_attempts:
-        attempt += 1
+    for attempt in range(1, max_attempts + 1):
         if isinstance(temp_output, str) and os.path.exists(temp_output):
             os.remove(temp_output)
 
@@ -205,22 +204,21 @@ def _download_with_progress(
                         bar.close()
 
             if isinstance(temp_output, str) and os.path.getsize(temp_output) > 0:
-                if isinstance(output, str) and os.path.exists(output):
+                # (temp_output = str <-> output = str)
+                if os.path.exists(output): # type: ignore
                     try:
-                        os.remove(output)
+                        os.remove(output) # type: ignore
                     except OSError as e:
                         _logger.error(f"Error removing existing file {output}: {e}")
                         raise
-                if isinstance(output, str):  # Ensure output is a string before renaming
-                    try:
-                        os.rename(temp_output, output)
-                    except FileExistsError as e:
-                        _logger.error(
-                            f"Error renaming file {temp_output} to {output}: {e}"
-                        )
-                        raise
-                    _logger.debug(f"Download completed successfully: {output}")
-                    return
+                try:
+                    os.rename(temp_output, output) # type: ignore
+                except OSError as e:
+                    _logger.error(f"Error renaming file {temp_output} to {output}: {e}")
+                    raise
+                _logger.debug(f"Download completed successfully: {output}")
+                return
+
             elif isinstance(output, BufferedIOBase):
                 _logger.debug("Download completed successfully to buffer.")
                 return

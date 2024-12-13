@@ -1,7 +1,9 @@
 import unittest
 from datetime import datetime, timedelta
 from io import BufferedIOBase
-from unittest.mock import Mock, call, mock_open, patch
+from unittest.mock import MagicMock, Mock, call, mock_open, patch
+
+from requests import RequestException
 
 from clouddrift.adapters import utils
 from tests.adapters.utils import MultiPatcher
@@ -33,6 +35,7 @@ class utils_tests(unittest.TestCase):
         self.requests_mock = Mock()
         self.requests_mock.head = Mock(return_value=self.head_response_mock)
         self.requests_mock.get = Mock(return_value=self.get_response_mock)
+        self.requests_mock.RequestException = RequestException  # Assign real exception
 
         # Mock open
         self.open_mock = mock_open()
@@ -50,6 +53,10 @@ class utils_tests(unittest.TestCase):
         # Patch 'open' in 'clouddrift.adapters.utils' with 'self.open_mock'
         self.open_patcher = patch("clouddrift.adapters.utils.open", self.open_mock)
         self.open_patcher.start()
+
+        # Ensure patches are stopped after tests
+        self.addCleanup(self.requests_patcher.stop)
+        self.addCleanup(self.open_patcher.stop)
 
     def test_forgo_download_no_update(self):
         """
@@ -321,14 +328,67 @@ class utils_tests(unittest.TestCase):
             [fut_mock.cancel.assert_called_once() for fut_mock in mocked_futures[:-1]]
             mocked_futures[-1].cancel.assert_not_called()
 
+    def test_download_with_empty_chunk_raises_error_after_max_attempts(self):
+        """
+        Test that _download_with_progress raises an Exception after multiple empty chunks.
+        """
+        # Arrange
+        max_attempts = 5  # Assuming max_attempts is set to 5 in the function
+
+        # Create a mock response that returns empty chunks
+        mock_response = MagicMock()
+        mock_response.__enter__.return_value = mock_response
+        mock_response.iter_content.return_value = [b""]  # Simulate empty chunk
+        mock_response.headers = {"Content-Length": "100"}
+
+        with MultiPatcher(
+            [
+                patch(
+                    "clouddrift.adapters.utils.tqdm", Mock()
+                ),  # Mock tqdm to prevent actual progress bar
+                patch(
+                    "clouddrift.adapters.utils.os.path.exists", Mock(return_value=False)
+                ),
+                patch(
+                    "clouddrift.adapters.utils.os.path.getsize", Mock(return_value=0)
+                ),
+                patch("clouddrift.adapters.utils.os.remove", Mock()),
+                patch("clouddrift.adapters.utils.os.rename", Mock()),
+                patch(
+                    "clouddrift.adapters.utils.requests.get",
+                    MagicMock(side_effect=[mock_response] * max_attempts),
+                ),
+                patch("clouddrift.adapters.utils.open", mock_open()),
+            ]
+        ):
+            output_file = "output.file"
+
+            # Act & Assert
+            with self.assertRaises(Exception) as context:
+                utils._download_with_progress(
+                    "http://example.com/file", output_file, None, False
+                )
+
+            # Assertions
+            # Verify that requests.get was called max_attempts times
+            utils.requests.get.assert_called_with(
+                "http://example.com/file", timeout=10, stream=True
+            )
+            self.assertEqual(utils.requests.get.call_count, max_attempts)
+
+            # Verify that open was called max_attempts times to create temp files
+            utils.open.assert_called_with(output_file + ".part", "wb")
+            self.assertEqual(utils.open.call_count, max_attempts)
+
+            # Verify that os.rename was never called since download failed
+            utils.os.rename.assert_not_called()
+
+            # Verify that the exception message contains the expected text
+            self.assertIn("Failed to download", str(context.exception))
+
     def gen_future_mock(self, ex=None, complete=False):
         future = Mock()
         future.exception = Mock(return_value=ex)
         future.done = Mock(return_value=complete)
         future.cancel = Mock()
         return future
-
-    def tearDown(self) -> None:
-        # Stop patching 'requests' and 'open'
-        self.requests_patcher.stop()
-        self.open_patcher.stop()
