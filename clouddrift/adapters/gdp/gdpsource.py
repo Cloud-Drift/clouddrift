@@ -237,6 +237,119 @@ ATTRS = {
 _logger = logging.getLogger(__name__)
 
 
+def to_raggedarray(
+    tmp_path: str = _TMP_PATH,
+    skip_download: bool = False,
+    max: int | None = None,
+    chunk_size: int = 100_000,
+    use_fill_values: bool = True,
+    max_chunks: int | None = None,
+) -> xr.Dataset:
+    """
+    Download and process individual GDP source drifter files and return an `xarray.Dataset`
+    instance with the data in ragged array format.
+
+    Parameters
+    ----------
+    tmp_path : str, optional
+        Path to the directory where the individual NetCDF files are stored
+        (default varies depending on operating system; `/tmp/clouddrift/gdp` on Linux)
+    skip_download : bool, optional
+        If `True`, skip downloading the data files (Default: `False`)
+    max : int, optional
+        Maximum number of drifters to process, for testing purposes (Default: `None`)
+    chunk_size : int, optional
+        Number of observations to process in each chunk (Default: `100_000`)
+    use_fill_values : bool, optional
+        If `True`, use fill values for missing data (Default: `True`)
+    max_chunks : int, optional
+        Maximum number of chunks to process, for testing purposes (Default: `None`)
+
+    Returns
+    -------
+    out : xarray.Dataset
+        An `xarray.Dataset` instance containing the aggregated drifter data
+
+    Examples
+    --------
+    Invoke `to_raggedarray` without any arguments to download and process all drifter data
+    from the GDP dataset:
+
+    >>> from clouddrift.adapters.gdp.gdpsource import to_raggedarray
+    >>> ds = to_raggedarray()
+
+    To process a limited number of drifters, for example for development or testing,
+    use the `max` argument:
+
+    >>> ds = to_raggedarray(max=100)
+
+    To skip downloading the data files (assuming they have already been downloaded),
+    set `skip_download` to `True`:
+
+    >>> ds = to_raggedarray(skip_download=True)
+
+    Finally, to write the dataset to a NetCDF file on disk, do:
+
+    >>> ds.to_netcdf("gdp.nc", format="NETCDF4")
+    """
+
+    os.makedirs(tmp_path, exist_ok=True)
+
+    requests = _get_download_list(tmp_path)
+
+    # Filter down for testing purposes.
+    if max:
+        requests = [requests[max]]
+
+    # Download necessary data and metadata files.
+    if not skip_download:
+        download_with_progress(requests)
+
+    gdp_metadata_df = get_gdp_metadata(tmp_path)
+
+    # Run async process to parallelize data processing.
+    drifter_datasets = asyncio.run(
+        _parallel_get(
+            [dst for (_, dst) in requests],
+            gdp_metadata_df,
+            chunk_size,
+            tmp_path,
+            use_fill_values,
+            max_chunks,
+        )
+    )
+
+    # Sort the drifters by their start date.
+    deploy_date_id_map = {
+        ds["id"].data[0]: ds["start_date"].data[0] for ds in drifter_datasets
+    }
+    deploy_date_sort_key = np.argsort(list(deploy_date_id_map.values()))
+    sorted_drifter_datasets = [drifter_datasets[idx] for idx in deploy_date_sort_key]
+
+    # Concatenate drifter data and metadata variables separately.
+    obs_ds = xr.concat(
+        [ds.drop_dims("traj") for ds in sorted_drifter_datasets],
+        dim="obs",
+        data_vars=_DATA_VARS,
+    )
+    traj_ds = xr.concat(
+        [ds.drop_dims("obs") for ds in sorted_drifter_datasets],
+        dim="traj",
+        data_vars=_METADATA_VARS,
+    )
+
+    # Merge the separate datasets.
+    agg_ds = xr.merge([obs_ds, traj_ds])
+
+    # Add variable metadata.
+    for var_name in _DATA_VARS + _METADATA_VARS:
+        if var_name in VARS_ATTRS.keys():
+            agg_ds[var_name].attrs = VARS_ATTRS[var_name]
+    agg_ds.attrs = ATTRS
+
+    return agg_ds
+
+
 def _get_download_list(tmp_path: str) -> list[tuple[str, str]]:
     suffix = "rawfiles"
     batches = [(1, 5000), (5001, 10_000), (10_001, 15_000), (15_001, "current")]
@@ -593,70 +706,3 @@ async def _parallel_get(
             bar.update()
         bar.close()
         return drifter_datasets
-
-
-def to_raggedarray(
-    tmp_path: str = _TMP_PATH,
-    skip_download: bool = False,
-    max: int | None = None,
-    chunk_size: int = 100_000,
-    use_fill_values: bool = True,
-    max_chunks: int | None = None,
-) -> xr.Dataset:
-    """Get the GDP source dataset."""
-
-    os.makedirs(tmp_path, exist_ok=True)
-
-    requests = _get_download_list(tmp_path)
-
-    # Filter down for testing purposes.
-    if max:
-        requests = [requests[max]]
-
-    # Download necessary data and metadata files.
-    if not skip_download:
-        download_with_progress(requests)
-
-    gdp_metadata_df = get_gdp_metadata(tmp_path)
-
-    # Run async process to parallelize data processing.
-    drifter_datasets = asyncio.run(
-        _parallel_get(
-            [dst for (_, dst) in requests],
-            gdp_metadata_df,
-            chunk_size,
-            tmp_path,
-            use_fill_values,
-            max_chunks,
-        )
-    )
-
-    # Sort the drifters by their start date.
-    deploy_date_id_map = {
-        ds["id"].data[0]: ds["start_date"].data[0] for ds in drifter_datasets
-    }
-    deploy_date_sort_key = np.argsort(list(deploy_date_id_map.values()))
-    sorted_drifter_datasets = [drifter_datasets[idx] for idx in deploy_date_sort_key]
-
-    # Concatenate drifter data and metadata variables separately.
-    obs_ds = xr.concat(
-        [ds.drop_dims("traj") for ds in sorted_drifter_datasets],
-        dim="obs",
-        data_vars=_DATA_VARS,
-    )
-    traj_ds = xr.concat(
-        [ds.drop_dims("obs") for ds in sorted_drifter_datasets],
-        dim="traj",
-        data_vars=_METADATA_VARS,
-    )
-
-    # Merge the separate datasets.
-    agg_ds = xr.merge([obs_ds, traj_ds])
-
-    # Add variable metadata.
-    for var_name in _DATA_VARS + _METADATA_VARS:
-        if var_name in VARS_ATTRS.keys():
-            agg_ds[var_name].attrs = VARS_ATTRS[var_name]
-    agg_ds.attrs = ATTRS
-
-    return agg_ds
