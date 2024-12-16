@@ -269,7 +269,7 @@ def str_to_float(value: str, default: float = np.nan) -> float:
         return default
 
 
-def cut_str(value: str, max_length: int) -> np.chararray: # type: ignore
+def cut_str(value: str, max_length: int) -> np.chararray:  # type: ignore
     """Cut a string to a specific length and return it as a numpy chararray.
 
     Parameters
@@ -284,7 +284,7 @@ def cut_str(value: str, max_length: int) -> np.chararray: # type: ignore
     out : np.chararray
         String with max_length characters
     """
-    charar = np.chararray(1, max_length) # type: ignore
+    charar = np.chararray(1, max_length)  # type: ignore
     charar[:max_length] = value
     return charar
 
