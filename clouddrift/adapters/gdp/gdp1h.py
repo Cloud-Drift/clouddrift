@@ -20,10 +20,10 @@ import clouddrift.adapters.gdp as gdp
 from clouddrift.adapters.utils import download_with_progress, standard_retry_protocol
 from clouddrift.raggedarray import RaggedArray
 
-GDP_VERSION = "2.01.1"
+GDP_VERSION = "2.03"
 
 
-GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01"
+GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.03"
 GDP_DATA_URL_EXPERIMENTAL = (
     "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental"
 )
@@ -54,6 +54,104 @@ GDP_DATA = [
 ]
 
 _logger = logging.getLogger(__name__)
+
+
+def to_raggedarray(
+    drifter_ids: list[int] | None = None,
+    n_random_id: int | None = None,
+    url: str = GDP_DATA_URL,
+    tmp_path: str | None = None,
+) -> RaggedArray:
+    """Download and process individual GDP hourly files and return a RaggedArray
+    instance with the data.
+
+    Parameters
+    ----------
+    drifter_ids : list[int], optional
+        List of drifters to retrieve (Default: all)
+    n_random_id : list[int], optional
+        Randomly select n_random_id drifter NetCDF files
+    url : str
+        URL from which to download the data (Default: GDP_DATA_URL).
+        Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL.
+    tmp_path : str, optional
+        Path to the directory where the individual NetCDF files are stored
+        (default varies depending on operating system; /tmp/clouddrift/gdp on Linux)
+
+    Returns
+    -------
+    out : RaggedArray
+        A RaggedArray instance of the requested dataset
+
+    Examples
+    --------
+
+    Invoke `to_raggedarray` without any arguments to download all drifter data
+    from the 2.01 GDP feed:
+
+    >>> from clouddrift.adapters.gdp1h import to_raggedarray
+    >>> ra = to_raggedarray()
+
+    To download a random sample of 100 drifters, for example for development
+    or testing, use the `n_random_id` argument:
+
+    >>> ra = to_raggedarray(n_random_id=100)
+
+    To download a specific list of drifters, use the `drifter_ids` argument:
+
+    >>> ra = to_raggedarray(drifter_ids=[44136, 54680, 83463])
+
+    To download the experimental 2.01 GDP feed, use the `url` argument to
+    specify the experimental feed URL:
+
+    >>> from clouddrift.adapters.gdp1h import GDP_DATA_URL_EXPERIMENTAL, to_raggedarray
+    >>> ra = to_raggedarray(url=GDP_DATA_URL_EXPERIMENTAL)
+
+    Finally, `to_raggedarray` returns a `RaggedArray` instance which provides
+    a convenience method to emit a `xarray.Dataset` instance:
+
+    >>> ds = ra.to_xarray()
+
+    To write the ragged array dataset to a NetCDF file on disk, do
+
+    >>> ds.to_netcdf("gdp1h.nc", format="NETCDF4")
+
+    Alternatively, to write the ragged array to a Parquet file, first create
+    it as an Awkward Array:
+
+    >>> arr = ra.to_awkward()
+    >>> arr.to_parquet("gdp1h.parquet")
+    """
+
+    # adjust the tmp_path if using the experimental source
+    if tmp_path is None:
+        tmp_path = GDP_TMP_PATH if url == GDP_DATA_URL else GDP_TMP_PATH_EXPERIMENTAL
+
+    ids = download(url, tmp_path, drifter_ids, n_random_id)
+    filename_pattern = "drifter_hourly_{id}.nc"
+
+    ra = RaggedArray.from_files(
+        indices=ids,
+        preprocess_func=preprocess,
+        name_coords=gdp.GDP_COORDS,
+        name_meta=gdp.GDP_METADATA,
+        name_data=GDP_DATA,
+        name_dims=gdp.GDP_DIMS,
+        rowsize_func=gdp.rowsize,
+        filename_pattern=filename_pattern,
+        tmp_path=tmp_path,
+    )
+
+    # set dynamic global attributes
+    if ra.attrs_global:
+        ra.attrs_global["time_coverage_start"] = (
+            f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+        )
+        ra.attrs_global["time_coverage_end"] = (
+            f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+        )
+
+    return ra
 
 
 def download(
@@ -532,101 +630,3 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds = gdp.cast_float64_variables_to_float32(ds)
 
     return ds
-
-
-def to_raggedarray(
-    drifter_ids: list[int] | None = None,
-    n_random_id: int | None = None,
-    url: str = GDP_DATA_URL,
-    tmp_path: str | None = None,
-) -> RaggedArray:
-    """Download and process individual GDP hourly files and return a RaggedArray
-    instance with the data.
-
-    Parameters
-    ----------
-    drifter_ids : list[int], optional
-        List of drifters to retrieve (Default: all)
-    n_random_id : list[int], optional
-        Randomly select n_random_id drifter NetCDF files
-    url : str
-        URL from which to download the data (Default: GDP_DATA_URL).
-        Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL.
-    tmp_path : str, optional
-        Path to the directory where the individual NetCDF files are stored
-        (default varies depending on operating system; /tmp/clouddrift/gdp on Linux)
-
-    Returns
-    -------
-    out : RaggedArray
-        A RaggedArray instance of the requested dataset
-
-    Examples
-    --------
-
-    Invoke `to_raggedarray` without any arguments to download all drifter data
-    from the 2.01 GDP feed:
-
-    >>> from clouddrift.adapters.gdp1h import to_raggedarray
-    >>> ra = to_raggedarray()
-
-    To download a random sample of 100 drifters, for example for development
-    or testing, use the `n_random_id` argument:
-
-    >>> ra = to_raggedarray(n_random_id=100)
-
-    To download a specific list of drifters, use the `drifter_ids` argument:
-
-    >>> ra = to_raggedarray(drifter_ids=[44136, 54680, 83463])
-
-    To download the experimental 2.01 GDP feed, use the `url` argument to
-    specify the experimental feed URL:
-
-    >>> from clouddrift.adapters.gdp1h import GDP_DATA_URL_EXPERIMENTAL, to_raggedarray
-    >>> ra = to_raggedarray(url=GDP_DATA_URL_EXPERIMENTAL)
-
-    Finally, `to_raggedarray` returns a `RaggedArray` instance which provides
-    a convenience method to emit a `xarray.Dataset` instance:
-
-    >>> ds = ra.to_xarray()
-
-    To write the ragged array dataset to a NetCDF file on disk, do
-
-    >>> ds.to_netcdf("gdp1h.nc", format="NETCDF4")
-
-    Alternatively, to write the ragged array to a Parquet file, first create
-    it as an Awkward Array:
-
-    >>> arr = ra.to_awkward()
-    >>> arr.to_parquet("gdp1h.parquet")
-    """
-
-    # adjust the tmp_path if using the experimental source
-    if tmp_path is None:
-        tmp_path = GDP_TMP_PATH if url == GDP_DATA_URL else GDP_TMP_PATH_EXPERIMENTAL
-
-    ids = download(url, tmp_path, drifter_ids, n_random_id)
-    filename_pattern = "drifter_hourly_{id}.nc"
-
-    ra = RaggedArray.from_files(
-        indices=ids,
-        preprocess_func=preprocess,
-        name_coords=gdp.GDP_COORDS,
-        name_meta=gdp.GDP_METADATA,
-        name_data=GDP_DATA,
-        name_dims=gdp.GDP_DIMS,
-        rowsize_func=gdp.rowsize,
-        filename_pattern=filename_pattern,
-        tmp_path=tmp_path,
-    )
-
-    # set dynamic global attributes
-    if ra.attrs_global:
-        ra.attrs_global["time_coverage_start"] = (
-            f"{datetime(1970,1,1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
-        )
-        ra.attrs_global["time_coverage_end"] = (
-            f"{datetime(1970,1,1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
-        )
-
-    return ra
