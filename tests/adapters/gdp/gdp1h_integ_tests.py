@@ -41,7 +41,7 @@ class gdp1h_integration_tests(testutils.DisableProgressTestCase):
                 assert len(ra.metadata["rowsize"]) == len(ra.coords["id"])
                 self.assertTrue(np.any(~ra.metadata["location_type"]))
 
-                agg_path = os.path.join(gdp1h.GDP_TMP_PATH, "aggregate")
+                agg_path = os.path.join(path, "aggregate")
                 os.makedirs(agg_path, exist_ok=True)
                 ra.to_netcdf(os.path.join(agg_path, "gdp1h_5r_sample.nc"))
 

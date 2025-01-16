@@ -12,6 +12,7 @@ import xarray as xr
 
 from clouddrift import adapters
 from clouddrift.adapters.hurdat2 import _BasinOption
+from clouddrift.adapters.ibtracs import _Kind, _Version
 
 
 def gdp1h(decode_times: bool = True) -> xr.Dataset:
@@ -366,6 +367,92 @@ def hurdat2(
     )
 
 
+def ibtracs(
+    version: _Version = "v04r01",
+    kind: _Kind = "LAST_3_YEARS",
+    tmp_path: str = adapters.ibtracs._DEFAULT_FILE_PATH,
+    decode_times: bool = True,
+    force: bool = False,
+) -> xr.Dataset:
+    """Returns International Best Track Archive for Climate Stewardship (IBTrACS) as a ragged array xarray dataset.
+
+    The function will first look for the ragged array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access.
+
+    The upstream data is available at https://www.ncei.noaa.gov/products/international-best-track-archive
+
+    Parameters
+    ----------
+    version : str, optional
+        Specify the dataset version to retrieve. Default to the latest version. Default is "v04r01".
+    kind: str, optional
+        Specify the dataset kind to retrieve. Specifying the kind can speed up execution time of specific querries
+        and operations. Default is "LAST_3_YEARS".
+    tmp_path: str, default adapter temp path (default)
+        Temporary path where intermediary files are stored. Default is ${osSpecificLocation}/clouddrift/ibtracs/.
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
+    force: bool, optional
+        If True, force the download process regardless if there is a cached version of the generated dataset. Default
+        is False.
+
+    Returns
+    -------
+    xarray.Dataset
+        IBTRACS dataset as a ragged array.
+
+    Examples
+    --------
+    >>> from clouddrift import datasets
+    >>> ds = datasets.ibtracs()
+    >>> ds
+    <xarray.Dataset> Size: 18MB
+    Dimensions:           (storm: 380, obs: 22055, quadrant: 4)
+    Coordinates:
+        id                (storm) int64 3kB ...
+        time              (obs) datetime64[ns] 176kB ...
+    Dimensions without coordinates: storm, obs, quadrant
+    Data variables: (12/161)
+        numobs            (storm) int64 3kB ...
+        sid               (storm) |S13 5kB ...
+        season            (storm) float32 2kB ...
+        number            (storm) int16 760B ...
+        name              (storm) |S128 49kB ...
+        source_usa        (storm) |S128 49kB ...
+        ...                ...
+        usa_seahgt        (obs) float32 88kB ...
+        usa_searad        (obs, quadrant) float32 353kB ...
+        storm_speed       (obs) float32 88kB ...
+        storm_dir         (obs) float32 88kB ...
+        lat               (obs) float32 88kB ...
+        lon               (obs) float32 88kB ...
+    Attributes: (12/49)
+        title:                      IBTrACS - International Best Track Archive fo...
+        summary:                    The intent of the IBTrACS project is to overc...
+        source:                     The original data are tropical cyclone positi...
+        Conventions:                ACDD-1.3
+        Conventions_note:           Data are nearly CF-1.7 compliant. The sole is...
+        product_version:            v04r01
+        ...                         ...
+        history:                    Thu Oct 17 05:37:12 2024: ncks --no_abc --cnk...
+        license:                    These data may be redistributed and used with...
+        featureType:                trajectory
+        cdm_data_type:              Trajectory
+        comment:                    The tracks of TCs generally look like a traje...
+        NCO:                        netCDF Operators version 5.0.7 (Homepage = ht...
+    """
+
+    return _dataset_filecache(
+        f"ibtracs_ra_{version}_{kind}.nc",
+        decode_times,
+        lambda: adapters.ibtracs.to_raggedarray(version, kind, tmp_path),
+        force,
+    )
+
+
 def mosaic(decode_times: bool = True) -> xr.Dataset:
     """Returns the MOSAiC sea-ice drift dataset as a ragged array Xarray dataset.
 
@@ -694,9 +781,11 @@ def andro(decode_times: bool = True) -> xr.Dataset:
 
 
 def _dataset_filecache(
-    filename: str, decode_times: bool, get_ds: Callable[[], xr.Dataset]
+    filename: str,
+    decode_times: bool,
+    get_ds: Callable[[], xr.Dataset],
+    force: bool = False,
 ):
-    os.path
     _, ext = os.path.splitext(filename)
     clouddrift_path = (
         os.path.expanduser("~/.clouddrift")
@@ -706,7 +795,7 @@ def _dataset_filecache(
     fp = f"{clouddrift_path}/data/{filename}"
     os.makedirs(os.path.dirname(fp), exist_ok=True)
 
-    if not os.path.exists(fp):
+    if not os.path.exists(fp) or force:
         ds = get_ds()
         if ext == ".nc":
             ds.to_netcdf(fp)
