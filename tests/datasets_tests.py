@@ -1,7 +1,7 @@
 import numpy as np
 
 import tests.utils as testutils
-from clouddrift import datasets, adapters
+from clouddrift import adapters, datasets
 from clouddrift.ragged import apply_ragged, subset
 
 
