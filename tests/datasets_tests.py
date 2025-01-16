@@ -23,8 +23,8 @@ class datasets_tests(testutils.DisableProgressTestCase):
         )
         ds_first = ds.sel(storm=0)
         np.allclose(
-            ds_first.usa_r34[:10].data,
-            ragged_ds_first.usa_r34[:10].data,
+            ds_first.usa_r34.data,
+            ragged_ds_first.usa_r34.data,
             equal_nan=True,
         )
 
