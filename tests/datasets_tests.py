@@ -19,15 +19,14 @@ class datasets_tests(testutils.DisableProgressTestCase):
         ragged_ds = adapters.ibtracs.to_raggedarray(**options)
         ds = adapters.ibtracs._get_original_dataset(**options)
         ragged_ds_first = subset(
-            ragged_ds,
-            {
-                "storm": 0
-            },
-            row_dim_name="storm",
-            rowsize_var_name="numobs"
+            ragged_ds, {"storm": 0}, row_dim_name="storm", rowsize_var_name="numobs"
         )
         ds_first = ds.sel(storm=0)
-        np.allclose(ds_first.usa_r34[:10].data, ragged_ds_first.usa_r34[:10].data, equal_nan=True)
+        np.allclose(
+            ds_first.usa_r34[:10].data,
+            ragged_ds_first.usa_r34[:10].data,
+            equal_nan=True,
+        )
 
     def test_glad(self):
         with datasets.glad() as ds:

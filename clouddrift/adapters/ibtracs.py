@@ -97,6 +97,7 @@ def to_raggedarray(
     )
     return ra.to_xarray()
 
+
 def _get_original_dataset(
     version: _Version, kind: _Kind, tmp_path: str = _DEFAULT_FILE_PATH
 ) -> xr.Dataset:
