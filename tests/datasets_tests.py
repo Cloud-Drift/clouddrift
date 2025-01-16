@@ -31,16 +31,24 @@ class datasets_tests(testutils.DisableProgressTestCase):
         first_numobs = first_numobs.astype(int)
 
         # Both transformed and original data array should contain the same values
-        self.assertTrue(np.all(np.allclose(
-            ds_first.usa_r34.data[:first_numobs],
-            ragged_ds_first.usa_r34.data,
-            equal_nan=True,
-        )))
+        self.assertTrue(
+            np.all(
+                np.allclose(
+                    ds_first.usa_r34.data[:first_numobs],
+                    ragged_ds_first.usa_r34.data,
+                    equal_nan=True,
+                )
+            )
+        )
 
         # The rest of the values should be nan
-        self.assertTrue(np.all(np.isnan(
-            ds_first.usa_r34.data[first_numobs + 1:],
-        )))
+        self.assertTrue(
+            np.all(
+                np.isnan(
+                    ds_first.usa_r34.data[first_numobs + 1 :],
+                )
+            )
+        )
 
     def test_glad(self):
         with datasets.glad() as ds:
