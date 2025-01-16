@@ -33,7 +33,9 @@ the 6-hourly/1-hourly datasets that are derived from it.
   processed from the upstream dataset hosted at the `Asia-Pacific Data-Research
   Center (APDRC) <http://apdrc.soest.hawaii.edu/projects/yomaha/>`_.
 - :func:`clouddrift.datasets.hurdat2`: The HURricane DATa 2nd generation (HURDAT2)
-  processed from the upstream dataset hosted at the `NOAA AOML Hurricane Research Devision <https://www.aoml.noaa.gov/hrd/hurdat/Data_Storm.html>`_.
+  processed from the upstream dataset hosted at the `NOAA AOML Hurricane Research Division <https://www.aoml.noaa.gov/hrd/hurdat/Data_Storm.html>`_.
+- :func:`clouddrift.datasets.ibtracs`: The International Best Track Archive for Climate Stewardship (IBTrACS) as a ragged array xarray dataset.
+  Processed from the upstream dataset hosted at the `NOAA NCEI IBTrACS <https://www.ncei.noaa.gov/products/international-best-track-archive>`_.
 
 The GDP and the Spotters datasets are accessed lazily, so the data is only downloaded when
 specific array values are referenced. The ANDRO, GLAD, MOSAiC, Subsurface Floats, and YoMaHa'07

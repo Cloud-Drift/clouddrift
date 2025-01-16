@@ -735,14 +735,14 @@ def subset(
                 criterion = ds[key]
                 criterion_dims = criterion.dims
 
-            if criterion_dims == (row_dim_name,):
+            if row_dim_name in criterion_dims:
                 mask_row = np.logical_and(
                     mask_row,
                     _mask_var(
                         criterion, criteria[key], ds[rowsize_var_name], row_dim_name
                     ),
                 )
-            elif criterion_dims == (obs_dim_name,):
+            elif obs_dim_name in criterion_dims:
                 mask_obs = np.logical_and(
                     mask_obs,
                     _mask_var(
