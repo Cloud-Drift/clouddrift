@@ -133,16 +133,13 @@ def _download_with_progress(
     expected_size: float | None,
     show_progress: bool,
 ):
-    # Use temp_output only if output is a string (file path)
-    temp_output = output + ".part" if isinstance(output, str) else output
-    max_attempts = 5
-
     if isinstance(output, str) and os.path.exists(output):
         _logger.debug(f"File exists {output} checking for updates...")
         local_last_modified = os.path.getmtime(output)
 
         # Get last modified time of the remote file
-        with requests.head(url, timeout=5) as res:
+        try:
+            res = requests.head(url, timeout=5)
             remote_last_modified_str = res.headers.get("Last-Modified")
             if remote_last_modified_str:
                 remote_last_modified = datetime.strptime(
@@ -159,67 +156,55 @@ def _download_with_progress(
                     "Cannot determine if the file has been updated on the remote source. "
                     + "'Last-Modified' header not present in server response."
                 )
+        finally:
+            if res is not None:
+                res.close()
 
-    for attempt in range(1, max_attempts + 1):
-        if isinstance(temp_output, str) and os.path.exists(temp_output):
-            os.remove(temp_output)
+    bar = None
+    resp = None
+    buffer: BufferedWriter | BufferedIOBase | None = None
 
-        _logger.debug(f"Downloading from {url} to {temp_output} (Attempt {attempt})...")
-        bar = None
+    try:
+        resp = requests.get(url, timeout=10, stream=True)
+        temp_output = f"{output}.part" if isinstance(output, (str,)) else None
+        if isinstance(output, (str,)) and isinstance(temp_output, (str,)):
+            buffer = open(temp_output, "wb")
+        else:
+            buffer = output
 
-        try:
-            with requests.get(url, timeout=10, stream=True) as response:
-                buffer: BufferedWriter | BufferedIOBase | None = None
-                try:
-                    if isinstance(temp_output, (str,)):
-                        buffer = open(temp_output, "wb")
-                    else:
-                        buffer = temp_output
+        if (
+            content_length := resp.headers.get("Content-Length")
+        ) is not None:
+            expected_size = float(content_length)
 
-                    if (
-                        content_length := response.headers.get("Content-Length")
-                    ) is not None:
-                        expected_size = float(content_length)
+        if show_progress:
+            bar = tqdm(
+                desc=url,
+                total=expected_size,
+                unit="B",
+                unit_scale=True,
+                unit_divisor=_CHUNK_SIZE,
+                nrows=2,
+                disable=_DISABLE_SHOW_PROGRESS,
+            )
+        for chunk in resp.iter_content(_CHUNK_SIZE):
+            if not chunk:
+                break
+            buffer.write(chunk)
+            if bar is not None:
+                bar.update(len(chunk))
 
-                    if show_progress:
-                        bar = tqdm(
-                            desc=url,
-                            total=expected_size,
-                            unit="B",
-                            unit_scale=True,
-                            unit_divisor=_CHUNK_SIZE,
-                            nrows=2,
-                            disable=_DISABLE_SHOW_PROGRESS,
-                        )
-                    for chunk in response.iter_content(_CHUNK_SIZE):
-                        if not chunk:
-                            break
-                        buffer.write(chunk)
-                        if bar is not None:
-                            bar.update(len(chunk))
-                finally:
-                    if buffer is not None and isinstance(temp_output, (str,)):
-                        buffer.close()
-                    if bar is not None:
-                        bar.close()
-
-            if isinstance(temp_output, str) and os.path.getsize(temp_output) > 0:
-                # (temp_output = str <-> output = str)
-                if os.path.exists(output):  # type: ignore
-                    os.remove(output)  # type: ignore
-                os.rename(temp_output, output)  # type: ignore
-                return
-            elif isinstance(output, BufferedIOBase):
-                _logger.debug("Download completed successfully to buffer.")
-                return
-            else:
-                _logger.warning(f"Download failed or incomplete: {temp_output}")
-        except requests.RequestException as e:
-            _logger.error(f"Request failed: {e}")
-        except Exception as e:
-            _logger.error(f"Unexpected error: {e}")
-
-    raise Exception(f"Failed to download {url} after {max_attempts} attempts")
+        if isinstance(output, (str,)) and isinstance(temp_output, (str,)):
+            if os.path.exists(output):
+                os.remove(output)
+            os.rename(temp_output, output)
+    finally:
+        if resp is not None:
+            resp.close()
+        if buffer is not None and isinstance(output, (str,)):
+            buffer.close()
+        if bar is not None:
+            bar.close()
 
 
 __all__ = ["download_with_progress"]
