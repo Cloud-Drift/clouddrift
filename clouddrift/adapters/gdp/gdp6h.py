@@ -523,10 +523,10 @@ def to_raggedarray(
 
     # update dynamic global attributes
     ra.attrs_global["time_coverage_start"] = (
-        f"{datetime.datetime(1970,1,1) + datetime.timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+        f"{datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
     )
     ra.attrs_global["time_coverage_end"] = (
-        f"{datetime.datetime(1970,1,1) + datetime.timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+        f"{datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
     )
 
     return ra
