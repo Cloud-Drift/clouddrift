@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime, timedelta
 from io import BufferedIOBase
-from unittest.mock import MagicMock, Mock, call, mock_open, patch
+from unittest.mock import Mock, call, mock_open, patch
 
 from requests import RequestException
 
@@ -335,7 +335,6 @@ class utils_tests(unittest.TestCase):
             tpe_mock.shutdown.assert_called_once()
             [fut_mock.cancel.assert_called_once() for fut_mock in mocked_futures[:-1]]
             mocked_futures[-1].cancel.assert_not_called()
-
 
     def gen_future_mock(self, ex=None, complete=False):
         future = Mock()

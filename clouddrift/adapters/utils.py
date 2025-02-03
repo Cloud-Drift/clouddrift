@@ -1,12 +1,17 @@
 import concurrent.futures
 import logging
 import os
-import urllib
 from datetime import datetime
 from io import BufferedIOBase, BufferedWriter
 from typing import Callable, Sequence
+from urllib.error import HTTPError, URLError
 
 import requests
+from aiohttp.client_exceptions import (
+    ClientConnectorDNSError,
+    ClientConnectorError,
+    ClientError,
+)
 from tenacity import (
     RetryCallState,
     WrappedFn,
@@ -37,8 +42,11 @@ standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
             (
                 requests.Timeout,
                 requests.ConnectionError,
-                urllib.error.HTTPError,
-                urllib.error.URLError,
+                HTTPError,
+                URLError,
+                ClientConnectorDNSError,
+                ClientError,
+                ClientConnectorError,
             ),
         )
     ),
@@ -160,23 +168,33 @@ def _download_with_progress(
             if res is not None:
                 res.close()
 
-    bar = None
-    resp = None
+    bar: tqdm | None = None
+    resp: requests.Response | None = None
     buffer: BufferedWriter | BufferedIOBase | None = None
 
     try:
         resp = requests.get(url, timeout=10, stream=True)
-        temp_output = f"{output}.part" if isinstance(output, (str,)) else None
-        if isinstance(output, (str,)) and isinstance(temp_output, (str,)):
+        temp_output = f"{output}.part" if isinstance(output, str) else None
+
+        if isinstance(output, str) and temp_output is not None:
             buffer = open(temp_output, "wb")
         else:
+            # If not a string, at runtime we expect a BufferedIOBase
+            if not isinstance(output, BufferedIOBase):
+                raise TypeError(
+                    "output must be either a string path or a BufferedIOBase-like object."
+                )
             buffer = output
 
-        if (
-            content_length := resp.headers.get("Content-Length")
-        ) is not None:
+        # Assert so mypy knows buffer can't be None
+        assert buffer is not None
+
+        # If server returns a length, use that
+        content_length = resp.headers.get("Content-Length")
+        if content_length:
             expected_size = float(content_length)
 
+        # Show progress if requested
         if show_progress:
             bar = tqdm(
                 desc=url,
@@ -187,6 +205,8 @@ def _download_with_progress(
                 nrows=2,
                 disable=_DISABLE_SHOW_PROGRESS,
             )
+
+        # Write chunks
         for chunk in resp.iter_content(_CHUNK_SIZE):
             if not chunk:
                 break
@@ -194,14 +214,16 @@ def _download_with_progress(
             if bar is not None:
                 bar.update(len(chunk))
 
-        if isinstance(output, (str,)) and isinstance(temp_output, (str,)):
+        # If a path was passed in, rename temp file
+        if isinstance(output, str) and temp_output is not None:
             if os.path.exists(output):
                 os.remove(output)
             os.rename(temp_output, output)
+
     finally:
         if resp is not None:
             resp.close()
-        if buffer is not None and isinstance(output, (str,)):
+        if buffer is not None and isinstance(output, str):
             buffer.close()
         if bar is not None:
             bar.close()

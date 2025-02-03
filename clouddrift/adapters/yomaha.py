@@ -189,6 +189,9 @@ def to_xarray(tmp_path: str | None = None):
     # so we remove the * from the type
     df_float.loc[df_float["float_type_id"] == 0, "float_type"] = "METOCEAN"
 
+    df_wmo["dac_id"] = df_wmo["dac_id"].astype("int64")
+    df_dac["dac_id"] = df_dac["dac_id"].astype("int64")
+
     # combine metadata
     df_metadata = (
         pd.merge(df_wmo, df_dac, on="dac_id", how="left")
