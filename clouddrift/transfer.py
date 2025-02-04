@@ -774,13 +774,13 @@ def kvtilde(
 
     # Prepare zk for vectorized computation
     zk = np.tile(z, (nterms, 1)).T
-    zk[:, 0] = 1
+    zk[:, 0] = 1.0
     zk = np.cumprod(zk, axis=1)
 
     k = np.arange(nterms)
-    ak = 4 * nu**2 - (2 * k - 1) ** 2
-    ak[0] = 1
-    ak = np.cumprod(ak) / (factorial(k) * (8**k))
+    ak = 4.0 * nu**2 - (2.0 * k - 1.0) ** 2
+    ak[0] = 1.0
+    ak = np.cumprod(ak) / (factorial(k) * (8.0**k))
 
     # Handling potential non-finite values in ak
     if not np.all(np.isfinite(ak)):
@@ -788,7 +788,7 @@ def kvtilde(
         ak = ak[:first_nonfinite]
         zk = zk[:, :first_nonfinite]
 
-    K = sqrt(np.pi / (2 * z)) * (np.dot(1.0 / zk, ak))
+    K = sqrt(np.pi / (2.0 * z)) * (np.dot(1.0 / zk, ak))
     K = K.reshape(sizez)
 
     return K
@@ -811,13 +811,13 @@ def ivtilde(
 
     # Prepare zk for vectorized computation with alternating signs for each term
     zk = np.tile(-z, (nterms, 1)).T
-    zk[:, 0] = 1
+    zk[:, 0] = 1.0
     zk = np.cumprod(zk, axis=1)
 
     k = np.arange(nterms)
-    ak = 4 * nu**2 - (2 * k - 1) ** 2
-    ak[0] = 1
-    ak = np.cumprod(ak) / (factorial(k) * (8**k))
+    ak = 4.0 * nu**2 - (2.0 * k - 1.0) ** 2
+    ak[0] = 1.0
+    ak = np.cumprod(ak) / (factorial(k) * (8.0**k))
 
     # Handling potential non-finite values in ak
     if not np.all(np.isfinite(ak)):
@@ -825,7 +825,7 @@ def ivtilde(
         ak = ak[:first_nonfinite]
         zk = zk[:, :first_nonfinite]
 
-    I = 1 / sqrt(2 * z * np.pi) * (np.dot(1.0 / zk, ak))
+    I = 1.0 / sqrt(2.0 * z * np.pi) * (np.dot(1.0 / zk, ak))
     I = I.reshape(sizez)
 
     return I
