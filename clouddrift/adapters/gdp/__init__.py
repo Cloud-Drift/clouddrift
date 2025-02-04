@@ -269,24 +269,24 @@ def str_to_float(value: str, default: float = np.nan) -> float:
         return default
 
 
-def cut_str(value: str, max_length: int) -> np.chararray:
-    """Cut a string to a specific length and return it as a numpy chararray.
+def cut_str(value: str, max_length: int) -> np.ndarray:
+    """Cut a string to a specific length and return it as a NumPy array with fixed-length strings.
 
     Parameters
     ----------
     value : str
-        String to cut
+        String to cut.
     max_length : int
-        Length of the output
+        Maximum length of the output string.
 
     Returns
     -------
-    out : np.chararray
-        String with max_length characters
+    out : np.ndarray
+        NumPy array containing the truncated string with fixed-length dtype.
     """
-    charar = np.chararray(1, max_length)
-    charar[:max_length] = value
-    return charar
+    truncated_value = value[:max_length]
+    char_array = np.array([truncated_value], dtype=f"<U{max_length}")
+    return char_array
 
 
 def drogue_presence(lost_time, time) -> np.ndarray:
