@@ -1,12 +1,17 @@
 import concurrent.futures
 import logging
 import os
-import urllib
 from datetime import datetime
 from io import BufferedIOBase, BufferedWriter
 from typing import Callable, Sequence
+from urllib.error import HTTPError, URLError
 
 import requests
+from aiohttp.client_exceptions import (
+    ClientConnectorDNSError,
+    ClientConnectorError,
+    ClientError,
+)
 from tenacity import (
     RetryCallState,
     WrappedFn,
@@ -37,8 +42,11 @@ standard_retry_protocol: Callable[[WrappedFn], WrappedFn] = retry(
             (
                 requests.Timeout,
                 requests.ConnectionError,
-                urllib.error.HTTPError,
-                urllib.error.URLError,
+                HTTPError,
+                URLError,
+                ClientConnectorDNSError,
+                ClientError,
+                ClientConnectorError,
             ),
         )
     ),
@@ -138,10 +146,12 @@ def _download_with_progress(
         local_last_modified = os.path.getmtime(output)
 
         # Get last modified time of the remote file
-        with requests.head(url, timeout=5) as res:
-            if "Last-Modified" in res.headers:
+        try:
+            res = requests.head(url, timeout=5)
+            remote_last_modified_str = res.headers.get("Last-Modified")
+            if remote_last_modified_str:
                 remote_last_modified = datetime.strptime(
-                    res.headers.get("Last-Modified", ""),
+                    remote_last_modified_str,
                     "%a, %d %b %Y %H:%M:%S %Z",
                 )
 
@@ -154,44 +164,71 @@ def _download_with_progress(
                     "Cannot determine if the file has been updated on the remote source. "
                     + "'Last-Modified' header not present in server response."
                 )
-
-    _logger.debug(f"Downloading from {url} to {output}...")
-    bar = None
-
-    with requests.get(url, timeout=5, stream=True) as response:
-        buffer: BufferedWriter | BufferedIOBase | None = None
-        try:
-            if isinstance(output, (str,)):
-                buffer = open(output, "wb")
-            else:
-                buffer = output
-
-            if (content_length := response.headers.get("Content-Length")) is not None:
-                expected_size = float(content_length)
-
-            if show_progress:
-                bar = tqdm(
-                    desc=url,
-                    total=expected_size,
-                    unit="B",
-                    unit_scale=True,
-                    unit_divisor=_CHUNK_SIZE,
-                    nrows=2,
-                    disable=_DISABLE_SHOW_PROGRESS,
-                )
-            for chunk in response.iter_content(_CHUNK_SIZE):
-                if not chunk:
-                    break
-                buffer.write(chunk)
-                if bar is not None:
-                    bar.update(len(chunk))
         finally:
-            if response is not None:
-                response.close()
+            if res is not None:
+                res.close()
+
+    bar: tqdm | None = None
+    resp: requests.Response | None = None
+    buffer: BufferedWriter | BufferedIOBase | None = None
+
+    try:
+        resp = requests.get(url, timeout=10, stream=True)
+        temp_output = f"{output}.part" if isinstance(output, str) else None
+
+        if isinstance(output, str) and temp_output is not None:
+            buffer = open(temp_output, "wb")
+        else:
+            # If not a string, at runtime we expect a BufferedIOBase
+            if not isinstance(output, BufferedIOBase):
+                raise TypeError(
+                    "output must be either a string path or a BufferedIOBase-like object."
+                )
+            buffer = output
+
+        # Assert so mypy knows buffer can't be None
+        assert buffer is not None
+
+        # If server returns a length, use that
+        content_length = resp.headers.get("Content-Length")
+        if content_length:
+            expected_size = float(content_length)
+
+        # Show progress if requested
+        if show_progress:
+            bar = tqdm(
+                desc=url,
+                total=expected_size,
+                unit="B",
+                unit_scale=True,
+                unit_divisor=_CHUNK_SIZE,
+                nrows=2,
+                disable=_DISABLE_SHOW_PROGRESS,
+            )
+
+        # Write chunks
+        for chunk in resp.iter_content(_CHUNK_SIZE):
+            if not chunk:
+                break
+            buffer.write(chunk)
             if bar is not None:
-                bar.close()
-            if buffer is not None and isinstance(output, (str,)):
+                bar.update(len(chunk))
+
+        # If a path was passed in, rename temp file
+        if isinstance(output, str) and temp_output is not None:
+            if not buffer.closed:
                 buffer.close()
+            if os.path.exists(output):
+                os.remove(output)
+            os.rename(temp_output, output)
+
+    finally:
+        if resp is not None:
+            resp.close()
+        if buffer is not None and isinstance(output, str):
+            buffer.close()
+        if bar is not None:
+            bar.close()
 
 
 __all__ = ["download_with_progress"]
