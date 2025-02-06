@@ -825,11 +825,7 @@ def ivtilde(
         ak = ak[:first_nonfinite]
         zk = zk[:, :first_nonfinite]
 
-<<<<<<< HEAD
-    I = 1 / sqrt(2.0 * z * np.pi) * (np.dot(1.0 / zk, ak))
-=======
     I = 1.0 / sqrt(2.0 * z * np.pi) * (np.dot(1.0 / zk, ak))
->>>>>>> main
     I = I.reshape(sizez)
 
     return I
