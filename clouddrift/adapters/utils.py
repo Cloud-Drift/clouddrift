@@ -216,6 +216,8 @@ def _download_with_progress(
 
         # If a path was passed in, rename temp file
         if isinstance(output, str) and temp_output is not None:
+            if not buffer.closed:
+                buffer.close()
             if os.path.exists(output):
                 os.remove(output)
             os.rename(temp_output, output)
