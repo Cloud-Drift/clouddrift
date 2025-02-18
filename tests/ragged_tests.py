@@ -62,7 +62,7 @@ def sample_ragged_array() -> RaggedArray:
         xr_data: dict[str, Any] = {}
         for var in metadata.keys():
             xr_data[var] = (
-                ["traj"],
+                ["rows"],
                 [metadata[var][i]],
                 {"long_name": f"variable {var}", "units": "-"},
             )
