@@ -56,6 +56,8 @@ def download(tmp_path: str):
     buffer = BytesIO()
     download_with_progress([(YOMAHA_URLS[-1], buffer)])
 
+    buffer.seek(0)
+
     decompressed_fp = os.path.join(tmp_path, filename)
     with (
         open(decompressed_fp, "wb") as file,
