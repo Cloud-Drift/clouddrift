@@ -308,3 +308,112 @@ def isridgepoint(
         ridge_points = ridge_points & mask
     
     return ridge_points, ridge_quantity, processed_transform, inst_frequency
+
+def separate_ridge_groups(
+    ridge_points: np.ndarray
+) -> Tuple[np.ndarray, int]:
+    """
+    Separate ridge points into distinct groups using connected component analysis.
+    
+    This function identifies separate clusters of ridge points in the time-frequency
+    plane. Ridge points are considered connected if they are adjacent according to
+    8-connectivity (Moore neighborhood).
+    
+    Parameters
+    ----------
+    ridge_points : np.ndarray
+        Boolean array where True indicates ridge points, with shape (frequency, time)
+        
+    Returns
+    -------
+    labeled_ridges : np.ndarray
+        Integer array where values indicate group membership (0 is background)
+    num_groups : int
+        Number of distinct ridge groups found
+        
+    Notes
+    -----
+    This function uses SciPy's ndimage.label to perform connected component analysis.
+    """
+    structure = ndimage.generate_binary_structure(2, 2)
+    labeled_ridges, num_groups = ndimage.label(ridge_points, structure=structure)
+    return labeled_ridges, num_groups
+
+def extract_constant_frequency_segments(
+    ridge_points: List[Tuple[int, int]],
+    freq_tolerance: float = 0.0,
+    min_segment_length: int = 2
+) -> List[Tuple[int, int]]:
+    """
+    Find segments of constant frequency and extract central points.
+    
+    For each segment where the frequency remains constant, identify the point
+    closest to the central time of that segment.
+    
+    Parameters
+    ----------
+    ridge_points : List[Tuple[int, int]]
+        List of (frequency, time) points in a single cluster
+    freq_tolerance : float, optional
+        Maximum allowed frequency variation to be considered "constant" (default: 0.0)
+    min_segment_length : int, optional
+        Minimum number of points required for a segment (default: 2)
+        
+    Returns
+    -------
+    central_points : List[Tuple[int, int]]
+        List of (frequency, time) points representing the central point of each segment
+    """
+    if not ridge_points:
+        return []
+    
+    # Sort points by time
+    ridge_points = sorted(ridge_points, key=lambda pt: pt[1])
+    
+    central_points = []
+    segment_start = 0
+    ref_freq = ridge_points[0][0]
+    
+    # Process points to find segments with constant frequency
+    for i in range(1, len(ridge_points)):
+        freq, time = ridge_points[i]
+        
+        # Check if frequency changed beyond tolerance
+        if abs(freq - ref_freq) > freq_tolerance:
+            # End of segment
+            segment_length = i - segment_start
+            
+            if segment_length >= min_segment_length:
+                # Extract segment
+                segment = ridge_points[segment_start:i]
+                
+                # Get times for this segment
+                segment_times = [pt[1] for pt in segment]
+                
+                # Calculate central time
+                central_time = sum(segment_times) / len(segment_times)
+                
+                # Find point closest to central time
+                closest_idx = min(range(len(segment)), key=lambda j: abs(segment[j][1] - central_time))
+                central_points.append(segment[closest_idx])
+            else:
+                # For short segments, add all points
+                central_points.extend(ridge_points[segment_start:i])
+            
+            # Start new segment
+            segment_start = i
+            ref_freq = freq
+    
+    # Process final segment
+    segment_length = len(ridge_points) - segment_start
+    if segment_length >= min_segment_length:
+        segment = ridge_points[segment_start:]
+        segment_times = [pt[1] for pt in segment]
+        central_time = sum(segment_times) / len(segment_times)
+        closest_idx = min(range(len(segment)), key=lambda j: abs(segment[j][1] - central_time))
+        central_points.append(segment[closest_idx])
+    else:
+        # For short segments, add all points
+        central_points.extend(ridge_points[segment_start:])
+    
+    return central_points
