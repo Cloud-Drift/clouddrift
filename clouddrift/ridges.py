@@ -151,3 +151,160 @@ def instmom_multivariate(
     joint_xi = np.squeeze(joint_xi, axis=joint_axis)
     
     return joint_amplitude, joint_omega, joint_upsilon, joint_xi
+
+def isridgepoint(
+    wavelet_transform: np.ndarray,
+    scale_frequencies: np.ndarray,
+    amplitude_threshold: float,
+    ridge_type: str,
+    freq_min: Optional[Union[float, np.ndarray]] = None,
+    freq_max: Optional[Union[float, np.ndarray]] = None,
+    mask: Optional[np.ndarray] = None
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Find wavelet ridge points using specified criterion.
+    Ridge detection is performed by finding local maxima along the time axis.
+    
+    Parameters
+    ----------
+    wavelet_transform : np.ndarray
+        Wavelet transform matrix with shape (time, frequency)
+    scale_frequencies : np.ndarray
+        Frequencies corresponding to wavelet scales (in radians)
+    amplitude_threshold : float
+        Minimum amplitude threshold for ridge points
+    ridge_type : str
+        Ridge definition: 'amplitude' or 'phase'
+    freq_min : float or np.ndarray, optional
+        Minimum frequency constraint
+    freq_max : float or np.ndarray, optional
+        Maximum frequency constraint
+    mask : np.ndarray, optional
+        Boolean mask to restrict ridge locations
+    
+    Returns
+    -------
+    ridge_points : np.ndarray
+        Boolean matrix indicating ridge points
+    ridge_quantity : np.ndarray
+        Ridge quantity used for detection
+    processed_transform : np.ndarray
+        Processed wavelet transform
+    inst_frequency : np.ndarray
+        Instantaneous frequency of the transform
+    """
+    
+    # Calculate instantaneous moments
+    if wavelet_transform.ndim > 2 and wavelet_transform.shape[2] > 1:
+        # Multivariate case
+        amplitude, inst_frequency = instmom_multivariate(
+            wavelet_transform, time_axis=0, joint_axis=2
+        )[:2]
+    else:
+        # Univariate case
+        amplitude, inst_frequency = instmom_univariate(
+            wavelet_transform, axis=0
+        )[:2]
+    
+    # Determine ridge quantity based on ridge type
+    if ridge_type.lower().startswith('amp'):
+        ridge_quantity = amplitude
+    else:  # phase-based ridges
+        # Create array of scale frequencies matching time dimension
+        freq_matrix = np.broadcast_to(
+            scale_frequencies[np.newaxis, :].T, 
+            (wavelet_transform.shape[0], wavelet_transform.shape[1])
+        )
+        ridge_quantity = inst_frequency - freq_matrix
+    
+    # Handle univariate and multivariate cases
+    if wavelet_transform.ndim > 2 and wavelet_transform.shape[2] > 1:
+        # Calculate magnitude
+        transform_magnitude = np.abs(wavelet_transform)
+        
+        # Compute power-weighted phase average
+        weight_sum = np.sum(transform_magnitude * wavelet_transform, axis=2)
+        weight_total = np.sum(transform_magnitude**2, axis=2)
+        
+        # Safe division for weighted average
+        phase_average = np.zeros_like(weight_sum, dtype=complex)
+        mask_nonzero = weight_total != 0
+        phase_average[mask_nonzero] = weight_sum[mask_nonzero] / weight_total[mask_nonzero]
+        
+        # Create joint transform with combined magnitude and average phase
+        joint_magnitude = np.sqrt(np.sum(transform_magnitude**2, axis=2))
+        joint_phase = np.angle(phase_average)
+        processed_transform = joint_magnitude * np.exp(1j * joint_phase)
+    else:
+        processed_transform = wavelet_transform
+    
+    # Define ridge points array
+    ridge_points = np.zeros(ridge_quantity.shape, dtype=bool)
+    
+    # Process all time points except edges
+    if ridge_type.lower().startswith('amp'):
+        # For amplitude ridges: find local maxima in time
+        for i in range(1, ridge_quantity.shape[0]-1):
+            ridge_points[i, :] = (
+                (ridge_quantity[i-1, :] < ridge_quantity[i, :]) & 
+                (ridge_quantity[i+1, :] < ridge_quantity[i, :])
+            )
+    else:
+        # For phase ridges: find zero crossings with negative slope in time
+        for i in range(1, ridge_quantity.shape[0]-1):
+            ridge_points[i, :] = (
+                ((ridge_quantity[i-1, :] < 0) & (ridge_quantity[i+1, :] >= 0)) | 
+                ((ridge_quantity[i-1, :] <= 0) & (ridge_quantity[i+1, :] > 0))
+            )
+    
+    # Ensure we have the strongest local extrema
+    error_matrix = np.abs(ridge_quantity)
+    
+    # Remove points where error is larger than adjacent time points
+    for i in range(1, ridge_quantity.shape[0]-1):
+        # Check previous time step
+        if i > 1:
+            is_prev_ridge = ridge_points[i-1, :]
+            is_bigger_than_prev = error_matrix[i, :] > error_matrix[i-1, :]
+            ridge_points[i, :] = ridge_points[i, :] & ~(is_prev_ridge & is_bigger_than_prev)
+        
+        # Check next time step
+        if i < ridge_quantity.shape[0]-2:
+            is_next_ridge = ridge_points[i+1, :]
+            is_bigger_than_next = error_matrix[i, :] > error_matrix[i+1, :]
+            ridge_points[i, :] = ridge_points[i, :] & ~(is_next_ridge & is_bigger_than_next)
+    
+    # Apply basic filtering criteria
+    ridge_points = ridge_points & ~np.isnan(processed_transform)
+    ridge_points = ridge_points & (np.abs(processed_transform) >= amplitude_threshold)
+    
+    # Apply frequency constraints if provided
+    if freq_min is not None and freq_max is not None:
+        # Create frequency constraint matrices
+        if np.isscalar(freq_min) or (isinstance(freq_min, np.ndarray) and freq_min.size == 1):
+            freq_min_matrix = np.full(processed_transform.shape[:2], freq_min)
+        else:
+            # Expand row vector to match dimensions
+            freq_min_matrix = np.broadcast_to(
+                freq_min[:, np.newaxis], 
+                processed_transform.shape[:2]
+            )
+            
+        if np.isscalar(freq_max) or (isinstance(freq_max, np.ndarray) and freq_max.size == 1):
+            freq_max_matrix = np.full(processed_transform.shape[:2], freq_max)
+        else:
+            # Expand row vector to match dimensions
+            freq_max_matrix = np.broadcast_to(
+                freq_max[:, np.newaxis], 
+                processed_transform.shape[:2]
+            )
+        
+        # Apply frequency constraints
+        freq_constraint = (inst_frequency > freq_min_matrix) & (inst_frequency < freq_max_matrix)
+        ridge_points = ridge_points & freq_constraint
+    
+    # Apply additional mask if provided
+    if mask is not None:
+        ridge_points = ridge_points & mask
+    
+    return ridge_points, ridge_quantity, processed_transform, inst_frequency
