@@ -1,111 +1,153 @@
+from numpy.lib import scimath
 import numpy as np
+from scipy import interpolate
+import matplotlib.pyplot as plt
+from clouddrift.wavelet import (
+    morse_wavelet_transform,
+    morse_logspace_freq,
+)
+from typing import Optional, Union, Tuple, List
+from scipy import ndimage
 
-def ridgemap(
-        grid_shape: int | tuple, 
-        *ridge_data: np.ndarray,
-        collapse: bool = False
-) -> list:
-    """
-    Maps ridge quantities back onto the time series or grid.
+
+def instmom_univariate(
+        signal : np.ndarray, 
+        sample_rate : float = 1.0, 
+        axis : int = 0
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Calculate univariate instantaneous moments for a single signal.
     
-    This function takes ridge quantities and their corresponding indices
-    and maps them onto a grid of specified dimensions, used to
-    reconstruct time series data from ridge-extracted information.
+    This function computes the instantaneous amplitude, frequency, bandwidth, and curvature
+    for a single signal.
     
     Parameters
     ----------
-    grid_shape : int or tuple
-        Either a single integer representing the length of the time series (M),
-        or a tuple/list (M, N) representing 2D grid dimensions.
-    *ridge_data : np.ndarray
-        A variable number of numpy arrays containing ridge quantities and indices.
-        Format: X1R, X2R, ..., XPR, IR [, KR]
-        - If grid_shape is a tuple: The last two arrays must be row indices (IR) and column indices (KR)
-        - If grid_shape is a single value: The last array must be row indices (IR)
-        - All arrays preceding indices are considered ridge quantities to be mapped
-        
-        If IR and XR contain multiple ridges separated by NaNs (as output by
-        ridge detection algorithms), the result will have each ridge in a separate column.
-    collapse : bool, optional
-        If True, combines values from all ridges into a single value per grid point
-        by summing the first quantity and averaging the rest. Default is False.
-    
+    signal : np.ndarray
+        Input signal array
+    sample_rate : float, optional
+        Sample rate for time derivatives, defaults to 1.0
+    axis : int, optional
+        Axis representing time, defaults to 0
+
     Returns
     -------
-    list
-        A list of NumPy arrays containing the mapped ridge quantities and multiplicity.
-        - Each mapped quantity is an array of shape (M, N) where N=1 if not specified
-        - The last element is the multiplicity (count of finite values) for each row
-        - If collapse=True, only one ridge quantity array is returned (plus multiplicity)
-    
-    Notes
-    -----
-    - Indices in IR/KR are expected to be 1-indexed (converted to 0-indexed internally)
-    - Values not specified by the indices are filled with NaNs
-    - The ridge multiplicity is the number of ridges present at each time/location
-    
-    Examples
-    --------
-    # Map a single ridge quantity
-    x = ridgemap(M, xr, ir)
-    
-    # Map multiple ridge quantities
-    [x, f] = ridgemap(M, xr, fr, ir)
-    
-    # Collapse multiple ridges into a single time series
-    [x, f] = ridgemap(M, xr, fr, ir, collapse=True)
-    
-    # Get ridge multiplicity along with mapped quantities
-    [x, f, mult] = ridgemap(M, xr, fr, ir)
+    amplitude : np.ndarray
+        Instantaneous amplitude
+    omega : np.ndarray
+        Instantaneous radian frequency
+    upsilon : np.ndarray
+        Instantaneous bandwidth
+    xi : np.ndarray
+        Instantaneous curvature
     """
-    # Determine grid dimensions
-    if isinstance(grid_shape, (list, tuple)):
-        num_rows, num_cols = grid_shape
-        has_col_dimension = True
-    else:
-        num_rows, num_cols = grid_shape, 1
-        has_col_dimension = False
+    # Calculate amplitude
+    amplitude = np.abs(signal)
+    
+    # Calculate instantaneous frequency
+    phase = np.angle(signal)
+    unwrapped_phase = np.unwrap(phase, axis=axis)
+    omega = np.gradient(unwrapped_phase, axis=axis) * sample_rate
+    
+    # Calculate instantaneous bandwidth
+    log_amplitude = np.log(amplitude)
+    upsilon = np.gradient(log_amplitude, axis=axis) * sample_rate
+    
+    # Calculate instantaneous curvature
+    d_omega = np.gradient(omega, axis=axis) * sample_rate
+    d_upsilon = np.gradient(upsilon, axis=axis) * sample_rate
+    xi = upsilon**2 + d_upsilon + 1j * d_omega
+    
+    return amplitude, omega, upsilon, xi
 
-    # Extract indices and ridge quantities from arguments
-    if has_col_dimension and len(ridge_data) >= 2:
-        col_indices = ridge_data[-1]
-        row_indices = ridge_data[-2]
-        ridge_quantities = ridge_data[:-2]
-    else:
-        row_indices = ridge_data[-1]
-        col_indices = None
-        ridge_quantities = ridge_data[:-1]
 
-    # Handle empty or None indices
-    if row_indices is None or len(np.atleast_1d(row_indices)) == 0:
-        mapped_quantities = [np.full((num_rows, 1), np.nan) for _ in ridge_quantities]
-        multiplicity = np.zeros((num_rows, 1))
-    else:
-        row_indices = np.atleast_2d(row_indices).astype(float)
-        mapped_quantities = []
+def instmom_multivariate(
+        signals: np.ndarray,
+        sample_rate: float = 1.0,
+        time_axis: int = 0,
+        joint_axis: int = -1
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Calculate joint instantaneous moments across multiple signals.
+    
+    This function computes the joint amplitude, frequency, bandwidth, and curvature
+    across multiple signals, with power-weighted averaging of component properties.
+    
+    Parameters
+    ----------
+    signals : np.ndarray
+        Input array with shape (..., n_signals) where n_signals is the number 
+        of signals across which to compute joint moments.
+    sample_rate : float, optional
+        Sample rate for time derivatives, defaults to 1.0
+    time_axis : int, optional
+        Axis representing time, defaults to 0
+    joint_axis : int, optional
+        Axis across which to compute joint moments, defaults to -1
         
-        for quantity in ridge_quantities:
-            quantity = np.atleast_2d(quantity).astype(float)
-            mapped_quantity = np.full((num_rows, 1), np.nan)
-            
-            # Advanced indexing to place values at their corresponding grid positions
-            valid_mask = np.isfinite(row_indices)
-            mapped_rows = (row_indices[valid_mask] - 1).astype(int)  # Convert to 0-indexed
-            mapped_quantity[mapped_rows, 0] = quantity[valid_mask]
-            
-            mapped_quantities.append(mapped_quantity)
-            
-        # Count valid entries per row
-        multiplicity = np.sum(np.isfinite(mapped_quantities[0]), axis=1, keepdims=True)
-
-    # Optionally combine all ridge quantities
-    if collapse and mapped_quantities:
-        combined = mapped_quantities[0].sum(axis=1, keepdims=True)
-        for quantity in mapped_quantities[1:]:
-            combined += quantity.mean(axis=1, keepdims=True)
-        mapped_quantities = [combined]
-
-    # Add multiplicity as the last element
-    mapped_quantities.append(multiplicity)
-
-    return mapped_quantities
+    Returns
+    -------
+    joint_amplitude : np.ndarray
+        Joint instantaneous amplitude (root-mean-square across signals)
+    joint_omega : np.ndarray, optional
+        Joint instantaneous radian frequency (power-weighted average)
+    joint_upsilon : np.ndarray, optional
+        Joint instantaneous bandwidth
+    joint_xi : np.ndarray, optional 
+        Joint instantaneous curvature
+        
+    Notes
+    -----    
+    Reference: Lilly & Olhede (2010)
+    """    
+    # Calculate univariate moments for each signal
+    amplitude = np.abs(signals)
+    
+    # Calculate instantaneous radian frequency for each signal
+    phase = np.angle(signals)
+    unwrapped_phase = np.unwrap(phase, axis=time_axis) # Unwrap phase to prevent 2π jumps
+    omega = np.gradient(unwrapped_phase, axis=time_axis) * sample_rate
+    
+    # Calculate instantaneous bandwidth for each signal
+    log_amplitude = np.log(amplitude)
+    upsilon = np.gradient(log_amplitude, axis=time_axis) * sample_rate
+    
+    # Calculate instantaneous curvature for each signal
+    d_omega = np.gradient(omega, axis=time_axis) * sample_rate
+    d_upsilon = np.gradient(upsilon, axis=time_axis) * sample_rate
+    xi = upsilon**2 + d_upsilon + 1j * d_omega
+    
+    # Calculate joint amplitude (first moment)
+    squared_amplitude = amplitude**2
+    joint_amplitude = np.sqrt(np.mean(squared_amplitude, axis=joint_axis, keepdims=True))
+    
+    # Calculate joint frequency (second moment)
+    weights = squared_amplitude
+    # Normalize weights along joint axis
+    weights_sum = np.sum(weights, axis=joint_axis, keepdims=True)
+    normalized_weights = weights / weights_sum
+    
+    joint_omega = np.sum(omega * normalized_weights, axis=joint_axis, keepdims=True)
+    
+    # Create replicated joint frequency array for deviation calculations
+    # This creates a broadcast-compatible array with joint_omega expanded along joint_axis
+    broadcast_shape = list(signals.shape)
+    broadcast_shape[joint_axis] = 1
+    omega_mean = np.broadcast_to(joint_omega, signals.shape)
+    
+    # Calculate joint bandwidth (third moment)
+    deviation = upsilon + 1j * (omega - omega_mean)
+    joint_upsilon = np.sqrt(np.sum(np.abs(deviation)**2 * normalized_weights, 
+                                  axis=joint_axis, keepdims=True))
+    
+    # Calculate joint curvature (fourth moment)
+    curvature_deviation = xi + 2j * upsilon * (omega - omega_mean) - (omega - omega_mean)**2
+    joint_xi = np.sqrt(np.sum(np.abs(curvature_deviation)**2 * normalized_weights,
+                             axis=joint_axis, keepdims=True))
+    
+    # Remove singleton dimensions created by keepdims=True
+    joint_amplitude = np.squeeze(joint_amplitude, axis=joint_axis)
+    joint_omega = np.squeeze(joint_omega, axis=joint_axis)
+    joint_upsilon = np.squeeze(joint_upsilon, axis=joint_axis)
+    joint_xi = np.squeeze(joint_xi, axis=joint_axis)
+    
+    return joint_amplitude, joint_omega, joint_upsilon, joint_xi
