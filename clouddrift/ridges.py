@@ -1,29 +1,28 @@
-from numpy.lib import scimath
 import numpy as np
-from scipy import interpolate
-import matplotlib.pyplot as plt
 from clouddrift.wavelet import (
     morse_wavelet_transform,
     morse_logspace_freq,
 )
 from typing import Optional, Union, Tuple, List
-from scipy import ndimage
+from sklearn.cluster import DBSCAN
+from numpy.typing import NDArray
 
 
 def instmom_univariate(
-        signal : np.ndarray, 
-        sample_rate : float = 1.0, 
-        axis : int = 0
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Calculate univariate instantaneous moments for a single signal.
+        signal: NDArray[np.complex128], 
+        sample_rate: float = 1.0, 
+        axis: int = 0
+) -> Tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.complex128]]:
+    '''
+    Calculate univariate instantaneous moments for a single signal.
     
     This function computes the instantaneous amplitude, frequency, bandwidth, and curvature
     for a single signal.
     
     Parameters
     ----------
-    signal : np.ndarray
-        Input signal array
+    signal : NDArray[np.complex128]
+        Input signal array (complex-valued)
     sample_rate : float, optional
         Sample rate for time derivatives, defaults to 1.0
     axis : int, optional
@@ -31,15 +30,15 @@ def instmom_univariate(
 
     Returns
     -------
-    amplitude : np.ndarray
+    amplitude : NDArray[np.float64]
         Instantaneous amplitude
-    omega : np.ndarray
+    omega : NDArray[np.float64]
         Instantaneous radian frequency
-    upsilon : np.ndarray
+    upsilon : NDArray[np.float64]
         Instantaneous bandwidth
-    xi : np.ndarray
+    xi : NDArray[np.complex128]
         Instantaneous curvature
-    """
+    '''
     # Calculate amplitude
     amplitude = np.abs(signal)
     
@@ -61,12 +60,12 @@ def instmom_univariate(
 
 
 def instmom_multivariate(
-        signals: np.ndarray,
+        signals: NDArray[np.complex128],
         sample_rate: float = 1.0,
         time_axis: int = 0,
         joint_axis: int = -1
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """
+) -> Tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
+    '''
     Calculate joint instantaneous moments across multiple signals.
     
     This function computes the joint amplitude, frequency, bandwidth, and curvature
@@ -74,7 +73,7 @@ def instmom_multivariate(
     
     Parameters
     ----------
-    signals : np.ndarray
+    signals : NDArray[np.complex128]
         Input array with shape (..., n_signals) where n_signals is the number 
         of signals across which to compute joint moments.
     sample_rate : float, optional
@@ -86,19 +85,19 @@ def instmom_multivariate(
         
     Returns
     -------
-    joint_amplitude : np.ndarray
+    joint_amplitude : NDArray[np.float64]
         Joint instantaneous amplitude (root-mean-square across signals)
-    joint_omega : np.ndarray, optional
+    joint_omega : NDArray[np.float64]
         Joint instantaneous radian frequency (power-weighted average)
-    joint_upsilon : np.ndarray, optional
+    joint_upsilon : NDArray[np.float64]
         Joint instantaneous bandwidth
-    joint_xi : np.ndarray, optional 
+    joint_xi : NDArray[np.float64]
         Joint instantaneous curvature
         
     Notes
     -----    
     Reference: Lilly & Olhede (2010)
-    """    
+    '''    
     # Calculate univariate moments for each signal
     amplitude = np.abs(signals)
     
@@ -152,47 +151,48 @@ def instmom_multivariate(
     
     return joint_amplitude, joint_omega, joint_upsilon, joint_xi
 
+
 def isridgepoint(
-    wavelet_transform: np.ndarray,
-    scale_frequencies: np.ndarray,
+    wavelet_transform: NDArray[np.complex128],
+    scale_frequencies: NDArray[np.float64],
     amplitude_threshold: float,
     ridge_type: str,
-    freq_min: Optional[Union[float, np.ndarray]] = None,
-    freq_max: Optional[Union[float, np.ndarray]] = None,
-    mask: Optional[np.ndarray] = None
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """
+    freq_min: Optional[Union[float, NDArray[np.float64]]] = None,
+    freq_max: Optional[Union[float, NDArray[np.float64]]] = None,
+    mask: Optional[NDArray[np.bool_]] = None
+) -> Tuple[NDArray[np.bool_], NDArray[np.float64], NDArray[np.complex128], NDArray[np.float64]]:
+    '''
     Find wavelet ridge points using specified criterion.
     Ridge detection is performed by finding local maxima along the time axis.
     
     Parameters
     ----------
-    wavelet_transform : np.ndarray
-        Wavelet transform matrix with shape (time, frequency)
-    scale_frequencies : np.ndarray
+    wavelet_transform : NDArray[np.complex128]
+        Wavelet transform matrix with shape (time, scale)
+    scale_frequencies : NDArray[np.float64]
         Frequencies corresponding to wavelet scales (in radians)
     amplitude_threshold : float
         Minimum amplitude threshold for ridge points
     ridge_type : str
         Ridge definition: 'amplitude' or 'phase'
-    freq_min : float or np.ndarray, optional
+    freq_min : float or NDArray[np.float64], optional
         Minimum frequency constraint
-    freq_max : float or np.ndarray, optional
+    freq_max : float or NDArray[np.float64], optional
         Maximum frequency constraint
-    mask : np.ndarray, optional
+    mask : NDArray[np.bool_], optional
         Boolean mask to restrict ridge locations
     
     Returns
     -------
-    ridge_points : np.ndarray
+    ridge_points : NDArray[np.bool_]
         Boolean matrix indicating ridge points
-    ridge_quantity : np.ndarray
+    ridge_quantity : NDArray[np.float64]
         Ridge quantity used for detection
-    processed_transform : np.ndarray
+    processed_transform : NDArray[np.complex128]
         Processed wavelet transform
-    inst_frequency : np.ndarray
+    inst_frequency : NDArray[np.float64]
         Instantaneous frequency of the transform
-    """
+    '''
     
     # Calculate instantaneous moments
     if wavelet_transform.ndim > 2 and wavelet_transform.shape[2] > 1:
@@ -309,111 +309,195 @@ def isridgepoint(
     
     return ridge_points, ridge_quantity, processed_transform, inst_frequency
 
-def separate_ridge_groups(
-    ridge_points: np.ndarray
-) -> Tuple[np.ndarray, int]:
-    """
-    Separate ridge points into distinct groups using connected component analysis.
+
+def separate_ridge_groups_dbscan(
+    ridge_points: NDArray[np.bool_], 
+    eps: float = 5.0, 
+    min_samples: int = 3,
+    scale_factor: float = 1.0
+) -> Tuple[NDArray[np.int_], int]:
+    '''
+    Separate ridge points into distinct groups using DBSCAN clustering.
     
     This function identifies separate clusters of ridge points in the time-frequency
-    plane. Ridge points are considered connected if they are adjacent according to
-    8-connectivity (Moore neighborhood).
+    plane using a distance-based clustering algorithm, which can handle points that
+    are not directly adjacent.
     
     Parameters
     ----------
-    ridge_points : np.ndarray
+    ridge_points : NDArray[np.bool_]
         Boolean array where True indicates ridge points, with shape (frequency, time)
+    eps : float, optional
+        Maximum distance between points to be considered in the same cluster (default: 5.0)
+    min_samples : int, optional
+        Minimum number of points required to form a cluster (default: 3)
+    scale_factor : float, optional
+        Factor to scale frequency dimension relative to time dimension (default: 1.0)
+        Higher values make frequency differences more important than time differences
         
     Returns
     -------
-    labeled_ridges : np.ndarray
+    labeled_ridges : NDArray[np.int_]
         Integer array where values indicate group membership (0 is background)
     num_groups : int
         Number of distinct ridge groups found
         
     Notes
     -----
-    This function uses SciPy's ndimage.label to perform connected component analysis.
-    """
-    structure = ndimage.generate_binary_structure(2, 2)
-    labeled_ridges, num_groups = ndimage.label(ridge_points, structure=structure)
-    return labeled_ridges, num_groups
-
-def extract_constant_frequency_segments(
-    ridge_points: List[Tuple[int, int]],
-    freq_tolerance: float = 0.0,
-    min_segment_length: int = 2
-) -> List[Tuple[int, int]]:
-    """
-    Find segments of constant frequency and extract central points.
+    This function uses scikit-learn's DBSCAN algorithm which can connect points that
+    are not directly adjacent. This is more flexible than connected component analysis
+    but may be less efficient for large datasets.
+    '''
+    # Get indices of ridge points
+    freq_indices, time_indices = np.where(ridge_points)
     
-    For each segment where the frequency remains constant, identify the point
-    closest to the central time of that segment.
+    # Skip if no ridge points
+    if len(freq_indices) == 0:
+        return np.zeros_like(ridge_points, dtype=int), 0
+    
+    # Scale frequency dimension if needed
+    if scale_factor != 1.0:
+        freq_scaled = freq_indices * scale_factor
+    else:
+        freq_scaled = freq_indices
+    
+    # Combine indices into points
+    points = np.column_stack([time_indices, freq_scaled])
+    
+    # Apply DBSCAN clustering
+    db = DBSCAN(eps=eps, min_samples=min_samples).fit(points)
+    labels = db.labels_
+    
+    # Create labeled ridge array
+    labeled_ridges = np.zeros_like(ridge_points, dtype=int)
+    for i, (f, t) in enumerate(zip(freq_indices, time_indices)):
+        if labels[i] >= 0:  # Ignore noise points (-1)
+            labeled_ridges[f, t] = labels[i] + 1  # Add 1 so background is 0
+    
+    # Count number of clusters (excluding noise points)
+    num_clusters = len(set(labels) - {-1})
+    
+    return labeled_ridges, num_clusters
+
+
+def ridge_shift_interpolation(
+        ridge_points: NDArray[np.bool_], 
+        ridge_quantity: NDArray[np.float64],
+        y_arrays: List[NDArray[np.float64]],
+) -> List[NDArray[np.float64]]:
+    '''
+    Interpolates ridge quantities and arrays based on the maximum of a quadratic fit
+    to the ridge quantity. This is done to improve the accuracy of the ridge along the
+    frequency axis.
     
     Parameters
     ----------
-    ridge_points : List[Tuple[int, int]]
-        List of (frequency, time) points in a single cluster
-    freq_tolerance : float, optional
-        Maximum allowed frequency variation to be considered "constant" (default: 0.0)
-    min_segment_length : int, optional
-        Minimum number of points required for a segment (default: 2)
-        
+    ridge_points : NDArray[np.bool_]
+        Boolean mask indicating ridge points
+    ridge_quantity : NDArray[np.float64]
+        Ridge quantity used for interpolation
+    y_arrays : List[NDArray[np.float64]]
+        List of arrays to be interpolated at the new scale values.
     Returns
     -------
-    central_points : List[Tuple[int, int]]
-        List of (frequency, time) points representing the central point of each segment
-    """
-    if not ridge_points:
-        return []
+    y_arrays_interpolated : List[NDArray[np.float64]]
+        List of arrays interpolated at the optimal scale values.
+    '''
     
-    # Sort points by time
-    ridge_points = sorted(ridge_points, key=lambda pt: pt[1])
+    # Get indices of ridge points
+    freq_indices, time_indices = np.where(ridge_points)
+
+    # Skip if no ridge points
+    if len(freq_indices) == 0:
+        return y_arrays
     
-    central_points = []
-    segment_start = 0
-    ref_freq = ridge_points[0][0]
-    
-    # Process points to find segments with constant frequency
-    for i in range(1, len(ridge_points)):
-        freq, time = ridge_points[i]
+    # Initialize list for interpolated y_arrays
+    y_arrays_interpolated = [np.full_like(y_array, np.nan) for y_array in y_arrays]
+
+    # Iterate over each ridge point
+    for i, (f_idx, t_idx) in enumerate(zip(freq_indices, time_indices)):
         
-        # Check if frequency changed beyond tolerance
-        if abs(freq - ref_freq) > freq_tolerance:
-            # End of segment
-            segment_length = i - segment_start
+        # Skip points at frequency boundaries
+        if f_idx <= 0 or f_idx >= ridge_quantity.shape[0]-1:
+            # Keep original values at boundaries
+            for j, y_array in enumerate(y_arrays):
+                y_arrays_interpolated[j][f_idx, t_idx] = y_array[f_idx, t_idx]
+            continue
+        
+        # Get ridge quantity at current point and neighbors
+        ridge_prev = ridge_quantity[f_idx-1, t_idx]
+        ridge_curr = ridge_quantity[f_idx, t_idx]
+        ridge_next = ridge_quantity[f_idx+1, t_idx]
+        
+        # Fit quadratic: y = ax² + bx + c where x = {-1, 0, 1} for the three points
+        a = 0.5 * (ridge_next + ridge_prev - 2*ridge_curr)
+        b = 0.5 * (ridge_next - ridge_prev)
+        
+        # If a < 0, there's a maximum to find
+        if a < 0:
+            # Find location of maximum: x = -b/(2a)
+            x_max = -b/(2*a)
             
-            if segment_length >= min_segment_length:
-                # Extract segment
-                segment = ridge_points[segment_start:i]
+            # Only use if it's within our range [-1, 1]
+            if -1 <= x_max <= 1:
                 
-                # Get times for this segment
-                segment_times = [pt[1] for pt in segment]
+                # Interpolate each y_array using the same quadratic approach
+                for j, y_array in enumerate(y_arrays):
+                    y_prev = y_array[f_idx-1, t_idx]
+                    y_curr = y_array[f_idx, t_idx]
+                    y_next = y_array[f_idx+1, t_idx]
+                    
+                    # Quadratic coefficients for this array
+                    y_a = 0.5 * (y_next + y_prev - 2*y_curr)
+                    y_b = 0.5 * (y_next - y_prev)
+                    y_c = y_curr
+                    
+                    # Evaluate quadratic at the interpolated position
+                    y_interp = y_a * x_max**2 + y_b * x_max + y_c
+                    y_arrays_interpolated[j][f_idx, t_idx] = y_interp
                 
-                # Calculate central time
-                central_time = sum(segment_times) / len(segment_times)
+                continue
+        
+        # If quadratic interpolation didn't work, try linear
+        # Check which neighbor has higher value
+        if ridge_prev > ridge_curr or ridge_next > ridge_curr:
+            if ridge_prev >= ridge_next:
+                # Previous point is higher
+                if ridge_prev == ridge_curr:
+                    weight = 0
+                else:
+                    # Linear interpolation toward the previous point
+                    weight = (ridge_prev - ridge_curr) / (ridge_prev - ridge_curr + 1e-10)
+                    weight = min(0.5, weight)  # Limit the weight for stability
                 
-                # Find point closest to central time
-                closest_idx = min(range(len(segment)), key=lambda j: abs(segment[j][1] - central_time))
-                central_points.append(segment[closest_idx])
+                # Interpolate each y_array linearly
+                for j, y_array in enumerate(y_arrays):
+                    if weight == 0:
+                        y_interp = y_array[f_idx, t_idx]
+                    else:
+                        y_interp = (1-weight) * y_array[f_idx, t_idx] + weight * y_array[f_idx-1, t_idx]
+                    y_arrays_interpolated[j][f_idx, t_idx] = y_interp
+                
             else:
-                # For short segments, add all points
-                central_points.extend(ridge_points[segment_start:i])
-            
-            # Start new segment
-            segment_start = i
-            ref_freq = freq
+                # Next point is higher
+                if ridge_next == ridge_curr:
+                    # Equal values, don't interpolate
+                    weight = 0
+                else:
+                    # Linear interpolation toward the next point
+                    weight = (ridge_next - ridge_curr) / (ridge_next - ridge_curr + 1e-10)
+                    weight = min(0.5, weight)  # Limit the weight for stability
+                
+                # Interpolate each y_array linearly
+                for j, y_array in enumerate(y_arrays):
+                    if weight == 0:
+                        y_interp = y_array[f_idx, t_idx]
+                    else:
+                        y_interp = (1-weight) * y_array[f_idx, t_idx] + weight * y_array[f_idx+1, t_idx]
+                    y_arrays_interpolated[j][f_idx, t_idx] = y_interp
+        else:
+            # Current point is highest, keep original values
+            for j, y_array in enumerate(y_arrays):
+                y_arrays_interpolated[j][f_idx, t_idx] = y_array[f_idx, t_idx]
     
-    # Process final segment
-    segment_length = len(ridge_points) - segment_start
-    if segment_length >= min_segment_length:
-        segment = ridge_points[segment_start:]
-        segment_times = [pt[1] for pt in segment]
-        central_time = sum(segment_times) / len(segment_times)
-        closest_idx = min(range(len(segment)), key=lambda j: abs(segment[j][1] - central_time))
-        central_points.append(segment[closest_idx])
-    else:
-        # For short segments, add all points
-        central_points.extend(ridge_points[segment_start:])
-    
-    return central_points
+    return y_arrays_interpolated
