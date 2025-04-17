@@ -367,8 +367,8 @@ def _parse_datetime_with_day_ratio(
         dayratio = day_with_ratio - day
         seconds = dayratio * _SECONDS_IN_DAY
         dt_ns = (
-            datetime.datetime(year=int(year), month=int(month), day=int(1))
-            + datetime.timedelta(days=int(day), seconds=seconds)
+            datetime.datetime(year=int(year), month=int(month), day=int(day))
+            + datetime.timedelta(seconds=seconds)
         ).timestamp() * 10**9
         values.append(int(dt_ns))
     return np.array(values).astype("datetime64[ns]")
