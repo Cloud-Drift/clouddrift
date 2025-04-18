@@ -45,9 +45,9 @@ class gdp1h_integration_tests(testutils.DisableProgressTestCase):
                 os.makedirs(agg_path, exist_ok=True)
                 ra.to_netcdf(os.path.join(agg_path, "gdp1h_5r_sample.nc"))
 
-    @classmethod
-    def tearDownClass(cls):
-        [
-            shutil.rmtree(dir)
-            for dir in [gdp1h.GDP_TMP_PATH, gdp1h.GDP_TMP_PATH_EXPERIMENTAL]
-        ]
+    # @classmethod
+    # def tearDownClass(cls):
+    #     [
+    #         shutil.rmtree(dir)
+    #         for dir in [gdp1h.GDP_TMP_PATH, gdp1h.GDP_TMP_PATH_EXPERIMENTAL]
+    #     ]
