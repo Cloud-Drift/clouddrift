@@ -3,6 +3,7 @@ from typing import List, Optional, Tuple, Union
 import numpy as np
 from numpy.typing import NDArray
 from sklearn.cluster import DBSCAN
+from scipy.optimize import linear_sum_assignment
 
 
 def instmom_univariate(
@@ -412,7 +413,7 @@ def ridge_shift_interpolation(
     ridge_points: NDArray[np.bool_],
     ridge_quantity: NDArray[np.float64],
     y_arrays: List[NDArray[np.float64]],
-) -> List[NDArray[np.float64]]:
+) -> dict:
     """
     Interpolates ridge quantities and arrays based on the maximum of a quadratic fit
     to the ridge quantity. This is done to improve the accuracy of the ridge along the
@@ -426,112 +427,354 @@ def ridge_shift_interpolation(
         Ridge quantity used for interpolation
     y_arrays : List[NDArray[np.float64]]
         List of arrays to be interpolated at the new scale values.
+    
     Returns
     -------
-    y_arrays_interpolated : List[NDArray[np.float64]]
-        List of arrays interpolated at the optimal scale values.
+    ridge_data : dict
+        Dictionary containing:
+        - 'indices': tuple of (freq_indices, time_indices)
+        - 'values': list of arrays, each containing interpolated values at ridge points
+        - 'shape': original array shape for reconstruction
     """
-
+    # Skip if no ridge points
+    if not np.any(ridge_points):
+        # Return empty result with proper structure
+        return {
+            'indices': (np.array([], dtype=int), np.array([], dtype=int)),
+            'values': [np.array([], dtype=arr.dtype) for arr in y_arrays],
+            'shape': ridge_points.shape
+        }
+        
     # Get indices of ridge points
     freq_indices, time_indices = np.where(ridge_points)
-
-    # Skip if no ridge points
-    if len(freq_indices) == 0:
-        return y_arrays
-
-    # Initialize list for interpolated y_arrays
-    y_arrays_interpolated = [np.full_like(y_array, np.nan) for y_array in y_arrays]
-
-    # Iterate over each ridge point
-    for i, (f_idx, t_idx) in enumerate(zip(freq_indices, time_indices)):
-        # Skip points at frequency boundaries
-        if f_idx <= 0 or f_idx >= ridge_quantity.shape[0] - 1:
-            # Keep original values at boundaries
-            for j, y_array in enumerate(y_arrays):
-                y_arrays_interpolated[j][f_idx, t_idx] = y_array[f_idx, t_idx]
-            continue
-
-        # Get ridge quantity at current point and neighbors
-        ridge_prev = ridge_quantity[f_idx - 1, t_idx]
-        ridge_curr = ridge_quantity[f_idx, t_idx]
-        ridge_next = ridge_quantity[f_idx + 1, t_idx]
-
-        # Fit quadratic: y = ax² + bx + c where x = {-1, 0, 1} for the three points
+    
+    # Initialize output value arrays (1D arrays for each y_array's ridge points)
+    y_values_interpolated = [np.zeros(len(freq_indices), dtype=y_array.dtype) for y_array in y_arrays]
+    
+    # Create masks for boundary points
+    boundary_mask = (freq_indices <= 0) | (freq_indices >= ridge_quantity.shape[0] - 1)
+    interior_mask = ~boundary_mask
+    
+    # Process boundary points (just copy original values)
+    if np.any(boundary_mask):
+        boundary_freq = freq_indices[boundary_mask]
+        boundary_time = time_indices[boundary_mask]
+        for j, y_array in enumerate(y_arrays):
+            y_values_interpolated[j][boundary_mask] = y_array[boundary_freq, boundary_time]
+    
+    # Process interior points using vectorized operations
+    if np.any(interior_mask):
+        int_freq = freq_indices[interior_mask]
+        int_time = time_indices[interior_mask]
+        
+        # Get ridge quantities at points and neighbors
+        ridge_curr = ridge_quantity[int_freq, int_time]
+        ridge_prev = ridge_quantity[int_freq - 1, int_time]
+        ridge_next = ridge_quantity[int_freq + 1, int_time]
+        
+        # Quadratic coefficients (vectorized)
         a = 0.5 * (ridge_next + ridge_prev - 2 * ridge_curr)
         b = 0.5 * (ridge_next - ridge_prev)
-
-        # If a < 0, there's a maximum to find
-        if a < 0:
-            # Find location of maximum: x = -b/(2a)
-            x_max = -b / (2 * a)
-
-            # Only use if it's within our range [-1, 1]
-            if -1 <= x_max <= 1:
-                # Interpolate each y_array using the same quadratic approach
+        
+        # Find points with valid maximum (a < 0)
+        max_mask = a < 0
+        
+        if np.any(max_mask):
+            # Calculate x_max for points with valid maximum
+            x_max = -b[max_mask] / (2 * a[max_mask])
+            
+            # Filter for points with x_max in range [-1, 1]
+            valid_range_mask = (-1 <= x_max) & (x_max <= 1)
+            
+            if np.any(valid_range_mask):
+                # Get indices for points with valid quadratic maximum
+                quad_indices = np.where(max_mask)[0][valid_range_mask]
+                quad_freq = int_freq[max_mask][valid_range_mask]
+                quad_time = int_time[max_mask][valid_range_mask]
+                quad_x_max = x_max[valid_range_mask]
+                
+                # Process each y_array using quadratic interpolation
                 for j, y_array in enumerate(y_arrays):
-                    y_prev = y_array[f_idx - 1, t_idx]
-                    y_curr = y_array[f_idx, t_idx]
-                    y_next = y_array[f_idx + 1, t_idx]
-
-                    # Quadratic coefficients for this array
+                    y_prev = y_array[quad_freq - 1, quad_time]
+                    y_curr = y_array[quad_freq, quad_time]
+                    y_next = y_array[quad_freq + 1, quad_time]
+                    
+                    # Quadratic coefficients for each array
                     y_a = 0.5 * (y_next + y_prev - 2 * y_curr)
                     y_b = 0.5 * (y_next - y_prev)
                     y_c = y_curr
-
-                    # Evaluate quadratic at the interpolated position
-                    y_interp = y_a * x_max**2 + y_b * x_max + y_c
-                    y_arrays_interpolated[j][f_idx, t_idx] = y_interp
-
-                continue
-
-        # If quadratic interpolation didn't work, try linear
-        # Check which neighbor has higher value
-        if ridge_prev > ridge_curr or ridge_next > ridge_curr:
-            if ridge_prev >= ridge_next:
-                # Previous point is higher
-                if ridge_prev == ridge_curr:
-                    weight = 0.0
-                else:
-                    # Linear interpolation toward the previous point
-                    weight = (ridge_prev - ridge_curr) / (
-                        ridge_prev - ridge_curr + 1e-10
-                    )
-                    weight = min(0.5, weight)  # Limit the weight for stability
-
-                # Interpolate each y_array linearly
-                for j, y_array in enumerate(y_arrays):
-                    if weight == 0:
-                        y_interp = y_array[f_idx, t_idx]
-                    else:
-                        y_interp = (1 - weight) * y_array[
-                            f_idx, t_idx
-                        ] + weight * y_array[f_idx - 1, t_idx]
-                    y_arrays_interpolated[j][f_idx, t_idx] = y_interp
-
-            else:
-                # Next point is higher
-                if ridge_next == ridge_curr:
-                    # Equal values, don't interpolate
-                    weight = 0.0
-                else:
-                    # Linear interpolation toward the next point
-                    weight = (ridge_next - ridge_curr) / (
-                        ridge_next - ridge_curr + 1e-10
-                    )
-                    weight = min(0.5, weight)  # Limit the weight for stability
-
-                # Interpolate each y_array linearly
-                for j, y_array in enumerate(y_arrays):
-                    if weight == 0.0:
-                        y_interp = y_array[f_idx, t_idx]
-                    else:
-                        y_interp = (1 - weight) * y_array[
-                            f_idx, t_idx
-                        ] + weight * y_array[f_idx + 1, t_idx]
-                    y_arrays_interpolated[j][f_idx, t_idx] = y_interp
-        else:
-            # Current point is highest, keep original values
+                    
+                    # Evaluate quadratic at interpolated positions
+                    y_interp = y_a * quad_x_max**2 + y_b * quad_x_max + y_c
+                    
+                    # Store in our 1D array at the right indices (apply mask to interior points)
+                    interior_indices = np.where(interior_mask)[0][quad_indices]
+                    y_values_interpolated[j][interior_indices] = y_interp
+        
+        # Handle points that need linear interpolation
+        linear_mask = np.ones(interior_mask.sum(), dtype=bool)
+        if np.any(max_mask):
+            linear_mask[max_mask] = ~valid_range_mask
+        
+        if np.any(linear_mask):
+            # Get indices to update in the result arrays
+            lin_indices = np.where(interior_mask)[0][linear_mask]
+            lin_freq = int_freq[linear_mask]
+            lin_time = int_time[linear_mask]
+            
+            # Get ridge values for linear points
+            lin_curr = ridge_curr[linear_mask]
+            lin_prev = ridge_prev[linear_mask]
+            lin_next = ridge_next[linear_mask]
+            
+            # Determine direction for interpolation
+            prev_higher = lin_prev >= lin_next
+            
+            # Calculate weights, limited to 0.5 for stability
+            weights = np.zeros_like(lin_curr, dtype=np.float64)
+            
+            # For points where previous is higher
+            if np.any(prev_higher):
+                # Avoid division by zero
+                denom = lin_prev[prev_higher] - lin_curr[prev_higher]
+                nonzero = denom != 0
+                if np.any(nonzero):
+                    w = (lin_prev[prev_higher][nonzero] - lin_curr[prev_higher][nonzero]) / denom[nonzero]
+                    weights[prev_higher][nonzero] = np.minimum(0.5, w)
+            
+            # For points where next is higher
+            next_higher = ~prev_higher
+            if np.any(next_higher):
+                # Avoid division by zero
+                denom = lin_next[next_higher] - lin_curr[next_higher]
+                nonzero = denom != 0
+                if np.any(nonzero):
+                    w = (lin_next[next_higher][nonzero] - lin_curr[next_higher][nonzero]) / denom[nonzero]
+                    weights[next_higher][nonzero] = np.minimum(0.5, w)
+            
+            # Apply linear interpolation for each y_array
             for j, y_array in enumerate(y_arrays):
-                y_arrays_interpolated[j][f_idx, t_idx] = y_array[f_idx, t_idx]
+                y_interp = np.zeros_like(lin_curr, dtype=y_array.dtype)
+                
+                # Points where previous is higher
+                if np.any(prev_higher):
+                    prev_weights = weights[prev_higher]
+                    y_curr = y_array[lin_freq[prev_higher], lin_time[prev_higher]]
+                    y_prev = y_array[lin_freq[prev_higher] - 1, lin_time[prev_higher]]
+                    y_interp[prev_higher] = (1 - prev_weights) * y_curr + prev_weights * y_prev
+                
+                # Points where next is higher
+                if np.any(next_higher):
+                    next_weights = weights[next_higher]
+                    y_curr = y_array[lin_freq[next_higher], lin_time[next_higher]]
+                    y_next = y_array[lin_freq[next_higher] + 1, lin_time[next_higher]]
+                    y_interp[next_higher] = (1 - next_weights) * y_curr + next_weights * y_next
+                
+                # Store the interpolated values in the result array
+                y_values_interpolated[j][lin_indices] = y_interp
+    
+    # Return results in coordinate format
+    return {
+        'indices': (freq_indices, time_indices),
+        'values': y_values_interpolated,
+        'shape': ridge_points.shape
+    }
 
-    return y_arrays_interpolated
+
+def get_group_data(
+    group_data: List[dict], 
+    group_id: int, 
+    data_type: int = 0
+) -> Tuple[NDArray[np.int_], NDArray[np.int_], NDArray[np.float64]]:
+    """
+    Extract data for a specific group in a usable format.
+    
+    Parameters
+    ----------
+    group_data : list
+        List of group data dictionaries
+    group_id : int
+        Group ID (1-based)
+    data_type : int, optional
+        Data type to extract:
+        0 = ridge quantity (power)
+        1 = frequency
+        2 = instantaneous frequency
+        
+    Returns
+    -------
+    freq_indices : ndarray
+        Frequency indices
+    time_indices : ndarray
+        Time indices
+    values : ndarray
+        Values for the requested data type
+    """
+    if group_id < 1 or group_id > len(group_data):
+        raise ValueError(f"Group ID {group_id} out of range (1-{len(group_data)})")
+        
+    group_dict = group_data[group_id-1]
+    freq_indices, time_indices = group_dict['indices']
+    values = group_dict['values'][data_type]
+    
+    return freq_indices, time_indices, values
+
+def separate_ridge_groups_frequency(
+    ridge_data: dict,
+    alpha: float = 0.1,
+    min_group_size: int = 3,
+    max_gap: int = 2
+) -> Tuple[dict, int]:
+    """
+    Separate ridge points into distinct groups using bidirectional frequency prediction
+    and optimal assignment matching.
+    
+    Parameters
+    ----------
+    ridge_data : dict
+        Dictionary from ridge_shift_interpolation containing ridge point data
+    alpha : float, optional
+        Maximum allowed relative frequency difference for matching points (default: 0.1)
+    min_group_size : int, optional
+        Minimum number of points for a valid group (default: 3)
+    max_gap : int, optional
+        Maximum allowed time gap between ridge points (default: 2)
+    
+    Returns
+    -------
+    group_data : dict
+        Dictionary of groups with indices and values for each group
+    num_groups : int
+        Number of distinct ridge groups found
+    """
+    
+    # Extract ridge point information
+    freq_indices, time_indices = ridge_data['indices']
+    values = ridge_data['values']
+    
+    # Debug: print basic information
+    print(f"Total ridge points: {len(freq_indices)}")
+    print(f"Time range: {min(time_indices)} to {max(time_indices)}")
+    
+    # If there are no ridge points, return empty result
+    if len(freq_indices) == 0:
+        return {}, 0
+        
+    # Get physical values at ridge points
+    power = values[0]
+    actual_freq = values[1]
+    
+    # Debug: frequency values
+    print(f"Frequency range: {np.min(actual_freq):.2f} to {np.max(actual_freq):.2f}")
+    
+    # Create time-to-points mapping for efficient lookup
+    time_to_points = {}
+    for i, t in enumerate(time_indices):
+        if t not in time_to_points:
+            time_to_points[t] = []
+        time_to_points[t].append(i)
+    
+    # Debug: time point distribution
+    time_counts = [len(pts) for t, pts in time_to_points.items()]
+    print(f"Points per time step - min: {min(time_counts)}, max: {max(time_counts)}, avg: {np.mean(time_counts):.1f}")
+    
+    # Initialize ridge group labels
+    group_labels = np.full(len(freq_indices), -1, dtype=int)
+    next_group_id = 1
+    
+    # Process time steps in order
+    sorted_times = sorted(time_to_points.keys())
+    for i, current_time in enumerate(sorted_times):
+        # Find next valid time step within max_gap
+        next_time = None
+        for gap in range(1, max_gap + 1):
+            if i + gap < len(sorted_times):
+                next_time = sorted_times[i + gap]
+                break
+        
+        if next_time is None:
+            continue
+            
+        # Get points at these time steps
+        curr_idxs = time_to_points[current_time]
+        next_idxs = time_to_points[next_time]
+        
+        # Debug: check time steps
+        if not curr_idxs or not next_idxs:
+            print(f"Empty set of points at time {current_time} or {next_time}")
+            continue
+        
+        # Create cost matrix
+        cost_matrix = np.full((len(curr_idxs), len(next_idxs)), np.inf)
+        
+        # Fill cost matrix with relative frequency differences
+        for ci, curr_idx in enumerate(curr_idxs):
+            current_freq = actual_freq[curr_idx]
+            
+            if current_freq <= 0:
+                continue
+                
+            for ni, next_idx in enumerate(next_idxs):
+                next_freq = actual_freq[next_idx]
+                
+                # Calculate relative frequency difference
+                rel_diff = abs(next_freq - current_freq) / current_freq
+                
+                # Store cost if within tolerance
+                if rel_diff <= alpha:
+                    cost_matrix[ci, ni] = rel_diff
+        
+        # Debug: check if any matches are possible
+        valid_matches = np.isfinite(cost_matrix).any()
+        if not valid_matches:
+            print(f"No valid matches between time {current_time} and {next_time} (alpha={alpha})")
+            continue
+        
+        try:
+            # Solve assignment problem
+            row_ind, col_ind = linear_sum_assignment(cost_matrix)
+            
+            # Filter valid matches
+            valid_indices = np.isfinite(cost_matrix[row_ind, col_ind])
+            valid_row_ind = row_ind[valid_indices]
+            valid_col_ind = col_ind[valid_indices]
+            
+            # Assign or propagate group IDs
+            for ri, ci in zip(valid_row_ind, valid_col_ind):
+                curr_idx = curr_idxs[ri]
+                next_idx = next_idxs[ci]
+                
+                if group_labels[curr_idx] == -1:
+                    # Start new group
+                    group_labels[curr_idx] = next_group_id
+                    group_labels[next_idx] = next_group_id
+                    next_group_id += 1
+                else:
+                    # Propagate existing group
+                    group_labels[next_idx] = group_labels[curr_idx]
+        
+        except ValueError as e:
+            print(f"Error at time {current_time}: {e}")
+            print(f"Cost matrix shape: {cost_matrix.shape}, min: {np.min(cost_matrix)}, finite values: {np.isfinite(cost_matrix).sum()}")
+            continue
+    
+    # Filter groups by size and create output
+    groups = {}
+    for group_id in range(1, next_group_id):
+        group_mask = (group_labels == group_id)
+        if np.sum(group_mask) >= min_group_size:
+            group_freq_indices = freq_indices[group_mask]
+            group_time_indices = time_indices[group_mask]
+            
+            group_values = []
+            for val_array in values:
+                group_values.append(val_array[group_mask])
+            
+            groups[group_id] = {
+                'indices': (group_freq_indices, group_time_indices),
+                'values': group_values,
+                'shape': ridge_data['shape']
+            }
+    
+    print(f"Created {len(groups)} groups (min size: {min_group_size})")
+    return groups, len(groups)
