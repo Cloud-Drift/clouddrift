@@ -611,7 +611,7 @@ def to_raggedarray(
     """
     Convert GDP source data into a ragged array format and return it as an xarray Dataset.
 
-    This function processes drifter data from the GDP (Global Drifter Program) source,
+    This function processes drifter data from the NOAA GDP (Global Drifter Program) source,
     organizes it into a ragged array format, and returns the resulting dataset. It
     supports downloading, filtering, and parallel processing of the data.
 
