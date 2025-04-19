@@ -367,7 +367,12 @@ def _parse_datetime_with_day_ratio(
         dayratio = day_with_ratio - day
         seconds = dayratio * _SECONDS_IN_DAY
         dt_ns = (
-            datetime.datetime(year=int(year), month=int(month), day=int(day))
+            datetime.datetime(
+                year=int(year),
+                month=int(month),
+                day=int(day),
+                tzinfo=datetime.timezone.utc,
+            )
             + datetime.timedelta(seconds=seconds)
         ).timestamp() * 10**9
         values.append(int(dt_ns))
@@ -603,7 +608,39 @@ def to_raggedarray(
     use_fill_values: bool = True,
     max_chunks: int | None = None,
 ) -> xr.Dataset:
-    """Get the GDP source dataset."""
+    """
+    Convert GDP source data into a ragged array format and return it as an xarray Dataset.
+
+    This function processes drifter data from the GDP (Global Drifter Program) source,
+    organizes it into a ragged array format, and returns the resulting dataset. It
+    supports downloading, filtering, and parallel processing of the data.
+
+    Args:
+        tmp_path (str): Path to the temporary directory for storing downloaded files.
+                        Defaults to `_TMP_PATH`.
+        skip_download (bool): If True, skips downloading the data and assumes it is
+                              already available in `tmp_path`. Defaults to False.
+        max (int | None): Maximum number of requests to process for testing purposes.
+                          If None, processes all requests. Defaults to None.
+        chunk_size (int): Number of observations to process in each chunk. Defaults to 100,000.
+        use_fill_values (bool): Whether to use fill values for missing data. Defaults to True.
+        max_chunks (int | None): Maximum number of chunks to process. If None, processes all
+                                 chunks. Defaults to None.
+
+    Returns:
+        xr.Dataset: An xarray Dataset containing the processed GDP drifter data in a
+                    ragged array format. The dataset includes both observation and
+                    trajectory metadata variables, with appropriate attributes added.
+
+    Raises:
+        Any exceptions raised during file operations, data processing, or async tasks
+        will propagate to the caller.
+
+    Notes:
+        - The function performs parallel processing of drifter data using asyncio.
+        - The resulting dataset is sorted by the start date of each drifter.
+        - Metadata attributes for variables are added based on predefined mappings.
+    """
 
     os.makedirs(tmp_path, exist_ok=True)
 
