@@ -24,9 +24,10 @@ GDP_VERSION = "2.01.1"
 
 
 GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01"
-GDP_DATA_URL_EXPERIMENTAL = (
-    "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental"
-)
+GDP_DATA_URL_EXPERIMENTAL = GDP_DATA_URL
+# (
+#     "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental"
+# ) # this defuncted URL is not available anymore
 
 
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
@@ -550,8 +551,7 @@ def to_raggedarray(
     n_random_id : list[int], optional
         Randomly select n_random_id drifter NetCDF files
     url : str
-        URL from which to download the data (Default: GDP_DATA_URL).
-        Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL.
+        URL from which to download the data (Default: GDP_DATA_URL)
     tmp_path : str, optional
         Path to the directory where the individual NetCDF files are stored
         (default varies depending on operating system; /tmp/clouddrift/gdp on Linux)
@@ -567,7 +567,7 @@ def to_raggedarray(
     Invoke `to_raggedarray` without any arguments to download all drifter data
     from the 2.01 GDP feed:
 
-    >>> from clouddrift.adapters.gdp1h import to_raggedarray
+    >>> from clouddrift.adapters.gdp.gdp1h import to_raggedarray
     >>> ra = to_raggedarray()
 
     To download a random sample of 100 drifters, for example for development
@@ -578,12 +578,6 @@ def to_raggedarray(
     To download a specific list of drifters, use the `drifter_ids` argument:
 
     >>> ra = to_raggedarray(drifter_ids=[44136, 54680, 83463])
-
-    To download the experimental 2.01 GDP feed, use the `url` argument to
-    specify the experimental feed URL:
-
-    >>> from clouddrift.adapters.gdp1h import GDP_DATA_URL_EXPERIMENTAL, to_raggedarray
-    >>> ra = to_raggedarray(url=GDP_DATA_URL_EXPERIMENTAL)
 
     Finally, `to_raggedarray` returns a `RaggedArray` instance which provides
     a convenience method to emit a `xarray.Dataset` instance:
