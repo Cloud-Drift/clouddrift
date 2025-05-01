@@ -18,7 +18,7 @@ import clouddrift.adapters.gdp as gdp
 from clouddrift.adapters.utils import download_with_progress, standard_retry_protocol
 from clouddrift.raggedarray import RaggedArray
 
-GDP_VERSION = "September 2023"
+GDP_VERSION = "July 2024"
 
 GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/6h"
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp6h")
@@ -196,10 +196,6 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     )
 
     # convert attributes to variable
-    ds["location_type"] = (
-        ("traj"),
-        [False if ds.attrs.get("location_type") == "Argos" else True],
-    )  # 0 for Argos, 1 for GPS
     ds["DeployingShip"] = (("traj"), gdp.cut_str(ds.attrs.get("DeployingShip", ""), 20))
     ds["DeploymentStatus"] = (
         ("traj"),
@@ -480,7 +476,7 @@ def to_raggedarray(
     Invoke `to_raggedarray` without any arguments to download all drifter data
     from the 6-hourly GDP feed:
 
-    >>> from clouddrift.adapters.gdp6h import to_raggedarray
+    >>> from clouddrift.adapters.gdp.gdp6h import to_raggedarray
     >>> ra = to_raggedarray()
 
     To download a random sample of 100 drifters, for example for development

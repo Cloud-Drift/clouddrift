@@ -24,10 +24,9 @@ GDP_VERSION = "2.01.1"
 
 
 GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01"
-GDP_DATA_URL_EXPERIMENTAL = GDP_DATA_URL
-# (
-#     "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental"
-# ) # this defuncted URL is not available anymore
+GDP_DATA_URL_EXPERIMENTAL = (
+    "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental"
+)
 
 
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
