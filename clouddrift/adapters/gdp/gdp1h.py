@@ -551,6 +551,7 @@ def to_raggedarray(
         Randomly select n_random_id drifter NetCDF files
     url : str
         URL from which to download the data (Default: GDP_DATA_URL)
+        Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL
     tmp_path : str, optional
         Path to the directory where the individual NetCDF files are stored
         (default varies depending on operating system; /tmp/clouddrift/gdp on Linux)
