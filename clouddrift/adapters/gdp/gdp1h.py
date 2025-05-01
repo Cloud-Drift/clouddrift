@@ -579,6 +579,11 @@ def to_raggedarray(
 
     >>> ra = to_raggedarray(drifter_ids=[44136, 54680, 83463])
 
+    To download the experimental 3.00 GDP data, use the `url` argument to
+    specify the experimental feed URL:
+    >>> from clouddrift.adapters.gdp.gdp1h import GDP_DATA_URL_EXPERIMENTAL, to_raggedarray
+    >>> ra = to_raggedarray(url=GDP_DATA_URL_EXPERIMENTAL)
+
     Finally, `to_raggedarray` returns a `RaggedArray` instance which provides
     a convenience method to emit a `xarray.Dataset` instance:
 
