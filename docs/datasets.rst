@@ -16,9 +16,7 @@ Global Drifter Program (GDP) Datasets
 
 - :func:`clouddrift.datasets.gdp1h`: 1-hourly Global Drifter Program (GDP) data
   from a `cloud-optimized Zarr dataset on AWS <https://registry.opendata.aws/noaa-oar-hourly-gdp/.>`_.
-- :func:`clouddrift.datasets.gdp6h`: 6-hourly GDP data from a ragged-array
-  NetCDF file hosted by the public HTTPS server at
-  `NOAA's Atlantic Oceanographic and Meteorological Laboratory (AOML) <https://www.aoml.noaa.gov/phod/gdp/index.php>`_.
+- :func:`clouddrift.datasets.gdp6h`: 6-hourly GDP data from zarr archive hosted on a public AWS S3 bucket accessible at `s3://noaa-oar-hourly-gdp-pds/experimental/ <https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/index.html#experimental/>`_.
 - :func:`clouddrift.datasets.gdp_source`: source GDP data without being pre-processed unlike
   the 6-hourly/1-hourly datasets that are derived from it.
 
