@@ -35,7 +35,7 @@ dependencies = [
     "requests>=2.31.0",
     "scipy>=1.11.2",
     "xarray>=2023.5.0",
-    "zarr>=2.14.2",
+    "zarr>=2.14.2,<3",
     "tenacity>=8.2.3",
 ]
 

@@ -17,5 +17,5 @@ dependencies:
   - aiohttp>=3.8.4
   - requests>=2.31.0
   - scipy>=1.11.2
-  - zarr>=2.14.2
+  - zarr>=2.14.2,<3
   - tenacity>=8.2.3
