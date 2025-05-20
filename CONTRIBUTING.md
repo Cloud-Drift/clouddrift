@@ -124,7 +124,7 @@ conda install pytest matplotlib cartopy coverage
 3. Run the test suite:
 
 ```
-pytest tests/*_tests.py tests/adapters/*_tests.py
+pytest tests/*_test.py tests/adapters/*_test.py
 ```
 
   a. Run the docstring tests:
@@ -134,7 +134,7 @@ pytest tests/*_tests.py tests/adapters/*_tests.py
 
 4. Run the test suite (with coverage):
 ```
-coverage run -m pytest tests/*_tests.py tests/adapters/*_tests.py
+coverage run -m pytest tests/*_test.py tests/adapters/*_test.py
 ```
 
 5. Read the report:
