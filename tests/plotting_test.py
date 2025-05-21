@@ -2,7 +2,7 @@ import sys
 import unittest
 from unittest.mock import patch
 
-import cartopy.crs as ccrs  # type: ignore
+import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import numpy as np
 
