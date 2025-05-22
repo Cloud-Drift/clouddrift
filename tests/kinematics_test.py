@@ -24,9 +24,9 @@ def sample_ragged_array() -> RaggedArray:
     latitude = [[-90, -45, 45, 90, 0], [10, 20], [10, 20, 30, 40]]
     t = [[1, 2, 3, 4, 5], [4, 5], [2, 3, 4, 5]]
     test = [
-        [True, True, True, False, False],
-        [False, False],
-        [True, False, False, False],
+        [1, 1, 1, 0, 0],
+        [0, 0],
+        [1, 0, 0, 0],
     ]
     rowsize = [len(x) for x in longitude]
     ids = [[d] * rowsize[i] for i, d in enumerate(drifter_id)]
