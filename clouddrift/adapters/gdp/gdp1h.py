@@ -80,7 +80,7 @@ def download(
     out : list
         List of retrieved drifters
     """
-    _logger.debug(f"Downloading GDP hourly data from ({url}) to ({tmp_path})")
+    print(f"Downloading GDP hourly data from ({url}) to ({tmp_path})")
 
     # Create a temporary directory if doesn't already exists.
     os.makedirs(tmp_path, exist_ok=True)
