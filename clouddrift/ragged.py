@@ -787,11 +787,11 @@ def subset(
 
 
 def unpack(
-    ragged_array: np.ndarray,
-    rowsize: np.ndarray[int],
+    ragged_array: np.ndarray | xr.DataArray,
+    rowsize: np.ndarray | xr.DataArray,
     rows: int | Iterable[int] = None,
     axis: int = 0,
-) -> list[np.ndarray]:
+) -> list[np.ndarray | xr.DataArray]:
     """Unpack a ragged array into a list of regular arrays.
 
     Unpacking a ``np.ndarray`` ragged array is about 2 orders of magnitude

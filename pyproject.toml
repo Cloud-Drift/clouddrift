@@ -78,9 +78,8 @@ files = [
 
 [tool.pytest.ini_options]
 testpaths = [
-  "tests/**/*_tests.py",
+  "tests/**/*_test.py",
 ]
-
 
 [[tool.mypy.overrides]]
 module = [
@@ -91,8 +90,8 @@ module = [
   "clouddrift.signal",
   "clouddrift.sphere",
   "clouddrift.wavelet",
-  "tests.kinematics_tests",
-  "tests.pairs_tests",
-  "tests.plotting_tests",
+  "tests.kinematics_test",
+  "tests.pairs_test",
+  "tests.plotting_test",
 ]
 ignore_errors = true
