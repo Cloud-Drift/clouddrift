@@ -64,7 +64,11 @@ def wind_transfer(
     boundary_condition: str = "no-slip",
     method: str = "lilly",
     density: float = 1025.0,
-) -> tuple[float | _Floating | np.ndarray, float | _Floating | np.ndarray, float | _Floating | np.ndarray]:
+) -> tuple[
+    float | _Floating | np.ndarray,
+    float | _Floating | np.ndarray,
+    float | _Floating | np.ndarray,
+]:
     """
     Compute the transfer function from wind stress to oceanic velocity based on the physically-based
     models of Elipot and Gille (2009) and Lilly and Elipot (2021).
@@ -677,7 +681,7 @@ def _wind_transfer_elipot_free_slip(
 
 def _bessels_freeslip(
     xiz: float | np.ndarray,
-    xih: float | np.ndarray, 
+    xih: float | np.ndarray,
     xi0: float | np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
@@ -686,7 +690,7 @@ def _bessels_freeslip(
     # Convert inputs to numpy arrays
     xiz = np.asarray(xiz)
     xih = np.asarray(xih)
-    
+
     # Ensure all outputs are numpy arrays
     k0z = np.asarray(kv(0, xiz))
     i0z = np.asarray(iv(0, xiz))
@@ -701,7 +705,7 @@ def _bessels_freeslip(
         # Create nan values as numpy arrays with same shape as k0z
         k10 = np.full_like(k0z, np.nan)
         i10 = np.full_like(k0z, np.nan)
-    
+
     return k0z, i0z, k1h, i1h, k10, i10
 
 
@@ -716,7 +720,7 @@ def _bessels_noslip(
     # Convert inputs to numpy arrays
     xiz = np.asarray(xiz)
     xih = np.asarray(xih)
-    
+
     # Ensure all outputs are numpy arrays
     k0z = np.asarray(kv(0, xiz))
     i0z = np.asarray(iv(0, xiz))
@@ -731,7 +735,7 @@ def _bessels_noslip(
         # Create nan values as numpy arrays with same shape as k0z
         k10 = np.full_like(k0z, np.nan)
         i10 = np.full_like(k0z, np.nan)
-    
+
     return k0z, i0z, k0h, i0h, k10, i10
 
 
