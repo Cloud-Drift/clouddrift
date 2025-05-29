@@ -207,6 +207,7 @@ def _flatten_array(arr):
         arr = arr.toarray()
     return np.array(arr).flatten()
 
+
 def _to_dense_flatten(arr):
     """Convert a possibly sparse array to dense and flatten it."""
     if hasattr(arr, "toarray"):
