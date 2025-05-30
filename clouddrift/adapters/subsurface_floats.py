@@ -61,7 +61,8 @@ def to_xarray(
 
     metadata = {}
     for var in meta_variables:
-        metadata[var] = np.array([v.flatten()[0] for v in source_data[var].flatten()])
+        arrs = _to_dense_flatten(source_data[str(var)])
+        metadata[var] = np.array([_flatten_array(v)[0] for v in arrs])
 
     # bring the expList to the "traj" dimension
     _, float_per_exp = np.unique(metadata["indexExp"], return_counts=True)
@@ -71,11 +72,12 @@ def to_xarray(
     data_variables = ["dtnum", "lon", "lat", "p", "t", "u", "v"]
     data = {}
     for var in data_variables:
-        data[var] = np.concatenate([v.flatten() for v in source_data[var].flatten()])
+        arrs = _to_dense_flatten(source_data[str(var)])
+        data[var] = np.concatenate([_flatten_array(v) for v in arrs])
 
     # create rowsize variable
-    rowsize = np.array([len(v) for v in source_data["dtnum"].flatten()])
-    assert np.sum(rowsize) == len(data["dtnum"])
+    arrs = _to_dense_flatten(source_data["dtnum"])
+    rowsize = np.array([len(_flatten_array(v)) for v in arrs])
 
     # Unix epoch start (1970-01-01)
     origin_datenum = 719529
@@ -197,3 +199,17 @@ def to_xarray(
     ds = ds.set_coords(["time", "id"])
 
     return ds
+
+
+def _flatten_array(arr):
+    # Convert sparse to dense if needed, then flatten
+    if hasattr(arr, "toarray"):
+        arr = arr.toarray()
+    return np.array(arr).flatten()
+
+
+def _to_dense_flatten(arr):
+    """Convert a possibly sparse array to dense and flatten it."""
+    if hasattr(arr, "toarray"):
+        arr = arr.toarray()
+    return np.array(arr).flatten()
