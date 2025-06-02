@@ -128,7 +128,6 @@ def binned_2d_average(
             (min(y), max(y)),
         ]
 
-    # Compute the bin edges for output coordinates
     ds = xr.Dataset()
     for i, var in enumerate(vars_list):
         var = np.asarray(var)
