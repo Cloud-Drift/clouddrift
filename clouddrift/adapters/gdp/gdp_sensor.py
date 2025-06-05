@@ -368,19 +368,31 @@ def _process_chunk(
     # Transform the initial dataframe filtering out rows with really anomolous values
     # examples include: years in the future, years way in the past before GDP program, etc...
     preremove_df_chunk = df_chunk.assign(obs_index=np.arange(start_idx, end_idx))
+
+     # Pre-convert problematic columns to avoid repeated conversions in lambdas
+    current_year = datetime.datetime.now().year
+    preremove_df_chunk['senObsYear_numeric'] = pd.to_numeric(preremove_df_chunk["senObsYear"], errors='coerce')
+    preremove_df_chunk['senObsMonth_str'] = preremove_df_chunk["senObsMonth"].astype(str)
+    preremove_df_chunk['drogue_str'] = preremove_df_chunk["drogue"].astype(str)
+
     df_chunk = _apply_remove(
         preremove_df_chunk,
         filters=[
-            # Filter out year values that are in the future or predating the GDP program
-            lambda df: (df["senObsYear"] > datetime.datetime.now().year)
-            | (df["senObsYear"] < 0),
+            # Filter out year values that are invalid, in the future, or predating GDP program
+            lambda df: (df['senObsYear_numeric'].isna() | 
+                       (df['senObsYear_numeric'] > current_year) | 
+                       (df['senObsYear_numeric'] < 0)),
             # Filter out month values that contain non-numeric characters
-            lambda df: df["senObsMonth"].astype(np.str_).str.contains(r"[\D]"),
-            # Filter out drogue values that cannot be interpret as floating point values.
-            # (e.g. - have more than one decimal point)
-            lambda df: df["drogue"].astype(np.str_).str.match(r"(\d+[\.]+){2,}"),
+            lambda df: df['senObsMonth_str'].str.contains(r"[^\d]", na=False),
+            # Filter out drogue values that cannot be interpreted as floating point values
+            lambda df: df['drogue_str'].str.match(r"(\d+[\.]+){2,}", na=False),
         ],
     )
+
+    # Drop the temporary columns
+    if len(df_chunk) > 0:
+        df_chunk = df_chunk.drop(['senObsYear_numeric', 'senObsMonth_str', 'drogue_str'], axis=1)
+
 
     drifter_ds_map = dict[int, xr.Dataset]()
 
