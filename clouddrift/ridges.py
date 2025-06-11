@@ -815,6 +815,8 @@ def separate_ridge_groups(
     -------
     group_data : Dict[int, Dict[str, Any]]
         Dictionary of groups with indices and values for each group
+        - 'indices': tuple of (freq_indices, time_indices)
+        - 'values': list of arrays, each containing values at ridge points
     num_groups : int
         Number of distinct ridge groups found
     """
