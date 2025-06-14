@@ -5,8 +5,8 @@ import xarray as xr
 
 
 def binned_nd_average(
-    coords_list: list[np.array],
-    vars_list: list[np.array] = None,
+    coords_list: list[np.ndarray],
+    vars_list: list[np.ndarray] = None,
     bins: int | list = 10,
     bins_range: list | None = None,
     dim_names: list[str] | None = None,
