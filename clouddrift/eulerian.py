@@ -4,10 +4,13 @@ import numpy as np
 import xarray as xr
 
 
+DEFAULT_BINS_NUMBER = 10
+
+
 def binned_nd_average(
     coords_list: list[np.ndarray],
     variables_list: list[np.ndarray] | None = None,
-    bins: int | list = 10,
+    bins: int | list | None = DEFAULT_BINS_NUMBER,
     bins_range: list | None = None,
     dim_names: list[str] | None = None,
     new_names: list[str] | None = None,
@@ -19,12 +22,16 @@ def binned_nd_average(
     ----------
     coords_list : list of array-like
         Coordinate arrays for each dimension of the binning space
-    variables_list : list of array-like
+    variables_list : list of array-like, optional
         Variables to average in each bin
-    bins : int or list
-        Number of bins per dimension (int) or bin edges per dimension (list)
+    bins : int or lists, optional
+        Number of bins per dimension (int) or bin edges per dimension (list). Default is 10.
+        If an integer is provided, it will be used for all dimensions.
+        If a list is provided, it should match the number of dimensions in coords_list.
+        Each element can be an integer or an array of bin edges.
+        If None, defaults to 10 bins per dimension.
     bins_range : list of tuples, optional
-        Outer bin edges for each dimension
+        Outer bin limits for each dimension
     dim_names : list of str, optional
         Names for the dimensions of the output DataArrays
         If None, default names are "dim_0_bin", "dim_1_bin", etc.
@@ -61,7 +68,12 @@ def binned_nd_average(
             for i, name in enumerate(new_names)
         ]
 
-    # Set default bin ranges
+    # Set default bins and bins range
+    if isinstance(bins, list):
+        if len(bins) != len(coords_list):
+            raise ValueError("bins must match the number of coordinate dimensions")
+        bins = [b if b is not None else DEFAULT_BINS_NUMBER for b in bins]
+
     if bins_range is None:
         bins_range = [(np.nanmin(c), np.nanmax(c)) for c in coords_list]
     else:
