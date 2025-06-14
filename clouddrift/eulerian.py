@@ -6,7 +6,7 @@ import xarray as xr
 
 def binned_nd_average(
     coords_list: list[np.ndarray],
-    vars_list: list[np.ndarray] = None,
+    variables_list: list[np.ndarray] | None = None,
     bins: int | list = 10,
     bins_range: list | None = None,
     dim_names: list[str] | None = None,
@@ -19,7 +19,7 @@ def binned_nd_average(
     ----------
     coords_list : list of array-like
         Coordinate arrays for each dimension of the binning space
-    vars_list : list of array-like
+    variables_list : list of array-like
         Variables to average in each bin
     bins : int or list
         Number of bins per dimension (int) or bin edges per dimension (list)
@@ -39,7 +39,9 @@ def binned_nd_average(
     """
     # Convert inputs to numpy arrays
     coords = [np.asarray(c) for c in coords_list]
-    vars_list = [np.asarray(v) for v in vars_list] if vars_list else [None]
+    variables_list = (
+        [np.asarray(v) for v in variables_list] if variables_list else [None]
+    )
 
     # Set default dimension names
     if dim_names is None:
@@ -52,7 +54,7 @@ def binned_nd_average(
 
     # Set default variable names
     if new_names is None:
-        new_names = [f"binned_mean_{i}" for i in range(len(vars_list))]
+        new_names = [f"binned_mean_{i}" for i in range(len(variables_list))]
     else:
         new_names = [
             name if name is not None else f"binned_mean_{i}"
@@ -71,8 +73,8 @@ def binned_nd_average(
     # Ensure inputs are consistent
     if len(coords_list) != len(dim_names):
         raise ValueError("coords_list and dim_names must have the same length")
-    if len(vars_list) != len(new_names):
-        raise ValueError("vars_list and new_names must have the same length")
+    if len(variables_list) != len(new_names):
+        raise ValueError("variables_list and new_names must have the same length")
     if len(bins_range) != len(coords_list):
         raise ValueError("bins_range must match the number of coordinate dimensions")
 
@@ -80,7 +82,7 @@ def binned_nd_average(
     ds = xr.Dataset()
 
     stacked_coords = np.column_stack(coords)
-    for var, name in zip(vars_list, new_names):
+    for var, name in zip(variables_list, new_names):
         # Calculate weighted sums and counts
         if var is not None:
             mask = ~np.isnan(var)
