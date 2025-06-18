@@ -3,7 +3,7 @@ from typing import List, Optional, Tuple, Union, Dict, Any
 import numpy as np
 from numpy.typing import NDArray
 from scipy import integrate
-import warnings
+import matplotlib.pyplot as plt
 
 def gradient_of_angle(
     x: NDArray[np.float64 | np.complex128 | np.float32 | np.complex64],
@@ -107,7 +107,7 @@ def instmom_univariate(
     Parameters
     ----------
     signal : NDArray[np.complex128]
-        Input signal array (complex-valued)
+        Input signal array (complex-valued) (shape: (scale, time))
     sample_rate : float, optional
         Sample rate for time derivatives, defaults to 1.0
     axis : int, optional
@@ -160,7 +160,7 @@ def instmom_multivariate(
     ----------
     signals : NDArray[np.complex128]
         Input array with shape (..., n_signals) where n_signals is the number
-        of signals across which to compute joint moments.
+        of signals across which to compute joint moments. (shape: (scale, time, n_signals))
     sample_rate : float, optional
         Sample rate for time derivatives, defaults to 1.0
     time_axis : int, optional
@@ -291,16 +291,25 @@ def isridgepoint(
     inst_frequency : NDArray[np.float64]
         Instantaneous frequency of the transform
     """
+    # Handle empty arrays
+    if wavelet_transform.size == 0:
+        empty_shape = wavelet_transform.shape
+        return (
+            np.zeros(empty_shape, dtype=bool),
+            np.zeros(empty_shape, dtype=np.float64),
+            np.zeros(empty_shape, dtype=np.complex128),
+            np.zeros(empty_shape, dtype=np.float64),
+        )
 
     # Calculate instantaneous moments
     if wavelet_transform.ndim > 2 and wavelet_transform.shape[2] > 1:
         # Multivariate case
         amplitude, inst_frequency = instmom_multivariate(
-            wavelet_transform, time_axis=0, joint_axis=2
+            wavelet_transform, time_axis=-1, joint_axis=2
         )[:2]
     else:
         # Univariate case
-        amplitude, inst_frequency = instmom_univariate(wavelet_transform, axis=0)[:2]
+        amplitude, inst_frequency = instmom_univariate(wavelet_transform, axis=-1)[:2]
 
     # Determine ridge quantity based on ridge type
     if ridge_type.lower().startswith("amp"):
@@ -308,9 +317,9 @@ def isridgepoint(
     else:  # phase-based ridges
         # Create array of scale frequencies matching time dimension
         freq_matrix = np.broadcast_to(
-            scale_frequencies[np.newaxis, :].T,
-            (wavelet_transform.shape[0], wavelet_transform.shape[1]),
-        )
+            scale_frequencies[:, np.newaxis],
+            wavelet_transform.shape,
+        )   
         ridge_quantity = inst_frequency - freq_matrix
 
     # Handle univariate and multivariate cases
@@ -347,11 +356,33 @@ def isridgepoint(
                 ridge_quantity[i + 1, :] < ridge_quantity[i, :]
             )
     else:
-        # For phase ridges: find zero crossings with negative slope in time
+        # For phase ridges: check freq_matrix monotonicity and find zero crossings
+        freq_diff = np.diff(freq_matrix, axis=0)
+        is_monotonic_increasing = np.all(freq_diff >= 0, axis=0)
+        is_monotonic_decreasing = np.all(freq_diff <= 0, axis=0)
+        is_monotonic = is_monotonic_increasing | is_monotonic_decreasing
+        
+        if not np.all(is_monotonic):
+            non_monotonic_cols = np.where(~is_monotonic)[0]
+            raise ValueError(
+                f"freq_matrix must be monotonically increasing or decreasing along the scale axis. "
+                f"Non-monotonic behavior detected at time indices: {non_monotonic_cols}"
+            )
+        
+        # Determine if freq_matrix is generally increasing or decreasing
+        freq_is_increasing = np.all(is_monotonic_increasing)
+        
         for i in range(1, ridge_quantity.shape[0] - 1):
-            ridge_points[i, :] = (
-                (ridge_quantity[i - 1, :] < 0) & (ridge_quantity[i + 1, :] >= 0)
-            ) | ((ridge_quantity[i - 1, :] <= 0) & (ridge_quantity[i + 1, :] > 0))
+            if freq_is_increasing:
+                # For increasing frequency: look for positive to negative crossings
+                ridge_points[i, :] = (
+                    (ridge_quantity[i - 1, :] > 0) & (ridge_quantity[i + 1, :] <= 0)
+                ) | ((ridge_quantity[i - 1, :] >= 0) & (ridge_quantity[i + 1, :] < 0))
+            else:
+                # For decreasing frequency: look for negative to positive crossings
+                ridge_points[i, :] = (
+                    (ridge_quantity[i - 1, :] < 0) & (ridge_quantity[i + 1, :] >= 0)
+                ) | ((ridge_quantity[i - 1, :] <= 0) & (ridge_quantity[i + 1, :] > 0))
 
     # Ensure we have the strongest local extrema
     error_matrix = np.abs(ridge_quantity)
@@ -422,7 +453,7 @@ def ridge_shift_interpolation(
     ridge_points: NDArray[np.bool_],
     ridge_quantity: NDArray[np.float64],
     y_arrays: List[NDArray[np.float64]],
-) -> Dict[str, Any]:
+) -> List[NDArray[np.float64]]:
     """
     Interpolates ridge quantities and arrays based on the maximum of a quadratic fit
     to the ridge quantity. This is done to improve the accuracy of the ridge along the
@@ -439,21 +470,14 @@ def ridge_shift_interpolation(
     
     Returns
     -------
-    ridge_data : dict
-        Dictionary containing:
-        - 'indices': tuple of (freq_indices, time_indices)
-        - 'values': list of arrays, each containing interpolated values at ridge points
-        - 'shape': original array shape for reconstruction
+    y_values_interpolated : List[NDArray[np.float64]]
+
     """
     # Skip if no ridge points
     if not np.any(ridge_points):
         print("No ridge points found, returning empty result.")
-
-        return {
-            'indices': (np.array([], dtype=int), np.array([], dtype=int)),
-            'values': [np.array([], dtype=arr.dtype) for arr in y_arrays],
-            'shape': ridge_points.shape
-        }
+        
+        return [np.array([], dtype=y_array.dtype) for y_array in y_arrays]
         
     # Get indices of ridge points
     freq_indices, time_indices = np.where(ridge_points)
@@ -584,11 +608,7 @@ def ridge_shift_interpolation(
                 y_values_interpolated[j][lin_indices] = y_interp
     
     # Return results in coordinate format
-    return {
-        'indices': (freq_indices, time_indices),
-        'values': y_values_interpolated,
-        'shape': ridge_points.shape
-    }
+    return y_values_interpolated
 
 
 def organize_ridge_points(
@@ -607,7 +627,7 @@ def organize_ridge_points(
     time_indices : NDArray[np.int_]
         Array of time indices for ridge points
     transform_shape : tuple
-        Shape of the wavelet transform (frequency, time)
+        Shape of the wavelet transform (scale, time)
     arrays_to_organize : list
         List of arrays containing data for each ridge point
         
@@ -800,7 +820,7 @@ def separate_ridge_groups(
     time_indices : NDArray[np.int_]
         Array of time indices for ridge points
     transform_shape : Tuple[int, int]
-        Shape of the original transform (frequency, time)
+        Shape of the original transform (scale, time)
     ridge_values : List[NDArray[np.float64]]
         List of arrays containing values at ridge points:
         [ridge_quantity, frequencies, inst_frequency, inst_frequency_derivative]
@@ -1001,7 +1021,7 @@ def ridge_analysis(
     Parameters
     ----------
     wavelet : np.ndarray
-        Wavelet transform (complex-valued)
+        Wavelet transform (complex-valued) (shape: scale, time)
     freqs : np.ndarray
         Frequency values corresponding to rows in the transform
     t : np.ndarray
@@ -1045,19 +1065,19 @@ def ridge_analysis(
     inst_frequency_derivative = np.gradient(inst_frequency, axis=-1)
     
     # Use ridge_shift_interpolation to get better accuracy and include derivative
-    ridge_data = ridge_shift_interpolation(
+    interpolation_arrays = ridge_shift_interpolation(
         ridge_points=ridge_points,
         ridge_quantity=ridge_quantity,
         y_arrays=[ridge_quantity, freq_mesh, inst_frequency, inst_frequency_derivative]
     )
     
-    # Extract data from ridge_data for cleaner function call
-    freq_indices, time_indices = ridge_data['indices']
+    # Extract data from interpolation results
     ridge_values = [
-        ridge_data['values'][1],  # freq_mesh
-        ridge_data['values'][3]   # inst_frequency_derivative
+        interpolation_arrays[1],  # freq_mesh
+        interpolation_arrays[3]   # inst_frequency_derivative
     ]
-    transform_shape = ridge_data['shape']
+    freq_indices, time_indices = np.where(ridge_points)
+    transform_shape = processed_transform.shape
     
     # Group the ridge points using frequency-based approach
     group_data, num_groups = separate_ridge_groups(
@@ -1079,5 +1099,5 @@ def ridge_analysis(
         'group_lengths': group_lengths,
         'group_data': group_data,
         'inst_frequency': inst_frequency,
-        'ridge_data': ridge_data,
+        'ridge_data': interpolation_arrays,
     }
