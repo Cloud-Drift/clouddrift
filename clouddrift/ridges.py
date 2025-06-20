@@ -1,15 +1,15 @@
-from typing import List, Optional, Tuple, Union, Dict, Any
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
 from numpy.typing import NDArray
 from scipy import integrate
-import matplotlib.pyplot as plt
+
 
 def gradient_of_angle(
-    x: NDArray[np.float64 | np.complex128 | np.float32 | np.complex64],
+    x: NDArray[np.float64 | np.float64 | np.float32 | np.float64],
     edge_order: int = 1,
     axis: int = -1,
-    discont: float = np.pi
+    discont: float = np.pi,
 ) -> NDArray[np.float64 | np.complex128 | np.float32 | np.complex64]:
     """
     Compute the gradient of an angle array with proper unwrapping.
@@ -61,31 +61,50 @@ def gradient_of_angle(
 
     result = np.empty_like(x)
 
-    result[tuple(slice_interior_dest_of_source_even)] = np.diff(np.unwrap(
-        x[tuple(slice_interior_source_even)], axis=axis, discont=discont), axis=axis) / 2
-    result[tuple(slice_interior_dest_of_source_odd)] = np.diff(np.unwrap(
-        x[tuple(slice_interior_source_odd)], axis=axis, discont=discont), axis=axis) / 2
+    result[tuple(slice_interior_dest_of_source_even)] = (
+        np.diff(
+            np.unwrap(x[tuple(slice_interior_source_even)], axis=axis, discont=discont),
+            axis=axis,
+        )
+        / 2
+    )
+    result[tuple(slice_interior_dest_of_source_odd)] = (
+        np.diff(
+            np.unwrap(x[tuple(slice_interior_source_odd)], axis=axis, discont=discont),
+            axis=axis,
+        )
+        / 2
+    )
 
     slice_begin_dest[axis] = slice(0, 1)
     slice_end_dest[axis] = slice(-1, None)
     if edge_order == 1:
         slice_begin_source[axis] = slice(0, 2)
         slice_end_source[axis] = slice(-2, None)
-        result[tuple(slice_begin_dest)] = np.diff(np.unwrap(
-            x[tuple(slice_begin_source)], axis=axis, discont=discont), axis=axis)
-        result[tuple(slice_end_dest)] = np.diff(np.unwrap(
-            x[tuple(slice_end_source)], axis=axis, discont=discont), axis=axis)
+        result[tuple(slice_begin_dest)] = np.diff(
+            np.unwrap(x[tuple(slice_begin_source)], axis=axis, discont=discont),
+            axis=axis,
+        )
+        result[tuple(slice_end_dest)] = np.diff(
+            np.unwrap(x[tuple(slice_end_source)], axis=axis, discont=discont), axis=axis
+        )
     elif edge_order == 2:
         slice_begin_source[axis] = slice(1, 2)
         slice_end_source[axis] = slice(-2, -1)
-        begin_source = np.concatenate([x[tuple(slice_end_dest)], x[tuple(slice_begin_source)]], axis=axis)
-        end_source = np.concatenate([x[tuple(slice_end_source)], x[tuple(slice_begin_dest)]], axis=axis)
-        result[tuple(slice_begin_dest)] = np.diff(np.unwrap(
-            begin_source, axis=axis, discont=discont), axis=axis) / 2
-        result[tuple(slice_end_dest)] = np.diff(np.unwrap(
-            end_source, axis=axis, discont=discont), axis=axis) / 2
+        begin_source = np.concatenate(
+            [x[tuple(slice_end_dest)], x[tuple(slice_begin_source)]], axis=axis
+        )
+        end_source = np.concatenate(
+            [x[tuple(slice_end_source)], x[tuple(slice_begin_dest)]], axis=axis
+        )
+        result[tuple(slice_begin_dest)] = (
+            np.diff(np.unwrap(begin_source, axis=axis, discont=discont), axis=axis) / 2
+        )
+        result[tuple(slice_end_dest)] = (
+            np.diff(np.unwrap(end_source, axis=axis, discont=discont), axis=axis) / 2
+        )
     else:
-        raise ValueError('Unexpected edge_order: {}'.format(edge_order))
+        raise ValueError("Unexpected edge_order: {}".format(edge_order))
 
     return result
 
@@ -125,19 +144,20 @@ def instmom_univariate(
         Instantaneous curvature
     """
     # Calculate amplitude
-    amplitude = np.abs(signal)
+    amplitude = np.abs(signal).astype(np.float64)
 
     # Calculate instantaneous frequency
-    omega = gradient_of_angle(np.angle(signal), axis=axis) * sample_rate
+    angle_data = np.angle(signal).astype(np.float64)
+    omega = (gradient_of_angle(angle_data, axis=axis) * sample_rate).astype(np.float64)
 
     # Calculate instantaneous bandwidth
     log_amplitude = np.log(amplitude)
-    upsilon = np.gradient(log_amplitude, axis=axis) * sample_rate
+    upsilon = (np.gradient(log_amplitude, axis=axis) * sample_rate).astype(np.float64)
 
     # Calculate instantaneous curvature
-    d_omega = np.gradient(omega, axis=axis) * sample_rate
-    d_upsilon = np.gradient(upsilon, axis=axis) * sample_rate
-    xi = upsilon**2 + d_upsilon + 1j * d_omega
+    d_omega = (np.gradient(omega, axis=axis) * sample_rate).astype(np.float64)
+    d_upsilon = (np.gradient(upsilon, axis=axis) * sample_rate).astype(np.float64)
+    xi = (upsilon**2 + d_upsilon + 1j * d_omega).astype(np.complex128)
 
     return amplitude, omega, upsilon, xi
 
@@ -319,7 +339,7 @@ def isridgepoint(
         freq_matrix = np.broadcast_to(
             scale_frequencies[:, np.newaxis],
             wavelet_transform.shape,
-        )   
+        )
         ridge_quantity = inst_frequency - freq_matrix
 
     # Handle univariate and multivariate cases
@@ -361,17 +381,17 @@ def isridgepoint(
         is_monotonic_increasing = np.all(freq_diff >= 0, axis=0)
         is_monotonic_decreasing = np.all(freq_diff <= 0, axis=0)
         is_monotonic = is_monotonic_increasing | is_monotonic_decreasing
-        
+
         if not np.all(is_monotonic):
             non_monotonic_cols = np.where(~is_monotonic)[0]
             raise ValueError(
                 f"freq_matrix must be monotonically increasing or decreasing along the scale axis. "
                 f"Non-monotonic behavior detected at time indices: {non_monotonic_cols}"
             )
-        
+
         # Determine if freq_matrix is generally increasing or decreasing
         freq_is_increasing = np.all(is_monotonic_increasing)
-        
+
         for i in range(1, ridge_quantity.shape[0] - 1):
             if freq_is_increasing:
                 # For increasing frequency: look for positive to negative crossings
@@ -467,7 +487,7 @@ def ridge_shift_interpolation(
         Ridge quantity used for interpolation
     y_arrays : List[NDArray[np.float64]]
         List of arrays to be interpolated at the new scale values.
-    
+
     Returns
     -------
     y_values_interpolated : List[NDArray[np.float64]]
@@ -476,106 +496,112 @@ def ridge_shift_interpolation(
     # Skip if no ridge points
     if not np.any(ridge_points):
         print("No ridge points found, returning empty result.")
-        
+
         return [np.array([], dtype=y_array.dtype) for y_array in y_arrays]
-        
+
     # Get indices of ridge points
     freq_indices, time_indices = np.where(ridge_points)
-    
+
     # Initialize output value arrays (1D arrays for each y_array's ridge points)
-    y_values_interpolated = [np.zeros(len(freq_indices), dtype=y_array.dtype) for y_array in y_arrays]
-    
+    y_values_interpolated = [
+        np.zeros(len(freq_indices), dtype=y_array.dtype) for y_array in y_arrays
+    ]
+
     # Create masks for boundary points
     boundary_mask = (freq_indices <= 0) | (freq_indices >= ridge_quantity.shape[0] - 1)
     interior_mask = ~boundary_mask
-    
+
     # Process boundary points (just copy original values)
     if np.any(boundary_mask):
         boundary_freq = freq_indices[boundary_mask]
         boundary_time = time_indices[boundary_mask]
         for j, y_array in enumerate(y_arrays):
-            y_values_interpolated[j][boundary_mask] = y_array[boundary_freq, boundary_time]
-    
+            y_values_interpolated[j][boundary_mask] = y_array[
+                boundary_freq, boundary_time
+            ]
+
     # Process interior points using vectorized operations
     if np.any(interior_mask):
         int_freq = freq_indices[interior_mask]
         int_time = time_indices[interior_mask]
-        
+
         # Get ridge quantities at points and neighbors
         ridge_curr = ridge_quantity[int_freq, int_time]
         ridge_prev = ridge_quantity[int_freq - 1, int_time]
         ridge_next = ridge_quantity[int_freq + 1, int_time]
-        
+
         # Quadratic coefficients (vectorized)
         a = 0.5 * (ridge_next + ridge_prev - 2 * ridge_curr)
         b = 0.5 * (ridge_next - ridge_prev)
-        
+
         # Find points with valid maximum (a < 0)
         max_mask = a < 0
-        
+
         if np.any(max_mask):
             # Calculate x_max for points with valid maximum
             x_max = -b[max_mask] / (2 * a[max_mask])
-            
+
             # Filter for points with x_max in range [-1, 1]
             valid_range_mask = (-1 <= x_max) & (x_max <= 1)
-            
+
             if np.any(valid_range_mask):
                 # Get indices for points with valid quadratic maximum
                 quad_indices = np.where(max_mask)[0][valid_range_mask]
                 quad_freq = int_freq[max_mask][valid_range_mask]
                 quad_time = int_time[max_mask][valid_range_mask]
                 quad_x_max = x_max[valid_range_mask]
-                
+
                 # Process each y_array using quadratic interpolation
                 for j, y_array in enumerate(y_arrays):
                     y_prev = y_array[quad_freq - 1, quad_time]
                     y_curr = y_array[quad_freq, quad_time]
                     y_next = y_array[quad_freq + 1, quad_time]
-                    
+
                     # Quadratic coefficients for each array
                     y_a = 0.5 * (y_next + y_prev - 2 * y_curr)
                     y_b = 0.5 * (y_next - y_prev)
                     y_c = y_curr
-                    
+
                     # Evaluate quadratic at interpolated positions
                     y_interp = y_a * quad_x_max**2 + y_b * quad_x_max + y_c
-                    
+
                     # Store in our 1D array at the right indices (apply mask to interior points)
                     interior_indices = np.where(interior_mask)[0][quad_indices]
                     y_values_interpolated[j][interior_indices] = y_interp
-        
+
         # Handle points that need linear interpolation
         linear_mask = np.ones(interior_mask.sum(), dtype=bool)
         if np.any(max_mask):
             linear_mask[max_mask] = ~valid_range_mask
-        
+
         if np.any(linear_mask):
             # Get indices to update in the result arrays
             lin_indices = np.where(interior_mask)[0][linear_mask]
             lin_freq = int_freq[linear_mask]
             lin_time = int_time[linear_mask]
-            
+
             # Get ridge values for linear points
             lin_curr = ridge_curr[linear_mask]
             lin_prev = ridge_prev[linear_mask]
             lin_next = ridge_next[linear_mask]
-            
+
             # Determine direction for interpolation
             prev_higher = lin_prev >= lin_next
-            
+
             # Calculate weights, limited to 0.5 for stability
             weights = np.zeros_like(lin_curr, dtype=np.float64)
-            
+
             # For points where previous is higher
             if np.any(prev_higher):
                 # Avoid division by zero
                 denom = lin_prev[prev_higher] - lin_curr[prev_higher]
                 nonzero = denom != 0
                 if np.any(nonzero):
-                    w = (lin_prev[prev_higher][nonzero] - lin_curr[prev_higher][nonzero]) / denom[nonzero]
+                    w = (
+                        lin_prev[prev_higher][nonzero] - lin_curr[prev_higher][nonzero]
+                    ) / denom[nonzero]
                     weights[prev_higher][nonzero] = np.minimum(0.5, w)
-            
+
             # For points where next is higher
             next_higher = ~prev_higher
             if np.any(next_higher):
@@ -583,30 +609,36 @@ def ridge_shift_interpolation(
                 denom = lin_next[next_higher] - lin_curr[next_higher]
                 nonzero = denom != 0
                 if np.any(nonzero):
-                    w = (lin_next[next_higher][nonzero] - lin_curr[next_higher][nonzero]) / denom[nonzero]
+                    w = (
+                        lin_next[next_higher][nonzero] - lin_curr[next_higher][nonzero]
+                    ) / denom[nonzero]
                     weights[next_higher][nonzero] = np.minimum(0.5, w)
-            
+
             # Apply linear interpolation for each y_array
             for j, y_array in enumerate(y_arrays):
                 y_interp = np.zeros_like(lin_curr, dtype=y_array.dtype)
-                
+
                 # Points where previous is higher
                 if np.any(prev_higher):
                     prev_weights = weights[prev_higher]
                     y_curr = y_array[lin_freq[prev_higher], lin_time[prev_higher]]
                     y_prev = y_array[lin_freq[prev_higher] - 1, lin_time[prev_higher]]
-                    y_interp[prev_higher] = (1 - prev_weights) * y_curr + prev_weights * y_prev
-                
+                    y_interp[prev_higher] = (
+                        1 - prev_weights
+                    ) * y_curr + prev_weights * y_prev
+
                 # Points where next is higher
                 if np.any(next_higher):
                     next_weights = weights[next_higher]
                     y_curr = y_array[lin_freq[next_higher], lin_time[next_higher]]
                     y_next = y_array[lin_freq[next_higher] + 1, lin_time[next_higher]]
-                    y_interp[next_higher] = (1 - next_weights) * y_curr + next_weights * y_next
-                
+                    y_interp[next_higher] = (
+                        1 - next_weights
+                    ) * y_curr + next_weights * y_next
+
                 # Store the interpolated values in the result array
                 y_values_interpolated[j][lin_indices] = y_interp
-    
+
     # Return results in coordinate format
     return y_values_interpolated
 
@@ -615,11 +647,11 @@ def organize_ridge_points(
     freq_indices: NDArray[np.int_],
     time_indices: NDArray[np.int_],
     transform_shape: Tuple[int, int],
-    arrays_to_organize: List[NDArray[np.float64]]
+    arrays_to_organize: List[NDArray[np.float64]],
 ) -> Tuple[NDArray[np.float64], List[NDArray[np.float64]]]:
     """
     Organizes ridge points and associated data into time-ridge matrices.
-    
+
     Parameters
     ----------
     freq_indices : NDArray[np.int_]
@@ -630,7 +662,7 @@ def organize_ridge_points(
         Shape of the wavelet transform (scale, time)
     arrays_to_organize : list
         List of arrays containing data for each ridge point
-        
+
     Returns
     -------
     index_matrix : NDArray[np.float64]
@@ -642,58 +674,59 @@ def organize_ridge_points(
     sort_idx = np.lexsort((freq_indices, time_indices))
     freq_indices_sorted = freq_indices[sort_idx]
     time_indices_sorted = time_indices[sort_idx]
-    
+
     # Create sorted versions of the input arrays
     sorted_arrays = [arr[sort_idx] for arr in arrays_to_organize]
-    
+
     # Create a boolean matrix marking ridge point positions
     ridge_mask = np.zeros(transform_shape, dtype=bool)
     for f, t in zip(freq_indices_sorted, time_indices_sorted):
         ridge_mask[f, t] = True
-    
+
     # Count ridges at each time point
     num_times = transform_shape[1]  # transform_shape = (freq, time)
     ridges_per_time = np.zeros(num_times, dtype=int)
-    
+
     for t in range(num_times):
         ridges_per_time[t] = np.sum(ridge_mask[:, t])
-    
+
     max_ridge_count = np.max(ridges_per_time)
     if max_ridge_count == 0:
         return np.array([]), []
-    
+
     # Initialize index matrix and output arrays
     index_matrix = np.full((num_times, max_ridge_count), np.nan)
-    
+
     # Create organized output arrays with same structure
     organized_arrays = []
     for arr in arrays_to_organize:
         if np.isrealobj(arr):
             organized_arrays.append(np.full((num_times, max_ridge_count), np.nan))
         else:
-            organized_arrays.append(np.full((num_times, max_ridge_count), 
-                                          np.nan + 1j*np.nan))
-    
+            organized_arrays.append(
+                np.full((num_times, max_ridge_count), np.nan + 1j * np.nan)
+            )
+
     # Fill index matrix with original indices
     ridge_counter = np.zeros(num_times, dtype=int)
     for i, (t, f) in enumerate(zip(time_indices_sorted, freq_indices_sorted)):
         ridge_idx = ridge_counter[t]
         index_matrix[t, ridge_idx] = i
-        
+
         # Fill organized arrays with values
         for arr_idx, arr in enumerate(sorted_arrays):
             organized_arrays[arr_idx][t, ridge_idx] = arr[i]
-        
+
         ridge_counter[t] += 1
-    
+
     return index_matrix, organized_arrays
-        
+
 
 def create_3d_deviation_matrix(
     freq_matrix: np.ndarray,
-    freq_next_pred_matrix: np.ndarray, 
+    freq_next_pred_matrix: np.ndarray,
     freq_prev_pred_matrix: np.ndarray,
-    alpha: float = 0.25
+    alpha: float = 0.25,
 ) -> np.ndarray:
     """
     Create a 3D matrix of frequency deviations between ridge points at adjacent time steps.
@@ -711,7 +744,7 @@ def create_3d_deviation_matrix(
         Matrix of predicted previous frequencies, shape (time, max_ridges)
     alpha : float, optional
         Maximum allowed frequency deviation (default: 0.25)
-    
+
     Returns
     -------
     df : np.ndarray
@@ -719,44 +752,46 @@ def create_3d_deviation_matrix(
         where df[t, i, j] is the deviation between ridge i at time t and ridge j at time t+1.
     """
     num_times, max_ridges = freq_matrix.shape
-    
+
     # Create 3D matrices
     freq_3d = np.repeat(freq_matrix[:, :, np.newaxis], max_ridges, axis=2)
-    freq_next_pred_3d = np.repeat(freq_next_pred_matrix[:, :, np.newaxis], max_ridges, axis=2)
-    freq_prev_pred_3d = np.repeat(freq_prev_pred_matrix[:, :, np.newaxis], max_ridges, axis=2)
-    
+    freq_next_pred_3d = np.repeat(
+        freq_next_pred_matrix[:, :, np.newaxis], max_ridges, axis=2
+    )
+    freq_prev_pred_3d = np.repeat(
+        freq_prev_pred_matrix[:, :, np.newaxis], max_ridges, axis=2
+    )
+
     # Shift and permute for next time comparison
     freq_shifted = np.roll(freq_3d, -1, axis=0)
-    
+
     # Permute dimensions: (time, ridge, ridge) -> (time, ridge_next, ridge_current)
     freq_next_actual = np.transpose(freq_shifted, (0, 2, 1))
-    
+
     # Forward prediction error
-    with np.errstate(divide='ignore', invalid='ignore'):
+    with np.errstate(divide="ignore", invalid="ignore"):
         df1 = (freq_next_actual - freq_next_pred_3d) / freq_3d
-    
-    # Backward prediction error      
+
+    # Backward prediction error
     freq_prev_shifted = np.roll(freq_prev_pred_3d, -1, axis=0)
     freq_prev_next_actual = np.transpose(freq_prev_shifted, (0, 2, 1))
-    
-    with np.errstate(divide='ignore', invalid='ignore'):
+
+    with np.errstate(divide="ignore", invalid="ignore"):
         df2 = (freq_prev_next_actual - freq_3d) / freq_3d
-    
+
     # Combine bidirectional errors
     df = (np.abs(df1) + np.abs(df2)) / 2
-    
+
     # Apply threshold mask
     df[df > alpha] = np.nan
-    
+
     # Remove last time step (no next time to connect to)
     df = df[:-1, :, :]
-    
+
     return df
 
 
-def bilateral_minimum_selection(
-        df: np.ndarray
-) -> np.ndarray:
+def bilateral_minimum_selection(df: np.ndarray) -> np.ndarray:
     """
     This function uses a bilateral minimum selection approach to filter the 3D deviation matrix.
     It filters the matrix by selecting the minimum values in a way that respects both
@@ -774,9 +809,9 @@ def bilateral_minimum_selection(
 
     # Find which slices are valid (not all NaN)
     valid_rows = ~np.all(np.isnan(df), axis=2)
-    
+
     df_step1 = np.full_like(df, np.nan)
-    
+
     if np.any(valid_rows):
         # For each valid row, find minimum
         for t in range(num_times):
@@ -784,19 +819,19 @@ def bilateral_minimum_selection(
                 if valid_rows[t, r]:
                     min_idx = np.nanargmin(df[t, r, :])
                     df_step1[t, r, min_idx] = df[t, r, min_idx]
-    
+
     # Similar approach for columns
     valid_cols = ~np.all(np.isnan(df_step1), axis=1)
-    
+
     df_final = np.full_like(df_step1, np.nan)
-    
+
     if np.any(valid_cols):
         for t in range(num_times):
             for s in range(max_ridges):
                 if valid_cols[t, s]:
                     min_idx = np.nanargmin(df_step1[t, :, s])
                     df_final[t, min_idx, s] = df_step1[t, min_idx, s]
-    
+
     return df_final
 
 
@@ -804,10 +839,11 @@ def separate_ridge_groups(
     freq_indices: NDArray[np.int_],
     time_indices: NDArray[np.int_],
     transform_shape: Tuple[int, int],
-    ridge_values: List[NDArray[np.float64]],
+    freq_mesh: NDArray[np.float64],
+    inst_frequency_derivative: NDArray[np.float64],
     alpha: float = 1000.0,
     min_group_size: int = 3,
-    max_gap: int = 2
+    max_gap: int = 2,
 ) -> Tuple[Dict[int, Dict[str, Any]], int]:
     """
     Separate ridge points into distinct groups using bidirectional frequency prediction
@@ -821,9 +857,10 @@ def separate_ridge_groups(
         Array of time indices for ridge points
     transform_shape : Tuple[int, int]
         Shape of the original transform (scale, time)
-    ridge_values : List[NDArray[np.float64]]
-        List of arrays containing values at ridge points:
-        [ridge_quantity, frequencies, inst_frequency, inst_frequency_derivative]
+    freq_mesh : NDArray[np.float64]
+        Meshgrid of frequencies corresponding to the transform shape
+    inst_frequency_derivative : NDArray[np.float64]
+        Instantaneous frequency derivative for each ridge point
     alpha : float, optional
         Maximum allowed relative frequency difference for matching points (default: 1000.0)
     min_group_size : int, optional
@@ -843,16 +880,18 @@ def separate_ridge_groups(
     if len(freq_indices) == 0:
         return {}, 0
 
+    ridge_values = [freq_mesh, inst_frequency_derivative]
+
     # Organize ridge points into time-ridge matrices
     index_matrix, organized_values = organize_ridge_points(
         freq_indices, time_indices, transform_shape, ridge_values
     )
-    
+
     # Extract organized arrays
-    organized_freq = organized_values[0] 
+    organized_freq = organized_values[0]
     organized_inst_freq_deriv = organized_values[1]
 
-    # Get the sort index that was used inside organize_ridge_points 
+    # Get the sort index that was used inside organize_ridge_points
     # (necessary to associate "ridge point" with frequency)
     sort_idx = np.lexsort((freq_indices, time_indices))
     freq_indices_sorted = freq_indices[sort_idx]
@@ -875,7 +914,7 @@ def separate_ridge_groups(
     num_times, max_ridges = organized_freq.shape
     ridge_ids = np.full((num_times, max_ridges), -1, dtype=int)
     id_counter = 0
-    
+
     # Initialize ridge IDs for first time step
     for r in range(max_ridges):
         if not np.isnan(organized_freq[0, r]):
@@ -885,19 +924,19 @@ def separate_ridge_groups(
     # Propagate IDs based on bilateral minimum selection results
     for t in range(num_times - 1):
         connections = filtered_deviation_matrix[t]
-        
+
         # Find valid connections (non-NaN values)
         valid_connections = np.where(~np.isnan(connections))
-        
+
         if len(valid_connections[0]) > 0:
             source_ridges, target_ridges = valid_connections
-            
+
             for src, tgt in zip(source_ridges, target_ridges):
                 # Propagate ID from source ridge to target ridge
                 if ridge_ids[t, src] >= 0:  # Source ridge has valid ID
                     if ridge_ids[t + 1, tgt] == -1:  # Target ridge not yet assigned
                         ridge_ids[t + 1, tgt] = ridge_ids[t, src]
-        
+
         # Assign new IDs to unconnected ridges at next time step
         for r in range(max_ridges):
             if not np.isnan(organized_freq[t + 1, r]) and ridge_ids[t + 1, r] == -1:
@@ -905,40 +944,43 @@ def separate_ridge_groups(
                 id_counter += 1
 
     # Create groups from ridge IDs
-    unique_ids = np.unique(ridge_ids)
-    unique_ids = unique_ids[unique_ids >= 0]  # Filter out -1 (no ridge)
-    
+    unique_ids_np = np.unique(ridge_ids)
+    unique_ids_np = unique_ids_np[unique_ids_np >= 0]
+    unique_ids = [int(uid) for uid in unique_ids_np]
+
     group_data = {}
     valid_group_count = 0
-    
+
     for group_id in unique_ids:
         positions = np.argwhere(ridge_ids == group_id)
-        
+
         if len(positions) < min_group_size:
             continue
-            
+
         t_indices, r_indices = positions[:, 0], positions[:, 1]
-        
+
         # Check for large time gaps
         if len(t_indices) > 1 and np.max(np.diff(np.sort(t_indices))) > max_gap:
             continue
-        
+
         # Map back to original indices using index_matrix
         original_indices = []
-        for t, r in zip(t_indices, r_indices):
+        t_indices_int = [int(t) for t in t_indices]
+        r_indices_int = [int(r) for r in r_indices]
+        for t, r in zip(t_indices_int, r_indices_int):
             if np.isnan(index_matrix[t, r]):
                 continue  # Skip if index is NaN
             idx = int(index_matrix[t, r])
             original_indices.append(idx)
-        
+
         # Skip if too few original indices
         if len(original_indices) < min_group_size:
             continue
-            
+
         # Get frequency and time indices from sorted arrays
         group_freq_indices = freq_indices_sorted[original_indices]
         group_time_indices = time_indices_sorted[original_indices]
-        
+
         group_values = []
         for val_array in sorted_values:
             group_values.append(val_array[original_indices])
@@ -946,19 +988,18 @@ def separate_ridge_groups(
         valid_group_count += 1
         group_data[valid_group_count] = {
             "indices": (group_freq_indices, group_time_indices),
-            "values": group_values
+            "values": group_values,
         }
-    
+
     return group_data, valid_group_count
 
 
 def calculate_ridge_group_lengths(
-        group_data: Dict[int, Dict[str, Any]], 
-        t: np.ndarray, num_groups: int
+    group_data: Dict[int, Dict[str, Any]], t: np.ndarray, num_groups: int
 ) -> List[float]:
     """
     Calculate the length of each ridge group using Simpson's rule integration.
-    
+
     Parameters
     ----------
     group_data : Dict[int, Dict[str, Any]]
@@ -967,57 +1008,58 @@ def calculate_ridge_group_lengths(
         Time values corresponding to columns in the transform
     num_groups : int
         Total number of groups to process
-        
+
     Returns
     -------
     List[float]
         List of calculated group lengths in periods
     """
     group_lengths = []
-    
+
     # Process each group to calculate its length
     for group_id in range(1, num_groups + 1):
         # Get group data
         if group_id not in group_data:
             group_lengths.append(0.0)
             continue
-            
+
         # Extract frequency values and time indices
-        freq_indices, time_indices = group_data[group_id]['indices']
-        freq_values = group_data[group_id]['values'][0]  # Index 0 contains frequency values
-        
+        freq_indices, time_indices = group_data[group_id]["indices"]
+        freq_values = group_data[group_id]["values"][
+            0
+        ]  # Index 0 contains frequency values
+
         # Skip if group is empty
         if len(freq_indices) == 0:
             group_lengths.append(0.0)
             continue
-        
+
         # Calculate the length of the group using Simpson's rule
         try:
-            group_length = np.abs(integrate.simpson(
-                freq_values, 
-                x=t[time_indices]
-            )) / (2.0 * np.pi)
+            group_length = np.abs(integrate.simpson(freq_values, x=t[time_indices])) / (
+                2.0 * np.pi
+            )
             group_lengths.append(group_length)
         except Exception as e:
             print(f"Error calculating length for group {group_id}: {e}")
             group_lengths.append(0.0)
-    
+
     return group_lengths
 
 
 def ridge_analysis(
-    wavelet: np.ndarray, 
-    freqs: np.ndarray, 
+    wavelet: np.ndarray,
+    freqs: np.ndarray,
     t: np.ndarray,
-    ridge_type: str, 
+    ridge_type: str,
     amplitude_threshold: float = 0.1,
-    min_group_size: int = 5, 
-    max_gap: int = 2
+    min_group_size: int = 5,
+    max_gap: int = 2,
 ) -> Dict[str, Any]:
     """
     Detect ridge points in wavelet transform, separate them into groups using frequency prediction,
     and calculate properties for each group using the coordinate-based format.
-    
+
     Parameters
     ----------
     wavelet : np.ndarray
@@ -1034,7 +1076,7 @@ def ridge_analysis(
         Minimum number of points for a valid group, default=5
     max_gap : int, optional
         Maximum allowed time gap between ridge points, default=2
-        
+
     Returns
     -------
     Dict[str, Any]
@@ -1047,7 +1089,7 @@ def ridge_analysis(
         - 'inst_frequency': Instantaneous frequency array
         - 'ridge_data': Ridge data from interpolation
     """
-    
+
     # Find ridge points
     ridge_points, ridge_quantity, processed_transform, inst_frequency = isridgepoint(
         wavelet_transform=wavelet,
@@ -1060,44 +1102,41 @@ def ridge_analysis(
     freq_mesh = np.zeros_like(ridge_quantity)
     for i, f in enumerate(freqs):
         freq_mesh[i, :] = f
-        
+
     # Calculate the derivative of the instantaneous frequency
     inst_frequency_derivative = np.gradient(inst_frequency, axis=-1)
-    
+
     # Use ridge_shift_interpolation to get better accuracy and include derivative
     interpolation_arrays = ridge_shift_interpolation(
         ridge_points=ridge_points,
         ridge_quantity=ridge_quantity,
-        y_arrays=[ridge_quantity, freq_mesh, inst_frequency, inst_frequency_derivative]
+        y_arrays=[ridge_quantity, freq_mesh, inst_frequency, inst_frequency_derivative],
     )
-    
+
     # Extract data from interpolation results
-    ridge_values = [
-        interpolation_arrays[1],  # freq_mesh
-        interpolation_arrays[3]   # inst_frequency_derivative
-    ]
     freq_indices, time_indices = np.where(ridge_points)
     transform_shape = processed_transform.shape
-    
+
     # Group the ridge points using frequency-based approach
     group_data, num_groups = separate_ridge_groups(
         freq_indices=freq_indices,
         time_indices=time_indices,
         transform_shape=transform_shape,
-        ridge_values=ridge_values,
+        freq_mesh=interpolation_arrays[1],
+        inst_frequency_derivative=interpolation_arrays[3],
         min_group_size=min_group_size,
-        max_gap=max_gap
+        max_gap=max_gap,
     )
-    
+
     # Calculate lengths for each group
     group_lengths = calculate_ridge_group_lengths(group_data, t, num_groups)
-    
+
     return {
-        'ridge_points': ridge_points,
-        'ridge_quantity': ridge_quantity,
-        'num_groups': num_groups,
-        'group_lengths': group_lengths,
-        'group_data': group_data,
-        'inst_frequency': inst_frequency,
-        'ridge_data': interpolation_arrays,
+        "ridge_points": ridge_points,
+        "ridge_quantity": ridge_quantity,
+        "num_groups": num_groups,
+        "group_lengths": group_lengths,
+        "group_data": group_data,
+        "inst_frequency": inst_frequency,
+        "ridge_data": interpolation_arrays,
     }
