@@ -120,10 +120,8 @@ def histogram(
             var_finite = var[mask]
             indices_finite = [i[mask] for i in indices]
 
-            # flat index for binning
-            flat_idx = np.ravel_multi_index(tuple(indices_finite), tuple(edges_sz))
-
             # weighted sum and counts in each bin
+            flat_idx = np.ravel_multi_index(tuple(indices_finite), tuple(edges_sz))
             weighted_sum = np.bincount(
                 flat_idx, weights=var_finite, minlength=np.prod(edges_sz)
             )
