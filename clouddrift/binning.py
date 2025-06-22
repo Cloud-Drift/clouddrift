@@ -72,7 +72,7 @@ def histogram(
         ]
 
     # set default bins and bins range
-    if isinstance(bins, list):
+    if isinstance(bins, list) or isinstance(bins, tuple):
         if len(bins) != len(coords):
             raise ValueError("bins must match the number of coordinate dimensions")
         bins = [b if b is not None else DEFAULT_BINS_NUMBER for b in bins]
