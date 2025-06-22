@@ -14,7 +14,7 @@ def histogram(
     dim_names: list[str] | None = None,
     new_names: list[str] | None = None,
     zeros_to_nan: bool = False,
-):
+) -> xr.Dataset:
     """
     Compute N-dimensional histogram binning and calculate variable means in each bin.
 
@@ -40,6 +40,7 @@ def histogram(
         If None, default names are "binned_mean_0", "binned_mean_1", etc.
     zeros_to_nan : bool, optional
         If True, replace zeros in the output with NaN.
+
     Returns
     -------
     xr.Dataset
