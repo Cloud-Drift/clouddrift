@@ -1,0 +1,193 @@
+"""Module for binning Lagrangian data."""
+
+import numpy as np
+import xarray as xr
+
+
+DEFAULT_BINS_NUMBER = 10
+
+
+def _float_to_datetime64(time_float, unit="s"):
+    """
+    Convert float seconds (or other units) since UNIX epoch to np.datetime64.
+
+    Parameters:
+    ----------
+    time_float : float or array-like
+        Seconds (or other time units) since epoch (1970-01-01T00:00:00).
+    unit : str, optional
+        Time unit for conversion. Default is 's' (seconds).
+        Valid options: 's', 'ms', 'us', 'ns', etc.
+
+    Returns:
+    -------
+    np.datetime64 or np.ndarray of np.datetime64
+    """
+    epoch = np.datetime64("1970-01-01T00:00:00")
+    return epoch + time_float.astype(f"timedelta64[{unit}]")
+
+
+def _datetime64_to_float(time_dt, unit="s"):
+    """
+    Convert np.datetime64 or array of datetime64 to float time since epoch.
+
+    Parameters:
+    ----------
+    time_dt : np.datetime64 or array-like
+        Datetime64 values to convert.
+    unit : str, optional
+        Unit of the output float (default: 's' for seconds).
+        Valid: 's', 'ms', 'us', 'ns', etc.
+
+    Returns:
+    -------
+    float or np.ndarray of floats
+        Time since UNIX epoch (1970-01-01) in specified unit.
+    """
+    epoch = np.datetime64("1970-01-01T00:00:00")
+    return (time_dt - epoch) / np.timedelta64(1, unit)
+
+
+def histogram(
+    coords_list: list[np.ndarray],
+    variables_list: list[np.ndarray] | None = None,
+    bins: int | list | None = DEFAULT_BINS_NUMBER,
+    bins_range: list | None = None,
+    dim_names: list[str] | None = None,
+    new_names: list[str] | None = None,
+    zeros_to_nan: bool = False,
+):
+    """
+    Compute N-dimensional histogram binning and calculate variable means in each bin.
+
+    Parameters
+    ----------
+    coords_list : list of array-like
+        Coordinate arrays for each dimension of the binning space
+    variables_list : list of array-like, optional
+        Variables to average in each bin
+    bins : int or lists, optional
+        Number of bins per dimension (int) or bin edges per dimension (list). Default is 10.
+        If an integer is provided, it will be used for all dimensions.
+        If a list is provided, it should match the number of dimensions in coords_list.
+        Each element can be an integer or an array of bin edges.
+        If None, defaults to 10 bins per dimension.
+    bins_range : list of tuples, optional
+        Outer bin limits for each dimension
+    dim_names : list of str, optional
+        Names for the dimensions of the output DataArrays
+        If None, default names are "dim_0_bin", "dim_1_bin", etc.
+    new_names : list of str, optional
+        Names for output DataArrays
+        If None, default names are "binned_mean_0", "binned_mean_1", etc.
+    zeros_to_nan : bool, optional
+        If True, replace zeros in the output with NaN.
+    Returns
+    -------
+    xr.Dataset
+        Dataset with binned means for each variable
+    """
+    # convert inputs to numpy arrays
+    coords = np.asarray([np.asarray(c) for c in coords_list])
+    if coords.ndim != 2:
+        coords = np.array([coords])
+    variables_list = (
+        [np.asarray(v) for v in variables_list] if variables_list else [None]
+    )
+
+    # set default dimension names
+    if dim_names is None:
+        dim_names = [f"dim_{i}_bin" for i in range(len(coords))]
+    else:
+        dim_names = [
+            name if name is not None else f"dim_{i}_bin"
+            for i, name in enumerate(dim_names)
+        ]
+
+    # set default variable names
+    if new_names is None:
+        new_names = [f"binned_mean_{i}" for i in range(len(variables_list))]
+    else:
+        new_names = [
+            name if name is not None else f"binned_mean_{i}"
+            for i, name in enumerate(new_names)
+        ]
+
+    # set default bins and bins range
+    if isinstance(bins, list):
+        if len(bins) != len(coords):
+            raise ValueError("bins must match the number of coordinate dimensions")
+        bins = [b if b is not None else DEFAULT_BINS_NUMBER for b in bins]
+    elif isinstance(bins, int):
+        bins = [bins if bins is not None else DEFAULT_BINS_NUMBER] * len(coords)
+
+    if bins_range is None:
+        bins_range = [
+            (np.nanmin(c), np.nanmax(c) + np.finfo(np.float64).eps) for c in coords
+        ]
+    else:
+        if isinstance(bins_range, tuple):
+            bins_range = [bins_range] * len(coords)
+        bins_range = [
+            r if r is not None else (np.nanmin(c), np.nanmax(c))
+            for r, c in zip(bins_range, coords)
+        ]
+
+    # ensure inputs are consistent
+    if len(coords) != len(dim_names):
+        raise ValueError("coords_list and dim_names must have the same length")
+    if len(variables_list) != len(new_names):
+        raise ValueError("variables_list and new_names must have the same length")
+    if len(bins_range) != len(coords):
+        raise ValueError("bins_range must match the number of coordinate dimensions")
+
+    # edges and bin centers
+    edges = [np.linspace(r[0], r[1], b + 1) for r, b in zip(bins_range, bins)]
+    edges_sz = [len(e) - 1 for e in edges]
+    bin_centers = [0.5 * (e[:-1] + e[1:]) for e in edges]
+
+    # digitize coordinates into bin indices
+    indices = [np.digitize(c, edges[j]) - 1 for j, c in enumerate(coords)]
+    valid = np.all(
+        [(j >= 0) & (j < edges_sz[i]) for i, j in enumerate(indices)], axis=0
+    )
+    indices = [i[valid] for i in indices]
+
+    ds = xr.Dataset()
+    for var, name in zip(variables_list, new_names):
+        if var is not None:
+            var = var[valid]
+            mask = np.isfinite(var)
+            var_finite = var[mask]
+            indices_finite = [i[mask] for i in indices]
+
+            # flat index for binning
+            flat_idx = np.ravel_multi_index(tuple(indices_finite), tuple(edges_sz))
+
+            # weighted sum and counts in each bin
+            weighted_sum = np.bincount(
+                flat_idx, weights=var_finite, minlength=np.prod(edges_sz)
+            )
+            bin_counts = np.bincount(flat_idx, minlength=np.prod(edges_sz))
+
+            mean = np.divide(
+                weighted_sum,
+                bin_counts,
+                out=np.full_like(weighted_sum, np.nan),
+                where=bin_counts > 0,
+            )
+        else:
+            # if no variable is provided histogram by counting the coords
+            flat_idx = np.ravel_multi_index(tuple(indices), tuple(edges_sz))
+            mean = np.bincount(flat_idx, minlength=np.prod(edges_sz))
+            if zeros_to_nan and np.any(mean == 0):
+                mean = np.where(mean == 0, np.nan, mean)
+
+        # add variable to dataset
+        ds[name] = xr.DataArray(
+            mean.reshape(tuple(edges_sz)),
+            dims=dim_names,
+            coords=dict(zip(dim_names, bin_centers)),
+        )
+
+    return ds
