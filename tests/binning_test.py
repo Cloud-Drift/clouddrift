@@ -60,34 +60,34 @@ class BinningTests(unittest.TestCase):
 
     def test_2d_output(self):
         ds = histogram(coords_list=self.coords_2d)
-        for v in ds.dims.values():
+        for v in ds.sizes.values():
             self.assertEqual(v, DEFAULT_BINS_NUMBER)
 
         n_bins = (3, 4)
         ds = histogram(coords_list=self.coords_2d, bins=n_bins)
-        for i, v in enumerate(ds.dims.values()):
+        for i, v in enumerate(ds.sizes.values()):
             self.assertEqual(v, n_bins[i])
 
         n_bins = (3, None)
         ds = histogram(coords_list=self.coords_2d, bins=n_bins)
-        for i, v in enumerate(ds.dims.values()):
+        for i, v in enumerate(ds.sizes.values()):
             self.assertEqual(
                 v, n_bins[i] if n_bins[i] is not None else DEFAULT_BINS_NUMBER
             )
 
     def test_3d_output(self):
         ds = histogram(coords_list=self.coords_3d)
-        for v in ds.dims.values():
+        for v in ds.sizes.values():
             self.assertEqual(v, DEFAULT_BINS_NUMBER)
 
         n_bins = (3, 4, 5)
         ds = histogram(coords_list=self.coords_3d, bins=n_bins)
-        for i, v in enumerate(ds.dims.values()):
+        for i, v in enumerate(ds.sizes.values()):
             self.assertEqual(v, n_bins[i])
 
         n_bins = (3, 4, None)
         ds = histogram(coords_list=self.coords_3d, bins=n_bins)
-        for i, v in enumerate(ds.dims.values()):
+        for i, v in enumerate(ds.sizes.values()):
             self.assertEqual(
                 v, n_bins[i] if n_bins[i] is not None else DEFAULT_BINS_NUMBER
             )
@@ -139,6 +139,38 @@ class BinningTests(unittest.TestCase):
                 ]
             ),
         )
+
+    def test_rename_dimensions(self):
+        ds = histogram(
+            coords_list=self.coords_1d,
+            bins=4,
+            dim_names=["x"],
+        )
+        self.assertIn("x", ds.sizes)
+
+        ds = histogram(
+            coords_list=self.coords_2d,
+            bins=(3, 4),
+            dim_names=["x", "y"],
+        )
+        self.assertIn("x", ds.sizes)
+        self.assertIn("y", ds.sizes)
+
+    def test_rename_variables(self):
+        ds = histogram(
+            coords_list=self.coords_1d,
+            bins=4,
+            new_names=["mean_x"],
+        )
+        self.assertIn("mean_x", ds.data_vars)
+
+        ds = histogram(
+            coords_list=self.coords_2d,
+            variables_list=[self.coords_1d, self.coords_1d],
+            new_names=["mean_x", "mean_y"],
+        )
+        self.assertIn("mean_x", ds.data_vars)
+        self.assertIn("mean_y", ds.data_vars)
 
     def test_zeros_to_nan(self):
         ds = histogram(coords_list=self.coords_1d, bins=4, bins_range=(-1, 0))
