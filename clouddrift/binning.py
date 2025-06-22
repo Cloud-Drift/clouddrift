@@ -8,8 +8,8 @@ DEFAULT_BINS_NUMBER = 10
 
 def histogram(
     coords_list: list[np.ndarray],
-    variables_list: list[np.ndarray] | None = None,
-    bins: int | list | None = DEFAULT_BINS_NUMBER,
+    variables_list: list[np.ndarray] = [np.empty(0)],
+    bins: int | list = DEFAULT_BINS_NUMBER,
     bins_range: list | None = None,
     dim_names: list[str] | None = None,
     new_names: list[str] | None = None,
@@ -50,9 +50,7 @@ def histogram(
     coords = np.asarray([np.asarray(c) for c in coords_list])
     if coords.ndim != 2:
         coords = np.array([coords])
-    variables_list = (
-        [np.asarray(v) for v in variables_list] if variables_list else [None]
-    )
+    variables_list = [np.asarray(v) for v in variables_list]
 
     # set default dimension names
     if dim_names is None:
@@ -114,7 +112,7 @@ def histogram(
 
     ds = xr.Dataset()
     for var, name in zip(variables_list, new_names):
-        if var is not None:
+        if var.size:
             var = var[valid]
             mask = np.isfinite(var)
             var_finite = var[mask]
