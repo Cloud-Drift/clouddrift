@@ -43,13 +43,13 @@ class binning_tests(unittest.TestCase):
             histogram(self.coords_2d, dim_names=["x"])
 
         with self.assertRaises(ValueError):
-            histogram(self.coords_1d, new_names=["x", "y"])
+            histogram(self.coords_1d, output_names=["x", "y"])
 
         with self.assertRaises(ValueError):
             histogram(
                 self.coords_1d,
-                variables_list=np.ones_like(self.coords_1d),
-                new_names=["x", "y"],
+                data=np.ones_like(self.coords_1d),
+                output_names=["x", "y"],
             )
 
     def test_bins_number_default(self):
@@ -97,13 +97,13 @@ class binning_tests(unittest.TestCase):
             )
 
     def test_1d_output(self):
-        ds = histogram(coords_list=self.coords_1d)
+        ds = histogram(coords=self.coords_1d)
         self.assertEqual(len(ds.dim_0_bin), DEFAULT_BINS_NUMBER)
         self.assertEqual(sum(ds.binned_mean_0.values), len(self.coords_1d))
 
     def test_1d_output_bins(self):
         n_bins = 3
-        ds = histogram(coords_list=self.coords_1d, bins=n_bins)
+        ds = histogram(coords=self.coords_1d, bins=n_bins)
         self.assertEqual(len(ds.dim_0_bin), n_bins)
         self.assertEqual(sum(ds.binned_mean_0.values), len(self.coords_1d))
         self.assertEqual(len(ds["binned_mean_0"].shape), 1)
@@ -115,7 +115,7 @@ class binning_tests(unittest.TestCase):
             np.ones_like(self.coords_1d) * value_1,
             np.ones_like(self.coords_1d) * value_2,
         ]
-        ds = histogram(coords_list=self.coords_1d, variables_list=variable, bins=2)
+        ds = histogram(coords=self.coords_1d, data=variable, bins=2)
         self.assertEqual(len(ds.data_vars), 2)
         self.assertTrue(all(ds["binned_mean_0"] == value_1))
         self.assertTrue(all(ds["binned_mean_1"] == value_2))
@@ -124,8 +124,8 @@ class binning_tests(unittest.TestCase):
         variables = np.ones_like(self.coords_1d) * value_1
         variables[self.coords_1d > coords_threshold] = value_2
         ds = histogram(
-            coords_list=self.coords_1d,
-            variables_list=variables,
+            coords=self.coords_1d,
+            data=variables,
             bins=3,
             bins_range=(0, 3),
         )
@@ -134,19 +134,19 @@ class binning_tests(unittest.TestCase):
         self.assertTrue(all(ds["binned_mean_0"].values[~mask] == value_2))
 
     def test_2d_output(self):
-        ds = histogram(coords_list=self.coords_2d)
+        ds = histogram(coords=self.coords_2d)
         for v in ds.sizes.values():
             self.assertEqual(v, DEFAULT_BINS_NUMBER)
         self.assertEqual(len(ds["binned_mean_0"].shape), 2)
 
         n_bins = (3, 4)
-        ds = histogram(coords_list=self.coords_2d, bins=n_bins)
+        ds = histogram(coords=self.coords_2d, bins=n_bins)
         for i, v in enumerate(ds.sizes.values()):
             self.assertEqual(v, n_bins[i])
         self.assertEqual(len(ds["binned_mean_0"].shape), 2)
 
         n_bins = (3, None)
-        ds = histogram(coords_list=self.coords_2d, bins=n_bins)
+        ds = histogram(coords=self.coords_2d, bins=n_bins)
         for i, v in enumerate(ds.sizes.values()):
             self.assertEqual(
                 v, n_bins[i] if n_bins[i] is not None else DEFAULT_BINS_NUMBER
@@ -154,19 +154,19 @@ class binning_tests(unittest.TestCase):
         self.assertEqual(len(ds["binned_mean_0"].shape), 2)
 
     def test_3d_output(self):
-        ds = histogram(coords_list=self.coords_3d)
+        ds = histogram(coords=self.coords_3d)
         for v in ds.sizes.values():
             self.assertEqual(v, DEFAULT_BINS_NUMBER)
         self.assertEqual(len(ds["binned_mean_0"].shape), 3)
 
         n_bins = (3, 4, 5)
-        ds = histogram(coords_list=self.coords_3d, bins=n_bins)
+        ds = histogram(coords=self.coords_3d, bins=n_bins)
         for i, v in enumerate(ds.sizes.values()):
             self.assertEqual(v, n_bins[i])
         self.assertEqual(len(ds["binned_mean_0"].shape), 3)
 
         n_bins = (3, 4, None)
-        ds = histogram(coords_list=self.coords_3d, bins=n_bins)
+        ds = histogram(coords=self.coords_3d, bins=n_bins)
         for i, v in enumerate(ds.sizes.values()):
             self.assertEqual(
                 v, n_bins[i] if n_bins[i] is not None else DEFAULT_BINS_NUMBER
@@ -175,8 +175,8 @@ class binning_tests(unittest.TestCase):
 
     def test_3d_output_mean_example(self):
         ds = histogram(
-            coords_list=self.coords_3d_ex,
-            variables_list=self.values_3d_ex,
+            coords=self.coords_3d_ex,
+            data=self.values_3d_ex,
             bins=(2, 2, 2),
             bins_range=[(-1, 1), (-1, 1), (-1, 1)],
         )
@@ -199,9 +199,7 @@ class binning_tests(unittest.TestCase):
         )
 
     def test_hist_range(self):
-        ds = histogram(
-            coords_list=self.coords_1d, bins=3, bins_range=self.bins_range_1d
-        )
+        ds = histogram(coords=self.coords_1d, bins=3, bins_range=self.bins_range_1d)
         self.assertEqual(
             sum(ds.binned_mean_0.values),
             len(
@@ -216,7 +214,7 @@ class binning_tests(unittest.TestCase):
 
     def test_hist_range_2d(self):
         ds = histogram(
-            coords_list=self.coords_2d, bins=(3, 3), bins_range=self.bins_range_2d
+            coords=self.coords_2d, bins=(3, 3), bins_range=self.bins_range_2d
         )
         self.assertEqual(
             sum(ds.binned_mean_0.values.flatten()),
@@ -232,7 +230,7 @@ class binning_tests(unittest.TestCase):
 
     def test_hist_range_3d(self):
         ds = histogram(
-            coords_list=self.coords_3d, bins=(3, 3, 3), bins_range=self.bins_range_3d
+            coords=self.coords_3d, bins=(3, 3, 3), bins_range=self.bins_range_3d
         )
         self.assertEqual(
             sum(ds.binned_mean_0.values.flatten()),
@@ -248,14 +246,14 @@ class binning_tests(unittest.TestCase):
 
     def test_rename_dimensions(self):
         ds = histogram(
-            coords_list=self.coords_1d,
+            coords=self.coords_1d,
             bins=4,
             dim_names=["x"],
         )
         self.assertIn("x", ds.sizes)
 
         ds = histogram(
-            coords_list=self.coords_2d,
+            coords=self.coords_2d,
             bins=(3, 4),
             dim_names=["x", "y"],
         )
@@ -264,25 +262,25 @@ class binning_tests(unittest.TestCase):
 
     def test_rename_variables(self):
         ds = histogram(
-            coords_list=self.coords_1d,
+            coords=self.coords_1d,
             bins=4,
-            new_names=["mean_x"],
+            output_names=["mean_x"],
         )
         self.assertIn("mean_x", ds.data_vars)
 
         ds = histogram(
-            coords_list=self.coords_2d,
-            variables_list=[self.coords_1d, self.coords_1d],
-            new_names=["mean_x", "mean_y"],
+            coords=self.coords_2d,
+            data=[self.coords_1d, self.coords_1d],
+            output_names=["mean_x", "mean_y"],
         )
         self.assertIn("mean_x", ds.data_vars)
         self.assertIn("mean_y", ds.data_vars)
 
     def test_zeros_to_nan(self):
-        ds = histogram(coords_list=self.coords_1d, bins=4, bins_range=(-1, 0))
+        ds = histogram(coords=self.coords_1d, bins=4, bins_range=(-1, 0))
         empty_bins = ds.binned_mean_0.values == 0
 
         ds = histogram(
-            coords_list=self.coords_1d, bins=4, bins_range=(-1, 0), zeros_to_nan=True
+            coords=self.coords_1d, bins=4, bins_range=(-1, 0), zeros_to_nan=True
         )
         self.assertTrue(np.isnan(ds.binned_mean_0.values[empty_bins]).all())

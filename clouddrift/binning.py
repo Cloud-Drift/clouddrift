@@ -7,12 +7,12 @@ DEFAULT_BINS_NUMBER = 10
 
 
 def histogram(
-    coords_list: np.ndarray | list[np.ndarray],
-    variables_list: np.ndarray | list[np.ndarray] = [np.empty(0)],
+    coords: np.ndarray | list[np.ndarray],
+    data: np.ndarray | list[np.ndarray] = [np.empty(0)],
     bins: int | list = DEFAULT_BINS_NUMBER,
     bins_range: list | None = None,
     dim_names: list[str] | None = None,
-    new_names: list[str] | None = None,
+    output_names: list[str] | None = None,
     zeros_to_nan: bool = False,
 ) -> xr.Dataset:
     """
@@ -20,9 +20,9 @@ def histogram(
 
     Parameters
     ----------
-    coords_list : list of array-like
+    coords : array-like or list of array-like
         Coordinate arrays for each dimension of the binning space
-    variables_list : list of array-like, optional
+    data : array-like or list of array-like
         Variables to average in each bin
     bins : int or lists, optional
         Number of bins per dimension (int) or bin edges per dimension (list). Default is 10.
@@ -35,11 +35,11 @@ def histogram(
     dim_names : list of str, optional
         Names for the dimensions of the output DataArrays
         If None, default names are "dim_0_bin", "dim_1_bin", etc.
-    new_names : list of str, optional
+    output_names : list of str, optional
         Names for output DataArrays
         If None, default names are "binned_mean_0", "binned_mean_1", etc.
     zeros_to_nan : bool, optional
-        If True, replace zeros in the output with NaN.
+        If True, replace zeros in the output(s) with NaN.
 
     Returns
     -------
@@ -47,12 +47,12 @@ def histogram(
         Dataset with binned means for each variable
     """
     # convert inputs to numpy arrays
-    if not isinstance(coords_list[0], (np.ndarray, list)):
-        coords_list = [coords_list]
-    coords = np.asarray([np.asarray(c) for c in coords_list])
-    if not isinstance(variables_list[0], (np.ndarray, list)):
-        variables_list = [variables_list]
-    variables_list = [np.asarray(v) for v in variables_list]
+    if not isinstance(coords[0], (np.ndarray, list)):
+        coords = [coords]
+    coords = np.asarray([np.asarray(c) for c in coords])
+    if not isinstance(data[0], (np.ndarray, list)):
+        data = [data]
+    data = [np.asarray(v) for v in data]
 
     # set default bins and bins range
     if isinstance(bins, (list, tuple)):
@@ -84,18 +84,18 @@ def histogram(
         ]
 
     # set default variable names
-    if new_names is None:
-        new_names = [f"binned_mean_{i}" for i in range(len(variables_list))]
+    if output_names is None:
+        output_names = [f"binned_mean_{i}" for i in range(len(data))]
     else:
-        new_names = [
+        output_names = [
             name if name is not None else f"binned_mean_{i}"
-            for i, name in enumerate(new_names)
+            for i, name in enumerate(output_names)
         ]
 
     # ensure inputs are consistent
     if len(coords) != len(dim_names):
         raise ValueError("coords_list and dim_names must have the same length")
-    if len(variables_list) != len(new_names):
+    if len(data) != len(output_names):
         raise ValueError("variables_list and new_names must have the same length")
 
     # edges and bin centers
@@ -111,7 +111,7 @@ def histogram(
     indices = [i[valid] for i in indices]
 
     ds = xr.Dataset()
-    for var, name in zip(variables_list, new_names):
+    for var, name in zip(data, output_names):
         if var.size:
             var = var[valid]
             mask = np.isfinite(var)
