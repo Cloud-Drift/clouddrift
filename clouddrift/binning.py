@@ -21,22 +21,24 @@ def histogram(
     Parameters
     ----------
     coords : array-like or list of array-like
-        Coordinate arrays for each dimension of the binning space
+        Arrays of the coordinates of the Lagrangian data to be binned. For 1D data, a single array can be provided.
+        For multiple dimensions, the first array represents each coordinates along the first dimension,
+        the second array represents each coordinates along the second dimension, and so on.
     data : array-like or list of array-like
-        Variables to average in each bin
+        Data associated at the Lagrangian coordinates described in coords. Multiple variables can be provided as a list.
     bins : int or lists, optional
         Number of bins per dimension (int) or bin edges per dimension (list). Default is 10.
         If an integer is provided, it will be used for all dimensions.
-        If a list is provided, it should match the number of dimensions in coords_list.
+        If a list is provided, it should match the number of dimensions in coords.
         Each element can be an integer or an array of bin edges.
         If None, defaults to 10 bins per dimension.
     bins_range : list of tuples, optional
         Outer bin limits for each dimension
     dim_names : list of str, optional
-        Names for the dimensions of the output DataArrays
+        Names for the dimensions of the output xr.Dataset
         If None, default names are "dim_0_bin", "dim_1_bin", etc.
     output_names : list of str, optional
-        Names for output DataArrays
+        Names for output variables in the xr.Dataset.
         If None, default names are "binned_mean_0", "binned_mean_1", etc.
     zeros_to_nan : bool, optional
         If True, replace zeros in the output(s) with NaN.
