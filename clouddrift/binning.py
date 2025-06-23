@@ -50,8 +50,6 @@ def histogram(
     if not isinstance(coords_list[0], (np.ndarray, list)):
         coords_list = [coords_list]
     coords = np.asarray([np.asarray(c) for c in coords_list])
-    if coords.ndim != 2:
-        coords = np.array([coords])
     if not isinstance(variables_list[0], (np.ndarray, list)):
         variables_list = [variables_list]
     variables_list = [np.asarray(v) for v in variables_list]
