@@ -8,7 +8,7 @@ DEFAULT_BINS_NUMBER = 10
 
 def histogram(
     coords: np.ndarray | list[np.ndarray],
-    data: np.ndarray | list[np.ndarray] = [np.empty(0)],
+    data: np.ndarray | list[np.ndarray] | None = None,
     bins: int | list = DEFAULT_BINS_NUMBER,
     bins_range: list | None = None,
     dim_names: list[str] | None = None,
@@ -52,7 +52,9 @@ def histogram(
     if not isinstance(coords[0], (np.ndarray, list)):
         coords = [coords]
     coords = np.asarray([np.asarray(c) for c in coords])
-    if not isinstance(data[0], (np.ndarray, list)):
+    if data is None:
+        data = [np.empty(0)]
+    elif not isinstance(data[0], (np.ndarray, list)):
         data = [data]
     data = [np.asarray(v) for v in data]
 
