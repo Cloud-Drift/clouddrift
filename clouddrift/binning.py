@@ -7,8 +7,8 @@ DEFAULT_BINS_NUMBER = 10
 
 
 def histogram(
-    coords_list: list[np.ndarray],
-    variables_list: list[np.ndarray] = [np.empty(0)],
+    coords_list: np.ndarray | list[np.ndarray],
+    variables_list: np.ndarray | list[np.ndarray] = [np.empty(0)],
     bins: int | list = DEFAULT_BINS_NUMBER,
     bins_range: list | None = None,
     dim_names: list[str] | None = None,
@@ -47,10 +47,34 @@ def histogram(
         Dataset with binned means for each variable
     """
     # convert inputs to numpy arrays
+    if not isinstance(coords_list[0], (np.ndarray, list)):
+        coords_list = [coords_list]
     coords = np.asarray([np.asarray(c) for c in coords_list])
     if coords.ndim != 2:
         coords = np.array([coords])
+    if not isinstance(variables_list[0], (np.ndarray, list)):
+        variables_list = [variables_list]
     variables_list = [np.asarray(v) for v in variables_list]
+
+    # set default bins and bins range
+    if isinstance(bins, (list, tuple)):
+        if len(bins) != len(coords):
+            raise ValueError("bins must match the number of coordinate dimensions")
+        bins = [b if b is not None else DEFAULT_BINS_NUMBER for b in bins]
+    elif isinstance(bins, int):
+        bins = [bins if bins is not None else DEFAULT_BINS_NUMBER] * len(coords)
+
+    if bins_range is None:
+        bins_range = [
+            (np.nanmin(c), np.nanmax(c) + np.finfo(np.float64).eps) for c in coords
+        ]
+    else:
+        if isinstance(bins_range, tuple):
+            bins_range = [bins_range] * len(coords)
+        bins_range = [
+            r if r is not None else (np.nanmin(c), np.nanmax(c))
+            for r, c in zip(bins_range, coords)
+        ]
 
     # set default dimension names
     if dim_names is None:
@@ -70,33 +94,11 @@ def histogram(
             for i, name in enumerate(new_names)
         ]
 
-    # set default bins and bins range
-    if isinstance(bins, list) or isinstance(bins, tuple):
-        if len(bins) != len(coords):
-            raise ValueError("bins must match the number of coordinate dimensions")
-        bins = [b if b is not None else DEFAULT_BINS_NUMBER for b in bins]
-    elif isinstance(bins, int):
-        bins = [bins if bins is not None else DEFAULT_BINS_NUMBER] * len(coords)
-
-    if bins_range is None:
-        bins_range = [
-            (np.nanmin(c), np.nanmax(c) + np.finfo(np.float64).eps) for c in coords
-        ]
-    else:
-        if isinstance(bins_range, tuple):
-            bins_range = [bins_range] * len(coords)
-        bins_range = [
-            r if r is not None else (np.nanmin(c), np.nanmax(c))
-            for r, c in zip(bins_range, coords)
-        ]
-
     # ensure inputs are consistent
     if len(coords) != len(dim_names):
         raise ValueError("coords_list and dim_names must have the same length")
     if len(variables_list) != len(new_names):
         raise ValueError("variables_list and new_names must have the same length")
-    if len(bins_range) != len(coords):
-        raise ValueError("bins_range must match the number of coordinate dimensions")
 
     # edges and bin centers
     edges = [np.linspace(r[0], r[1], b + 1) for r, b in zip(bins_range, bins)]
@@ -128,7 +130,7 @@ def histogram(
             mean = np.divide(
                 weighted_sum,
                 bin_counts,
-                out=np.full_like(weighted_sum, np.nan),
+                out=np.full_like(weighted_sum, np.nan if zeros_to_nan else 0.0),
                 where=bin_counts > 0,
             )
         else:
