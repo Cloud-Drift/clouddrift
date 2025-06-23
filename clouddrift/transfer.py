@@ -114,18 +114,20 @@ def apply_sliding_transfer_function(
     ----------
         x:  array_like
             Input time series.
+        transfer_func: callable or numpy ndarray
+            Transfer function to apply to the input x.
         window_size: int
             Size of the sliding window.
-        func: callable or numpy ndarray
-            Transfer function to apply to the input x.
         step: int
             Step size for the sliding window. Default is 1.
+        dt: float, optional
+            Time step size of the input time series, needed if transfer_func is callable.
 
     Returns
     -------
         result: np.ndarray
             Array of results, one for each window.
-            The shape of the result will be (len(tau) - window_size) // step + 1, window_size)
+            The shape of the result will be ((len(tau) - window_size) // step + 1, window_size)
 
     Examples
     --------
@@ -138,7 +140,7 @@ def apply_sliding_transfer_function(
         >>> dt = 1.0
         >>> transfer_func = lambda omega: 1 / (1 + (omega / (2 * np.pi * 0.1))**2)  # Low-pass filter
         >>> result = apply_sliding_transfer_function(x, transfer_func, window_size, step, dt)
-        The shape of the result is here (len(x) - window_size) // step + 1, window_size) = (91, 10).
+        The shape of the result is here ((len(x) - window_size) // step + 1, window_size) = (91, 10).
 
         Apply a smoothing function in a sliding window:
         >>> import numpy as np
@@ -148,7 +150,7 @@ def apply_sliding_transfer_function(
         >>> step = 1
         >>> smoothing_func = np.ones(window_size) / window_size  # Simple moving average
         >>> result = apply_sliding_transfer_function(x, smoothing_func, window_size, step)
-        The shape of the result is here (len(x) - window_size) // step + 1, window_size) = (91, 10).
+        The shape of the result is here ((len(x) - window_size) // step + 1, window_size) = (91, 10).
 
         To a random wind stress hourly time series, apply an Ekman transfer function in a sliding window
         for an infinite boundary layer depth, an Ekman depth of 10 m, in order to obtain the Ekman
@@ -162,7 +164,7 @@ def apply_sliding_transfer_function(
         delta=10.0, mu=0.0, bld=np.inf, boundary_condition="no-slip")[0].squeeze()
         >>> dt = 1/24  # Time step needed for callable transfer functions
         >>> result = apply_sliding_transfer_function(tau, transfer_ekman, window_size=24, step=1, dt=dt)
-        The shape of the result is here (len(tau) - window_size) // step + 1, window_size) = (217, 24).
+        The shape of the result is here ((len(tau) - window_size) // step + 1, window_size) = (217, 24).
 
     Raises
     ------
