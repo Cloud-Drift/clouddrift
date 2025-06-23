@@ -3,12 +3,212 @@ This module provides functions to calculate various transfer function from wind 
 velocity.
 """
 
+from typing import Callable, Optional
+
 import numpy as np
 from numpy import floating as _Floating
 from numpy.lib.scimath import sqrt
 from scipy.special import factorial, iv, kv  # type: ignore
 
 from clouddrift.sphere import EARTH_DAY_SECONDS
+
+
+def apply_transfer_function(
+    x: np.ndarray, transfer_func: Callable | np.ndarray, dt: Optional[float] = None
+) -> np.ndarray:
+    """
+    Applies a transfer function in the frequency domain to an input time series.
+
+    Parameters
+    ----------
+        x:  array_like
+            Input one-dimensional time series.
+        transfer_func: callable or numpy ndarray
+            Transfer function to apply to the input x. If callable, should accept
+            frequency array as input, see example below.
+            If ndarray, it must match the length of input x.
+        dt: float, optional
+            Time step size of the input time series, needed if transfer_func is callable.
+
+    Returns
+    -------
+        y: numpy ndarray
+            Output time series after applying the transfer function.
+
+    Examples
+    --------
+        Apply a low-pass filter transfer function to a random time series:
+        >>> import numpy as np
+        >>> from clouddrift.transfer import apply_transfer_function
+        >>> x = np.random.randn(100)
+        >>> transfer_func = lambda omega: 1 / (1 + (omega / (2 * np.pi * 0.1))**2)  # Low-pass filter
+        >>> dt = 1.0  # Time step needed for callable transfer functions
+        >>> y = apply_transfer_function(x, transfer_func, dt)
+
+        Directly provide as an array a transfer function which suppresses
+        the negative frequencies:
+        >>> import numpy as np
+        >>> from clouddrift.transfer import apply_transfer_function
+        >>> x = np.random.randn(100)
+        >>> transfer_func = np.ones(100)
+        >>> transfer_func[50:] = 0  # Suppress negative frequencies
+        >>> y = apply_transfer_function(x, transfer_func)
+
+        To a random wind stress, apply a slab wind transfer function at latitude 45 degrees,
+        with a friction coefficient of 0.1 times the Coriolis frequency and a boundary layer depth of 50 meters:
+        >>> import numpy as np
+        >>> from clouddrift.sphere import coriolis_frequency, EARTH_DAY_SECONDS
+        >>> from clouddrift.transfer import apply_transfer_function, slab_wind_transfer
+        >>> tau = np.random.randn(100) + 1j * np.random.randn(100)  # Random wind stress
+        >>> cor_freq = coriolis_frequency(45) * EARTH_DAY_SECONDS  # Coriolis frequency at 45 degrees latitude in radians per day
+        >>> transfer_slab = lambda omega: slab_wind_transfer(omega, cor_freq[0] , friction=0.1 * cor_freq[0] / EARTH_DAY_SECONDS, bld=50)
+        >>> dt = 1.0  # Time step needed for callable transfer functions
+        >>> u = apply_transfer_function(tau, transfer_slab, dt)
+
+    Raises
+    ------
+        ValueError
+            If input x is not a 1D array, or if transfer_func is callable but dt is not provided,
+            or if the shape of transfer_func does not match the length of x.
+    """
+
+    x = np.asarray(x)
+
+    if x.ndim != 1:
+        raise ValueError("Input x must be a 1D array.")
+    n = x.size
+
+    Xf = np.fft.fft(x)
+
+    if callable(transfer_func):
+        if dt is None:
+            raise ValueError(
+                "dt (time step size) must be provided when transfer_func is callable."
+            )
+        omega = 2 * np.pi * np.fft.fftfreq(n, dt)
+        G = transfer_func(omega)
+    else:
+        G = np.asarray(transfer_func)
+        if G.shape != Xf.shape:
+            raise ValueError("Transfer function array must match the shape of input x.")
+
+    Yf = G * Xf
+    y = np.fft.ifft(Yf)
+
+    return y
+
+
+def apply_sliding_transfer_function(
+    x: np.ndarray,
+    transfer_func: Callable | np.ndarray,
+    window_size: int,
+    step: int = 1,
+    dt: Optional[float] = None,
+) -> np.ndarray:
+    """
+    Applies a transfer function to a 1D time series in a sliding window fashion. In order to make
+    sure that all windows are full-sized, the input time series is extended as needed using a mirror
+    boundary condition.
+
+    Parameters
+    ----------
+        x:  array_like
+            Input time series.
+        window_size: int
+            Size of the sliding window.
+        func: callable or numpy ndarray
+            Transfer function to apply to the input x.
+        step: int
+            Step size for the sliding window. Default is 1.
+
+    Returns
+    -------
+        result: np.ndarray
+            Array of results, one for each window.
+            The shape of the result will be (len(tau) - window_size) // step + 1, window_size)
+
+    Examples
+    --------
+        Apply a low-pass filter in a sliding window:
+        >>> import numpy as np
+        >>> from clouddrift.transfer import apply_sliding_transfer_function
+        >>> x = np.random.rand(100)
+        >>> window_size = 10
+        >>> step = 1
+        >>> dt = 1.0
+        >>> transfer_func = lambda omega: 1 / (1 + (omega / (2 * np.pi * 0.1))**2)  # Low-pass filter
+        >>> result = apply_sliding_transfer_function(x, transfer_func, window_size, step, dt)
+        The shape of the result is here (len(x) - window_size) // step + 1, window_size) = (91, 10).
+
+        Apply a smoothing function in a sliding window:
+        >>> import numpy as np
+        >>> from clouddrift.transfer import apply_sliding_transfer_function
+        >>> x = np.random.rand(100)
+        >>> window_size = 10
+        >>> step = 1
+        >>> smoothing_func = np.ones(window_size) / window_size  # Simple moving average
+        >>> result = apply_sliding_transfer_function(x, smoothing_func, window_size, step)
+        The shape of the result is here (len(x) - window_size) // step + 1, window_size) = (91, 10).
+
+        To a random wind stress hourly time series, apply an Ekman transfer function in a sliding window
+        for an infinite boundary layer depth, an Ekman depth of 10 m, in order to obtain the Ekman
+        velocity at a depth of 15 m:
+        >>> import numpy as np
+        >>> from clouddrift.sphere import coriolis_frequency, EARTH_DAY_SECONDS
+        >>> from clouddrift.transfer import apply_transfer_function, slab_wind_transfer
+        >>> tau = np.random.randn(240) + 1j * np.random.randn(240)  # Random wind stress
+        >>> cor_freq = coriolis_frequency(45) * EARTH_DAY_SECONDS  # Coriolis frequency at 45 degrees latitude in radians per day
+        >>> transfer_ekman = lambda omega: wind_transfer(omega, z=15, cor_freq= cor_freq,
+        delta=10.0, mu=0.0, bld=np.inf, boundary_condition="no-slip")[0].squeeze()
+        >>> dt = 1/24  # Time step needed for callable transfer functions
+        >>> result = apply_sliding_transfer_function(tau, transfer_ekman, window_size=24, step=1, dt=dt)
+        The shape of the result is here (len(tau) - window_size) // step + 1, window_size) = (217, 24).
+
+    Raises
+    ------
+        ValueError
+            If window_size or step is not a positive integer, or if window_size is greater than the length of x,
+            or if step is greater than or equal to window_size.
+    """
+    x = np.asarray(x)
+    n = x.size
+
+    if window_size <= 0 or step <= 0:
+        raise ValueError("window_size and step must be positive integers.")
+    if window_size > n:
+        raise ValueError("window_size must not be greater than the length of x.")
+    if step >= window_size:
+        raise ValueError("step must be smaller than window_size for sliding windows.")
+    if dt is None and callable(transfer_func):
+        raise ValueError(
+            "dt (time step) must be provided when transfer_func is callable."
+        )
+
+    # Extend x so that all windows are full-sized using mirror boundary condition
+    remainder = (n - window_size) % step
+    if remainder != 0:
+        extra = step - remainder
+        # Mirror boundary: reflect the last 'extra' needed values
+        mirror = x[-extra:][::-1] if extra > 0 else np.array([])
+        x_ = np.concatenate([x, mirror])
+    else:
+        x_ = x.copy()
+
+    n_ = x_.size
+
+    result = []
+    for start in range(0, n_ - window_size + 1, step):
+        x_tmp = x_[start : start + window_size]
+        # result.append(transfer_func(window))
+        if callable(transfer_func):
+            result.append(apply_transfer_function(x_tmp, transfer_func, dt))
+        else:
+            if transfer_func.ndim == 1:
+                # If transfer_func is a 1D array, apply it directly
+                result.append(apply_transfer_function(x_tmp, transfer_func))
+            else:
+                raise ValueError("transfer_func must be callable or a 1D numpy array.")
+    return np.array(result)
 
 
 def slab_wind_transfer(
