@@ -100,7 +100,7 @@ def histogram(
     if len(coords) != len(dim_names):
         raise ValueError("coords_list and dim_names must have the same length")
     if len(data) != len(output_names):
-        raise ValueError("variables_list and new_names must have the same length")
+        raise ValueError("variables_list and output_names must have the same length")
 
     # edges and bin centers
     edges = [np.linspace(r[0], r[1], b + 1) for r, b in zip(bins_range, bins)]
