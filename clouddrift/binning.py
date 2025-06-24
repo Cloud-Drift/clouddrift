@@ -3,6 +3,7 @@
 from collections.abc import Iterable
 
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 DEFAULT_BINS_NUMBER = 10
@@ -51,12 +52,12 @@ def binned_statistics(
         Xarray dataset with binned means for each variable.
     """
     # convert inputs to numpy arrays
-    if not isinstance(coords[0], Iterable):
+    if not isinstance(coords[0], (np.ndarray, list, xr.DataArray, pd.Series)):
         coords = [coords]
     coords = np.asarray([np.asarray(c) for c in coords])
     if data is None:
         data = [np.empty(0)]
-    elif not isinstance(data[0], Iterable):
+    elif not isinstance(data[0], (np.ndarray, list, xr.DataArray, pd.Series)):
         data = [data]
     data = [np.asarray(v) for v in data]
 
