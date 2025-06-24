@@ -8,7 +8,7 @@ import xarray as xr
 DEFAULT_BINS_NUMBER = 10
 
 
-def histogram(
+def binned_statistics(
     coords: np.ndarray | list[np.ndarray],
     data: np.ndarray | list[np.ndarray] | None = None,
     bins: int | list = DEFAULT_BINS_NUMBER,
@@ -91,13 +91,16 @@ def histogram(
 
     # set default variable names
     if output_names is None:
-        output_names = [f"binned_mean_{i}" for i in range(len(data))]
+        output_names = [
+            f"binned_mean_{i}" if data[0].size else "binned_count"
+            for i in range(len(data))
+        ]
     else:
         output_names = [
             name if name is not None else f"binned_mean_{i}"
             for i, name in enumerate(output_names)
         ]
-
+    print(f"Output names: {output_names}")
     # ensure inputs are consistent
     if len(coords) != len(dim_names):
         raise ValueError("coords_list and dim_names must have the same length")
@@ -126,10 +129,10 @@ def histogram(
 
             # weighted sum and counts in each bin
             flat_idx = np.ravel_multi_index(tuple(indices_finite), tuple(edges_sz))
+            bin_counts = np.bincount(flat_idx, minlength=np.prod(edges_sz))
             weighted_sum = np.bincount(
                 flat_idx, weights=var_finite, minlength=np.prod(edges_sz)
             )
-            bin_counts = np.bincount(flat_idx, minlength=np.prod(edges_sz))
 
             mean = np.divide(
                 weighted_sum,
@@ -138,17 +141,27 @@ def histogram(
                 where=bin_counts > 0,
             )
         else:
-            # if no variable is provided histogram by counting the coords
+            # if no data is provided histogram by counting the coords
             flat_idx = np.ravel_multi_index(tuple(indices), tuple(edges_sz))
-            mean = np.bincount(flat_idx, minlength=np.prod(edges_sz))
-            if zeros_to_nan and np.any(mean == 0):
-                mean = np.where(mean == 0, np.nan, mean)
+            bin_counts = np.bincount(flat_idx, minlength=np.prod(edges_sz))
+            if zeros_to_nan and np.any(bin_counts == 0):
+                bin_counts = np.where(bin_counts == 0, np.nan, bin_counts)
 
-        # add variable to dataset
-        ds[name] = xr.DataArray(
-            mean.reshape(tuple(edges_sz)),
+        # add variable(s) to dataset
+        # add bin count
+        count_var_name = f"{name}_count" if var.size else f"{name}"
+        ds[count_var_name] = xr.DataArray(
+            bin_counts.reshape(tuple(edges_sz)),
             dims=dim_names,
             coords=dict(zip(dim_names, bin_centers)),
         )
+
+        # and statistic when data parameter is provided
+        if var.size:
+            ds[name] = xr.DataArray(
+                mean.reshape(tuple(edges_sz)),
+                dims=dim_names,
+                coords=dict(zip(dim_names, bin_centers)),
+            )
 
     return ds
