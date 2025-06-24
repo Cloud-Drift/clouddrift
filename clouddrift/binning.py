@@ -1,6 +1,7 @@
 """Module for binning Lagrangian data."""
 
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 DEFAULT_BINS_NUMBER = 10
@@ -33,7 +34,7 @@ def histogram(
         Each element can be an integer or an array of bin edges.
         If None, defaults to 10 bins per dimension.
     bins_range : list of tuples, optional
-        Outer bin limits for each dimension
+        Outer bin limits for each dimension\
     dim_names : list of str, optional
         Names for the dimensions of the output xr.Dataset
         If None, default names are "dim_0_bin", "dim_1_bin", etc.
@@ -49,12 +50,13 @@ def histogram(
         Dataset with binned means for each variable
     """
     # convert inputs to numpy arrays
-    if not isinstance(coords[0], (np.ndarray, list)):
+    if not isinstance(coords[0], (np.ndarray, list, xr.DataArray, pd.Series)):
         coords = [coords]
     coords = np.asarray([np.asarray(c) for c in coords])
+    print(coords.shape)
     if data is None:
         data = [np.empty(0)]
-    elif not isinstance(data[0], (np.ndarray, list)):
+    elif not isinstance(data[0], (np.ndarray, list, xr.DataArray, pd.Series)):
         data = [data]
     data = [np.asarray(v) for v in data]
 
