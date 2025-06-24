@@ -138,7 +138,7 @@ def binned_statistics(
             indices_finite = [i[mask] for i in indices]
 
             # weighted sum and counts in each bin
-            flat_idx = np.ravel_multi_index(tuple(indices_finite), tuple(edges_sz))
+            flat_idx = np.ravel_multi_index(indices_finite, edges_sz)
             bin_counts = np.bincount(flat_idx, minlength=np.prod(edges_sz))
             weighted_sum = np.bincount(
                 flat_idx, weights=var_finite, minlength=np.prod(edges_sz)
@@ -152,7 +152,7 @@ def binned_statistics(
             )
         else:
             # if no data is provided histogram by counting the coords
-            flat_idx = np.ravel_multi_index(tuple(indices), tuple(edges_sz))
+            flat_idx = np.ravel_multi_index(indices, edges_sz)
             bin_counts = np.bincount(flat_idx, minlength=np.prod(edges_sz))
             if zeros_to_nan and np.any(bin_counts == 0):
                 bin_counts = np.where(bin_counts == 0, np.nan, bin_counts)
@@ -161,15 +161,15 @@ def binned_statistics(
         # add bin count
         count_var_name = f"{name}_count" if var.size else f"{name}"
         ds[count_var_name] = xr.DataArray(
-            bin_counts.reshape(tuple(edges_sz)),
+            bin_counts.reshape(edges_sz),
             dims=dim_names,
             coords=dict(zip(dim_names, bin_centers)),
         )
 
-        # and statistic when data parameter is provided
+        # and statistic when data is provided
         if var.size:
             ds[name] = xr.DataArray(
-                mean.reshape(tuple(edges_sz)),
+                mean.reshape(edges_sz),
                 dims=dim_names,
                 coords=dict(zip(dim_names, bin_centers)),
             )
