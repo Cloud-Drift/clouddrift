@@ -1,7 +1,8 @@
 """Module for binning Lagrangian data."""
 
+from collections.abc import Iterable
+
 import numpy as np
-import pandas as pd
 import xarray as xr
 
 DEFAULT_BINS_NUMBER = 10
@@ -49,15 +50,24 @@ def binned_statistics(
     xr.Dataset
         Xarray dataset with binned means for each variable.
     """
-    # convert inputs to numpy arrays
-    if not isinstance(coords[0], (np.ndarray, list, xr.DataArray, pd.Series)):
-        coords = [coords]
-    coords = np.asarray([np.asarray(c) for c in coords])
-    if data is None:
-        data = [np.empty(0)]
-    elif not isinstance(data[0], (np.ndarray, list, xr.DataArray, pd.Series)):
-        data = [data]
-    data = [np.asarray(v) for v in data]
+    # convert coords, data parameters to numpy arrays and validate dimensions
+    # D, N = number of dimensions and number of data points
+    try:
+        D, N = coords.shape
+    except (AttributeError, ValueError):
+        coords = np.atleast_2d(coords)
+        D, N = coords.shape
+
+    # V, VN = number of variables and number of data points per variable
+    try:
+        V, VN = data.shape
+    except (AttributeError, ValueError):
+        if data is None:
+            data = np.empty((1, 0))
+            V, VN = 1, N  # no data provided
+        else:
+            data = np.atleast_2d(data)
+            V, VN = data.shape
 
     # set default bins and bins range
     if isinstance(bins, (list, tuple)):
@@ -101,10 +111,14 @@ def binned_statistics(
         ]
 
     # ensure inputs are consistent
-    if len(coords) != len(dim_names):
+    if D != len(dim_names):
         raise ValueError("coords_list and dim_names must have the same length")
-    if len(data) != len(output_names):
+    if V != len(output_names):
         raise ValueError("variables_list and output_names must have the same length")
+    if N != VN:
+        raise ValueError(
+            "coords_list and variables_list must have the same number of elements"
+        )
 
     # edges and bin centers
     edges = [np.linspace(r[0], r[1], b + 1) for r, b in zip(bins_range, bins)]
