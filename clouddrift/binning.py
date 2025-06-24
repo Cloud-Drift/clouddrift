@@ -1,4 +1,5 @@
 """Module for binning Lagrangian data."""
+from collections.abc import Iterable
 
 import numpy as np
 import pandas as pd
@@ -50,13 +51,12 @@ def histogram(
         Dataset with binned means for each variable
     """
     # convert inputs to numpy arrays
-    if not isinstance(coords[0], (np.ndarray, list, xr.DataArray, pd.Series)):
+    if not isinstance(coords[0], Iterable):
         coords = [coords]
     coords = np.asarray([np.asarray(c) for c in coords])
-    print(coords.shape)
     if data is None:
         data = [np.empty(0)]
-    elif not isinstance(data[0], (np.ndarray, list, xr.DataArray, pd.Series)):
+    elif not isinstance(data[0], Iterable):
         data = [data]
     data = [np.asarray(v) for v in data]
 
