@@ -43,12 +43,12 @@ def histogram(
         Names for output variables in the xr.Dataset.
         If None, default names are "binned_mean_0", "binned_mean_1", etc.
     zeros_to_nan : bool, optional
-        If True, replace zeros in the output(s) with NaN.
+        If True, replace zeros in the output(s) with NaN. Default is False.
 
     Returns
     -------
     xr.Dataset
-        Dataset with binned means for each variable
+        Xarray dataset with binned means for each variable.
     """
     # convert inputs to numpy arrays
     if not isinstance(coords[0], Iterable):
