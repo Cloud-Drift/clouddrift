@@ -100,7 +100,7 @@ def binned_statistics(
             name if name is not None else f"binned_mean_{i}"
             for i, name in enumerate(output_names)
         ]
-    print(f"Output names: {output_names}")
+
     # ensure inputs are consistent
     if len(coords) != len(dim_names):
         raise ValueError("coords_list and dim_names must have the same length")
