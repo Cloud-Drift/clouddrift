@@ -52,22 +52,19 @@ def binned_statistics(
     """
     # convert coords, data parameters to numpy arrays and validate dimensions
     # D, N = number of dimensions and number of data points
-    try:
-        D, N = coords.shape
-    except (AttributeError, ValueError):
+    if not isinstance(coords, np.ndarray) or coords.ndim == 1:
         coords = np.atleast_2d(coords)
-        D, N = coords.shape
+    D, N = coords.shape
 
     # V, VN = number of variables and number of data points per variable
-    try:
+    if data is None:
+        data = np.empty((1, 0))
+        V, VN = 1, N  # no data provided
+    elif not isinstance(data, np.ndarray) or data.ndim == 1:
+        data = np.atleast_2d(data)
         V, VN = data.shape
-    except (AttributeError, ValueError):
-        if data is None:
-            data = np.empty((1, 0))
-            V, VN = 1, N  # no data provided
-        else:
-            data = np.atleast_2d(data)
-            V, VN = data.shape
+    else:
+        V, VN = data.shape
 
     # set default bins and bins range
     if isinstance(bins, (list, tuple)):
