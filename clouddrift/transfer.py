@@ -24,7 +24,7 @@ def apply_transfer_function(
         x:  array_like
             Input one-dimensional time series.
         transfer_func: callable or numpy ndarray
-            Transfer function to apply to the input x. If callable, should accept
+            Transfer function to apply to the input x. If a callable, it should accept
             frequency array as input, see example below.
             If ndarray, it must match the length of input x.
         dt: float, optional
@@ -55,7 +55,8 @@ def apply_transfer_function(
         >>> y = apply_transfer_function(x, transfer_func)
 
         To a random wind stress, apply a slab wind transfer function at latitude 45 degrees,
-        with a friction coefficient of 0.1 times the Coriolis frequency and a boundary layer depth of 50 meters:
+        with a friction coefficient of 0.1 times the Coriolis frequency and a boundary layer
+        depth of 50 meters:
         >>> import numpy as np
         >>> from clouddrift.sphere import coriolis_frequency, EARTH_DAY_SECONDS
         >>> from clouddrift.transfer import apply_transfer_function, slab_wind_transfer
@@ -68,8 +69,8 @@ def apply_transfer_function(
     Raises
     ------
         ValueError
-            If input x is not a 1D array, or if transfer_func is callable but dt is not provided,
-            or if the shape of transfer_func does not match the length of x.
+            If input x is not a one-dimensional array, or if transfer_func is callable
+            but dt is not provided, or if the shape of transfer_func does not match the length of x.
     """
 
     x = np.asarray(x)
@@ -98,36 +99,54 @@ def apply_transfer_function(
     return y
 
 
+def _epanechnikov_kernel(window_size):
+    # Epanechnikov kernel: k(x) = 0.75 * (1 - x^2) for |x| <= 1
+    x = np.linspace(-1, 1, window_size + 2)[
+        1:-1
+    ]  # Exclude endpoints to avoid null weights
+    kernel = 0.75 * (1 - x**2)
+    return kernel
+
+
 def apply_sliding_transfer_function(
     x: np.ndarray,
     transfer_func: Callable | np.ndarray,
     window_size: int,
     step: int = 1,
     dt: Optional[float] = None,
-) -> np.ndarray:
+    kernel: str = "uniform",
+) -> tuple[np.ndarray, np.ndarray]:
     """
-    Applies a transfer function to a 1D time series in a sliding window fashion. In order to make
-    sure that all windows are full-sized, the input time series is extended as needed using a mirror
-    boundary condition.
+    Applies a transfer function in the frequency domain to a one-dimensional input time series in a
+    sliding window fashion.
+    This function returns the result for each window, as well as a weighted average of the results
+    across all windows using a uniform (default) or Epanechnikov kernel.
+    Mirror boundary conditions are used to extend the input time series so that the sliding window
+    can be applied without losing data at the edges.
 
     Parameters
     ----------
         x:  array_like
-            Input time series.
+            Input one-dimensional time series.
         transfer_func: callable or numpy ndarray
             Transfer function to apply to the input x.
         window_size: int
-            Size of the sliding window.
+            Size of the sliding window. It cannot be larger than the length of x.
         step: int
-            Step size for the sliding window. Default is 1.
+            Step size for the sliding window. Default is 1. It cannot be larger than or equal
+            to window_size.
         dt: float, optional
             Time step size of the input time series, needed if transfer_func is callable.
+        kernel: str, optional
+            Type of kernel to use for weighting. Options are "uniform" (default), "epanechnikov",
+            or any first letter of either.
 
     Returns
     -------
-        result: np.ndarray
-            Array of results, one for each window.
-            The shape of the result will be ((len(tau) - window_size) // step + 1, window_size)
+        result: tuple of np.ndarray
+            Tuple containing:
+                - Array of results for each window (shape: (num_windows, window_size))
+                - Weighted average result (shape: (n,))
 
     Examples
     --------
@@ -140,7 +159,7 @@ def apply_sliding_transfer_function(
         >>> dt = 1.0
         >>> transfer_func = lambda omega: 1 / (1 + (omega / (2 * np.pi * 0.1))**2)  # Low-pass filter
         >>> result = apply_sliding_transfer_function(x, transfer_func, window_size, step, dt)
-        The shape of the result is here ((len(x) - window_size) // step + 1, window_size) = (91, 10).
+        The shape of the result is here (len(x) // step + 1, window_size) = (101, 10).
 
         Apply a smoothing function in a sliding window:
         >>> import numpy as np
@@ -149,12 +168,12 @@ def apply_sliding_transfer_function(
         >>> window_size = 10
         >>> step = 1
         >>> smoothing_func = np.ones(window_size) / window_size  # Simple moving average
-        >>> result = apply_sliding_transfer_function(x, smoothing_func, window_size, step)
-        The shape of the result is here ((len(x) - window_size) // step + 1, window_size) = (91, 10).
+        >>> results, average_result = apply_sliding_transfer_function(x, smoothing_func, window_size, step)
+        The shape of results is here (len(x) // step + 1, window_size) = (91, 10).
 
         To a random wind stress hourly time series, apply an Ekman transfer function in a sliding window
         for an infinite boundary layer depth, an Ekman depth of 10 m, in order to obtain the Ekman
-        velocity at a depth of 15 m:
+        velocity at a depth of 15 m, and use an Epanechnikov kernel for weighting:
         >>> import numpy as np
         >>> from clouddrift.sphere import coriolis_frequency, EARTH_DAY_SECONDS
         >>> from clouddrift.transfer import apply_transfer_function, slab_wind_transfer
@@ -163,8 +182,8 @@ def apply_sliding_transfer_function(
         >>> transfer_ekman = lambda omega: wind_transfer(omega, z=15, cor_freq= cor_freq,
         delta=10.0, mu=0.0, bld=np.inf, boundary_condition="no-slip")[0].squeeze()
         >>> dt = 1/24  # Time step needed for callable transfer functions
-        >>> result = apply_sliding_transfer_function(tau, transfer_ekman, window_size=24, step=1, dt=dt)
-        The shape of the result is here ((len(tau) - window_size) // step + 1, window_size) = (217, 24).
+        >>> results, average_result = apply_sliding_transfer_function(tau, transfer_ekman, window_size=24, step=12, dt=dt, kernel="epanechnikov")
+        The shape of results is here (len(tau) // step + 1, window_size) = (21, 24).
 
     Raises
     ------
@@ -179,38 +198,58 @@ def apply_sliding_transfer_function(
         raise ValueError("window_size and step must be positive integers.")
     if window_size > n:
         raise ValueError("window_size must not be greater than the length of x.")
-    if step >= window_size:
-        raise ValueError("step must be smaller than window_size for sliding windows.")
+    if step > window_size:
+        raise ValueError("step must not be greater than window_size.")
     if dt is None and callable(transfer_func):
         raise ValueError(
-            "dt (time step) must be provided when transfer_func is callable."
+            "dt (time step of input) must be provided when transfer_func is callable."
         )
 
-    # Extend x so that all windows are full-sized using mirror boundary condition
-    remainder = (n - window_size) % step
-    if remainder != 0:
-        extra = step - remainder
-        # Mirror boundary: reflect the last 'extra' needed values
-        mirror = x[-extra:][::-1] if extra > 0 else np.array([])
-        x_ = np.concatenate([x, mirror])
+    # Kernel selection (default is uniform)
+    kernel_str = str(kernel).lower() if kernel is not None else "uniform"
+    if kernel_str.startswith("e"):
+        kernel_arr = _epanechnikov_kernel(window_size)
+    elif kernel_str.startswith("u") or kernel_str == "":
+        kernel_arr = np.ones(window_size)
     else:
-        x_ = x.copy()
+        raise ValueError(
+            "kernel must be 'uniform', 'epanechnikov', or their first letter."
+        )
+
+    # Extend x by half window_size at the beginning and end using mirror boundary condition
+    half_window = window_size // 2
+    start_mirror = x[1 : half_window + 1][::-1] if half_window > 0 else np.array([])
+    end_mirror = x[-half_window - 1 : -1][::-1] if half_window > 0 else np.array([])
+    x_ = np.concatenate([start_mirror, x, end_mirror])
 
     n_ = x_.size
-
+    # initialize arrays for results
+    result_sum = np.zeros(n_, dtype=complex)
+    result_weight = np.zeros(n_, dtype=float)
     result = []
+
+    # Sliding window application
     for start in range(0, n_ - window_size + 1, step):
         x_tmp = x_[start : start + window_size]
-        # result.append(transfer_func(window))
         if callable(transfer_func):
-            result.append(apply_transfer_function(x_tmp, transfer_func, dt))
+            result_tmp = apply_transfer_function(x_tmp, transfer_func, dt)
+            result.append(result_tmp)
         else:
             if transfer_func.ndim == 1:
-                # If transfer_func is a 1D array, apply it directly
-                result.append(apply_transfer_function(x_tmp, transfer_func))
+                result_tmp = apply_transfer_function(x_tmp, transfer_func)
+                result.append(result_tmp)
             else:
                 raise ValueError("transfer_func must be callable or a 1D numpy array.")
-    return np.array(result)
+        weighted_result_tmp = result_tmp * kernel_arr
+        result_sum[start : start + window_size] += weighted_result_tmp
+        result_weight[start : start + window_size] += kernel_arr
+
+    # average the results
+    average_result = result_sum / result_weight
+    # truncate the result to the original length of x
+    average_result = average_result[half_window : half_window + n]
+
+    return np.array(result), average_result
 
 
 def slab_wind_transfer(
