@@ -3,6 +3,7 @@ This module provides functions to calculate various transfer function from wind 
 velocity.
 """
 
+import warnings
 from typing import Callable, Optional
 
 import numpy as np
@@ -111,7 +112,7 @@ def _epanechnikov_kernel(window_size):
 def apply_sliding_transfer_function(
     x: np.ndarray,
     transfer_func: Callable | np.ndarray,
-    window_size: int,
+    window_size: Optional[int] = None,
     step: int = 1,
     dt: Optional[float] = None,
     kernel: str = "uniform",
@@ -130,8 +131,9 @@ def apply_sliding_transfer_function(
             Input one-dimensional time series.
         transfer_func: callable or numpy ndarray
             Transfer function to apply to the input x.
-        window_size: int
-            Size of the sliding window. It cannot be larger than the length of x.
+        window_size: int, optional
+            Size of the sliding window, needed if transfer_func is callable. It cannot be larger
+            than the length of x.
         step: int
             Step size for the sliding window. Default is 1. It cannot be larger than or equal
             to window_size.
@@ -194,16 +196,42 @@ def apply_sliding_transfer_function(
     x = np.asarray(x)
     n = x.size
 
+    if callable(transfer_func):
+        if window_size is None:
+            raise ValueError(
+                "window_size must be provided when transfer_func is callable."
+            )
+        if not isinstance(window_size, int) or window_size <= 0:
+            raise ValueError("window_size must be a positive integer.")
+        if dt is None:
+            raise ValueError(
+                "dt (time step of input) must be provided when transfer_func is callable."
+            )
+
+    if not callable(transfer_func) and isinstance(transfer_func, np.ndarray):
+        if transfer_func.ndim != 1:
+            raise ValueError("transfer_func must be a 1D numpy array.")
+        if window_size is None:
+            window_size = transfer_func.shape[0]
+        if window_size != transfer_func.shape[0]:
+            raise ValueError(
+                "When transfer_func is a numpy ndarray, its length must match window_size if this one"
+                " is provided."
+            )
+        if dt is not None:
+            warnings.warn(
+                "dt is ignored since transfer_func is not a callable.",
+                stacklevel=2,
+            )
+
     if window_size <= 0 or step <= 0:
         raise ValueError("window_size and step must be positive integers.")
+
     if window_size > n:
         raise ValueError("window_size must not be greater than the length of x.")
+
     if step > window_size:
         raise ValueError("step must not be greater than window_size.")
-    if dt is None and callable(transfer_func):
-        raise ValueError(
-            "dt (time step of input) must be provided when transfer_func is callable."
-        )
 
     # Kernel selection (default is uniform)
     kernel_str = str(kernel).lower() if kernel is not None else "uniform"
@@ -217,18 +245,24 @@ def apply_sliding_transfer_function(
         )
 
     # Extend x by half window_size at the beginning and end using mirror boundary condition
-    half_window = window_size // 2
-    start_mirror = x[1 : half_window + 1][::-1] if half_window > 0 else np.array([])
-    end_mirror = x[-half_window - 1 : -1][::-1] if half_window > 0 else np.array([])
-    x_ = np.concatenate([start_mirror, x, end_mirror])
+    before_window = window_size // 2
+    after_window = window_size - before_window
+    before_mirror = (
+        x[1 : before_window + 1][::-1] if before_window > 0 else np.array([])
+    )
+    after_mirror = x[-after_window - 1 : -1][::-1] if after_window > 0 else np.array([])
+    x_ = np.concatenate([before_mirror, x, after_mirror])
 
-    n_ = x_.size
+    n_ = (
+        x_.size
+    )  # length of extended array is n + before_window + after_window = n + window_size
     # initialize arrays for results
     result_sum = np.zeros(n_, dtype=complex)
     result_weight = np.zeros(n_, dtype=float)
     result = []
 
     # Sliding window application
+    # number of windows is (n_ - window_size) // step + 1 = n // step + 1
     for start in range(0, n_ - window_size + 1, step):
         x_tmp = x_[start : start + window_size]
         if callable(transfer_func):
@@ -246,8 +280,8 @@ def apply_sliding_transfer_function(
 
     # average the results
     average_result = result_sum / result_weight
-    # truncate the result to the original length of x
-    average_result = average_result[half_window : half_window + n]
+    # truncate the average_result to the original length of x
+    average_result = average_result[before_window : before_window + n]
 
     return np.array(result), average_result
 
