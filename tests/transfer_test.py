@@ -6,12 +6,13 @@ from scipy.special import iv, kv  # type: ignore
 
 from clouddrift.sphere import EARTH_DAY_SECONDS
 from clouddrift.transfer import (
+    _epanechnikov_kernel,
     _rot,
     _xis,
+    apply_transfer_function,
     ivtilde,
     kvtilde,
     wind_transfer,
-    apply_transfer_function,
 )
 
 if __name__ == "__main__":
@@ -1087,3 +1088,27 @@ class TestApplyTransferFunction(unittest.TestCase):
         self.assertTrue(
             np.allclose(np.unwrap(np.angle(x) - np.angle(y)), np.pi / 4, atol=1e-2)
         )
+
+
+class TestEpanechnikovKernel(unittest.TestCase):
+    def test_kernel_sum(self):
+        # The sum should be positive and less than window_size (since endpoints are excluded)
+        for window_size in [1, 2, 5, 10, 50]:
+            kernel = _epanechnikov_kernel(window_size)
+            self.assertEqual(kernel.shape, (window_size,))
+            self.assertTrue(np.all(kernel >= 0))
+            self.assertTrue(np.sum(kernel) > 0)
+            self.assertTrue(np.sum(kernel) < window_size)
+
+    def test_kernel_values_range(self):
+        # All kernel values should be between 0 and 0.75 (inclusive)
+        for window_size in [1, 3, 7, 15]:
+            kernel = _epanechnikov_kernel(window_size)
+            self.assertTrue(np.all(kernel <= 0.75))
+            self.assertTrue(np.all(kernel >= 0))
+
+    def test_kernel_symmetry(self):
+        # The kernel should be symmetric
+        for window_size in [2, 4, 8, 16]:
+            kernel = _epanechnikov_kernel(window_size)
+            self.assertTrue(np.allclose(kernel, kernel[::-1]))
