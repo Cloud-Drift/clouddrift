@@ -11,6 +11,7 @@ from clouddrift.transfer import (
     ivtilde,
     kvtilde,
     wind_transfer,
+    apply_transfer_function,
 )
 
 if __name__ == "__main__":
@@ -1006,3 +1007,83 @@ class TestRot(unittest.TestCase):
         angles = np.array([])
         expected_results = np.array([])
         assert np.allclose(_rot(angles), expected_results)
+
+
+class TestApplyTransferFunction(unittest.TestCase):
+    def test_lowpass_filter_callable(self):
+        # Test with a simple low-pass filter as a callable
+        x = np.random.randn(128)
+        dt = 1.0
+        cutoff = 0.1
+        transfer_func = lambda omega: 1 / (1 + (omega / (2 * np.pi * cutoff)) ** 2)
+        y = apply_transfer_function(x, transfer_func, dt)
+        self.assertEqual(y.shape, x.shape)
+        # Output should be complex due to FFT/iFFT
+        self.assertTrue(np.iscomplexobj(y))
+
+    def test_transfer_func_array(self):
+        # Test with transfer_func as an array (all-pass)
+        x = np.random.randn(64)
+        transfer_func = np.ones_like(x)
+        y = apply_transfer_function(x, transfer_func)
+        self.assertEqual(y.shape, x.shape)
+        # Should be close to original (all-pass filter)
+        self.assertTrue(np.allclose(y, x, atol=1e-12))
+
+    def test_transfer_func_array_shape_mismatch(self):
+        # Should raise ValueError if transfer_func array shape does not match
+        x = np.random.randn(32)
+        transfer_func = np.ones(16)
+        with self.assertRaises(ValueError):
+            apply_transfer_function(x, transfer_func)
+
+    def test_non_1d_input(self):
+        # Should raise ValueError if input is not 1D
+        x = np.random.randn(8, 8)
+        transfer_func = np.ones(8)
+        with self.assertRaises(ValueError):
+            apply_transfer_function(x, transfer_func)
+
+    def test_callable_without_dt(self):
+        # Should raise ValueError if transfer_func is callable and dt is None
+        x = np.random.randn(16)
+        transfer_func = lambda omega: np.ones_like(omega)
+        with self.assertRaises(ValueError):
+            apply_transfer_function(x, transfer_func)
+
+    def test_complex_input(self):
+        # Test with complex input and a simple transfer function
+        x = np.random.randn(32) + 1j * np.random.randn(32)
+        transfer_func = np.ones_like(x)
+        y = apply_transfer_function(x, transfer_func)
+        self.assertEqual(y.shape, x.shape)
+        self.assertTrue(np.allclose(y, x, atol=1e-12))
+
+    def test_suppress_negative_frequencies(self):
+        # Test suppressing negative frequencies
+        x = np.random.randn(100)
+        transfer_func = np.ones(100)
+        transfer_func[50:] = 0
+        y = apply_transfer_function(x, transfer_func)
+        self.assertEqual(y.shape, x.shape)
+        # Output should not be real-valued due to frequency suppression
+        self.assertTrue(np.iscomplexobj(y))
+
+    def test_45_degrees_result(self):
+        # Test that the result is at 45 degrees for a specific transfer function
+        omega1 = 2 * np.pi / (24 * 60 * 60)
+        dt = 3600
+        x = np.exp(1j * np.arange(24 * 10) * dt * omega1)
+        transfer_func = lambda omega: wind_transfer(
+            omega,
+            z=0,
+            cor_freq=2 * np.pi * 1.5,
+            delta=100.0,
+            mu=0.0,
+            bld=np.inf,
+            boundary_condition="no-slip",
+        )[0].squeeze()
+        y = apply_transfer_function(x, transfer_func, dt)
+        self.assertTrue(
+            np.allclose(np.unwrap(np.angle(x) - np.angle(y)), np.pi / 4, atol=1e-2)
+        )
