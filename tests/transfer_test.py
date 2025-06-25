@@ -1,4 +1,5 @@
 import unittest
+import warnings
 
 import numpy as np
 from numpy.lib.scimath import sqrt
@@ -9,6 +10,7 @@ from clouddrift.transfer import (
     _epanechnikov_kernel,
     _rot,
     _xis,
+    apply_sliding_transfer_function,
     apply_transfer_function,
     ivtilde,
     kvtilde,
@@ -1112,3 +1114,189 @@ class TestEpanechnikovKernel(unittest.TestCase):
         for window_size in [2, 4, 8, 16]:
             kernel = _epanechnikov_kernel(window_size)
             self.assertTrue(np.allclose(kernel, kernel[::-1]))
+
+
+class TestApplySlidingTransferFunction(unittest.TestCase):
+    def test_sliding_lowpass_callable_even(self):
+        # Test with a simple low-pass filter as a callable
+        x = np.random.randn(50)
+        window_size = 10
+        step = 1
+        dt = 1.0
+        cutoff = 0.1
+        transfer_func = lambda omega: 1 / (1 + (omega / (2 * np.pi * cutoff)) ** 2)
+        results, avg = apply_sliding_transfer_function(
+            x, transfer_func, window_size, step, dt
+        )
+        # Number of windows: (n + before + after - window_size) // step + 1
+        n = len(x)
+        before = window_size // 2
+        after = window_size - before
+        n_ = n + before + after
+        expected_windows = (n_ - window_size) // step + 1
+        self.assertEqual(results.shape, (expected_windows, window_size))
+        self.assertEqual(avg.shape, (n,))
+        self.assertTrue(np.iscomplexobj(results))
+        self.assertTrue(np.iscomplexobj(avg))
+
+    def test_sliding_lowpass_callable_odd(self):
+        # Test with a simple low-pass filter as a callable with odd window size
+        x = np.random.randn(51)
+        window_size = 9
+        step = 2
+        dt = 1.0
+        cutoff = 0.1
+        transfer_func = lambda omega: 1 / (1 + (omega / (2 * np.pi * cutoff)) ** 2)
+        results, avg = apply_sliding_transfer_function(
+            x, transfer_func, window_size, step, dt
+        )
+        n = len(x)
+        before = window_size // 2
+        after = window_size - before
+        n_ = n + before + after
+        expected_windows = (n_ - window_size) // step + 1
+        self.assertEqual(results.shape, (expected_windows, window_size))
+        self.assertEqual(avg.shape, (n,))
+        self.assertTrue(np.iscomplexobj(results))
+        self.assertTrue(np.iscomplexobj(avg))
+
+    def test_sliding_transfer_func_array(self):
+        # Test with transfer_func as an array (moving average)
+        x = np.random.randn(30)
+        window_size = 5
+        step = 1
+        transfer_func = np.ones(window_size) / window_size
+        results, avg = apply_sliding_transfer_function(
+            x, transfer_func, window_size, step
+        )
+        n = len(x)
+        before = window_size // 2
+        after = window_size - before
+        n_ = n + before + after
+        expected_windows = (n_ - window_size) // step + 1
+        self.assertEqual(results.shape, (expected_windows, window_size))
+        self.assertEqual(avg.shape, (n,))
+        # Output should be complex due to FFT/iFFT, but real input and real filter should yield real output
+        self.assertTrue(np.allclose(avg.imag, 0, atol=1e-12))
+
+    def test_kernel_epanechnikov(self):
+        # Test with Epanechnikov kernel
+        x = np.random.randn(40)
+        window_size = 8
+        step = 2
+        transfer_func = np.ones(window_size)
+        results, avg = apply_sliding_transfer_function(
+            x, transfer_func, window_size, step, kernel="epanechnikov"
+        )
+        n = len(x)
+        before = window_size // 2
+        after = window_size - before
+        n_ = n + before + after
+        expected_windows = (n_ - window_size) // step + 1
+        self.assertEqual(results.shape, (expected_windows, window_size))
+        self.assertEqual(avg.shape, (n,))
+
+    def test_invalid_window_size(self):
+        x = np.random.randn(10)
+        transfer_func = np.ones(5)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=1)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=11)
+
+    def test_invalid_step(self):
+        x = np.random.randn(10)
+        transfer_func = np.ones(5)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=5, step=0)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=5, step=6)
+
+    def test_invalid_kernel(self):
+        x = np.random.randn(10)
+        transfer_func = np.ones(5)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(
+                x, transfer_func, window_size=5, kernel="invalid"
+            )
+
+    def test_callable_without_dt(self):
+        x = np.random.randn(10)
+        transfer_func = lambda omega: np.ones_like(omega)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=5)
+
+    def test_array_shape_mismatch(self):
+        x = np.random.randn(10)
+        transfer_func = np.ones(4)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=5)
+
+    def test_non_1d_transfer_func(self):
+        x = np.random.randn(10)
+        transfer_func = np.ones((5, 2))
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=5)
+
+    def test_dt_warning_for_array(self):
+        x = np.random.randn(10)
+        transfer_func = np.ones(5)
+        # Should not raise, but should warn
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            apply_sliding_transfer_function(x, transfer_func, window_size=5, dt=1.0)
+            self.assertTrue(any("dt is ignored" in str(warn.message) for warn in w))
+
+    def test_output_matches_allpass(self):
+        # If transfer_func is all ones, output should match input (except for edge effects)
+        x = np.random.randn(20)
+        window_size = 5
+        transfer_func = np.ones(window_size)
+        results, avg = apply_sliding_transfer_function(
+            x, transfer_func, window_size, step=1
+        )
+        # The average should be close to the input for the central region
+        center = slice(window_size // 2, -window_size // 2)
+        self.assertTrue(np.allclose(avg[center], x[center], atol=1e-10))
+
+    def test_output_45_degrees_northern_hemisphere(self):
+        # Test that the output is at 45 degrees for a specific transfer function
+        omega1 = 2 * np.pi / (24 * 60 * 60)
+        dt = 3600
+        x = np.exp(1j * np.arange(24 * 10) * dt * omega1)
+        transfer_func = lambda omega: wind_transfer(
+            omega,
+            z=0,
+            cor_freq=2 * np.pi * 1.5,
+            delta=100.0,
+            mu=0.0,
+            bld=np.inf,
+            boundary_condition="no-slip",
+        )[0].squeeze()
+        _, avg = apply_sliding_transfer_function(
+            x, transfer_func, window_size=10, step=1, dt=dt
+        )
+        self.assertTrue(
+            np.allclose(np.unwrap(np.angle(x) - np.angle(avg)), np.pi / 4, atol=1e-2)
+        )
+
+    def test_output_45_degrees_southern_hemisphere(self):
+        # Test that the output is at 45 degrees for a specific transfer function
+        omega1 = 2 * np.pi / (24 * 60 * 60)
+        dt = 3600
+        x = np.exp(1j * np.arange(24 * 10) * dt * omega1)
+        transfer_func = lambda omega: wind_transfer(
+            omega,
+            z=0,
+            cor_freq=-2 * np.pi * 1.5,
+            delta=100.0,
+            mu=0.0,
+            bld=np.inf,
+            boundary_condition="no-slip",
+        )[0].squeeze()
+        _, avg = apply_sliding_transfer_function(
+            x, transfer_func, window_size=10, step=1, dt=dt
+        )
+        self.assertTrue(
+            np.allclose(np.unwrap(np.angle(x) - np.angle(avg)), -np.pi / 4, atol=1e-2)
+        )
