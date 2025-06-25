@@ -90,9 +90,14 @@ def apply_transfer_function(
         omega = 2 * np.pi * np.fft.fftfreq(n, dt)
         G = transfer_func(omega)
     else:
+        if dt is not None:
+            warnings.warn(
+                "The 'dt' argument is ignored when 'transfer_func' is provided as an array.",
+                UserWarning,
+            )
         G = np.asarray(transfer_func)
         if G.shape != Xf.shape:
-            raise ValueError("Transfer function array must match the shape of input x.")
+           raise ValueError("Transfer function array must match the shape of input x.")
 
     Yf = G * Xf
     y = np.fft.ifft(Yf)
