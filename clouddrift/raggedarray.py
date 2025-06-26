@@ -101,7 +101,7 @@ class RaggedArray:
     @classmethod
     def from_files(
         cls,
-        indices: list[int],
+        indices: list[int] | np.ndarray,
         preprocess_func: Callable[[int], xr.Dataset],
         name_coords: list,
         name_meta: list = list(),
