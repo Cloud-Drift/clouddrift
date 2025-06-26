@@ -18,26 +18,25 @@ def binned_statistics(
     zeros_to_nan: bool = False,
 ) -> xr.Dataset:
     """
-    Compute N-dimensional histogram binning and calculate variable means in each bin.
+    Perform N-dimensional binning and compute mean of values in each bin. The result is returned as an Xarray Dataset.
 
     Parameters
     ----------
     coords : array-like or list of array-like
-        Arrays of the coordinates of the Lagrangian data to be binned. For 1D data, a single array can be provided.
-        For multiple dimensions, the first array represents each coordinates along the first dimension,
-        the second array represents each coordinates along the second dimension, and so on.
+        Array(s) of Lagrangian data coordinates to be binned. For 1D, provide a single array.
+        For N-dimensions, provide a list of N arrays, each giving coordinates along one dimension.
     data : array-like or list of array-like
-        Data associated at the Lagrangian coordinates described in coords. Multiple variables can be provided as a list.
+        Data values associated with the Lagrangian coordinates in coords.
+        Can be a single array or a list of arrays for multiple variables.
     bins : int or lists, optional
-        Number of bins per dimension (int) or bin edges per dimension (list). Default is 10.
-        If an integer is provided, it will be used for all dimensions.
-        If a list is provided, it should match the number of dimensions in coords.
-        Each element can be an integer or an array of bin edges.
-        If None, defaults to 10 bins per dimension.
+        Number of bins or bin edges per dimension. It can be:
+        - An int: same number of bins for all dimensions (default: 10),
+        - A list of ints or arrays: one per dimension, specifying either bin count or bin edges,
+        - None: defaults to 10 bins per dimension.
     bins_range : list of tuples, optional
-        Outer bin limits for each dimension\
+        Outer bin limits for each dimension.
     dim_names : list of str, optional
-        Names for the dimensions of the output xr.Dataset
+        Names for the dimensions of the output xr.Dataset.
         If None, default names are "dim_0_bin", "dim_1_bin", etc.
     output_names : list of str, optional
         Names for output variables in the xr.Dataset.
@@ -48,7 +47,7 @@ def binned_statistics(
     Returns
     -------
     xr.Dataset
-        Xarray dataset with binned means for each variable.
+        Xarray dataset with binned means and count for each variable.
     """
     # convert coords, data parameters to numpy arrays and validate dimensions
     # D, N = number of dimensions and number of data points
@@ -69,7 +68,7 @@ def binned_statistics(
     # set default bins and bins range
     if isinstance(bins, (list, tuple)):
         if len(bins) != len(coords):
-            raise ValueError("bins must match the number of coordinate dimensions")
+            raise ValueError("bins must match the dimensions of the coordinates")
         bins = [b if b is not None else DEFAULT_BINS_NUMBER for b in bins]
     elif isinstance(bins, int):
         bins = [bins if bins is not None else DEFAULT_BINS_NUMBER] * len(coords)
@@ -109,13 +108,11 @@ def binned_statistics(
 
     # ensure inputs are consistent
     if D != len(dim_names):
-        raise ValueError("coords_list and dim_names must have the same length")
+        raise ValueError("coords and dim_names must have the same length")
     if V != len(output_names):
-        raise ValueError("variables_list and output_names must have the same length")
+        raise ValueError("data and output_names must have the same length")
     if N != VN:
-        raise ValueError(
-            "coords_list and variables_list must have the same number of elements"
-        )
+        raise ValueError("coords and data must have the same number of data points")
 
     # edges and bin centers
     edges = [np.linspace(r[0], r[1], b + 1) for r, b in zip(bins_range, bins)]
