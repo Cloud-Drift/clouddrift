@@ -293,7 +293,7 @@ def binned_statistics(
         Outer bin limits for each dimension.
     statistics : str or list of str, optional
         Statistics to compute for each bin (default: "mean"). Can be a string or a list of
-        variables to compute. Supported values are 'count', 'sum', 'mean', 'median', 'std', 'min', 'max'.
+        variables to compute. Supported values are 'count', 'sum', 'mean', 'std', 'min', 'max'.
     functions : Callable[[np.ndarray], float] or list of Callable[[np.ndarray], float], optional
         Custom functions to apply to the binned data. Each function should take a 1D array
         of values and return a single value.
