@@ -368,11 +368,11 @@ def binned_statistics(
         functions = []
     elif not isinstance(functions, (list, tuple)):
         functions = [functions]
-        for function in functions:
-            if not isinstance(function, Callable):
-                raise ValueError(
-                    f"Custom function '{_get_function_name(function)}' is not callable."
-                )
+    for function in functions:
+        if not callable(function):
+            raise ValueError(
+                f"Custom function '{_get_function_name(function)}' is not callable."
+            )
 
     # set default dimension names
     if dim_names is None:
