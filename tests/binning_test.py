@@ -117,8 +117,8 @@ class binning_tests(unittest.TestCase):
         ]
         ds = binned_statistics(coords=self.coords_1d, data=variable, bins=2)
         self.assertEqual(len(ds.data_vars), 4)
-        self.assertTrue(all(ds["binned_mean_0"] == value_1))
-        self.assertTrue(all(ds["binned_mean_1"] == value_2))
+        self.assertTrue(all(ds["binned_0_mean"] == value_1))
+        self.assertTrue(all(ds["binned_1_mean"] == value_2))
 
         coords_threshold = 1
         variables = np.ones_like(self.coords_1d) * value_1
@@ -130,8 +130,8 @@ class binning_tests(unittest.TestCase):
             bins_range=(0, 3),
         )
         mask = ds.dim_0_bin.values < coords_threshold
-        self.assertTrue(all(ds["binned_mean_0"].values[mask] == value_1))
-        self.assertTrue(all(ds["binned_mean_0"].values[~mask] == value_2))
+        self.assertTrue(all(ds["binned_0_mean"].values[mask] == value_1))
+        self.assertTrue(all(ds["binned_0_mean"].values[~mask] == value_2))
 
     def test_2d_output(self):
         ds = binned_statistics(coords=self.coords_2d)
@@ -183,7 +183,7 @@ class binning_tests(unittest.TestCase):
         self.assertEqual(len(ds.data_vars), 2)
         self.assertIsNone(
             np.testing.assert_allclose(
-                ds["binned_mean_0"].values.flatten(),
+                ds["binned_0_mean"].values.flatten(),
                 np.array(
                     [
                         0,  # (-1, -1, -1)
@@ -276,8 +276,10 @@ class binning_tests(unittest.TestCase):
             data=[self.coords_1d, self.coords_1d],
             output_names=["mean_x", "mean_y"],
         )
-        self.assertIn("mean_x", ds.data_vars)
-        self.assertIn("mean_y", ds.data_vars)
+        self.assertIn("mean_x_count", ds.data_vars)
+        self.assertIn("mean_y_count", ds.data_vars)
+        self.assertIn("mean_x_mean", ds.data_vars)
+        self.assertIn("mean_y_mean", ds.data_vars)
 
     def test_zeros_to_nan(self):
         ds = binned_statistics(coords=self.coords_1d, bins=4, bins_range=(-1, 0))
