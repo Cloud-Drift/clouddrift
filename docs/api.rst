@@ -11,6 +11,7 @@ Auto-generated summary of CloudDrift's API. For more details and examples, refer
     :recursive:
 
     adapters
+    binning
     datasets
     kinematics
     pairs
