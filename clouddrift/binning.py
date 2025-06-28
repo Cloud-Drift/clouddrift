@@ -78,8 +78,8 @@ def _binned_mean(
     flat_idx: np.ndarray,
     n_bins: int,
     values: np.ndarray,
-    bin_counts: np.ndarray = None,
-    bin_sum: np.ndarray = None,
+    bin_counts: np.ndarray | None = None,
+    bin_sum: np.ndarray | None = None,
 ) -> np.ndarray:
     """
     Compute a reduction (mean, std, min, max, etc.) of values per bin.
@@ -120,8 +120,8 @@ def _binned_std(
     flat_idx: np.ndarray,
     n_bins: int,
     values: np.ndarray,
-    bin_counts: np.ndarray = None,
-    bin_mean: np.ndarray = None,
+    bin_counts: np.ndarray | None = None,
+    bin_mean: np.ndarray | None = None,
 ) -> np.ndarray:
     """
     Compute the standard deviation of values per bin.
