@@ -35,7 +35,7 @@ def _get_function_name(func: Callable[[np.ndarray], float]) -> str:
     return function_name
 
 
-def _binned_count(flat_idx, n_bins):
+def _binned_count(flat_idx: np.ndarray, n_bins: int) -> np.ndarray:
     """Compute the count of values in each bin.
 
     Parameters
@@ -53,7 +53,7 @@ def _binned_count(flat_idx, n_bins):
     return np.bincount(flat_idx, minlength=n_bins)
 
 
-def _binned_sum(flat_idx, n_bins, values):
+def _binned_sum(flat_idx: np.ndarray, n_bins: int, values: np.ndarray) -> np.ndarray:
     """
     Compute the sum of values per bin.
 
@@ -74,7 +74,13 @@ def _binned_sum(flat_idx, n_bins, values):
     return np.bincount(flat_idx, weights=values, minlength=n_bins)
 
 
-def _binned_mean(flat_idx, n_bins, values, bin_counts=None, bin_sum=None):
+def _binned_mean(
+    flat_idx: np.ndarray,
+    n_bins: int,
+    values: np.ndarray,
+    bin_counts: np.ndarray = None,
+    bin_sum: np.ndarray = None,
+) -> np.ndarray:
     """
     Compute a reduction (mean, std, min, max, etc.) of values per bin.
 
@@ -110,7 +116,13 @@ def _binned_mean(flat_idx, n_bins, values, bin_counts=None, bin_sum=None):
     )
 
 
-def _binned_std(flat_idx, n_bins, values, bin_counts=None, bin_mean=None):
+def _binned_std(
+    flat_idx: np.ndarray,
+    n_bins: int,
+    values: np.ndarray,
+    bin_counts: np.ndarray = None,
+    bin_mean: np.ndarray = None,
+) -> np.ndarray:
     """
     Compute the standard deviation of values per bin.
 
@@ -147,7 +159,9 @@ def _binned_std(flat_idx, n_bins, values, bin_counts=None, bin_mean=None):
     return np.sqrt(variance)
 
 
-def _binned_min(flat_idx, n_bins, values, fill_value=np.nan):
+def _binned_min(
+    flat_idx: np.ndarray, n_bins: int, values: np.ndarray, fill_value: float = np.nan
+) -> np.ndarray:
     """
     Compute the minimum of values per bin.
 
@@ -173,7 +187,9 @@ def _binned_min(flat_idx, n_bins, values, fill_value=np.nan):
     return output
 
 
-def _binned_max(flat_idx, n_bins, values, fill_value=np.nan):
+def _binned_max(
+    flat_idx: np.ndarray, n_bins: int, values: np.ndarray, fill_value: float = np.nan
+) -> np.ndarray:
     """
     Compute the maximum of values per bin.
 
@@ -348,6 +364,16 @@ def binned_statistics(
         )
     statistics = sorted(set(statistics), key=lambda x: ordered_statistics.index(x))
 
+    if functions is None:
+        functions = []
+    elif not isinstance(functions, (list, tuple)):
+        functions = [functions]
+        for function in functions:
+            if not isinstance(function, Callable):
+                raise ValueError(
+                    f"Custom function '{_get_function_name(function)}' is not callable."
+                )
+
     # set default dimension names
     if dim_names is None:
         dim_names = [f"dim_{i}_bin" for i in range(len(coords))]
@@ -379,6 +405,7 @@ def binned_statistics(
     # edges and bin centers
     edges = [np.linspace(r[0], r[1], b + 1) for r, b in zip(bins_range, bins)]
     edges_sz = [len(e) - 1 for e in edges]
+    n_bins = int(np.prod(edges_sz))
     bin_centers = [0.5 * (e[:-1] + e[1:]) for e in edges]
 
     # digitize coordinates into bin indices
@@ -400,7 +427,7 @@ def binned_statistics(
 
         # count the number of points in each bin
         flat_idx = np.ravel_multi_index(indices_finite, edges_sz)
-        bin_counts = _binned_count(flat_idx, np.prod(edges_sz))
+        bin_counts = _binned_count(flat_idx, n_bins)
         bin_mean, bin_sum = None, None
 
         # add bin count to the dataset
@@ -421,12 +448,12 @@ def binned_statistics(
         for statistic in statistics:
             print(f"Computing {statistic} for variable '{name}'...")
             if statistic == "sum":
-                binned_stats = _binned_sum(flat_idx, np.prod(edges_sz), var_finite)
+                binned_stats = _binned_sum(flat_idx, n_bins, var_finite)
                 bin_sum = binned_stats
             elif statistic == "mean":
                 binned_stats = _binned_mean(
                     flat_idx,
-                    np.prod(edges_sz),
+                    n_bins,
                     var_finite,
                     bin_sum=bin_sum,
                     bin_counts=bin_counts,
@@ -435,7 +462,7 @@ def binned_statistics(
             elif statistic == "std":
                 binned_stats = _binned_std(
                     flat_idx,
-                    np.prod(edges_sz),
+                    n_bins,
                     var_finite,
                     bin_mean=bin_mean,
                     bin_counts=bin_counts,
@@ -443,14 +470,14 @@ def binned_statistics(
             elif statistic == "min":
                 binned_stats = _binned_min(
                     flat_idx,
-                    np.prod(edges_sz),
+                    n_bins,
                     var_finite,
                     fill_value=np.nan,
                 )
             elif statistic == "max":
                 binned_stats = _binned_max(
                     flat_idx,
-                    np.prod(edges_sz),
+                    n_bins,
                     var_finite,
                     fill_value=np.nan,
                 )
@@ -473,7 +500,7 @@ def binned_statistics(
             )
             binned_stats = _binned_apply_func(
                 flat_idx,
-                np.prod(edges_sz),
+                n_bins,
                 var_finite,
                 func=function,
                 fill_value=np.nan,
