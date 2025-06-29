@@ -115,8 +115,10 @@ class binning_tests(unittest.TestCase):
             np.ones_like(self.coords_1d) * value_1,
             np.ones_like(self.coords_1d) * value_2,
         ]
-        ds = binned_statistics(coords=self.coords_1d, data=variable, bins=2)
-        self.assertEqual(len(ds.data_vars), 4)
+        ds = binned_statistics(
+            coords=self.coords_1d, data=variable, bins=2, statistics="mean"
+        )
+        self.assertEqual(len(ds.data_vars), 2)
         self.assertTrue(all(ds["binned_0_mean"] == value_1))
         self.assertTrue(all(ds["binned_1_mean"] == value_2))
 
@@ -128,6 +130,7 @@ class binning_tests(unittest.TestCase):
             data=variables,
             bins=3,
             bins_range=(0, 3),
+            statistics="mean",
         )
         mask = ds.dim_0_bin.values < coords_threshold
         self.assertTrue(all(ds["binned_0_mean"].values[mask] == value_1))
@@ -179,8 +182,9 @@ class binning_tests(unittest.TestCase):
             data=self.values_3d_ex,
             bins=(2, 2, 2),
             bins_range=[(-1, 1), (-1, 1), (-1, 1)],
+            statistics="mean",
         )
-        self.assertEqual(len(ds.data_vars), 2)
+        self.assertEqual(len(ds.data_vars), 1)
         self.assertIsNone(
             np.testing.assert_allclose(
                 ds["binned_0_mean"].values.flatten(),
@@ -267,19 +271,28 @@ class binning_tests(unittest.TestCase):
         ds = binned_statistics(
             coords=self.coords_1d,
             bins=4,
-            output_names=["mean_x"],
+            output_names=["x"],
         )
-        self.assertIn("mean_x", ds.data_vars)
+        self.assertIn("x_count", ds.data_vars)
 
         ds = binned_statistics(
             coords=self.coords_2d,
             data=[self.coords_1d, self.coords_1d],
-            output_names=["mean_x", "mean_y"],
+            output_names=["x", "y"],
         )
-        self.assertIn("mean_x_count", ds.data_vars)
-        self.assertIn("mean_y_count", ds.data_vars)
-        self.assertIn("mean_x_mean", ds.data_vars)
-        self.assertIn("mean_y_mean", ds.data_vars)
+        self.assertIn("x_count", ds.data_vars)
+        self.assertIn("y_count", ds.data_vars)
+
+        ds = binned_statistics(
+            coords=self.coords_2d,
+            data=[self.coords_1d, self.coords_1d],
+            output_names=["x", "y"],
+            statistics=["count", "mean"],
+        )
+        self.assertIn("x_count", ds.data_vars)
+        self.assertIn("y_count", ds.data_vars)
+        self.assertIn("x_mean", ds.data_vars)
+        self.assertIn("y_mean", ds.data_vars)
 
     def test_zeros_to_nan(self):
         ds = binned_statistics(coords=self.coords_1d, bins=4, bins_range=(-1, 0))

@@ -267,10 +267,7 @@ def binned_statistics(
     bins_range: list | None = None,
     dim_names: list[str] | None = None,
     output_names: list[str] | None = None,
-    statistics: str | list = "mean",
-    functions: Callable[[np.ndarray], float]
-    | list[Callable[[np.ndarray], float]]
-    | None = None,
+    statistics: str | list | Callable[[np.ndarray], float] = "count",
     zeros_to_nan: bool = False,
 ) -> xr.Dataset:
     """
@@ -291,12 +288,12 @@ def binned_statistics(
         - None: defaults to 10 bins per dimension.
     bins_range : list of tuples, optional
         Outer bin limits for each dimension.
-    statistics : str or list of str, optional
-        Statistics to compute for each bin (default: "mean"). Can be a string or a list of
-        variables to compute. Supported values are 'count', 'sum', 'mean', 'std', 'min', 'max'.
-    functions : Callable[[np.ndarray], float] or list of Callable[[np.ndarray], float], optional
-        Custom functions to apply to the binned data. Each function should take a 1D array
-        of values and return a single value.
+    statistics : str or list of str, Callable[[np.ndarray], float] or list[Callable[[np.ndarray], float]]
+        Statistics to compute for each bin. It can be:
+        - a string, supported values: 'count', 'sum', 'mean', 'std', 'median', 'min', 'max', (default: "count"),
+        - a list of strings from the same supported values, each specifying a statistic to compute,
+        - a custom function as a callable that take a 1D array of values and return a single value,
+        - a list of callables with the same signature as above.
     dim_names : list of str, optional
         Names for the dimensions of the output xr.Dataset.
         If None, default names are "dim_0_bin", "dim_1_bin", etc.
@@ -349,30 +346,38 @@ def binned_statistics(
 
     # create a list if statistics is a string
     ordered_statistics = ["count", "sum", "mean", "std", "median", "min", "max"]
-    if isinstance(statistics, str):
+    if statistics is None:
+        statistics = []
+    elif isinstance(statistics, str) or callable(statistics):
         statistics = [statistics]
     elif not isinstance(statistics, (list, tuple)):
         raise ValueError(
-            "'statistics' must be a string or a list of strings. "
+            "'statistics' must be a string, list of strings, callable, or a list of callables. "
             f"Supported values: {', '.join(ordered_statistics)}."
         )
-
-    if invalid := [stat for stat in statistics if stat not in ordered_statistics]:
+    statistics_str = [s for s in statistics if isinstance(s, str)]
+    statistics_funcs = [s for s in statistics if not isinstance(s, str)]
+    if invalid := [
+        stat
+        for stat in statistics_str
+        if (stat not in ordered_statistics) and not callable(stat)
+    ]:
         raise ValueError(
             f"Unsupported statistic(s): {', '.join(invalid)}. "
             f"Supported values: {', '.join(ordered_statistics)}."
         )
-    statistics = sorted(set(statistics), key=lambda x: ordered_statistics.index(x))
+    statistics = (
+        sorted(
+            set(statistics_str),
+            key=lambda x: ordered_statistics.index(x),
+        )
+        + statistics_funcs
+    )
 
-    if functions is None:
-        functions = []
-    elif not isinstance(functions, (list, tuple)):
-        functions = [functions]
-    for function in functions:
-        if not callable(function):
-            raise ValueError(
-                f"Custom function '{_get_function_name(function)}' is not callable."
-            )
+    if statistics and not data.size:
+        print(
+            f"No `data` provided, `statistics` ({statistics}) will be computed on the coordinates."
+        )
 
     # set default dimension names
     if dim_names is None:
@@ -386,7 +391,7 @@ def binned_statistics(
     # set default variable names
     if output_names is None:
         output_names = [
-            f"binned_{i}" if data[0].size else "binned_count" for i in range(len(data))
+            f"binned_{i}" if data[0].size else "binned" for i in range(len(data))
         ]
     else:
         output_names = [
@@ -427,27 +432,14 @@ def binned_statistics(
 
         # count the number of points in each bin
         flat_idx = np.ravel_multi_index(indices_finite, edges_sz)
-        bin_counts = _binned_count(flat_idx, n_bins)
-        bin_mean, bin_sum = None, None
-
-        # add bin count to the dataset
-        if zeros_to_nan and np.any(bin_counts == 0):
-            bin_counts = np.where(bin_counts == 0, np.nan, bin_counts)
-
-        count_var_name = f"{name}_count" if var.size else f"{name}"
-        ds[count_var_name] = xr.DataArray(
-            bin_counts.reshape(edges_sz),
-            dims=dim_names,
-            coords=dict(zip(dim_names, bin_centers)),
-        )
-
-        if not var.size:
-            return ds
 
         # loop through statistics for the variable
+        bin_count, bin_mean, bin_sum = None, None, None
         for statistic in statistics:
-            print(f"Computing {statistic} for variable '{name}'...")
-            if statistic == "sum":
+            if statistic == "count":
+                binned_stats = _binned_count(flat_idx, n_bins)
+                bin_count = binned_stats
+            elif statistic == "sum":
                 binned_stats = _binned_sum(flat_idx, n_bins, var_finite)
                 bin_sum = binned_stats
             elif statistic == "mean":
@@ -455,8 +447,8 @@ def binned_statistics(
                     flat_idx,
                     n_bins,
                     var_finite,
+                    bin_counts=bin_count,
                     bin_sum=bin_sum,
-                    bin_counts=bin_counts,
                 )
                 bin_mean = binned_stats
             elif statistic == "std":
@@ -464,8 +456,8 @@ def binned_statistics(
                     flat_idx,
                     n_bins,
                     var_finite,
+                    bin_counts=bin_count,
                     bin_mean=bin_mean,
-                    bin_counts=bin_counts,
                 )
             elif statistic == "min":
                 binned_stats = _binned_min(
@@ -481,36 +473,23 @@ def binned_statistics(
                     var_finite,
                     fill_value=np.nan,
                 )
-
-            if statistic != "count":
-                if zeros_to_nan and np.any(binned_stats == 0):
-                    binned_stats = np.where(binned_stats == 0, np.nan, binned_stats)
-
-                # and variable to the Dataset
-                ds[f"{name}_{statistic}"] = xr.DataArray(
-                    binned_stats.reshape(edges_sz),
-                    dims=dim_names,
-                    coords=dict(zip(dim_names, bin_centers)),
+            else:
+                binned_stats = _binned_apply_func(
+                    flat_idx,
+                    n_bins,
+                    var_finite,
+                    func=statistic,
+                    fill_value=np.nan,
                 )
 
-        # loop through custom functions for the variable
-        for function in functions:
-            print(
-                f"Applying custom function '{_get_function_name(function)}' for variable '{name}'..."
-            )
-            binned_stats = _binned_apply_func(
-                flat_idx,
-                n_bins,
-                var_finite,
-                func=function,
-                fill_value=np.nan,
-            )
             if zeros_to_nan and np.any(binned_stats == 0):
                 binned_stats = np.where(binned_stats == 0, np.nan, binned_stats)
 
-            # add variable to the Dataset
-            function_name = _get_function_name(function)
-            ds[f"{name}_{function_name}"] = xr.DataArray(
+            # and variable to the Dataset
+            variable_suffix = (
+                _get_function_name(statistic) if callable(statistic) else statistic
+            )
+            ds[f"{name}_{variable_suffix}"] = xr.DataArray(
                 binned_stats.reshape(edges_sz),
                 dims=dim_names,
                 coords=dict(zip(dim_names, bin_centers)),
