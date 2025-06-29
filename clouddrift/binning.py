@@ -438,10 +438,10 @@ def binned_statistics(
         for statistic in statistics:
             if statistic == "count":
                 binned_stats = _binned_count(flat_idx, n_bins)
-                bin_count = binned_stats
+                bin_count = binned_stats.copy()
             elif statistic == "sum":
                 binned_stats = _binned_sum(flat_idx, n_bins, var_finite)
-                bin_sum = binned_stats
+                bin_sum = binned_stats.copy()
             elif statistic == "mean":
                 binned_stats = _binned_mean(
                     flat_idx,
@@ -450,7 +450,7 @@ def binned_statistics(
                     bin_counts=bin_count,
                     bin_sum=bin_sum,
                 )
-                bin_mean = binned_stats
+                bin_mean = binned_stats.copy()
             elif statistic == "std":
                 binned_stats = _binned_std(
                     flat_idx,
