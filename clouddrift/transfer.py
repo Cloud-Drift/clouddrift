@@ -4,6 +4,7 @@ velocity.
 """
 
 import numpy as np
+from numpy import floating as _Floating
 from numpy.lib.scimath import sqrt
 from scipy.special import factorial, iv, kv  # type: ignore
 
@@ -63,7 +64,11 @@ def wind_transfer(
     boundary_condition: str = "no-slip",
     method: str = "lilly",
     density: float = 1025.0,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[
+    float | _Floating | np.ndarray,
+    float | _Floating | np.ndarray,
+    float | _Floating | np.ndarray,
+]:
     """
     Compute the transfer function from wind stress to oceanic velocity based on the physically-based
     models of Elipot and Gille (2009) and Lilly and Elipot (2021).
@@ -677,57 +682,61 @@ def _wind_transfer_elipot_free_slip(
 def _bessels_freeslip(
     xiz: float | np.ndarray,
     xih: float | np.ndarray,
-    xi0: float | np.ndarray | None | None = None,
-) -> tuple[
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-]:
+    xi0: float | np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute the Bessel functions for the free-slip boundary condition for the xsi(z), xsi(h), and xsi(0) functions.
     """
-    k0z = kv(0, xiz)
-    i0z = iv(0, xiz)
-    k1h = kv(1, xih)
-    i1h = iv(0, xih)
+    # Convert inputs to numpy arrays
+    xiz = np.asarray(xiz)
+    xih = np.asarray(xih)
+
+    # Ensure all outputs are numpy arrays
+    k0z = np.asarray(kv(0, xiz))
+    i0z = np.asarray(iv(0, xiz))
+    k1h = np.asarray(kv(1, xih))
+    i1h = np.asarray(iv(0, xih))
 
     if xi0 is not None:
-        k10 = kv(1, xi0)
-        i10 = iv(1, xi0)
-        return k0z, i0z, k1h, i1h, k10, i10
+        xi0 = np.asarray(xi0)
+        k10 = np.asarray(kv(1, xi0))
+        i10 = np.asarray(iv(1, xi0))
     else:
-        return k0z, i0z, k1h, i1h, np.nan, np.nan
+        # Create nan values as numpy arrays with same shape as k0z
+        k10 = np.full_like(k0z, np.nan)
+        i10 = np.full_like(k0z, np.nan)
+
+    return k0z, i0z, k1h, i1h, k10, i10
 
 
 def _bessels_noslip(
     xiz: float | np.ndarray,
     xih: float | np.ndarray,
     xi0: float | np.ndarray | None = None,
-) -> tuple[
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute the Bessel functions for the no-slip boundary condition for the xsi(z), xsi(h), and xsi(0) functions.
     """
-    k0z = kv(0, xiz)
-    i0z = iv(0, xiz)
-    k0h = kv(0, xih)
-    i0h = iv(0, xih)
+    # Convert inputs to numpy arrays
+    xiz = np.asarray(xiz)
+    xih = np.asarray(xih)
+
+    # Ensure all outputs are numpy arrays
+    k0z = np.asarray(kv(0, xiz))
+    i0z = np.asarray(iv(0, xiz))
+    k0h = np.asarray(kv(0, xih))
+    i0h = np.asarray(iv(0, xih))
 
     if xi0 is not None:
-        k10 = kv(1, xi0)
-        i10 = iv(1, xi0)
-        return k0z, i0z, k0h, i0h, k10, i10
+        xi0 = np.asarray(xi0)
+        k10 = np.asarray(kv(1, xi0))
+        i10 = np.asarray(iv(1, xi0))
     else:
-        return k0z, i0z, k0h, i0h, np.nan, np.nan
+        # Create nan values as numpy arrays with same shape as k0z
+        k10 = np.full_like(k0z, np.nan)
+        i10 = np.full_like(k0z, np.nan)
+
+    return k0z, i0z, k0h, i0h, k10, i10
 
 
 def _besseltildes_noslip(

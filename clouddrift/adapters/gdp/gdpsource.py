@@ -390,7 +390,7 @@ def _process_chunk(
 
     # Transform the initial dataframe filtering out rows with really anomolous values
     # examples include: years in the future, years way in the past before GDP program, etc...
-    preremove_df_chunk = df_chunk.assign(obs_index=range(start_idx, end_idx))
+    preremove_df_chunk = df_chunk.assign(obs_index=np.arange(start_idx, end_idx))
     df_chunk = _apply_remove(
         preremove_df_chunk,
         filters=[
