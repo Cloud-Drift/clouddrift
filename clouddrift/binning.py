@@ -290,7 +290,7 @@ def binned_statistics(
         Outer bin limits for each dimension.
     statistics : str or list of str, Callable[[np.ndarray], float] or list[Callable[[np.ndarray], float]]
         Statistics to compute for each bin. It can be:
-        - a string, supported values: 'count', 'sum', 'mean', 'std', 'median', 'min', 'max', (default: "count"),
+        - a string, supported values: 'count', 'sum', 'mean', 'std', 'min', 'max', (default: "count"),
         - a list of strings from the same supported values, each specifying a statistic to compute,
         - a custom function as a callable that take a 1D array of values and return a single value,
         - a list of callables with the same signature as above.
@@ -345,7 +345,7 @@ def binned_statistics(
         ]
 
     # create a list if statistics is a string
-    ordered_statistics = ["count", "sum", "mean", "std", "median", "min", "max"]
+    ordered_statistics = ["count", "sum", "mean", "std", "min", "max"]
     if statistics is None:
         statistics = []
     elif isinstance(statistics, str) or callable(statistics):
