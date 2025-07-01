@@ -842,7 +842,7 @@ def separate_ridge_groups(
     freq_mesh: NDArray[np.float64],
     inst_frequency_derivative: NDArray[np.float64],
     alpha: float = 1000.0,
-    min_group_size: int = 3,
+    min_ridge_size: int = 3,
     max_gap: int = 2,
 ) -> Tuple[Dict[int, Dict[str, Any]], int]:
     """
@@ -863,19 +863,19 @@ def separate_ridge_groups(
         Instantaneous frequency derivative for each ridge point
     alpha : float, optional
         Maximum allowed relative frequency difference for matching points (default: 1000.0)
-    min_group_size : int, optional
-        Minimum number of points for a valid group (default: 3)
+    min_ridge_size : int, optional
+        Minimum number of points for a valid ridge (default: 3)
     max_gap : int, optional
         Maximum allowed time gap between ridge points (default: 2)
 
     Returns
     -------
-    group_data : Dict[int, Dict[str, Any]]
-        Dictionary of groups with indices and values for each group
+    ridge_data : Dict[int, Dict[str, Any]]
+        Dictionary of ridges with indices and values for each ridge
         - 'indices': tuple of (freq_indices, time_indices)
         - 'values': list of arrays, each containing values at ridge points
-    num_groups : int
-        Number of distinct ridge groups found
+    num_ridges : int
+        Number of distinct ridges found
     """
     if len(freq_indices) == 0:
         return {}, 0
@@ -948,13 +948,13 @@ def separate_ridge_groups(
     unique_ids_np = unique_ids_np[unique_ids_np >= 0]
     unique_ids = [int(uid) for uid in unique_ids_np]
 
-    group_data = {}
-    valid_group_count = 0
+    ridge_data = {}
+    valid_ridge_count = 0
 
-    for group_id in unique_ids:
-        positions = np.argwhere(ridge_ids == group_id)
+    for ridge_id in unique_ids:
+        positions = np.argwhere(ridge_ids == ridge_id)
 
-        if len(positions) < min_group_size:
+        if len(positions) < min_ridge_size:
             continue
 
         t_indices, r_indices = positions[:, 0], positions[:, 1]
@@ -974,77 +974,77 @@ def separate_ridge_groups(
             original_indices.append(idx)
 
         # Skip if too few original indices
-        if len(original_indices) < min_group_size:
+        if len(original_indices) < min_ridge_size:
             continue
 
         # Get frequency and time indices from sorted arrays
-        group_freq_indices = freq_indices_sorted[original_indices]
-        group_time_indices = time_indices_sorted[original_indices]
+        ridge_freq_indices = freq_indices_sorted[original_indices]
+        ridge_time_indices = time_indices_sorted[original_indices]
 
-        group_values = []
+        ridge_values = []
         for val_array in sorted_values:
-            group_values.append(val_array[original_indices])
+            ridge_values.append(val_array[original_indices])
 
-        valid_group_count += 1
-        group_data[valid_group_count] = {
-            "indices": (group_freq_indices, group_time_indices),
-            "values": group_values,
+        valid_ridge_count += 1
+        ridge_data[valid_ridge_count] = {
+            "indices": (ridge_freq_indices, ridge_time_indices),
+            "values": ridge_values,
         }
 
-    return group_data, valid_group_count
+    return ridge_data, valid_ridge_count
 
 
-def calculate_ridge_group_lengths(
-    group_data: Dict[int, Dict[str, Any]], t: np.ndarray, num_groups: int
+def calculate_ridge_lengths(
+    ridge_data: Dict[int, Dict[str, Any]], t: np.ndarray, num_ridges: int
 ) -> List[float]:
     """
     Calculate the length of each ridge group using Simpson's rule integration.
 
     Parameters
     ----------
-    group_data : Dict[int, Dict[str, Any]]
-        Dictionary of group data with indices and values for each group
+    ridge_data : Dict[int, Dict[str, Any]]
+        Dictionary of ridge data with indices and values for each ridge
     t : np.ndarray
         Time values corresponding to columns in the transform
-    num_groups : int
-        Total number of groups to process
+    num_ridges : int
+        Total number of ridges to process
 
     Returns
     -------
     List[float]
-        List of calculated group lengths in periods
+        List of calculated ridge lengths in periods
     """
-    group_lengths = []
+    ridge_lengths = []
 
-    # Process each group to calculate its length
-    for group_id in range(1, num_groups + 1):
-        # Get group data
-        if group_id not in group_data:
-            group_lengths.append(0.0)
+    # Process each ridge to calculate its length
+    for ridge_id in range(1, num_ridges + 1):
+        # Get ridge data
+        if ridge_id not in ridge_data:
+            ridge_lengths.append(0.0)
             continue
 
         # Extract frequency values and time indices
-        freq_indices, time_indices = group_data[group_id]["indices"]
-        freq_values = group_data[group_id]["values"][
+        freq_indices, time_indices = ridge_data[ridge_id]["indices"]
+        freq_values = ridge_data[ridge_id]["values"][
             0
         ]  # Index 0 contains frequency values
 
-        # Skip if group is empty
+        # Skip if ridge is empty
         if len(freq_indices) == 0:
-            group_lengths.append(0.0)
+            ridge_lengths.append(0.0)
             continue
 
-        # Calculate the length of the group using Simpson's rule
+        # Calculate the length of the ridge using Simpson's rule
         try:
-            group_length = np.abs(integrate.simpson(freq_values, x=t[time_indices])) / (
+            ridge_length = np.abs(integrate.simpson(freq_values, x=t[time_indices])) / (
                 2.0 * np.pi
             )
-            group_lengths.append(group_length)
+            ridge_lengths.append(ridge_length)
         except Exception as e:
-            print(f"Error calculating length for group {group_id}: {e}")
-            group_lengths.append(0.0)
+            print(f"Error calculating length for ridge {ridge_id}: {e}")
+            ridge_lengths.append(0.0)
 
-    return group_lengths
+    return ridge_lengths
 
 
 def ridge_analysis(
@@ -1053,7 +1053,7 @@ def ridge_analysis(
     t: np.ndarray,
     ridge_type: str,
     amplitude_threshold: float = 0.1,
-    min_group_size: int = 5,
+    min_ridge_size: int = 5,
     max_gap: int = 2,
 ) -> Dict[str, Any]:
     """
@@ -1072,8 +1072,8 @@ def ridge_analysis(
         Type of ridge detection ('amplitude' or 'phase')
     amplitude_threshold : float, optional
         Threshold for ridge detection, default=0.1
-    min_group_size : int, optional
-        Minimum number of points for a valid group, default=5
+    min_ridge_size : int, optional
+        Minimum number of points for a valid ridge, default=5
     max_gap : int, optional
         Maximum allowed time gap between ridge points, default=2
 
@@ -1083,9 +1083,9 @@ def ridge_analysis(
         Dictionary containing:
         - 'ridge_points': Boolean mask of ridge points
         - 'ridge_quantity': Quantity used for ridge detection
-        - 'num_groups': Number of groups found
-        - 'group_lengths': List of calculated group lengths in periods
-        - 'group_data': Dictionary of group data with frequency-based interpolation
+        - 'num_ridges': Number of ridges found
+        - 'ridge_lengths': List of calculated ridge lengths in periods
+        - 'ridge_data': Dictionary of ridge data with frequency-based interpolation
         - 'inst_frequency': Instantaneous frequency array
         - 'ridge_data': Ridge data from interpolation
     """
@@ -1118,25 +1118,25 @@ def ridge_analysis(
     transform_shape = processed_transform.shape
 
     # Group the ridge points using frequency-based approach
-    group_data, num_groups = separate_ridge_groups(
+    ridge_data, num_ridges = separate_ridge_groups(
         freq_indices=freq_indices,
         time_indices=time_indices,
         transform_shape=transform_shape,
         freq_mesh=interpolation_arrays[1],
         inst_frequency_derivative=interpolation_arrays[3],
-        min_group_size=min_group_size,
+        min_ridge_size=min_ridge_size,
         max_gap=max_gap,
     )
 
-    # Calculate lengths for each group
-    group_lengths = calculate_ridge_group_lengths(group_data, t, num_groups)
+    # Calculate lengths for each ridge
+    ridge_lengths = calculate_ridge_lengths(ridge_data, t, num_ridges)
 
     return {
         "ridge_points": ridge_points,
         "ridge_quantity": ridge_quantity,
-        "num_groups": num_groups,
-        "group_lengths": group_lengths,
-        "group_data": group_data,
+        "num_ridges": num_ridges,
+        "ridge_lengths": ridge_lengths,
+        "ridge_data": ridge_data,
         "inst_frequency": inst_frequency,
-        "ridge_data": interpolation_arrays,
+        "ridge_values": interpolation_arrays,
     }
