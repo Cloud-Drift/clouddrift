@@ -1033,6 +1033,18 @@ class TestApplyTransferFunction(unittest.TestCase):
         # Should be close to original (all-pass filter)
         self.assertTrue(np.allclose(y, x, atol=1e-12))
 
+    def test_transfer_func_array_with_dt_warns(self):
+        # Should warn if transfer_func is an array and dt is provided
+        x = np.random.randn(32)
+        transfer_func = np.ones_like(x)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            y = apply_transfer_function(x, transfer_func, dt=1.0)
+            self.assertEqual(y.shape, x.shape)
+            self.assertTrue(
+                any("'dt' argument is ignored" in str(warn.message) for warn in w)
+            )
+
     def test_transfer_func_array_shape_mismatch(self):
         # Should raise ValueError if transfer_func array shape does not match
         x = np.random.randn(32)
@@ -1212,12 +1224,24 @@ class TestApplySlidingTransferFunction(unittest.TestCase):
         with self.assertRaises(ValueError):
             apply_sliding_transfer_function(x, transfer_func, window_size=5, step=6)
 
-    def test_invalid_kernel(self):
+    def test_callable_without_window(self):
         x = np.random.randn(10)
-        transfer_func = np.ones(5)
+        transfer_func = lambda omega: np.ones_like(omega)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=None)
+
+    def test_callable_with_wrong_window_size(self):
+        x = np.random.randn(20)
+        transfer_func = lambda omega: np.ones_like(omega)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=-1, dt=1.0)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=0, dt=1.0)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=21, dt=1.0)
         with self.assertRaises(ValueError):
             apply_sliding_transfer_function(
-                x, transfer_func, window_size=5, kernel="invalid"
+                x, transfer_func, window_size=5, step=6, dt=1.0
             )
 
     def test_callable_without_dt(self):
@@ -1226,15 +1250,15 @@ class TestApplySlidingTransferFunction(unittest.TestCase):
         with self.assertRaises(ValueError):
             apply_sliding_transfer_function(x, transfer_func, window_size=5)
 
-    def test_array_shape_mismatch(self):
-        x = np.random.randn(10)
-        transfer_func = np.ones(4)
-        with self.assertRaises(ValueError):
-            apply_sliding_transfer_function(x, transfer_func, window_size=5)
-
     def test_non_1d_transfer_func(self):
         x = np.random.randn(10)
         transfer_func = np.ones((5, 2))
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=5)
+
+    def test_transfer_and_window_mismatch(self):
+        x = np.random.randn(10)
+        transfer_func = np.ones(4)
         with self.assertRaises(ValueError):
             apply_sliding_transfer_function(x, transfer_func, window_size=5)
 
@@ -1245,16 +1269,41 @@ class TestApplySlidingTransferFunction(unittest.TestCase):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             apply_sliding_transfer_function(x, transfer_func, window_size=5, dt=1.0)
-            self.assertTrue(any("dt is ignored" in str(warn.message) for warn in w))
+            self.assertTrue(
+                any("`dt` argument is ignored" in str(warn.message) for warn in w)
+            )
+
+    def test_step_wrong_size_or_type(self):
+        x = np.random.randn(10)
+        transfer_func = np.ones(5)
+        window_size = 5
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(
+                x, transfer_func, window_size=window_size, step=-1
+            )
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(
+                x, transfer_func, window_size=window_size, step=2.5
+            )
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(
+                x, transfer_func, window_size=window_size, step=window_size + 1
+            )
+
+    def test_invalid_kernel(self):
+        x = np.random.randn(10)
+        transfer_func = np.ones(5)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(
+                x, transfer_func, window_size=5, kernel="invalid"
+            )
 
     def test_output_matches_allpass(self):
         # If transfer_func is all ones, output should match input (except for edge effects)
         x = np.random.randn(20)
         window_size = 5
         transfer_func = np.ones(window_size)
-        results, avg = apply_sliding_transfer_function(
-            x, transfer_func, window_size, step=1
-        )
+        _, avg = apply_sliding_transfer_function(x, transfer_func, window_size, step=1)
         # The average should be close to the input for the central region
         center = slice(window_size // 2, -window_size // 2)
         self.assertTrue(np.allclose(avg[center], x[center], atol=1e-10))
