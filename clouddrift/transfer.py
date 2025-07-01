@@ -15,7 +15,9 @@ from clouddrift.sphere import EARTH_DAY_SECONDS
 
 
 def apply_transfer_function(
-    x: np.ndarray, transfer_func: Callable | np.ndarray, dt: Optional[float] = None
+    x: np.ndarray,
+    transfer_func: Callable[[np.ndarray], np.ndarray] | np.ndarray,
+    dt: Optional[float] = None,
 ) -> np.ndarray:
     """
     Applies a transfer function in the frequency domain to an input time series.
@@ -25,11 +27,13 @@ def apply_transfer_function(
         x:  array_like
             Input one-dimensional time series.
         transfer_func: callable or numpy ndarray
-            Transfer function to apply to the input x. If a callable, it should accept
-            frequency array as input, see example below.
-            If ndarray, it must match the length of input x.
+            Transfer function to apply to the input x.
+                - If a callable, it should accept a frequency array as input as shown in the examples below.
+                - If a numpy ndarray, it must match the length of input x and represents the transfer function
+            in the frequency domain, where the first half corresponds to positive frequencies and the
+            second half corresponds to negative frequencies.
         dt: float, optional
-            Time step size of the input time series, needed if transfer_func is callable.
+            Time step size of the input time series, needed if transfer_func is callable, otherwise ignored.
 
     Returns
     -------
@@ -97,7 +101,7 @@ def apply_transfer_function(
             )
         G = np.asarray(transfer_func)
         if G.shape != Xf.shape:
-           raise ValueError("Transfer function array must match the shape of input x.")
+            raise ValueError("Transfer function array must match the shape of input x.")
 
     Yf = G * Xf
     y = np.fft.ifft(Yf)
@@ -116,7 +120,7 @@ def _epanechnikov_kernel(window_size):
 
 def apply_sliding_transfer_function(
     x: np.ndarray,
-    transfer_func: Callable | np.ndarray,
+    transfer_func: Callable[[np.ndarray], np.ndarray] | np.ndarray,
     window_size: Optional[int] = None,
     step: int = 1,
     dt: Optional[float] = None,
@@ -135,15 +139,19 @@ def apply_sliding_transfer_function(
         x:  array_like
             Input one-dimensional time series.
         transfer_func: callable or numpy ndarray
-            Transfer function to apply to the input x.
+            Transfer function to apply to the input `x`.
+                - If a callable, it should accept a frequency array as input as shown in the examples below.
+                - If a numpy ndarray, it must match the length of input `x` and represents the transfer function
+            in the frequency domain, where the first half corresponds to positive frequencies and the
+            second half corresponds to negative frequencies.
         window_size: int, optional
-            Size of the sliding window, needed if transfer_func is callable. It cannot be larger
-            than the length of x.
+            Size of the sliding window, needed if `transfer_func` is callable. It cannot be larger
+            than the length of `x`.
         step: int
             Step size for the sliding window. Default is 1. It cannot be larger than or equal
-            to window_size.
+            to `window_size`.
         dt: float, optional
-            Time step size of the input time series, needed if transfer_func is callable.
+            Time step size of the input time series, needed if `transfer_func` is callable, otherwise ignored.
         kernel: str, optional
             Type of kernel to use for weighting. Options are "uniform" (default), "epanechnikov",
             or any first letter of either.
@@ -166,7 +174,7 @@ def apply_sliding_transfer_function(
         >>> dt = 1.0
         >>> transfer_func = lambda omega: 1 / (1 + (omega / (2 * np.pi * 0.1))**2)  # Low-pass filter
         >>> result = apply_sliding_transfer_function(x, transfer_func, window_size, step, dt)
-        The shape of the result is here (len(x) // step + 1, window_size) = (101, 10).
+        The shape of the result is here (len(`x`) // `step` + 1, `window_size`) = (101, 10).
 
         Apply a smoothing function in a sliding window:
         >>> import numpy as np
@@ -176,7 +184,7 @@ def apply_sliding_transfer_function(
         >>> step = 1
         >>> smoothing_func = np.ones(window_size) / window_size  # Simple moving average
         >>> results, average_result = apply_sliding_transfer_function(x, smoothing_func, window_size, step)
-        The shape of results is here (len(x) // step + 1, window_size) = (91, 10).
+        The shape of results is here (len(`x`) // `step` + 1, `window_size`) = (91, 10).
 
         To a random wind stress hourly time series, apply an Ekman transfer function in a sliding window
         for an infinite boundary layer depth, an Ekman depth of 10 m, in order to obtain the Ekman
@@ -190,13 +198,13 @@ def apply_sliding_transfer_function(
         delta=10.0, mu=0.0, bld=np.inf, boundary_condition="no-slip")[0].squeeze()
         >>> dt = 1/24  # Time step needed for callable transfer functions
         >>> results, average_result = apply_sliding_transfer_function(tau, transfer_ekman, window_size=24, step=12, dt=dt, kernel="epanechnikov")
-        The shape of results is here (len(tau) // step + 1, window_size) = (21, 24).
+        The shape of results is here (len(`tau`) // `step` + 1, `window_size`) = (21, 24).
 
     Raises
     ------
         ValueError
-            If window_size or step is not a positive integer, or if window_size is greater than the length of x,
-            or if step is greater than or equal to window_size.
+            If `window_size` or `step` is not a positive integer, or if `window_size` is greater than the length of `x`,
+            or if `step` is greater than or equal to `window_size`.
     """
     x = np.asarray(x)
     n = x.size
@@ -204,42 +212,45 @@ def apply_sliding_transfer_function(
     if callable(transfer_func):
         if window_size is None:
             raise ValueError(
-                "window_size must be provided when transfer_func is callable."
+                "`window_size` must be provided when transfer_func is callable."
             )
-        if not isinstance(window_size, int) or window_size <= 0:
-            raise ValueError("window_size must be a positive integer.")
+        if (
+            not isinstance(window_size, int)
+            or window_size <= 0
+            or window_size > n
+            or window_size < step
+        ):
+            raise ValueError(
+                "`window_size` must be a positive integer no greater than the length of `x` and no less than `step`."
+            )
         if dt is None:
             raise ValueError(
-                "dt (time step of input) must be provided when transfer_func is callable."
+                "`dt` (time step of input) must be provided when `transfer_func` is callable."
             )
 
     if not callable(transfer_func) and isinstance(transfer_func, np.ndarray):
         if transfer_func.ndim != 1:
-            raise ValueError("transfer_func must be a 1D numpy array.")
+            raise ValueError("`transfer_func` must be a 1D numpy array.")
         if window_size is None:
             window_size = transfer_func.shape[0]
         if window_size != transfer_func.shape[0]:
             raise ValueError(
-                "When transfer_func is a numpy ndarray, its length must match window_size if this one"
+                "When `transfer_func` is a numpy ndarray, its length must match `window_size` if this one"
                 " is provided."
             )
         if dt is not None:
             warnings.warn(
-                "dt is ignored since transfer_func is not a callable.",
+                "The `dt` argument is ignored when `transfer_func` is provided as an array.",
                 stacklevel=2,
             )
 
-    if window_size <= 0 or step <= 0:
-        raise ValueError("window_size and step must be positive integers.")
-
-    if window_size > n:
-        raise ValueError("window_size must not be greater than the length of x.")
-
-    if step > window_size:
-        raise ValueError("step must not be greater than window_size.")
+    if step <= 0 or not isinstance(step, int) or step >= window_size:
+        raise ValueError("`step` must be a positive integer less than `window_size`.")
 
     # Kernel selection (default is uniform)
     kernel_str = str(kernel).lower() if kernel is not None else "uniform"
+    if window_size is None:
+        raise ValueError("window_size must be specified and not None.")
     if kernel_str.startswith("e"):
         kernel_arr = _epanechnikov_kernel(window_size)
     elif kernel_str.startswith("u") or kernel_str == "":
@@ -261,24 +272,32 @@ def apply_sliding_transfer_function(
     n_ = (
         x_.size
     )  # length of extended array is n + before_window + after_window = n + window_size
+
     # initialize arrays for results
-    result_sum = np.zeros(n_, dtype=complex)
-    result_weight = np.zeros(n_, dtype=float)
-    result = []
+    result_sum = np.zeros(n_, dtype=np.complex128)
+    result_weight = np.zeros(n_, dtype=np.float64)
+    # result = []
+    if window_size is None:
+        raise ValueError("window_size must be specified and not None.")
+    # number of windows is (n_ - window_size) // step + 1 = n // step + 1
+    result = np.zeros((n // step + 1, window_size), dtype=np.complex128)
 
     # Sliding window application
-    # number of windows is (n_ - window_size) // step + 1 = n // step + 1
     for start in range(0, n_ - window_size + 1, step):
         x_tmp = x_[start : start + window_size]
         if callable(transfer_func):
             result_tmp = apply_transfer_function(x_tmp, transfer_func, dt)
-            result.append(result_tmp)
+            # result.append(result_tmp)
+            result[start // step, :] = result_tmp
         else:
             if transfer_func.ndim == 1:
                 result_tmp = apply_transfer_function(x_tmp, transfer_func)
-                result.append(result_tmp)
+                # result.append(result_tmp)
+                result[start // step, :] = result_tmp
             else:
-                raise ValueError("transfer_func must be callable or a 1D numpy array.")
+                raise ValueError(
+                    "`transfer_func` must be callable or a 1D numpy array."
+                )
         weighted_result_tmp = result_tmp * kernel_arr
         result_sum[start : start + window_size] += weighted_result_tmp
         result_weight[start : start + window_size] += kernel_arr
@@ -288,7 +307,7 @@ def apply_sliding_transfer_function(
     # truncate the average_result to the original length of x
     average_result = average_result[before_window : before_window + n]
 
-    return np.array(result), average_result
+    return result, average_result
 
 
 def slab_wind_transfer(
