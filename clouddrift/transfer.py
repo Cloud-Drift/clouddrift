@@ -102,7 +102,9 @@ def apply_transfer_function(
             )
         G = np.asarray(transfer_func)
         if G.shape != Xf.shape:
-            raise ValueError("Transfer function array must match the shape of input `x`.")
+            raise ValueError(
+                "Transfer function array must match the shape of input `x`."
+            )
 
     Yf = G * Xf
     y = np.fft.ifft(Yf)
