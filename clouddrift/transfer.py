@@ -295,12 +295,10 @@ def apply_sliding_transfer_function(
         x_tmp = x_[start : start + window_size]
         if callable(transfer_func):
             result_tmp = apply_transfer_function(x_tmp, transfer_func, dt)
-            # result.append(result_tmp)
             result[start // step, :] = result_tmp
         else:
             if transfer_func.ndim == 1:
                 result_tmp = apply_transfer_function(x_tmp, transfer_func)
-                # result.append(result_tmp)
                 result[start // step, :] = result_tmp
             else:
                 raise ValueError(
