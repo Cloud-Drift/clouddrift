@@ -1222,7 +1222,7 @@ class TestApplySlidingTransferFunction(unittest.TestCase):
         with self.assertRaises(ValueError):
             apply_sliding_transfer_function(x, transfer_func, window_size=5, step=0)
         with self.assertRaises(ValueError):
-            apply_sliding_transfer_function(x, transfer_func, window_size=5, step=6)
+            apply_sliding_transfer_function(x, transfer_func, window_size=5, step=5.5)
 
     def test_callable_without_window(self):
         x = np.random.randn(10)
@@ -1239,10 +1239,6 @@ class TestApplySlidingTransferFunction(unittest.TestCase):
             apply_sliding_transfer_function(x, transfer_func, window_size=0, dt=1.0)
         with self.assertRaises(ValueError):
             apply_sliding_transfer_function(x, transfer_func, window_size=21, dt=1.0)
-        with self.assertRaises(ValueError):
-            apply_sliding_transfer_function(
-                x, transfer_func, window_size=5, step=6, dt=1.0
-            )
 
     def test_callable_without_dt(self):
         x = np.random.randn(10)
@@ -1271,23 +1267,6 @@ class TestApplySlidingTransferFunction(unittest.TestCase):
             apply_sliding_transfer_function(x, transfer_func, window_size=5, dt=1.0)
             self.assertTrue(
                 any("`dt` argument is ignored" in str(warn.message) for warn in w)
-            )
-
-    def test_step_wrong_size_or_type(self):
-        x = np.random.randn(10)
-        transfer_func = np.ones(5)
-        window_size = 5
-        with self.assertRaises(ValueError):
-            apply_sliding_transfer_function(
-                x, transfer_func, window_size=window_size, step=-1
-            )
-        with self.assertRaises(ValueError):
-            apply_sliding_transfer_function(
-                x, transfer_func, window_size=window_size, step=2.5
-            )
-        with self.assertRaises(ValueError):
-            apply_sliding_transfer_function(
-                x, transfer_func, window_size=window_size, step=window_size + 1
             )
 
     def test_invalid_kernel(self):

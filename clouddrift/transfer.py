@@ -148,13 +148,14 @@ def apply_sliding_transfer_function(
             Size of the sliding window, needed if `transfer_func` is callable. It cannot be larger
             than the length of `x`.
         step: int
-            Step size for the sliding window. Default is 1. It cannot be larger than or equal
-            to `window_size`.
+            Step size for the sliding window. Default is 1. Consecutive windows will not overlap if
+            `step` is equal to or larger than `window_size` or the length of `transfer_func` if this
+            one is a numpy array.
         dt: float, optional
             Time step size of the input time series, needed if `transfer_func` is callable, otherwise ignored.
         kernel: str, optional
             Type of kernel to use for weighting. Options are "uniform" (default), "epanechnikov",
-            or any first letter of either.
+            or any first letter of either. For non-overlapping windows, the chosen kernel is  irrelevant.
 
     Returns
     -------
@@ -203,8 +204,15 @@ def apply_sliding_transfer_function(
     Raises
     ------
         ValueError
-            If `window_size` or `step` is not a positive integer, or if `window_size` is greater than the length of `x`,
-            or if `step` is greater than or equal to `window_size`.
+            If `transfer_func` is a numpy array which is not 1D.
+            If `transfer_func` is a numpy array which length does not match `window_size` if this one is provided.
+            If `window_size` or `step` is not a positive integer.
+            If `window_size` is greater than the length of `x`.
+            If `step` is not a positive integer.
+            If `dt` is not provided when `transfer_func` is callable.
+            If `kernel` is not one of the allowed strings ("uniform", "epanechnikov", or their first letters).
+        Warning
+            If `dt` is provided when `transfer_func` is a numpy array, as it is ignored in this case.
     """
     x = np.asarray(x)
     n = x.size
@@ -214,15 +222,12 @@ def apply_sliding_transfer_function(
             raise ValueError(
                 "`window_size` must be provided when transfer_func is callable."
             )
-        if (
-            not isinstance(window_size, int)
-            or window_size <= 0
-            or window_size > n
-            or window_size < step
-        ):
+        if not isinstance(window_size, int) or window_size <= 0 or window_size > n:
             raise ValueError(
-                "`window_size` must be a positive integer no greater than the length of `x` and no less than `step`."
+                "`window_size` must be a positive integer no greater than the length of `x`."
             )
+        if not isinstance(step, int) or step <= 0:
+            raise ValueError("`step` must be a positive integer.")
         if dt is None:
             raise ValueError(
                 "`dt` (time step of input) must be provided when `transfer_func` is callable."
@@ -238,14 +243,13 @@ def apply_sliding_transfer_function(
                 "When `transfer_func` is a numpy ndarray, its length must match `window_size` if this one"
                 " is provided."
             )
+        if not isinstance(step, int) or step <= 0:
+            raise ValueError("`step` must be a positive integer.")
         if dt is not None:
             warnings.warn(
                 "The `dt` argument is ignored when `transfer_func` is provided as an array.",
                 stacklevel=2,
             )
-
-    if step <= 0 or not isinstance(step, int) or step >= window_size:
-        raise ValueError("`step` must be a positive integer less than `window_size`.")
 
     # Kernel selection (default is uniform)
     kernel_str = str(kernel).lower() if kernel is not None else "uniform"
@@ -278,7 +282,7 @@ def apply_sliding_transfer_function(
     result_weight = np.zeros(n_, dtype=np.float64)
     # result = []
     if window_size is None:
-        raise ValueError("window_size must be specified and not None.")
+        raise ValueError("`window_size` must be specified and not None.")
     # number of windows is (n_ - window_size) // step + 1 = n // step + 1
     result = np.zeros((n // step + 1, window_size), dtype=np.complex128)
 
