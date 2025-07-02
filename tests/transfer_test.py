@@ -1042,7 +1042,7 @@ class TestApplyTransferFunction(unittest.TestCase):
             y = apply_transfer_function(x, transfer_func, dt=1.0)
             self.assertEqual(y.shape, x.shape)
             self.assertTrue(
-                any("'dt' argument is ignored" in str(warn.message) for warn in w)
+                any("`dt` argument is ignored" in str(warn.message) for warn in w)
             )
 
     def test_transfer_func_array_shape_mismatch(self):

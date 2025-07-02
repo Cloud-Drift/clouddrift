@@ -27,13 +27,13 @@ def apply_transfer_function(
         x:  array_like
             Input one-dimensional time series.
         transfer_func: callable or numpy ndarray
-            Transfer function to apply to the input x.
+            Transfer function to apply to the input `x`.
                 - If a callable, it should accept a frequency array as input as shown in the examples below.
-                - If a numpy ndarray, it must match the length of input x and represents the transfer function
+                - If a numpy ndarray, it must match the length of input `x` and represents the transfer function
             in the frequency domain, where the first half corresponds to positive frequencies and the
             second half corresponds to negative frequencies.
         dt: float, optional
-            Time step size of the input time series, needed if transfer_func is callable, otherwise ignored.
+            Time step size of the input time series, needed if `transfer_func` is callable, otherwise ignored.
 
     Returns
     -------
@@ -74,8 +74,9 @@ def apply_transfer_function(
     Raises
     ------
         ValueError
-            If input x is not a one-dimensional array, or if transfer_func is callable
-            but dt is not provided, or if the shape of transfer_func does not match the length of x.
+            If input `x` is not a one-dimensional array.
+            If `transfer_func` is callable but `dt` is not provided.
+            If the shape of `transfer_func` does not match the shape of `x`.
     """
 
     x = np.asarray(x)
@@ -89,19 +90,19 @@ def apply_transfer_function(
     if callable(transfer_func):
         if dt is None:
             raise ValueError(
-                "dt (time step size) must be provided when transfer_func is callable."
+                "The `dt` argument must be provided when `transfer_func` is callable."
             )
         omega = 2 * np.pi * np.fft.fftfreq(n, dt)
         G = transfer_func(omega)
     else:
         if dt is not None:
             warnings.warn(
-                "The 'dt' argument is ignored when 'transfer_func' is provided as an array.",
+                "The `dt` argument is ignored when `transfer_func` is provided as an array.",
                 UserWarning,
             )
         G = np.asarray(transfer_func)
         if G.shape != Xf.shape:
-            raise ValueError("Transfer function array must match the shape of input x.")
+            raise ValueError("Transfer function array must match the shape of input `x`.")
 
     Yf = G * Xf
     y = np.fft.ifft(Yf)
