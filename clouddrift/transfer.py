@@ -51,10 +51,10 @@ def apply_transfer_function(
         >>> y = apply_transfer_function(x, transfer_func, dt)
 
         Directly provide as an array a transfer function which suppresses
-        the negative frequencies:
+        the negative frequencies of a complex time series:
         >>> import numpy as np
         >>> from clouddrift.transfer import apply_transfer_function
-        >>> x = np.random.randn(100)
+        >>> x = np.random.randn(100) + 1j * np.random.randn(100)
         >>> transfer_func = np.ones(100)
         >>> transfer_func[50:] = 0  # Suppress negative frequencies
         >>> y = apply_transfer_function(x, transfer_func)
@@ -180,14 +180,14 @@ def apply_sliding_transfer_function(
         >>> result = apply_sliding_transfer_function(x, transfer_func, window_size, step, dt)
         The shape of the result is here (len(`x`) // `step` + 1, `window_size`) = (101, 10).
 
-        Apply a smoothing function in a sliding window:
+        Apply a downscaling function in non-overlapping windows:
         >>> import numpy as np
         >>> from clouddrift.transfer import apply_sliding_transfer_function
         >>> x = np.random.rand(100)
         >>> window_size = 10
-        >>> step = 1
-        >>> smoothing_func = np.ones(window_size) / window_size  # Simple moving average
-        >>> results, average_result = apply_sliding_transfer_function(x, smoothing_func, window_size, step)
+        >>> step = 11
+        >>> transfer_func = np.ones(window_size) / np.sqrt(2)
+        >>> results, average_result = apply_sliding_transfer_function(x, transfer_func, window_size, step)
         The shape of results is here (len(`x`) // `step` + 1, `window_size`) = (91, 10).
 
         To a random wind stress hourly time series, apply an Ekman transfer function in a sliding window
@@ -200,7 +200,7 @@ def apply_sliding_transfer_function(
         >>> cor_freq = coriolis_frequency(45) * EARTH_DAY_SECONDS  # Coriolis frequency at 45 degrees latitude in radians per day
         >>> transfer_ekman = lambda omega: wind_transfer(omega, z=15, cor_freq= cor_freq,
         delta=10.0, mu=0.0, bld=np.inf, boundary_condition="no-slip")[0].squeeze()
-        >>> dt = 1/24  # Time step needed for callable transfer functions
+        >>> dt = 1 / 24  # Time step needed for callable transfer functions
         >>> results, average_result = apply_sliding_transfer_function(tau, transfer_ekman, window_size=24, step=12, dt=dt, kernel="epanechnikov")
         The shape of results is here (len(`tau`) // `step` + 1, `window_size`) = (21, 24).
 
