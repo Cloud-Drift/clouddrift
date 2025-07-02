@@ -101,7 +101,7 @@ class RaggedArray:
     @classmethod
     def from_files(
         cls,
-        indices: list[int],
+        indices: list[int] | np.ndarray,
         preprocess_func: Callable[[int], xr.Dataset],
         name_coords: list,
         name_meta: list = list(),
@@ -282,7 +282,7 @@ class RaggedArray:
 
     @staticmethod
     def number_of_observations(
-        rowsize_func: Callable[[int], int], indices: list, **kwargs
+        rowsize_func: Callable[[int], int], indices: list | np.ndarray, **kwargs
     ) -> np.ndarray:
         """Iterate through the files and evaluate the number of observations.
 
@@ -352,7 +352,7 @@ class RaggedArray:
     @staticmethod
     def allocate(
         preprocess_func: Callable[[int], xr.Dataset],
-        indices: list,
+        indices: list | np.ndarray,
         rowsize: list | np.ndarray | xr.DataArray,
         name_coords: list,
         name_meta: list,

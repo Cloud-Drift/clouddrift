@@ -45,6 +45,7 @@ dev = [
     "build",
     "coverage",
     "docutils",
+    "ipykernel",
     "pytest",
     "mypy",
     "ruff",
