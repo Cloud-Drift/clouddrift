@@ -99,6 +99,7 @@ def apply_transfer_function(
             warnings.warn(
                 "The `dt` argument is ignored when `transfer_func` is provided as an array.",
                 UserWarning,
+                stacklevel=2,
             )
         G = np.asarray(transfer_func)
         if G.shape != Xf.shape:
