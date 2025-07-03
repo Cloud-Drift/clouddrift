@@ -331,7 +331,15 @@ class binning_tests(unittest.TestCase):
                 statistics=np.array([1, 2, 3]),
             )
 
-    def test_statistics(self):
+    def test_statistics_default(self):
+        ds = binned_statistics(
+            coords=self.coords_1d,
+            data=self.values_1d,
+            bins=3,
+        )
+        self.assertIn("binned_0_count", ds.data_vars)
+
+    def test_statistics_all(self):
         ds = binned_statistics(
             coords=self.coords_1d,
             data=self.values_1d,
@@ -345,36 +353,35 @@ class binning_tests(unittest.TestCase):
         self.assertIn("binned_0_min", ds.data_vars)
         self.assertIn("binned_0_max", ds.data_vars)
 
-    def test_statistics_2d(self):
+    def test_statistics_n_vars(self):
         ds = binned_statistics(
-            coords=self.coords_2d,
-            data=[self.values_1d, self.values_1d],
-            bins=(3, 4),
+            coords=self.coords_1d,
+            data=[self.values_1d, self.values_1d, self.values_1d],
             statistics=["count", "sum", "mean", "std", "min", "max"],
         )
-        for vars in ["binned_0", "binned_1"]:
-            self.assertIn(f"{vars}_count", ds.data_vars)
-            self.assertIn(f"{vars}_sum", ds.data_vars)
-            self.assertIn(f"{vars}_mean", ds.data_vars)
-            self.assertIn(f"{vars}_std", ds.data_vars)
-            self.assertIn(f"{vars}_min", ds.data_vars)
-            self.assertIn(f"{vars}_max", ds.data_vars)
+        for var in ["binned_0", "binned_1"]:
+            self.assertIn(f"{var}_count", ds.data_vars)
+            self.assertIn(f"{var}_sum", ds.data_vars)
+            self.assertIn(f"{var}_mean", ds.data_vars)
+            self.assertIn(f"{var}_std", ds.data_vars)
+            self.assertIn(f"{var}_min", ds.data_vars)
+            self.assertIn(f"{var}_max", ds.data_vars)
 
-    def test_statistics_3d(self):
+    def test_statistics_n_vars_rename(self):
+        var_names = ["u", "v", "w"]
         ds = binned_statistics(
-            coords=self.coords_3d_ex,
-            data=[self.values_3d_ex, self.values_3d_ex, self.values_3d_ex],
-            bins=(3, 4, 5),
+            coords=self.coords_1d,
+            data=[self.values_1d, self.values_1d, self.values_1d],
             statistics=["count", "sum", "mean", "std", "min", "max"],
+            output_names=var_names,
         )
-
-        for vars in ["binned_0", "binned_1", "binned_2"]:
-            self.assertIn(f"{vars}_count", ds.data_vars)
-            self.assertIn(f"{vars}_sum", ds.data_vars)
-            self.assertIn(f"{vars}_mean", ds.data_vars)
-            self.assertIn(f"{vars}_std", ds.data_vars)
-            self.assertIn(f"{vars}_min", ds.data_vars)
-            self.assertIn(f"{vars}_max", ds.data_vars)
+        for var in var_names:
+            self.assertIn(f"{var}_count", ds.data_vars)
+            self.assertIn(f"{var}_sum", ds.data_vars)
+            self.assertIn(f"{var}_mean", ds.data_vars)
+            self.assertIn(f"{var}_std", ds.data_vars)
+            self.assertIn(f"{var}_min", ds.data_vars)
+            self.assertIn(f"{var}_max", ds.data_vars)
 
     def test_statistics_callable(self):
         ds = binned_statistics(
