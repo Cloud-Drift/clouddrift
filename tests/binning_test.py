@@ -53,6 +53,10 @@ class binning_tests(unittest.TestCase):
                 data=np.ones_like(self.coords_1d),
                 output_names=["x", "y"],
             )
+        with self.assertRaises(ValueError):
+            binned_statistics(
+                self.coords_1d, data=np.ones_like((1, len(self.coords_1d)))
+            )
 
     def test_bins_number_default(self):
         ds = binned_statistics(self.coords_1d)
@@ -330,6 +334,31 @@ class binning_tests(unittest.TestCase):
                 bins=3,
                 statistics=np.array([1, 2, 3]),
             )
+
+    def test_statistics_default(self):
+        ds = binned_statistics(
+            coords=self.coords_1d,
+            data=self.values_1d,
+            bins=3,
+        )
+        self.assertIn("binned_0_count", ds.data_vars)
+
+    def test_statistics_no_precalculated(self):
+        ds = binned_statistics(
+            coords=self.coords_1d,
+            data=self.values_1d,
+            bins=3,
+            statistics="mean",
+        )
+        self.assertIn("binned_0_mean", ds.data_vars)
+
+        ds = binned_statistics(
+            coords=self.coords_1d,
+            data=self.values_1d,
+            bins=3,
+            statistics="std",
+        )
+        self.assertIn("binned_0_std", ds.data_vars)
 
     def test_statistics_default(self):
         ds = binned_statistics(

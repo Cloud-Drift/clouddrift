@@ -346,9 +346,7 @@ def binned_statistics(
 
     # validate statistics parameter
     ordered_statistics = ["count", "sum", "mean", "std", "min", "max"]
-    if statistics is None:
-        statistics = []
-    elif isinstance(statistics, str) or callable(statistics):
+    if isinstance(statistics, str) or callable(statistics):
         statistics = [statistics]
     elif not isinstance(statistics, (list, tuple)):
         raise ValueError(
