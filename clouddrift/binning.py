@@ -26,8 +26,6 @@ def _get_function_name(func: Callable[[np.ndarray], float]) -> str:
     function_name = "unknown_callable"
     if isinstance(func, functools.partial):
         function_name = getattr(func.func, "__name__", "partial_wrapper_func")
-        if function_name == "<lambda>":
-            function_name = "partial_lambda_wrapper"
     elif hasattr(func, "__name__"):
         function_name = func.__name__
         if function_name == "<lambda>":
