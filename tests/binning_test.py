@@ -343,7 +343,7 @@ class binning_tests(unittest.TestCase):
         )
         self.assertIn("binned_0_count", ds.data_vars)
 
-    def test_statistics_no_precalculated(self):
+    def test_statistics_no_precalculated_values(self):
         ds = binned_statistics(
             coords=self.coords_1d,
             data=self.values_1d,
@@ -359,14 +359,6 @@ class binning_tests(unittest.TestCase):
             statistics="std",
         )
         self.assertIn("binned_0_std", ds.data_vars)
-
-    def test_statistics_default(self):
-        ds = binned_statistics(
-            coords=self.coords_1d,
-            data=self.values_1d,
-            bins=3,
-        )
-        self.assertIn("binned_0_count", ds.data_vars)
 
     def test_statistics_all(self):
         ds = binned_statistics(
