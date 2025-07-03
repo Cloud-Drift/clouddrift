@@ -93,7 +93,7 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     Oceanographic and Meteorological Laboratory (AOML) accessible at
     https://www.aoml.noaa.gov/phod/gdp/index.php.
 
-    This returns the July 2024 version of the dataset including data from 1979-02-15:00:00:00Z 
+    This returns the July 2024 version of the dataset including data from 1979-02-15:00:00:00Z
     to 2024-08-16:12:00:00Z.
 
     Parameters
