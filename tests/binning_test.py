@@ -1,3 +1,4 @@
+import functools
 import unittest
 
 import numpy as np
@@ -10,6 +11,7 @@ class binning_tests(unittest.TestCase):
         self.coords_1d = np.array(
             [-0.2, 0.3, 0.6, 0.7, 1.2, 1.3, 1.8, 2.1, 2.7, 2.8, 3.1]
         )
+        self.values_1d = np.array([1, 2, 3, 4, 5, 6, 9, 20, 20, 20, 20])
         self.bins_range_1d = (0, 3)
 
         self.coords_2d = [self.coords_1d, self.coords_1d]
@@ -302,3 +304,115 @@ class binning_tests(unittest.TestCase):
             coords=self.coords_1d, bins=4, bins_range=(-1, 0), zeros_to_nan=True
         )
         self.assertTrue(np.isnan(ds["binned_count"].values[empty_bins]).all())
+
+    def test_statistics_wrong_function(self):
+        with self.assertRaises(ValueError):
+            binned_statistics(
+                coords=self.coords_1d,
+                data=self.values_1d,
+                bins=3,
+                statistics=["non_existent_function"],
+            )
+
+    def test_statistics_wrong_type(self):
+        with self.assertRaises(ValueError):
+            binned_statistics(
+                coords=self.coords_1d,
+                data=self.values_1d,
+                bins=3,
+                statistics=["mean", 42],
+            )
+
+        with self.assertRaises(ValueError):
+            binned_statistics(
+                coords=self.coords_1d,
+                data=self.values_1d,
+                bins=3,
+                statistics=np.array([1, 2, 3]),
+            )
+
+    def test_statistics(self):
+        ds = binned_statistics(
+            coords=self.coords_1d,
+            data=self.values_1d,
+            bins=3,
+            statistics=["count", "sum", "mean", "std", "min", "max"],
+        )
+        self.assertIn("binned_0_count", ds.data_vars)
+        self.assertIn("binned_0_sum", ds.data_vars)
+        self.assertIn("binned_0_mean", ds.data_vars)
+        self.assertIn("binned_0_std", ds.data_vars)
+        self.assertIn("binned_0_min", ds.data_vars)
+        self.assertIn("binned_0_max", ds.data_vars)
+
+    def test_statistics_2d(self):
+        ds = binned_statistics(
+            coords=self.coords_2d,
+            data=[self.values_1d, self.values_1d],
+            bins=(3, 4),
+            statistics=["count", "sum", "mean", "std", "min", "max"],
+        )
+        for vars in ["binned_0", "binned_1"]:
+            self.assertIn(f"{vars}_count", ds.data_vars)
+            self.assertIn(f"{vars}_sum", ds.data_vars)
+            self.assertIn(f"{vars}_mean", ds.data_vars)
+            self.assertIn(f"{vars}_std", ds.data_vars)
+            self.assertIn(f"{vars}_min", ds.data_vars)
+            self.assertIn(f"{vars}_max", ds.data_vars)
+
+    def test_statistics_3d(self):
+        ds = binned_statistics(
+            coords=self.coords_3d_ex,
+            data=[self.values_3d_ex, self.values_3d_ex, self.values_3d_ex],
+            bins=(3, 4, 5),
+            statistics=["count", "sum", "mean", "std", "min", "max"],
+        )
+
+        for vars in ["binned_0", "binned_1", "binned_2"]:
+            self.assertIn(f"{vars}_count", ds.data_vars)
+            self.assertIn(f"{vars}_sum", ds.data_vars)
+            self.assertIn(f"{vars}_mean", ds.data_vars)
+            self.assertIn(f"{vars}_std", ds.data_vars)
+            self.assertIn(f"{vars}_min", ds.data_vars)
+            self.assertIn(f"{vars}_max", ds.data_vars)
+
+    def test_statistics_callable(self):
+        ds = binned_statistics(
+            coords=self.coords_1d,
+            data=self.values_1d,
+            bins=3,
+            statistics=[np.median, "mean"],
+        )
+        self.assertIn("binned_0_mean", ds.data_vars)
+        self.assertIn("binned_0_median", ds.data_vars)
+
+        np.testing.assert_allclose(
+            ds["binned_0_mean"].values, np.array([2.5, 6.666, 20.0]), rtol=1e-2
+        )
+
+        np.testing.assert_allclose(
+            ds["binned_0_median"].values, np.array([2.5, 6, 20.0]), rtol=1e-2
+        )
+
+    def test_statistics_callable_partial(self):
+        ds = binned_statistics(
+            coords=self.coords_1d,
+            data=self.values_1d,
+            bins=3,
+            statistics=[
+                functools.partial(np.percentile, q=40),
+                "mean",
+            ],
+        )
+        self.assertIn("binned_0_mean", ds.data_vars)
+        self.assertIn("binned_0_percentile", ds.data_vars)
+
+    def test_statistics_callable_lambda(self):
+        ds = binned_statistics(
+            coords=self.coords_1d,
+            data=self.values_1d,
+            bins=3,
+            statistics=[lambda x: np.percentile(x, q=40), "mean"],
+        )
+        self.assertIn("binned_0_mean", ds.data_vars)
+        self.assertIn("binned_0_anon_lambda_func", ds.data_vars)

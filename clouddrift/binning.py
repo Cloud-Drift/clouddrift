@@ -31,7 +31,7 @@ def _get_function_name(func: Callable[[np.ndarray], float]) -> str:
     elif hasattr(func, "__name__"):
         function_name = func.__name__
         if function_name == "<lambda>":
-            function_name = "anonymous_lambda_func"
+            function_name = "anon_lambda_func"
     return function_name
 
 
@@ -344,7 +344,7 @@ def binned_statistics(
             for r, c in zip(bins_range, coords)
         ]
 
-    # create a list if statistics is a string
+    # validate statistics parameter
     ordered_statistics = ["count", "sum", "mean", "std", "min", "max"]
     if statistics is None:
         statistics = []
@@ -355,17 +355,19 @@ def binned_statistics(
             "'statistics' must be a string, list of strings, callable, or a list of callables. "
             f"Supported values: {', '.join(ordered_statistics)}."
         )
-    statistics_str = [s for s in statistics if isinstance(s, str)]
-    statistics_funcs = [s for s in statistics if not isinstance(s, str)]
     if invalid := [
         stat
-        for stat in statistics_str
+        for stat in statistics
         if (stat not in ordered_statistics) and not callable(stat)
     ]:
         raise ValueError(
-            f"Unsupported statistic(s): {', '.join(invalid)}. "
-            f"Supported values: {', '.join(ordered_statistics)}."
+            f"Unsupported statistic(s): {', '.join(map(str, invalid))}. "
+            f"Supported: {ordered_statistics} or a Callable."
         )
+
+    # sort statistics for efficiency
+    statistics_str = [s for s in statistics if isinstance(s, str)]
+    statistics_funcs = [s for s in statistics if not isinstance(s, str)]
     statistics = (
         sorted(
             set(statistics_str),
