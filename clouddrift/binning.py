@@ -48,13 +48,11 @@ def _filter_valid_and_finite(
     Returns:
         tuple[list[np.ndarray], list[np.ndarray]]: Filtered variable and indices.
     """
-
     if var.shape[0] == V:
         var_valid = [v[valid] for v in var]
-        indices_valid = [i[valid] for i in indices]
-        mask = [np.isfinite(v) for v in var_valid]
-        var_finite = [v[m] for v, m in zip(var_valid, mask)]
-        indices_finite = [i[m] for i, m in zip(indices_valid, mask)]
+        mask = np.logical_or.reduce([np.isfinite(v) for v in var_valid])
+        var_finite = [v[mask] for v in var_valid]
+        indices_finite = [i[mask] for i in indices]
     elif var.size:
         var = var[valid]
         mask = np.isfinite(var)
