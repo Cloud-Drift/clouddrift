@@ -40,10 +40,14 @@ def _filter_valid_and_finite(
     Filter valid and finite values from the variable and indices.
 
     Args:
-        var (np.ndarray): Variable data to filter.
-        indices (list[np.ndarray]): List of index arrays to filter.
-        valid (np.ndarray): Boolean array indicating valid entries.
-        V (int): Expected shape of the variable.
+        var : np.ndarray
+            Variable data to filter.
+        indices : list[np.ndarray]
+            List of index arrays to filter.
+        valid : np.ndarray
+            Boolean array indicating valid entries.
+        V : int
+            Size of the 'data' parameter to determine if the variable is multivariate.
 
     Returns:
         tuple[list[np.ndarray], list[np.ndarray]]: Filtered variable and indices.
@@ -333,7 +337,7 @@ def binned_statistics(
         - a tuple of (var_name, callable) for multivariate statistics. 'var_name' is used to identify the resulting variable.
           In this case, the callable will receive the list of arrays provided in `data`. For example, to calculate kinetic energy,
           you can pass `data = [u, v]` and  `statistics=("ke", lambda data: np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)))`.
-        - a list any combination of the above, e.g., ['mean', np.nanmax, ('ke', np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)))].
+        - a list containing any combination of the above, e.g., ['mean', np.nanmax, ('ke', np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)))].
     dim_names : list of str, optional
         Names for the dimensions of the output xr.Dataset.
         If None, default names are "dim_0_bin", "dim_1_bin", etc.
