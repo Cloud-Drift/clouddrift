@@ -33,6 +33,40 @@ def _get_function_name(func: Callable[[np.ndarray], float]) -> str:
     return function_name
 
 
+def _filter_valid_and_finite(
+    var: np.ndarray, indices: list[np.ndarray], valid: np.ndarray, V: int
+) -> tuple[list[np.ndarray], list[np.ndarray]]:
+    """
+    Filter valid and finite values from the variable and indices.
+
+    Args:
+        var (np.ndarray): Variable data to filter.
+        indices (list[np.ndarray]): List of index arrays to filter.
+        valid (np.ndarray): Boolean array indicating valid entries.
+        V (int): Expected shape of the variable.
+
+    Returns:
+        tuple[list[np.ndarray], list[np.ndarray]]: Filtered variable and indices.
+    """
+
+    if var.shape[0] == V:
+        var_valid = [v[valid] for v in var]
+        indices_valid = [i[valid] for i in indices]
+        mask = [np.isfinite(v) for v in var_valid]
+        var_finite = [v[m] for v, m in zip(var_valid, mask)]
+        indices_finite = [i[m] for i, m in zip(indices_valid, mask)]
+    elif var.size:
+        var = var[valid]
+        mask = np.isfinite(var)
+        var_finite = var[mask]
+        indices_finite = [i[mask] for i in indices]
+    else:
+        var_finite = var.copy()
+        indices_finite = indices.copy()
+
+    return var_finite, indices_finite
+
+
 def _binned_count(flat_idx: np.ndarray, n_bins: int) -> np.ndarray:
     """Compute the count of values in each bin.
 
@@ -216,43 +250,49 @@ def _binned_max(
 def _binned_apply_func(
     flat_idx: np.ndarray,
     n_bins: int,
-    values: np.ndarray,
-    func: Callable[[np.ndarray], float] = np.mean,
+    values: np.ndarray | list[np.ndarray],
+    func: Callable[[list[np.ndarray]], float] = np.mean,
     fill_value: float = np.nan,
 ) -> np.ndarray:
     """
-    Generic wrapper to apply any functions (like median, percentile) to binned data.
+    Generic wrapper to apply any functions (e.g., percentile) to binned data.
 
     Parameters
     ----------
     flat_idx : array-like
-        1D array of bin indices, same shape as values.
-    n_bins: int
-        number of bins
-    values : array-like
-        1D array of data values
-    func : Callable[[np.ndarray], float], optional
-        Function to apply to the values in each bin. Default is np.mean.
+        1D array of bin indices.
+    n_bins : int
+        Number of bins.
+    values : array-like or list of array-like
+        1D array (univariate) or list of 1D arrays (multivariate) of data values.
+    func : Callable[[list[np.ndarray]], float]
+        Function to apply to each bin. If multivariate, will receive a list of arrays.
     fill_value : float, optional
         Value to fill in bins with no data. Default is np.nan.
 
     Returns
     -------
-    result  : array-like
-        1D array of length n_bins with the applied function per bin
+    result : np.ndarray
+        1D array of length n_bins with results from func per bin.
     """
-    # sort the flat_idx and values
     sort_indices = np.argsort(flat_idx)
     sorted_flat_idx = flat_idx[sort_indices]
-    sorted_values = values[sort_indices]
 
-    # find start and end indices for each bin
+    # single or all variables can be passed as input values
+    if is_multivariate := isinstance(values, list):
+        sorted_values = [v[sort_indices] for v in values]
+    else:
+        sorted_values = values[sort_indices]
+
     unique_bins, bin_starts = np.unique(sorted_flat_idx, return_index=True)
     bin_ends = np.append(bin_starts[1:], len(sorted_flat_idx))
 
     result = np.full(n_bins, fill_value)
     for i, bin_idx in enumerate(unique_bins):
-        bin_values = sorted_values[bin_starts[i] : bin_ends[i]]
+        if is_multivariate:
+            bin_values = [v[bin_starts[i] : bin_ends[i]] for v in sorted_values]
+        else:
+            bin_values = sorted_values[bin_starts[i] : bin_ends[i]]
         result[bin_idx] = func(bin_values)
 
     return result
@@ -290,15 +330,18 @@ def binned_statistics(
     statistics : str or list of str, Callable[[np.ndarray], float] or list[Callable[[np.ndarray], float]]
         Statistics to compute for each bin. It can be:
         - a string, supported values: 'count', 'sum', 'mean', 'median', 'std', 'min', 'max', (default: "count"),
-        - a list of strings from the same supported values, each specifying a statistic to compute,
-        - a custom function as a callable that take a 1D array of values and return a single value,
-        - a list of callables with the same signature as above.
+        - a custom function as a callable that take a 1D array of values and return a single value.
+          The callable is applied at each variable.
+        - a tuple of (var_name, callable) for multivariate statistics. 'var_name' is used to identify the resulting variable.
+          In this case, the callable will receive the list of arrays provided in `data`. For example, to calculate kinetic energy,
+          you can pass `data = [u, v]` and  `statistics=("ke", lambda data: np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)))`.
+        - a list any combination of the above, e.g., ['mean', np.nanmax, ('ke', np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)))].
     dim_names : list of str, optional
         Names for the dimensions of the output xr.Dataset.
         If None, default names are "dim_0_bin", "dim_1_bin", etc.
     output_names : list of str, optional
         Names for output variables in the xr.Dataset.
-        If None, default names are "binned_mean_0", "binned_mean_1", etc.
+        If None, default names are "binned_0_{statistic}", "binned_1_{statistic}", etc.
     zeros_to_nan : bool, optional
         If True, replace zeros in the output(s) with NaN. Default is False.
 
@@ -345,9 +388,9 @@ def binned_statistics(
 
     # validate statistics parameter
     ordered_statistics = ["count", "sum", "mean", "median", "std", "min", "max"]
-    if isinstance(statistics, str) or callable(statistics):
+    if isinstance(statistics, (str, tuple)) or callable(statistics):
         statistics = [statistics]
-    elif not isinstance(statistics, (list, tuple)):
+    elif not isinstance(statistics, list):
         raise ValueError(
             "'statistics' must be a string, list of strings, callable, or a list of callables. "
             f"Supported values: {', '.join(ordered_statistics)}."
@@ -355,22 +398,37 @@ def binned_statistics(
     if invalid := [
         stat
         for stat in statistics
-        if (stat not in ordered_statistics) and not callable(stat)
+        if (stat not in ordered_statistics)
+        and not callable(stat)
+        and not isinstance(stat, tuple)
     ]:
         raise ValueError(
             f"Unsupported statistic(s): {', '.join(map(str, invalid))}. "
             f"Supported: {ordered_statistics} or a Callable."
         )
 
-    # sort statistics for efficiency
+    # validate multivariable statistics
+    for statistic in statistics:
+        if isinstance(statistic, tuple):
+            var_name, statistic = statistic
+            if not isinstance(var_name, str):
+                raise ValueError(
+                    f"Invalid variable name '{var_name}', must be a string."
+                )
+            if not callable(statistic):
+                raise ValueError(
+                    "Multivariable statistic function is not Callable, must provide tuple(var_name, Callable)."
+                )
+
+    # validate and sort statistics for efficiency
     statistics_str = [s for s in statistics if isinstance(s, str)]
-    statistics_funcs = [s for s in statistics if not isinstance(s, str)]
+    statistics_func = [s for s in statistics if not isinstance(s, str)]
     statistics = (
         sorted(
             set(statistics_str),
             key=lambda x: ordered_statistics.index(x),
         )
-        + statistics_funcs
+        + statistics_func
     )
 
     if statistics and not data.size:
@@ -398,6 +456,15 @@ def binned_statistics(
             for i, name in enumerate(output_names)
         ]
 
+    statistics_iter = []
+    for statistic in statistics:
+        if isinstance(statistic, str) or callable(statistic):
+            for var, name in zip(data, output_names):
+                statistics_iter.append((var, name, statistic))
+        elif isinstance(statistic, tuple):
+            name, statistic = statistic
+            statistics_iter.append((data, name, statistic))
+
     # ensure inputs are consistent
     if D != len(dim_names):
         raise ValueError("'coords' and 'dim_names' must have the same length")
@@ -420,86 +487,83 @@ def binned_statistics(
     indices = [i[valid] for i in indices]
 
     ds = xr.Dataset()
-    for var, name in zip(data, output_names):
-        if var.size:
-            var = var[valid]
-            mask = np.isfinite(var)
-            var_finite = var[mask]
-            indices_finite = [i[mask] for i in indices]
-        else:
-            indices_finite = indices.copy()
-
+    # for var, name in zip(data, output_names):
+    # for (var, name), statistic in product(zip(data, output_names), statistics):
+    for var, name, statistic in statistics_iter:
         # count the number of points in each bin
+        var_finite, indices_finite = _filter_valid_and_finite(var, indices, valid, V)
         flat_idx = np.ravel_multi_index(indices_finite, edges_sz)
 
         # loop through statistics for the variable
         bin_count, bin_mean, bin_sum = None, None, None
-        for statistic in statistics:
-            if statistic == "count":
-                binned_stats = _binned_count(flat_idx, n_bins)
-                bin_count = binned_stats.copy()
-            elif statistic == "sum":
-                binned_stats = _binned_sum(flat_idx, n_bins, var_finite)
-                bin_sum = binned_stats.copy()
-            elif statistic == "mean":
-                binned_stats = _binned_mean(
-                    flat_idx,
-                    n_bins,
-                    var_finite,
-                    bin_counts=bin_count,
-                    bin_sum=bin_sum,
-                )
-                bin_mean = binned_stats.copy()
-            elif statistic == "std":
-                binned_stats = _binned_std(
-                    flat_idx,
-                    n_bins,
-                    var_finite,
-                    bin_counts=bin_count,
-                    bin_mean=bin_mean,
-                )
-            elif statistic == "min":
-                binned_stats = _binned_min(
-                    flat_idx,
-                    n_bins,
-                    var_finite,
-                    fill_value=fill_value,
-                )
-            elif statistic == "max":
-                binned_stats = _binned_max(
-                    flat_idx,
-                    n_bins,
-                    var_finite,
-                    fill_value=fill_value,
-                )
-            elif statistic == "median":
-                binned_stats = _binned_apply_func(
-                    flat_idx,
-                    n_bins,
-                    var_finite,
-                    func=np.median,
-                    fill_value=fill_value,
-                )
-            else:
-                binned_stats = _binned_apply_func(
-                    flat_idx,
-                    n_bins,
-                    var_finite,
-                    func=statistic,
-                    fill_value=fill_value,
-                )
-
-            if zeros_to_nan and np.any(binned_stats == 0):
-                binned_stats = np.where(binned_stats == 0, np.nan, binned_stats)
-
-            # and variable to the Dataset
-            variable_suffix = (
-                _get_function_name(statistic) if callable(statistic) else statistic
+        # for statistic in statistics:
+        if statistic == "count":
+            binned_stats = _binned_count(flat_idx, n_bins)
+            bin_count = binned_stats.copy()
+        elif statistic == "sum":
+            binned_stats = _binned_sum(flat_idx, n_bins, var_finite)
+            bin_sum = binned_stats.copy()
+        elif statistic == "mean":
+            binned_stats = _binned_mean(
+                flat_idx,
+                n_bins,
+                var_finite,
+                bin_counts=bin_count,
+                bin_sum=bin_sum,
             )
-            ds[f"{name}_{variable_suffix}"] = xr.DataArray(
-                binned_stats.reshape(edges_sz),
-                dims=dim_names,
-                coords=dict(zip(dim_names, bin_centers)),
+            bin_mean = binned_stats.copy()
+        elif statistic == "std":
+            binned_stats = _binned_std(
+                flat_idx,
+                n_bins,
+                var_finite,
+                bin_counts=bin_count,
+                bin_mean=bin_mean,
             )
+        elif statistic == "min":
+            binned_stats = _binned_min(
+                flat_idx,
+                n_bins,
+                var_finite,
+                fill_value=fill_value,
+            )
+        elif statistic == "max":
+            binned_stats = _binned_max(
+                flat_idx,
+                n_bins,
+                var_finite,
+                fill_value=fill_value,
+            )
+        elif statistic == "median":
+            binned_stats = _binned_apply_func(
+                flat_idx,
+                n_bins,
+                var_finite,
+                func=np.median,
+                fill_value=fill_value,
+            )
+        else:
+            binned_stats = _binned_apply_func(
+                flat_idx,
+                n_bins,
+                var_finite,
+                func=statistic,
+                fill_value=fill_value,
+            )
+
+        if zeros_to_nan and np.any(binned_stats == 0):
+            binned_stats = np.where(binned_stats == 0, np.nan, binned_stats)
+
+        # and variable to the Dataset
+        variable_name = (
+            name
+            if isinstance(var_finite, list)
+            else f"{name}_{_get_function_name(statistic) if callable(statistic) else statistic}"
+        )
+        ds[variable_name] = xr.DataArray(
+            binned_stats.reshape(edges_sz),
+            dims=dim_names,
+            coords=dict(zip(dim_names, bin_centers)),
+        )
 
     return ds

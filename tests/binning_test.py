@@ -445,3 +445,49 @@ class binning_tests(unittest.TestCase):
         )
         self.assertIn("binned_0_mean", ds.data_vars)
         self.assertIn("binned_0_anon_lambda_func", ds.data_vars)
+
+    def test_statistics_multivariable_wrong_parameter(self):
+        with self.assertRaises(ValueError):
+            binned_statistics(
+                coords=self.coords_1d,
+                data=[self.values_1d, self.values_1d],
+                bins=3,
+                statistics=(
+                    0,
+                    lambda data: np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)),
+                ),
+            )
+
+        with self.assertRaises(ValueError):
+            binned_statistics(
+                coords=self.coords_1d,
+                data=[self.values_1d, self.values_1d],
+                bins=3,
+                statistics=(
+                    "ke",
+                    0,
+                ),
+            )
+
+    def test_statistics_multivariable(self):
+        ds = binned_statistics(
+            coords=self.coords_1d,
+            data=[np.ones_like(self.values_1d) * 3, np.ones_like(self.values_1d) * 4],
+            bins=3,
+            statistics=[
+                "mean",
+                "count",
+                (
+                    "ke",
+                    lambda data: np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)),
+                ),
+            ],
+        )
+        self.assertIn("binned_0_count", ds.data_vars)
+        self.assertIn("binned_1_count", ds.data_vars)
+        self.assertIn("binned_0_mean", ds.data_vars)
+        self.assertTrue(all(ds["binned_0_mean"] == 3))
+        self.assertIn("binned_1_mean", ds.data_vars)
+        self.assertTrue(all(ds["binned_1_mean"] == 4))
+        self.assertIn("ke", ds.data_vars)
+        self.assertTrue(all(ds["ke"] == 5))
