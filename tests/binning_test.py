@@ -393,13 +393,14 @@ class binning_tests(unittest.TestCase):
         ds = binned_statistics(
             coords=self.coords_1d,
             data=[self.values_1d, self.values_1d, self.values_1d],
-            statistics=["count", "sum", "mean", "std", "min", "max"],
+            statistics=["count", "sum", "mean", "median", "std", "min", "max"],
             output_names=var_names,
         )
         for var in var_names:
             self.assertIn(f"{var}_count", ds.data_vars)
             self.assertIn(f"{var}_sum", ds.data_vars)
             self.assertIn(f"{var}_mean", ds.data_vars)
+            self.assertIn(f"{var}_median", ds.data_vars)
             self.assertIn(f"{var}_std", ds.data_vars)
             self.assertIn(f"{var}_min", ds.data_vars)
             self.assertIn(f"{var}_max", ds.data_vars)

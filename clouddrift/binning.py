@@ -267,6 +267,7 @@ def binned_statistics(
     output_names: list[str] | None = None,
     statistics: str | list | Callable[[np.ndarray], float] = "count",
     zeros_to_nan: bool = False,
+    fill_value: float = np.nan,
 ) -> xr.Dataset:
     """
     Perform N-dimensional binning and compute mean of values in each bin. The result is returned as an Xarray Dataset.
@@ -288,7 +289,7 @@ def binned_statistics(
         Outer bin limits for each dimension.
     statistics : str or list of str, Callable[[np.ndarray], float] or list[Callable[[np.ndarray], float]]
         Statistics to compute for each bin. It can be:
-        - a string, supported values: 'count', 'sum', 'mean', 'std', 'min', 'max', (default: "count"),
+        - a string, supported values: 'count', 'sum', 'mean', 'median', 'std', 'min', 'max', (default: "count"),
         - a list of strings from the same supported values, each specifying a statistic to compute,
         - a custom function as a callable that take a 1D array of values and return a single value,
         - a list of callables with the same signature as above.
@@ -343,7 +344,7 @@ def binned_statistics(
         ]
 
     # validate statistics parameter
-    ordered_statistics = ["count", "sum", "mean", "std", "min", "max"]
+    ordered_statistics = ["count", "sum", "mean", "median", "std", "min", "max"]
     if isinstance(statistics, str) or callable(statistics):
         statistics = [statistics]
     elif not isinstance(statistics, (list, tuple)):
@@ -462,14 +463,22 @@ def binned_statistics(
                     flat_idx,
                     n_bins,
                     var_finite,
-                    fill_value=np.nan,
+                    fill_value=fill_value,
                 )
             elif statistic == "max":
                 binned_stats = _binned_max(
                     flat_idx,
                     n_bins,
                     var_finite,
-                    fill_value=np.nan,
+                    fill_value=fill_value,
+                )
+            elif statistic == "median":
+                binned_stats = _binned_apply_func(
+                    flat_idx,
+                    n_bins,
+                    var_finite,
+                    func=np.median,
+                    fill_value=fill_value,
                 )
             else:
                 binned_stats = _binned_apply_func(
@@ -477,7 +486,7 @@ def binned_statistics(
                     n_bins,
                     var_finite,
                     func=statistic,
-                    fill_value=np.nan,
+                    fill_value=fill_value,
                 )
 
             if zeros_to_nan and np.any(binned_stats == 0):
