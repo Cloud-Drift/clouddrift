@@ -423,7 +423,7 @@ def binned_statistics(
                 )
             if not callable(statistic):
                 raise ValueError(
-                    "Multivariable `statistics` function is not Callable, must provide as a tuple(output_name, Callable)."
+                    "Multivariables `statistics` function is not Callable, must provide as a tuple(output_name, Callable)."
                 )
 
     # validate and sort statistics for efficiency
@@ -462,15 +462,6 @@ def binned_statistics(
             for i, name in enumerate(output_names)
         ]
 
-    statistics_iter = []
-    for statistic in statistics:
-        if isinstance(statistic, str) or callable(statistic):
-            for var, name in zip(data, output_names):
-                statistics_iter.append((var, name, statistic))
-        elif isinstance(statistic, tuple):
-            output_name, statistic = statistic
-            statistics_iter.append((data, output_name, statistic))
-
     # ensure inputs are consistent
     if D != len(dim_names):
         raise ValueError("`coords` and `dim_names` must have the same length")
@@ -491,6 +482,16 @@ def binned_statistics(
         [(j >= 0) & (j < edges_sz[i]) for i, j in enumerate(indices)], axis=0
     )
     indices = [i[valid] for i in indices]
+
+    # create an iterable of statistics to compute
+    statistics_iter = []
+    for statistic in statistics:
+        if isinstance(statistic, str) or callable(statistic):
+            for var, name in zip(data, output_names):
+                statistics_iter.append((var, name, statistic))
+        elif isinstance(statistic, tuple):
+            output_name, statistic = statistic
+            statistics_iter.append((data, output_name, statistic))
 
     ds = xr.Dataset()
     for var, name, statistic in statistics_iter:
@@ -551,7 +552,7 @@ def binned_statistics(
                 func=statistic,
             )
 
-        # # and variable to the Dataset
+        # add the binned statistics variable to the Dataset
         variable_name = (
             name
             if isinstance(var_finite, list)
