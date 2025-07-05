@@ -423,7 +423,7 @@ def binned_statistics(
                 )
             if not callable(statistic):
                 raise ValueError(
-                    "Multivariables `statistics` function is not Callable, must provide as a tuple(output_name, Callable)."
+                    "Multivariable `statistics` function is not Callable, must provide as a tuple(output_name, Callable)."
                 )
 
     # validate and sort statistics for efficiency
