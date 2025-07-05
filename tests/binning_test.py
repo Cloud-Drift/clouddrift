@@ -300,15 +300,6 @@ class binning_tests(unittest.TestCase):
         self.assertIn("x_mean", ds.data_vars)
         self.assertIn("y_mean", ds.data_vars)
 
-    def test_zeros_to_nan(self):
-        ds = binned_statistics(coords=self.coords_1d, bins=4, bins_range=(-1, 0))
-        empty_bins = ds["binned_count"].values == 0
-
-        ds = binned_statistics(
-            coords=self.coords_1d, bins=4, bins_range=(-1, 0), zeros_to_nan=True
-        )
-        self.assertTrue(np.isnan(ds["binned_count"].values[empty_bins]).all())
-
     def test_statistics_wrong_function(self):
         with self.assertRaises(ValueError):
             binned_statistics(
@@ -444,7 +435,26 @@ class binning_tests(unittest.TestCase):
             statistics=[lambda x: np.percentile(x, q=40), "mean"],
         )
         self.assertIn("binned_0_mean", ds.data_vars)
-        self.assertIn("binned_0_anon_lambda_func", ds.data_vars)
+        self.assertIn("binned_0_stat_0", ds.data_vars)
+
+    def test_statistics_callable_multiple_lambda(self):
+        ds = binned_statistics(
+            coords=self.coords_1d,
+            data=self.values_1d,
+            bins=3,
+            statistics=[
+                lambda x: np.percentile(x, q=10),
+                lambda x: np.percentile(x, q=20),
+                lambda x: np.percentile(x, q=30),
+                np.mean,
+                np.mean,
+            ],
+        )
+        self.assertIn("binned_0_stat_0", ds.data_vars)
+        self.assertIn("binned_0_stat_1", ds.data_vars)
+        self.assertIn("binned_0_stat_2", ds.data_vars)
+        self.assertIn("binned_0_mean", ds.data_vars)
+        self.assertIn("binned_0_mean_0", ds.data_vars)
 
     def test_statistics_multivariable_wrong_parameter(self):
         with self.assertRaises(ValueError):
