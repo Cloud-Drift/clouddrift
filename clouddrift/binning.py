@@ -126,7 +126,12 @@ def _binned_sum(flat_idx: np.ndarray, n_bins: int, values: np.ndarray) -> np.nda
     result : array-like
         1D array of length n_bins with the sum per bin
     """
-    return np.bincount(flat_idx, weights=values, minlength=n_bins)
+    if np.iscomplexobj(values):
+        real = np.bincount(flat_idx, weights=values.real, minlength=n_bins)
+        imag = np.bincount(flat_idx, weights=values.imag, minlength=n_bins)
+        return real + 1j * imag
+    else:
+        return np.bincount(flat_idx, weights=values, minlength=n_bins)
 
 
 def _binned_mean(
@@ -166,7 +171,7 @@ def _binned_mean(
     return np.divide(
         bin_sum,
         bin_counts,
-        out=np.full_like(bin_sum, 0.0),
+        out=np.full_like(bin_sum, 0.0, dtype=bin_sum.dtype),
         where=bin_counts > 0,
     )
 
@@ -205,11 +210,27 @@ def _binned_std(
     if bin_mean is None:
         bin_mean = _binned_mean(flat_idx, n_bins, values, bin_counts)
 
-    bin_sumsq = np.bincount(flat_idx, weights=values**2, minlength=n_bins)
-    bin_mean_sq = np.divide(
-        bin_sumsq, bin_counts, out=np.full(n_bins, 0.0), where=bin_counts > 0
-    )
-    variance = np.maximum(bin_mean_sq - bin_mean**2, 0)
+    if np.iscomplexobj(values):
+        # Use modulus for variance
+        abs_values = np.abs(values)
+        bin_sumsq = np.bincount(flat_idx, weights=abs_values**2, minlength=n_bins)
+        bin_mean_sq = np.divide(
+            bin_sumsq,
+            bin_counts,
+            out=np.full(n_bins, 0.0, dtype=bin_sumsq.dtype),
+            where=bin_counts > 0,
+        )
+        abs_bin_mean = np.abs(bin_mean)
+        variance = np.maximum(bin_mean_sq - abs_bin_mean**2, 0)
+    else:
+        bin_sumsq = np.bincount(flat_idx, weights=values**2, minlength=n_bins)
+        bin_mean_sq = np.divide(
+            bin_sumsq,
+            bin_counts,
+            out=np.full(n_bins, 0.0, dtype=bin_sumsq.dtype),
+            where=bin_counts > 0,
+        )
+        variance = np.maximum(bin_mean_sq - bin_mean**2, 0)
 
     return np.sqrt(variance)
 
@@ -232,6 +253,8 @@ def _binned_min(flat_idx: np.ndarray, n_bins: int, values: np.ndarray) -> np.nda
     result : array-like
         1D array of length n_bins with the minimum per bin
     """
+    if np.iscomplexobj(values):
+        raise ValueError("Complex values are not supported for 'min' statistic.")
     output = np.full(n_bins, np.nan)
     np.minimum.at(output, flat_idx, values)
     return output
@@ -255,6 +278,8 @@ def _binned_max(flat_idx: np.ndarray, n_bins: int, values: np.ndarray) -> np.nda
     result : array-like
         1D array of length n_bins with the maximum per bin
     """
+    if np.iscomplexobj(values):
+        raise ValueError("Complex values are not supported for 'max' statistic.")
     output = np.full(n_bins, np.nan)
     np.maximum.at(output, flat_idx, values)
     return output
@@ -328,6 +353,7 @@ def binned_statistics(
     data : array-like or list of array-like
         Data values associated with the Lagrangian coordinates in coords.
         Can be a single array or a list of arrays for multiple variables.
+        Complex values are supported for the supported statistics except for 'min', 'max', and 'median'.
     bins : int or lists, optional
         Number of bins or bin edges per dimension. It can be:
         - An int: same number of bins for all dimensions (default: 10),
