@@ -546,7 +546,7 @@ class binning_tests(unittest.TestCase):
         ]
         np.testing.assert_allclose(ds["binned_0_mean"].values, means, rtol=1e-12)
 
-    def test_statistics_complex_min_raises(self):
+    def test_statistics_complex_min_max_median_raises(self):
         coords = self.coords_1d
         values = np.array(
             [
@@ -571,23 +571,6 @@ class binning_tests(unittest.TestCase):
                 statistics="min",
             )
 
-    def test_statistics_complex_max_raises(self):
-        coords = self.coords_1d
-        values = np.array(
-            [
-                1 + 1j,
-                2 + 2j,
-                3 + 3j,
-                4 + 4j,
-                5 + 5j,
-                6 + 6j,
-                7 + 7j,
-                8 + 8j,
-                9 + 9j,
-                10 + 10j,
-                11 + 11j,
-            ]
-        )
         with self.assertRaises(ValueError):
             binned_statistics(
                 coords=coords,
@@ -596,34 +579,10 @@ class binning_tests(unittest.TestCase):
                 statistics="max",
             )
 
-    def test_statistics_complex_median_raises(self):
-        coords = self.coords_1d
-        values = np.array(
-            [
-                1 + 1j,
-                2 + 2j,
-                3 + 3j,
-                4 + 4j,
-                5 + 5j,
-                6 + 6j,
-                7 + 7j,
-                8 + 8j,
-                9 + 9j,
-                10 + 10j,
-                11 + 11j,
-            ]
-        )
         with self.assertRaises(ValueError):
             binned_statistics(
                 coords=coords,
                 data=values,
                 bins=3,
-                statistics="min",
-            )
-        with self.assertRaises(ValueError):
-            binned_statistics(
-                coords=coords,
-                data=values,
-                bins=3,
-                statistics="max",
+                statistics="median",
             )

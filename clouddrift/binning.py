@@ -564,6 +564,10 @@ def binned_statistics(
                 var_finite,
             )
         elif statistic == "median":
+            if np.iscomplexobj(var_finite):
+                raise ValueError(
+                    "Complex values are not supported for 'median' statistic."
+                )
             binned_stats = _binned_apply_func(
                 flat_idx,
                 n_bins,
