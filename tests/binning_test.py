@@ -501,3 +501,122 @@ class binning_tests(unittest.TestCase):
         self.assertTrue(all(ds["binned_1_mean"] == 4))
         self.assertIn("ke", ds.data_vars)
         self.assertTrue(all(ds["ke"] == 5))
+
+    def test_statistics_complex_mean_sum_count_std(self):
+        # Complex input for mean, sum, count, std
+        coords = self.coords_1d
+        values = np.array(
+            [
+                1 + 1j,
+                2 + 2j,
+                3 + 3j,
+                4 + 4j,
+                5 + 5j,
+                6 + 6j,
+                7 + 7j,
+                8 + 8j,
+                9 + 9j,
+                10 + 10j,
+                11 + 11j,
+            ]
+        )
+        ds = binned_statistics(
+            coords=coords,
+            data=values,
+            bins=3,
+            statistics=["mean", "sum", "count", "std"],
+        )
+        # Check that the output is complex for mean, sum, std
+        self.assertTrue(np.iscomplexobj(ds["binned_0_mean"].values))
+        self.assertTrue(np.iscomplexobj(ds["binned_0_sum"].values))
+        self.assertFalse(np.iscomplexobj(ds["binned_0_std"].values))
+        self.assertTrue(np.issubdtype(ds["binned_0_std"].dtype, np.floating))
+        # Count should be real and integer
+        self.assertTrue(np.issubdtype(ds["binned_0_count"].dtype, np.integer))
+        # Check that the sum is the sum of values in each bin
+        self.assertAlmostEqual(np.sum(ds["binned_0_sum"].values), np.sum(values))
+        # Check that the mean is the mean of values in each bin
+        mask0 = (coords >= -0.2) & (coords < 0.9)
+        mask1 = (coords >= 0.9) & (coords < 2.0)
+        mask2 = (coords >= 2.0) & (coords < 3.1)
+        means = [
+            np.mean(values[mask0]) if np.any(mask0) else 0,
+            np.mean(values[mask1]) if np.any(mask1) else 0,
+            np.mean(values[mask2]) if np.any(mask2) else 0,
+        ]
+        np.testing.assert_allclose(ds["binned_0_mean"].values, means, rtol=1e-12)
+
+    def test_statistics_complex_min_raises(self):
+        coords = self.coords_1d
+        values = np.array(
+            [
+                1 + 1j,
+                2 + 2j,
+                3 + 3j,
+                4 + 4j,
+                5 + 5j,
+                6 + 6j,
+                7 + 7j,
+                8 + 8j,
+                9 + 9j,
+                10 + 10j,
+                11 + 11j,
+            ]
+        )
+        with self.assertRaises(ValueError):
+            binned_statistics(
+                coords=coords,
+                data=values,
+                bins=3,
+                statistics="min",
+            )
+
+    def test_statistics_complex_max_raises(self):
+        coords = self.coords_1d
+        values = np.array(
+            [
+                1 + 1j,
+                2 + 2j,
+                3 + 3j,
+                4 + 4j,
+                5 + 5j,
+                6 + 6j,
+                7 + 7j,
+                8 + 8j,
+                9 + 9j,
+                10 + 10j,
+                11 + 11j,
+            ]
+        )
+        with self.assertRaises(ValueError):
+            binned_statistics(
+                coords=coords,
+                data=values,
+                bins=3,
+                statistics="max",
+            )
+
+    def test_statistics_complex_median_raises(self):
+        coords = self.coords_1d
+        values = np.array(
+            [
+                1 + 1j,
+                2 + 2j,
+                3 + 3j,
+                4 + 4j,
+                5 + 5j,
+                6 + 6j,
+                7 + 7j,
+                8 + 8j,
+                9 + 9j,
+                10 + 10j,
+                11 + 11j,
+            ]
+        )
+        with self.assertRaises(TypeError):
+            binned_statistics(
+                coords=coords,
+                data=values,
+                bins=3,
+                statistics="median",
+            )
