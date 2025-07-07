@@ -538,7 +538,7 @@ class binning_tests(unittest.TestCase):
         # Check that the mean is the mean of values in each bin
         mask0 = (coords >= -0.2) & (coords < 0.9)
         mask1 = (coords >= 0.9) & (coords < 2.0)
-        mask2 = (coords >= 2.0) & (coords < 3.1)
+        mask2 = (coords >= 2.0) & (coords <= 3.1)
         means = [
             np.mean(values[mask0]) if np.any(mask0) else 0,
             np.mean(values[mask1]) if np.any(mask1) else 0,
@@ -613,10 +613,17 @@ class binning_tests(unittest.TestCase):
                 11 + 11j,
             ]
         )
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             binned_statistics(
                 coords=coords,
                 data=values,
                 bins=3,
-                statistics="median",
+                statistics="min",
+            )
+        with self.assertRaises(ValueError):
+            binned_statistics(
+                coords=coords,
+                data=values,
+                bins=3,
+                statistics="max",
             )
