@@ -501,7 +501,7 @@ def binned_statistics(
     bin_centers = [0.5 * (e[:-1] + e[1:]) for e in edges]
 
     # digitize coordinates into bin indices
-    edges_tol = edges.copy()
+    edges_tol = [e.copy() for e in edges]
     for e in edges_tol:
         e[-1] += np.finfo(np.float64).eps  # ensure the last edge is inclusive
     indices = [np.digitize(c, edges_tol[j]) - 1 for j, c in enumerate(coords)]
