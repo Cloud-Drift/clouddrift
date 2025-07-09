@@ -12,7 +12,7 @@ DEFAULT_BINS_NUMBER = 10
 def _get_variable_name(
     output_name: str,
     func: Callable,
-    ds_vars: dict[str, xr.DataArray],
+    ds_vars: xr.core.dataset.DataVariables | dict[str, xr.DataArray],
 ) -> str:
     """
     Get the name of the function or a default name if it is a lambda function.
@@ -289,7 +289,7 @@ def _binned_apply_func(
     flat_idx: np.ndarray,
     n_bins: int,
     values: np.ndarray,
-    func: Callable[[list[np.ndarray]], float] = np.mean,
+    func: Callable[[np.ndarray | list[np.ndarray]], float] = np.mean,
 ) -> np.ndarray:
     """
     Generic wrapper to apply any functions (e.g., percentile) to binned data.
@@ -315,9 +315,9 @@ def _binned_apply_func(
 
     # single or all variables can be passed as input values
     if is_multivariate := values.ndim == 2:
-        sorted_values = np.array([v[sort_indices] for v in values])
+        sorted_values = [v[sort_indices] for v in values]
     else:
-        sorted_values = values[sort_indices]
+        sorted_values = [values[sort_indices]]
 
     unique_bins, bin_starts = np.unique(sorted_flat_idx, return_index=True)
     bin_ends = np.append(bin_starts[1:], len(sorted_flat_idx))
@@ -327,7 +327,7 @@ def _binned_apply_func(
         if is_multivariate:
             bin_values = [v[bin_starts[i] : bin_ends[i]] for v in sorted_values]
         else:
-            bin_values = sorted_values[bin_starts[i] : bin_ends[i]]
+            bin_values = sorted_values[0][bin_starts[i] : bin_ends[i]]
         result[bin_idx] = func(bin_values)
 
     return result
@@ -588,7 +588,7 @@ def binned_statistics(
         variable_name = (
             name
             if var_finite.ndim == 2
-            else _get_variable_name(name, statistic, ds.variables)
+            else _get_variable_name(name, statistic, ds.data_vars)
             if callable(statistic)
             else f"{name}_{statistic}"
         )
