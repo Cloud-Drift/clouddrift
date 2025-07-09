@@ -11,7 +11,7 @@ DEFAULT_BINS_NUMBER = 10
 
 def _get_variable_name(
     output_name: str,
-    func: Callable[[np.ndarray], float],
+    func: Callable,
     ds_vars: dict[str, xr.DataArray],
 ) -> str:
     """
@@ -19,7 +19,7 @@ def _get_variable_name(
 
     Parameters
     ----------
-    func : Callable[[np.ndarray], float]
+    func : Callable
         Function to get the name of.
     output_name : str
         Name of the output variable to which the function is applied.
@@ -55,15 +55,15 @@ def _get_variable_name(
 
 
 def _filter_valid_and_finite(
-    var: np.ndarray, indices: list[np.ndarray], valid: np.ndarray, V: int
-) -> tuple[list[np.ndarray], list[np.ndarray]]:
+    var: np.ndarray, indices: list, valid: np.ndarray
+) -> tuple[np.ndarray, list[np.ndarray]]:
     """
     Filter valid and finite values from the variable and indices.
 
     Args:
         var : np.ndarray
             Variable data to filter.
-        indices : list[np.ndarray]
+        indices : list
             List of index arrays to filter.
         valid : np.ndarray
             Boolean array indicating valid entries.
@@ -71,12 +71,12 @@ def _filter_valid_and_finite(
             Size of the 'data' parameter to determine if the variable is multivariate.
 
     Returns:
-        tuple[list[np.ndarray], list[np.ndarray]]: Filtered variable and indices.
+        tuple[np.ndarray, list[np.ndarray]]: Filtered variable and indices.
     """
-    if var.shape[0] == V:
+    if var.ndim == 2:
         var_valid = [v[valid] for v in var]
         mask = np.logical_or.reduce([np.isfinite(v) for v in var_valid])
-        var_finite = [v[mask] for v in var_valid]
+        var_finite = np.array([v[mask] for v in var_valid])
         indices_finite = [i[mask] for i in indices]
     elif var.size:
         var = var[valid]
@@ -288,7 +288,7 @@ def _binned_max(flat_idx: np.ndarray, n_bins: int, values: np.ndarray) -> np.nda
 def _binned_apply_func(
     flat_idx: np.ndarray,
     n_bins: int,
-    values: np.ndarray | list[np.ndarray],
+    values: np.ndarray,
     func: Callable[[list[np.ndarray]], float] = np.mean,
 ) -> np.ndarray:
     """
@@ -314,8 +314,8 @@ def _binned_apply_func(
     sorted_flat_idx = flat_idx[sort_indices]
 
     # single or all variables can be passed as input values
-    if is_multivariate := isinstance(values, list):
-        sorted_values = [v[sort_indices] for v in values]
+    if is_multivariate := values.ndim == 2:
+        sorted_values = np.array([v[sort_indices] for v in values])
     else:
         sorted_values = values[sort_indices]
 
@@ -524,7 +524,7 @@ def binned_statistics(
     ds = xr.Dataset()
     for var, name, statistic in statistics_iter:
         # count the number of points in each bin
-        var_finite, indices_finite = _filter_valid_and_finite(var, indices, valid, V)
+        var_finite, indices_finite = _filter_valid_and_finite(var, indices, valid)
         flat_idx = np.ravel_multi_index(indices_finite, edges_sz)
 
         # loop through statistics for the variable
@@ -587,7 +587,7 @@ def binned_statistics(
         # add the binned statistics variable to the Dataset
         variable_name = (
             name
-            if isinstance(var_finite, list)
+            if var_finite.ndim == 2
             else _get_variable_name(name, statistic, ds.variables)
             if callable(statistic)
             else f"{name}_{statistic}"
