@@ -407,9 +407,7 @@ def binned_statistics(
         bins = [bins if bins is not None else DEFAULT_BINS_NUMBER] * len(coords)
 
     if bins_range is None:
-        bins_range = [
-            (np.nanmin(c), np.nanmax(c) + np.finfo(np.float64).eps) for c in coords
-        ]
+        bins_range = [(np.nanmin(c), np.nanmax(c)) for c in coords]
     else:
         if isinstance(bins_range, tuple):
             bins_range = [bins_range] * len(coords)
@@ -503,7 +501,11 @@ def binned_statistics(
     bin_centers = [0.5 * (e[:-1] + e[1:]) for e in edges]
 
     # digitize coordinates into bin indices
-    indices = [np.digitize(c, edges[j]) - 1 for j, c in enumerate(coords)]
+    # modify edges to ensure the last edge is inclusive
+    edges_with_tol = [e.copy() for e in edges]
+    for e in edges_with_tol:
+        e[-1] += np.finfo(np.float64).eps
+    indices = [np.digitize(c, edges_with_tol[j]) - 1 for j, c in enumerate(coords)]
     valid = np.all(
         [(j >= 0) & (j < edges_sz[i]) for i, j in enumerate(indices)], axis=0
     )
