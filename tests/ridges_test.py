@@ -2,6 +2,7 @@ import unittest
 
 import numpy as np
 from numpy.lib import scimath
+import xarray as xr
 
 from clouddrift.ridges import (
     bilateral_minimum_selection,
@@ -1313,13 +1314,14 @@ class TestSeparateRidgeGroups(unittest.TestCase):
         self.inst_frequency_derivative = np.gradient(self.inst_freq, axis=-1)
 
         # Apply ridge shift interpolation
-        self.amplitude, self.interpolated_ridge_freqs, self.interp_inst_freq_dev = (
+        self.amplitude, self.interpolated_ridge_freqs, self.interp_inst_freq, self.interp_inst_freq_dev = (
             ridge_shift_interpolation(
                 self.rp,
                 self.rq,
                 [
                     np.abs(self.wavelet_y),
                     self.freq_mesh,
+                    self.inst_freq,
                     self.inst_frequency_derivative,
                 ],
             )
@@ -1329,14 +1331,18 @@ class TestSeparateRidgeGroups(unittest.TestCase):
         """Test separate_ridge_groups with empty ridge points."""
         empty_freq_indices = np.array([], dtype=int)
         empty_time_indices = np.array([], dtype=int)
+        empty_ridge_quantity = np.array([])
         empty_freq_mesh = np.array([])
+        empty_inst_freq = np.array([])
         empty_inst_freq_deriv = np.array([])
 
         ridge_data, num_ridges = separate_ridge_groups(
             empty_freq_indices,
             empty_time_indices,
             self.wavelet_y.shape,
+            empty_ridge_quantity,
             empty_freq_mesh,
+            empty_inst_freq,
             empty_inst_freq_deriv,
         )
 
@@ -1347,14 +1353,18 @@ class TestSeparateRidgeGroups(unittest.TestCase):
         """Test with single ridge point."""
         single_freq_idx = np.array([10])
         single_time_idx = np.array([50])
+        single_ridge_quantity = np.array([0.5])
         single_freq_mesh = np.array([0.1])
+        single_inst_freq = np.array([0.1])
         single_inst_freq_deriv = np.array([0.01])
 
         ridge_data, num_ridges = separate_ridge_groups(
             single_freq_idx,
             single_time_idx,
             self.wavelet_y.shape,
+            single_ridge_quantity,
             single_freq_mesh,
+            single_inst_freq,
             single_inst_freq_deriv,
             min_ridge_size=1,
         )
@@ -1380,13 +1390,15 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             freq_indices=self.ridge_scales,
             time_indices=self.ridge_times,
             transform_shape=self.wavelet_y.shape,
+            ridge_quantity=self.amplitude,
             freq_mesh=self.interpolated_ridge_freqs,
+            inst_frequency=self.interp_inst_freq,
             inst_frequency_derivative=self.interp_inst_freq_dev,
             min_ridge_size=5,
             max_gap=2,
         )
 
-        # Should find at least one ridge
+         # Should find at least one ridge
         self.assertGreater(num_ridges, 0)
         self.assertEqual(len(ridge_data), num_ridges)
 
@@ -1403,7 +1415,8 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             self.assertGreaterEqual(len(time_indices), 5)
             self.assertEqual(len(freq_indices), len(time_indices))
 
-            # Values should have same length as indices
+            # Values should have same length as indices and contain 4 arrays
+            self.assertEqual(len(values), 4)  # freq_mesh, inst_freq_deriv, amplitude, inst_freq
             for val_array in values:
                 self.assertEqual(len(val_array), len(freq_indices))
 
@@ -1413,7 +1426,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             freq_indices=self.ridge_scales,
             time_indices=self.ridge_times,
             transform_shape=self.wavelet_y.shape,
+            ridge_quantity=self.amplitude,
             freq_mesh=self.interpolated_ridge_freqs,
+            inst_frequency=self.interp_inst_freq,
             inst_frequency_derivative=self.interp_inst_freq_dev,
             min_ridge_size=5,
             max_gap=2,
@@ -1421,7 +1436,7 @@ class TestSeparateRidgeGroups(unittest.TestCase):
 
         for ridge_id, ridge in ridge_data.items():
             freq_indices, time_indices = ridge["indices"]
-            freq_values = ridge["values"][0]  # First value array is frequency
+            freq_values = ridge["values"][0]  # First value array is freq_mesh
 
             # Sort by time for continuity check
             sort_order = np.argsort(time_indices)
@@ -1440,7 +1455,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
         # Start with the dual frequency data and artificially fragment it
         original_ridge_scales = self.ridge_scales.copy()
         original_ridge_times = self.ridge_times.copy()
+        original_amplitude = self.amplitude.copy()
         original_freq_mesh = self.interpolated_ridge_freqs.copy()
+        original_inst_freq = self.interp_inst_freq.copy()
         original_inst_freq_deriv = self.interp_inst_freq_dev.copy()
 
         # Remove random ridge points to create smaller fragments
@@ -1453,7 +1470,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
 
         fragmented_freq_indices = original_ridge_scales[keep_indices]
         fragmented_time_indices = original_ridge_times[keep_indices]
+        fragmented_amplitude = original_amplitude[keep_indices]
         fragmented_freq_mesh = original_freq_mesh[keep_indices]
+        fragmented_inst_freq = original_inst_freq[keep_indices]
         fragmented_inst_freq_deriv = original_inst_freq_deriv[keep_indices]
 
         # Test with small min_ridge_size (should keep fragmented groups)
@@ -1461,7 +1480,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             fragmented_freq_indices,
             fragmented_time_indices,
             self.wavelet_y.shape,
+            fragmented_amplitude,
             fragmented_freq_mesh,
+            fragmented_inst_freq,
             fragmented_inst_freq_deriv,
             min_ridge_size=3,
             max_gap=2,
@@ -1472,7 +1493,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             fragmented_freq_indices,
             fragmented_time_indices,
             self.wavelet_y.shape,
+            fragmented_amplitude,
             fragmented_freq_mesh,
+            fragmented_inst_freq,
             fragmented_inst_freq_deriv,
             min_ridge_size=15,
             max_gap=2,
@@ -1491,7 +1514,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
         # Create data with intentional time gaps by removing consecutive ridge points
         original_ridge_scales = self.ridge_scales.copy()
         original_ridge_times = self.ridge_times.copy()
+        original_amplitude = self.amplitude.copy()
         original_freq_mesh = self.interpolated_ridge_freqs.copy()
+        original_inst_freq = self.interp_inst_freq.copy()
         original_inst_freq_deriv = self.interp_inst_freq_dev.copy()
 
         # Remove blocks of consecutive time points to create gaps
@@ -1517,7 +1542,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
 
         gapped_freq_indices = original_ridge_scales[gap_mask]
         gapped_time_indices = original_ridge_times[gap_mask]
+        gapped_amplitude = original_amplitude[gap_mask]
         gapped_freq_mesh = original_freq_mesh[gap_mask]
+        gapped_inst_freq = original_inst_freq[gap_mask]
         gapped_inst_freq_deriv = original_inst_freq_deriv[gap_mask]
 
         # Test with small max_gap (should be strict about gaps)
@@ -1525,7 +1552,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             gapped_freq_indices,
             gapped_time_indices,
             self.wavelet_y.shape,
+            gapped_amplitude,
             gapped_freq_mesh,
+            gapped_inst_freq,
             gapped_inst_freq_deriv,
             min_ridge_size=3,
             max_gap=2,
@@ -1536,7 +1565,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             gapped_freq_indices,
             gapped_time_indices,
             self.wavelet_y.shape,
+            gapped_amplitude,
             gapped_freq_mesh,
+            gapped_inst_freq,
             gapped_inst_freq_deriv,
             min_ridge_size=3,
             max_gap=10,
@@ -1564,7 +1595,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             freq_indices=self.ridge_scales,
             time_indices=self.ridge_times,
             transform_shape=self.wavelet_y.shape,
+            ridge_quantity=self.amplitude,
             freq_mesh=self.interpolated_ridge_freqs,
+            inst_frequency=self.interp_inst_freq,
             inst_frequency_derivative=self.interp_inst_freq_dev,
             alpha=0.01,
             min_ridge_size=3,
@@ -1576,7 +1609,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             freq_indices=self.ridge_scales,
             time_indices=self.ridge_times,
             transform_shape=self.wavelet_y.shape,
+            ridge_quantity=self.amplitude,
             freq_mesh=self.interpolated_ridge_freqs,
+            inst_frequency=self.interp_inst_freq,
             inst_frequency_derivative=self.interp_inst_freq_dev,
             alpha=100.0,
             min_ridge_size=3,
@@ -1609,7 +1644,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             freq_indices=self.ridge_scales,
             time_indices=self.ridge_times,
             transform_shape=self.wavelet_y.shape,
+            ridge_quantity=self.amplitude,
             freq_mesh=self.interpolated_ridge_freqs,
+            inst_frequency=self.interp_inst_freq,
             inst_frequency_derivative=self.interp_inst_freq_dev,
             min_ridge_size=5,
             max_gap=2,
@@ -1642,7 +1679,7 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             # Check values structure
             values = ridge["values"]
             self.assertIsInstance(values, list)
-            self.assertEqual(len(values), 2)  # freq_mesh and inst_freq_deriv
+            self.assertEqual(len(values), 4)  # freq_mesh and inst_freq_deriv ridge_quantity, inst_freq
 
             for val_array in values:
                 self.assertIsInstance(val_array, np.ndarray)
@@ -1661,7 +1698,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             freq_indices=self.ridge_scales,
             time_indices=self.ridge_times,
             transform_shape=self.wavelet_y.shape,
+            ridge_quantity=self.amplitude,
             freq_mesh=self.interpolated_ridge_freqs,
+            inst_frequency=self.interp_inst_freq,
             inst_frequency_derivative=self.interp_inst_freq_dev,
             min_ridge_size=5,
             max_gap=2,
@@ -1755,16 +1794,20 @@ class TestSeparateRidgeGroups(unittest.TestCase):
         # Create scattered ridge points with large frequency differences
         scattered_freq_indices = np.array([0, 10, 20, 30])
         scattered_time_indices = np.array([0, 100, 200, 300])
+        scattered_ridge_quantity = np.array([0.1, 0.2, 0.3, 0.4])
         scattered_freq_mesh = np.array(
             [0.01, 0.5, 1.0, 2.0]
         )  # Very different frequencies
+        scattered_inst_freq = np.array([0.01, 0.5, 1.0, 2.0])
         scattered_inst_freq_deriv = np.array([0.001, 0.01, 0.1, 1.0])
 
         ridge_data, num_ridges = separate_ridge_groups(
             scattered_freq_indices,
             scattered_time_indices,
             self.wavelet_y.shape,
+            scattered_ridge_quantity,
             scattered_freq_mesh,
+            scattered_inst_freq,
             scattered_inst_freq_deriv,
             alpha=0.01,  # Very restrictive
             min_ridge_size=2,
@@ -1925,39 +1968,66 @@ class TestRidgeAnalysis(unittest.TestCase):
             max_gap=2,
         )
 
-        # Check that all expected keys are present
-        expected_keys = {
-            "ridge_points",
-            "ridge_quantity",
-            "num_ridges",
-            "ridge_lengths",
-            "ridge_data",
+        # Check that result is an xarray Dataset
+        self.assertIsInstance(result, xr.Dataset)
+
+        # Check that all expected data variables are present
+        expected_data_vars = {
+            "time",
+            "frequency", 
             "inst_frequency",
-            "ridge_values",
+            "inst_frequency_derivative",
+            "ridge_quantity",
+            "rowsize",
+            "ridge_length",
         }
-        self.assertEqual(set(result.keys()), expected_keys)
+        self.assertEqual(set(result.data_vars.keys()), expected_data_vars)
 
-        # Check data types and shapes
-        self.assertIsInstance(result["ridge_points"], np.ndarray)
-        self.assertEqual(result["ridge_points"].dtype, bool)
-        self.assertEqual(result["ridge_points"].shape, self.wavelet_y.shape)
+        # Check that expected coordinates are present
+        expected_coords = {"obs", "id"}
+        self.assertEqual(set(result.coords.keys()), expected_coords)
 
-        self.assertIsInstance(result["ridge_quantity"], np.ndarray)
-        self.assertEqual(result["ridge_quantity"].shape, self.wavelet_y.shape)
+        # Check data types and dimensions
+        self.assertEqual(result["time"].dtype, np.float64)
+        self.assertEqual(result["time"].dims, ("obs",))
 
-        self.assertIsInstance(result["num_ridges"], int)
-        self.assertGreaterEqual(result["num_ridges"], 0)
+        self.assertEqual(result["frequency"].dtype, np.float64)
+        self.assertEqual(result["frequency"].dims, ("obs",))
 
-        self.assertIsInstance(result["ridge_lengths"], list)
-        self.assertEqual(len(result["ridge_lengths"]), result["num_ridges"])
+        self.assertEqual(result["inst_frequency"].dtype, np.float64)
+        self.assertEqual(result["inst_frequency"].dims, ("obs",))
 
-        self.assertIsInstance(result["ridge_data"], dict)
-        self.assertEqual(len(result["ridge_data"]), result["num_ridges"])
+        self.assertEqual(result["inst_frequency_derivative"].dtype, np.float64)
+        self.assertEqual(result["inst_frequency_derivative"].dims, ("obs",))
 
-        self.assertIsInstance(result["inst_frequency"], np.ndarray)
-        self.assertEqual(result["inst_frequency"].shape, self.wavelet_y.shape)
+        self.assertEqual(result["ridge_quantity"].dtype, np.float64)
+        self.assertEqual(result["ridge_quantity"].dims, ("obs",))
 
-        self.assertIsInstance(result["ridge_values"], list)
+        self.assertEqual(result["rowsize"].dims, ("id",))
+        self.assertEqual(result["ridge_length"].dims, ("id",))
+
+        # Check that observations dimension is consistent
+        num_obs = result.sizes["obs"]
+        self.assertEqual(len(result["time"]), num_obs)
+        self.assertEqual(len(result["frequency"]), num_obs)
+        self.assertEqual(len(result["inst_frequency"]), num_obs)
+        self.assertEqual(len(result["inst_frequency_derivative"]), num_obs)
+        self.assertEqual(len(result["ridge_quantity"]), num_obs)
+
+        # Check that ridge dimension is consistent
+        num_ridges = result.sizes["id"]
+        self.assertEqual(len(result["rowsize"]), num_ridges)
+        self.assertEqual(len(result["ridge_length"]), num_ridges)
+
+        # Check that rowsize sums to total observations
+        self.assertEqual(result["rowsize"].sum().item(), num_obs)
+
+        # Check global attributes
+        self.assertEqual(result.attrs["ridge_type"], "amplitude")
+        self.assertEqual(result.attrs["amplitude_threshold"], 10.0)
+        self.assertEqual(result.attrs["min_ridge_size"], 5)
+        self.assertEqual(result.attrs["max_gap"], 2)
+        self.assertEqual(result.attrs["num_ridges"], num_ridges)
 
     def test_ridge_analysis_phase_integration(self):
         """Test complete ridge analysis workflow with phase ridges."""
@@ -1971,14 +2041,39 @@ class TestRidgeAnalysis(unittest.TestCase):
             max_gap=3,
         )
 
-        # Should return valid structure even if fewer ridges detected
-        self.assertIn("ridge_points", result)
-        self.assertIn("num_ridges", result)
-        self.assertIn("ridge_data", result)
+        # Check that result is an xarray Dataset
+        self.assertIsInstance(result, xr.Dataset)
 
-        # num_ridges should match ridge_data and ridge_lengths
-        self.assertEqual(result["num_ridges"], len(result["ridge_data"]))
-        self.assertEqual(result["num_ridges"], len(result["ridge_lengths"]))
+        # Check that all expected data variables are present
+        expected_data_vars = {
+            "time",
+            "frequency",
+            "inst_frequency",
+            "inst_frequency_derivative",
+            "ridge_quantity",
+            "rowsize",
+            "ridge_length",
+        }
+        self.assertEqual(set(result.data_vars.keys()), expected_data_vars)
+
+        # Get number of ridges from the 'id' dimension size
+        num_ridges = result.sizes["id"]
+
+        # Check global attributes
+        self.assertEqual(result.attrs["ridge_type"], "phase")
+        self.assertEqual(result.attrs["num_ridges"], num_ridges)
+        self.assertEqual(result.attrs["min_ridge_size"], 3)
+        self.assertEqual(result.attrs["max_gap"], 3)
+
+        # Check that num_ridges is consistent with the length of ridge-dependent variables
+        self.assertEqual(num_ridges, len(result["ridge_length"]))
+        self.assertEqual(num_ridges, len(result["rowsize"]))
+        
+        # Check that the total number of observations is the sum of rowsizes
+        if num_ridges > 0:
+            self.assertEqual(result.sizes["obs"], result["rowsize"].sum().item())
+        else:
+            self.assertEqual(result.sizes["obs"], 0)
 
     def test_ridge_analysis_output_format_stability(self):
         """Test that output format is stable across different inputs."""
@@ -2011,7 +2106,7 @@ class TestRidgeAnalysis(unittest.TestCase):
 
     def test_ridge_analysis_empty_result_handling(self):
         """Test behavior when no ridges are found."""
-        # Use very high threshold to find no ridges
+        # Use a very high threshold to ensure no ridges are found
         result = ridge_analysis(
             wavelet=self.wavelet_y,
             freqs=self.freqs,
@@ -2022,14 +2117,31 @@ class TestRidgeAnalysis(unittest.TestCase):
             max_gap=2,
         )
 
-        # Should handle empty results gracefully
-        self.assertEqual(result["num_ridges"], 0)
-        self.assertEqual(len(result["ridge_data"]), 0)
-        self.assertEqual(len(result["ridge_lengths"]), 0)
+        # Check that the result is an xarray Dataset
+        self.assertIsInstance(result, xr.Dataset)
 
-        # Other arrays should still have correct shapes
-        self.assertEqual(result["ridge_points"].shape, self.wavelet_y.shape)
-        self.assertEqual(result["inst_frequency"].shape, self.wavelet_y.shape)
+        # Check for expected data variables
+        expected_data_vars = {
+            "time",
+            "frequency",
+            "inst_frequency",
+            "inst_frequency_derivative",
+            "ridge_quantity",
+            "rowsize",
+            "ridge_length",
+        }
+        self.assertEqual(set(result.data_vars.keys()), expected_data_vars)
+
+        # Check for expected coordinates
+        expected_coords = {"obs", "id"}
+        self.assertEqual(set(result.coords.keys()), expected_coords)
+
+        # Check that all dimensions are size 0
+        self.assertEqual(result.sizes["obs"], 0)
+        self.assertEqual(result.sizes["id"], 0)
+
+        # Check that there are no global attributes, as the function returns early
+        self.assertEqual(len(result.attrs), 0)
 
 
 def synth_signal(t, tau, omega, k):
