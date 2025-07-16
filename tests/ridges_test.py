@@ -1,8 +1,8 @@
 import unittest
 
 import numpy as np
-from numpy.lib import scimath
 import xarray as xr
+from numpy.lib import scimath
 
 from clouddrift.ridges import (
     bilateral_minimum_selection,
@@ -25,14 +25,14 @@ from clouddrift.wavelet import (
 
 class TestGradientOfAngle(unittest.TestCase):
     def test_no_wrap(self):
-        """ Simple linear angles should match np.gradient"""
+        """Simple linear angles should match np.gradient"""
         angles = np.array([0.0, 1.0, 2.0, 3.0])
         grad = gradient_of_angle(angles, edge_order=1, axis=0)
         expected = np.gradient(angles)
         self.assertTrue(np.allclose(grad, expected))
 
     def test_wrap(self):
-        """ Angles wrapping around ±π should unwrap smoothly"""
+        """Angles wrapping around ±π should unwrap smoothly"""
         # Create a linear ramp that crosses the ±π boundary
         linear = np.linspace(-np.pi + 0.5, np.pi + 0.5, 10)
         angles = (linear + np.pi) % (2 * np.pi) - np.pi
@@ -42,21 +42,21 @@ class TestGradientOfAngle(unittest.TestCase):
         np.testing.assert_allclose(grad_wrap, expected, atol=1e-6)
 
     def test_edge_order_2_even_length(self):
-        """ Even-length array with edge_order=2 should match np.gradient after unwrap"""
+        """Even-length array with edge_order=2 should match np.gradient after unwrap"""
         angles = np.linspace(0, 2 * np.pi, 6, endpoint=False)
         out = gradient_of_angle(angles, edge_order=2, axis=0)
         expected = np.gradient(np.unwrap(angles), edge_order=2)
         np.testing.assert_allclose(out, expected, atol=1e-6)
 
     def test_edge_order_2_odd_length(self):
-        """ Odd-length array with edge_order=2 should also match np.gradient after unwrap"""
+        """Odd-length array with edge_order=2 should also match np.gradient after unwrap"""
         angles = np.linspace(0, 2 * np.pi, 5, endpoint=False)
         out = gradient_of_angle(angles, edge_order=2, axis=0)
         expected = np.gradient(np.unwrap(angles), edge_order=2)
         np.testing.assert_allclose(out, expected, atol=1e-6)
 
     def test_axis_parameter(self):
-        """ 2D array: compute along axis=1"""
+        """2D array: compute along axis=1"""
         base = np.linspace(0, 3.0, 4)
         arr = np.stack([base, -base], axis=0)  # shape (2,4)
         out = gradient_of_angle(arr, edge_order=1, axis=1)
@@ -66,7 +66,7 @@ class TestGradientOfAngle(unittest.TestCase):
 
 class TestInstantaneousMoments(unittest.TestCase):
     def test_univariate_simple(self):
-        """ Test analytic signal with unit amplitude and unit frequency"""
+        """Test analytic signal with unit amplitude and unit frequency"""
         t = np.linspace(0, 2 * np.pi, 100)
         dt = t[1] - t[0]  # Time step
         signal = np.exp(1j * t)
@@ -77,7 +77,7 @@ class TestInstantaneousMoments(unittest.TestCase):
         self.assertTrue(np.allclose(xi, 0.0 + 1j * 0.0, atol=1e-2))
 
     def test_multivariate_simple(self):
-        """ Two-component signal to test joint moments"""
+        """Two-component signal to test joint moments"""
         t = np.linspace(0, 2 * np.pi, 100)
         dt = t[1] - t[0]  # Time step
         s1 = np.exp(1j * t)
@@ -92,7 +92,7 @@ class TestInstantaneousMoments(unittest.TestCase):
         self.assertTrue(np.all(amp > 0))
 
     def test_univariate_complex_signal(self):
-        """ Complex signal with known frequency and phase"""
+        """Complex signal with known frequency and phase"""
         t = np.linspace(2.0, 6.0, 100)
         dt = t[1] - t[0]  # Time step
         signal = np.log(t) * np.exp(1j * t)
@@ -120,7 +120,7 @@ class TestInstantaneousMoments(unittest.TestCase):
         )
 
     def test_multivariate_complex_signal(self):
-        """ Complex multivariate signal with known frequencies"""
+        """Complex multivariate signal with known frequencies"""
         t = np.array([2.0, 3.0, 4.0, 5.0, 6.0])
         s1 = np.log(t) * np.exp(1j * t)
         s2 = np.log(t) * np.exp(1j * (2 * t))
@@ -184,7 +184,7 @@ class TestInstantaneousMoments(unittest.TestCase):
 
 class TestIsRidgePoint(unittest.TestCase):
     def test_empty_transform(self):
-        """ Empty input should yield empty ridge points"""
+        """Empty input should yield empty ridge points"""
         wt = np.zeros((0, 0), dtype=np.complex128)
         freqs = np.array([])
         rp, rq, proc, inst_freq = isridgepoint(wt, freqs, 0.1, "amplitude")
@@ -192,7 +192,7 @@ class TestIsRidgePoint(unittest.TestCase):
         self.assertEqual(rq.size, 0)
 
     def test_basic_amplitude_ridge_vertical(self):
-        """ Create a Gaussian peak at center scale (ridge across all times at one scale)"""
+        """Create a Gaussian peak at center scale (ridge across all times at one scale)"""
         time_points = 101
         scale_points = 50
         freqs = np.linspace(0.1, 2.0, scale_points)
@@ -221,7 +221,7 @@ class TestIsRidgePoint(unittest.TestCase):
             self.assertFalse(rp[center_scale_idx + 1, :].any())  # Scale above center
 
     def test_diagonal_amplitude_ridge(self):
-        """ Create a Gaussian that moves linearly with time (diagonal ridge)"""
+        """Create a Gaussian that moves linearly with time (diagonal ridge)"""
         time_points = 101
         scale_points = 50
         t = np.linspace(-5, 5, time_points)
@@ -263,7 +263,7 @@ class TestIsRidgePoint(unittest.TestCase):
             self.assertGreater(correlation, 0.5)  # Positive correlation
 
     def test_amplitude_threshold_filtering(self):
-        """ Test that amplitude threshold properly filters weak signals"""
+        """Test that amplitude threshold properly filters weak signals"""
         time_points = 51
         scale_points = 25
         freqs = np.linspace(0.1, 1.0, scale_points)
@@ -289,7 +289,7 @@ class TestIsRidgePoint(unittest.TestCase):
         self.assertTrue(rp_low[center_scale_idx, :].all())  # Center scale detected
 
     def test_phase_ridge_linear_chirp_increasing(self):
-        """ Test phase ridge detection with linear chirp"""
+        """Test phase ridge detection with linear chirp"""
         time_points = 50
         scale_points = 25
 
@@ -340,7 +340,7 @@ class TestIsRidgePoint(unittest.TestCase):
             self.assertLess(time_error, 0.5001)
 
     def test_phase_ridge_linear_chirp_decreasing(self):
-        """ Test phase ridge detection with linear chirp and decreasing frequency matrix"""
+        """Test phase ridge detection with linear chirp and decreasing frequency matrix"""
         time_points = 50
         scale_points = 25
 
@@ -396,7 +396,7 @@ class TestIsRidgePoint(unittest.TestCase):
             self.assertLess(time_error, 0.5001)
 
     def test_phase_ridge_non_monotonic_frequency_error(self):
-        """ Test that non-monotonic frequency matrix raises an error for phase ridges"""
+        """Test that non-monotonic frequency matrix raises an error for phase ridges"""
         time_points = 50
         scale_points = 25
 
@@ -428,7 +428,7 @@ class TestIsRidgePoint(unittest.TestCase):
         self.assertIn("monotonic", str(context.exception).lower())
 
     def test_frequency_constraints(self):
-        """ Test frequency min/max constraints"""
+        """Test frequency min/max constraints"""
         time_points = 51
         scale_points = 25
         t = np.linspace(-3, 3, time_points)
@@ -461,7 +461,7 @@ class TestIsRidgePoint(unittest.TestCase):
             self.assertFalse(invalid_ridges.any())
 
     def test_multivariate_ridge_detection(self):
-        """ Create a Gaussian that moves linearly with time (diagonal ridge)"""
+        """Create a Gaussian that moves linearly with time (diagonal ridge)"""
         time_points = 31
         scale_points = 15
         components = 2
@@ -496,7 +496,7 @@ class TestIsRidgePoint(unittest.TestCase):
         self.assertEqual(rq.shape, (scale_points, time_points))
 
     def test_ridge_quantity_values(self):
-        """ Test that ridge quantities have expected values"""
+        """Test that ridge quantities have expected values"""
         time_points = 31
         scale_points = 15
         t = np.linspace(-2, 2, time_points)
@@ -1314,17 +1314,20 @@ class TestSeparateRidgeGroups(unittest.TestCase):
         self.inst_frequency_derivative = np.gradient(self.inst_freq, axis=-1)
 
         # Apply ridge shift interpolation
-        self.amplitude, self.interpolated_ridge_freqs, self.interp_inst_freq, self.interp_inst_freq_dev = (
-            ridge_shift_interpolation(
-                self.rp,
-                self.rq,
-                [
-                    np.abs(self.wavelet_y),
-                    self.freq_mesh,
-                    self.inst_freq,
-                    self.inst_frequency_derivative,
-                ],
-            )
+        (
+            self.amplitude,
+            self.interpolated_ridge_freqs,
+            self.interp_inst_freq,
+            self.interp_inst_freq_dev,
+        ) = ridge_shift_interpolation(
+            self.rp,
+            self.rq,
+            [
+                np.abs(self.wavelet_y),
+                self.freq_mesh,
+                self.inst_freq,
+                self.inst_frequency_derivative,
+            ],
         )
 
     def test_empty_input(self):
@@ -1398,7 +1401,7 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             max_gap=2,
         )
 
-         # Should find at least one ridge
+        # Should find at least one ridge
         self.assertGreater(num_ridges, 0)
         self.assertEqual(len(ridge_data), num_ridges)
 
@@ -1416,7 +1419,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             self.assertEqual(len(freq_indices), len(time_indices))
 
             # Values should have same length as indices and contain 4 arrays
-            self.assertEqual(len(values), 4)  # freq_mesh, inst_freq_deriv, amplitude, inst_freq
+            self.assertEqual(
+                len(values), 4
+            )  # freq_mesh, inst_freq_deriv, amplitude, inst_freq
             for val_array in values:
                 self.assertEqual(len(val_array), len(freq_indices))
 
@@ -1679,7 +1684,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             # Check values structure
             values = ridge["values"]
             self.assertIsInstance(values, list)
-            self.assertEqual(len(values), 4)  # freq_mesh and inst_freq_deriv ridge_quantity, inst_freq
+            self.assertEqual(
+                len(values), 4
+            )  # freq_mesh and inst_freq_deriv ridge_quantity, inst_freq
 
             for val_array in values:
                 self.assertIsInstance(val_array, np.ndarray)
@@ -1974,7 +1981,7 @@ class TestRidgeAnalysis(unittest.TestCase):
         # Check that all expected data variables are present
         expected_data_vars = {
             "time",
-            "frequency", 
+            "frequency",
             "inst_frequency",
             "inst_frequency_derivative",
             "ridge_quantity",
@@ -2068,7 +2075,7 @@ class TestRidgeAnalysis(unittest.TestCase):
         # Check that num_ridges is consistent with the length of ridge-dependent variables
         self.assertEqual(num_ridges, len(result["ridge_length"]))
         self.assertEqual(num_ridges, len(result["rowsize"]))
-        
+
         # Check that the total number of observations is the sum of rowsizes
         if num_ridges > 0:
             self.assertEqual(result.sizes["obs"], result["rowsize"].sum().item())

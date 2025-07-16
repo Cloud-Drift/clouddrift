@@ -1,9 +1,9 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
+import xarray as xr
 from numpy.typing import NDArray
 from scipy import integrate
-import xarray as xr
 
 
 def gradient_of_angle(
@@ -887,7 +887,12 @@ def separate_ridge_groups(
     if len(freq_indices) == 0:
         return {}, 0
 
-    ridge_interpolation_values = [freq_mesh, inst_frequency_derivative, ridge_quantity, inst_frequency]
+    ridge_interpolation_values = [
+        freq_mesh,
+        inst_frequency_derivative,
+        ridge_quantity,
+        inst_frequency,
+    ]
 
     # Organize ridge points into time-ridge matrices
     index_matrix, organized_values = organize_ridge_points(
@@ -1060,7 +1065,7 @@ def ridge_analysis(
     amplitude_threshold: float = 0.1,
     min_ridge_size: int = 5,
     max_gap: int = 2,
-) -> Dict[str, Any]:
+) -> xr.Dataset:
     """
     Detect ridge points in wavelet transform, separate them into groups using frequency prediction,
     and calculate properties for each group using the coordinate-based format.
@@ -1138,137 +1143,135 @@ def ridge_analysis(
     # Calculate lengths for each ridge
     ridge_lengths = calculate_ridge_lengths(ridge_data, t, num_ridges)
 
-    # print(ridge_lengths)
-
     if num_ridges == 0:
         # Return empty dataset
-        return xr.Dataset({
-            'time': (['obs'], np.array([])),
-            'frequency': (['obs'], np.array([])),
-            'inst_frequency': (['obs'], np.array([])),
-            'inst_frequency_derivative': (['obs'], np.array([])),
-            'ridge_quantity': (['obs'], np.array([])),
-            'rowsize': (['id'], np.array([])),
-            'ridge_length': (['id'], np.array([])),
-        }, coords={
-            'obs': np.array([]),
-            'id': np.array([])
-        })
+        return xr.Dataset(
+            {
+                "time": (["obs"], np.array([])),
+                "frequency": (["obs"], np.array([])),
+                "inst_frequency": (["obs"], np.array([])),
+                "inst_frequency_derivative": (["obs"], np.array([])),
+                "ridge_quantity": (["obs"], np.array([])),
+                "rowsize": (["id"], np.array([])),
+                "ridge_length": (["id"], np.array([])),
+            },
+            coords={"obs": np.array([]), "id": np.array([])},
+        )
 
     # Convert ridge_data to ragged array format
     # Sort ridge IDs to ensure consistent ordering
     ridge_ids = sorted(ridge_data.keys())
-    
+
     all_times = []
     all_frequencies = []
     all_inst_frequencies = []
     all_inst_freq_derivatives = []
     all_ridge_quantities = []
     rowsizes = []
-    
+
     # Process ridges in sorted order
     for ridge_id in ridge_ids:
         if ridge_id in ridge_data:
             # Get the indices for this ridge
             freq_indices_ridge, time_indices_ridge = ridge_data[ridge_id]["indices"]
             ridge_values = ridge_data[ridge_id]["values"]
-            
+
             ridge_quantity_vals = ridge_values[2]
-            frequency_vals = ridge_values[0]  
+            frequency_vals = ridge_values[0]
             inst_frequency_vals = ridge_values[3]
             inst_freq_derivative_vals = ridge_values[1]
-            
+
             # Get corresponding time values
             time_vals = t[time_indices_ridge]
-            
+
             # Append to our lists (this creates an implicit ordering)
             all_times.extend(time_vals)
             all_frequencies.extend(frequency_vals)
             all_inst_frequencies.extend(inst_frequency_vals)
             all_inst_freq_derivatives.extend(inst_freq_derivative_vals)
             all_ridge_quantities.extend(ridge_quantity_vals)
-            
+
             # Track ridge size
             rowsizes.append(len(time_indices_ridge))
         else:
             rowsizes.append(0)
-    
+
     # Convert to numpy arrays
-    all_times = np.array(all_times)
-    all_frequencies = np.array(all_frequencies)
-    all_inst_frequencies = np.array(all_inst_frequencies)
-    all_inst_freq_derivatives = np.array(all_inst_freq_derivatives)
-    all_ridge_quantities = np.array(all_ridge_quantities)
-    rowsizes = np.array(rowsizes)
+    all_times_np = np.array(all_times)
+    all_frequencies_np = np.array(all_frequencies)
+    all_inst_frequencies_np = np.array(all_inst_frequencies)
+    all_inst_freq_derivatives_np = np.array(all_inst_freq_derivatives)
+    all_ridge_quantities_np = np.array(all_ridge_quantities)
+    rowsizes_np = np.array(rowsizes)
 
     # Create unique ridge IDs for coordinates
     unique_ridge_ids = np.array(ridge_ids)
-    
+
     # Create the dataset
-    ds = xr.Dataset({
-        'time': (['obs'], all_times),
-        'frequency': (['obs'], all_frequencies),
-        'inst_frequency': (['obs'], all_inst_frequencies),
-        'inst_frequency_derivative': (['obs'], all_inst_freq_derivatives),
-        'ridge_quantity': (['obs'], all_ridge_quantities),
-        'rowsize': (['id'], rowsizes),
-        'ridge_length': (['id'], ridge_lengths),
-    }, coords={
-        'obs': np.arange(len(all_times)),
-        'id': unique_ridge_ids
-    })
-    
+    ds = xr.Dataset(
+        {
+            "time": (["obs"], all_times_np),
+            "frequency": (["obs"], all_frequencies_np),
+            "inst_frequency": (["obs"], all_inst_frequencies_np),
+            "inst_frequency_derivative": (["obs"], all_inst_freq_derivatives_np),
+            "ridge_quantity": (["obs"], all_ridge_quantities_np),
+            "rowsize": (["id"], rowsizes_np),
+            "ridge_length": (["id"], ridge_lengths),
+        },
+        coords={"obs": np.arange(len(all_times_np)), "id": unique_ridge_ids},
+    )
+
     # Add attributes
-    ds['time'].attrs = {
-        'long_name': 'time',
-        'data_type': 'float64',
-        'units': 'Those corresponding to the wavelet transform',
-        'description': 'Time values corresponding to the wavelet transform'
+    ds["time"].attrs = {
+        "long_name": "time",
+        "data_type": "float64",
+        "units": "Those corresponding to the wavelet transform",
+        "description": "Time values corresponding to the wavelet transform",
     }
-    ds['frequency'].attrs = {
-        'long_name': 'ridge frequency (interpolated)',
-        'data_type': 'float64',
-        'units': 'rad/[unit time]. Temporal units are those corresponding to the wavelet transform',
-        'description': 'Frequency values corresponding to the wavelet transform'
+    ds["frequency"].attrs = {
+        "long_name": "ridge frequency (interpolated)",
+        "data_type": "float64",
+        "units": "rad/[unit time]. Temporal units are those corresponding to the wavelet transform",
+        "description": "Frequency values corresponding to the wavelet transform",
     }
-    ds['inst_frequency'].attrs = {
-        'long_name': 'instantaneous frequency (interpolated)',
-        'data_type': 'float64',
-        'units': 'rad/[unit time]. Temporal units are those corresponding to the wavelet transform',
-        'description': 'Instantaneous frequency calculated from wavelet phase'
+    ds["inst_frequency"].attrs = {
+        "long_name": "instantaneous frequency (interpolated)",
+        "data_type": "float64",
+        "units": "rad/[unit time]. Temporal units are those corresponding to the wavelet transform",
+        "description": "Instantaneous frequency calculated from wavelet phase",
     }
-    ds['inst_frequency_derivative'].attrs = {
-        'long_name': 'instantaneous frequency derivative (interpolated)',
-        'data_type': 'float64',
-        'units': 'rad/[unit time]^2. Temporal units are those corresponding to the wavelet transform',
-        'description': 'Time derivative of instantaneous frequency'
+    ds["inst_frequency_derivative"].attrs = {
+        "long_name": "instantaneous frequency derivative (interpolated)",
+        "data_type": "float64",
+        "units": "rad/[unit time]^2. Temporal units are those corresponding to the wavelet transform",
+        "description": "Time derivative of instantaneous frequency",
     }
-    ds['ridge_quantity'].attrs = {
-        'long_name': 'Chosen ridge quantity value (interpolated)',
-        'data_type': 'float64',
-        'description': f'Quantity used for {ridge_type} ridge detection'
+    ds["ridge_quantity"].attrs = {
+        "long_name": "Chosen ridge quantity value (interpolated)",
+        "data_type": "float64",
+        "description": f"Quantity used for {ridge_type} ridge detection",
     }
-    ds['rowsize'].attrs = {
-        'long_name': 'number of observations per ridge',
-        'data_type': 'int',
-        'description': 'number of time points in each ridge'
+    ds["rowsize"].attrs = {
+        "long_name": "number of observations per ridge",
+        "data_type": "int",
+        "description": "number of time points in each ridge",
     }
-    ds['ridge_length'].attrs = {
-        'long_name': 'ridge length',
-        'data_type': 'float64',
-        'units': 'periods',
-        'description': 'ridge length calculated using Simpson rule integration'
+    ds["ridge_length"].attrs = {
+        "long_name": "ridge length",
+        "data_type": "float64",
+        "units": "periods",
+        "description": "ridge length calculated using Simpson rule integration",
     }
-    
+
     # Global attributes
     ds.attrs = {
-        'title': 'Wavelet Ridge Analysis Results',
-        'ridge_type': ridge_type,
-        'amplitude_threshold': amplitude_threshold,
-        'min_ridge_size': min_ridge_size,
-        'max_gap': max_gap,
-        'num_ridges': num_ridges,
-        'description': 'Ridge analysis results in ragged array format with interpolated values'
+        "title": "Wavelet Ridge Analysis Results",
+        "ridge_type": ridge_type,
+        "amplitude_threshold": amplitude_threshold,
+        "min_ridge_size": min_ridge_size,
+        "max_gap": max_gap,
+        "num_ridges": num_ridges,
+        "description": "Ridge analysis results in ragged array format with interpolated values",
     }
-    
+
     return ds
