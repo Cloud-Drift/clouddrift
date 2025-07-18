@@ -110,7 +110,7 @@ def gradient_of_angle(
     return result
 
 
-def instmom_univariate(
+def calculate_univariate_inst_moments(
     signal: NDArray[np.complex128], sample_rate: float = 1.0, axis: int = -1
 ) -> Tuple[
     NDArray[np.float64],
@@ -163,7 +163,7 @@ def instmom_univariate(
     return amplitude, omega, upsilon, xi
 
 
-def instmom_multivariate(
+def calculate_multivariate_inst_moments(
     signals: NDArray[np.complex128],
     sample_rate: float = 1.0,
     time_axis: int = -1,
@@ -269,7 +269,7 @@ def instmom_multivariate(
     return joint_amplitude, joint_omega, joint_upsilon, joint_xi
 
 
-def isridgepoint(
+def find_ridge_points(
     wavelet_transform: NDArray[np.complex128],
     scale_frequencies: NDArray[np.float64],
     amplitude_threshold: float,
@@ -325,12 +325,12 @@ def isridgepoint(
     # Calculate instantaneous moments
     if wavelet_transform.ndim > 2 and wavelet_transform.shape[2] > 1:
         # Multivariate case
-        amplitude, inst_frequency = instmom_multivariate(
+        amplitude, inst_frequency = calculate_multivariate_inst_moments(
             wavelet_transform, time_axis=-1, joint_axis=2
         )[:2]
     else:
         # Univariate case
-        amplitude, inst_frequency = instmom_univariate(wavelet_transform, axis=-1)[:2]
+        amplitude, inst_frequency = calculate_univariate_inst_moments(wavelet_transform, axis=-1)[:2]
 
     # Determine ridge quantity based on ridge type
     if ridge_type.lower().startswith("amp"):
@@ -724,11 +724,11 @@ def organize_ridge_points(
 
 
 def create_3d_deviation_matrix(
-    freq_matrix: np.ndarray,
-    freq_next_pred_matrix: np.ndarray,
-    freq_prev_pred_matrix: np.ndarray,
+    freq_matrix: NDArray[np.float64],
+    freq_next_pred_matrix: NDArray[np.float64],
+    freq_prev_pred_matrix: NDArray[np.float64],
     alpha: float = 0.25,
-) -> np.ndarray:
+) -> NDArray[np.float64]:
     """
     Create a 3D matrix of frequency deviations between ridge points at adjacent time steps.
 
@@ -737,18 +737,18 @@ def create_3d_deviation_matrix(
 
     Parameters
     ----------
-    freq_matrix : np.ndarray
+    freq_matrix : NDArray[np.float64]
         Matrix of ridge frequencies, shape (time, max_ridges)
-    freq_next_pred_matrix : np.ndarray
+    freq_next_pred_matrix : NDArray[np.float64]
         Matrix of predicted next frequencies, shape (time, max_ridges)
-    freq_prev_pred_matrix : np.ndarray
+    freq_prev_pred_matrix : NDArray[np.float64]
         Matrix of predicted previous frequencies, shape (time, max_ridges)
     alpha : float, optional
         Maximum allowed frequency deviation (default: 0.25)
 
     Returns
     -------
-    df : np.ndarray
+    df : NDArray[np.float64]
         3D matrix with frequency deviations, shape (time-1, max_ridges, max_ridges)
         where df[t, i, j] is the deviation between ridge i at time t and ridge j at time t+1.
     """
@@ -792,17 +792,17 @@ def create_3d_deviation_matrix(
     return df
 
 
-def bilateral_minimum_selection(df: np.ndarray) -> np.ndarray:
+def bilateral_minimum_selection(df: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     This function uses a bilateral minimum selection approach to filter the 3D deviation matrix.
     It filters the matrix by selecting the minimum values in a way that respects both
     the row and column structure.
 
     Parameters:
-    df : np.ndarray
+    df : NDArray[np.float64]
         A 3D numpy array of shape (num_times, max_ridges, max_ridges) containing the deviation values.
     Returns:
-    np.ndarray
+    NDArray[np.float64]
         A filtered 3D numpy array where each slice contains the minimum values selected
         according to the bilateral minimum selection criteria.
     """
@@ -914,7 +914,7 @@ def separate_ridge_groups(
     organized_next_freq = organized_freq + organized_inst_freq_deriv
     organized_prev_freq = organized_freq - organized_inst_freq_deriv
 
-    # Use the 3D deviation matrix approach instead of the previous method
+    # Create 3D deviation matrix
     deviation_matrix_3d = create_3d_deviation_matrix(
         organized_freq, organized_next_freq, organized_prev_freq, alpha=alpha
     )
@@ -1007,7 +1007,7 @@ def separate_ridge_groups(
 
 
 def calculate_ridge_lengths(
-    ridge_data: Dict[int, Dict[str, Any]], t: np.ndarray, num_ridges: int
+    ridge_data: Dict[int, Dict[str, Any]], t: NDArray[np.float64], num_ridges: int
 ) -> List[float]:
     """
     Calculate the length of each ridge group using Simpson's rule integration.
@@ -1016,7 +1016,7 @@ def calculate_ridge_lengths(
     ----------
     ridge_data : Dict[int, Dict[str, Any]]
         Dictionary of ridge data with indices and values for each ridge
-    t : np.ndarray
+    t : NDArray[np.float64]
         Time values corresponding to columns in the transform
     num_ridges : int
         Total number of ridges to process
@@ -1030,7 +1030,7 @@ def calculate_ridge_lengths(
 
     # Process each ridge to calculate its length
     for ridge_id in range(1, num_ridges + 1):
-        # Get ridge data
+        
         if ridge_id not in ridge_data:
             ridge_lengths.append(0.0)
             continue
@@ -1058,9 +1058,9 @@ def calculate_ridge_lengths(
 
 
 def ridge_analysis(
-    wavelet: np.ndarray,
-    freqs: np.ndarray,
-    t: np.ndarray,
+    wavelet: NDArray[np.complex128],
+    freqs: NDArray[np.float64],
+    t: NDArray[np.float64],
     ridge_type: str,
     amplitude_threshold: float = 0.1,
     min_ridge_size: int = 5,
@@ -1072,11 +1072,11 @@ def ridge_analysis(
 
     Parameters
     ----------
-    wavelet : np.ndarray
+    wavelet : NDArray[np.complex128]
         Wavelet transform (complex-valued) (shape: scale, time)
-    freqs : np.ndarray
+    freqs : NDArray[np.float64]
         Frequency values corresponding to rows in the transform
-    t : np.ndarray
+    t : NDArray[np.float64]
         Time values corresponding to columns in the transform
     ridge_type : str
         Type of ridge detection ('amplitude' or 'phase')
@@ -1101,15 +1101,15 @@ def ridge_analysis(
         - 'ridge_length': length of each ridge group in periods
     """
 
-    # Find ridge points
-    ridge_points, ridge_quantity, processed_transform, inst_frequency = isridgepoint(
+    # Find ridge points in wavelet transform
+    ridge_points, ridge_quantity, processed_transform, inst_frequency = find_ridge_points(
         wavelet_transform=wavelet,
         scale_frequencies=freqs,
         amplitude_threshold=amplitude_threshold,
         ridge_type=ridge_type,
     )
 
-    # Create frequency meshgrid for interpolation
+    # Create frequency meshgrid for ridge point shifting
     freq_mesh = np.zeros_like(ridge_quantity)
     for i, f in enumerate(freqs):
         freq_mesh[i, :] = f
@@ -1117,17 +1117,17 @@ def ridge_analysis(
     # Calculate the derivative of the instantaneous frequency
     inst_frequency_derivative = np.gradient(inst_frequency, axis=-1)
 
-    # Use ridge_shift_interpolation to get better accuracy and include derivative
+    # Use ridge_shift_interpolation to get more accurate ridge points
     interpolation_arrays = ridge_shift_interpolation(
         ridge_points=ridge_points,
         ridge_quantity=ridge_quantity,
         y_arrays=[ridge_quantity, freq_mesh, inst_frequency, inst_frequency_derivative],
     )
 
-    # Extract data from interpolation results
+    # Extract the frequency and time indices from the ridge points
     freq_indices, time_indices = np.where(ridge_points)
 
-    # Group the ridge points using frequency-based approach
+    # Separate ridge points into distinct groups
     ridge_data, num_ridges = separate_ridge_groups(
         freq_indices=freq_indices,
         time_indices=time_indices,
@@ -1143,6 +1143,7 @@ def ridge_analysis(
     # Calculate lengths for each ridge
     ridge_lengths = calculate_ridge_lengths(ridge_data, t, num_ridges)
 
+    # If no ridges were found, return an empty dataset
     if num_ridges == 0:
         # Return empty dataset
         return xr.Dataset(
@@ -1158,8 +1159,7 @@ def ridge_analysis(
             coords={"obs": np.array([]), "id": np.array([])},
         )
 
-    # Convert ridge_data to ragged array format
-    # Sort ridge IDs to ensure consistent ordering
+    # Convert ridge_data to an xarray dataset by organizing it into a ragged array format
     ridge_ids = sorted(ridge_data.keys())
 
     all_times = []
@@ -1169,7 +1169,7 @@ def ridge_analysis(
     all_ridge_quantities = []
     rowsizes = []
 
-    # Process ridges in sorted order
+    # Concatenate all ridge data into lists
     for ridge_id in ridge_ids:
         if ridge_id in ridge_data:
             # Get the indices for this ridge

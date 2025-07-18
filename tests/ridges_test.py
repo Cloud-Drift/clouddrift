@@ -6,12 +6,12 @@ from numpy.lib import scimath
 
 from clouddrift.ridges import (
     bilateral_minimum_selection,
+    calculate_multivariate_inst_moments,
     calculate_ridge_lengths,
+    calculate_univariate_inst_moments,
     create_3d_deviation_matrix,
+    find_ridge_points,
     gradient_of_angle,
-    instmom_multivariate,
-    instmom_univariate,
-    isridgepoint,
     organize_ridge_points,
     ridge_analysis,
     ridge_shift_interpolation,
@@ -70,7 +70,7 @@ class TestInstantaneousMoments(unittest.TestCase):
         t = np.linspace(0, 2 * np.pi, 100)
         dt = t[1] - t[0]  # Time step
         signal = np.exp(1j * t)
-        amp, omega, upsilon, xi = instmom_univariate(signal, sample_rate=1 / dt, axis=0)
+        amp, omega, upsilon, xi = calculate_univariate_inst_moments(signal, sample_rate=1 / dt, axis=0)
         self.assertTrue(np.allclose(amp, 1.0, atol=1e-6))
         self.assertTrue(np.allclose(omega, 1.0, atol=1e-2))
         self.assertTrue(np.allclose(upsilon, 0.0, atol=1e-2))
@@ -83,7 +83,7 @@ class TestInstantaneousMoments(unittest.TestCase):
         s1 = np.exp(1j * t)
         s2 = np.exp(1j * (2 * t))
         signals = np.stack([s1, s2], axis=1)  # shape (time, 2)
-        amp, omega, upsilon, xi = instmom_multivariate(
+        amp, omega, upsilon, xi = calculate_multivariate_inst_moments(
             signals, sample_rate=1.0 / dt, time_axis=0, joint_axis=1
         )
         # Basic shape checks and positivity
@@ -96,7 +96,7 @@ class TestInstantaneousMoments(unittest.TestCase):
         t = np.linspace(2.0, 6.0, 100)
         dt = t[1] - t[0]  # Time step
         signal = np.log(t) * np.exp(1j * t)
-        amp, omega, upsilon, xi = instmom_univariate(
+        amp, omega, upsilon, xi = calculate_univariate_inst_moments(
             signal, sample_rate=1.0 / dt, axis=0
         )
         amps = [np.log(x) for x in t]  # Amplitude is log(t)
@@ -125,7 +125,7 @@ class TestInstantaneousMoments(unittest.TestCase):
         s1 = np.log(t) * np.exp(1j * t)
         s2 = np.log(t) * np.exp(1j * (2 * t))
         signals = np.stack([s1, s2], axis=1)
-        amp, omega, upsilon, xi = instmom_multivariate(
+        amp, omega, upsilon, xi = calculate_multivariate_inst_moments(
             signals, sample_rate=1.0, time_axis=0, joint_axis=1
         )
 
@@ -182,12 +182,12 @@ class TestInstantaneousMoments(unittest.TestCase):
             )
 
 
-class TestIsRidgePoint(unittest.TestCase):
+class TestFindRidgePoints(unittest.TestCase):
     def test_empty_transform(self):
         """Empty input should yield empty ridge points"""
         wt = np.zeros((0, 0), dtype=np.complex128)
         freqs = np.array([])
-        rp, rq, proc, inst_freq = isridgepoint(wt, freqs, 0.1, "amplitude")
+        rp, rq, proc, inst_freq = find_ridge_points(wt, freqs, 0.1, "amplitude")
         self.assertEqual(rp.size, 0)
         self.assertEqual(rq.size, 0)
 
@@ -209,7 +209,7 @@ class TestIsRidgePoint(unittest.TestCase):
                 amplitude = np.exp(-(scale_distance**2) / (2 * sigma**2)) + 0.1
                 wt[j, i] = amplitude * np.exp(1j * 0.5)
 
-        rp, rq, proc, inst_freq = isridgepoint(wt, freqs, 0.05, "amplitude")
+        rp, rq, proc, inst_freq = find_ridge_points(wt, freqs, 0.05, "amplitude")
 
         # Ridge should be detected at center scale for all times
         self.assertTrue(rp[center_scale_idx, :].all())  # All times at center scale
@@ -243,7 +243,7 @@ class TestIsRidgePoint(unittest.TestCase):
                 amplitude = np.exp(-(scale_distance**2) / (2 * sigma**2)) + 0.1
                 wt[j, i] = amplitude * np.exp(1j * 0.5)
 
-        rp, rq, proc, inst_freq = isridgepoint(wt, freqs, 0.2, "amplitude")
+        rp, rq, proc, inst_freq = find_ridge_points(wt, freqs, 0.2, "amplitude")
 
         # Check that ridges are detected at expected locations
         detected_ridges = 0
@@ -281,11 +281,11 @@ class TestIsRidgePoint(unittest.TestCase):
                 wt[j, i] = amplitude * np.exp(1j * 0.0)
 
         # High threshold should reject ridge
-        rp_high, _, _, _ = isridgepoint(wt, freqs, 0.8, "amplitude")
+        rp_high, _, _, _ = find_ridge_points(wt, freqs, 0.8, "amplitude")
         self.assertFalse(rp_high.any())
 
         # Low threshold should detect ridge
-        rp_low, _, _, _ = isridgepoint(wt, freqs, 0.2, "amplitude")
+        rp_low, _, _, _ = find_ridge_points(wt, freqs, 0.2, "amplitude")
         self.assertTrue(rp_low[center_scale_idx, :].all())  # Center scale detected
 
     def test_phase_ridge_linear_chirp_increasing(self):
@@ -293,7 +293,7 @@ class TestIsRidgePoint(unittest.TestCase):
         time_points = 50
         scale_points = 25
 
-        # Use unit time spacing as assumed by isridgepoint
+        # Use unit time spacing as assumed by find_ridge_points
         t = np.arange(time_points, dtype=float)  # 0, 1, 2, ..., 49
         freqs = np.linspace(0.1, 1.0, scale_points)
 
@@ -307,7 +307,7 @@ class TestIsRidgePoint(unittest.TestCase):
             wt[j, :] = 1.0 * np.exp(1j * phase)
 
         # Run ridge detection with lower threshold
-        rp, rq, proc, inst_freq = isridgepoint(wt, freqs, 0.01, "phase")
+        rp, rq, proc, inst_freq = find_ridge_points(wt, freqs, 0.01, "phase")
 
         # Should detect ridge points
         self.assertTrue(rp.any(), "No phase ridges detected in linear chirp")
@@ -344,7 +344,7 @@ class TestIsRidgePoint(unittest.TestCase):
         time_points = 50
         scale_points = 25
 
-        # Use unit time spacing as assumed by isridgepoint
+        # Use unit time spacing as assumed by find_ridge_points
         t = np.arange(time_points, dtype=float)  # 0, 1, 2, ..., 49
         freqs = np.linspace(1.0, 0.1, scale_points)  # Decreasing frequencies
 
@@ -358,7 +358,7 @@ class TestIsRidgePoint(unittest.TestCase):
             wt[j, :] = 1.0 * np.exp(1j * phase)
 
         # Run ridge detection with lower threshold
-        rp, rq, proc, inst_freq = isridgepoint(wt, freqs, 0.01, "phase")
+        rp, rq, proc, inst_freq = find_ridge_points(wt, freqs, 0.01, "phase")
 
         # Should detect ridge points
         self.assertTrue(rp.any(), "No phase ridges detected in linear chirp")
@@ -400,7 +400,7 @@ class TestIsRidgePoint(unittest.TestCase):
         time_points = 50
         scale_points = 25
 
-        # Use unit time spacing as assumed by isridgepoint
+        # Use unit time spacing as assumed by find_ridge_points
         t = np.arange(time_points, dtype=float)  # 0, 1, 2, ..., 49
 
         # Create non-monotonic frequencies (goes up then down)
@@ -422,7 +422,7 @@ class TestIsRidgePoint(unittest.TestCase):
 
         # Should raise ValueError for non-monotonic frequency matrix in phase ridge detection
         with self.assertRaises(ValueError) as context:
-            rp, rq, proc, inst_freq = isridgepoint(wt, freqs, 0.01, "phase")
+            rp, rq, proc, inst_freq = find_ridge_points(wt, freqs, 0.01, "phase")
 
         # Check that the error message mentions monotonic frequency requirement
         self.assertIn("monotonic", str(context.exception).lower())
@@ -447,7 +447,7 @@ class TestIsRidgePoint(unittest.TestCase):
         freq_min = 0.8
         freq_max = 1.2
 
-        rp, rq, proc, inst_freq = isridgepoint(
+        rp, rq, proc, inst_freq = find_ridge_points(
             wt, freqs, 0.5, "amplitude", freq_min=freq_min, freq_max=freq_max
         )
 
@@ -483,7 +483,7 @@ class TestIsRidgePoint(unittest.TestCase):
                 wt[j, i, 0] = amplitude * np.exp(1j * 0.5)
                 wt[j, i, 1] = amplitude * np.exp(1j * 1.0)
 
-        rp, rq, proc, inst_freq = isridgepoint(wt, freqs, 0.1, "amplitude")
+        rp, rq, proc, inst_freq = find_ridge_points(wt, freqs, 0.1, "amplitude")
 
         # Debug: Check what we actually created
         center_idx = time_points // 2
@@ -512,14 +512,14 @@ class TestIsRidgePoint(unittest.TestCase):
                 wt[j, i] = amplitudes[i] * np.exp(1j * 0.5)
 
         # Test amplitude ridge
-        rp_amp, rq_amp, _, _ = isridgepoint(wt, freqs, 0.1, "amplitude")
+        rp_amp, rq_amp, _, _ = find_ridge_points(wt, freqs, 0.1, "amplitude")
 
         # Ridge quantity for amplitude should be the amplitude itself
-        amp, _, _, _ = instmom_univariate(wt, axis=1)
+        amp, _, _, _ = calculate_univariate_inst_moments(wt, axis=1)
         self.assertTrue(np.allclose(rq_amp, amp))
 
         # Test phase ridge
-        rp_phase, rq_phase, _, inst_freq = isridgepoint(wt, freqs, 0.1, "phase")
+        rp_phase, rq_phase, _, inst_freq = find_ridge_points(wt, freqs, 0.1, "phase")
 
         # Ridge quantity for phase should be inst_freq - scale_freq
         freq_matrix = np.broadcast_to(freqs[:, np.newaxis], (scale_points, time_points))
@@ -601,7 +601,7 @@ class TestRidgeShiftInterpolation:
         wavelet_y = morse_wavelet_transform(y_t, gamma, beta, freqs, boundary="mirror")
 
         # Find ridge points (It is natural to have false ridges, which is why we use a amplitude threshold of 10 here)
-        rp, rq, proc, inst_freq = isridgepoint(
+        rp, rq, proc, inst_freq = find_ridge_points(
             wavelet_y, freqs, amplitude_threshold=10, ridge_type="amplitude"
         )
 
@@ -1297,7 +1297,7 @@ class TestSeparateRidgeGroups(unittest.TestCase):
         )
 
         # Detect ridges
-        self.rp, self.rq, self.proc, self.inst_freq = isridgepoint(
+        self.rp, self.rq, self.proc, self.inst_freq = find_ridge_points(
             self.wavelet_y, self.freqs, amplitude_threshold=10, ridge_type="amplitude"
         )
 
