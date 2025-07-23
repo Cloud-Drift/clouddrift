@@ -133,9 +133,15 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     # We're suppressing a SerializationWarning that's caused by the GDP data
     # having multiple fill values for the same variable, WMO.
     with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=xr.SerializationWarning, message=".*multiple fill values.*")
+        warnings.filterwarnings(
+            "ignore",
+            category=xr.SerializationWarning,
+            message=".*multiple fill values.*",
+        )
         ds = xr.load_dataset(
-            os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)),
+            os.path.join(
+                kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)
+            ),
             decode_times=False,
             decode_coords=False,
         )

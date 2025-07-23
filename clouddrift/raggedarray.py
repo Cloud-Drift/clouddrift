@@ -480,16 +480,16 @@ class RaggedArray:
                         metadata[var][i] = ds[var][0].data
                     except KeyError:
                         warnings.warn(
-                                f"Variable {var} requested but not found; skipping."
-                            )
+                            f"Variable {var} requested but not found; skipping."
+                        )
 
                 for var in name_data:
                     if var in ds.keys():
                         data[var][oid : oid + size] = ds[var].data
                     else:
                         warnings.warn(
-                                f"Variable {var} requested but not found; skipping."
-                            )
+                            f"Variable {var} requested but not found; skipping."
+                        )
 
         return coords, metadata, data, coord_dims, var_dims
 
