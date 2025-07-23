@@ -246,9 +246,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     )
     ds["DeploymentComments"] = (
         ("traj"),
-        np.array(
-            [gdp.str_to_float(ds.attrs.get("ManufactureYear", ""), -1)], dtype=np.int16
-        ),
+        gdp.cut_str(ds.attrs.get("DeploymentComments", ""), 20),
     )
     ds["ManufactureMonth"] = (
         ("traj"),
@@ -385,11 +383,6 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         "Transmissions": {"long_name": "Transmissions", "units": "-"},
         "DeployingCountry": {"long_name": "Deploying country", "units": "-"},
         "DeploymentComments": {"long_name": "Deployment comments", "units": "-"},
-        "ManufactureYear": {
-            "long_name": "Manufacture year",
-            "units": "-",
-            "_FillValue": "-1",
-        },
         "ManufactureMonth": {
             "long_name": "Manufacture month",
             "units": "-",
@@ -607,11 +600,16 @@ def to_raggedarray(
     ids = download(url, tmp_path, drifter_ids, n_random_id)
     filename_pattern = "drifter_hourly_{id}.nc"
 
+    # Add location_type to metadata
+    gdp_metadata = gdp.GDP_METADATA.copy()
+    if "location_type" not in gdp_metadata:
+        gdp_metadata.append("location_type")
+
     ra = RaggedArray.from_files(
         indices=ids,
         preprocess_func=preprocess,
         name_coords=gdp.GDP_COORDS,
-        name_meta=gdp.GDP_METADATA,
+        name_meta=gdp_metadata,
         name_data=GDP_DATA,
         name_dims=gdp.GDP_DIMS,
         rowsize_func=gdp.rowsize,
