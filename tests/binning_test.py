@@ -604,4 +604,3 @@ class binning_tests(unittest.TestCase):
 
         # datetime coords is converted back to datetime64
         assert ds["time"].dtype.kind == "M"  # Check if time is datetime64
-
