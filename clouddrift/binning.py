@@ -1,9 +1,11 @@
 """Module for binning Lagrangian data."""
 
+import datetime
 import functools
 from typing import Callable
 
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 DEFAULT_BINS_NUMBER = 10
@@ -88,6 +90,56 @@ def _filter_valid_and_finite(
         indices_finite = indices.copy()
 
     return var_finite, indices_finite
+
+
+def _is_datetime_array(arr):
+    """Check if array contains datetime values."""
+    if arr.dtype.kind == "M":  # numpy datetime64
+        return True
+    # if array is object, check first element
+    if arr.dtype == object and arr.size > 0:
+        for item in arr.flat:
+            if item is not None:
+                return isinstance(item, (datetime.date | np.datetime64))
+        return False
+    return False
+
+
+def _datetime64_to_float(time_dt, unit="s"):
+    """
+    Convert np.datetime64 or array of datetime64 to float time since epoch.
+    Parameters:
+    ----------
+    time_dt : np.datetime64 or array-like
+        Datetime64 values to convert.
+    unit : str, optional
+        Unit of the output float (default: 's' for seconds).
+        Valid: 's', 'ms', 'us', 'ns', etc.
+    Returns:
+    -------
+    float or np.ndarray of floats
+        Time since UNIX epoch (1970-01-01) in specified unit.
+    """
+    reference_date = np.datetime64("1970-01-01T00:00:00")
+    return (pd.to_datetime(time_dt) - reference_date) / np.timedelta64(1, unit)
+
+
+def _float_to_datetime64(time_float, unit="s"):
+    """
+    Convert float seconds (or other units) since UNIX epoch to np.datetime64.
+    Parameters:
+    ----------
+    time_float : float or array-like
+        Seconds (or other time units) since epoch (1970-01-01T00:00:00).
+    unit : str, optional
+        Time unit for conversion. Default is 's' (seconds).
+        Valid options: 's', 'ms', 'us', 'ns', etc.
+    Returns:
+    -------
+    np.datetime64 or np.ndarray of np.datetime64
+    """
+    reference_date = np.datetime64("1970-01-01T00:00:00")
+    return reference_date + time_float.astype(f"timedelta64[{unit}]")
 
 
 def _binned_count(flat_idx: np.ndarray, n_bins: int) -> np.ndarray:
@@ -398,6 +450,12 @@ def binned_statistics(
     else:
         V, VN = data.shape
 
+    # convert datetime coordinates to numeric values
+    coords_datetime_index = np.where([_is_datetime_array(c) for c in coords])[0]
+    for i in coords_datetime_index:
+        coords[i] = _datetime64_to_float(coords[i], unit="s")
+    coords = coords.astype(np.float64)
+
     # set default bins and bins range
     if isinstance(bins, (list, tuple)):
         if len(bins) != len(coords):
@@ -499,6 +557,10 @@ def binned_statistics(
     edges_sz = [len(e) - 1 for e in edges]
     n_bins = int(np.prod(edges_sz))
     bin_centers = [0.5 * (e[:-1] + e[1:]) for e in edges]
+
+    # convert bin centers back to datetime64 for output dataset
+    for i in coords_datetime_index:
+        bin_centers[i] = _float_to_datetime64(bin_centers[i], unit="s")
 
     # digitize coordinates into bin indices
     # modify edges to ensure the last edge is inclusive

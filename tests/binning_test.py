@@ -11,6 +11,10 @@ class binning_tests(unittest.TestCase):
         self.coords_1d = np.array(
             [-0.2, 0.3, 0.6, 0.7, 1.2, 1.3, 1.8, 2.1, 2.7, 2.8, 3.1]
         )
+        self.date_1d = np.datetime64("2020-01-01 00:00") + np.arange(
+            11
+        ) * np.timedelta64(1, "D")
+
         self.values_1d = np.array([1, 2, 3, 4, 5, 6, 9, 20, 20, 20, 20])
         self.bins_range_1d = (0, 3)
 
@@ -586,3 +590,18 @@ class binning_tests(unittest.TestCase):
                 bins=3,
                 statistics="median",
             )
+
+    def test_statistics_datetime_coords(self):
+        coords = [self.coords_1d, self.date_1d]
+
+        ds = binned_statistics(
+            coords=coords,
+            data=self.values_1d,
+            bins=3,
+            dim_names=["x", "time"],
+            statistics=["count", "mean"],
+        )
+
+        # datetime coords is converted back to datetime64
+        assert ds["time"].dtype.kind == "M"  # Check if time is datetime64
+
