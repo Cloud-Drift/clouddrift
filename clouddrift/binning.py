@@ -161,9 +161,6 @@ def _float_to_datetime64(time_float, count=None):
     count : int, optional
         Number of elements in the output array per bin. If zero, the
         date will be set to NaT. If None, all epoch are considered valid.
-    unit : str, optional
-        Time unit for conversion. Default is 's' (seconds).
-        Valid options: 's', 'ms', 'us', 'ns', etc.
 
     Returns:
     -------
@@ -191,12 +188,11 @@ def handle_datetime_conversion(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(*args, **kwargs) -> np.ndarray:
         values = kwargs.get("values")
-        unit = kwargs.get("unit", "s")
 
         datetime_conversion = False
         if values is not None:
             if datetime_conversion := _is_datetime_array(values):
-                kwargs["values"] = _datetime64_to_float(values, unit="s")
+                kwargs["values"] = _datetime64_to_float(values)
 
             if func.__name__ == "_binned_std":
                 mean = np.mean(kwargs["values"])
@@ -209,7 +205,7 @@ def handle_datetime_conversion(func: Callable) -> Callable:
         if datetime_conversion:
             if func.__name__ == "_binned_std":
                 result = result + mean
-            result = _float_to_datetime64(result, unit=unit)
+            result = _float_to_datetime64(result)
 
         return result
 
@@ -537,7 +533,7 @@ def binned_statistics(
     # convert datetime coordinates to numeric values
     coords_datetime_index = np.where([_is_datetime_array(c) for c in coords])[0]
     for i in coords_datetime_index:
-        coords[i] = _datetime64_to_float(coords[i], unit="s")
+        coords[i] = _datetime64_to_float(coords[i])
     coords = coords.astype(np.float64)
 
     # set default bins and bins range
@@ -644,7 +640,7 @@ def binned_statistics(
 
     # convert bin centers back to datetime64 for output dataset
     for i in coords_datetime_index:
-        bin_centers[i] = _float_to_datetime64(bin_centers[i], unit="s")
+        bin_centers[i] = _float_to_datetime64(bin_centers[i])
 
     # digitize coordinates into bin indices
     # modify edges to ensure the last edge is inclusive
@@ -677,6 +673,10 @@ def binned_statistics(
         if var_finite.dtype == "O":
             var_finite = var_finite.astype(type(var_finite[0]))
 
+        print(name)
+        print(_is_datetime_array(var))
+        if name == "binned_2":
+            print(var)
         # loop through statistics for the variable
         bin_count, bin_mean, bin_sum = None, None, None
 
