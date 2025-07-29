@@ -1,7 +1,7 @@
 """Module for binning Lagrangian data."""
 
 import datetime
-import functools
+from functools import partial, wraps
 from typing import Callable
 
 import numpy as np
@@ -34,7 +34,7 @@ def _get_variable_name(
         Name of the function or a custom function name for lambda function.
     """
     default_name = "stat_0"
-    if isinstance(func, functools.partial):
+    if isinstance(func, partial):
         function_name = getattr(func.func, "__name__", default_name)
     else:
         function_name = getattr(func, "__name__", default_name)
@@ -77,12 +77,12 @@ def _filter_valid_and_finite(
     """
     if var.ndim == 2:
         var_valid = [v[valid] for v in var]
-        mask = np.logical_or.reduce([np.isfinite(v) for v in var_valid])
+        mask = np.logical_or.reduce([~pd.isna(v) for v in var_valid])
         var_finite = np.array([v[mask] for v in var_valid])
         indices_finite = [i[mask] for i in indices]
     elif var.size:
         var = var[valid]
-        mask = np.isfinite(var)
+        mask = ~pd.isna(var)
         var_finite = var[mask]
         indices_finite = [i[mask] for i in indices]
     else:
@@ -92,22 +92,50 @@ def _filter_valid_and_finite(
     return var_finite, indices_finite
 
 
-def _is_datetime_array(arr):
-    """Check if array contains datetime values."""
+def _is_datetime_subelement(arr: np.ndarray) -> bool:
+    """Get the type of the first non-null element in an array.
+
+    Parameters
+    ----------
+    arr : np.ndarray
+        Numpy array to check.
+
+    Returns
+    -------
+    bool
+        True if the first non-null element is a datetime type, False otherwise.
+    """
+    for item in arr.flat:
+        if item is not None:
+            return isinstance(item, (datetime.date | np.datetime64))
+    return False
+
+
+def _is_datetime_array(arr: np.ndarray) -> bool:
+    """Verify if an array contains datetime values.
+
+    Parameters
+    ----------
+    arr : np.ndarray
+        Numpy array to check.
+
+    Returns
+    -------
+    bool
+        True if the array contains datetime64 or timedelta64 values, False otherwise.
+    """
     if arr.dtype.kind == "M":  # numpy datetime64
         return True
     # if array is object, check first element
     if arr.dtype == object and arr.size > 0:
-        for item in arr.flat:
-            if item is not None:
-                return isinstance(item, (datetime.date | np.datetime64))
-        return False
+        return _is_datetime_subelement(arr)
     return False
 
 
-def _datetime64_to_float(time_dt, unit="s"):
+def _datetime64_to_float(time_dt: np.ndarray, unit: str = "s") -> np.ndarray:
     """
     Convert np.datetime64 or array of datetime64 to float time since epoch.
+
     Parameters:
     ----------
     time_dt : np.datetime64 or array-like
@@ -115,31 +143,82 @@ def _datetime64_to_float(time_dt, unit="s"):
     unit : str, optional
         Unit of the output float (default: 's' for seconds).
         Valid: 's', 'ms', 'us', 'ns', etc.
+
     Returns:
     -------
     float or np.ndarray of floats
         Time since UNIX epoch (1970-01-01) in specified unit.
     """
     reference_date = np.datetime64("1970-01-01T00:00:00")
-    return (pd.to_datetime(time_dt) - reference_date) / np.timedelta64(1, unit)
+    return np.array(
+        (pd.to_datetime(time_dt) - reference_date) / np.timedelta64(1, unit)
+    )
 
 
-def _float_to_datetime64(time_float, unit="s"):
+def _float_to_datetime64(time_float, count=None, unit="s"):
     """
     Convert float seconds (or other units) since UNIX epoch to np.datetime64.
+
     Parameters:
     ----------
     time_float : float or array-like
         Seconds (or other time units) since epoch (1970-01-01T00:00:00).
+    count : int, optional
+        Number of elements in the output array per bin. If zero, the
+        date will be set to NaT. If None, all epoch are considered valid.
     unit : str, optional
         Time unit for conversion. Default is 's' (seconds).
         Valid options: 's', 'ms', 'us', 'ns', etc.
+
     Returns:
     -------
     np.datetime64 or np.ndarray of np.datetime64
     """
     reference_date = np.datetime64("1970-01-01T00:00:00")
-    return reference_date + time_float.astype(f"timedelta64[{unit}]")
+    date = reference_date + time_float.astype(f"timedelta64[{unit}]")
+
+    if count is not None:
+        date = np.where(count, date, np.datetime64("NaT"))
+
+    return date
+
+
+def handle_datetime_conversion(func: Callable) -> Callable:
+    """
+    A decorator to handle datetime64/timedelta64 conversion for
+    statistics functions. For datetime `values`, it converts the time to float
+    seconds since epoch before calling the function, and converts the result back
+    to datetime64 after the function call.
+
+    Assumes that the function accepts `values` and `unit` as keyword arguments.
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> np.ndarray:
+        values = kwargs.get("values")
+        unit = kwargs.get("unit", "s")
+
+        datetime_conversion = False
+        if values is not None:
+            if datetime_conversion := _is_datetime_array(values):
+                kwargs["values"] = _datetime64_to_float(values, unit="s")
+
+            if func.__name__ == "_binned_std":
+                mean = np.mean(kwargs["values"])
+                kwargs["values"] = kwargs["values"] - mean
+
+        # call back the original function
+        result = func(*args, **kwargs)
+
+        # Convert the result back if original values were datetime
+        if datetime_conversion:
+            if func.__name__ == "_binned_std":
+                result = result + mean
+            result = _float_to_datetime64(result, unit=unit)
+
+        return result
+
+    return wrapper
 
 
 def _binned_count(flat_idx: np.ndarray, n_bins: int) -> np.ndarray:
@@ -160,6 +239,7 @@ def _binned_count(flat_idx: np.ndarray, n_bins: int) -> np.ndarray:
     return np.bincount(flat_idx, minlength=n_bins)
 
 
+@handle_datetime_conversion
 def _binned_sum(flat_idx: np.ndarray, n_bins: int, values: np.ndarray) -> np.ndarray:
     """
     Compute the sum of values per bin.
@@ -186,6 +266,7 @@ def _binned_sum(flat_idx: np.ndarray, n_bins: int, values: np.ndarray) -> np.nda
         return np.bincount(flat_idx, weights=values, minlength=n_bins)
 
 
+@handle_datetime_conversion
 def _binned_mean(
     flat_idx: np.ndarray,
     n_bins: int,
@@ -223,11 +304,12 @@ def _binned_mean(
     return np.divide(
         bin_sum,
         bin_counts,
-        out=np.full_like(bin_sum, 0.0, dtype=bin_sum.dtype),
+        out=np.full_like(bin_sum, np.nan, dtype=bin_sum.dtype),
         where=bin_counts > 0,
     )
 
 
+@handle_datetime_conversion
 def _binned_std(
     flat_idx: np.ndarray,
     n_bins: int,
@@ -269,7 +351,7 @@ def _binned_std(
         bin_mean_sq = np.divide(
             bin_sumsq,
             bin_counts,
-            out=np.full(n_bins, 0.0, dtype=bin_sumsq.dtype),
+            out=np.full(n_bins, np.nan, dtype=bin_sumsq.dtype),
             where=bin_counts > 0,
         )
         abs_bin_mean = np.abs(bin_mean)
@@ -279,7 +361,7 @@ def _binned_std(
         bin_mean_sq = np.divide(
             bin_sumsq,
             bin_counts,
-            out=np.full(n_bins, 0.0, dtype=bin_sumsq.dtype),
+            out=np.full(n_bins, np.nan, dtype=bin_sumsq.dtype),
             where=bin_counts > 0,
         )
         variance = np.maximum(bin_mean_sq - bin_mean**2, 0)
@@ -287,6 +369,7 @@ def _binned_std(
     return np.sqrt(variance)
 
 
+@handle_datetime_conversion
 def _binned_min(flat_idx: np.ndarray, n_bins: int, values: np.ndarray) -> np.ndarray:
     """
     Compute the minimum of values per bin.
@@ -307,11 +390,14 @@ def _binned_min(flat_idx: np.ndarray, n_bins: int, values: np.ndarray) -> np.nda
     """
     if np.iscomplexobj(values):
         raise ValueError("Complex values are not supported for 'min' statistic.")
-    output = np.full(n_bins, np.nan)
+
+    output = np.full(n_bins, np.inf)
     np.minimum.at(output, flat_idx, values)
+    output[output == np.inf] = np.nan
     return output
 
 
+@handle_datetime_conversion
 def _binned_max(flat_idx: np.ndarray, n_bins: int, values: np.ndarray) -> np.ndarray:
     """
     Compute the maximum of values per bin.
@@ -332,11 +418,14 @@ def _binned_max(flat_idx: np.ndarray, n_bins: int, values: np.ndarray) -> np.nda
     """
     if np.iscomplexobj(values):
         raise ValueError("Complex values are not supported for 'max' statistic.")
-    output = np.full(n_bins, np.nan)
+
+    output = np.full(n_bins, -np.inf)
     np.maximum.at(output, flat_idx, values)
+    output[output == np.inf] = np.nan
     return output
 
 
+@handle_datetime_conversion
 def _binned_apply_func(
     flat_idx: np.ndarray,
     n_bins: int,
@@ -589,6 +678,10 @@ def binned_statistics(
         var_finite, indices_finite = _filter_valid_and_finite(var, indices, valid)
         flat_idx = np.ravel_multi_index(indices_finite, edges_sz)
 
+        # convert object arrays to a common type
+        if var_finite.dtype == "O":
+            var_finite = var_finite.astype(type(var_finite[0]))
+
         # loop through statistics for the variable
         bin_count, bin_mean, bin_sum = None, None, None
 
@@ -596,13 +689,17 @@ def binned_statistics(
             binned_stats = _binned_count(flat_idx, n_bins)
             bin_count = binned_stats.copy()
         elif statistic == "sum":
-            binned_stats = _binned_sum(flat_idx, n_bins, var_finite)
+            if _is_datetime_array(var) and statistic == "sum":
+                raise ValueError(
+                    "Datetime values are not supported for 'sum' statistic."
+                )
+            binned_stats = _binned_sum(flat_idx, n_bins, values=var_finite)
             bin_sum = binned_stats.copy()
         elif statistic == "mean":
             binned_stats = _binned_mean(
                 flat_idx,
                 n_bins,
-                var_finite,
+                values=var_finite,
                 bin_counts=bin_count,
                 bin_sum=bin_sum,
             )
@@ -611,7 +708,7 @@ def binned_statistics(
             binned_stats = _binned_std(
                 flat_idx,
                 n_bins,
-                var_finite,
+                values=var_finite,
                 bin_counts=bin_count,
                 bin_mean=bin_mean,
             )
@@ -619,13 +716,13 @@ def binned_statistics(
             binned_stats = _binned_min(
                 flat_idx,
                 n_bins,
-                var_finite,
+                values=var_finite,
             )
         elif statistic == "max":
             binned_stats = _binned_max(
                 flat_idx,
                 n_bins,
-                var_finite,
+                values=var_finite,
             )
         elif statistic == "median":
             if np.iscomplexobj(var_finite):
@@ -635,14 +732,14 @@ def binned_statistics(
             binned_stats = _binned_apply_func(
                 flat_idx,
                 n_bins,
-                var_finite,
+                values=var_finite,
                 func=np.median,
             )
         else:
             binned_stats = _binned_apply_func(
                 flat_idx,
                 n_bins,
-                var_finite,
+                values=var_finite,
                 func=statistic,
             )
 

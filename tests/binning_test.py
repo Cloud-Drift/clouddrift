@@ -602,5 +602,33 @@ class binning_tests(unittest.TestCase):
             statistics=["count", "mean"],
         )
 
-        # datetime coords is converted back to datetime64
-        assert ds["time"].dtype.kind == "M"  # Check if time is datetime64
+        # check if datetime data is handled correctly
+        assert ds["time"].dtype.kind == "M"
+
+    def test_statistics_datetime_data_sum(self):
+        coords = [self.coords_1d, self.date_1d]
+        data = [self.values_1d, self.date_1d]
+
+        with self.assertRaises(ValueError):
+            binned_statistics(
+                coords=coords,
+                data=data,
+                bins=3,
+                dim_names=["x", "time"],
+                statistics=["sum"],  # not supported for datetime data
+            )
+
+    def test_statistics_datetime_data(self):
+        coords = [self.coords_1d, self.date_1d]
+        data = [self.values_1d, self.date_1d]
+
+        ds = binned_statistics(
+            coords=coords,
+            data=data,
+            bins=3,
+            dim_names=["x", "time"],
+            statistics=["count", "mean", "median", "std", "min", "max"],
+        )
+
+        # check if datetime data is handled correctly
+        assert ds["time"].dtype.kind == "M"
