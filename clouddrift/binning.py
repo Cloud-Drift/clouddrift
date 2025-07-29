@@ -132,7 +132,7 @@ def _is_datetime_array(arr: np.ndarray) -> bool:
     return False
 
 
-def _datetime64_to_float(time_dt: np.ndarray, unit: str = "s") -> np.ndarray:
+def _datetime64_to_float(time_dt: np.ndarray) -> np.ndarray:
     """
     Convert np.datetime64 or array of datetime64 to float time since epoch.
 
@@ -140,9 +140,6 @@ def _datetime64_to_float(time_dt: np.ndarray, unit: str = "s") -> np.ndarray:
     ----------
     time_dt : np.datetime64 or array-like
         Datetime64 values to convert.
-    unit : str, optional
-        Unit of the output float (default: 's' for seconds).
-        Valid: 's', 'ms', 'us', 'ns', etc.
 
     Returns:
     -------
@@ -150,12 +147,10 @@ def _datetime64_to_float(time_dt: np.ndarray, unit: str = "s") -> np.ndarray:
         Time since UNIX epoch (1970-01-01) in specified unit.
     """
     reference_date = np.datetime64("1970-01-01T00:00:00")
-    return np.array(
-        (pd.to_datetime(time_dt) - reference_date) / np.timedelta64(1, unit)
-    )
+    return np.array((pd.to_datetime(time_dt) - reference_date) / np.timedelta64(1, "s"))
 
 
-def _float_to_datetime64(time_float, count=None, unit="s"):
+def _float_to_datetime64(time_float, count=None):
     """
     Convert float seconds (or other units) since UNIX epoch to np.datetime64.
 
@@ -175,7 +170,7 @@ def _float_to_datetime64(time_float, count=None, unit="s"):
     np.datetime64 or np.ndarray of np.datetime64
     """
     reference_date = np.datetime64("1970-01-01T00:00:00")
-    date = reference_date + time_float.astype(f"timedelta64[{unit}]")
+    date = reference_date + time_float.astype("timedelta64[s]")
 
     if count is not None:
         date = np.where(count, date, np.datetime64("NaT"))
