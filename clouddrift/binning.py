@@ -147,7 +147,10 @@ def _datetime64_to_float(time_dt: np.ndarray) -> np.ndarray:
         Time since UNIX epoch (1970-01-01) in specified unit.
     """
     reference_date = np.datetime64("1970-01-01T00:00:00")
-    return np.array((pd.to_datetime(time_dt) - reference_date) / np.timedelta64(1, "s"))
+    return np.array(
+        (pd.to_datetime(time_dt) - pd.to_datetime(reference_date))
+        / pd.to_timedelta(1, "s")
+    )
 
 
 def _float_to_datetime64(time_float, count=None):
