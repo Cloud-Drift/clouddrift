@@ -519,6 +519,10 @@ def binned_statistics(
         coords = np.atleast_2d(coords)
     D, N = coords.shape
 
+    # validate coordinates are finite
+    if any(~np.isfinite(c).all() for c in coords):
+        raise ValueError("Coordinates must be finite values.")
+
     # V, VN = number of variables and number of data points per variable
     if data is None:
         data = np.empty((1, 0))

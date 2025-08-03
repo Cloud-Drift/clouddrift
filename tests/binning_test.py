@@ -277,6 +277,26 @@ class binning_tests(unittest.TestCase):
         self.assertIn("x", ds.sizes)
         self.assertIn("y", ds.sizes)
 
+    def test_coords_finite(self):
+        coords_inf = self.coords_1d.copy()
+        coords_inf[0] = np.inf
+
+        with self.assertRaises(ValueError):
+            binned_statistics(
+                coords=coords_inf,
+                bins=3,
+                data=self.values_1d,
+            )
+
+        coords_nan = [self.coords_1d.copy(), self.coords_1d.copy()]
+        coords_nan[1][0] = np.nan
+        with self.assertRaises(ValueError):
+            binned_statistics(
+                coords=coords_nan,
+                bins=3,
+                data=self.values_1d,
+            )
+
     def test_rename_variables(self):
         ds = binned_statistics(
             coords=self.coords_1d,
