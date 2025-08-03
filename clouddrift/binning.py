@@ -194,18 +194,14 @@ def handle_datetime_conversion(func: Callable) -> Callable:
             if datetime_conversion := _is_datetime_array(values):
                 kwargs["values"] = _datetime64_to_float(values)
 
-            if func.__name__ == "_binned_std":
-                mean = np.mean(kwargs["values"])
-                kwargs["values"] = kwargs["values"] - mean
-
         # call back the original function
         result = func(*args, **kwargs)
 
-        # Convert the result back if original values were datetime
+        # Convert the result to datetime if necessary
         if datetime_conversion:
             if func.__name__ == "_binned_std":
-                result = result + mean
-            result = _float_to_datetime64(result)
+                return result.astype("timedelta64[s]")
+            return _float_to_datetime64(result)
 
         return result
 
@@ -601,7 +597,7 @@ def binned_statistics(
 
     if statistics and not data.size:
         print(
-            f"No `data` provided, `statistics` ({statistics}) will be computed on the coordinates."
+            f"Warning: no `data` provided, `statistics` ({statistics}) will be computed on the coordinates."
         )
 
     # set default dimension names
@@ -644,9 +640,10 @@ def binned_statistics(
 
     # digitize coordinates into bin indices
     # modify edges to ensure the last edge is inclusive
+    # by adding a small tolerance to the last edge (1s for date coordinates)
     edges_with_tol = [e.copy() for e in edges]
-    for e in edges_with_tol:
-        e[-1] += np.finfo(np.float64).eps
+    for i, e in enumerate(edges_with_tol):
+        e[-1] += np.finfo(e.dtype).eps if i not in coords_datetime_index else 1
     indices = [np.digitize(c, edges_with_tol[j]) - 1 for j, c in enumerate(coords)]
     valid = np.all(
         [(j >= 0) & (j < edges_sz[i]) for i, j in enumerate(indices)], axis=0
@@ -673,10 +670,6 @@ def binned_statistics(
         if var_finite.dtype == "O":
             var_finite = var_finite.astype(type(var_finite[0]))
 
-        print(name)
-        print(_is_datetime_array(var))
-        if name == "binned_2":
-            print(var)
         # loop through statistics for the variable
         bin_count, bin_mean, bin_sum = None, None, None
 

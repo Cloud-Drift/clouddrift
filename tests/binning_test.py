@@ -632,3 +632,90 @@ class binning_tests(unittest.TestCase):
 
         # check if datetime data is handled correctly
         assert ds["time"].dtype.kind == "M"
+
+    def test_statistics_datetime_data_values(self):
+        coords = [self.date_1d]
+        data = [self.date_1d]
+
+        ds = binned_statistics(
+            coords=coords,
+            data=data,
+            bins=3,
+            dim_names=["time"],
+            statistics=["count", "mean", "median", "std", "min", "max"],
+        )
+
+        # Check that the output is date type
+        for var in ds.data_vars:
+            if not (var.endswith("count") or var.endswith("std")):
+                self.assertTrue(ds[var].dtype.kind == "M")
+        self.assertTrue(ds["binned_0_std"].dtype.kind == "m")
+
+        self.assertIsNone(
+            np.testing.assert_array_equal(ds["binned_0_count"], [4, 3, 4])
+        )
+
+        # create mask for three bins
+        mask0 = self.date_1d <= self.date_1d[3]
+        mask1 = (self.date_1d > self.date_1d[3]) & (self.date_1d < self.date_1d[7])
+        mask2 = self.date_1d >= self.date_1d[7]
+
+        self.assertIsNone(
+            np.testing.assert_array_equal(
+                ds["binned_0_mean"].values,
+                np.array(
+                    [
+                        "2020-01-02T12:00:00",
+                        "2020-01-06T00:00:00",
+                        "2020-01-09T12:00:00",
+                    ],
+                    dtype="datetime64[s]",
+                ),
+            )
+        )
+
+        self.assertIsNone(
+            np.testing.assert_array_equal(
+                ds["binned_0_median"].values,
+                np.array(
+                    [
+                        "2020-01-02T12:00:00",
+                        "2020-01-06T00:00:00",
+                        "2020-01-09T12:00:00",
+                    ],
+                    dtype="datetime64[s]",
+                ),
+            )
+        )
+
+        self.assertIsNone(
+            np.testing.assert_array_equal(
+                ds["binned_0_std"].values,
+                np.array(
+                    [96598, 70545, 96598],
+                    dtype="timedelta64[s]",
+                ),
+            )
+        )
+
+        self.assertIsNone(
+            np.testing.assert_array_equal(
+                ds["binned_0_min"].values,
+                [
+                    min(self.date_1d[mask0]),
+                    min(self.date_1d[mask1]),
+                    min(self.date_1d[mask2]),
+                ],
+            )
+        )
+
+        self.assertIsNone(
+            np.testing.assert_array_equal(
+                ds["binned_0_max"].values,
+                [
+                    max(self.date_1d[mask0]),
+                    max(self.date_1d[mask1]),
+                    max(self.date_1d[mask2]),
+                ],
+            )
+        )
