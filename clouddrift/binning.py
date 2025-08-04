@@ -412,7 +412,7 @@ def _binned_max(flat_idx: np.ndarray, n_bins: int, values: np.ndarray) -> np.nda
 
     output = np.full(n_bins, -np.inf)
     np.maximum.at(output, flat_idx, values)
-    output[output == np.inf] = np.nan
+    output[output == -np.inf] = np.nan
     return output
 
 
