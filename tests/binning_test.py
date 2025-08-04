@@ -58,9 +58,7 @@ class binning_tests(unittest.TestCase):
                 output_names=["x", "y"],
             )
         with self.assertRaises(ValueError):
-            binned_statistics(
-                self.coords_1d, data=np.ones_like((1, len(self.coords_1d)))
-            )
+            binned_statistics(self.coords_1d, data=np.ones((len(self.coords_1d), 1)))
 
     def test_bins_number_default(self):
         ds = binned_statistics(self.coords_1d)

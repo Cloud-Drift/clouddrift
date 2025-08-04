@@ -1,6 +1,7 @@
 """Module for binning Lagrangian data."""
 
 import datetime
+import warnings
 from functools import partial, wraps
 from typing import Callable
 
@@ -520,8 +521,16 @@ def binned_statistics(
     D, N = coords.shape
 
     # validate coordinates are finite
-    if any(~np.isfinite(c).all() for c in coords):
-        raise ValueError("Coordinates must be finite values.")
+    for c in coords:
+        var = c.copy()
+        if var.dtype == "O":
+            var = var.astype(type(var[0]))
+        if _is_datetime_array(var):
+            if pd.isna(var).any():
+                raise ValueError("Datetime coordinates must be finite values.")
+        else:
+            if pd.isna(var).any() or np.isinf(var).any():
+                raise ValueError("Coordinates must be finite values.")
 
     # V, VN = number of variables and number of data points per variable
     if data is None:
@@ -603,8 +612,8 @@ def binned_statistics(
     )
 
     if statistics and not data.size:
-        print(
-            f"Warning: no `data` provided, `statistics` ({statistics}) will be computed on the coordinates."
+        warnings.warn(
+            f"no `data` provided, `statistics` ({statistics}) will be computed on the coordinates."
         )
 
     # set default dimension names
