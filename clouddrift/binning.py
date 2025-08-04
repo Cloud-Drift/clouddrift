@@ -162,9 +162,6 @@ def _float_to_datetime64(time_float, count=None):
     ----------
     time_float : float or array-like
         Seconds (or other time units) since epoch (1970-01-01T00:00:00).
-    count : int, optional
-        Number of elements in the output array per bin. If zero, the
-        date will be set to NaT. If None, all epoch are considered valid.
 
     Returns:
     -------
@@ -172,9 +169,6 @@ def _float_to_datetime64(time_float, count=None):
     """
     reference_date = np.datetime64("1970-01-01T00:00:00")
     date = reference_date + time_float.astype("timedelta64[s]")
-
-    if count is not None:
-        date = np.where(count, date, np.datetime64("NaT"))
 
     return date
 
@@ -693,10 +687,8 @@ def binned_statistics(
             binned_stats = _binned_count(flat_idx, n_bins)
             bin_count = binned_stats.copy()
         elif statistic == "sum":
-            if _is_datetime_array(var) and statistic == "sum":
-                raise ValueError(
-                    "Datetime values are not supported for 'sum' statistic."
-                )
+            if _is_datetime_array(var_finite) and statistic == "sum":
+                raise ValueError("Datetime data is not supported for 'sum' statistic.")
             binned_stats = _binned_sum(flat_idx, n_bins, values=var_finite)
             bin_sum = binned_stats.copy()
         elif statistic == "mean":

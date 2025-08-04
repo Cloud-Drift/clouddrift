@@ -1,9 +1,14 @@
+import datetime
 import functools
 import unittest
 
 import numpy as np
 
-from clouddrift.binning import DEFAULT_BINS_NUMBER, binned_statistics
+from clouddrift.binning import (
+    DEFAULT_BINS_NUMBER,
+    binned_statistics,
+    _is_datetime_array,
+)
 
 
 class binning_tests(unittest.TestCase):
@@ -59,6 +64,24 @@ class binning_tests(unittest.TestCase):
             )
         with self.assertRaises(ValueError):
             binned_statistics(self.coords_1d, data=np.ones((len(self.coords_1d), 1)))
+
+    def test_is_datetime(self):
+        arr = np.array([np.datetime64("2020-01-01"), np.datetime64("2020-01-02")])
+        self.assertTrue(_is_datetime_array(arr))
+
+        arr = np.array(
+            [np.datetime64("2020-01-01"), np.datetime64("2020-01-02")], dtype="O"
+        )
+        self.assertTrue(_is_datetime_array(arr))
+
+        arr = np.array([datetime.date(2020, 1, 1), datetime.date(2020, 1, 2)])
+        self.assertTrue(_is_datetime_array(arr))
+
+        arr = np.array([1, 2, 3])
+        self.assertFalse(_is_datetime_array(arr))
+
+        arr = np.array([np.nan, np.nan])
+        self.assertFalse(_is_datetime_array(arr))
 
     def test_bins_number_default(self):
         ds = binned_statistics(self.coords_1d)
