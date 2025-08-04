@@ -107,7 +107,7 @@ def _is_datetime_subelement(arr: np.ndarray) -> bool:
     """
     for item in arr.flat:
         if item is not None:
-            return isinstance(item, (datetime.date | np.datetime64))
+            return isinstance(item, (datetime.date, np.datetime64))
     return False
 
 
