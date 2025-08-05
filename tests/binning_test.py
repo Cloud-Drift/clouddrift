@@ -80,6 +80,12 @@ class binning_tests(unittest.TestCase):
         arr = np.array([1, 2, 3])
         self.assertFalse(_is_datetime_array(arr))
 
+        arr = np.array([1, 2, 3], dtype="O")
+        self.assertFalse(_is_datetime_array(arr))
+
+        arr = np.array([None], dtype="O")
+        self.assertFalse(_is_datetime_array(arr))
+
         arr = np.array([np.nan, np.nan])
         self.assertFalse(_is_datetime_array(arr))
 
@@ -311,6 +317,15 @@ class binning_tests(unittest.TestCase):
 
         coords_nan = [self.coords_1d.copy(), self.coords_1d.copy()]
         coords_nan[1][0] = np.nan
+        with self.assertRaises(ValueError):
+            binned_statistics(
+                coords=coords_nan,
+                bins=3,
+                data=self.values_1d,
+            )
+
+        coords_nan = [self.date_1d.copy()]
+        coords_nan[0][0] = np.datetime64("NaT")
         with self.assertRaises(ValueError):
             binned_statistics(
                 coords=coords_nan,
