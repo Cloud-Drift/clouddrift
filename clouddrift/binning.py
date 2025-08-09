@@ -145,7 +145,7 @@ def _datetime64_to_float(time_dt: np.ndarray) -> np.ndarray:
     Returns:
     -------
     float or np.ndarray of floats
-        Time since UNIX epoch (1970-01-01) in specified unit.
+        Time since UNIX epoch (1970-01-01) in seconds.
     """
     reference_date = np.datetime64("1970-01-01T00:00:00")
     return np.array(
@@ -156,12 +156,12 @@ def _datetime64_to_float(time_dt: np.ndarray) -> np.ndarray:
 
 def _float_to_datetime64(time_float, count=None):
     """
-    Convert float seconds (or other units) since UNIX epoch to np.datetime64.
+    Convert float seconds since UNIX epoch to np.datetime64.
 
     Parameters:
     ----------
     time_float : float or array-like
-        Seconds (or other time units) since epoch (1970-01-01T00:00:00).
+        Seconds since epoch (1970-01-01T00:00:00).
 
     Returns:
     -------
@@ -180,7 +180,7 @@ def handle_datetime_conversion(func: Callable) -> Callable:
     seconds since epoch before calling the function, and converts the result back
     to datetime64 after the function call.
 
-    Assumes that the function accepts `values` and `unit` as keyword arguments.
+    Assumes that the function accepts `values` as keyword arguments.
     """
 
     @wraps(func)
