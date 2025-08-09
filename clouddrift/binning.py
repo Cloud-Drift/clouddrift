@@ -687,7 +687,7 @@ def binned_statistics(
             binned_stats = _binned_count(flat_idx, n_bins)
             bin_count = binned_stats.copy()
         elif statistic == "sum":
-            if _is_datetime_array(var_finite) and statistic == "sum":
+            if _is_datetime_array(var_finite):
                 raise ValueError("Datetime data is not supported for 'sum' statistic.")
             binned_stats = _binned_sum(flat_idx, n_bins, values=var_finite)
             bin_sum = binned_stats.copy()
