@@ -94,7 +94,8 @@ def _filter_valid_and_finite(
 
 
 def _is_datetime_subelement(arr: np.ndarray) -> bool:
-    """Get the type of the first non-null element in an array.
+    """
+    Get the type of the first non-null element in an array.
 
     Parameters
     ----------
@@ -113,7 +114,8 @@ def _is_datetime_subelement(arr: np.ndarray) -> bool:
 
 
 def _is_datetime_array(arr: np.ndarray) -> bool:
-    """Verify if an array contains datetime values.
+    """
+    Verify if an array contains datetime values.
 
     Parameters
     ----------
@@ -207,7 +209,8 @@ def handle_datetime_conversion(func: Callable) -> Callable:
 
 
 def _binned_count(flat_idx: np.ndarray, n_bins: int) -> np.ndarray:
-    """Compute the count of values in each bin.
+    """
+    Compute the count of values in each bin.
 
     Parameters
     ----------
