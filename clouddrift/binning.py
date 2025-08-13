@@ -260,7 +260,7 @@ def _binned_mean(
     bin_sum: np.ndarray | None = None,
 ) -> np.ndarray:
     """
-    Compute a reduction (mean, std, min, max, etc.) of values per bin.
+    Compute the mean of values per bin.
 
     Parameters
     ----------
