@@ -482,7 +482,7 @@ def binned_statistics(
         Complex values are supported for the supported statistics except for 'min', 'max', and 'median'.
     bins : int or lists, optional
         Number of bins or bin edges per dimension. It can be:
-        - An int: same number of bins for all dimensions (default: 10),
+        - An int: same number of bins for all dimensions,
         - A list of ints or arrays: one per dimension, specifying either bin count or bin edges,
         - None: defaults to 10 bins per dimension.
     bins_range : list of tuples, optional
@@ -672,6 +672,8 @@ def binned_statistics(
 
     ds = xr.Dataset()
     for var, name, statistic in statistics_iter:
+        print(f"Computing '{statistic}' for variable '{name}'...")
+
         # count the number of points in each bin
         var_finite, indices_finite = _filter_valid_and_finite(var, indices, valid)
         flat_idx = np.ravel_multi_index(indices_finite, edges_sz)
