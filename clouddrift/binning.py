@@ -492,8 +492,8 @@ def binned_statistics(
         - a string, supported values: 'count', 'sum', 'mean', 'median', 'std', 'min', 'max', (default: "count"),
         - a custom function as a callable for univariate statistics that take a 1D array of values and return a single value.
           The callable is applied to each variable of data.
-        - a tuple of (output_name, callable) for multivariate statistics. 'output_name' is used to identify the resulting variable.
-          In this case, the callable will receive the list of arrays provided in `data`. For example, to calculate kinetic energy,
+        - a tuple of (output_name, callable) for multivariate statistics. 'output_name' is used to identify the resulting variables.
+          In this case, the callable will receive the list of arrays provided in `data`. For example, to calculate kinetic energy from data with velocity components `u` and `v`,
           you can pass `data = [u, v]` and  `statistics=("ke", lambda data: np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)))`.
         - a list containing any combination of the above, e.g., ['mean', np.nanmax, ('ke', lambda data: np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)))].
     dim_names : list of str, optional
