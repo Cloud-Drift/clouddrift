@@ -145,7 +145,7 @@ def _datetime64_to_float(time_dt: np.ndarray) -> np.ndarray:
     Returns:
     -------
     float or np.ndarray of floats
-        Time since UNIX epoch (1970-01-01) in specified unit.
+        Time since UNIX epoch (1970-01-01) in seconds.
     """
     reference_date = np.datetime64("1970-01-01T00:00:00")
     return np.array(
@@ -156,12 +156,12 @@ def _datetime64_to_float(time_dt: np.ndarray) -> np.ndarray:
 
 def _float_to_datetime64(time_float, count=None):
     """
-    Convert float seconds (or other units) since UNIX epoch to np.datetime64.
+    Convert float seconds since UNIX epoch to np.datetime64.
 
     Parameters:
     ----------
     time_float : float or array-like
-        Seconds (or other time units) since epoch (1970-01-01T00:00:00).
+        Seconds since epoch (1970-01-01T00:00:00).
 
     Returns:
     -------
@@ -180,7 +180,7 @@ def handle_datetime_conversion(func: Callable) -> Callable:
     seconds since epoch before calling the function, and converts the result back
     to datetime64 after the function call.
 
-    Assumes that the function accepts `values` and `unit` as keyword arguments.
+    Assumes that the function accepts `values` as keyword arguments.
     """
 
     @wraps(func)
@@ -492,8 +492,8 @@ def binned_statistics(
         - a string, supported values: 'count', 'sum', 'mean', 'median', 'std', 'min', 'max', (default: "count"),
         - a custom function as a callable for univariate statistics that take a 1D array of values and return a single value.
           The callable is applied to each variable of data.
-        - a tuple of (output_name, callable) for multivariate statistics. 'output_name' is used to identify the resulting variable.
-          In this case, the callable will receive the list of arrays provided in `data`. For example, to calculate kinetic energy,
+        - a tuple of (output_name, callable) for multivariate statistics. 'output_name' is used to identify the resulting variables.
+          In this case, the callable will receive the list of arrays provided in `data`. For example, to calculate kinetic energy from data with velocity components `u` and `v`,
           you can pass `data = [u, v]` and  `statistics=("ke", lambda data: np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)))`.
         - a list containing any combination of the above, e.g., ['mean', np.nanmax, ('ke', lambda data: np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)))].
     dim_names : list of str, optional
@@ -687,7 +687,7 @@ def binned_statistics(
             binned_stats = _binned_count(flat_idx, n_bins)
             bin_count = binned_stats.copy()
         elif statistic == "sum":
-            if _is_datetime_array(var_finite) and statistic == "sum":
+            if _is_datetime_array(var_finite):
                 raise ValueError("Datetime data is not supported for 'sum' statistic.")
             binned_stats = _binned_sum(flat_idx, n_bins, values=var_finite)
             bin_sum = binned_stats.copy()
