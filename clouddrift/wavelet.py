@@ -886,6 +886,12 @@ def morse_spherical_wavelet_transform(
     -------
     wx, wy : tuple of arrays
         Horizontal components of the wavelet transform projected onto tangent plane
+
+    Notes
+    -----
+    - This function was ported over from Jonathan Lilly's jLab, which you can read about here:
+        “Lilly, J. M. (2024), jLab: A data analysis package for Matlab, v.1.7.3, 
+        doi:10.5281/zenodo.4547006, http://www.jmlilly.net/code.”
     """
     
     # Unwrap longitude to avoid discontinuities  
