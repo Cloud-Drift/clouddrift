@@ -129,11 +129,22 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds : xr.Dataset
         Xarray Dataset containing the data and attributes
     """
-    ds = xr.load_dataset(
-        os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)),
-        decode_times=False,
-        decode_coords=False,
-    )
+
+    # We're suppressing a SerializationWarning that's caused by the GDP data
+    # having multiple fill values for the same variable, WMO.
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            category=xr.SerializationWarning,
+            message=".*multiple fill values.*",
+        )
+        ds = xr.load_dataset(
+            os.path.join(
+                kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)
+            ),
+            decode_times=False,
+            decode_coords=False,
+        )
 
     # parse the date with custom function
     ds["deploy_date"].data = gdp.decode_date(np.array([ds.deploy_date.data[0]]))
@@ -179,6 +190,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         "typedeath": "int8",
     }
 
+    # Regular type conversion for all variables
     for var in target_dtype.keys():
         if var in ds.keys():
             ds[var].data = ds[var].data.astype(target_dtype[var])
@@ -298,11 +310,6 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
             "long_name": "Number of observations per trajectory",
             "sample_dimension": "obs",
             "units": "-",
-        },
-        "location_type": {
-            "long_name": "Satellite-based location system",
-            "units": "-",
-            "comments": "0 (Argos), 1 (GPS)",
         },
         "WMO": {
             "long_name": "World Meteorological Organization buoy identification number",
@@ -505,11 +512,16 @@ def to_raggedarray(
     """
     ids = download(GDP_DATA_URL, tmp_path, drifter_ids, n_random_id)
 
+    # Add ManufactureYear to metadata
+    gdp_metadata = gdp.GDP_METADATA.copy()
+    if "ManufactureYear" not in gdp_metadata:
+        gdp_metadata.append("ManufactureYear")
+
     ra = RaggedArray.from_files(
         indices=ids,
         preprocess_func=preprocess,
         name_coords=gdp.GDP_COORDS,
-        name_meta=gdp.GDP_METADATA,
+        name_meta=gdp_metadata,
         name_data=GDP_DATA,
         name_dims=gdp.GDP_DIMS,
         rowsize_func=gdp.rowsize,
