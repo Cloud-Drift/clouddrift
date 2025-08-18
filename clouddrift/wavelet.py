@@ -19,6 +19,12 @@ import numpy as np
 from scipy.special import gamma as _gamma
 from scipy.special import gammaln as _lgamma
 
+from clouddrift.sphere import (
+    spherical_to_cartesian, 
+    cartesian_to_spherical,
+    cartesian_to_tangentplane,
+    EARTH_RADIUS_METERS
+)
 
 def morse_wavelet_transform(
     x: np.ndarray,
@@ -823,3 +829,195 @@ def _laguerre(
         fact = np.exp(_lgamma(k + c + 1) - _lgamma(c + i + 1) - _lgamma(k - i + 1))
         y = y + (-1) ** i * fact * x**i / _gamma(i + 1)
     return y
+
+
+def morse_spherical_wavelet_transform(
+        lat:np.ndarray, 
+        lon:np.ndarray, 
+        gamma:float, 
+        beta:float, 
+        radian_frequency:np.ndarray, 
+        radius:float=EARTH_RADIUS_METERS,
+        complex:bool=False,
+        time_axis:int=-1, 
+        normalization:str="bandpass",
+        boundary:str="periodic", 
+        order:int=1
+) -> np.ndarray:
+    """
+    Spherical wavelet transform for oscillations on the surface of a sphere.
+    
+    This implements a version of the wavelet transform appropriate for analyzing 
+    oscillations in latitude and longitude on the surface of a sphere.
+    
+    Parameters
+    ----------
+    lat : array-like
+        Latitude in degrees
+    lon : array-like  
+        Longitude in degrees
+    gamma : float
+        Gamma parameter of the Morse wavelets
+    beta : float
+        Beta parameter of the Morse wavelets  
+    radian_frequency : array-like
+        Array of radian frequencies at which the Fourier transform of the wavelets 
+        reach their maximum amplitudes
+    radius : float, optional
+        Sphere radius in kilometers (default: Earth radius)
+    complex : bool, optional
+        Specify if the input signal is complex. Default is False.
+        This affects normalization and interpretation of outputs.
+    time_axis : int, optional
+        Axis on which time is defined for input arrays (default is last, or -1)
+    normalization : str, optional
+        Normalization for wavelet transforms. Options:
+        - "bandpass": bandpass normalization (default)
+        - "energy": unit energy normalization
+    boundary : str, optional
+        Boundary condition at edges. Options:
+        - "periodic": periodic boundary (default)
+        - "mirror": mirror boundary
+        - "zeros": zero padding
+    order : int, optional
+        Order of Morse wavelets (default is 1)
+        
+    Returns
+    -------
+    wx, wy : tuple of arrays
+        Horizontal components of the wavelet transform projected onto tangent plane
+    """
+    
+    # Unwrap longitude to avoid discontinuities  
+    lon_unwrapped = _unwrap_longitude(lon)
+    
+    # Convert lat/lon to 3D Cartesian coordinates
+    x, y, z = spherical_to_cartesian(lon_unwrapped, lat, radius)
+
+    # Apply wavelet transform in 3D with all flexibility options
+    wx = morse_wavelet_transform(x, gamma, beta, radian_frequency,
+                                complex=complex, time_axis=time_axis,
+                                normalization=normalization, boundary=boundary, order=order)
+    wy = morse_wavelet_transform(y, gamma, beta, radian_frequency,
+                                complex=complex, time_axis=time_axis, 
+                                normalization=normalization, boundary=boundary, order=order)
+    wz = morse_wavelet_transform(z, gamma, beta, radian_frequency,
+                                complex=complex, time_axis=time_axis,
+                                normalization=normalization, boundary=boundary, order=order)
+
+    # Project back onto horizontal tangent plane
+    wxh, wyh = _wavelet_transform_spherical_to_tangent(lat, lon_unwrapped, x, y, z, wx, wy, wz, 
+                                 time_axis=time_axis)
+    
+    return wxh, wyh
+
+
+def _unwrap_longitude(lon: np.ndarray) -> np.ndarray:
+    """Unwrap longitude values to avoid discontinuities"""
+    lon_rad = np.deg2rad(lon)
+    unwrapped_rad = np.unwrap(lon_rad)
+    return np.rad2deg(unwrapped_rad)
+
+
+def _wavelet_transform_spherical_to_tangent(
+        lat:np.ndarray,
+        lon:np.ndarray, 
+        x:np.ndarray, 
+        y:np.ndarray, 
+        z:np.ndarray, 
+        wx:np.ndarray, 
+        wy:np.ndarray, 
+        wz:np.ndarray, 
+        time_axis:int=-1
+) -> tuple:
+    """
+    Project 3D wavelet transform onto local horizontal tangent plane.
+    
+    This function projects the 3D wavelet coefficients back onto a tangent plane
+    centered on the time-varying center of the oscillation in each wavelet band.
+    
+    Parameters
+    ----------
+    lat, lon : array-like
+        Latitude and longitude arrays in degrees
+    x, y, z : array-like  
+        3D Cartesian coordinate arrays
+    wx, wy, wz : array-like
+        3D wavelet transform coefficients
+    time_axis : int, optional
+        Axis along which time varies (default: -1)
+        
+    Returns
+    -------
+    wxh, wyh : arrays
+        Horizontal components of wavelet transform in tangent plane
+    """
+    
+    # Handle time_axis parameter - move time axis to last position if needed
+    if time_axis != -1 and time_axis != wx.ndim - 1:
+        wx = np.moveaxis(wx, time_axis, -1)
+        wy = np.moveaxis(wy, time_axis, -1)
+        wz = np.moveaxis(wz, time_axis, -1)
+        
+        # Also move coordinate arrays if they have the same dimensionality
+        if hasattr(lat, 'shape') and lat.ndim > 1:
+            lat = np.moveaxis(lat, time_axis, -1)
+        if hasattr(lon, 'shape') and lon.ndim > 1:
+            lon = np.moveaxis(lon, time_axis, -1)
+        if hasattr(x, 'shape') and x.ndim > 1:
+            x = np.moveaxis(x, time_axis, -1)
+            y = np.moveaxis(y, time_axis, -1)
+            z = np.moveaxis(z, time_axis, -1)
+        
+        move_back = True
+    else:
+        move_back = False
+    
+    # Get shape for proper broadcasting
+    if wx.ndim == 1:
+        wx = wx[np.newaxis, :]
+        wy = wy[np.newaxis, :]
+        wz = wz[np.newaxis, :]
+        squeeze_output = True
+    else:
+        squeeze_output = False
+        
+    n_freq, _ = wx.shape[-2:]
+    
+    # Initialize output arrays
+    wxh = np.zeros_like(wx, dtype=complex)
+    wyh = np.zeros_like(wy, dtype=complex)
+    
+    # For each frequency band (adaptive method)
+    for freq_idx in range(n_freq):
+        x_vec = x
+        y_vec = y  
+        z_vec = z
+        
+        # Subtract the real part of wavelet coefficients to find new positions
+        x_new = x_vec - np.real(wx[freq_idx, :])
+        y_new = y_vec - np.real(wy[freq_idx, :])
+        z_new = z_vec - np.real(wz[freq_idx, :])
+        
+        # Convert back to lat/lon
+        lon_new, lat_new = cartesian_to_spherical(x_new, y_new, z_new)
+        
+        # Project 3D vectors to horizontal components using new coordinates
+        wxh_freq, wyh_freq = cartesian_to_tangentplane(
+            wx[freq_idx, :], wy[freq_idx, :], wz[freq_idx, :], 
+            lon_new, lat_new
+        )
+        
+        wxh[freq_idx, :] = wxh_freq
+        wyh[freq_idx, :] = wyh_freq
+    
+    # Restore original axis order if needed
+    if move_back:
+        wxh = np.moveaxis(wxh, -1, time_axis)
+        wyh = np.moveaxis(wyh, -1, time_axis)
+    
+    if squeeze_output:
+        wxh = wxh.squeeze()
+        wyh = wyh.squeeze()
+        
+    return wxh, wyh
