@@ -6,8 +6,8 @@ import numpy as np
 
 from clouddrift.binning import (
     DEFAULT_BINS_NUMBER,
-    binned_statistics,
     _is_datetime_array,
+    binned_statistics,
 )
 
 
@@ -480,12 +480,16 @@ class binning_tests(unittest.TestCase):
             data=self.values_1d,
             bins=3,
             statistics=[
-                functools.partial(np.percentile, q=40),
+                functools.partial(np.percentile, q=25),
+                functools.partial(np.percentile, q=50),
+                functools.partial(np.percentile, q=75),
                 "mean",
             ],
         )
         self.assertIn("binned_0_mean", ds.data_vars)
         self.assertIn("binned_0_percentile", ds.data_vars)
+        self.assertIn("binned_0_percentile_0", ds.data_vars)
+        self.assertIn("binned_0_percentile_1", ds.data_vars)
 
     def test_statistics_callable_lambda(self):
         ds = binned_statistics(

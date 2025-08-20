@@ -147,7 +147,7 @@ def _datetime64_to_float(time_dt: np.ndarray) -> np.ndarray:
     Returns:
     -------
     float or np.ndarray of floats
-        Time since UNIX epoch (1970-01-01) in seconds.
+        Seconds since UNIX epoch (1970-01-01T00:00:00).
     """
     reference_date = np.datetime64("1970-01-01T00:00:00")
     return np.array(
@@ -168,6 +168,7 @@ def _float_to_datetime64(time_float, count=None):
     Returns:
     -------
     np.datetime64 or np.ndarray of np.datetime64
+        Converted datetime64 values.
     """
     reference_date = np.datetime64("1970-01-01T00:00:00")
     date = reference_date + time_float.astype("timedelta64[s]")
@@ -675,8 +676,6 @@ def binned_statistics(
 
     ds = xr.Dataset()
     for var, name, statistic in statistics_iter:
-        print(f"Computing '{statistic}' for variable '{name}'...")
-
         # count the number of points in each bin
         var_finite, indices_finite = _filter_valid_and_finite(var, indices, valid)
         flat_idx = np.ravel_multi_index(indices_finite, edges_sz)
