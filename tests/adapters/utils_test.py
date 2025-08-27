@@ -117,7 +117,7 @@ class utils_tests(unittest.TestCase):
 
             # Assertions to verify the behavior
             self.requests_mock.get.assert_called_with(
-                "some.url.com", timeout=10, stream=True
+                "some.url.com", timeout=60, stream=True
             )
             buffer.write.assert_has_calls(
                 [call(b"a"), call(b"b"), call(b"c"), call(b"d")]
@@ -153,7 +153,7 @@ class utils_tests(unittest.TestCase):
 
             # Assertions to verify the behavior
             self.requests_mock.get.assert_called_with(
-                "some.url.com", timeout=10, stream=True
+                "some.url.com", timeout=60, stream=True
             )
             self.open_mock.assert_called_with(output_file + ".part", "wb")
             handle = self.open_mock()
@@ -255,7 +255,7 @@ class utils_tests(unittest.TestCase):
             tqdm_mock.assert_called_once()
             self.bar_mock.update.assert_has_calls([call(1), call(1), call(1), call(1)])
             self.requests_mock.get.assert_called_with(
-                "some.url.com", timeout=10, stream=True
+                "some.url.com", timeout=60, stream=True
             )
             self.open_mock.assert_called_with(output_file + ".part", "wb")
 
@@ -285,7 +285,7 @@ class utils_tests(unittest.TestCase):
             tqdm_mock.assert_not_called()
             self.bar_mock.update.assert_not_called()
             self.requests_mock.get.assert_called_with(
-                "some.url.com", timeout=10, stream=True
+                "some.url.com", timeout=60, stream=True
             )
             self.open_mock.assert_called_with(output_file + ".part", "wb")
 
