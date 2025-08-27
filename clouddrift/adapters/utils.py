@@ -173,7 +173,7 @@ def _download_with_progress(
     buffer: BufferedWriter | BufferedIOBase | None = None
 
     try:
-        resp = requests.get(url, timeout=10, stream=True)
+        resp = requests.get(url, timeout=60, stream=True)
         temp_output = f"{output}.part" if isinstance(output, str) else None
 
         if isinstance(output, str) and temp_output is not None:
