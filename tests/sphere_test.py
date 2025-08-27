@@ -384,11 +384,13 @@ class cartesian_to_spherical_tests(unittest.TestCase):
         x = np.random.random(size=100)
         y = np.random.random(size=100)
         z = np.random.random(size=100)
+        R = np.sqrt(x**2 + y**2 + z**2)
+
         lon, lat = cartesian_to_spherical(x, y, z)
         x2, y2, z2 = spherical_to_cartesian(lon, lat, radius=1)
-        self.assertTrue(np.allclose(x, x2))
-        self.assertTrue(np.allclose(y, y2))
-        self.assertTrue(np.allclose(z, z2))
+        self.assertTrue(np.allclose(x / R, x2))
+        self.assertTrue(np.allclose(y / R, y2))
+        self.assertTrue(np.allclose(z / R, z2))
 
 
 class cartesian_to_tangentplane_tests(unittest.TestCase):
