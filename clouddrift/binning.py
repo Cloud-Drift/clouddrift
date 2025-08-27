@@ -12,6 +12,304 @@ import xarray as xr
 DEFAULT_BINS_NUMBER = 10
 
 
+def binned_statistics(
+    coords: np.ndarray | list[np.ndarray],
+    data: np.ndarray | list[np.ndarray] | None = None,
+    bins: int | list = DEFAULT_BINS_NUMBER,
+    bins_range: list | None = None,
+    dim_names: list[str] | None = None,
+    output_names: list[str] | None = None,
+    statistics: str | list | Callable[[np.ndarray], float] = "count",
+) -> xr.Dataset:
+    """
+    Perform N-dimensional binning and compute mean of values in each bin. The result is returned as an Xarray Dataset.
+
+    Parameters
+    ----------
+    coords : array-like or list of array-like
+        Array(s) of Lagrangian data coordinates to be binned. For 1D, provide a single array.
+        For N-dimensions, provide a list of N arrays, each giving coordinates along one dimension.
+    data : array-like or list of array-like
+        Data values associated with the Lagrangian coordinates in coords.
+        Can be a single array or a list of arrays for multiple variables.
+        Complex values are supported for the supported statistics except for 'min', 'max', and 'median'.
+    bins : int or lists, optional
+        Number of bins or bin edges per dimension. It can be:
+        - An int: same number of bins for all dimensions,
+        - A list of ints or arrays: one per dimension, specifying either bin count or bin edges,
+        - None: defaults to 10 bins per dimension.
+    bins_range : list of tuples, optional
+        Outer bin limits for each dimension.
+    statistics : str or list of str, Callable[[np.ndarray], float] or list[Callable[[np.ndarray], float]]
+        Statistics to compute for each bin. It can be:
+        - a string, supported values: 'count', 'sum', 'mean', 'median', 'std', 'min', 'max', (default: "count"),
+        - a custom function as a callable for univariate statistics that take a 1D array of values and return a single value.
+          The callable is applied to each variable of data.
+        - a tuple of (output_name, callable) for multivariate statistics. 'output_name' is used to identify the resulting variables.
+          In this case, the callable will receive the list of arrays provided in `data`. For example, to calculate kinetic energy from data with velocity components `u` and `v`,
+          you can pass `data = [u, v]` and  `statistics=("ke", lambda data: np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)))`.
+        - a list containing any combination of the above, e.g., ['mean', np.nanmax, ('ke', lambda data: np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)))].
+    dim_names : list of str, optional
+        Names for the dimensions of the output xr.Dataset.
+        If None, default names are "dim_0_bin", "dim_1_bin", etc.
+    output_names : list of str, optional
+        Names for output variables in the xr.Dataset.
+        If None, default names are "binned_0_{statistic}", "binned_1_{statistic}", etc.
+
+    Returns
+    -------
+    xr.Dataset
+        Xarray dataset with binned means and count for each variable.
+    """
+    # convert coords, data parameters to numpy arrays and validate dimensions
+    # D, N = number of dimensions and number of data points
+    if not isinstance(coords, np.ndarray) or coords.ndim == 1:
+        coords = np.atleast_2d(coords)
+    D, N = coords.shape
+
+    # validate coordinates are finite
+    for c in coords:
+        var = c.copy()
+        if var.dtype == "O":
+            var = var.astype(type(var[0]))
+        if _is_datetime_array(var):
+            if pd.isna(var).any():
+                raise ValueError("Datetime coordinates must be finite values.")
+        else:
+            if pd.isna(var).any() or np.isinf(var).any():
+                raise ValueError("Coordinates must be finite values.")
+
+    # V, VN = number of variables and number of data points per variable
+    if data is None:
+        data = np.empty((1, 0))
+        V, VN = 1, N  # no data provided
+    elif not isinstance(data, np.ndarray) or data.ndim == 1:
+        data = np.atleast_2d(data)
+        V, VN = data.shape
+    else:
+        V, VN = data.shape
+
+    # convert datetime coordinates to numeric values
+    coords_datetime_index = np.where([_is_datetime_array(c) for c in coords])[0]
+    for i in coords_datetime_index:
+        coords[i] = _datetime64_to_float(coords[i])
+    coords = coords.astype(np.float64)
+
+    # set default bins and bins range
+    if isinstance(bins, (list, tuple)):
+        if len(bins) != len(coords):
+            raise ValueError("`bins` must match the dimensions of the coordinates")
+        bins = [b if b is not None else DEFAULT_BINS_NUMBER for b in bins]
+    elif isinstance(bins, int):
+        bins = [bins if bins is not None else DEFAULT_BINS_NUMBER] * len(coords)
+
+    if bins_range is None:
+        bins_range = [(np.nanmin(c), np.nanmax(c)) for c in coords]
+    else:
+        if isinstance(bins_range, tuple):
+            bins_range = [bins_range] * len(coords)
+        bins_range = [
+            r if r is not None else (np.nanmin(c), np.nanmax(c))
+            for r, c in zip(bins_range, coords)
+        ]
+
+    # validate statistics parameter
+    ordered_statistics = ["count", "sum", "mean", "median", "std", "min", "max"]
+    if isinstance(statistics, (str, tuple)) or callable(statistics):
+        statistics = [statistics]
+    elif not isinstance(statistics, list):
+        raise ValueError(
+            "`statistics` must be a string, list of strings, Callable, or a list of Callables. "
+            f"Supported values: {', '.join(ordered_statistics)}."
+        )
+    if invalid := [
+        stat
+        for stat in statistics
+        if (stat not in ordered_statistics)
+        and not callable(stat)
+        and not isinstance(stat, tuple)
+    ]:
+        raise ValueError(
+            f"Unsupported statistic(s): {', '.join(map(str, invalid))}. "
+            f"Supported: {ordered_statistics} or a Callable."
+        )
+
+    # validate multivariable statistics
+    for statistic in statistics:
+        if isinstance(statistic, tuple):
+            output_name, statistic = statistic
+            if not isinstance(output_name, str):
+                raise ValueError(
+                    f"Invalid output name '{output_name}', must be a string."
+                )
+            if not callable(statistic):
+                raise ValueError(
+                    "Multivariable `statistics` function is not Callable, must provide as a tuple(output_name, Callable)."
+                )
+
+    # validate and sort statistics for efficiency
+    statistics_str = [s for s in statistics if isinstance(s, str)]
+    statistics_func = [s for s in statistics if not isinstance(s, str)]
+    statistics = (
+        sorted(
+            set(statistics_str),
+            key=lambda x: ordered_statistics.index(x),
+        )
+        + statistics_func
+    )
+
+    if statistics and not data.size:
+        warnings.warn(
+            f"no `data` provided, `statistics` ({statistics}) will be computed on the coordinates."
+        )
+
+    # set default dimension names
+    if dim_names is None:
+        dim_names = [f"dim_{i}_bin" for i in range(len(coords))]
+    else:
+        dim_names = [
+            name if name is not None else f"dim_{i}_bin"
+            for i, name in enumerate(dim_names)
+        ]
+
+    # set default variable names
+    if output_names is None:
+        output_names = [
+            f"binned_{i}" if data[0].size else "binned" for i in range(len(data))
+        ]
+    else:
+        output_names = [
+            name if name is not None else f"binned_{i}"
+            for i, name in enumerate(output_names)
+        ]
+
+    # ensure inputs are consistent
+    if D != len(dim_names):
+        raise ValueError("`coords` and `dim_names` must have the same length")
+    if V != len(output_names):
+        raise ValueError("`data` and `output_names` must have the same length")
+    if N != VN:
+        raise ValueError("`coords` and `data` must have the same number of data points")
+
+    # edges and bin centers
+    edges = [np.linspace(r[0], r[1], b + 1) for r, b in zip(bins_range, bins)]
+    edges_sz = [len(e) - 1 for e in edges]
+    n_bins = int(np.prod(edges_sz))
+    bin_centers = [0.5 * (e[:-1] + e[1:]) for e in edges]
+
+    # convert bin centers back to datetime64 for output dataset
+    for i in coords_datetime_index:
+        bin_centers[i] = _float_to_datetime64(bin_centers[i])
+
+    # digitize coordinates into bin indices
+    # modify edges to ensure the last edge is inclusive
+    # by adding a small tolerance to the last edge (1s for date coordinates)
+    edges_with_tol = [e.copy() for e in edges]
+    for i, e in enumerate(edges_with_tol):
+        e[-1] += np.finfo(e.dtype).eps if i not in coords_datetime_index else 1
+    indices = [np.digitize(c, edges_with_tol[j]) - 1 for j, c in enumerate(coords)]
+    valid = np.all(
+        [(j >= 0) & (j < edges_sz[i]) for i, j in enumerate(indices)], axis=0
+    )
+    indices = [i[valid] for i in indices]
+
+    # create an iterable of statistics to compute
+    statistics_iter = []
+    for statistic in statistics:
+        if isinstance(statistic, str) or callable(statistic):
+            for var, name in zip(data, output_names):
+                statistics_iter.append((var, name, statistic))
+        elif isinstance(statistic, tuple):
+            output_name, statistic = statistic
+            statistics_iter.append((data, output_name, statistic))
+
+    ds = xr.Dataset()
+    for var, name, statistic in statistics_iter:
+        # count the number of points in each bin
+        var_finite, indices_finite = _filter_valid_and_finite(var, indices, valid)
+        flat_idx = np.ravel_multi_index(indices_finite, edges_sz)
+
+        # convert object arrays to a common type
+        if var_finite.dtype == "O":
+            var_finite = var_finite.astype(type(var_finite[0]))
+
+        # loop through statistics for the variable
+        bin_count, bin_mean, bin_sum = None, None, None
+
+        if statistic == "count":
+            binned_stats = _binned_count(flat_idx, n_bins)
+            bin_count = binned_stats.copy()
+        elif statistic == "sum":
+            if _is_datetime_array(var_finite):
+                raise ValueError("Datetime data is not supported for 'sum' statistic.")
+            binned_stats = _binned_sum(flat_idx, n_bins, values=var_finite)
+            bin_sum = binned_stats.copy()
+        elif statistic == "mean":
+            binned_stats = _binned_mean(
+                flat_idx,
+                n_bins,
+                values=var_finite,
+                bin_counts=bin_count,
+                bin_sum=bin_sum,
+            )
+            bin_mean = binned_stats.copy()
+        elif statistic == "std":
+            binned_stats = _binned_std(
+                flat_idx,
+                n_bins,
+                values=var_finite,
+                bin_counts=bin_count,
+                bin_mean=bin_mean,
+            )
+        elif statistic == "min":
+            binned_stats = _binned_min(
+                flat_idx,
+                n_bins,
+                values=var_finite,
+            )
+        elif statistic == "max":
+            binned_stats = _binned_max(
+                flat_idx,
+                n_bins,
+                values=var_finite,
+            )
+        elif statistic == "median":
+            if np.iscomplexobj(var_finite):
+                raise ValueError(
+                    "Complex values are not supported for 'median' statistic."
+                )
+            binned_stats = _binned_apply_func(
+                flat_idx,
+                n_bins,
+                values=var_finite,
+                func=np.median,
+            )
+        else:
+            binned_stats = _binned_apply_func(
+                flat_idx,
+                n_bins,
+                values=var_finite,
+                func=statistic,
+            )
+
+        # add the binned statistics variable to the Dataset
+        variable_name = (
+            name
+            if var_finite.ndim == 2
+            else _get_variable_name(name, statistic, ds.data_vars)
+            if callable(statistic)
+            else f"{name}_{statistic}"
+        )
+
+        ds[variable_name] = xr.DataArray(
+            binned_stats.reshape(edges_sz),
+            dims=dim_names,
+            coords=dict(zip(dim_names, bin_centers)),
+        )
+
+    return ds
+
+
 def _get_variable_name(
     output_name: str,
     func: Callable,
@@ -461,301 +759,3 @@ def _binned_apply_func(
         result[bin_idx] = func(bin_values)
 
     return result
-
-
-def binned_statistics(
-    coords: np.ndarray | list[np.ndarray],
-    data: np.ndarray | list[np.ndarray] | None = None,
-    bins: int | list = DEFAULT_BINS_NUMBER,
-    bins_range: list | None = None,
-    dim_names: list[str] | None = None,
-    output_names: list[str] | None = None,
-    statistics: str | list | Callable[[np.ndarray], float] = "count",
-) -> xr.Dataset:
-    """
-    Perform N-dimensional binning and compute mean of values in each bin. The result is returned as an Xarray Dataset.
-
-    Parameters
-    ----------
-    coords : array-like or list of array-like
-        Array(s) of Lagrangian data coordinates to be binned. For 1D, provide a single array.
-        For N-dimensions, provide a list of N arrays, each giving coordinates along one dimension.
-    data : array-like or list of array-like
-        Data values associated with the Lagrangian coordinates in coords.
-        Can be a single array or a list of arrays for multiple variables.
-        Complex values are supported for the supported statistics except for 'min', 'max', and 'median'.
-    bins : int or lists, optional
-        Number of bins or bin edges per dimension. It can be:
-        - An int: same number of bins for all dimensions,
-        - A list of ints or arrays: one per dimension, specifying either bin count or bin edges,
-        - None: defaults to 10 bins per dimension.
-    bins_range : list of tuples, optional
-        Outer bin limits for each dimension.
-    statistics : str or list of str, Callable[[np.ndarray], float] or list[Callable[[np.ndarray], float]]
-        Statistics to compute for each bin. It can be:
-        - a string, supported values: 'count', 'sum', 'mean', 'median', 'std', 'min', 'max', (default: "count"),
-        - a custom function as a callable for univariate statistics that take a 1D array of values and return a single value.
-          The callable is applied to each variable of data.
-        - a tuple of (output_name, callable) for multivariate statistics. 'output_name' is used to identify the resulting variables.
-          In this case, the callable will receive the list of arrays provided in `data`. For example, to calculate kinetic energy from data with velocity components `u` and `v`,
-          you can pass `data = [u, v]` and  `statistics=("ke", lambda data: np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)))`.
-        - a list containing any combination of the above, e.g., ['mean', np.nanmax, ('ke', lambda data: np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)))].
-    dim_names : list of str, optional
-        Names for the dimensions of the output xr.Dataset.
-        If None, default names are "dim_0_bin", "dim_1_bin", etc.
-    output_names : list of str, optional
-        Names for output variables in the xr.Dataset.
-        If None, default names are "binned_0_{statistic}", "binned_1_{statistic}", etc.
-
-    Returns
-    -------
-    xr.Dataset
-        Xarray dataset with binned means and count for each variable.
-    """
-    # convert coords, data parameters to numpy arrays and validate dimensions
-    # D, N = number of dimensions and number of data points
-    if not isinstance(coords, np.ndarray) or coords.ndim == 1:
-        coords = np.atleast_2d(coords)
-    D, N = coords.shape
-
-    # validate coordinates are finite
-    for c in coords:
-        var = c.copy()
-        if var.dtype == "O":
-            var = var.astype(type(var[0]))
-        if _is_datetime_array(var):
-            if pd.isna(var).any():
-                raise ValueError("Datetime coordinates must be finite values.")
-        else:
-            if pd.isna(var).any() or np.isinf(var).any():
-                raise ValueError("Coordinates must be finite values.")
-
-    # V, VN = number of variables and number of data points per variable
-    if data is None:
-        data = np.empty((1, 0))
-        V, VN = 1, N  # no data provided
-    elif not isinstance(data, np.ndarray) or data.ndim == 1:
-        data = np.atleast_2d(data)
-        V, VN = data.shape
-    else:
-        V, VN = data.shape
-
-    # convert datetime coordinates to numeric values
-    coords_datetime_index = np.where([_is_datetime_array(c) for c in coords])[0]
-    for i in coords_datetime_index:
-        coords[i] = _datetime64_to_float(coords[i])
-    coords = coords.astype(np.float64)
-
-    # set default bins and bins range
-    if isinstance(bins, (list, tuple)):
-        if len(bins) != len(coords):
-            raise ValueError("`bins` must match the dimensions of the coordinates")
-        bins = [b if b is not None else DEFAULT_BINS_NUMBER for b in bins]
-    elif isinstance(bins, int):
-        bins = [bins if bins is not None else DEFAULT_BINS_NUMBER] * len(coords)
-
-    if bins_range is None:
-        bins_range = [(np.nanmin(c), np.nanmax(c)) for c in coords]
-    else:
-        if isinstance(bins_range, tuple):
-            bins_range = [bins_range] * len(coords)
-        bins_range = [
-            r if r is not None else (np.nanmin(c), np.nanmax(c))
-            for r, c in zip(bins_range, coords)
-        ]
-
-    # validate statistics parameter
-    ordered_statistics = ["count", "sum", "mean", "median", "std", "min", "max"]
-    if isinstance(statistics, (str, tuple)) or callable(statistics):
-        statistics = [statistics]
-    elif not isinstance(statistics, list):
-        raise ValueError(
-            "`statistics` must be a string, list of strings, Callable, or a list of Callables. "
-            f"Supported values: {', '.join(ordered_statistics)}."
-        )
-    if invalid := [
-        stat
-        for stat in statistics
-        if (stat not in ordered_statistics)
-        and not callable(stat)
-        and not isinstance(stat, tuple)
-    ]:
-        raise ValueError(
-            f"Unsupported statistic(s): {', '.join(map(str, invalid))}. "
-            f"Supported: {ordered_statistics} or a Callable."
-        )
-
-    # validate multivariable statistics
-    for statistic in statistics:
-        if isinstance(statistic, tuple):
-            output_name, statistic = statistic
-            if not isinstance(output_name, str):
-                raise ValueError(
-                    f"Invalid output name '{output_name}', must be a string."
-                )
-            if not callable(statistic):
-                raise ValueError(
-                    "Multivariable `statistics` function is not Callable, must provide as a tuple(output_name, Callable)."
-                )
-
-    # validate and sort statistics for efficiency
-    statistics_str = [s for s in statistics if isinstance(s, str)]
-    statistics_func = [s for s in statistics if not isinstance(s, str)]
-    statistics = (
-        sorted(
-            set(statistics_str),
-            key=lambda x: ordered_statistics.index(x),
-        )
-        + statistics_func
-    )
-
-    if statistics and not data.size:
-        warnings.warn(
-            f"no `data` provided, `statistics` ({statistics}) will be computed on the coordinates."
-        )
-
-    # set default dimension names
-    if dim_names is None:
-        dim_names = [f"dim_{i}_bin" for i in range(len(coords))]
-    else:
-        dim_names = [
-            name if name is not None else f"dim_{i}_bin"
-            for i, name in enumerate(dim_names)
-        ]
-
-    # set default variable names
-    if output_names is None:
-        output_names = [
-            f"binned_{i}" if data[0].size else "binned" for i in range(len(data))
-        ]
-    else:
-        output_names = [
-            name if name is not None else f"binned_{i}"
-            for i, name in enumerate(output_names)
-        ]
-
-    # ensure inputs are consistent
-    if D != len(dim_names):
-        raise ValueError("`coords` and `dim_names` must have the same length")
-    if V != len(output_names):
-        raise ValueError("`data` and `output_names` must have the same length")
-    if N != VN:
-        raise ValueError("`coords` and `data` must have the same number of data points")
-
-    # edges and bin centers
-    edges = [np.linspace(r[0], r[1], b + 1) for r, b in zip(bins_range, bins)]
-    edges_sz = [len(e) - 1 for e in edges]
-    n_bins = int(np.prod(edges_sz))
-    bin_centers = [0.5 * (e[:-1] + e[1:]) for e in edges]
-
-    # convert bin centers back to datetime64 for output dataset
-    for i in coords_datetime_index:
-        bin_centers[i] = _float_to_datetime64(bin_centers[i])
-
-    # digitize coordinates into bin indices
-    # modify edges to ensure the last edge is inclusive
-    # by adding a small tolerance to the last edge (1s for date coordinates)
-    edges_with_tol = [e.copy() for e in edges]
-    for i, e in enumerate(edges_with_tol):
-        e[-1] += np.finfo(e.dtype).eps if i not in coords_datetime_index else 1
-    indices = [np.digitize(c, edges_with_tol[j]) - 1 for j, c in enumerate(coords)]
-    valid = np.all(
-        [(j >= 0) & (j < edges_sz[i]) for i, j in enumerate(indices)], axis=0
-    )
-    indices = [i[valid] for i in indices]
-
-    # create an iterable of statistics to compute
-    statistics_iter = []
-    for statistic in statistics:
-        if isinstance(statistic, str) or callable(statistic):
-            for var, name in zip(data, output_names):
-                statistics_iter.append((var, name, statistic))
-        elif isinstance(statistic, tuple):
-            output_name, statistic = statistic
-            statistics_iter.append((data, output_name, statistic))
-
-    ds = xr.Dataset()
-    for var, name, statistic in statistics_iter:
-        # count the number of points in each bin
-        var_finite, indices_finite = _filter_valid_and_finite(var, indices, valid)
-        flat_idx = np.ravel_multi_index(indices_finite, edges_sz)
-
-        # convert object arrays to a common type
-        if var_finite.dtype == "O":
-            var_finite = var_finite.astype(type(var_finite[0]))
-
-        # loop through statistics for the variable
-        bin_count, bin_mean, bin_sum = None, None, None
-
-        if statistic == "count":
-            binned_stats = _binned_count(flat_idx, n_bins)
-            bin_count = binned_stats.copy()
-        elif statistic == "sum":
-            if _is_datetime_array(var_finite):
-                raise ValueError("Datetime data is not supported for 'sum' statistic.")
-            binned_stats = _binned_sum(flat_idx, n_bins, values=var_finite)
-            bin_sum = binned_stats.copy()
-        elif statistic == "mean":
-            binned_stats = _binned_mean(
-                flat_idx,
-                n_bins,
-                values=var_finite,
-                bin_counts=bin_count,
-                bin_sum=bin_sum,
-            )
-            bin_mean = binned_stats.copy()
-        elif statistic == "std":
-            binned_stats = _binned_std(
-                flat_idx,
-                n_bins,
-                values=var_finite,
-                bin_counts=bin_count,
-                bin_mean=bin_mean,
-            )
-        elif statistic == "min":
-            binned_stats = _binned_min(
-                flat_idx,
-                n_bins,
-                values=var_finite,
-            )
-        elif statistic == "max":
-            binned_stats = _binned_max(
-                flat_idx,
-                n_bins,
-                values=var_finite,
-            )
-        elif statistic == "median":
-            if np.iscomplexobj(var_finite):
-                raise ValueError(
-                    "Complex values are not supported for 'median' statistic."
-                )
-            binned_stats = _binned_apply_func(
-                flat_idx,
-                n_bins,
-                values=var_finite,
-                func=np.median,
-            )
-        else:
-            binned_stats = _binned_apply_func(
-                flat_idx,
-                n_bins,
-                values=var_finite,
-                func=statistic,
-            )
-
-        # add the binned statistics variable to the Dataset
-        variable_name = (
-            name
-            if var_finite.ndim == 2
-            else _get_variable_name(name, statistic, ds.data_vars)
-            if callable(statistic)
-            else f"{name}_{statistic}"
-        )
-
-        ds[variable_name] = xr.DataArray(
-            binned_stats.reshape(edges_sz),
-            dims=dim_names,
-            coords=dict(zip(dim_names, bin_centers)),
-        )
-
-    return ds
