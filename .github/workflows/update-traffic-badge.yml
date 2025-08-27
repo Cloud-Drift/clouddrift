@@ -1,0 +1,45 @@
+name: Update traffic badge
+
+on:
+  push:            # update when you push to your fork/branch
+    branches: ["**"]
+  schedule:
+    - cron: "7 3 * * *"   # daily
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update badge.json with views (last 14d)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Fetch 14-day views for THIS repo (your fork until merged)
+            const { data } = await github.request('GET /repos/{owner}/{repo}/traffic/views', {
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+
+            const total = data?.count ?? 0;
+            const payload = {
+              schemaVersion: 1,
+              label: "views (14d)",
+              message: String(total)
+            };
+
+            const fs = require('fs');
+            fs.writeFileSync('badge.json', JSON.stringify(payload));
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add badge.json
+          git diff --quiet || git commit -m "Update traffic badge"
+          git push
