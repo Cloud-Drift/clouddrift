@@ -22,7 +22,7 @@ def binned_statistics(
     statistics: str | list | Callable[[np.ndarray], float] = "count",
 ) -> xr.Dataset:
     """
-    Perform N-dimensional binning and compute mean of values in each bin. The result is returned as an Xarray Dataset.
+    Perform N-dimensional binning and compute statistics of values in each bin. The result is returned as an Xarray Dataset.
 
     Parameters
     ----------
