@@ -64,7 +64,7 @@ def to_raggedarray(
     Invoke `to_raggedarray` without any arguments to download all drifter data
     from the 6-hourly GDP feed:
 
-    >>> from clouddrift.adapters.gdp6h import to_raggedarray
+    >>> from clouddrift.adapters.gdp.gdp6h import to_raggedarray
     >>> ra = to_raggedarray()
 
     To download a random sample of 100 drifters, for example for development
@@ -93,11 +93,16 @@ def to_raggedarray(
     """
     ids = download(GDP_DATA_URL, tmp_path, drifter_ids, n_random_id)
 
+    # Add ManufactureYear to metadata
+    gdp_metadata = gdp.GDP_METADATA.copy()
+    if "ManufactureYear" not in gdp_metadata:
+        gdp_metadata.append("ManufactureYear")
+
     ra = RaggedArray.from_files(
         indices=ids,
         preprocess_func=preprocess,
         name_coords=gdp.GDP_COORDS,
-        name_meta=gdp.GDP_METADATA,
+        name_meta=gdp_metadata,
         name_data=GDP_DATA,
         name_dims=gdp.GDP_DIMS,
         rowsize_func=gdp.rowsize,

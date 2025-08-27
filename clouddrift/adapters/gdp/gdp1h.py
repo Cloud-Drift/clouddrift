@@ -28,6 +28,7 @@ GDP_DATA_URL_EXPERIMENTAL = (
     "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental"
 )
 
+
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
 GDP_TMP_PATH_EXPERIMENTAL = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp_exp")
 GDP_DATA = [
@@ -71,8 +72,8 @@ def to_raggedarray(
     n_random_id : list[int], optional
         Randomly select n_random_id drifter NetCDF files
     url : str
-        URL from which to download the data (Default: GDP_DATA_URL).
-        Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL.
+        URL from which to download the data (Default: GDP_DATA_URL)
+        Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL
     tmp_path : str, optional
         Path to the directory where the individual NetCDF files are stored
         (default varies depending on operating system; /tmp/clouddrift/gdp on Linux)
@@ -88,7 +89,7 @@ def to_raggedarray(
     Invoke `to_raggedarray` without any arguments to download all drifter data
     from the 2.01 GDP feed:
 
-    >>> from clouddrift.adapters.gdp1h import to_raggedarray
+    >>> from clouddrift.adapters.gdp.gdp1h import to_raggedarray
     >>> ra = to_raggedarray()
 
     To download a random sample of 100 drifters, for example for development
@@ -100,10 +101,9 @@ def to_raggedarray(
 
     >>> ra = to_raggedarray(drifter_ids=[44136, 54680, 83463])
 
-    To download the experimental 2.01 GDP feed, use the `url` argument to
+    To download the experimental 3.00 GDP data, use the `url` argument to
     specify the experimental feed URL:
-
-    >>> from clouddrift.adapters.gdp1h import GDP_DATA_URL_EXPERIMENTAL, to_raggedarray
+    >>> from clouddrift.adapters.gdp.gdp1h import GDP_DATA_URL_EXPERIMENTAL, to_raggedarray
     >>> ra = to_raggedarray(url=GDP_DATA_URL_EXPERIMENTAL)
 
     Finally, `to_raggedarray` returns a `RaggedArray` instance which provides
@@ -129,11 +129,16 @@ def to_raggedarray(
     ids = download(url, tmp_path, drifter_ids, n_random_id)
     filename_pattern = "drifter_hourly_{id}.nc"
 
+    # Add location_type to metadata
+    gdp_metadata = gdp.GDP_METADATA.copy()
+    if "location_type" not in gdp_metadata:
+        gdp_metadata.append("location_type")
+
     ra = RaggedArray.from_files(
         indices=ids,
         preprocess_func=preprocess,
         name_coords=gdp.GDP_COORDS,
-        name_meta=gdp.GDP_METADATA,
+        name_meta=gdp_metadata,
         name_data=GDP_DATA,
         name_dims=gdp.GDP_DIMS,
         rowsize_func=gdp.rowsize,
@@ -177,7 +182,7 @@ def download(
     out : list
         List of retrieved drifters
     """
-    _logger.debug(f"Downloading GDP hourly data from ({url}) to ({tmp_path})")
+    print(f"Downloading GDP hourly data from ({url}) to ({tmp_path})")
 
     # Create a temporary directory if doesn't already exists.
     os.makedirs(tmp_path, exist_ok=True)
@@ -343,9 +348,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     )
     ds["DeploymentComments"] = (
         ("traj"),
-        np.array(
-            [gdp.str_to_float(ds.attrs.get("ManufactureYear", ""), -1)], dtype=np.int16
-        ),
+        gdp.cut_str(ds.attrs.get("DeploymentComments", ""), 20),
     )
     ds["ManufactureMonth"] = (
         ("traj"),
@@ -482,11 +485,6 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         "Transmissions": {"long_name": "Transmissions", "units": "-"},
         "DeployingCountry": {"long_name": "Deploying country", "units": "-"},
         "DeploymentComments": {"long_name": "Deployment comments", "units": "-"},
-        "ManufactureYear": {
-            "long_name": "Manufacture year",
-            "units": "-",
-            "_FillValue": "-1",
-        },
         "ManufactureMonth": {
             "long_name": "Manufacture month",
             "units": "-",

@@ -246,51 +246,37 @@ def to_raggedarray(
     max_chunks: int | None = None,
 ) -> xr.Dataset:
     """
-    Download and process individual GDP source drifter files and return an `xarray.Dataset`
-    instance with the data in ragged array format.
+    Convert GDP source data into a ragged array format and return it as an xarray Dataset.
 
-    Parameters
-    ----------
-    tmp_path : str, optional
-        Path to the directory where the individual NetCDF files are stored
-        (default varies depending on operating system; `/tmp/clouddrift/gdp` on Linux)
-    skip_download : bool, optional
-        If `True`, skip downloading the data files (Default: `False`)
-    max : int, optional
-        Maximum number of drifters to process, for testing purposes (Default: `None`)
-    chunk_size : int, optional
-        Number of observations to process in each chunk (Default: `100_000`)
-    use_fill_values : bool, optional
-        If `True`, use fill values for missing data (Default: `True`)
-    max_chunks : int, optional
-        Maximum number of chunks to process, for testing purposes (Default: `None`)
+    This function processes drifter data from the NOAA GDP (Global Drifter Program) source,
+    organizes it into a ragged array format, and returns the resulting dataset. It
+    supports downloading, filtering, and parallel processing of the data.
 
-    Returns
-    -------
-    out : xarray.Dataset
-        An `xarray.Dataset` instance containing the aggregated drifter data
+    Args:
+        tmp_path (str): Path to the temporary directory for storing downloaded files.
+                        Defaults to `_TMP_PATH`.
+        skip_download (bool): If True, skips downloading the data and assumes it is
+                              already available in `tmp_path`. Defaults to False.
+        max (int | None): Maximum number of requests to process for testing purposes.
+                          If None, processes all requests. Defaults to None.
+        chunk_size (int): Number of observations to process in each chunk. Defaults to 100,000.
+        use_fill_values (bool): Whether to use fill values for missing data. Defaults to True.
+        max_chunks (int | None): Maximum number of chunks to process. If None, processes all
+                                 chunks. Defaults to None.
 
-    Examples
-    --------
-    Invoke `to_raggedarray` without any arguments to download and process all drifter data
-    from the GDP dataset:
+    Returns:
+        xr.Dataset: An xarray Dataset containing the processed GDP drifter data in a
+                    ragged array format. The dataset includes both observation and
+                    trajectory metadata variables, with appropriate attributes added.
 
-    >>> from clouddrift.adapters.gdp.gdpsource import to_raggedarray
-    >>> ds = to_raggedarray()
+    Raises:
+        Any exceptions raised during file operations, data processing, or async tasks
+        will propagate to the caller.
 
-    To process a limited number of drifters, for example for development or testing,
-    use the `max` argument:
-
-    >>> ds = to_raggedarray(max=100)
-
-    To skip downloading the data files (assuming they have already been downloaded),
-    set `skip_download` to `True`:
-
-    >>> ds = to_raggedarray(skip_download=True)
-
-    Finally, to write the dataset to a NetCDF file on disk, do:
-
-    >>> ds.to_netcdf("gdp.nc", format="NETCDF4")
+    Notes:
+        - The function performs parallel processing of drifter data using asyncio.
+        - The resulting dataset is sorted by the start date of each drifter.
+        - Metadata attributes for variables are added based on predefined mappings.
     """
 
     os.makedirs(tmp_path, exist_ok=True)
