@@ -735,14 +735,14 @@ def subset(
                 criterion = ds[key]
                 criterion_dims = criterion.dims
 
-            if criterion_dims == (row_dim_name,):
+            if row_dim_name in criterion_dims:
                 mask_row = np.logical_and(
                     mask_row,
                     _mask_var(
                         criterion, criteria[key], ds[rowsize_var_name], row_dim_name
                     ),
                 )
-            elif criterion_dims == (obs_dim_name,):
+            elif obs_dim_name in criterion_dims:
                 mask_obs = np.logical_and(
                     mask_obs,
                     _mask_var(
@@ -787,11 +787,11 @@ def subset(
 
 
 def unpack(
-    ragged_array: np.ndarray,
-    rowsize: np.ndarray[int],
+    ragged_array: np.ndarray | xr.DataArray,
+    rowsize: np.ndarray | xr.DataArray,
     rows: int | Iterable[int] = None,
     axis: int = 0,
-) -> list[np.ndarray]:
+) -> list[np.ndarray | xr.DataArray]:
     """Unpack a ragged array into a list of regular arrays.
 
     Unpacking a ``np.ndarray`` ragged array is about 2 orders of magnitude

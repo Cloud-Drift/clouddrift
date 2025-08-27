@@ -480,8 +480,13 @@ def _parse_datetime_with_day_ratio(
         dayratio = day_with_ratio - day
         seconds = dayratio * _SECONDS_IN_DAY
         dt_ns = (
-            datetime.datetime(year=int(year), month=int(month), day=int(1))
-            + datetime.timedelta(days=int(day), seconds=seconds)
+            datetime.datetime(
+                year=int(year),
+                month=int(month),
+                day=int(day),
+                tzinfo=datetime.timezone.utc,
+            )
+            + datetime.timedelta(seconds=seconds)
         ).timestamp() * 10**9
         values.append(int(dt_ns))
     return np.array(values).astype("datetime64[ns]")
@@ -498,7 +503,7 @@ def _process_chunk(
 
     # Transform the initial dataframe filtering out rows with really anomolous values
     # examples include: years in the future, years way in the past before GDP program, etc...
-    preremove_df_chunk = df_chunk.assign(obs_index=range(start_idx, end_idx))
+    preremove_df_chunk = df_chunk.assign(obs_index=np.arange(start_idx, end_idx))
     df_chunk = _apply_remove(
         preremove_df_chunk,
         filters=[

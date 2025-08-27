@@ -4,13 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "clouddrift"
-version = "0.43.0"
+version = "0.45.0"
 
 authors = [
   { name="Shane Elipot", email="selipot@miami.edu" },
   { name="Philippe Miron", email="philippemiron@gmail.com" },
   { name="Milan Curcic", email="mcurcic@miami.edu" },
-  { name="Kevin Santana", email="kevinsantana11@gmail.com" }
+  { name="Kevin Santana", email="kevinsantana11@gmail.com" },
+  { name="Kevin Shuman", email="kxs5046@miami.edu" }
 ]
 description = "Accelerating the use of Lagrangian data for atmospheric, oceanic, and climate sciences"
 readme = "README.md"
@@ -34,8 +35,8 @@ dependencies = [
     "requests>=2.31.0",
     "scipy>=1.11.2",
     "xarray>=2023.5.0",
-    "zarr>=2.14.2",
-    "tenacity>=8.2.3"
+    "zarr>=2.14.2,<3",
+    "tenacity>=8.2.3",
 ]
 
 [project.optional-dependencies]
@@ -44,6 +45,7 @@ dev = [
     "build",
     "coverage",
     "docutils",
+    "ipykernel",
     "pytest",
     "mypy",
     "ruff",
@@ -77,9 +79,8 @@ files = [
 
 [tool.pytest.ini_options]
 testpaths = [
-  "tests/**/*_tests.py",
+  "tests/**/*_test.py",
 ]
-
 
 [[tool.mypy.overrides]]
 module = [
@@ -90,8 +91,8 @@ module = [
   "clouddrift.signal",
   "clouddrift.sphere",
   "clouddrift.wavelet",
-  "tests.kinematics_tests",
-  "tests.pairs_tests",
-  "tests.plotting_tests",
+  "tests.kinematics_test",
+  "tests.pairs_test",
+  "tests.plotting_test",
 ]
 ignore_errors = true

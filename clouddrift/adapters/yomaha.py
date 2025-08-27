@@ -56,6 +56,8 @@ def download(tmp_path: str):
     buffer = BytesIO()
     download_with_progress([(YOMAHA_URLS[-1], buffer)])
 
+    buffer.seek(0)
+
     decompressed_fp = os.path.join(tmp_path, filename)
     with (
         open(decompressed_fp, "wb") as file,
@@ -188,6 +190,9 @@ def to_xarray(tmp_path: str | None = None):
     # float id, wmo id, and float type do not match (?)
     # so we remove the * from the type
     df_float.loc[df_float["float_type_id"] == 0, "float_type"] = "METOCEAN"
+
+    df_wmo["dac_id"] = df_wmo["dac_id"].astype("int64")
+    df_dac["dac_id"] = df_dac["dac_id"].astype("int64")
 
     # combine metadata
     df_metadata = (

@@ -12,6 +12,7 @@ import xarray as xr
 
 from clouddrift import adapters
 from clouddrift.adapters.hurdat2 import _BasinOption
+from clouddrift.adapters.ibtracs import _Kind, _Version
 
 
 def gdp1h(decode_times: bool = True) -> xr.Dataset:
@@ -92,6 +93,9 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     Oceanographic and Meteorological Laboratory (AOML) accessible at
     https://www.aoml.noaa.gov/phod/gdp/index.php.
 
+    This returns the December 2024 version of the dataset including data from 1979-02-15:00:00:00Z
+    to 2025-01-20:00:00:00Z.
+
     Parameters
     ----------
     decode_times : bool, optional
@@ -110,45 +114,45 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     >>> ds = gdp6h()
     >>> ds
     <xarray.Dataset> Size: 2GB
-    Dimensions:                (traj: 27647, obs: 46535470)
+    Dimensions:                (traj: 28341, obs: 48044996)
     Coordinates:
-    id                     (traj) int64 221kB ...
-    time                   (obs) datetime64[ns] 372MB ...
+        id                     (traj) int64 227kB ...
+        time                   (obs) datetime64[ns] 384MB ...
     Dimensions without coordinates: traj, obs
-    Data variables: (12/49)
-    BuoyTypeManufacturer   (traj) |S20 553kB ...
-    BuoyTypeSensorArray    (traj) |S20 553kB ...
-    CurrentProgram         (traj) float64 221kB ...
-    DeployingCountry       (traj) |S20 553kB ...
-    DeployingShip          (traj) |S20 553kB ...
-    DeploymentComments     (traj) |S20 553kB ...
-    ...                     ...
-    start_lon              (traj) float32 111kB ...
-    temp                   (obs) float32 186MB ...
-    typebuoy               (traj) |S10 276kB ...
-    typedeath              (traj) int8 28kB ...
-    ve                     (obs) float32 186MB ...
-    vn                     (obs) float32 186MB ...
+    Data variables: (12/48)
+        BuoyTypeManufacturer   (traj) <U1 113kB ...
+        BuoyTypeSensorArray    (traj) <U10 1MB ...
+        CurrentProgram         (traj) float64 227kB ...
+        DeployingCountry       (traj) <U14 2MB ...
+        DeployingShip          (traj) <U20 2MB ...
+        DeploymentComments     (traj) <U20 2MB ...
+        ...                     ...
+        start_lon              (traj) float32 113kB ...
+        temp                   (obs) float32 192MB ...
+        typebuoy               (traj) |S10 283kB ...
+        typedeath              (traj) int8 28kB ...
+        ve                     (obs) float32 192MB ...
+        vn                     (obs) float32 192MB ...
     Attributes: (12/18)
-    Conventions:          CF-1.6
-    acknowledgement:      Lumpkin, Rick; Centurioni, Luca (2019). NOAA Global...
-    contributor_name:     NOAA Global Drifter Program
-    contributor_role:     Data Acquisition Center
-    date_created:         2024-04-04T13:44:01.176967
-    doi:                  10.25921/7ntx-z961
-    ...                   ...
-    publisher_name:       GDP Drifter DAC
-    publisher_url:        https://www.aoml.noaa.gov/phod/gdp
-    summary:              Global Drifter Program six-hourly data
-    time_coverage_end:    2023-10-18:18:00:00Z
-    time_coverage_start:  1979-02-15:00:00:00Z
-    title:                Global Drifter Program drifting buoy collection
+        Conventions:          CF-1.6
+        acknowledgement:      Lumpkin, Rick; Centurioni, Luca (2019). NOAA Global...
+        contributor_name:     NOAA Global Drifter Program
+        contributor_role:     Data Acquisition Center
+        date_created:         2025-07-03T13:33:40.973074
+        doi:                  10.25921/7ntx-z961
+        ...                   ...
+        publisher_name:       GDP Drifter DAC
+        publisher_url:        https://www.aoml.noaa.gov/phod/gdp
+        summary:              Global Drifter Program six-hourly data
+        time_coverage_end:    2024-08-16:12:00:00Z
+        time_coverage_start:  1979-02-15:00:00:00Z
+        title:                Global Drifter Program drifting buoy collection
 
     See Also
     --------
     :func:`gdp1h`
     """
-    url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/experimental/gdp6h_ragged_sep23.zarr"
+    url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/experimental/gdp6h_ragged_dec24.zarr"
     ds = xr.open_dataset(url, decode_times=decode_times, engine="zarr")
     return ds
 
@@ -363,6 +367,92 @@ def hurdat2(
         f"hurdat2_{basin}.nc",
         decode_times,
         lambda: adapters.hurdat2.to_raggedarray(basin, tmp_path).to_xarray(),
+    )
+
+
+def ibtracs(
+    version: _Version = "v04r01",
+    kind: _Kind = "LAST_3_YEARS",
+    tmp_path: str = adapters.ibtracs._DEFAULT_FILE_PATH,
+    decode_times: bool = True,
+    force: bool = False,
+) -> xr.Dataset:
+    """Returns International Best Track Archive for Climate Stewardship (IBTrACS) as a ragged array xarray dataset.
+
+    The function will first look for the ragged array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access.
+
+    The upstream data is available at https://www.ncei.noaa.gov/products/international-best-track-archive
+
+    Parameters
+    ----------
+    version : str, optional
+        Specify the dataset version to retrieve. Default to the latest version. Default is "v04r01".
+    kind: str, optional
+        Specify the dataset kind to retrieve. Specifying the kind can speed up execution time of specific querries
+        and operations. Default is "LAST_3_YEARS".
+    tmp_path: str, default adapter temp path (default)
+        Temporary path where intermediary files are stored. Default is ${osSpecificLocation}/clouddrift/ibtracs/.
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
+    force: bool, optional
+        If True, force the download process regardless if there is a cached version of the generated dataset. Default
+        is False.
+
+    Returns
+    -------
+    xarray.Dataset
+        IBTRACS dataset as a ragged array.
+
+    Examples
+    --------
+    >>> from clouddrift import datasets
+    >>> ds = datasets.ibtracs()
+    >>> ds
+    <xarray.Dataset> Size: 18MB
+    Dimensions:           (storm: 380, obs: 22055, quadrant: 4)
+    Coordinates:
+        id                (storm) int64 3kB ...
+        time              (obs) datetime64[ns] 176kB ...
+    Dimensions without coordinates: storm, obs, quadrant
+    Data variables: (12/161)
+        numobs            (storm) int64 3kB ...
+        sid               (storm) |S13 5kB ...
+        season            (storm) float32 2kB ...
+        number            (storm) int16 760B ...
+        name              (storm) |S128 49kB ...
+        source_usa        (storm) |S128 49kB ...
+        ...                ...
+        usa_seahgt        (obs) float32 88kB ...
+        usa_searad        (obs, quadrant) float32 353kB ...
+        storm_speed       (obs) float32 88kB ...
+        storm_dir         (obs) float32 88kB ...
+        lat               (obs) float32 88kB ...
+        lon               (obs) float32 88kB ...
+    Attributes: (12/49)
+        title:                      IBTrACS - International Best Track Archive fo...
+        summary:                    The intent of the IBTrACS project is to overc...
+        source:                     The original data are tropical cyclone positi...
+        Conventions:                ACDD-1.3
+        Conventions_note:           Data are nearly CF-1.7 compliant. The sole is...
+        product_version:            v04r01
+        ...                         ...
+        history:                    Thu Oct 17 05:37:12 2024: ncks --no_abc --cnk...
+        license:                    These data may be redistributed and used with...
+        featureType:                trajectory
+        cdm_data_type:              Trajectory
+        comment:                    The tracks of TCs generally look like a traje...
+        NCO:                        netCDF Operators version 5.0.7 (Homepage = ht...
+    """
+
+    return _dataset_filecache(
+        f"ibtracs_ra_{version}_{kind}.nc",
+        decode_times,
+        lambda: adapters.ibtracs.to_raggedarray(version, kind, tmp_path),
+        force,
     )
 
 
@@ -694,9 +784,11 @@ def andro(decode_times: bool = True) -> xr.Dataset:
 
 
 def _dataset_filecache(
-    filename: str, decode_times: bool, get_ds: Callable[[], xr.Dataset]
+    filename: str,
+    decode_times: bool,
+    get_ds: Callable[[], xr.Dataset],
+    force: bool = False,
 ):
-    os.path
     _, ext = os.path.splitext(filename)
     clouddrift_path = (
         os.path.expanduser("~/.clouddrift")
@@ -706,7 +798,7 @@ def _dataset_filecache(
     fp = f"{clouddrift_path}/data/{filename}"
     os.makedirs(os.path.dirname(fp), exist_ok=True)
 
-    if not os.path.exists(fp):
+    if not os.path.exists(fp) or force:
         ds = get_ds()
         if ext == ".nc":
             ds.to_netcdf(fp)

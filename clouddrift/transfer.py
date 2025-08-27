@@ -3,11 +3,317 @@ This module provides functions to calculate various transfer function from wind 
 velocity.
 """
 
+import warnings
+from typing import Callable, Optional
+
 import numpy as np
+from numpy import floating as _Floating
 from numpy.lib.scimath import sqrt
 from scipy.special import factorial, iv, kv  # type: ignore
 
 from clouddrift.sphere import EARTH_DAY_SECONDS
+
+
+def apply_transfer_function(
+    x: np.ndarray,
+    transfer_func: Callable[[np.ndarray], np.ndarray] | np.ndarray,
+    dt: Optional[float] = None,
+) -> np.ndarray:
+    """
+    Applies a transfer function in the frequency domain to an input time series.
+
+    Parameters
+    ----------
+        x:  array_like
+            Input one-dimensional time series.
+        transfer_func: callable or numpy ndarray
+            Transfer function to apply to the input `x`.
+                - If a callable, it should accept a frequency array as input as shown in the examples below.
+                - If a numpy ndarray, it must match the length of input `x` and represents the transfer function
+            in the frequency domain, where the first half corresponds to positive frequencies and the
+            second half corresponds to negative frequencies.
+        dt: float, optional
+            Time step size of the input time series, needed if `transfer_func` is callable, otherwise ignored.
+
+    Returns
+    -------
+        y: numpy ndarray
+            Output time series after applying the transfer function.
+
+    Examples
+    --------
+        Apply a low-pass filter transfer function to a random time series:
+        >>> import numpy as np
+        >>> from clouddrift.transfer import apply_transfer_function
+        >>> x = np.random.randn(100)
+        >>> transfer_func = lambda omega: 1 / (1 + (omega / (2 * np.pi * 0.1))**2)  # Low-pass filter
+        >>> dt = 1.0  # Time step needed for callable transfer functions
+        >>> y = apply_transfer_function(x, transfer_func, dt)
+
+        Directly provide as an array a transfer function which suppresses
+        the negative frequencies of a complex time series:
+        >>> import numpy as np
+        >>> from clouddrift.transfer import apply_transfer_function
+        >>> x = np.random.randn(100) + 1j * np.random.randn(100)
+        >>> transfer_func = np.ones(100)
+        >>> transfer_func[50:] = 0  # Suppress negative frequencies
+        >>> y = apply_transfer_function(x, transfer_func)
+
+        To a random wind stress, apply a slab wind transfer function at latitude 45 degrees,
+        with a friction coefficient of 0.1 times the Coriolis frequency and a boundary layer
+        depth of 50 meters:
+        >>> import numpy as np
+        >>> from clouddrift.sphere import coriolis_frequency, EARTH_DAY_SECONDS
+        >>> from clouddrift.transfer import apply_transfer_function, slab_wind_transfer
+        >>> tau = np.random.randn(100) + 1j * np.random.randn(100)  # Random wind stress
+        >>> cor_freq = coriolis_frequency(45) * EARTH_DAY_SECONDS  # Coriolis frequency at 45 degrees latitude in radians per day
+        >>> transfer_slab = lambda omega: slab_wind_transfer(omega, cor_freq[0] , friction=0.1 * cor_freq[0] / EARTH_DAY_SECONDS, bld=50)
+        >>> dt = 1.0  # Time step needed for callable transfer functions
+        >>> u = apply_transfer_function(tau, transfer_slab, dt)
+
+    Raises
+    ------
+        ValueError
+            If input `x` is not a one-dimensional array.
+            If `transfer_func` is callable but `dt` is not provided.
+            If the shape of `transfer_func` does not match the shape of `x`.
+    """
+
+    x = np.asarray(x)
+
+    if x.ndim != 1:
+        raise ValueError("Input x must be a 1D array.")
+    n = x.size
+
+    Xf = np.fft.fft(x)
+
+    if callable(transfer_func):
+        if dt is None:
+            raise ValueError(
+                "The `dt` argument must be provided when `transfer_func` is callable."
+            )
+        omega = 2 * np.pi * np.fft.fftfreq(n, dt)
+        G = transfer_func(omega)
+    else:
+        if dt is not None:
+            warnings.warn(
+                "The `dt` argument is ignored when `transfer_func` is provided as an array.",
+                UserWarning,
+                stacklevel=2,
+            )
+        G = np.asarray(transfer_func)
+        if G.shape != Xf.shape:
+            raise ValueError(
+                "Transfer function array must match the shape of input `x`."
+            )
+
+    Yf = G * Xf
+    y = np.fft.ifft(Yf)
+
+    return y
+
+
+def _epanechnikov_kernel(window_size):
+    # Epanechnikov kernel: k(x) = 0.75 * (1 - x^2) for |x| <= 1
+    x = np.linspace(-1, 1, window_size + 2)[
+        1:-1
+    ]  # Exclude endpoints to avoid null weights
+    kernel = 0.75 * (1 - x**2)
+    return kernel
+
+
+def apply_sliding_transfer_function(
+    x: np.ndarray,
+    transfer_func: Callable[[np.ndarray], np.ndarray] | np.ndarray,
+    window_size: Optional[int] = None,
+    step: int = 1,
+    dt: Optional[float] = None,
+    kernel: str = "uniform",
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Applies a transfer function in the frequency domain to a one-dimensional input time series in a
+    sliding window fashion.
+    This function returns the result for each window, as well as a weighted average of the results
+    across all windows using a uniform (default) or Epanechnikov kernel.
+    Mirror boundary conditions are used to extend the input time series so that the sliding window
+    can be applied without losing data at the edges.
+
+    Parameters
+    ----------
+        x:  array_like
+            Input one-dimensional time series.
+        transfer_func: callable or numpy ndarray
+            Transfer function to apply to the input `x`.
+                - If a callable, it should accept a frequency array as input as shown in the examples below.
+                - If a numpy ndarray, it must match the length of input `x` and represents the transfer function
+            in the frequency domain, where the first half corresponds to positive frequencies and the
+            second half corresponds to negative frequencies.
+        window_size: int, optional
+            Size of the sliding window, needed if `transfer_func` is callable. It cannot be larger
+            than the length of `x`.
+        step: int
+            Step size for the sliding window. Default is 1. Consecutive windows will not overlap if
+            `step` is equal to or larger than `window_size` or the length of `transfer_func` if this
+            one is a numpy array.
+        dt: float, optional
+            Time step size of the input time series, needed if `transfer_func` is callable, otherwise ignored.
+        kernel: str, optional
+            Type of kernel to use for weighting. Options are "uniform" (default), "epanechnikov",
+            or any first letter of either. For non-overlapping windows, the chosen kernel is  irrelevant.
+
+    Returns
+    -------
+        result: tuple of np.ndarray
+            Tuple containing:
+                - Array of results for each window (shape: (num_windows, window_size))
+                - Weighted average result (shape: (n,))
+
+    Examples
+    --------
+        Apply a low-pass filter in a sliding window:
+        >>> import numpy as np
+        >>> from clouddrift.transfer import apply_sliding_transfer_function
+        >>> x = np.random.rand(100)
+        >>> window_size = 10
+        >>> step = 1
+        >>> dt = 1.0
+        >>> transfer_func = lambda omega: 1 / (1 + (omega / (2 * np.pi * 0.1))**2)  # Low-pass filter
+        >>> result = apply_sliding_transfer_function(x, transfer_func, window_size, step, dt)
+        The shape of the result is here (len(`x`) // `step` + 1, `window_size`) = (101, 10).
+
+        Apply a downscaling function in non-overlapping windows:
+        >>> import numpy as np
+        >>> from clouddrift.transfer import apply_sliding_transfer_function
+        >>> x = np.random.rand(100)
+        >>> window_size = 10
+        >>> step = 11
+        >>> transfer_func = np.ones(window_size) / np.sqrt(2)
+        >>> results, average_result = apply_sliding_transfer_function(x, transfer_func, window_size, step)
+        The shape of results is here (len(`x`) // `step` + 1, `window_size`) = (91, 10).
+
+        To a random wind stress hourly time series, apply an Ekman transfer function in a sliding window
+        for an infinite boundary layer depth, an Ekman depth of 10 m, in order to obtain the Ekman
+        velocity at a depth of 15 m, and use an Epanechnikov kernel for weighting:
+        >>> import numpy as np
+        >>> from clouddrift.sphere import coriolis_frequency, EARTH_DAY_SECONDS
+        >>> from clouddrift.transfer import apply_transfer_function, slab_wind_transfer
+        >>> tau = np.random.randn(240) + 1j * np.random.randn(240)  # Random wind stress
+        >>> cor_freq = coriolis_frequency(45) * EARTH_DAY_SECONDS  # Coriolis frequency at 45 degrees latitude in radians per day
+        >>> transfer_ekman = lambda omega: wind_transfer(omega, z=15, cor_freq= cor_freq,
+        delta=10.0, mu=0.0, bld=np.inf, boundary_condition="no-slip")[0].squeeze()
+        >>> dt = 1 / 24  # Time step needed for callable transfer functions
+        >>> results, average_result = apply_sliding_transfer_function(tau, transfer_ekman, window_size=24, step=12, dt=dt, kernel="epanechnikov")
+        The shape of results is here (len(`tau`) // `step` + 1, `window_size`) = (21, 24).
+
+    Raises
+    ------
+        ValueError
+            If `transfer_func` is a numpy array which is not 1D.
+            If `transfer_func` is a numpy array which length does not match `window_size` if this one is provided.
+            If `window_size` or `step` is not a positive integer.
+            If `window_size` is greater than the length of `x`.
+            If `step` is not a positive integer.
+            If `dt` is not provided when `transfer_func` is callable.
+            If `kernel` is not one of the allowed strings ("uniform", "epanechnikov", or their first letters).
+        Warning
+            If `dt` is provided when `transfer_func` is a numpy array, as it is ignored in this case.
+    """
+    x = np.asarray(x)
+    n = x.size
+
+    if callable(transfer_func):
+        if window_size is None:
+            raise ValueError(
+                "`window_size` must be provided when transfer_func is callable."
+            )
+        if not isinstance(window_size, int) or window_size <= 0 or window_size > n:
+            raise ValueError(
+                "`window_size` must be a positive integer no greater than the length of `x`."
+            )
+        if not isinstance(step, int) or step <= 0:
+            raise ValueError("`step` must be a positive integer.")
+        if dt is None:
+            raise ValueError(
+                "`dt` (time step of input) must be provided when `transfer_func` is callable."
+            )
+
+    if not callable(transfer_func) and isinstance(transfer_func, np.ndarray):
+        if transfer_func.ndim != 1:
+            raise ValueError("`transfer_func` must be a 1D numpy array.")
+        if window_size is None:
+            window_size = transfer_func.shape[0]
+        if window_size != transfer_func.shape[0]:
+            raise ValueError(
+                "When `transfer_func` is a numpy ndarray, its length must match `window_size` if this one"
+                " is provided."
+            )
+        if not isinstance(step, int) or step <= 0:
+            raise ValueError("`step` must be a positive integer.")
+        if dt is not None:
+            warnings.warn(
+                "The `dt` argument is ignored when `transfer_func` is provided as an array.",
+                stacklevel=2,
+            )
+
+    # Kernel selection (default is uniform)
+    kernel_str = str(kernel).lower() if kernel is not None else "uniform"
+    if window_size is None:
+        raise ValueError("window_size must be specified and not None.")
+    if kernel_str.startswith("e"):
+        kernel_arr = _epanechnikov_kernel(window_size)
+    elif kernel_str.startswith("u") or kernel_str == "":
+        kernel_arr = np.ones(window_size)
+    else:
+        raise ValueError(
+            "kernel must be 'uniform', 'epanechnikov', or their first letter."
+        )
+
+    # Extend x by half window_size at the beginning and end using mirror boundary condition
+    before_window = window_size // 2
+    after_window = window_size - before_window
+    before_mirror = (
+        x[1 : before_window + 1][::-1] if before_window > 0 else np.array([])
+    )
+    after_mirror = x[-after_window - 1 : -1][::-1] if after_window > 0 else np.array([])
+    x_ = np.concatenate([before_mirror, x, after_mirror])
+
+    n_ = (
+        x_.size
+    )  # length of extended array is n + before_window + after_window = n + window_size
+
+    # initialize arrays for results
+    result_sum = np.zeros(n_, dtype=np.complex128)
+    result_weight = np.zeros(n_, dtype=np.float64)
+    # result = []
+    if window_size is None:
+        raise ValueError("`window_size` must be specified and not None.")
+    # number of windows is (n_ - window_size) // step + 1 = n // step + 1
+    result = np.zeros((n // step + 1, window_size), dtype=np.complex128)
+
+    # Sliding window application
+    for start in range(0, n_ - window_size + 1, step):
+        x_tmp = x_[start : start + window_size]
+        if callable(transfer_func):
+            result_tmp = apply_transfer_function(x_tmp, transfer_func, dt)
+            result[start // step, :] = result_tmp
+        else:
+            if transfer_func.ndim == 1:
+                result_tmp = apply_transfer_function(x_tmp, transfer_func)
+                result[start // step, :] = result_tmp
+            else:
+                raise ValueError(
+                    "`transfer_func` must be callable or a 1D numpy array."
+                )
+        weighted_result_tmp = result_tmp * kernel_arr
+        result_sum[start : start + window_size] += weighted_result_tmp
+        result_weight[start : start + window_size] += kernel_arr
+
+    # average the results
+    average_result = result_sum / result_weight
+    # truncate the average_result to the original length of x
+    average_result = average_result[before_window : before_window + n]
+
+    return result, average_result
 
 
 def slab_wind_transfer(
@@ -63,7 +369,11 @@ def wind_transfer(
     boundary_condition: str = "no-slip",
     method: str = "lilly",
     density: float = 1025.0,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[
+    float | _Floating | np.ndarray,
+    float | _Floating | np.ndarray,
+    float | _Floating | np.ndarray,
+]:
     """
     Compute the transfer function from wind stress to oceanic velocity based on the physically-based
     models of Elipot and Gille (2009) and Lilly and Elipot (2021).
@@ -677,57 +987,61 @@ def _wind_transfer_elipot_free_slip(
 def _bessels_freeslip(
     xiz: float | np.ndarray,
     xih: float | np.ndarray,
-    xi0: float | np.ndarray | None | None = None,
-) -> tuple[
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-]:
+    xi0: float | np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute the Bessel functions for the free-slip boundary condition for the xsi(z), xsi(h), and xsi(0) functions.
     """
-    k0z = kv(0, xiz)
-    i0z = iv(0, xiz)
-    k1h = kv(1, xih)
-    i1h = iv(0, xih)
+    # Convert inputs to numpy arrays
+    xiz = np.asarray(xiz)
+    xih = np.asarray(xih)
+
+    # Ensure all outputs are numpy arrays
+    k0z = np.asarray(kv(0, xiz))
+    i0z = np.asarray(iv(0, xiz))
+    k1h = np.asarray(kv(1, xih))
+    i1h = np.asarray(iv(0, xih))
 
     if xi0 is not None:
-        k10 = kv(1, xi0)
-        i10 = iv(1, xi0)
-        return k0z, i0z, k1h, i1h, k10, i10
+        xi0 = np.asarray(xi0)
+        k10 = np.asarray(kv(1, xi0))
+        i10 = np.asarray(iv(1, xi0))
     else:
-        return k0z, i0z, k1h, i1h, np.nan, np.nan
+        # Create nan values as numpy arrays with same shape as k0z
+        k10 = np.full_like(k0z, np.nan)
+        i10 = np.full_like(k0z, np.nan)
+
+    return k0z, i0z, k1h, i1h, k10, i10
 
 
 def _bessels_noslip(
     xiz: float | np.ndarray,
     xih: float | np.ndarray,
     xi0: float | np.ndarray | None = None,
-) -> tuple[
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-    float | np.ndarray,
-]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute the Bessel functions for the no-slip boundary condition for the xsi(z), xsi(h), and xsi(0) functions.
     """
-    k0z = kv(0, xiz)
-    i0z = iv(0, xiz)
-    k0h = kv(0, xih)
-    i0h = iv(0, xih)
+    # Convert inputs to numpy arrays
+    xiz = np.asarray(xiz)
+    xih = np.asarray(xih)
+
+    # Ensure all outputs are numpy arrays
+    k0z = np.asarray(kv(0, xiz))
+    i0z = np.asarray(iv(0, xiz))
+    k0h = np.asarray(kv(0, xih))
+    i0h = np.asarray(iv(0, xih))
 
     if xi0 is not None:
-        k10 = kv(1, xi0)
-        i10 = iv(1, xi0)
-        return k0z, i0z, k0h, i0h, k10, i10
+        xi0 = np.asarray(xi0)
+        k10 = np.asarray(kv(1, xi0))
+        i10 = np.asarray(iv(1, xi0))
     else:
-        return k0z, i0z, k0h, i0h, np.nan, np.nan
+        # Create nan values as numpy arrays with same shape as k0z
+        k10 = np.full_like(k0z, np.nan)
+        i10 = np.full_like(k0z, np.nan)
+
+    return k0z, i0z, k0h, i0h, k10, i10
 
 
 def _besseltildes_noslip(
@@ -774,13 +1088,13 @@ def kvtilde(
 
     # Prepare zk for vectorized computation
     zk = np.tile(z, (nterms, 1)).T
-    zk[:, 0] = 1
+    zk[:, 0] = 1.0
     zk = np.cumprod(zk, axis=1)
 
     k = np.arange(nterms)
-    ak = 4 * nu**2 - (2 * k - 1) ** 2
-    ak[0] = 1
-    ak = np.cumprod(ak) / (factorial(k) * (8**k))
+    ak = 4.0 * nu**2 - (2.0 * k - 1.0) ** 2
+    ak[0] = 1.0
+    ak = np.cumprod(ak) / (factorial(k) * (8.0**k))
 
     # Handling potential non-finite values in ak
     if not np.all(np.isfinite(ak)):
@@ -788,7 +1102,7 @@ def kvtilde(
         ak = ak[:first_nonfinite]
         zk = zk[:, :first_nonfinite]
 
-    K = sqrt(np.pi / (2 * z)) * (np.dot(1.0 / zk, ak))
+    K = sqrt(np.pi / (2.0 * z)) * (np.dot(1.0 / zk, ak))
     K = K.reshape(sizez)
 
     return K
@@ -811,13 +1125,13 @@ def ivtilde(
 
     # Prepare zk for vectorized computation with alternating signs for each term
     zk = np.tile(-z, (nterms, 1)).T
-    zk[:, 0] = 1
+    zk[:, 0] = 1.0
     zk = np.cumprod(zk, axis=1)
 
     k = np.arange(nterms)
-    ak = 4 * nu**2 - (2 * k - 1) ** 2
-    ak[0] = 1
-    ak = np.cumprod(ak) / (factorial(k) * (8**k))
+    ak = 4.0 * nu**2 - (2.0 * k - 1.0) ** 2
+    ak[0] = 1.0
+    ak = np.cumprod(ak) / (factorial(k) * (8.0**k))
 
     # Handling potential non-finite values in ak
     if not np.all(np.isfinite(ak)):
@@ -825,7 +1139,7 @@ def ivtilde(
         ak = ak[:first_nonfinite]
         zk = zk[:, :first_nonfinite]
 
-    I = 1 / sqrt(2 * z * np.pi) * (np.dot(1.0 / zk, ak))
+    I = 1.0 / sqrt(2.0 * z * np.pi) * (np.dot(1.0 / zk, ak))
     I = I.reshape(sizez)
 
     return I

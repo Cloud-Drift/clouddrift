@@ -33,7 +33,7 @@ Please [make the pull request a draft](https://github.blog/2019-02-14-introducin
 
 Currently, we have two regular reviewers of pull requests:
 
-  * Kevin Santana ([kevinsantana11](https://github.com/kevinsantana11))
+  * Kevin Shuman ([KevinShuman](https://github.com/KevinShuman))
   * Shane Elipot ([selipot](https://github.com/selipot))
 
 You can request a review from one of us or just comment in GitHub that you want a review and we'll see it. Only one review is required to be allowed to merge a pull request. We'll work with you to get it into shape.
@@ -124,7 +124,7 @@ conda install pytest matplotlib cartopy coverage
 3. Run the test suite:
 
 ```
-pytest tests/*_tests.py tests/adapters/*_tests.py
+pytest tests/*_test.py tests/adapters/*_test.py
 ```
 
   a. Run the docstring tests:
@@ -134,7 +134,7 @@ pytest tests/*_tests.py tests/adapters/*_tests.py
 
 4. Run the test suite (with coverage):
 ```
-coverage run -m pytest tests/*_tests.py tests/adapters/*_tests.py
+coverage run -m pytest tests/*_test.py tests/adapters/*_test.py
 ```
 
 5. Read the report:
@@ -228,7 +228,7 @@ make html
 
 Currently, only one person can deploy releases:
 
-  * Kevin Santana ([kevinsantana11](https://github.com/kevinsantana11))
+  * Kevin Shuman ([KevinShuman](https://github.com/KevinShuman))
 
 If you need your merged pull request to be deployed in a release, just ask!
 
