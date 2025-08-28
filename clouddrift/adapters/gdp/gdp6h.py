@@ -35,6 +35,92 @@ GDP_DATA = [
 ]
 
 
+def to_raggedarray(
+    drifter_ids: list[int] | None = None,
+    n_random_id: int | None = None,
+    tmp_path: str = GDP_TMP_PATH,
+) -> RaggedArray:
+    """Download and process individual GDP 6-hourly files and return a
+    RaggedArray instance with the data.
+
+    Parameters
+    ----------
+    drifter_ids : list[int], optional
+        List of drifters to retrieve (Default: all)
+    n_random_id : list[int], optional
+        Randomly select n_random_id drifter NetCDF files
+    tmp_path : str, optional
+        Path to the directory where the individual NetCDF files are stored
+        (default varies depending on operating system; /tmp/clouddrift/gdp6h on Linux)
+
+    Returns
+    -------
+    out : RaggedArray
+        A RaggedArray instance of the requested dataset
+
+    Examples
+    --------
+
+    Invoke `to_raggedarray` without any arguments to download all drifter data
+    from the 6-hourly GDP feed:
+
+    >>> from clouddrift.adapters.gdp.gdp6h import to_raggedarray
+    >>> ra = to_raggedarray()
+
+    To download a random sample of 100 drifters, for example for development
+    or testing, use the `n_random_id` argument:
+
+    >>> ra = to_raggedarray(n_random_id=100)
+
+    To download a specific list of drifters, use the `drifter_ids` argument:
+
+    >>> ra = to_raggedarray(drifter_ids=[54375, 114956, 126934])
+
+    Finally, `to_raggedarray` returns a `RaggedArray` instance which provides
+    a convenience method to emit a `xarray.Dataset` instance:
+
+    >>> ds = ra.to_xarray()
+
+    To write the ragged array dataset to a NetCDF file on disk, do
+
+    >>> ds.to_netcdf("gdp6h.nc", format="NETCDF4")
+
+    Alternatively, to write the ragged array to a Parquet file, first create
+    it as an Awkward Array:
+
+    >>> arr = ra.to_awkward()
+    >>> arr.to_parquet("gdp6h.parquet")
+    """
+    ids = download(GDP_DATA_URL, tmp_path, drifter_ids, n_random_id)
+
+    # Add ManufactureYear to metadata
+    gdp_metadata = gdp.GDP_METADATA.copy()
+    if "ManufactureYear" not in gdp_metadata:
+        gdp_metadata.append("ManufactureYear")
+
+    ra = RaggedArray.from_files(
+        indices=ids,
+        preprocess_func=preprocess,
+        name_coords=gdp.GDP_COORDS,
+        name_meta=gdp_metadata,
+        name_data=GDP_DATA,
+        name_dims=gdp.GDP_DIMS,
+        rowsize_func=gdp.rowsize,
+        filename_pattern="drifter_6h_{id}.nc",
+        tmp_path=tmp_path,
+    )
+
+    # update dynamic global attributes
+    ra.attrs_global["time_coverage_start"] = (
+        f"{datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+    )
+    ra.attrs_global["time_coverage_end"] = (
+        f"{datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+    )
+
+    return ra
+
+
 def download(
     url: str = GDP_DATA_URL,
     tmp_path: str = GDP_TMP_PATH,
@@ -452,89 +538,3 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds = gdp.cast_float64_variables_to_float32(ds)
 
     return ds
-
-
-def to_raggedarray(
-    drifter_ids: list[int] | None = None,
-    n_random_id: int | None = None,
-    tmp_path: str = GDP_TMP_PATH,
-) -> RaggedArray:
-    """Download and process individual GDP 6-hourly files and return a
-    RaggedArray instance with the data.
-
-    Parameters
-    ----------
-    drifter_ids : list[int], optional
-        List of drifters to retrieve (Default: all)
-    n_random_id : list[int], optional
-        Randomly select n_random_id drifter NetCDF files
-    tmp_path : str, optional
-        Path to the directory where the individual NetCDF files are stored
-        (default varies depending on operating system; /tmp/clouddrift/gdp6h on Linux)
-
-    Returns
-    -------
-    out : RaggedArray
-        A RaggedArray instance of the requested dataset
-
-    Examples
-    --------
-
-    Invoke `to_raggedarray` without any arguments to download all drifter data
-    from the 6-hourly GDP feed:
-
-    >>> from clouddrift.adapters.gdp.gdp6h import to_raggedarray
-    >>> ra = to_raggedarray()
-
-    To download a random sample of 100 drifters, for example for development
-    or testing, use the `n_random_id` argument:
-
-    >>> ra = to_raggedarray(n_random_id=100)
-
-    To download a specific list of drifters, use the `drifter_ids` argument:
-
-    >>> ra = to_raggedarray(drifter_ids=[54375, 114956, 126934])
-
-    Finally, `to_raggedarray` returns a `RaggedArray` instance which provides
-    a convenience method to emit a `xarray.Dataset` instance:
-
-    >>> ds = ra.to_xarray()
-
-    To write the ragged array dataset to a NetCDF file on disk, do
-
-    >>> ds.to_netcdf("gdp6h.nc", format="NETCDF4")
-
-    Alternatively, to write the ragged array to a Parquet file, first create
-    it as an Awkward Array:
-
-    >>> arr = ra.to_awkward()
-    >>> arr.to_parquet("gdp6h.parquet")
-    """
-    ids = download(GDP_DATA_URL, tmp_path, drifter_ids, n_random_id)
-
-    # Add ManufactureYear to metadata
-    gdp_metadata = gdp.GDP_METADATA.copy()
-    if "ManufactureYear" not in gdp_metadata:
-        gdp_metadata.append("ManufactureYear")
-
-    ra = RaggedArray.from_files(
-        indices=ids,
-        preprocess_func=preprocess,
-        name_coords=gdp.GDP_COORDS,
-        name_meta=gdp_metadata,
-        name_data=GDP_DATA,
-        name_dims=gdp.GDP_DIMS,
-        rowsize_func=gdp.rowsize,
-        filename_pattern="drifter_6h_{id}.nc",
-        tmp_path=tmp_path,
-    )
-
-    # update dynamic global attributes
-    ra.attrs_global["time_coverage_start"] = (
-        f"{datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
-    )
-    ra.attrs_global["time_coverage_end"] = (
-        f"{datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
-    )
-
-    return ra

@@ -237,6 +237,105 @@ ATTRS = {
 _logger = logging.getLogger(__name__)
 
 
+def to_raggedarray(
+    tmp_path: str = _TMP_PATH,
+    skip_download: bool = False,
+    max: int | None = None,
+    chunk_size: int = 100_000,
+    use_fill_values: bool = True,
+    max_chunks: int | None = None,
+) -> xr.Dataset:
+    """
+    Convert GDP source data into a ragged array format and return it as an xarray Dataset.
+
+    This function processes drifter data from the NOAA GDP (Global Drifter Program) source,
+    organizes it into a ragged array format, and returns the resulting dataset. It
+    supports downloading, filtering, and parallel processing of the data.
+
+    Args:
+        tmp_path (str): Path to the temporary directory for storing downloaded files.
+                        Defaults to `_TMP_PATH`.
+        skip_download (bool): If True, skips downloading the data and assumes it is
+                              already available in `tmp_path`. Defaults to False.
+        max (int | None): Maximum number of requests to process for testing purposes.
+                          If None, processes all requests. Defaults to None.
+        chunk_size (int): Number of observations to process in each chunk. Defaults to 100,000.
+        use_fill_values (bool): Whether to use fill values for missing data. Defaults to True.
+        max_chunks (int | None): Maximum number of chunks to process. If None, processes all
+                                 chunks. Defaults to None.
+
+    Returns:
+        xr.Dataset: An xarray Dataset containing the processed GDP drifter data in a
+                    ragged array format. The dataset includes both observation and
+                    trajectory metadata variables, with appropriate attributes added.
+
+    Raises:
+        Any exceptions raised during file operations, data processing, or async tasks
+        will propagate to the caller.
+
+    Notes:
+        - The function performs parallel processing of drifter data using asyncio.
+        - The resulting dataset is sorted by the start date of each drifter.
+        - Metadata attributes for variables are added based on predefined mappings.
+    """
+
+    os.makedirs(tmp_path, exist_ok=True)
+
+    requests = _get_download_list(tmp_path)
+
+    # Filter down for testing purposes.
+    if max:
+        requests = [requests[max]]
+
+    # Download necessary data and metadata files.
+    if not skip_download:
+        download_with_progress(requests)
+
+    gdp_metadata_df = get_gdp_metadata(tmp_path)
+
+    # Run async process to parallelize data processing.
+    drifter_datasets = asyncio.run(
+        _parallel_get(
+            [dst for (_, dst) in requests],
+            gdp_metadata_df,
+            chunk_size,
+            tmp_path,
+            use_fill_values,
+            max_chunks,
+        )
+    )
+
+    # Sort the drifters by their start date.
+    deploy_date_id_map = {
+        ds["id"].data[0]: ds["start_date"].data[0] for ds in drifter_datasets
+    }
+    deploy_date_sort_key = np.argsort(list(deploy_date_id_map.values()))
+    sorted_drifter_datasets = [drifter_datasets[idx] for idx in deploy_date_sort_key]
+
+    # Concatenate drifter data and metadata variables separately.
+    obs_ds = xr.concat(
+        [ds.drop_dims("traj") for ds in sorted_drifter_datasets],
+        dim="obs",
+        data_vars=_DATA_VARS,
+    )
+    traj_ds = xr.concat(
+        [ds.drop_dims("obs") for ds in sorted_drifter_datasets],
+        dim="traj",
+        data_vars=_METADATA_VARS,
+    )
+
+    # Merge the separate datasets.
+    agg_ds = xr.merge([obs_ds, traj_ds])
+
+    # Add variable metadata.
+    for var_name in _DATA_VARS + _METADATA_VARS:
+        if var_name in VARS_ATTRS.keys():
+            agg_ds[var_name].attrs = VARS_ATTRS[var_name]
+    agg_ds.attrs = ATTRS
+
+    return agg_ds
+
+
 def _get_download_list(tmp_path: str) -> list[tuple[str, str]]:
     suffix = "rawfiles"
     batches = [(1, 5000), (5001, 10_000), (10_001, 15_000), (15_001, "current")]
@@ -598,102 +697,3 @@ async def _parallel_get(
             bar.update()
         bar.close()
         return drifter_datasets
-
-
-def to_raggedarray(
-    tmp_path: str = _TMP_PATH,
-    skip_download: bool = False,
-    max: int | None = None,
-    chunk_size: int = 100_000,
-    use_fill_values: bool = True,
-    max_chunks: int | None = None,
-) -> xr.Dataset:
-    """
-    Convert GDP source data into a ragged array format and return it as an xarray Dataset.
-
-    This function processes drifter data from the NOAA GDP (Global Drifter Program) source,
-    organizes it into a ragged array format, and returns the resulting dataset. It
-    supports downloading, filtering, and parallel processing of the data.
-
-    Args:
-        tmp_path (str): Path to the temporary directory for storing downloaded files.
-                        Defaults to `_TMP_PATH`.
-        skip_download (bool): If True, skips downloading the data and assumes it is
-                              already available in `tmp_path`. Defaults to False.
-        max (int | None): Maximum number of requests to process for testing purposes.
-                          If None, processes all requests. Defaults to None.
-        chunk_size (int): Number of observations to process in each chunk. Defaults to 100,000.
-        use_fill_values (bool): Whether to use fill values for missing data. Defaults to True.
-        max_chunks (int | None): Maximum number of chunks to process. If None, processes all
-                                 chunks. Defaults to None.
-
-    Returns:
-        xr.Dataset: An xarray Dataset containing the processed GDP drifter data in a
-                    ragged array format. The dataset includes both observation and
-                    trajectory metadata variables, with appropriate attributes added.
-
-    Raises:
-        Any exceptions raised during file operations, data processing, or async tasks
-        will propagate to the caller.
-
-    Notes:
-        - The function performs parallel processing of drifter data using asyncio.
-        - The resulting dataset is sorted by the start date of each drifter.
-        - Metadata attributes for variables are added based on predefined mappings.
-    """
-
-    os.makedirs(tmp_path, exist_ok=True)
-
-    requests = _get_download_list(tmp_path)
-
-    # Filter down for testing purposes.
-    if max:
-        requests = [requests[max]]
-
-    # Download necessary data and metadata files.
-    if not skip_download:
-        download_with_progress(requests)
-
-    gdp_metadata_df = get_gdp_metadata(tmp_path)
-
-    # Run async process to parallelize data processing.
-    drifter_datasets = asyncio.run(
-        _parallel_get(
-            [dst for (_, dst) in requests],
-            gdp_metadata_df,
-            chunk_size,
-            tmp_path,
-            use_fill_values,
-            max_chunks,
-        )
-    )
-
-    # Sort the drifters by their start date.
-    deploy_date_id_map = {
-        ds["id"].data[0]: ds["start_date"].data[0] for ds in drifter_datasets
-    }
-    deploy_date_sort_key = np.argsort(list(deploy_date_id_map.values()))
-    sorted_drifter_datasets = [drifter_datasets[idx] for idx in deploy_date_sort_key]
-
-    # Concatenate drifter data and metadata variables separately.
-    obs_ds = xr.concat(
-        [ds.drop_dims("traj") for ds in sorted_drifter_datasets],
-        dim="obs",
-        data_vars=_DATA_VARS,
-    )
-    traj_ds = xr.concat(
-        [ds.drop_dims("obs") for ds in sorted_drifter_datasets],
-        dim="traj",
-        data_vars=_METADATA_VARS,
-    )
-
-    # Merge the separate datasets.
-    agg_ds = xr.merge([obs_ds, traj_ds])
-
-    # Add variable metadata.
-    for var_name in _DATA_VARS + _METADATA_VARS:
-        if var_name in VARS_ATTRS.keys():
-            agg_ds[var_name].attrs = VARS_ATTRS[var_name]
-    agg_ds.attrs = ATTRS
-
-    return agg_ds
