@@ -24,10 +24,10 @@ from tqdm import tqdm
 
 _DISABLE_SHOW_PROGRESS = False  # purely to de-noise our test suite output, should never be used/configured outside of that.
 _BROWSER_HEADERS = {
-    "Content-Type": "application/json",
-    "User-Agent": "python-requests/2.28.1",
-    "Accept-Encoding": "gzip, deflate",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
     "Accept": "*/*",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Language": "en-US,en;q=0.9",
     "Connection": "keep-alive",
 }
 
