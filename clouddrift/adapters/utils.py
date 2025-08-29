@@ -141,13 +141,22 @@ def _download_with_progress(
     expected_size: float | None,
     show_progress: bool,
 ):
+    # use browser headers
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Connection": "keep-alive",
+    }
+
     if isinstance(output, str) and os.path.exists(output):
         _logger.debug(f"File exists {output} checking for updates...")
         local_last_modified = os.path.getmtime(output)
 
         # Get last modified time of the remote file
         try:
-            res = requests.head(url, timeout=5)
+            res = requests.head(url, headers=headers, timeout=10)
             remote_last_modified_str = res.headers.get("Last-Modified")
             if remote_last_modified_str:
                 remote_last_modified = datetime.strptime(
@@ -173,7 +182,7 @@ def _download_with_progress(
     buffer: BufferedWriter | BufferedIOBase | None = None
 
     try:
-        resp = requests.get(url, timeout=60, stream=True)
+        resp = requests.get(url, headers=headers, timeout=60, stream=True)
         temp_output = f"{output}.part" if isinstance(output, str) else None
 
         if isinstance(output, str) and temp_output is not None:

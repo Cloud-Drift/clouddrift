@@ -51,22 +51,6 @@ class datasets_tests(testutils.DisableProgressTestCase):
             )
         )
 
-    def test_glad_url(self):
-        url = "https://data.gulfresearchinitiative.org/api/file/download/169841"
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Accept-Language": "en-US,en;q=0.9",
-            "Connection": "keep-alive",
-        }
-
-        response = requests.get(url, headers=headers, timeout=60)
-        if response.status_code != 200:
-            print(f"Error downloading GLAD dataset: {response.status_code}")
-            print(response.text)
-        self.assertEqual(response.status_code, 200)
-
     def test_glad(self):
         with datasets.glad() as ds:
             self.assertTrue(ds)
