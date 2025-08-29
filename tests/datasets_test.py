@@ -1,4 +1,5 @@
 import numpy as np
+import requests
 
 import tests.utils as testutils
 from clouddrift import adapters, datasets
@@ -49,6 +50,14 @@ class datasets_tests(testutils.DisableProgressTestCase):
                 )
             )
         )
+
+    def test_glad_url(self):
+        url = "https://data.gulfresearchinitiative.org/api/file/download/169841"
+        response = requests.get(url, timeout=60)
+        if response.status_code != 200:
+            print(f"Error downloading GLAD dataset: {response.status_code}")
+            print(response.text)
+        self.assertEqual(response.status_code, 200)
 
     def test_glad(self):
         with datasets.glad() as ds:
