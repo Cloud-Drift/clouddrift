@@ -1,5 +1,4 @@
 import numpy as np
-import requests
 
 import tests.utils as testutils
 from clouddrift import adapters, datasets
