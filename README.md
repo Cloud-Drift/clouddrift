@@ -7,7 +7,7 @@
 [![NSF-2126413](https://img.shields.io/badge/NSF-2126413-blue.svg)](https://nsf.gov/awardsearch/showAward?AWD_ID=2126413)
 [![Zenodo DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11081647.svg)](https://doi.org/10.5281/zenodo.11081647)
 [![JOSS DOI](https://joss.theoj.org/papers/10.21105/joss.06742/status.svg)](https://doi.org/10.21105/joss.06742)
-![Views (14d)][traffic-badge]
+![View count](https://hitscounter.dev/api/hit?url=https%3A%2F%2Fgithub.com%2FCloud-Drift%2Fclouddrift&label=Visit&icon=github&color=%236ea8fe&message=&style=flat&tz=UTC)
 
 ### 📦 Distributions
 [![Available on conda-forge](https://anaconda.org/conda-forge/clouddrift/badges/version.svg?style=flat-square)](https://anaconda.org/conda-forge/clouddrift/)
@@ -169,5 +169,3 @@ best to help you.
 
 Please create a new issue [here](https://github.com/Cloud-Drift/clouddrift/issues/new)
 and provide as much detail as possible about your problem or question.
-
-[traffic-badge]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/selipot/clouddrift/hit-button/badge.json&cacheSeconds=3600
