@@ -14,6 +14,45 @@ from scipy.special import factorial, iv, kv  # type: ignore
 from clouddrift.sphere import EARTH_DAY_SECONDS
 
 
+def _safe_divide_delta_squared_by_mu(delta: float, mu: float) -> float:
+    """
+    Safely compute delta^2 / mu, handling the case where mu is close to zero.
+    
+    When mu is close to zero, returns np.inf as appropriate for the physical model.
+    """
+    if np.isclose(mu, 0):
+        return np.inf
+    else:
+        return delta**2 / mu
+
+
+def _safe_tanh_complex(z: complex | np.ndarray) -> complex | np.ndarray:
+    """
+    Safely compute tanh(z) avoiding warnings when z has infinite components.
+    
+    For complex arguments with infinite real or imaginary parts, returns appropriate limits.
+    """
+    if np.any(np.isinf(np.real(z))) or np.any(np.isinf(np.imag(z))):
+        # When the argument is infinite, tanh approaches its limits
+        # For complex infinity, return NaN to avoid warnings
+        result = np.full_like(z, np.nan, dtype=complex)
+        # Handle finite cases normally
+        finite_mask = np.isfinite(z)
+        if np.any(finite_mask):
+            result[finite_mask] = np.tanh(z[finite_mask])
+        return result
+    else:
+        return np.tanh(z)
+
+
+def _safe_divide_suppress_warnings(a: float | np.ndarray, b: float | np.ndarray) -> float | np.ndarray:
+    """
+    Safely divide a/b, suppressing warnings for inf/inf cases and returning nan as expected.
+    """
+    with np.errstate(invalid='ignore', divide='ignore'):
+        return np.divide(a, b)
+
+
 def apply_transfer_function(
     x: np.ndarray,
     transfer_func: Callable[[np.ndarray], np.ndarray] | np.ndarray,
@@ -527,7 +566,7 @@ def wind_transfer(
         s = np.sign(cor_freq_) * np.sign(1 + omega_grid / cor_freq_)
         Gamma = sqrt(2) * _rot(s * np.pi / 4) * sqrt(np.abs(1 + omega_grid / cor_freq_))
         ddelta1 = (
-            (Gamma * (bld / delta) * np.tanh(Gamma * (bld / delta)) - 1) * G / delta
+            (Gamma * (bld / delta) * _safe_tanh_complex(Gamma * (bld / delta)) - 1) * G / delta
         )
 
         numer = np.exp(Gamma * (-z_grid / delta)) + np.exp(
@@ -544,7 +583,7 @@ def wind_transfer(
 
         dG_ddelta = ddelta1 + ddelta2
 
-        dbld1 = -Gamma / delta * np.tanh(Gamma * (bld / delta)) * G
+        dbld1 = -Gamma / delta * _safe_tanh_complex(Gamma * (bld / delta)) * G
         dbld2 = 2 / (delta**2 * np.abs(cor_freq_) * density) * (numer / denom)
         dG_dbld = dbld1 + dbld2
 
@@ -568,7 +607,7 @@ def _wind_transfer_no_slip(
     Transfer function from wind stress to oceanic velocity with no-slip boundary condition.
     """
 
-    zo = np.divide(delta**2, mu)
+    zo = _safe_divide_delta_squared_by_mu(delta, mu)
     s = np.sign(coriolis_frequency) * np.sign(1 + omega_grid / coriolis_frequency)
 
     xiz, xih, xi0 = _xis(s, zo, delta, z_grid, omega_grid, coriolis_frequency, bld)
@@ -689,7 +728,7 @@ def _wind_transfer_general_no_slip(
     """
     Transfer function from wind stress to oceanic velocity with no-slip boundary condition, general form.
     """
-    zo = np.divide(delta**2, mu)
+    zo = _safe_divide_delta_squared_by_mu(delta, mu)
     s = np.sign(coriolis_frequency) * np.sign(1 + omega / coriolis_frequency)
     xiz, xih, xi0 = _xis(s, zo, delta, z, omega, coriolis_frequency, bld)
     coeff = (
@@ -734,7 +773,7 @@ def _wind_transfer_general_no_slip_expansion(
     """
     Compute the transfer function from wind stress to oceanic velocity with no-slip boundary, large argument approximation.
     """
-    zo = np.divide(delta**2, mu)
+    zo = _safe_divide_delta_squared_by_mu(delta, mu)
     s = np.sign(coriolis_frequency) * np.sign(1 + omega / coriolis_frequency)
     xiz, xih, xi0 = _xis(s, zo, delta, z, omega, coriolis_frequency, bld)
     coeff = (
@@ -761,7 +800,7 @@ def _wind_transfer_general_no_slip_expansion(
             density
             * np.abs(coriolis_frequency)
             * delta**2
-            * np.divide(sqrt(1 + bld / zo) - sqrt(1 + z / zo), (1 + z / zo) ** 0.25)
+            * _safe_divide_suppress_warnings(sqrt(1 + _safe_divide_suppress_warnings(bld, zo)) - sqrt(1 + _safe_divide_suppress_warnings(z, zo)), (1 + _safe_divide_suppress_warnings(z, zo)) ** 0.25)
         )
     )
 
@@ -812,7 +851,7 @@ def _wind_transfer_free_slip(
     Transfer function from wind stress to oceanic velocity with free-slip boundary condition.
     """
 
-    zo = np.divide(delta**2, mu)
+    zo = _safe_divide_delta_squared_by_mu(delta, mu)
 
     s = np.sign(coriolis_frequency) * np.sign(1 + omega / coriolis_frequency)
 
@@ -882,7 +921,7 @@ def _wind_transfer_elipot_no_slip(
     Transfer function from wind stress to oceanic velocity with no-slip boundary condition, Elipot method.
     """
 
-    zo = np.divide(delta**2, mu)
+    zo = _safe_divide_delta_squared_by_mu(delta, mu)
     K0 = 0.5 * delta**2 * np.abs(coriolis_frequency)
     K1 = 0.5 * mu * np.abs(coriolis_frequency)
 
@@ -945,7 +984,7 @@ def _wind_transfer_elipot_free_slip(
     Transfer function from wind stress to oceanic velocity with free-slip boundary condition, Elipot method.
     """
 
-    zo = np.divide(delta**2, mu)
+    zo = _safe_divide_delta_squared_by_mu(delta, mu)
     K0 = 0.5 * delta**2 * np.abs(coriolis_frequency)
     K1 = 0.5 * mu * np.abs(coriolis_frequency)
     delta1 = sqrt(2 * K0 / (omega + coriolis_frequency))
@@ -1161,21 +1200,21 @@ def _xis(
         2
         * sqrt(2)
         * _rot(s * np.pi / 4)
-        * np.divide(zo, delta)
-        * sqrt((1 + np.divide(z, zo)) * np.abs(1 + omega / coriolis_frequency))
+        * _safe_divide_suppress_warnings(zo, delta)
+        * sqrt((1 + _safe_divide_suppress_warnings(z, zo)) * np.abs(1 + omega / coriolis_frequency))
     )
     xih = (
         2
         * sqrt(2)
         * _rot(s * np.pi / 4)
-        * np.divide(zo, delta)
-        * sqrt((1 + np.divide(bld, zo)) * np.abs(1 + omega / coriolis_frequency))
+        * _safe_divide_suppress_warnings(zo, delta)
+        * sqrt((1 + _safe_divide_suppress_warnings(bld, zo)) * np.abs(1 + omega / coriolis_frequency))
     )
     xi0 = (
         2
         * sqrt(2)
         * _rot(s * np.pi / 4)
-        * np.divide(zo, delta)
+        * _safe_divide_suppress_warnings(zo, delta)
         * sqrt(np.abs(1 + omega / coriolis_frequency))
     )
 
