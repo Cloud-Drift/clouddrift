@@ -23,6 +23,9 @@ from tenacity import (
 from tqdm import tqdm
 
 _DISABLE_SHOW_PROGRESS = False  # purely to de-noise our test suite output, should never be used/configured outside of that.
+_BROWSER_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+}
 
 
 def _before_call(rcs: RetryCallState):
@@ -147,7 +150,7 @@ def _download_with_progress(
 
         # Get last modified time of the remote file
         try:
-            res = requests.head(url, timeout=5)
+            res = requests.head(url, headers=_BROWSER_HEADERS, timeout=10)
             remote_last_modified_str = res.headers.get("Last-Modified")
             if remote_last_modified_str:
                 remote_last_modified = datetime.strptime(
@@ -173,7 +176,7 @@ def _download_with_progress(
     buffer: BufferedWriter | BufferedIOBase | None = None
 
     try:
-        resp = requests.get(url, timeout=10, stream=True)
+        resp = requests.get(url, headers=_BROWSER_HEADERS, timeout=60, stream=True)
         temp_output = f"{output}.part" if isinstance(output, str) else None
 
         if isinstance(output, str) and temp_output is not None:

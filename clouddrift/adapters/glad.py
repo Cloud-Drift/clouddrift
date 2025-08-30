@@ -25,7 +25,7 @@ from clouddrift.adapters.utils import download_with_progress
 
 def get_dataframe() -> pd.DataFrame:
     """Get the GLAD dataset as a pandas DataFrame."""
-    url = "https://data.gulfresearchinitiative.org/pelagos-symfony/api/file/download/169841"
+    url = "https://data.gulfresearchinitiative.org/api/file/download/169841"
     # GRIIDC server doesn't provide Content-Length header, so we'll hardcode
     # the expected data length here.
     file_size = 155330876
