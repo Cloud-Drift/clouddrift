@@ -195,7 +195,7 @@ def binned_statistics(
     if isinstance(bins, int) or isinstance(bins[0], int):
         edges = [np.linspace(r[0], r[1], b + 1) for r, b in zip(bins_range, bins)]
     else:
-        edges = np.asarray(bins)
+        edges = [np.asarray(b) for b in bins]
     edges_sz = [len(e) - 1 for e in edges]
     n_bins = int(np.prod(edges_sz))
     bin_centers = [0.5 * (e[:-1] + e[1:]) for e in edges]
