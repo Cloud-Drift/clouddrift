@@ -105,6 +105,16 @@ class binning_tests(unittest.TestCase):
         self.assertEqual(len(ds.dim_0_bin), 5)
         self.assertEqual(len(ds.dim_1_bin), DEFAULT_BINS_NUMBER)
 
+    def test_bins_list(self):
+        ds = binned_statistics(self.coords_1d, bins=[[0, 1, 2, 3]])
+        self.assertEqual(len(ds.dim_0_bin), 3)
+
+        ds = binned_statistics(self.coords_1d, bins=[np.arange(0, 4, 1)])
+        self.assertEqual(len(ds.dim_0_bin), 3)
+
+        ds = binned_statistics(self.coords_1d, bins=[np.arange(0, 4, 0.5)])
+        self.assertEqual(len(ds.dim_0_bin), 7)
+
     def test_1d_hist_number(self):
         ds = binned_statistics(self.coords_1d, bins=3)
         self.assertEqual(len(ds.dim_0_bin), 3)

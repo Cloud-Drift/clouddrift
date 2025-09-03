@@ -192,7 +192,10 @@ def binned_statistics(
         raise ValueError("`coords` and `data` must have the same number of data points")
 
     # edges and bin centers
-    edges = [np.linspace(r[0], r[1], b + 1) for r, b in zip(bins_range, bins)]
+    if isinstance(bins, int) or isinstance(bins[0], int):
+        edges = [np.linspace(r[0], r[1], b + 1) for r, b in zip(bins_range, bins)]
+    else:
+        edges = np.asarray(bins)
     edges_sz = [len(e) - 1 for e in edges]
     n_bins = int(np.prod(edges_sz))
     bin_centers = [0.5 * (e[:-1] + e[1:]) for e in edges]
@@ -206,7 +209,7 @@ def binned_statistics(
     # by adding a small tolerance to the last edge (1s for date coordinates)
     edges_with_tol = [e.copy() for e in edges]
     for i, e in enumerate(edges_with_tol):
-        e[-1] += np.finfo(e.dtype).eps if i not in coords_datetime_index else 1
+        e[-1] += np.finfo(float).eps if i not in coords_datetime_index else 1
     indices = [np.digitize(c, edges_with_tol[j]) - 1 for j, c in enumerate(coords)]
     valid = np.all(
         [(j >= 0) & (j < edges_sz[i]) for i, j in enumerate(indices)], axis=0
