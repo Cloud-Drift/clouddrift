@@ -10,6 +10,8 @@ import pandas as pd
 import xarray as xr
 
 DEFAULT_BINS_NUMBER = 10
+DEFAULT_COORD_NAME = "coord"
+DEFAULT_DATA_NAME = "data"
 
 
 def binned_statistics(
@@ -51,10 +53,10 @@ def binned_statistics(
         - a list containing any combination of the above, e.g., ['mean', np.nanmax, ('ke', lambda data: np.sqrt(np.mean(data[0] ** 2 + data[1] ** 2)))].
     dim_names : list of str, optional
         Names for the dimensions of the output xr.Dataset.
-        If None, default names are "dim_0_bin", "dim_1_bin", etc.
+        If None, default names are "coord_0", "coord_1", etc.
     output_names : list of str, optional
         Names for output variables in the xr.Dataset.
-        If None, default names are "binned_0_{statistic}", "binned_1_{statistic}", etc.
+        If None, default names are "data_0_{statistic}", "data_1_{statistic}", etc.
 
     Returns
     -------
@@ -165,21 +167,22 @@ def binned_statistics(
 
     # set default dimension names
     if dim_names is None:
-        dim_names = [f"dim_{i}_bin" for i in range(len(coords))]
+        dim_names = [f"{DEFAULT_COORD_NAME}_{i}" for i in range(len(coords))]
     else:
         dim_names = [
-            name if name is not None else f"dim_{i}_bin"
+            name if name is not None else f"{DEFAULT_COORD_NAME}_{i}"
             for i, name in enumerate(dim_names)
         ]
 
     # set default variable names
     if output_names is None:
         output_names = [
-            f"binned_{i}" if data[0].size else "binned" for i in range(len(data))
+            f"{DEFAULT_DATA_NAME}_{i}" if data[0].size else DEFAULT_DATA_NAME
+            for i in range(len(data))
         ]
     else:
         output_names = [
-            name if name is not None else f"binned_{i}"
+            name if name is not None else f"{DEFAULT_DATA_NAME}_{i}"
             for i, name in enumerate(output_names)
         ]
 
@@ -335,7 +338,7 @@ def _get_variable_name(
     str
         Name of the function or a custom function name for lambda function.
     """
-    default_name = "stat_0"
+    default_name = "stat"
     if isinstance(func, partial):
         function_name = getattr(func.func, "__name__", default_name)
     else:
@@ -345,17 +348,15 @@ def _get_variable_name(
 
     # avoid name collisions with existing variables
     # by adding a suffix if the name already exists
-    if f"{output_name}_{function_name}" in ds_vars:
-        i = 0
-        if function_name.split("_")[-1].isdigit():
-            function_name, num = function_name.split("_")
-            i = int(num) + 1
+    base_name = f"{output_name}_{function_name}"
+    name = base_name
 
-        while f"{output_name}_{function_name}_{i}" in ds_vars:
-            i += 1
-        function_name = f"{function_name}_{i}"
+    i = 1
+    while name in ds_vars:
+        name = f"{base_name}_{i}"
+        i += 1
 
-    return f"{output_name}_{function_name}"
+    return name
 
 
 def _filter_valid_and_finite(
