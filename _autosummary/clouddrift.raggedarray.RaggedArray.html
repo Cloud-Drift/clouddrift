@@ -1,0 +1,962 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>clouddrift.raggedarray.RaggedArray &#8212; CloudDrift  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=35a8b989"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/clouddrift.raggedarray.RaggedArray';</script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="clouddrift.signal" href="clouddrift.signal.html" />
+    <link rel="prev" title="clouddrift.raggedarray" href="clouddrift.raggedarray.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.png" class="logo__image only-light" alt="CloudDrift  documentation - Home"/>
+    <script>document.write(`<img src="../_static/logo.png" class="logo__image only-dark" alt="CloudDrift  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Cloud-Drift/clouddrift/blob/main/CONTRIBUTING.md">Contributing</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.adapters.html">clouddrift.adapters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.andro.html">clouddrift.adapters.andro</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.andro.to_xarray.html">clouddrift.adapters.andro.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.gdp.html">clouddrift.adapters.gdp</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.cast_float64_variables_to_float32.html">clouddrift.adapters.gdp.cast_float64_variables_to_float32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.cut_str.html">clouddrift.adapters.gdp.cut_str</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.decode_date.html">clouddrift.adapters.gdp.decode_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.drogue_presence.html">clouddrift.adapters.gdp.drogue_presence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.fetch_netcdf.html">clouddrift.adapters.gdp.fetch_netcdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.fill_values.html">clouddrift.adapters.gdp.fill_values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.get_gdp_metadata.html">clouddrift.adapters.gdp.get_gdp_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.order_by_date.html">clouddrift.adapters.gdp.order_by_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.parse_directory_file.html">clouddrift.adapters.gdp.parse_directory_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.rowsize.html">clouddrift.adapters.gdp.rowsize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.str_to_float.html">clouddrift.adapters.gdp.str_to_float</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.gdp1h.html">clouddrift.adapters.gdp.gdp1h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.gdp6h.html">clouddrift.adapters.gdp.gdp6h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.gdpsource.html">clouddrift.adapters.gdp.gdpsource</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.glad.html">clouddrift.adapters.glad</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.glad.get_dataframe.html">clouddrift.adapters.glad.get_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.glad.to_xarray.html">clouddrift.adapters.glad.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.hurdat2.html">clouddrift.adapters.hurdat2</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.to_raggedarray.html">clouddrift.adapters.hurdat2.to_raggedarray</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.DataLine.html">clouddrift.adapters.hurdat2.DataLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.HeaderLine.html">clouddrift.adapters.hurdat2.HeaderLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.RecordIdentifier.html">clouddrift.adapters.hurdat2.RecordIdentifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.SystemStatus.html">clouddrift.adapters.hurdat2.SystemStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.TrackData.html">clouddrift.adapters.hurdat2.TrackData</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.ibtracs.html">clouddrift.adapters.ibtracs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.ibtracs.to_raggedarray.html">clouddrift.adapters.ibtracs.to_raggedarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.mosaic.html">clouddrift.adapters.mosaic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.mosaic.get_dataframes.html">clouddrift.adapters.mosaic.get_dataframes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.mosaic.get_file_urls.html">clouddrift.adapters.mosaic.get_file_urls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.mosaic.get_repository_metadata.html">clouddrift.adapters.mosaic.get_repository_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.mosaic.to_xarray.html">clouddrift.adapters.mosaic.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.subsurface_floats.html">clouddrift.adapters.subsurface_floats</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.subsurface_floats.download.html">clouddrift.adapters.subsurface_floats.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.subsurface_floats.to_xarray.html">clouddrift.adapters.subsurface_floats.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.utils.html">clouddrift.adapters.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.utils.download_with_progress.html">clouddrift.adapters.utils.download_with_progress</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.yomaha.html">clouddrift.adapters.yomaha</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.yomaha.download.html">clouddrift.adapters.yomaha.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.yomaha.to_xarray.html">clouddrift.adapters.yomaha.to_xarray</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.binning.html">clouddrift.binning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.binning.binned_statistics.html">clouddrift.binning.binned_statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.binning.handle_datetime_conversion.html">clouddrift.binning.handle_datetime_conversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.datasets.html">clouddrift.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.andro.html">clouddrift.datasets.andro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.gdp1h.html">clouddrift.datasets.gdp1h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.gdp6h.html">clouddrift.datasets.gdp6h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.gdp_source.html">clouddrift.datasets.gdp_source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.glad.html">clouddrift.datasets.glad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.hurdat2.html">clouddrift.datasets.hurdat2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.ibtracs.html">clouddrift.datasets.ibtracs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.mosaic.html">clouddrift.datasets.mosaic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.spotters.html">clouddrift.datasets.spotters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.subsurface_floats.html">clouddrift.datasets.subsurface_floats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.yomaha.html">clouddrift.datasets.yomaha</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.kinematics.html">clouddrift.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.inertial_oscillation_from_position.html">clouddrift.kinematics.inertial_oscillation_from_position</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.kinetic_energy.html">clouddrift.kinematics.kinetic_energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.position_from_velocity.html">clouddrift.kinematics.position_from_velocity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.residual_position_from_displacement.html">clouddrift.kinematics.residual_position_from_displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.spin.html">clouddrift.kinematics.spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.velocity_from_position.html">clouddrift.kinematics.velocity_from_position</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.pairs.html">clouddrift.pairs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.chance_pair.html">clouddrift.pairs.chance_pair</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.chance_pairs_from_ragged.html">clouddrift.pairs.chance_pairs_from_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.pair_bounding_box_overlap.html">clouddrift.pairs.pair_bounding_box_overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.pair_space_distance.html">clouddrift.pairs.pair_space_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.pair_time_distance.html">clouddrift.pairs.pair_time_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.pair_time_overlap.html">clouddrift.pairs.pair_time_overlap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.plotting.html">clouddrift.plotting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.plotting.plot_ragged.html">clouddrift.plotting.plot_ragged</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.ragged.html">clouddrift.ragged</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.apply_ragged.html">clouddrift.ragged.apply_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.chunk.html">clouddrift.ragged.chunk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.obs_index_to_row.html">clouddrift.ragged.obs_index_to_row</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.prune.html">clouddrift.ragged.prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.ragged_to_regular.html">clouddrift.ragged.ragged_to_regular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.regular_to_ragged.html">clouddrift.ragged.regular_to_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.rowsize_to_index.html">clouddrift.ragged.rowsize_to_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.segment.html">clouddrift.ragged.segment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.subset.html">clouddrift.ragged.subset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.unpack.html">clouddrift.ragged.unpack</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="clouddrift.raggedarray.html">clouddrift.raggedarray</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">clouddrift.raggedarray.RaggedArray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.signal.html">clouddrift.signal</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.signal.analytic_signal.html">clouddrift.signal.analytic_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.signal.cartesian_to_rotary.html">clouddrift.signal.cartesian_to_rotary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.signal.ellipse_parameters.html">clouddrift.signal.ellipse_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.signal.modulated_ellipse_signal.html">clouddrift.signal.modulated_ellipse_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.signal.rotary_to_cartesian.html">clouddrift.signal.rotary_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.sphere.html">clouddrift.sphere</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.bearing.html">clouddrift.sphere.bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.cartesian_to_spherical.html">clouddrift.sphere.cartesian_to_spherical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.cartesian_to_tangentplane.html">clouddrift.sphere.cartesian_to_tangentplane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.coriolis_frequency.html">clouddrift.sphere.coriolis_frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.cumulative_distance.html">clouddrift.sphere.cumulative_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.distance.html">clouddrift.sphere.distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.plane_to_sphere.html">clouddrift.sphere.plane_to_sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.position_from_distance_and_bearing.html">clouddrift.sphere.position_from_distance_and_bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.recast_lon.html">clouddrift.sphere.recast_lon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.recast_lon180.html">clouddrift.sphere.recast_lon180</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.recast_lon360.html">clouddrift.sphere.recast_lon360</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.sphere_to_plane.html">clouddrift.sphere.sphere_to_plane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.spherical_to_cartesian.html">clouddrift.sphere.spherical_to_cartesian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.tangentplane_to_cartesian.html">clouddrift.sphere.tangentplane_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.wavelet.html">clouddrift.wavelet</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_amplitude.html">clouddrift.wavelet.morse_amplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_freq.html">clouddrift.wavelet.morse_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_logspace_freq.html">clouddrift.wavelet.morse_logspace_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_properties.html">clouddrift.wavelet.morse_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_wavelet.html">clouddrift.wavelet.morse_wavelet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_wavelet_transform.html">clouddrift.wavelet.morse_wavelet_transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.wavelet_transform.html">clouddrift.wavelet.wavelet_transform</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/_autosummary/clouddrift.raggedarray.RaggedArray.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>clouddrift.raggedarray.RaggedArray</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray"><code class="docutils literal notranslate"><span class="pre">RaggedArray</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.__init__"><code class="docutils literal notranslate"><span class="pre">RaggedArray.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.allocate"><code class="docutils literal notranslate"><span class="pre">RaggedArray.allocate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.attributes"><code class="docutils literal notranslate"><span class="pre">RaggedArray.attributes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.from_awkward"><code class="docutils literal notranslate"><span class="pre">RaggedArray.from_awkward()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.from_files"><code class="docutils literal notranslate"><span class="pre">RaggedArray.from_files()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.from_netcdf"><code class="docutils literal notranslate"><span class="pre">RaggedArray.from_netcdf()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.from_parquet"><code class="docutils literal notranslate"><span class="pre">RaggedArray.from_parquet()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.from_xarray"><code class="docutils literal notranslate"><span class="pre">RaggedArray.from_xarray()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.number_of_observations"><code class="docutils literal notranslate"><span class="pre">RaggedArray.number_of_observations()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.to_awkward"><code class="docutils literal notranslate"><span class="pre">RaggedArray.to_awkward()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.to_netcdf"><code class="docutils literal notranslate"><span class="pre">RaggedArray.to_netcdf()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.to_parquet"><code class="docutils literal notranslate"><span class="pre">RaggedArray.to_parquet()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.to_xarray"><code class="docutils literal notranslate"><span class="pre">RaggedArray.to_xarray()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.validate_attributes"><code class="docutils literal notranslate"><span class="pre">RaggedArray.validate_attributes()</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="clouddrift-raggedarray-raggedarray">
+<h1>clouddrift.raggedarray.RaggedArray<a class="headerlink" href="#clouddrift-raggedarray-raggedarray" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="clouddrift.raggedarray.RaggedArray">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">clouddrift.raggedarray.</span></span><span class="sig-name descname"><span class="pre">RaggedArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs_global</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'rows'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'obs'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clouddrift/raggedarray.html#RaggedArray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.raggedarray.RaggedArray" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.raggedarray.RaggedArray.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs_global</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'rows'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'obs'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clouddrift/raggedarray.html#RaggedArray.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.raggedarray.RaggedArray.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.raggedarray.RaggedArray.__init__" title="clouddrift.raggedarray.RaggedArray.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(coords, metadata, data[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.raggedarray.RaggedArray.allocate" title="clouddrift.raggedarray.RaggedArray.allocate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">allocate</span></code></a>(preprocess_func, indices, rowsize, ...)</p></td>
+<td><p>Iterate through the files and fill for the ragged array associated with coordinates, and selected metadata and data variables.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.raggedarray.RaggedArray.attributes" title="clouddrift.raggedarray.RaggedArray.attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attributes</span></code></a>(ds, name_coords, name_meta, name_data)</p></td>
+<td><p>Return global attributes and the attributes of all variables (name_coords, name_meta, and name_data) from an Xarray Dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.raggedarray.RaggedArray.from_awkward" title="clouddrift.raggedarray.RaggedArray.from_awkward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_awkward</span></code></a>(array, name_coords, name_dims, ...)</p></td>
+<td><p>Load a RaggedArray instance from an Awkward Array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.raggedarray.RaggedArray.from_files" title="clouddrift.raggedarray.RaggedArray.from_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_files</span></code></a>(indices, preprocess_func, name_coords)</p></td>
+<td><p>Generate a ragged array archive from a list of files</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.raggedarray.RaggedArray.from_netcdf" title="clouddrift.raggedarray.RaggedArray.from_netcdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_netcdf</span></code></a>(filename[, rows_dim_name, ...])</p></td>
+<td><p>Read a ragged arrays archive from a NetCDF file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.raggedarray.RaggedArray.from_parquet" title="clouddrift.raggedarray.RaggedArray.from_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_parquet</span></code></a>(filename, name_coords, ...)</p></td>
+<td><p>Read a ragged array from a parquet file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.raggedarray.RaggedArray.from_xarray" title="clouddrift.raggedarray.RaggedArray.from_xarray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_xarray</span></code></a>(ds[, rows_dim_name, obs_dim_name])</p></td>
+<td><p>Populate a RaggedArray instance from an xarray Dataset instance.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.raggedarray.RaggedArray.number_of_observations" title="clouddrift.raggedarray.RaggedArray.number_of_observations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">number_of_observations</span></code></a>(rowsize_func, ...)</p></td>
+<td><p>Iterate through the files and evaluate the number of observations.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.raggedarray.RaggedArray.to_awkward" title="clouddrift.raggedarray.RaggedArray.to_awkward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_awkward</span></code></a>()</p></td>
+<td><p>Convert ragged array object to an Awkward Array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.raggedarray.RaggedArray.to_netcdf" title="clouddrift.raggedarray.RaggedArray.to_netcdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_netcdf</span></code></a>(filename)</p></td>
+<td><p>Export ragged array object to a NetCDF file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.raggedarray.RaggedArray.to_parquet" title="clouddrift.raggedarray.RaggedArray.to_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_parquet</span></code></a>(filename)</p></td>
+<td><p>Export ragged array object to a parquet file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.raggedarray.RaggedArray.to_xarray" title="clouddrift.raggedarray.RaggedArray.to_xarray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_xarray</span></code></a>()</p></td>
+<td><p>Convert ragged array object to a xarray Dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.raggedarray.RaggedArray.validate_attributes" title="clouddrift.raggedarray.RaggedArray.validate_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_attributes</span></code></a>()</p></td>
+<td><p>Validate that each variable has an assigned attribute tag.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.raggedarray.RaggedArray.allocate">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preprocess_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dataset</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rowsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataArray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'rows'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'obs'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/clouddrift/raggedarray.html#RaggedArray.allocate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.raggedarray.RaggedArray.allocate" title="Link to this definition">#</a></dt>
+<dd><p>Iterate through the files and fill for the ragged array associated
+with coordinates, and selected metadata and data variables.</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>preprocess_func<span class="classifier">Callable[[int], xr.Dataset]</span></dt><dd><p>Returns a processed xarray Dataset from an identification number.</p>
+</dd>
+<dt>indices<span class="classifier">list</span></dt><dd><p>List of indices separating row in the ragged arrays.</p>
+</dd>
+<dt>rowsize<span class="classifier">list</span></dt><dd><p>List of the number of observations per row.</p>
+</dd>
+<dt>name_coords<span class="classifier">list</span></dt><dd><p>Name of the coordinate variables to include in the archive.</p>
+</dd>
+<dt>name_meta<span class="classifier">list, optional</span></dt><dd><p>Name of metadata variables to include in the archive (Defaults to []).</p>
+</dd>
+<dt>name_data<span class="classifier">list, optional</span></dt><dd><p>Name of the data variables to include in the archive (Defaults to []).</p>
+</dd>
+<dt>name_dims: dict[str, DimNames]</dt><dd><p>Dimension alias mapped to the name used by clouddrift.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>Tuple[dict, dict, dict, dict]</dt><dd><p>Dictionaries containing numerical data and attributes of coordinates, metadata and data variables.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.raggedarray.RaggedArray.attributes">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/clouddrift/raggedarray.html#RaggedArray.attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.raggedarray.RaggedArray.attributes" title="Link to this definition">#</a></dt>
+<dd><p>Return global attributes and the attributes of all variables
+(name_coords, name_meta, and name_data) from an Xarray Dataset.</p>
+<section id="id1">
+<h2>Parameters<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>ds<span class="classifier">xr.Dataset</span></dt><dd><p>_description_</p>
+</dd>
+<dt>name_coords<span class="classifier">list, optional</span></dt><dd><p>Name of metadata variables to include in the archive (default is [])</p>
+</dd>
+<dt>name_meta<span class="classifier">list, optional</span></dt><dd><p>Name of metadata variables to include in the archive (default is [])</p>
+</dd>
+<dt>name_data<span class="classifier">list, optional</span></dt><dd><p>Name of the data variables to include in the archive (default is [])</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h2>Returns<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>Tuple[dict, dict]</dt><dd><p>The global and variables attributes</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.raggedarray.RaggedArray.from_awkward">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_awkward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'rows'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'obs'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clouddrift/raggedarray.html#RaggedArray.from_awkward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.raggedarray.RaggedArray.from_awkward" title="Link to this definition">#</a></dt>
+<dd><p>Load a RaggedArray instance from an Awkward Array.</p>
+<section id="id3">
+<h2>Parameters<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>array<span class="classifier">ak.Array</span></dt><dd><p>Awkward Array instance to load the data from</p>
+</dd>
+<dt>name_coords<span class="classifier">list, optional</span></dt><dd><p>Names of the coordinate variables in the ragged arrays</p>
+</dd>
+<dt>name_dims: dict</dt><dd><p>Map a dimension to an alias.</p>
+</dd>
+<dt>coord_dims: dict</dt><dd><p>Map a coordinate to a dimension alias.</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h2>Returns<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>RaggedArray</dt><dd><p>A RaggedArray instance</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.raggedarray.RaggedArray.from_files">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dataset</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'rows'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'obs'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rowsize_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs_global</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clouddrift/raggedarray.html#RaggedArray.from_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.raggedarray.RaggedArray.from_files" title="Link to this definition">#</a></dt>
+<dd><p>Generate a ragged array archive from a list of files</p>
+<section id="id5">
+<h2>Parameters<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>indices<span class="classifier">list</span></dt><dd><p>Identification numbers list to iterate</p>
+</dd>
+<dt>preprocess_func<span class="classifier">Callable[[int], xr.Dataset]</span></dt><dd><p>Returns a processed xarray Dataset from an identification number</p>
+</dd>
+<dt>name_meta<span class="classifier">list, optional</span></dt><dd><p>Name of metadata variables to include in the archive (Defaults to [])</p>
+</dd>
+<dt>name_data<span class="classifier">list, optional</span></dt><dd><p>Name of the data variables to include in the archive (Defaults to [])</p>
+</dd>
+<dt>name_dims: dict</dt><dd><p>Map an alias to a dimension.</p>
+</dd>
+<dt>rowsize_func<span class="classifier">Optional[Callable[[int], int]], optional</span></dt><dd><p>Returns the number of observations from an identification number (to speed up processing) (Defaults to None)</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h2>Returns<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>RaggedArray</dt><dd><p>A RaggedArray instance</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.raggedarray.RaggedArray.from_netcdf">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rows_dim_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rows'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_dim_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'obs'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clouddrift/raggedarray.html#RaggedArray.from_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.raggedarray.RaggedArray.from_netcdf" title="Link to this definition">#</a></dt>
+<dd><p>Read a ragged arrays archive from a NetCDF file.</p>
+<p>This is a thin wrapper around <code class="docutils literal notranslate"><span class="pre">from_xarray()</span></code>.</p>
+<section id="id7">
+<h2>Parameters<a class="headerlink" href="#id7" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>filename<span class="classifier">str</span></dt><dd><p>File name of the NetCDF archive to read.</p>
+</dd>
+</dl>
+</section>
+<section id="id8">
+<h2>Returns<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>RaggedArray</dt><dd><p>A ragged array instance</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.raggedarray.RaggedArray.from_parquet">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'rows'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'obs'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clouddrift/raggedarray.html#RaggedArray.from_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.raggedarray.RaggedArray.from_parquet" title="Link to this definition">#</a></dt>
+<dd><p>Read a ragged array from a parquet file.</p>
+<section id="id9">
+<h2>Parameters<a class="headerlink" href="#id9" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>filename<span class="classifier">str</span></dt><dd><p>File name of the parquet archive to read.</p>
+</dd>
+<dt>name_coords<span class="classifier">list, optional</span></dt><dd><p>Names of the coordinate variables in the ragged arrays</p>
+</dd>
+<dt>name_dims: dict</dt><dd><p>Map a alias to a dimension.</p>
+</dd>
+<dt>coord_dims: dict</dt><dd><p>Map a coordinate to a dimension alias.</p>
+</dd>
+</dl>
+</section>
+<section id="id10">
+<h2>Returns<a class="headerlink" href="#id10" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>RaggedArray</dt><dd><p>A ragged array instance</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.raggedarray.RaggedArray.from_xarray">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_xarray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rows_dim_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'rows'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_dim_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'obs'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clouddrift/raggedarray.html#RaggedArray.from_xarray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.raggedarray.RaggedArray.from_xarray" title="Link to this definition">#</a></dt>
+<dd><p>Populate a RaggedArray instance from an xarray Dataset instance.</p>
+<section id="id11">
+<h2>Parameters<a class="headerlink" href="#id11" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>ds<span class="classifier">xr.Dataset</span></dt><dd><p>Xarray Dataset from which to load the RaggedArray</p>
+</dd>
+<dt>rows_dim_name<span class="classifier">str, optional</span></dt><dd><p>Name of the row dimension in the xarray Dataset</p>
+</dd>
+<dt>obs_dim_name<span class="classifier">str, optional</span></dt><dd><p>Name of the observations dimension in the xarray Dataset</p>
+</dd>
+</dl>
+</section>
+<section id="id12">
+<h2>Returns<a class="headerlink" href="#id12" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>RaggedArray</dt><dd><p>A RaggedArray instance</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.raggedarray.RaggedArray.number_of_observations">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">number_of_observations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rowsize_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/clouddrift/raggedarray.html#RaggedArray.number_of_observations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.raggedarray.RaggedArray.number_of_observations" title="Link to this definition">#</a></dt>
+<dd><p>Iterate through the files and evaluate the number of observations.</p>
+<section id="id13">
+<h2>Parameters<a class="headerlink" href="#id13" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>rowsize_func<span class="classifier">Callable[[int], int]]</span></dt><dd><p>Function that returns the number observations of a row from
+its identification number</p>
+</dd>
+<dt>indices<span class="classifier">list</span></dt><dd><p>Identification numbers list to iterate</p>
+</dd>
+</dl>
+</section>
+<section id="id14">
+<h2>Returns<a class="headerlink" href="#id14" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>np.ndarray</dt><dd><p>Number of observations</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.raggedarray.RaggedArray.to_awkward">
+<span class="sig-name descname"><span class="pre">to_awkward</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clouddrift/raggedarray.html#RaggedArray.to_awkward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.raggedarray.RaggedArray.to_awkward" title="Link to this definition">#</a></dt>
+<dd><p>Convert ragged array object to an Awkward Array.</p>
+<section id="id15">
+<h2>Returns<a class="headerlink" href="#id15" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>ak.Array</dt><dd><p>Awkward Array containing the ragged array and its attributes</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.raggedarray.RaggedArray.to_netcdf">
+<span class="sig-name descname"><span class="pre">to_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clouddrift/raggedarray.html#RaggedArray.to_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.raggedarray.RaggedArray.to_netcdf" title="Link to this definition">#</a></dt>
+<dd><p>Export ragged array object to a NetCDF file.</p>
+<section id="id16">
+<h2>Parameters<a class="headerlink" href="#id16" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>filename<span class="classifier">str</span></dt><dd><p>Name of the NetCDF file to create.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.raggedarray.RaggedArray.to_parquet">
+<span class="sig-name descname"><span class="pre">to_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clouddrift/raggedarray.html#RaggedArray.to_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.raggedarray.RaggedArray.to_parquet" title="Link to this definition">#</a></dt>
+<dd><p>Export ragged array object to a parquet file.</p>
+<section id="id17">
+<h2>Parameters<a class="headerlink" href="#id17" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>filename<span class="classifier">str</span></dt><dd><p>Name of the parquet file to create.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.raggedarray.RaggedArray.to_xarray">
+<span class="sig-name descname"><span class="pre">to_xarray</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clouddrift/raggedarray.html#RaggedArray.to_xarray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.raggedarray.RaggedArray.to_xarray" title="Link to this definition">#</a></dt>
+<dd><p>Convert ragged array object to a xarray Dataset.</p>
+<section id="id18">
+<h2>Parameters<a class="headerlink" href="#id18" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>cast_to_float32<span class="classifier">bool, optional</span></dt><dd><p>Cast all float64 variables to float32 (default is True). This option aims at
+minimizing the size of the xarray dataset.</p>
+</dd>
+</dl>
+</section>
+<section id="id19">
+<h2>Returns<a class="headerlink" href="#id19" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>xr.Dataset</dt><dd><p>Xarray Dataset containing the ragged arrays and their attributes</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.raggedarray.RaggedArray.validate_attributes">
+<span class="sig-name descname"><span class="pre">validate_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clouddrift/raggedarray.html#RaggedArray.validate_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.raggedarray.RaggedArray.validate_attributes" title="Link to this definition">#</a></dt>
+<dd><p>Validate that each variable has an assigned attribute tag.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="clouddrift.raggedarray.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">clouddrift.raggedarray</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="clouddrift.signal.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">clouddrift.signal</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray"><code class="docutils literal notranslate"><span class="pre">RaggedArray</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.__init__"><code class="docutils literal notranslate"><span class="pre">RaggedArray.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.allocate"><code class="docutils literal notranslate"><span class="pre">RaggedArray.allocate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.attributes"><code class="docutils literal notranslate"><span class="pre">RaggedArray.attributes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.from_awkward"><code class="docutils literal notranslate"><span class="pre">RaggedArray.from_awkward()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.from_files"><code class="docutils literal notranslate"><span class="pre">RaggedArray.from_files()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.from_netcdf"><code class="docutils literal notranslate"><span class="pre">RaggedArray.from_netcdf()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.from_parquet"><code class="docutils literal notranslate"><span class="pre">RaggedArray.from_parquet()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.from_xarray"><code class="docutils literal notranslate"><span class="pre">RaggedArray.from_xarray()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.number_of_observations"><code class="docutils literal notranslate"><span class="pre">RaggedArray.number_of_observations()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.to_awkward"><code class="docutils literal notranslate"><span class="pre">RaggedArray.to_awkward()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.to_netcdf"><code class="docutils literal notranslate"><span class="pre">RaggedArray.to_netcdf()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.to_parquet"><code class="docutils literal notranslate"><span class="pre">RaggedArray.to_parquet()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.to_xarray"><code class="docutils literal notranslate"><span class="pre">RaggedArray.to_xarray()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.raggedarray.RaggedArray.validate_attributes"><code class="docutils literal notranslate"><span class="pre">RaggedArray.validate_attributes()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Philippe Miron
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022-2023, CloudDrift.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

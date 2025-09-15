@@ -1,0 +1,1457 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>clouddrift.kinematics &#8212; CloudDrift  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=35a8b989"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/clouddrift/kinematics';</script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.png" class="logo__image only-light" alt="CloudDrift  documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo.png" class="logo__image only-dark" alt="CloudDrift  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datasets.html">Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Cloud-Drift/clouddrift/blob/main/CONTRIBUTING.md">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api.html">API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.html">clouddrift.adapters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.andro.html">clouddrift.adapters.andro</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.andro.to_xarray.html">clouddrift.adapters.andro.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.html">clouddrift.adapters.gdp</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.cast_float64_variables_to_float32.html">clouddrift.adapters.gdp.cast_float64_variables_to_float32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.cut_str.html">clouddrift.adapters.gdp.cut_str</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.decode_date.html">clouddrift.adapters.gdp.decode_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.drogue_presence.html">clouddrift.adapters.gdp.drogue_presence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.fetch_netcdf.html">clouddrift.adapters.gdp.fetch_netcdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.fill_values.html">clouddrift.adapters.gdp.fill_values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.get_gdp_metadata.html">clouddrift.adapters.gdp.get_gdp_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.order_by_date.html">clouddrift.adapters.gdp.order_by_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.parse_directory_file.html">clouddrift.adapters.gdp.parse_directory_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.rowsize.html">clouddrift.adapters.gdp.rowsize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.str_to_float.html">clouddrift.adapters.gdp.str_to_float</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.gdp1h.html">clouddrift.adapters.gdp.gdp1h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.gdp6h.html">clouddrift.adapters.gdp.gdp6h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.gdpsource.html">clouddrift.adapters.gdp.gdpsource</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.glad.html">clouddrift.adapters.glad</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.glad.get_dataframe.html">clouddrift.adapters.glad.get_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.glad.to_xarray.html">clouddrift.adapters.glad.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.html">clouddrift.adapters.hurdat2</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.to_raggedarray.html">clouddrift.adapters.hurdat2.to_raggedarray</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.DataLine.html">clouddrift.adapters.hurdat2.DataLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.HeaderLine.html">clouddrift.adapters.hurdat2.HeaderLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.RecordIdentifier.html">clouddrift.adapters.hurdat2.RecordIdentifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.SystemStatus.html">clouddrift.adapters.hurdat2.SystemStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.TrackData.html">clouddrift.adapters.hurdat2.TrackData</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.ibtracs.html">clouddrift.adapters.ibtracs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.ibtracs.to_raggedarray.html">clouddrift.adapters.ibtracs.to_raggedarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.html">clouddrift.adapters.mosaic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.get_dataframes.html">clouddrift.adapters.mosaic.get_dataframes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.get_file_urls.html">clouddrift.adapters.mosaic.get_file_urls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.get_repository_metadata.html">clouddrift.adapters.mosaic.get_repository_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.to_xarray.html">clouddrift.adapters.mosaic.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.subsurface_floats.html">clouddrift.adapters.subsurface_floats</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.subsurface_floats.download.html">clouddrift.adapters.subsurface_floats.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.subsurface_floats.to_xarray.html">clouddrift.adapters.subsurface_floats.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.utils.html">clouddrift.adapters.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.utils.download_with_progress.html">clouddrift.adapters.utils.download_with_progress</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.yomaha.html">clouddrift.adapters.yomaha</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.yomaha.download.html">clouddrift.adapters.yomaha.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.yomaha.to_xarray.html">clouddrift.adapters.yomaha.to_xarray</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.binning.html">clouddrift.binning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.binning.binned_statistics.html">clouddrift.binning.binned_statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.binning.handle_datetime_conversion.html">clouddrift.binning.handle_datetime_conversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.html">clouddrift.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.andro.html">clouddrift.datasets.andro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.gdp1h.html">clouddrift.datasets.gdp1h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.gdp6h.html">clouddrift.datasets.gdp6h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.gdp_source.html">clouddrift.datasets.gdp_source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.glad.html">clouddrift.datasets.glad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.hurdat2.html">clouddrift.datasets.hurdat2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.ibtracs.html">clouddrift.datasets.ibtracs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.mosaic.html">clouddrift.datasets.mosaic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.spotters.html">clouddrift.datasets.spotters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.subsurface_floats.html">clouddrift.datasets.subsurface_floats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.yomaha.html">clouddrift.datasets.yomaha</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.html">clouddrift.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.inertial_oscillation_from_position.html">clouddrift.kinematics.inertial_oscillation_from_position</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.kinetic_energy.html">clouddrift.kinematics.kinetic_energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.position_from_velocity.html">clouddrift.kinematics.position_from_velocity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.residual_position_from_displacement.html">clouddrift.kinematics.residual_position_from_displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.spin.html">clouddrift.kinematics.spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.velocity_from_position.html">clouddrift.kinematics.velocity_from_position</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.html">clouddrift.pairs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.chance_pair.html">clouddrift.pairs.chance_pair</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.chance_pairs_from_ragged.html">clouddrift.pairs.chance_pairs_from_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_bounding_box_overlap.html">clouddrift.pairs.pair_bounding_box_overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_space_distance.html">clouddrift.pairs.pair_space_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_time_distance.html">clouddrift.pairs.pair_time_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_time_overlap.html">clouddrift.pairs.pair_time_overlap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.plotting.html">clouddrift.plotting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.plotting.plot_ragged.html">clouddrift.plotting.plot_ragged</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.html">clouddrift.ragged</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.apply_ragged.html">clouddrift.ragged.apply_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.chunk.html">clouddrift.ragged.chunk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.obs_index_to_row.html">clouddrift.ragged.obs_index_to_row</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.prune.html">clouddrift.ragged.prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.ragged_to_regular.html">clouddrift.ragged.ragged_to_regular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.regular_to_ragged.html">clouddrift.ragged.regular_to_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.rowsize_to_index.html">clouddrift.ragged.rowsize_to_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.segment.html">clouddrift.ragged.segment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.subset.html">clouddrift.ragged.subset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.unpack.html">clouddrift.ragged.unpack</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.raggedarray.html">clouddrift.raggedarray</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html">clouddrift.raggedarray.RaggedArray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.signal.html">clouddrift.signal</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.analytic_signal.html">clouddrift.signal.analytic_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.cartesian_to_rotary.html">clouddrift.signal.cartesian_to_rotary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.ellipse_parameters.html">clouddrift.signal.ellipse_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.modulated_ellipse_signal.html">clouddrift.signal.modulated_ellipse_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.rotary_to_cartesian.html">clouddrift.signal.rotary_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.html">clouddrift.sphere</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.bearing.html">clouddrift.sphere.bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.cartesian_to_spherical.html">clouddrift.sphere.cartesian_to_spherical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.cartesian_to_tangentplane.html">clouddrift.sphere.cartesian_to_tangentplane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.coriolis_frequency.html">clouddrift.sphere.coriolis_frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.cumulative_distance.html">clouddrift.sphere.cumulative_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.distance.html">clouddrift.sphere.distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.plane_to_sphere.html">clouddrift.sphere.plane_to_sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.position_from_distance_and_bearing.html">clouddrift.sphere.position_from_distance_and_bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.recast_lon.html">clouddrift.sphere.recast_lon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.recast_lon180.html">clouddrift.sphere.recast_lon180</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.recast_lon360.html">clouddrift.sphere.recast_lon360</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.sphere_to_plane.html">clouddrift.sphere.sphere_to_plane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.spherical_to_cartesian.html">clouddrift.sphere.spherical_to_cartesian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.tangentplane_to_cartesian.html">clouddrift.sphere.tangentplane_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.html">clouddrift.wavelet</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_amplitude.html">clouddrift.wavelet.morse_amplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_freq.html">clouddrift.wavelet.morse_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_logspace_freq.html">clouddrift.wavelet.morse_logspace_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_properties.html">clouddrift.wavelet.morse_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_wavelet.html">clouddrift.wavelet.morse_wavelet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_wavelet_transform.html">clouddrift.wavelet.morse_wavelet_transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.wavelet_transform.html">clouddrift.wavelet.wavelet_transform</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for clouddrift.kinematics</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions for kinematic computations.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.sphere</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">EARTH_RADIUS_METERS</span><span class="p">,</span>
+    <span class="n">bearing</span><span class="p">,</span>
+    <span class="n">cartesian_to_spherical</span><span class="p">,</span>
+    <span class="n">cartesian_to_tangentplane</span><span class="p">,</span>
+    <span class="n">coriolis_frequency</span><span class="p">,</span>
+    <span class="n">distance</span><span class="p">,</span>
+    <span class="n">position_from_distance_and_bearing</span><span class="p">,</span>
+    <span class="n">recast_lon360</span><span class="p">,</span>
+    <span class="n">spherical_to_cartesian</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.wavelet</span><span class="w"> </span><span class="kn">import</span> <span class="n">morse_logspace_freq</span><span class="p">,</span> <span class="n">morse_wavelet</span><span class="p">,</span> <span class="n">wavelet_transform</span>
+
+
+<div class="viewcode-block" id="kinetic_energy">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.kinematics.kinetic_energy.html#clouddrift.kinematics.kinetic_energy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">kinetic_energy</span><span class="p">(</span>
+    <span class="n">u</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute kinetic energy from zonal and meridional velocities.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    u : float or array-like</span>
+<span class="sd">        Zonal velocity.</span>
+<span class="sd">    v : float or array-like, optional.</span>
+<span class="sd">        Meridional velocity. If not provided, the flow is assumed one-dimensional</span>
+<span class="sd">        in time and defined by ``u``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ke : float or array-like</span>
+<span class="sd">        Kinetic energy.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.kinematics import kinetic_energy</span>
+<span class="sd">    &gt;&gt;&gt; u = np.array([1., 2., 3., 4.])</span>
+<span class="sd">    &gt;&gt;&gt; v = np.array([1., 1., 1., 1.])</span>
+<span class="sd">    &gt;&gt;&gt; kinetic_energy(u, v)</span>
+<span class="sd">    array([1. , 2.5, 5. , 8.5])</span>
+
+<span class="sd">    &gt;&gt;&gt; u = np.reshape(np.tile([1., 2., 3., 4.], 2), (2, 4))</span>
+<span class="sd">    &gt;&gt;&gt; v = np.reshape(np.tile([1., 1., 1., 1.], 2), (2, 4))</span>
+<span class="sd">    &gt;&gt;&gt; kinetic_energy(u, v)</span>
+<span class="sd">    array([[1. , 2.5, 5. , 8.5],</span>
+<span class="sd">           [1. , 2.5, 5. , 8.5]])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+    <span class="n">ke</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">v</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">ke</span></div>
+
+
+
+<div class="viewcode-block" id="inertial_oscillation_from_position">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.kinematics.inertial_oscillation_from_position.html#clouddrift.kinematics.inertial_oscillation_from_position">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">inertial_oscillation_from_position</span><span class="p">(</span>
+    <span class="n">longitude</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">latitude</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">relative_bandwidth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">wavelet_duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">time_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3600.0</span><span class="p">,</span>
+    <span class="n">relative_vorticity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract inertial oscillations from consecutive geographical positions.</span>
+
+<span class="sd">    This function acts by performing a time-frequency analysis of horizontal displacements</span>
+<span class="sd">    with analytic Morse wavelets. It extracts the portion of the wavelet transform signal</span>
+<span class="sd">    that follows the inertial frequency (opposite of Coriolis frequency) as a function of time,</span>
+<span class="sd">    potentially shifted in frequency by a measure of relative vorticity. The result is a pair</span>
+<span class="sd">    of zonal and meridional relative displacements in meters.</span>
+
+<span class="sd">    This function is equivalent to a bandpass filtering of the horizontal displacements. The characteristics</span>
+<span class="sd">    of the filter are defined by the relative bandwidth of the wavelet transform or by the duration of the wavelet,</span>
+<span class="sd">    see the parameters below.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    longitude : array-like</span>
+<span class="sd">        Longitude sequence. Unidimensional array input.</span>
+<span class="sd">    latitude : array-like</span>
+<span class="sd">        Latitude sequence. Unidimensional array input.</span>
+<span class="sd">    relative_bandwidth : float, optional</span>
+<span class="sd">        Bandwidth of the frequency-domain equivalent filter for the extraction of the inertial</span>
+<span class="sd">        oscillations; a number less or equal to one which is a fraction of the inertial frequency.</span>
+<span class="sd">        A value of 0.1 leads to a bandpass filter equivalent of +/- 10 percent of the inertial frequency.</span>
+<span class="sd">    wavelet_duration : float, optional</span>
+<span class="sd">        Duration of the wavelet, or inverse of the relative bandwidth, which can be passed instead of the</span>
+<span class="sd">        relative bandwidth.</span>
+<span class="sd">    time_step : float, optional</span>
+<span class="sd">        The constant time interval between data points in seconds. Default is 3600.</span>
+<span class="sd">    relative_vorticity: Optional, float or array-like</span>
+<span class="sd">        Relative vorticity adding to the local Coriolis frequency. If &quot;f&quot; is the Coriolis</span>
+<span class="sd">        frequency then &quot;f&quot; + `relative_vorticity` will be the effective Coriolis frequency as defined by Kunze (1985).</span>
+<span class="sd">        Positive values correspond to cyclonic vorticity, irrespectively of the latitudes of the data</span>
+<span class="sd">        points.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xhat : array-like</span>
+<span class="sd">        Zonal relative displacement in meters from inertial oscillations.</span>
+<span class="sd">    yhat : array-like</span>
+<span class="sd">        Meridional relative displacement in meters from inertial oscillations.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    To extract displacements from inertial oscillations from sequences of longitude</span>
+<span class="sd">    and latitude values, equivalent to bandpass around 20 percent of the local inertial frequency:</span>
+
+<span class="sd">    &gt;&gt;&gt; xhat, yhat = inertial_oscillation_from_position(longitude, latitude, relative_bandwidth=0.2)</span>
+
+<span class="sd">    The same result can be obtained by specifying the wavelet duration instead of the relative bandwidth:</span>
+
+<span class="sd">    &gt;&gt;&gt; xhat, yhat = inertial_oscillation_from_position(longitude, latitude, wavelet_duration=5)</span>
+
+<span class="sd">    Next, the residual positions from the inertial displacements can be obtained with another function:</span>
+
+<span class="sd">    &gt;&gt;&gt; residual_longitudes, residual_latitudes = residual_position_from_displacement(longitude, latitude, xhat, yhat)</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If longitude and latitude arrays do not have the same shape.</span>
+<span class="sd">        If relative_vorticity is an array and does not have the same shape as longitude and latitude.</span>
+<span class="sd">        If time_step is not a float.</span>
+<span class="sd">        If both relative_bandwidth and wavelet_duration are specified.</span>
+<span class="sd">        If neither relative_bandwidth nor wavelet_duration are specified.</span>
+<span class="sd">        If the absolute value of relative_bandwidth is not in the range (0,1].</span>
+<span class="sd">        If the wavelet duration is not greater than or equal to 1.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`residual_position_from_displacement`, `wavelet_transform`, `morse_wavelet`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">longitude</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">latitude</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;longitude and latitude arrays must have the same shape.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">relative_bandwidth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">wavelet_duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Only one of &#39;relative_bandwidth&#39; and &#39;wavelet_duration&#39; can be specified&quot;</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">relative_bandwidth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">wavelet_duration</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;One of &#39;relative_bandwidth&#39; and &#39;wavelet_duration&#39; must be specified&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># length of data sequence</span>
+    <span class="n">data_length</span> <span class="o">=</span> <span class="n">longitude</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">relative_vorticity</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="n">relative_vorticity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">longitude</span><span class="p">,</span> <span class="n">relative_vorticity</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">relative_vorticity</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">relative_vorticity</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">longitude</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;relative_vorticity must be a float or the same shape as longitude and latitude.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">if</span> <span class="n">relative_bandwidth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">relative_bandwidth</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;relative_bandwidth must be in the (0, 1]) range&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">wavelet_duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">wavelet_duration</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;wavelet_duration must be greater than or equal to 1&quot;</span><span class="p">)</span>
+
+    <span class="c1"># wavelet parameters are gamma and beta</span>
+    <span class="n">gamma</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># symmetric wavelet</span>
+    <span class="n">density</span> <span class="o">=</span> <span class="mi">16</span>  <span class="c1"># results relative insensitive to this parameter</span>
+    <span class="c1"># calculate beta from wavelet duration or from relative bandwidth</span>
+    <span class="k">if</span> <span class="n">relative_bandwidth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">wavelet_duration</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">relative_bandwidth</span><span class="p">)</span>  <span class="c1"># P parameter</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">wavelet_duration</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">gamma</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">latitude</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="n">latitude</span> <span class="o">=</span> <span class="n">latitude</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">longitude</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="n">longitude</span> <span class="o">=</span> <span class="n">longitude</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+    <span class="c1"># Instantaneous absolute frequency of oscillations along trajectory in radian per second</span>
+    <span class="n">cor_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
+        <span class="n">coriolis_frequency</span><span class="p">(</span><span class="n">latitude</span><span class="p">)</span> <span class="o">+</span> <span class="n">relative_vorticity</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">latitude</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">cor_freq_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">cor_freq</span> <span class="o">*</span> <span class="mf">1.05</span><span class="p">)</span>
+    <span class="n">cor_freq_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">cor_freq</span> <span class="o">*</span> <span class="mf">0.95</span><span class="p">),</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">time_step</span> <span class="o">*</span> <span class="n">data_length</span><span class="p">)]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># logarithmically distributed frequencies for wavelet analysis</span>
+    <span class="n">radian_frequency</span> <span class="o">=</span> <span class="n">morse_logspace_freq</span><span class="p">(</span>
+        <span class="n">gamma</span><span class="p">,</span>
+        <span class="n">beta</span><span class="p">,</span>
+        <span class="n">data_length</span><span class="p">,</span>
+        <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">cor_freq_max</span> <span class="o">*</span> <span class="n">time_step</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">cor_freq_min</span> <span class="o">*</span> <span class="n">time_step</span><span class="p">),</span>
+        <span class="n">density</span><span class="p">,</span>
+    <span class="p">)</span>  <span class="c1"># frequencies in radian per unit time</span>
+
+    <span class="c1"># wavelet transform on a sphere</span>
+    <span class="c1"># unwrap longitude recasted in [0,360)</span>
+    <span class="n">longitude_unwrapped</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">recast_lon360</span><span class="p">(</span><span class="n">longitude</span><span class="p">),</span> <span class="n">period</span><span class="o">=</span><span class="mi">360</span><span class="p">)</span>
+
+    <span class="c1"># convert lat/lon to Cartesian coordinates x, y , z</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">spherical_to_cartesian</span><span class="p">(</span><span class="n">longitude_unwrapped</span><span class="p">,</span> <span class="n">latitude</span><span class="p">)</span>
+
+    <span class="c1"># wavelet transform of x, y, z</span>
+    <span class="n">wavelet</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">morse_wavelet</span><span class="p">(</span><span class="n">data_length</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">radian_frequency</span><span class="p">)</span>
+    <span class="n">wx</span> <span class="o">=</span> <span class="n">wavelet_transform</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">wavelet</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="s2">&quot;mirror&quot;</span><span class="p">)</span>
+    <span class="n">wy</span> <span class="o">=</span> <span class="n">wavelet_transform</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">wavelet</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="s2">&quot;mirror&quot;</span><span class="p">)</span>
+    <span class="n">wz</span> <span class="o">=</span> <span class="n">wavelet_transform</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">wavelet</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="s2">&quot;mirror&quot;</span><span class="p">)</span>
+
+    <span class="n">longitude_new</span><span class="p">,</span> <span class="n">latitude_new</span> <span class="o">=</span> <span class="n">cartesian_to_spherical</span><span class="p">(</span>
+        <span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">wx</span><span class="p">),</span> <span class="n">y</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">wy</span><span class="p">),</span> <span class="n">z</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">wz</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># convert transforms to horizontal displacements on tangent plane</span>
+    <span class="n">wxh</span><span class="p">,</span> <span class="n">wyh</span> <span class="o">=</span> <span class="n">cartesian_to_tangentplane</span><span class="p">(</span><span class="n">wx</span><span class="p">,</span> <span class="n">wy</span><span class="p">,</span> <span class="n">wz</span><span class="p">,</span> <span class="n">longitude_new</span><span class="p">,</span> <span class="n">latitude_new</span><span class="p">)</span>
+
+    <span class="c1"># rotary wavelet transforms to select inertial component; need to divide by sqrt(2)</span>
+    <span class="n">wp</span> <span class="o">=</span> <span class="p">(</span><span class="n">wxh</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">wyh</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">wn</span> <span class="o">=</span> <span class="p">(</span><span class="n">wxh</span> <span class="o">-</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">wyh</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># find the values of radian_frequency/dt that most closely match cor_freq</span>
+    <span class="n">frequency_bins</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">cor_freq</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">radian_frequency</span> <span class="o">/</span> <span class="n">time_step</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">data_length</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># get the transform at the inertial and &quot;anti-inertial&quot; frequencies</span>
+    <span class="c1"># extract the values of wp and wn at the calculated index as a function of time</span>
+    <span class="c1"># positive is anticyclonic (inertial) in the southern hemisphere</span>
+    <span class="c1"># negative is anticyclonic (inertial) in the northern hemisphere</span>
+    <span class="n">wp</span> <span class="o">=</span> <span class="n">wp</span><span class="p">[</span><span class="n">frequency_bins</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">data_length</span><span class="p">)]</span>
+    <span class="n">wn</span> <span class="o">=</span> <span class="n">wn</span><span class="p">[</span><span class="n">frequency_bins</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">data_length</span><span class="p">)]</span>
+
+    <span class="c1"># indices of northern latitude points</span>
+    <span class="n">north</span> <span class="o">=</span> <span class="n">latitude</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+
+    <span class="c1"># initialize the zonal and meridional components of inertial displacements</span>
+    <span class="n">wxhat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">latitude</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span>
+    <span class="n">wyhat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">latitude</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span>
+    <span class="c1"># equations are x+ = 0.5*(z+ + z-) and y+ = -0.5*1j*(z+ - z-)</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">north</span><span class="p">):</span>
+        <span class="n">wxhat</span><span class="p">[</span><span class="n">north</span><span class="p">]</span> <span class="o">=</span> <span class="n">wn</span><span class="p">[</span><span class="n">north</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">wyhat</span><span class="p">[</span><span class="n">north</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">wn</span><span class="p">[</span><span class="n">north</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="o">~</span><span class="n">north</span><span class="p">):</span>
+        <span class="n">wxhat</span><span class="p">[</span><span class="o">~</span><span class="n">north</span><span class="p">]</span> <span class="o">=</span> <span class="n">wp</span><span class="p">[</span><span class="o">~</span><span class="n">north</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">wyhat</span><span class="p">[</span><span class="o">~</span><span class="n">north</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">wp</span><span class="p">[</span><span class="o">~</span><span class="n">north</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># inertial displacement in meters</span>
+    <span class="n">xhat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">wxhat</span><span class="p">)</span>
+    <span class="n">yhat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">wyhat</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xhat</span><span class="p">,</span> <span class="n">yhat</span></div>
+
+
+
+<div class="viewcode-block" id="residual_position_from_displacement">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.kinematics.residual_position_from_displacement.html#clouddrift.kinematics.residual_position_from_displacement">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">residual_position_from_displacement</span><span class="p">(</span>
+    <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return residual longitudes and latitudes along a trajectory on the spherical Earth</span>
+<span class="sd">    after correcting for zonal and meridional displacements x and y in meters.</span>
+
+<span class="sd">    This is applicable as an example when one seeks to correct a trajectory for</span>
+<span class="sd">    horizontal oscillations due to inertial motions, tides, etc.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    longitude : float or array-like</span>
+<span class="sd">        Longitude in degrees.</span>
+<span class="sd">    latitude : float or array-like</span>
+<span class="sd">        Latitude in degrees.</span>
+<span class="sd">    x : float or np.ndarray</span>
+<span class="sd">        Zonal displacement in meters.</span>
+<span class="sd">    y : float or np.ndarray</span>
+<span class="sd">        Meridional displacement in meters.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    residual_longitude : float or np.ndarray</span>
+<span class="sd">        Residual longitude after correcting for zonal displacement, in degrees.</span>
+<span class="sd">    residual_latitude : float or np.ndarray</span>
+<span class="sd">        Residual latitude after correcting for meridional displacement, in degrees.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Obtain the new geographical position for a displacement of 1/360-th of the</span>
+<span class="sd">    circumference of the Earth from original position (longitude,latitude) = (1,0):</span>
+
+<span class="sd">    &gt;&gt;&gt; from clouddrift.sphere import EARTH_RADIUS_METERS</span>
+<span class="sd">    &gt;&gt;&gt; residual_position_from_displacement(1,0,2 * np.pi * EARTH_RADIUS_METERS / 360,0)</span>
+<span class="sd">    (0.0, 0.0)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># convert to numpy arrays to insure consistent outputs</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">longitude</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="n">longitude</span> <span class="o">=</span> <span class="n">longitude</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">latitude</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="n">latitude</span> <span class="o">=</span> <span class="n">latitude</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+    <span class="n">latitudehat</span> <span class="o">=</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">y</span> <span class="o">/</span> <span class="n">EARTH_RADIUS_METERS</span>
+    <span class="n">longitudehat</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="n">EARTH_RADIUS_METERS</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">latitude</span><span class="p">)))</span>
+    <span class="p">)</span>
+
+    <span class="n">residual_latitude</span> <span class="o">=</span> <span class="n">latitude</span> <span class="o">-</span> <span class="n">latitudehat</span>
+    <span class="n">residual_longitude</span> <span class="o">=</span> <span class="n">recast_lon360</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">longitude</span> <span class="o">-</span> <span class="n">longitudehat</span><span class="p">))))</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">residual_longitude</span><span class="p">,</span> <span class="n">residual_latitude</span></div>
+
+
+
+<div class="viewcode-block" id="position_from_velocity">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.kinematics.position_from_velocity.html#clouddrift.kinematics.position_from_velocity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">position_from_velocity</span><span class="p">(</span>
+    <span class="n">u</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">v</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">x_origin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">y_origin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">coord_system</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;spherical&quot;</span><span class="p">,</span>
+    <span class="n">integration_scheme</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;forward&quot;</span><span class="p">,</span>
+    <span class="n">time_axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute positions from arrays of velocities and time and a pair of origin</span>
+<span class="sd">    coordinates.</span>
+
+<span class="sd">    The units of the result are degrees if ``coord_system == &quot;spherical&quot;`` (default).</span>
+<span class="sd">    If ``coord_system == &quot;cartesian&quot;``, the units of the result are equal to the</span>
+<span class="sd">    units of the input velocities multiplied by the units of the input time.</span>
+<span class="sd">    For example, if the input velocities are in meters per second and the input</span>
+<span class="sd">    time is in seconds, the units of the result will be meters.</span>
+
+<span class="sd">    Integration scheme can take one of three values:</span>
+
+<span class="sd">        1. &quot;forward&quot; (default): integration from x[i] to x[i+1] is performed</span>
+<span class="sd">            using the velocity at x[i].</span>
+<span class="sd">        2. &quot;backward&quot;: integration from x[i] to x[i+1] is performed using the</span>
+<span class="sd">            velocity at x[i+1].</span>
+<span class="sd">        3. &quot;centered&quot;: integration from x[i] to x[i+1] is performed using the</span>
+<span class="sd">            arithmetic average of the velocities at x[i] and x[i+1]. Note that</span>
+<span class="sd">            this method introduces some error due to the averaging.</span>
+
+<span class="sd">    u, v, and time can be multi-dimensional arrays. If the time axis, along</span>
+<span class="sd">    which the finite differencing is performed, is not the last one (i.e.</span>
+<span class="sd">    x.shape[-1]), use the ``time_axis`` optional argument to specify along which</span>
+<span class="sd">    axis should the differencing be done. ``x``, ``y``, and ``time`` must have</span>
+<span class="sd">    the same shape.</span>
+
+<span class="sd">    This function will not do any special handling of longitude ranges. If the</span>
+<span class="sd">    integrated trajectory crosses the antimeridian (dateline) in either direction, the</span>
+<span class="sd">    longitude values will not be adjusted to stay in any specific range such</span>
+<span class="sd">    as [-180, 180] or [0, 360]. If you need your longitudes to be in a specific</span>
+<span class="sd">    range, recast the resulting longitude from this function using the function</span>
+<span class="sd">    :func:`clouddrift.sphere.recast_lon`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    u : np.ndarray</span>
+<span class="sd">        An array of eastward velocities.</span>
+<span class="sd">    v : np.ndarray</span>
+<span class="sd">        An array of northward velocities.</span>
+<span class="sd">    time : np.ndarray</span>
+<span class="sd">        An array of time values.</span>
+<span class="sd">    x_origin : float</span>
+<span class="sd">        Origin x-coordinate or origin longitude.</span>
+<span class="sd">    y_origin : float</span>
+<span class="sd">        Origin y-coordinate or origin latitude.</span>
+<span class="sd">    coord_system : str, optional</span>
+<span class="sd">        The coordinate system of the input. Can be &quot;spherical&quot; or &quot;cartesian&quot;.</span>
+<span class="sd">        Default is &quot;spherical&quot;.</span>
+<span class="sd">    integration_scheme : str, optional</span>
+<span class="sd">        The difference scheme to use for computing the position. Can be</span>
+<span class="sd">        &quot;forward&quot; or &quot;backward&quot;. Default is &quot;forward&quot;.</span>
+<span class="sd">    time_axis : int, optional</span>
+<span class="sd">        The axis of the time array. Default is -1, which corresponds to the</span>
+<span class="sd">        last axis.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    x : np.ndarray</span>
+<span class="sd">        An array of zonal displacements or longitudes.</span>
+<span class="sd">    y : np.ndarray</span>
+<span class="sd">        An array of meridional displacements or latitudes.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    Simple integration on a plane, using the forward scheme by default:</span>
+
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.analysis import position_from_velocity</span>
+<span class="sd">    &gt;&gt;&gt; u = np.array([1., 2., 3., 4.])</span>
+<span class="sd">    &gt;&gt;&gt; v = np.array([1., 1., 1., 1.])</span>
+<span class="sd">    &gt;&gt;&gt; time = np.array([0., 1., 2., 3.])</span>
+<span class="sd">    &gt;&gt;&gt; x, y = position_from_velocity(u, v, time, 0, 0, coord_system=&quot;cartesian&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; x</span>
+<span class="sd">    array([0., 1., 3., 6.])</span>
+<span class="sd">    &gt;&gt;&gt; y</span>
+<span class="sd">    array([0., 1., 2., 3.])</span>
+
+<span class="sd">    As above, but using centered scheme:</span>
+
+<span class="sd">    &gt;&gt;&gt; x, y = position_from_velocity(u, v, time, 0, 0, coord_system=&quot;cartesian&quot;, integration_scheme=&quot;centered&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; x</span>
+<span class="sd">    array([0., 1.5, 4., 7.5])</span>
+<span class="sd">    &gt;&gt;&gt; y</span>
+<span class="sd">    array([0., 1., 2., 3.])</span>
+
+<span class="sd">    Simple integration on a sphere (default):</span>
+
+<span class="sd">    &gt;&gt;&gt; u = np.array([1., 2., 3., 4.])</span>
+<span class="sd">    &gt;&gt;&gt; v = np.array([1., 1., 1., 1.])</span>
+<span class="sd">    &gt;&gt;&gt; time = np.array([0., 1., 2., 3.]) * 1e5</span>
+<span class="sd">    &gt;&gt;&gt; x, y = position_from_velocity(u, v, time, 0, 0)</span>
+<span class="sd">    &gt;&gt;&gt; x</span>
+<span class="sd">    array([0.        , 0.89839411, 2.69584476, 5.39367518])</span>
+<span class="sd">    &gt;&gt;&gt; y</span>
+<span class="sd">    array([0.        , 0.89828369, 1.79601515, 2.69201609])</span>
+
+<span class="sd">    Integrating across the antimeridian (dateline) by default does not</span>
+<span class="sd">    recast the resulting longitude:</span>
+
+<span class="sd">    &gt;&gt;&gt; u = np.array([1., 1.])</span>
+<span class="sd">    &gt;&gt;&gt; v = np.array([0., 0.])</span>
+<span class="sd">    &gt;&gt;&gt; time = np.array([0, 1e5])</span>
+<span class="sd">    &gt;&gt;&gt; x, y = position_from_velocity(u, v, time, 179.5, 0)</span>
+<span class="sd">    &gt;&gt;&gt; x</span>
+<span class="sd">    array([179.5      , 180.3983205])</span>
+<span class="sd">    &gt;&gt;&gt; y</span>
+<span class="sd">    array([0., 0.])</span>
+
+<span class="sd">    Use the ``clouddrift.sphere.recast_lon`` function to recast the longitudes</span>
+<span class="sd">    to the desired range:</span>
+
+<span class="sd">    &gt;&gt;&gt; from clouddrift.sphere import recast_lon</span>
+<span class="sd">    &gt;&gt;&gt; recast_lon(x, -180)</span>
+<span class="sd">    array([ 179.5      , -179.6016795])</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If u and v do not have the same shape.</span>
+<span class="sd">        If the time axis is outside of the valid range ([-1, N-1]).</span>
+<span class="sd">        If lengths of x, y, and time along time_axis are not equal.</span>
+<span class="sd">        If the input coordinate system is not &quot;spherical&quot; or &quot;cartesian&quot;.</span>
+<span class="sd">        If the input integration scheme is not &quot;forward&quot;, &quot;backward&quot;, or &quot;centered&quot;</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`velocity_from_position`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Velocity arrays must have the same shape.</span>
+    <span class="c1"># Although the exception would be raised further down in the function,</span>
+    <span class="c1"># we do the check here for a clearer error message.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;u and v must have the same shape.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># time_axis must be in valid range</span>
+    <span class="k">if</span> <span class="n">time_axis</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">time_axis</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;time_axis (</span><span class="si">{</span><span class="n">time_axis</span><span class="si">}</span><span class="s2">) is outside of the valid range ([-1,&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">]).&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Input arrays must have the same length along the time axis.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">time_axis</span><span class="p">]</span> <span class="o">==</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">time_axis</span><span class="p">]</span> <span class="o">==</span> <span class="n">time</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">time_axis</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;u, v, and time must have the same length along the time axis &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">time_axis</span><span class="si">}</span><span class="s2">).&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Swap axes so that we can differentiate along the last axis.</span>
+    <span class="c1"># This is a syntax convenience rather than memory access optimization:</span>
+    <span class="c1"># np.swapaxes returns a view of the array, not a copy, if the input is a</span>
+    <span class="c1"># NumPy array. Otherwise, it returns a copy. For readability, introduce new</span>
+    <span class="c1"># variable names so that we can more easily differentiate between the</span>
+    <span class="c1"># original arrays and those with swapped axes.</span>
+    <span class="n">u_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">v_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">time_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">u_</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">v_</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">v</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time_</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">integration_scheme</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;forward&quot;</span><span class="p">:</span>
+        <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">u_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">v_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">integration_scheme</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;backward&quot;</span><span class="p">:</span>
+        <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">u_</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">v_</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">integration_scheme</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;centered&quot;</span><span class="p">:</span>
+        <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">u_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">u_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:])</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">v_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:])</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;integration_scheme must be &quot;forward&quot;, &quot;backward&quot;, or &quot;centered&quot;.&#39;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">coord_system</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;cartesian&quot;</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">+=</span> <span class="n">x_origin</span>
+        <span class="n">y</span> <span class="o">+=</span> <span class="n">y_origin</span>
+    <span class="k">elif</span> <span class="n">coord_system</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;spherical&quot;</span><span class="p">:</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">dy</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">bearings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">dy</span><span class="p">,</span> <span class="n">dx</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_origin</span><span class="p">,</span> <span class="n">y_origin</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">distances</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">position_from_distance_and_bearing</span><span class="p">(</span>
+                <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">n</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">n</span><span class="p">],</span> <span class="n">distances</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">n</span><span class="p">],</span> <span class="n">bearings</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">n</span><span class="p">]</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;coord_system must be &quot;spherical&quot; or &quot;cartesian&quot;.&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="velocity_from_position">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.kinematics.velocity_from_position.html#clouddrift.kinematics.velocity_from_position">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">velocity_from_position</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">coord_system</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;spherical&quot;</span><span class="p">,</span>
+    <span class="n">difference_scheme</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;forward&quot;</span><span class="p">,</span>
+    <span class="n">time_axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute velocity from arrays of positions and time.</span>
+
+<span class="sd">    x and y can be provided as longitude and latitude in degrees if</span>
+<span class="sd">    coord_system == &quot;spherical&quot; (default), or as easting and northing if</span>
+<span class="sd">    coord_system == &quot;cartesian&quot;.</span>
+
+<span class="sd">    The units of the result are meters per unit of time if</span>
+<span class="sd">    coord_system == &quot;spherical&quot;. For example, if the time is provided in the</span>
+<span class="sd">    units of seconds, the resulting velocity is in the units of meters per</span>
+<span class="sd">    second. Otherwise, if coord_system == &quot;cartesian&quot;, the units of the</span>
+<span class="sd">    resulting velocity correspond to the units of the input. For example,</span>
+<span class="sd">    if zonal and meridional displacements are in the units of kilometers and</span>
+<span class="sd">    time is in the units of hours, the resulting velocity is in the units of</span>
+<span class="sd">    kilometers per hour.</span>
+
+<span class="sd">    x, y, and time can be multi-dimensional arrays. If the time axis, along</span>
+<span class="sd">    which the finite differencing is performed, is not the last one (i.e.</span>
+<span class="sd">    x.shape[-1]), use the time_axis optional argument to specify along which</span>
+<span class="sd">    axis should the differencing be done. x, y, and time must have the same</span>
+<span class="sd">    shape.</span>
+
+<span class="sd">    Difference scheme can take one of three values:</span>
+
+<span class="sd">    #. &quot;forward&quot; (default): finite difference is evaluated as ``dx[i] = dx[i+1] - dx[i]``;</span>
+<span class="sd">    #. &quot;backward&quot;: finite difference is evaluated as ``dx[i] = dx[i] - dx[i-1]``;</span>
+<span class="sd">    #. &quot;centered&quot;: finite difference is evaluated as ``dx[i] = (dx[i+1] - dx[i-1]) / 2``.</span>
+
+<span class="sd">    Forward and backward schemes are effectively the same except that the</span>
+<span class="sd">    position at which the velocity is evaluated is shifted one element down in</span>
+<span class="sd">    the backward scheme relative to the forward scheme. In the case of a</span>
+<span class="sd">    forward or backward difference scheme, the last or first element of the</span>
+<span class="sd">    velocity, respectively, is extrapolated from its neighboring point. In the</span>
+<span class="sd">    case of a centered difference scheme, the start and end boundary points are</span>
+<span class="sd">    evaluated using the forward and backward difference scheme, respectively.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : array_like</span>
+<span class="sd">        An N-d array of x-positions (longitude in degrees or zonal displacement in any unit)</span>
+<span class="sd">    y : array_like</span>
+<span class="sd">        An N-d array of y-positions (latitude in degrees or meridional displacement in any unit)</span>
+<span class="sd">    time : array_like</span>
+<span class="sd">        An N-d array of times as floating point values (in any unit)</span>
+<span class="sd">    coord_system : str, optional</span>
+<span class="sd">        Coordinate system that x and y arrays are in; possible values are &quot;spherical&quot; (default) or &quot;cartesian&quot;.</span>
+<span class="sd">    difference_scheme : str, optional</span>
+<span class="sd">        Difference scheme to use; possible values are &quot;forward&quot;, &quot;backward&quot;, and &quot;centered&quot;.</span>
+<span class="sd">    time_axis : int, optional</span>
+<span class="sd">        Axis along which to differentiate (default is -1)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    u : np.ndarray</span>
+<span class="sd">        Zonal velocity</span>
+<span class="sd">    v : np.ndarray</span>
+<span class="sd">        Meridional velocity</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If x and y do not have the same shape.</span>
+<span class="sd">        If time_axis is outside of the valid range.</span>
+<span class="sd">        If lengths of x, y, and time along time_axis are not equal.</span>
+<span class="sd">        If coord_system is not &quot;spherical&quot; or &quot;cartesian&quot;.</span>
+<span class="sd">        If difference_scheme is not &quot;forward&quot;, &quot;backward&quot;, or &quot;centered&quot;.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Simple integration on a sphere, using the forward scheme by default:</span>
+
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.kinematics import velocity_from_position</span>
+<span class="sd">    &gt;&gt;&gt; lon = np.array([0., 1., 3., 6.])</span>
+<span class="sd">    &gt;&gt;&gt; lat = np.array([0., 1., 2., 3.])</span>
+<span class="sd">    &gt;&gt;&gt; time = np.array([0., 1., 2., 3.]) * 1e5</span>
+<span class="sd">    &gt;&gt;&gt; u, v = velocity_from_position(lon, lat, time)</span>
+<span class="sd">    &gt;&gt;&gt; u</span>
+<span class="sd">    array([1.11307541, 2.22513331, 3.33515501, 3.33515501])</span>
+<span class="sd">    &gt;&gt;&gt; v</span>
+<span class="sd">    array([1.11324496, 1.11409224, 1.1167442 , 1.1167442 ])</span>
+
+<span class="sd">    Integration on a Cartesian plane, using the forward scheme by default:</span>
+
+<span class="sd">    &gt;&gt;&gt; x = np.array([0., 1., 3., 6.])</span>
+<span class="sd">    &gt;&gt;&gt; y = np.array([0., 1., 2., 3.])</span>
+<span class="sd">    &gt;&gt;&gt; time = np.array([0., 1., 2., 3.])</span>
+<span class="sd">    &gt;&gt;&gt; u, v = velocity_from_position(x, y, time, coord_system=&quot;cartesian&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; u</span>
+<span class="sd">    array([1., 2., 3., 3.])</span>
+<span class="sd">    &gt;&gt;&gt; v</span>
+<span class="sd">    array([1., 1., 1., 1.])</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`position_from_velocity`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Position arrays must have the same shape.</span>
+    <span class="c1"># Although the exception would be raised further down in the function,</span>
+    <span class="c1"># we do the check here for a clearer error message.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;x and y arrays must have the same shape.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># time_axis must be in valid range</span>
+    <span class="k">if</span> <span class="n">time_axis</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">time_axis</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;time_axis (</span><span class="si">{</span><span class="n">time_axis</span><span class="si">}</span><span class="s2">) is outside of the valid range ([-1,&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">]).&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Input arrays must have the same length along the time axis.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">time_axis</span><span class="p">]</span> <span class="o">==</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">time_axis</span><span class="p">]</span> <span class="o">==</span> <span class="n">time</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">time_axis</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;x, y, and time must have the same length along the time axis &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">time_axis</span><span class="si">}</span><span class="s2">).&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Swap axes so that we can differentiate along the last axis.</span>
+    <span class="c1"># This is a syntax convenience rather than memory access optimization:</span>
+    <span class="c1"># np.swapaxes returns a view of the array, not a copy, if the input is a</span>
+    <span class="c1"># NumPy array. Otherwise, it returns a copy. For readability, introduce new</span>
+    <span class="c1"># variable names so that we can more easily differentiate between the</span>
+    <span class="c1"># original arrays and those with swapped axes.</span>
+    <span class="n">x_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">y_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">time_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Convert to numpy arrays to insure consistent operations</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x_</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="n">x_</span> <span class="o">=</span> <span class="n">x_</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y_</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="n">y_</span> <span class="o">=</span> <span class="n">y_</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time_</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="n">time_</span> <span class="o">=</span> <span class="n">time_</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+    <span class="c1"># Initialize arrays for dx, dy, and dt</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">x_</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">y_</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">time_</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="c1"># Compute dx, dy, and dt</span>
+    <span class="k">if</span> <span class="n">difference_scheme</span> <span class="o">==</span> <span class="s2">&quot;forward&quot;</span><span class="p">:</span>
+        <span class="c1"># All values except the ending boundary value are computed using the</span>
+        <span class="c1"># 1st order forward differencing. The ending boundary value is</span>
+        <span class="c1"># computed using the 1st order backward difference.</span>
+
+        <span class="c1"># Time</span>
+        <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time_</span><span class="p">)</span>
+        <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="c1"># Space</span>
+        <span class="k">if</span> <span class="n">coord_system</span> <span class="o">==</span> <span class="s2">&quot;cartesian&quot;</span><span class="p">:</span>
+            <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x_</span><span class="p">)</span>
+            <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y_</span><span class="p">)</span>
+            <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="n">coord_system</span> <span class="o">==</span> <span class="s2">&quot;spherical&quot;</span><span class="p">:</span>
+            <span class="n">distances</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:])</span>
+            <span class="n">bearings</span> <span class="o">=</span> <span class="n">bearing</span><span class="p">(</span><span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:])</span>
+            <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">distances</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">bearings</span><span class="p">)</span>
+            <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">distances</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">bearings</span><span class="p">)</span>
+            <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;coord_system must be &quot;spherical&quot; or &quot;cartesian&quot;.&#39;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">difference_scheme</span> <span class="o">==</span> <span class="s2">&quot;backward&quot;</span><span class="p">:</span>
+        <span class="c1"># All values except the starting boundary value are computed using the</span>
+        <span class="c1"># 1st order backward differencing. The starting boundary value is</span>
+        <span class="c1"># computed using the 1st order forward difference.</span>
+
+        <span class="c1"># Time</span>
+        <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time_</span><span class="p">)</span>
+        <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Space</span>
+        <span class="k">if</span> <span class="n">coord_system</span> <span class="o">==</span> <span class="s2">&quot;cartesian&quot;</span><span class="p">:</span>
+            <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x_</span><span class="p">)</span>
+            <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y_</span><span class="p">)</span>
+            <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="n">coord_system</span> <span class="o">==</span> <span class="s2">&quot;spherical&quot;</span><span class="p">:</span>
+            <span class="n">distances</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:])</span>
+            <span class="n">bearings</span> <span class="o">=</span> <span class="n">bearing</span><span class="p">(</span><span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:])</span>
+            <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">distances</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">bearings</span><span class="p">)</span>
+            <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">distances</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">bearings</span><span class="p">)</span>
+            <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;coord_system must be &quot;spherical&quot; or &quot;cartesian&quot;.&#39;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">difference_scheme</span> <span class="o">==</span> <span class="s2">&quot;centered&quot;</span><span class="p">:</span>
+        <span class="c1"># Inner values are computed using the 2nd order centered differencing.</span>
+        <span class="c1"># The start and end boundary values are computed using the 1st order</span>
+        <span class="c1"># forward and backward differencing, respectively.</span>
+
+        <span class="c1"># Time</span>
+        <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">time_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">-</span> <span class="n">time_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="c1"># Space</span>
+        <span class="k">if</span> <span class="n">coord_system</span> <span class="o">==</span> <span class="s2">&quot;cartesian&quot;</span><span class="p">:</span>
+            <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">-</span> <span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">-</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="n">coord_system</span> <span class="o">==</span> <span class="s2">&quot;spherical&quot;</span><span class="p">:</span>
+            <span class="c1"># Inner values</span>
+            <span class="n">y1</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">x1</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">y2</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">+</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">x2</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">+</span> <span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">distances</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">)</span>
+            <span class="n">bearings</span> <span class="o">=</span> <span class="n">bearing</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">)</span>
+            <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">distances</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">bearings</span><span class="p">)</span>
+            <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">distances</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">bearings</span><span class="p">)</span>
+
+            <span class="c1"># Boundary values</span>
+            <span class="n">distance1</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">bearing1</span> <span class="o">=</span> <span class="n">bearing</span><span class="p">(</span><span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">distance1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">bearing1</span><span class="p">)</span>
+            <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">distance1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">bearing1</span><span class="p">)</span>
+            <span class="n">distance2</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">bearing2</span> <span class="o">=</span> <span class="n">bearing</span><span class="p">(</span><span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">x_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y_</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">dx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">distance2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">bearing2</span><span class="p">)</span>
+            <span class="n">dy</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">distance2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">bearing2</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;coord_system must be &quot;spherical&quot; or &quot;cartesian&quot;.&#39;</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;difference_scheme must be &quot;forward&quot;, &quot;backward&quot;, or &quot;centered&quot;.&#39;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># This should avoid an array copy when returning the result</span>
+    <span class="n">dx</span> <span class="o">/=</span> <span class="n">dt</span>
+    <span class="n">dy</span> <span class="o">/=</span> <span class="n">dt</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">dy</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="spin">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.kinematics.spin.html#clouddrift.kinematics.spin">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">spin</span><span class="p">(</span>
+    <span class="n">u</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">v</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">difference_scheme</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;forward&quot;</span><span class="p">,</span>
+    <span class="n">time_axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute spin continuously from velocities and times.</span>
+
+<span class="sd">    Spin is traditionally (Sawford, 1999; Veneziani et al., 2005) defined as</span>
+<span class="sd">    (&lt;u&#39;dv&#39; - v&#39;du&#39;&gt;) / (2 dt EKE) where u&#39; and v&#39; are eddy-perturbations of the</span>
+<span class="sd">    velocity field, EKE is eddy kinetic energy, dt is the time step, and du&#39; and</span>
+<span class="sd">    dv&#39; are velocity component increments during dt, and &lt; &gt; denotes ensemble</span>
+<span class="sd">    average.</span>
+
+<span class="sd">    To allow computing spin based on full velocity fields, this function does</span>
+<span class="sd">    not do any demeaning of the velocity fields. If you need the spin based on</span>
+<span class="sd">    velocity anomalies, ensure to demean the velocity fields before passing</span>
+<span class="sd">    them to this function. This function also returns instantaneous spin values,</span>
+<span class="sd">    so the rank of the result is not reduced relative to the input.</span>
+
+<span class="sd">    ``u``, ``v``, and ``time`` can be multi-dimensional arrays. If the time</span>
+<span class="sd">    axis, along which the finite differencing is performed, is not the last one</span>
+<span class="sd">    (i.e. ``u.shape[-1]``), use the time_axis optional argument to specify along</span>
+<span class="sd">    which the spin should be calculated. u, v, and time must either have the</span>
+<span class="sd">    same shape, or time must be a 1-d array with the same length as</span>
+<span class="sd">    ``u.shape[time_axis]``.</span>
+
+<span class="sd">    Difference scheme can be one of three values:</span>
+
+<span class="sd">        1. &quot;forward&quot; (default): finite difference is evaluated as ``dx[i] = dx[i+1] - dx[i]``;</span>
+<span class="sd">        2. &quot;backward&quot;: finite difference is evaluated as ``dx[i] = dx[i] - dx[i-1]``;</span>
+<span class="sd">        3. &quot;centered&quot;: finite difference is evaluated as ``dx[i] = (dx[i+1] - dx[i-1]) / 2``.</span>
+
+<span class="sd">    Forward and backward schemes are effectively the same except that the</span>
+<span class="sd">    position at which the velocity is evaluated is shifted one element down in</span>
+<span class="sd">    the backward scheme relative to the forward scheme. In the case of a</span>
+<span class="sd">    forward or backward difference scheme, the last or first element of the</span>
+<span class="sd">    velocity, respectively, is extrapolated from its neighboring point. In the</span>
+<span class="sd">    case of a centered difference scheme, the start and end boundary points are</span>
+<span class="sd">    evaluated using the forward and backward difference scheme, respectively.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    u : np.ndarray</span>
+<span class="sd">        Zonal velocity</span>
+<span class="sd">    v : np.ndarray</span>
+<span class="sd">        Meridional velocity</span>
+<span class="sd">    time : array-like</span>
+<span class="sd">        Time</span>
+<span class="sd">    difference_scheme : str, optional</span>
+<span class="sd">        Difference scheme to use; possible values are &quot;forward&quot;, &quot;backward&quot;, and &quot;centered&quot;.</span>
+<span class="sd">    time_axis : int, optional</span>
+<span class="sd">        Axis along which the time varies (default is -1)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    s : float or np.ndarray</span>
+<span class="sd">        Spin</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If u and v do not have the same shape.</span>
+<span class="sd">        If the time axis is outside of the valid range ([-1, N-1]).</span>
+<span class="sd">        If lengths of u, v, and time along time_axis are not equal.</span>
+<span class="sd">        If difference_scheme is not &quot;forward&quot;, &quot;backward&quot;, or &quot;centered&quot;.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.kinematics import spin</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; u = np.array([1., 2., -1., 4.])</span>
+<span class="sd">    &gt;&gt;&gt; v = np.array([1., 3., -2., 1.])</span>
+<span class="sd">    &gt;&gt;&gt; time = np.array([0., 1., 2., 3.])</span>
+<span class="sd">    &gt;&gt;&gt; spin(u, v, time)</span>
+<span class="sd">    array([ 0.5       , -0.07692308,  1.4       ,  0.41176471])</span>
+
+<span class="sd">    Use ``difference_scheme`` to specify an alternative finite difference</span>
+<span class="sd">    scheme for the velocity differences:</span>
+
+<span class="sd">    &gt;&gt;&gt; spin(u, v, time, difference_scheme=&quot;centered&quot;)</span>
+<span class="sd">    array([0.5       , 0.        , 0.6       , 0.41176471])</span>
+<span class="sd">    &gt;&gt;&gt; spin(u, v, time, difference_scheme=&quot;backward&quot;)</span>
+<span class="sd">    array([ 0.5       ,  0.07692308, -0.2       ,  0.41176471])</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    * Sawford, B.L., 1999. Rotation of trajectories in Lagrangian stochastic models of turbulent dispersion. Boundary-layer meteorology, 93, pp.411-424. https://doi.org/10.1023/A:1002114132715</span>
+<span class="sd">    * Veneziani, M., Griffa, A., Garraffo, Z.D. and Chassignet, E.P., 2005. Lagrangian spin parameter and coherent structures from trajectories released in a high-resolution ocean model. Journal of Marine Research, 63(4), pp.753-788. https://elischolar.library.yale.edu/journal_of_marine_research/100/</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;u and v arrays must have the same shape.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">time</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">time</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">time_axis</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;time must have the same length as u along time_axis.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># axis must be in valid range</span>
+    <span class="k">if</span> <span class="n">time_axis</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">time_axis</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;axis (</span><span class="si">{</span><span class="n">time_axis</span><span class="si">}</span><span class="s2">) is outside of the valid range ([-1,&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">]).&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Swap axes so that we can differentiate along the last axis.</span>
+    <span class="c1"># This is a syntax convenience rather than memory access optimization:</span>
+    <span class="c1"># np.swapaxes returns a view of the array, not a copy, if the input is a</span>
+    <span class="c1"># NumPy array. Otherwise, it returns a copy.</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">time</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="c1"># time is 1-d array; broadcast to u.shape.</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="n">du</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">dv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">difference_scheme</span> <span class="o">==</span> <span class="s2">&quot;forward&quot;</span><span class="p">:</span>
+        <span class="n">du</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+        <span class="n">du</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">du</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">dv</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="n">dv</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dv</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+        <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">difference_scheme</span> <span class="o">==</span> <span class="s2">&quot;backward&quot;</span><span class="p">:</span>
+        <span class="n">du</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+        <span class="n">du</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">du</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">dv</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="n">dv</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dv</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+        <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">difference_scheme</span> <span class="o">==</span> <span class="s2">&quot;centered&quot;</span><span class="p">:</span>
+        <span class="n">du</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">-</span> <span class="n">u</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">du</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">u</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">du</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">u</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">dv</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">-</span> <span class="n">v</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">dv</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">v</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">dv</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">v</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">-</span> <span class="n">time</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">dt</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;difference_scheme must be &quot;forward&quot;, &quot;backward&quot;, or &quot;centered&quot;.&#39;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Compute spin</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">dv</span> <span class="o">-</span> <span class="n">v</span> <span class="o">*</span> <span class="n">du</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">kinetic_energy</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Philippe Miron
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022-2023, CloudDrift.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

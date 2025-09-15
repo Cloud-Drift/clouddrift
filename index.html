@@ -1,110 +1,637 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+
+<html lang="en" data-content_root="./" >
+
   <head>
     <meta charset="utf-8" />
-    <title>Welcome to No Errors Test Project’s documentation! &#8212; No Errors Test Project  documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>CloudDrift, a platform for accelerating research with Lagrangian climate data &#8212; CloudDrift  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=35a8b989"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="next" title="Installation" href="install.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
   
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
-  </head><body>
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
   
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
 
-          <div class="body" role="main">
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="#">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="CloudDrift  documentation - Home"/>
+    <script>document.write(`<img src="_static/logo.png" class="logo__image only-dark" alt="CloudDrift  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Cloud-Drift/clouddrift/blob/main/CONTRIBUTING.md">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/clouddrift.adapters.html">clouddrift.adapters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/clouddrift.adapters.andro.html">clouddrift.adapters.andro</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.andro.to_xarray.html">clouddrift.adapters.andro.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/clouddrift.adapters.gdp.html">clouddrift.adapters.gdp</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.gdp.cast_float64_variables_to_float32.html">clouddrift.adapters.gdp.cast_float64_variables_to_float32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.gdp.cut_str.html">clouddrift.adapters.gdp.cut_str</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.gdp.decode_date.html">clouddrift.adapters.gdp.decode_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.gdp.drogue_presence.html">clouddrift.adapters.gdp.drogue_presence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.gdp.fetch_netcdf.html">clouddrift.adapters.gdp.fetch_netcdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.gdp.fill_values.html">clouddrift.adapters.gdp.fill_values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.gdp.get_gdp_metadata.html">clouddrift.adapters.gdp.get_gdp_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.gdp.order_by_date.html">clouddrift.adapters.gdp.order_by_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.gdp.parse_directory_file.html">clouddrift.adapters.gdp.parse_directory_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.gdp.rowsize.html">clouddrift.adapters.gdp.rowsize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.gdp.str_to_float.html">clouddrift.adapters.gdp.str_to_float</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.gdp.gdp1h.html">clouddrift.adapters.gdp.gdp1h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.gdp.gdp6h.html">clouddrift.adapters.gdp.gdp6h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.gdp.gdpsource.html">clouddrift.adapters.gdp.gdpsource</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/clouddrift.adapters.glad.html">clouddrift.adapters.glad</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.glad.get_dataframe.html">clouddrift.adapters.glad.get_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.glad.to_xarray.html">clouddrift.adapters.glad.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/clouddrift.adapters.hurdat2.html">clouddrift.adapters.hurdat2</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.hurdat2.to_raggedarray.html">clouddrift.adapters.hurdat2.to_raggedarray</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.hurdat2.DataLine.html">clouddrift.adapters.hurdat2.DataLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.hurdat2.HeaderLine.html">clouddrift.adapters.hurdat2.HeaderLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.hurdat2.RecordIdentifier.html">clouddrift.adapters.hurdat2.RecordIdentifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.hurdat2.SystemStatus.html">clouddrift.adapters.hurdat2.SystemStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.hurdat2.TrackData.html">clouddrift.adapters.hurdat2.TrackData</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/clouddrift.adapters.ibtracs.html">clouddrift.adapters.ibtracs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.ibtracs.to_raggedarray.html">clouddrift.adapters.ibtracs.to_raggedarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/clouddrift.adapters.mosaic.html">clouddrift.adapters.mosaic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.mosaic.get_dataframes.html">clouddrift.adapters.mosaic.get_dataframes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.mosaic.get_file_urls.html">clouddrift.adapters.mosaic.get_file_urls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.mosaic.get_repository_metadata.html">clouddrift.adapters.mosaic.get_repository_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.mosaic.to_xarray.html">clouddrift.adapters.mosaic.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/clouddrift.adapters.subsurface_floats.html">clouddrift.adapters.subsurface_floats</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.subsurface_floats.download.html">clouddrift.adapters.subsurface_floats.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.subsurface_floats.to_xarray.html">clouddrift.adapters.subsurface_floats.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/clouddrift.adapters.utils.html">clouddrift.adapters.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.utils.download_with_progress.html">clouddrift.adapters.utils.download_with_progress</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/clouddrift.adapters.yomaha.html">clouddrift.adapters.yomaha</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.yomaha.download.html">clouddrift.adapters.yomaha.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/clouddrift.adapters.yomaha.to_xarray.html">clouddrift.adapters.yomaha.to_xarray</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/clouddrift.binning.html">clouddrift.binning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.binning.binned_statistics.html">clouddrift.binning.binned_statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.binning.handle_datetime_conversion.html">clouddrift.binning.handle_datetime_conversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/clouddrift.datasets.html">clouddrift.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.datasets.andro.html">clouddrift.datasets.andro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.datasets.gdp1h.html">clouddrift.datasets.gdp1h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.datasets.gdp6h.html">clouddrift.datasets.gdp6h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.datasets.gdp_source.html">clouddrift.datasets.gdp_source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.datasets.glad.html">clouddrift.datasets.glad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.datasets.hurdat2.html">clouddrift.datasets.hurdat2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.datasets.ibtracs.html">clouddrift.datasets.ibtracs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.datasets.mosaic.html">clouddrift.datasets.mosaic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.datasets.spotters.html">clouddrift.datasets.spotters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.datasets.subsurface_floats.html">clouddrift.datasets.subsurface_floats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.datasets.yomaha.html">clouddrift.datasets.yomaha</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/clouddrift.kinematics.html">clouddrift.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.kinematics.inertial_oscillation_from_position.html">clouddrift.kinematics.inertial_oscillation_from_position</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.kinematics.kinetic_energy.html">clouddrift.kinematics.kinetic_energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.kinematics.position_from_velocity.html">clouddrift.kinematics.position_from_velocity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.kinematics.residual_position_from_displacement.html">clouddrift.kinematics.residual_position_from_displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.kinematics.spin.html">clouddrift.kinematics.spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.kinematics.velocity_from_position.html">clouddrift.kinematics.velocity_from_position</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/clouddrift.pairs.html">clouddrift.pairs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.pairs.chance_pair.html">clouddrift.pairs.chance_pair</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.pairs.chance_pairs_from_ragged.html">clouddrift.pairs.chance_pairs_from_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.pairs.pair_bounding_box_overlap.html">clouddrift.pairs.pair_bounding_box_overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.pairs.pair_space_distance.html">clouddrift.pairs.pair_space_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.pairs.pair_time_distance.html">clouddrift.pairs.pair_time_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.pairs.pair_time_overlap.html">clouddrift.pairs.pair_time_overlap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/clouddrift.plotting.html">clouddrift.plotting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.plotting.plot_ragged.html">clouddrift.plotting.plot_ragged</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/clouddrift.ragged.html">clouddrift.ragged</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.ragged.apply_ragged.html">clouddrift.ragged.apply_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.ragged.chunk.html">clouddrift.ragged.chunk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.ragged.obs_index_to_row.html">clouddrift.ragged.obs_index_to_row</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.ragged.prune.html">clouddrift.ragged.prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.ragged.ragged_to_regular.html">clouddrift.ragged.ragged_to_regular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.ragged.regular_to_ragged.html">clouddrift.ragged.regular_to_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.ragged.rowsize_to_index.html">clouddrift.ragged.rowsize_to_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.ragged.segment.html">clouddrift.ragged.segment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.ragged.subset.html">clouddrift.ragged.subset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.ragged.unpack.html">clouddrift.ragged.unpack</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/clouddrift.raggedarray.html">clouddrift.raggedarray</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.raggedarray.RaggedArray.html">clouddrift.raggedarray.RaggedArray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/clouddrift.signal.html">clouddrift.signal</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.signal.analytic_signal.html">clouddrift.signal.analytic_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.signal.cartesian_to_rotary.html">clouddrift.signal.cartesian_to_rotary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.signal.ellipse_parameters.html">clouddrift.signal.ellipse_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.signal.modulated_ellipse_signal.html">clouddrift.signal.modulated_ellipse_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.signal.rotary_to_cartesian.html">clouddrift.signal.rotary_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/clouddrift.sphere.html">clouddrift.sphere</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.sphere.bearing.html">clouddrift.sphere.bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.sphere.cartesian_to_spherical.html">clouddrift.sphere.cartesian_to_spherical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.sphere.cartesian_to_tangentplane.html">clouddrift.sphere.cartesian_to_tangentplane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.sphere.coriolis_frequency.html">clouddrift.sphere.coriolis_frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.sphere.cumulative_distance.html">clouddrift.sphere.cumulative_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.sphere.distance.html">clouddrift.sphere.distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.sphere.plane_to_sphere.html">clouddrift.sphere.plane_to_sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.sphere.position_from_distance_and_bearing.html">clouddrift.sphere.position_from_distance_and_bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.sphere.recast_lon.html">clouddrift.sphere.recast_lon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.sphere.recast_lon180.html">clouddrift.sphere.recast_lon180</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.sphere.recast_lon360.html">clouddrift.sphere.recast_lon360</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.sphere.sphere_to_plane.html">clouddrift.sphere.sphere_to_plane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.sphere.spherical_to_cartesian.html">clouddrift.sphere.spherical_to_cartesian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.sphere.tangentplane_to_cartesian.html">clouddrift.sphere.tangentplane_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/clouddrift.wavelet.html">clouddrift.wavelet</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.wavelet.morse_amplitude.html">clouddrift.wavelet.morse_amplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.wavelet.morse_freq.html">clouddrift.wavelet.morse_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.wavelet.morse_logspace_freq.html">clouddrift.wavelet.morse_logspace_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.wavelet.morse_properties.html">clouddrift.wavelet.morse_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.wavelet.morse_wavelet.html">clouddrift.wavelet.morse_wavelet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.wavelet.morse_wavelet_transform.html">clouddrift.wavelet.morse_wavelet_transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/clouddrift.wavelet.wavelet_transform.html">clouddrift.wavelet.wavelet_transform</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/index.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>CloudDrift, a platform for accelerating research with Lagrangian climate data</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
             
-  <div class="section" id="welcome-to-no-errors-test-project-s-documentation">
-<h1>Welcome to No Errors Test Project’s documentation!<a class="headerlink" href="#welcome-to-no-errors-test-project-s-documentation" title="Permalink to this headline">¶</a></h1>
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-version">Version: 0.46.0</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scope-and-key-features">Scope and Key Features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#motivations">Motivations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">Getting started</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference">Reference</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="clouddrift-a-platform-for-accelerating-research-with-lagrangian-climate-data">
+<h1>CloudDrift, a platform for accelerating research with Lagrangian climate data<a class="headerlink" href="#clouddrift-a-platform-for-accelerating-research-with-lagrangian-climate-data" title="Link to this heading">#</a></h1>
+<section id="version-version">
+<h2>Version: 0.46.0<a class="headerlink" href="#version-version" title="Link to this heading">#</a></h2>
+<p>Lagrangian data typically refers to oceanic and atmosphere information acquired by observing platforms drifting with the flow they are embedded within, but also refers more broadly to the data originating from uncrewed platforms, vehicles, and animals that gather data along their unrestricted and often complex paths. Because such paths traverse both spatial and temporal dimensions, Lagrangian data can convolve spatial and temporal information that cannot always readily be organized in common data structures and stored in standard file formats with the help of common libraries and standards.</p>
+<p>As such, for both originators and users, Lagrangian data present challenges that the CloudDrift project aims to overcome. This project is funded by the <a class="reference external" href="https://www.earthcube.org/info">NSF EarthCube program</a> through <a class="reference external" href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2126413">EarthCube Capabilities Grant No. 2126413</a>.</p>
+</section>
+<section id="scope-and-key-features">
+<h2>Scope and Key Features<a class="headerlink" href="#scope-and-key-features" title="Link to this heading">#</a></h2>
+<p>The scope of the Clouddrift library includes:</p>
+<ol class="arabic simple">
+<li><p><strong>Working with contiguous ragged array representations of data, wether they originate from geosciences or any other field</strong>. Ragged array representations are typically useful when the data lengths of the instances of a feature (variable) are not all equal. With such representations the data for each features are stored contiguously in memory, and the number of elements that each feature has is contained in a count variable which Clouddrift calls <em>rowsize</em>.</p></li>
+<li><p><strong>Delivering functions and methods to perform scientific analysis of Lagrangian data, oceanographic or otherwise, structured as ragged arrays or otherwise</strong>. A straightforward example of Lagrangian analysis provided by Clouddrift is the derivation of Lagrangian velocities from a sequence of Lagrangian positions, and vice versa. Another more involved example is the discovery of pairs of Lagrangian data prescribed by distances in space and time. Both of these methods are currently available with Clouddrift.</p></li>
+<li><p><strong>Processing publicly available Lagrangian datasets into the common ragged array data structure and format</strong>. Through data <em>adapters</em>, this type of processing includes not only converting Lagrangian data from typically regular arrays to ragged arrays but also aggregating data and metadata from multiple data files into a single data file. The canonical example of the Clouddrift library is constituted of the data from the NOAA Global Drifter Program (see Motivations below).</p></li>
+<li><p><strong>Making cloud-optimized ragged array datasets easily accessible</strong>. This involves opening in a local computing environment, without unnecessary download, Lagrangian datasets available from cloud servers, as well as opening Lagrangian dataset which have been seamlessly processed by the Clouddrift data <em>adapters</em>.</p></li>
+</ol>
+<p>CloudDrift’s analysis functions are principally centered around the ragged-array data structure:</p>
+<a class="reference internal image-reference" href="_images/ragged_array.png"><img alt="Ragged array schematic" class="align-center" src="_images/ragged_array.png" style="width: 800px;" />
+</a>
+</section>
+<section id="motivations">
+<h2>Motivations<a class="headerlink" href="#motivations" title="Link to this heading">#</a></h2>
+<p>The <a class="reference external" href="https://www.aoml.noaa.gov/phod/gdp/">Global Drifter Program (GDP)</a> of the US National Oceanic and Atmospheric Administration has released to date nearly 25,000 drifting buoys, or drifters, with the goal of obtaining observations of oceanic velocity, sea surface temperature, and sea level pressure. From these drifter observations, the GDP generates two data products: one of oceanic variables estimated along drifter trajectories at <a class="reference external" href="https://www.aoml.noaa.gov/phod/gdp/interpolated/data/all.php">hourly</a> time steps, and one at <a class="reference external" href="https://www.aoml.noaa.gov/phod/gdp/hourly_data.php">six-hourly</a> steps.</p>
+<p>There are a few ways to retrieve the data, but all typically require time-consuming preprocessing steps in order to prepare the data for analysis. As an example, the datasets can be retrieved through an <a class="reference external" href="https://data.pmel.noaa.gov/generic/erddap/tabledap/gdp_hourly_velocities.html">ERDDAP server</a>, but requests are limited in size. The latest <a class="reference external" href="https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/netcdf/">6-hourly dataset</a> is distributed as a collection of thousands of individual NetCDF files or as a series of <a class="reference external" href="https://www.aoml.noaa.gov/phod/gdp/">ASCII files</a>. Until recently, the <a class="reference external" href="https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/v2.00/netcdf/">hourly dataset</a> was distributed as a collection of individual NetCDF files (17,324 for version 1.04c) but is now distributed by NOAA NCEI as a <a class="reference external" href="https://doi.org/10.25921/x46c-3620">single NetCDF file</a> containing a series of ragged arrays, thanks to the work of CloudDrift. A single file simplifies data distribution, decreases metadata redundancies, and efficiently stores a Lagrangian data collection of uneven lengths.</p>
+</section>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="install.html"><span class="doc">Installation</span></a></p></li>
+<li><p><a class="reference internal" href="usage.html"><span class="doc">Usage</span></a></p></li>
+<li><p><a class="reference internal" href="datasets.html"><span class="doc">Datasets</span></a></p></li>
+</ul>
 <div class="toctree-wrapper compound">
 </div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+<li><p><a class="reference internal" href="api.html"><span class="doc">API</span></a></p></li>
+<li><p><a class="reference external" href="https://github.com/Cloud-Drift/clouddrift/blob/main/CONTRIBUTING.md">contributing</a></p></li>
 </ul>
+<div class="toctree-wrapper compound">
 </div>
+</section>
+</section>
 
 
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="right-next"
+       href="install.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-version">Version: 0.46.0</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scope-and-key-features">Scope and Key Features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#motivations">Motivations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">Getting started</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference">Reference</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
           </div>
-          
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="#">No Errors Test Project</a></h1>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Philippe Miron
+</p>
 
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="#">Documentation overview</a><ul>
-  </ul></li>
-</ul>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &copy;2019, sphinx-action Test Suite.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-      
-      |
-      <a href="_sources/index.rst.txt"
-          rel="nofollow">Page source</a>
-    </div>
-
+  </div>
+  
+  <div class="footer-item">
     
 
+  <p class="copyright">
     
+      © Copyright 2022-2023, CloudDrift.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
   </body>
 </html>

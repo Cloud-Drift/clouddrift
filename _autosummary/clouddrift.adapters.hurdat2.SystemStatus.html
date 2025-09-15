@@ -1,0 +1,1343 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>clouddrift.adapters.hurdat2.SystemStatus &#8212; CloudDrift  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=35a8b989"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/clouddrift.adapters.hurdat2.SystemStatus';</script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="clouddrift.adapters.hurdat2.TrackData" href="clouddrift.adapters.hurdat2.TrackData.html" />
+    <link rel="prev" title="clouddrift.adapters.hurdat2.RecordIdentifier" href="clouddrift.adapters.hurdat2.RecordIdentifier.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.png" class="logo__image only-light" alt="CloudDrift  documentation - Home"/>
+    <script>document.write(`<img src="../_static/logo.png" class="logo__image only-dark" alt="CloudDrift  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Cloud-Drift/clouddrift/blob/main/CONTRIBUTING.md">Contributing</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="clouddrift.adapters.html">clouddrift.adapters</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.andro.html">clouddrift.adapters.andro</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.andro.to_xarray.html">clouddrift.adapters.andro.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.gdp.html">clouddrift.adapters.gdp</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.cast_float64_variables_to_float32.html">clouddrift.adapters.gdp.cast_float64_variables_to_float32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.cut_str.html">clouddrift.adapters.gdp.cut_str</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.decode_date.html">clouddrift.adapters.gdp.decode_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.drogue_presence.html">clouddrift.adapters.gdp.drogue_presence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.fetch_netcdf.html">clouddrift.adapters.gdp.fetch_netcdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.fill_values.html">clouddrift.adapters.gdp.fill_values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.get_gdp_metadata.html">clouddrift.adapters.gdp.get_gdp_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.order_by_date.html">clouddrift.adapters.gdp.order_by_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.parse_directory_file.html">clouddrift.adapters.gdp.parse_directory_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.rowsize.html">clouddrift.adapters.gdp.rowsize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.str_to_float.html">clouddrift.adapters.gdp.str_to_float</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.gdp1h.html">clouddrift.adapters.gdp.gdp1h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.gdp6h.html">clouddrift.adapters.gdp.gdp6h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.gdpsource.html">clouddrift.adapters.gdp.gdpsource</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.glad.html">clouddrift.adapters.glad</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.glad.get_dataframe.html">clouddrift.adapters.glad.get_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.glad.to_xarray.html">clouddrift.adapters.glad.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="clouddrift.adapters.hurdat2.html">clouddrift.adapters.hurdat2</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.to_raggedarray.html">clouddrift.adapters.hurdat2.to_raggedarray</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.DataLine.html">clouddrift.adapters.hurdat2.DataLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.HeaderLine.html">clouddrift.adapters.hurdat2.HeaderLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.RecordIdentifier.html">clouddrift.adapters.hurdat2.RecordIdentifier</a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">clouddrift.adapters.hurdat2.SystemStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.TrackData.html">clouddrift.adapters.hurdat2.TrackData</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.ibtracs.html">clouddrift.adapters.ibtracs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.ibtracs.to_raggedarray.html">clouddrift.adapters.ibtracs.to_raggedarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.mosaic.html">clouddrift.adapters.mosaic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.mosaic.get_dataframes.html">clouddrift.adapters.mosaic.get_dataframes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.mosaic.get_file_urls.html">clouddrift.adapters.mosaic.get_file_urls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.mosaic.get_repository_metadata.html">clouddrift.adapters.mosaic.get_repository_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.mosaic.to_xarray.html">clouddrift.adapters.mosaic.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.subsurface_floats.html">clouddrift.adapters.subsurface_floats</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.subsurface_floats.download.html">clouddrift.adapters.subsurface_floats.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.subsurface_floats.to_xarray.html">clouddrift.adapters.subsurface_floats.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.utils.html">clouddrift.adapters.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.utils.download_with_progress.html">clouddrift.adapters.utils.download_with_progress</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.yomaha.html">clouddrift.adapters.yomaha</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.yomaha.download.html">clouddrift.adapters.yomaha.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.yomaha.to_xarray.html">clouddrift.adapters.yomaha.to_xarray</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.binning.html">clouddrift.binning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.binning.binned_statistics.html">clouddrift.binning.binned_statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.binning.handle_datetime_conversion.html">clouddrift.binning.handle_datetime_conversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.datasets.html">clouddrift.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.andro.html">clouddrift.datasets.andro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.gdp1h.html">clouddrift.datasets.gdp1h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.gdp6h.html">clouddrift.datasets.gdp6h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.gdp_source.html">clouddrift.datasets.gdp_source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.glad.html">clouddrift.datasets.glad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.hurdat2.html">clouddrift.datasets.hurdat2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.ibtracs.html">clouddrift.datasets.ibtracs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.mosaic.html">clouddrift.datasets.mosaic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.spotters.html">clouddrift.datasets.spotters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.subsurface_floats.html">clouddrift.datasets.subsurface_floats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.yomaha.html">clouddrift.datasets.yomaha</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.kinematics.html">clouddrift.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.inertial_oscillation_from_position.html">clouddrift.kinematics.inertial_oscillation_from_position</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.kinetic_energy.html">clouddrift.kinematics.kinetic_energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.position_from_velocity.html">clouddrift.kinematics.position_from_velocity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.residual_position_from_displacement.html">clouddrift.kinematics.residual_position_from_displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.spin.html">clouddrift.kinematics.spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.velocity_from_position.html">clouddrift.kinematics.velocity_from_position</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.pairs.html">clouddrift.pairs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.chance_pair.html">clouddrift.pairs.chance_pair</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.chance_pairs_from_ragged.html">clouddrift.pairs.chance_pairs_from_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.pair_bounding_box_overlap.html">clouddrift.pairs.pair_bounding_box_overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.pair_space_distance.html">clouddrift.pairs.pair_space_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.pair_time_distance.html">clouddrift.pairs.pair_time_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.pair_time_overlap.html">clouddrift.pairs.pair_time_overlap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.plotting.html">clouddrift.plotting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.plotting.plot_ragged.html">clouddrift.plotting.plot_ragged</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.ragged.html">clouddrift.ragged</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.apply_ragged.html">clouddrift.ragged.apply_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.chunk.html">clouddrift.ragged.chunk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.obs_index_to_row.html">clouddrift.ragged.obs_index_to_row</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.prune.html">clouddrift.ragged.prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.ragged_to_regular.html">clouddrift.ragged.ragged_to_regular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.regular_to_ragged.html">clouddrift.ragged.regular_to_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.rowsize_to_index.html">clouddrift.ragged.rowsize_to_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.segment.html">clouddrift.ragged.segment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.subset.html">clouddrift.ragged.subset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.unpack.html">clouddrift.ragged.unpack</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.raggedarray.html">clouddrift.raggedarray</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.raggedarray.RaggedArray.html">clouddrift.raggedarray.RaggedArray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.signal.html">clouddrift.signal</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.signal.analytic_signal.html">clouddrift.signal.analytic_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.signal.cartesian_to_rotary.html">clouddrift.signal.cartesian_to_rotary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.signal.ellipse_parameters.html">clouddrift.signal.ellipse_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.signal.modulated_ellipse_signal.html">clouddrift.signal.modulated_ellipse_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.signal.rotary_to_cartesian.html">clouddrift.signal.rotary_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.sphere.html">clouddrift.sphere</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.bearing.html">clouddrift.sphere.bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.cartesian_to_spherical.html">clouddrift.sphere.cartesian_to_spherical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.cartesian_to_tangentplane.html">clouddrift.sphere.cartesian_to_tangentplane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.coriolis_frequency.html">clouddrift.sphere.coriolis_frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.cumulative_distance.html">clouddrift.sphere.cumulative_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.distance.html">clouddrift.sphere.distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.plane_to_sphere.html">clouddrift.sphere.plane_to_sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.position_from_distance_and_bearing.html">clouddrift.sphere.position_from_distance_and_bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.recast_lon.html">clouddrift.sphere.recast_lon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.recast_lon180.html">clouddrift.sphere.recast_lon180</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.recast_lon360.html">clouddrift.sphere.recast_lon360</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.sphere_to_plane.html">clouddrift.sphere.sphere_to_plane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.spherical_to_cartesian.html">clouddrift.sphere.spherical_to_cartesian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.tangentplane_to_cartesian.html">clouddrift.sphere.tangentplane_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.wavelet.html">clouddrift.wavelet</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_amplitude.html">clouddrift.wavelet.morse_amplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_freq.html">clouddrift.wavelet.morse_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_logspace_freq.html">clouddrift.wavelet.morse_logspace_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_properties.html">clouddrift.wavelet.morse_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_wavelet.html">clouddrift.wavelet.morse_wavelet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_wavelet_transform.html">clouddrift.wavelet.morse_wavelet_transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.wavelet_transform.html">clouddrift.wavelet.wavelet_transform</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/_autosummary/clouddrift.adapters.hurdat2.SystemStatus.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>clouddrift.adapters.hurdat2.SystemStatus</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus"><code class="docutils literal notranslate"><span class="pre">SystemStatus</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.__init__"><code class="docutils literal notranslate"><span class="pre">SystemStatus.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.capitalize"><code class="docutils literal notranslate"><span class="pre">SystemStatus.capitalize()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.casefold"><code class="docutils literal notranslate"><span class="pre">SystemStatus.casefold()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.center"><code class="docutils literal notranslate"><span class="pre">SystemStatus.center()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.count"><code class="docutils literal notranslate"><span class="pre">SystemStatus.count()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.encode"><code class="docutils literal notranslate"><span class="pre">SystemStatus.encode()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.endswith"><code class="docutils literal notranslate"><span class="pre">SystemStatus.endswith()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.expandtabs"><code class="docutils literal notranslate"><span class="pre">SystemStatus.expandtabs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.find"><code class="docutils literal notranslate"><span class="pre">SystemStatus.find()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.format"><code class="docutils literal notranslate"><span class="pre">SystemStatus.format()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.format_map"><code class="docutils literal notranslate"><span class="pre">SystemStatus.format_map()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.index"><code class="docutils literal notranslate"><span class="pre">SystemStatus.index()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isalnum"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isalnum()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isalpha"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isalpha()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isascii"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isascii()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isdecimal"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isdecimal()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isdigit"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isdigit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isidentifier"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isidentifier()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.islower"><code class="docutils literal notranslate"><span class="pre">SystemStatus.islower()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isnumeric"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isnumeric()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isprintable"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isprintable()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isspace"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isspace()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.istitle"><code class="docutils literal notranslate"><span class="pre">SystemStatus.istitle()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isupper"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isupper()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.join"><code class="docutils literal notranslate"><span class="pre">SystemStatus.join()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.ljust"><code class="docutils literal notranslate"><span class="pre">SystemStatus.ljust()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.lower"><code class="docutils literal notranslate"><span class="pre">SystemStatus.lower()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.lstrip"><code class="docutils literal notranslate"><span class="pre">SystemStatus.lstrip()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.maketrans"><code class="docutils literal notranslate"><span class="pre">SystemStatus.maketrans()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.partition"><code class="docutils literal notranslate"><span class="pre">SystemStatus.partition()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.removeprefix"><code class="docutils literal notranslate"><span class="pre">SystemStatus.removeprefix()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.removesuffix"><code class="docutils literal notranslate"><span class="pre">SystemStatus.removesuffix()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.replace"><code class="docutils literal notranslate"><span class="pre">SystemStatus.replace()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.rfind"><code class="docutils literal notranslate"><span class="pre">SystemStatus.rfind()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.rindex"><code class="docutils literal notranslate"><span class="pre">SystemStatus.rindex()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.rjust"><code class="docutils literal notranslate"><span class="pre">SystemStatus.rjust()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.rpartition"><code class="docutils literal notranslate"><span class="pre">SystemStatus.rpartition()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.rsplit"><code class="docutils literal notranslate"><span class="pre">SystemStatus.rsplit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.rstrip"><code class="docutils literal notranslate"><span class="pre">SystemStatus.rstrip()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.split"><code class="docutils literal notranslate"><span class="pre">SystemStatus.split()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.splitlines"><code class="docutils literal notranslate"><span class="pre">SystemStatus.splitlines()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.startswith"><code class="docutils literal notranslate"><span class="pre">SystemStatus.startswith()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.strip"><code class="docutils literal notranslate"><span class="pre">SystemStatus.strip()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.swapcase"><code class="docutils literal notranslate"><span class="pre">SystemStatus.swapcase()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.title"><code class="docutils literal notranslate"><span class="pre">SystemStatus.title()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.translate"><code class="docutils literal notranslate"><span class="pre">SystemStatus.translate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.upper"><code class="docutils literal notranslate"><span class="pre">SystemStatus.upper()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.zfill"><code class="docutils literal notranslate"><span class="pre">SystemStatus.zfill()</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="clouddrift-adapters-hurdat2-systemstatus">
+<h1>clouddrift.adapters.hurdat2.SystemStatus<a class="headerlink" href="#clouddrift-adapters-hurdat2-systemstatus" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">clouddrift.adapters.hurdat2.</span></span><span class="sig-name descname"><span class="pre">SystemStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clouddrift/adapters/hurdat2.html#SystemStatus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>TD – Tropical cyclone of tropical depression intensity (&lt; 34 knots)
+TS – Tropical cyclone of tropical storm intensity (34-63 knots)
+HU – Tropical cyclone of hurricane intensity (&gt; 64 knots)
+EX – Extratropical cyclone (of any intensity)
+SD – Subtropical cyclone of subtropical depression intensity (&lt; 34 knots)
+SS – Subtropical cyclone of subtropical storm intensity (&gt; 34 knots)
+LO – A low that is neither a tropical cyclone, a subtropical cyclone, nor an extratropical cyclone (of any intensity)
+WV – Tropical Wave (of any intensity)
+DB – Disturbance (of any intensity)
+ET - UNKNOWN found in Northeast Pacific Basin
+PT - UNKNOWN found in Northeast Pacific Basin
+ST - UNKNOWN found in Northeast Pacific Basin
+TY - UNKNOWN found in Northeast Pacific Basin</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.encode" title="clouddrift.adapters.hurdat2.SystemStatus.encode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">encode</span></code></a>([encoding, errors])</p></td>
+<td><p>Encode the string using the codec registered for encoding.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.replace" title="clouddrift.adapters.hurdat2.SystemStatus.replace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace</span></code></a>(old, new, /[, count])</p></td>
+<td><p>Return a copy with all occurrences of substring old replaced by new.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.split" title="clouddrift.adapters.hurdat2.SystemStatus.split"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split</span></code></a>([sep, maxsplit])</p></td>
+<td><p>Return a list of the substrings in the string, using sep as the separator string.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.rsplit" title="clouddrift.adapters.hurdat2.SystemStatus.rsplit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rsplit</span></code></a>([sep, maxsplit])</p></td>
+<td><p>Return a list of the substrings in the string, using sep as the separator string.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.join" title="clouddrift.adapters.hurdat2.SystemStatus.join"><code class="xref py py-obj docutils literal notranslate"><span class="pre">join</span></code></a>(iterable, /)</p></td>
+<td><p>Concatenate any number of strings.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.capitalize" title="clouddrift.adapters.hurdat2.SystemStatus.capitalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">capitalize</span></code></a>()</p></td>
+<td><p>Return a capitalized version of the string.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.casefold" title="clouddrift.adapters.hurdat2.SystemStatus.casefold"><code class="xref py py-obj docutils literal notranslate"><span class="pre">casefold</span></code></a>()</p></td>
+<td><p>Return a version of the string suitable for caseless comparisons.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.title" title="clouddrift.adapters.hurdat2.SystemStatus.title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">title</span></code></a>()</p></td>
+<td><p>Return a version of the string where each word is titlecased.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.center" title="clouddrift.adapters.hurdat2.SystemStatus.center"><code class="xref py py-obj docutils literal notranslate"><span class="pre">center</span></code></a>(width[, fillchar])</p></td>
+<td><p>Return a centered string of length width.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.count" title="clouddrift.adapters.hurdat2.SystemStatus.count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count</span></code></a></p></td>
+<td><p>Return the number of non-overlapping occurrences of substring sub in string S[start:end].</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.expandtabs" title="clouddrift.adapters.hurdat2.SystemStatus.expandtabs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expandtabs</span></code></a>([tabsize])</p></td>
+<td><p>Return a copy where all tab characters are expanded using spaces.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.find" title="clouddrift.adapters.hurdat2.SystemStatus.find"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find</span></code></a></p></td>
+<td><p>Return the lowest index in S where substring sub is found, such that sub is contained within S[start:end].</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.partition" title="clouddrift.adapters.hurdat2.SystemStatus.partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition</span></code></a>(sep, /)</p></td>
+<td><p>Partition the string into three parts using the given separator.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.index" title="clouddrift.adapters.hurdat2.SystemStatus.index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code></a></p></td>
+<td><p>Return the lowest index in S where substring sub is found, such that sub is contained within S[start:end].</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.ljust" title="clouddrift.adapters.hurdat2.SystemStatus.ljust"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ljust</span></code></a>(width[, fillchar])</p></td>
+<td><p>Return a left-justified string of length width.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.lower" title="clouddrift.adapters.hurdat2.SystemStatus.lower"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lower</span></code></a>()</p></td>
+<td><p>Return a copy of the string converted to lowercase.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.lstrip" title="clouddrift.adapters.hurdat2.SystemStatus.lstrip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lstrip</span></code></a>([chars])</p></td>
+<td><p>Return a copy of the string with leading whitespace removed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.rfind" title="clouddrift.adapters.hurdat2.SystemStatus.rfind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rfind</span></code></a></p></td>
+<td><p>Return the highest index in S where substring sub is found, such that sub is contained within S[start:end].</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.rindex" title="clouddrift.adapters.hurdat2.SystemStatus.rindex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rindex</span></code></a></p></td>
+<td><p>Return the highest index in S where substring sub is found, such that sub is contained within S[start:end].</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.rjust" title="clouddrift.adapters.hurdat2.SystemStatus.rjust"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rjust</span></code></a>(width[, fillchar])</p></td>
+<td><p>Return a right-justified string of length width.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.rstrip" title="clouddrift.adapters.hurdat2.SystemStatus.rstrip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rstrip</span></code></a>([chars])</p></td>
+<td><p>Return a copy of the string with trailing whitespace removed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.rpartition" title="clouddrift.adapters.hurdat2.SystemStatus.rpartition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpartition</span></code></a>(sep, /)</p></td>
+<td><p>Partition the string into three parts using the given separator.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.splitlines" title="clouddrift.adapters.hurdat2.SystemStatus.splitlines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">splitlines</span></code></a>([keepends])</p></td>
+<td><p>Return a list of the lines in the string, breaking at line boundaries.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.strip" title="clouddrift.adapters.hurdat2.SystemStatus.strip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">strip</span></code></a>([chars])</p></td>
+<td><p>Return a copy of the string with leading and trailing whitespace removed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.swapcase" title="clouddrift.adapters.hurdat2.SystemStatus.swapcase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">swapcase</span></code></a>()</p></td>
+<td><p>Convert uppercase characters to lowercase and lowercase characters to uppercase.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.translate" title="clouddrift.adapters.hurdat2.SystemStatus.translate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">translate</span></code></a>(table, /)</p></td>
+<td><p>Replace each character in the string using the given translation table.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.upper" title="clouddrift.adapters.hurdat2.SystemStatus.upper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">upper</span></code></a>()</p></td>
+<td><p>Return a copy of the string converted to uppercase.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.startswith" title="clouddrift.adapters.hurdat2.SystemStatus.startswith"><code class="xref py py-obj docutils literal notranslate"><span class="pre">startswith</span></code></a></p></td>
+<td><p>Return True if the string starts with the specified prefix, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.endswith" title="clouddrift.adapters.hurdat2.SystemStatus.endswith"><code class="xref py py-obj docutils literal notranslate"><span class="pre">endswith</span></code></a></p></td>
+<td><p>Return True if the string ends with the specified suffix, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.removeprefix" title="clouddrift.adapters.hurdat2.SystemStatus.removeprefix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">removeprefix</span></code></a>(prefix, /)</p></td>
+<td><p>Return a str with the given prefix string removed if present.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.removesuffix" title="clouddrift.adapters.hurdat2.SystemStatus.removesuffix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">removesuffix</span></code></a>(suffix, /)</p></td>
+<td><p>Return a str with the given suffix string removed if present.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.isascii" title="clouddrift.adapters.hurdat2.SystemStatus.isascii"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isascii</span></code></a>()</p></td>
+<td><p>Return True if all characters in the string are ASCII, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.islower" title="clouddrift.adapters.hurdat2.SystemStatus.islower"><code class="xref py py-obj docutils literal notranslate"><span class="pre">islower</span></code></a>()</p></td>
+<td><p>Return True if the string is a lowercase string, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.isupper" title="clouddrift.adapters.hurdat2.SystemStatus.isupper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isupper</span></code></a>()</p></td>
+<td><p>Return True if the string is an uppercase string, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.istitle" title="clouddrift.adapters.hurdat2.SystemStatus.istitle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">istitle</span></code></a>()</p></td>
+<td><p>Return True if the string is a title-cased string, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.isspace" title="clouddrift.adapters.hurdat2.SystemStatus.isspace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isspace</span></code></a>()</p></td>
+<td><p>Return True if the string is a whitespace string, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.isdecimal" title="clouddrift.adapters.hurdat2.SystemStatus.isdecimal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isdecimal</span></code></a>()</p></td>
+<td><p>Return True if the string is a decimal string, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.isdigit" title="clouddrift.adapters.hurdat2.SystemStatus.isdigit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isdigit</span></code></a>()</p></td>
+<td><p>Return True if the string is a digit string, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.isnumeric" title="clouddrift.adapters.hurdat2.SystemStatus.isnumeric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isnumeric</span></code></a>()</p></td>
+<td><p>Return True if the string is a numeric string, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.isalpha" title="clouddrift.adapters.hurdat2.SystemStatus.isalpha"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isalpha</span></code></a>()</p></td>
+<td><p>Return True if the string is an alphabetic string, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.isalnum" title="clouddrift.adapters.hurdat2.SystemStatus.isalnum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isalnum</span></code></a>()</p></td>
+<td><p>Return True if the string is an alpha-numeric string, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.isidentifier" title="clouddrift.adapters.hurdat2.SystemStatus.isidentifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isidentifier</span></code></a>()</p></td>
+<td><p>Return True if the string is a valid Python identifier, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.isprintable" title="clouddrift.adapters.hurdat2.SystemStatus.isprintable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isprintable</span></code></a>()</p></td>
+<td><p>Return True if all characters in the string are printable, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.zfill" title="clouddrift.adapters.hurdat2.SystemStatus.zfill"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zfill</span></code></a>(width, /)</p></td>
+<td><p>Pad a numeric string with zeros on the left, to fill a field of the given width.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.format" title="clouddrift.adapters.hurdat2.SystemStatus.format"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Return a formatted version of the string, using substitutions from args and kwargs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.format_map" title="clouddrift.adapters.hurdat2.SystemStatus.format_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_map</span></code></a>(mapping, /)</p></td>
+<td><p>Return a formatted version of the string, using substitutions from mapping.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.maketrans" title="clouddrift.adapters.hurdat2.SystemStatus.maketrans"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maketrans</span></code></a></p></td>
+<td><p>Return a translation table usable for str.translate().</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#clouddrift.adapters.hurdat2.SystemStatus.__init__" title="clouddrift.adapters.hurdat2.SystemStatus.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(*args, **kwds)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Attributes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TD</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TS</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">HU</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">EX</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SD</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SS</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">LO</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WV</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DB</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ET</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PT</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ST</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">TY</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.capitalize">
+<span class="sig-name descname"><span class="pre">capitalize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.capitalize" title="Link to this definition">#</a></dt>
+<dd><p>Return a capitalized version of the string.</p>
+<p>More specifically, make the first character have upper case and the rest lower
+case.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.casefold">
+<span class="sig-name descname"><span class="pre">casefold</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.casefold" title="Link to this definition">#</a></dt>
+<dd><p>Return a version of the string suitable for caseless comparisons.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.center">
+<span class="sig-name descname"><span class="pre">center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillchar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.center" title="Link to this definition">#</a></dt>
+<dd><p>Return a centered string of length width.</p>
+<p>Padding is done using the specified fill character (default is a space).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.count">
+<span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.count" title="Link to this definition">#</a></dt>
+<dd><p>Return the number of non-overlapping occurrences of substring sub in string S[start:end].</p>
+<p>Optional arguments start and end are interpreted as in slice notation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'strict'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.encode" title="Link to this definition">#</a></dt>
+<dd><p>Encode the string using the codec registered for encoding.</p>
+<dl class="simple">
+<dt>encoding</dt><dd><p>The encoding in which to encode the string.</p>
+</dd>
+<dt>errors</dt><dd><p>The error handling scheme to use for encoding errors.
+The default is ‘strict’ meaning that encoding errors raise a
+UnicodeEncodeError.  Other possible values are ‘ignore’, ‘replace’ and
+‘xmlcharrefreplace’ as well as any other name registered with
+codecs.register_error that can handle UnicodeEncodeErrors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.endswith">
+<span class="sig-name descname"><span class="pre">endswith</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.endswith" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string ends with the specified suffix, False otherwise.</p>
+<dl class="simple">
+<dt>suffix</dt><dd><p>A string or a tuple of strings to try.</p>
+</dd>
+<dt>start</dt><dd><p>Optional start position. Default: start of the string.</p>
+</dd>
+<dt>end</dt><dd><p>Optional stop position. Default: end of the string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.expandtabs">
+<span class="sig-name descname"><span class="pre">expandtabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tabsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.expandtabs" title="Link to this definition">#</a></dt>
+<dd><p>Return a copy where all tab characters are expanded using spaces.</p>
+<p>If tabsize is not given, a tab size of 8 characters is assumed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.find">
+<span class="sig-name descname"><span class="pre">find</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.find" title="Link to this definition">#</a></dt>
+<dd><p>Return the lowest index in S where substring sub is found, such that sub is contained within S[start:end].</p>
+<p>Optional arguments start and end are interpreted as in slice notation.
+Return -1 on failure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.format">
+<span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.format" title="Link to this definition">#</a></dt>
+<dd><p>Return a formatted version of the string, using substitutions from args and kwargs.
+The substitutions are identified by braces (‘{’ and ‘}’).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.format_map">
+<span class="sig-name descname"><span class="pre">format_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.format_map" title="Link to this definition">#</a></dt>
+<dd><p>Return a formatted version of the string, using substitutions from mapping.
+The substitutions are identified by braces (‘{’ and ‘}’).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.index" title="Link to this definition">#</a></dt>
+<dd><p>Return the lowest index in S where substring sub is found, such that sub is contained within S[start:end].</p>
+<p>Optional arguments start and end are interpreted as in slice notation.
+Raises ValueError when the substring is not found.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.isalnum">
+<span class="sig-name descname"><span class="pre">isalnum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.isalnum" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is an alpha-numeric string, False otherwise.</p>
+<p>A string is alpha-numeric if all characters in the string are alpha-numeric and
+there is at least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.isalpha">
+<span class="sig-name descname"><span class="pre">isalpha</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.isalpha" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is an alphabetic string, False otherwise.</p>
+<p>A string is alphabetic if all characters in the string are alphabetic and there
+is at least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.isascii">
+<span class="sig-name descname"><span class="pre">isascii</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.isascii" title="Link to this definition">#</a></dt>
+<dd><p>Return True if all characters in the string are ASCII, False otherwise.</p>
+<p>ASCII characters have code points in the range U+0000-U+007F.
+Empty string is ASCII too.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.isdecimal">
+<span class="sig-name descname"><span class="pre">isdecimal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.isdecimal" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is a decimal string, False otherwise.</p>
+<p>A string is a decimal string if all characters in the string are decimal and
+there is at least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.isdigit">
+<span class="sig-name descname"><span class="pre">isdigit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.isdigit" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is a digit string, False otherwise.</p>
+<p>A string is a digit string if all characters in the string are digits and there
+is at least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.isidentifier">
+<span class="sig-name descname"><span class="pre">isidentifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.isidentifier" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is a valid Python identifier, False otherwise.</p>
+<p>Call keyword.iskeyword(s) to test whether string s is a reserved identifier,
+such as “def” or “class”.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.islower">
+<span class="sig-name descname"><span class="pre">islower</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.islower" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is a lowercase string, False otherwise.</p>
+<p>A string is lowercase if all cased characters in the string are lowercase and
+there is at least one cased character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.isnumeric">
+<span class="sig-name descname"><span class="pre">isnumeric</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.isnumeric" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is a numeric string, False otherwise.</p>
+<p>A string is numeric if all characters in the string are numeric and there is at
+least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.isprintable">
+<span class="sig-name descname"><span class="pre">isprintable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.isprintable" title="Link to this definition">#</a></dt>
+<dd><p>Return True if all characters in the string are printable, False otherwise.</p>
+<p>A character is printable if repr() may use it in its output.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.isspace">
+<span class="sig-name descname"><span class="pre">isspace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.isspace" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is a whitespace string, False otherwise.</p>
+<p>A string is whitespace if all characters in the string are whitespace and there
+is at least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.istitle">
+<span class="sig-name descname"><span class="pre">istitle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.istitle" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is a title-cased string, False otherwise.</p>
+<p>In a title-cased string, upper- and title-case characters may only
+follow uncased characters and lowercase characters only cased ones.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.isupper">
+<span class="sig-name descname"><span class="pre">isupper</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.isupper" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is an uppercase string, False otherwise.</p>
+<p>A string is uppercase if all cased characters in the string are uppercase and
+there is at least one cased character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.join" title="Link to this definition">#</a></dt>
+<dd><p>Concatenate any number of strings.</p>
+<p>The string whose method is called is inserted in between each given string.
+The result is returned as a new string.</p>
+<p>Example: ‘.’.join([‘ab’, ‘pq’, ‘rs’]) -&gt; ‘ab.pq.rs’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.ljust">
+<span class="sig-name descname"><span class="pre">ljust</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillchar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.ljust" title="Link to this definition">#</a></dt>
+<dd><p>Return a left-justified string of length width.</p>
+<p>Padding is done using the specified fill character (default is a space).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.lower">
+<span class="sig-name descname"><span class="pre">lower</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.lower" title="Link to this definition">#</a></dt>
+<dd><p>Return a copy of the string converted to lowercase.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.lstrip">
+<span class="sig-name descname"><span class="pre">lstrip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.lstrip" title="Link to this definition">#</a></dt>
+<dd><p>Return a copy of the string with leading whitespace removed.</p>
+<p>If chars is given and not None, remove characters in chars instead.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.maketrans">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">maketrans</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.maketrans" title="Link to this definition">#</a></dt>
+<dd><p>Return a translation table usable for str.translate().</p>
+<p>If there is only one argument, it must be a dictionary mapping Unicode
+ordinals (integers) or characters to Unicode ordinals, strings or None.
+Character keys will be then converted to ordinals.
+If there are two arguments, they must be strings of equal length, and
+in the resulting dictionary, each character in x will be mapped to the
+character at the same position in y. If there is a third argument, it
+must be a string, whose characters will be mapped to None in the result.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.partition">
+<span class="sig-name descname"><span class="pre">partition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.partition" title="Link to this definition">#</a></dt>
+<dd><p>Partition the string into three parts using the given separator.</p>
+<p>This will search for the separator in the string.  If the separator is found,
+returns a 3-tuple containing the part before the separator, the separator
+itself, and the part after it.</p>
+<p>If the separator is not found, returns a 3-tuple containing the original string
+and two empty strings.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.removeprefix">
+<span class="sig-name descname"><span class="pre">removeprefix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.removeprefix" title="Link to this definition">#</a></dt>
+<dd><p>Return a str with the given prefix string removed if present.</p>
+<p>If the string starts with the prefix string, return string[len(prefix):].
+Otherwise, return a copy of the original string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.removesuffix">
+<span class="sig-name descname"><span class="pre">removesuffix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">suffix</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.removesuffix" title="Link to this definition">#</a></dt>
+<dd><p>Return a str with the given suffix string removed if present.</p>
+<p>If the string ends with the suffix string and that suffix is not empty,
+return string[:-len(suffix)]. Otherwise, return a copy of the original
+string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.replace">
+<span class="sig-name descname"><span class="pre">replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.replace" title="Link to this definition">#</a></dt>
+<dd><p>Return a copy with all occurrences of substring old replaced by new.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>count</dt><dd><p>Maximum number of occurrences to replace.
+-1 (the default value) means replace all occurrences.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>If the optional argument count is given, only the first count occurrences are
+replaced.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.rfind">
+<span class="sig-name descname"><span class="pre">rfind</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.rfind" title="Link to this definition">#</a></dt>
+<dd><p>Return the highest index in S where substring sub is found, such that sub is contained within S[start:end].</p>
+<p>Optional arguments start and end are interpreted as in slice notation.
+Return -1 on failure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.rindex">
+<span class="sig-name descname"><span class="pre">rindex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.rindex" title="Link to this definition">#</a></dt>
+<dd><p>Return the highest index in S where substring sub is found, such that sub is contained within S[start:end].</p>
+<p>Optional arguments start and end are interpreted as in slice notation.
+Raises ValueError when the substring is not found.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.rjust">
+<span class="sig-name descname"><span class="pre">rjust</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillchar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.rjust" title="Link to this definition">#</a></dt>
+<dd><p>Return a right-justified string of length width.</p>
+<p>Padding is done using the specified fill character (default is a space).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.rpartition">
+<span class="sig-name descname"><span class="pre">rpartition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.rpartition" title="Link to this definition">#</a></dt>
+<dd><p>Partition the string into three parts using the given separator.</p>
+<p>This will search for the separator in the string, starting at the end. If
+the separator is found, returns a 3-tuple containing the part before the
+separator, the separator itself, and the part after it.</p>
+<p>If the separator is not found, returns a 3-tuple containing two empty strings
+and the original string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.rsplit">
+<span class="sig-name descname"><span class="pre">rsplit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxsplit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.rsplit" title="Link to this definition">#</a></dt>
+<dd><p>Return a list of the substrings in the string, using sep as the separator string.</p>
+<blockquote>
+<div><dl>
+<dt>sep</dt><dd><p>The separator used to split the string.</p>
+<p>When set to None (the default value), will split on any whitespace
+character (including n r t f and spaces) and will discard
+empty strings from the result.</p>
+</dd>
+<dt>maxsplit</dt><dd><p>Maximum number of splits.
+-1 (the default value) means no limit.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Splitting starts at the end of the string and works to the front.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.rstrip">
+<span class="sig-name descname"><span class="pre">rstrip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.rstrip" title="Link to this definition">#</a></dt>
+<dd><p>Return a copy of the string with trailing whitespace removed.</p>
+<p>If chars is given and not None, remove characters in chars instead.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.split">
+<span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxsplit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.split" title="Link to this definition">#</a></dt>
+<dd><p>Return a list of the substrings in the string, using sep as the separator string.</p>
+<blockquote>
+<div><dl>
+<dt>sep</dt><dd><p>The separator used to split the string.</p>
+<p>When set to None (the default value), will split on any whitespace
+character (including n r t f and spaces) and will discard
+empty strings from the result.</p>
+</dd>
+<dt>maxsplit</dt><dd><p>Maximum number of splits.
+-1 (the default value) means no limit.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Splitting starts at the front of the string and works to the end.</p>
+<p>Note, str.split() is mainly useful for data that has been intentionally
+delimited.  With natural text that includes punctuation, consider using
+the regular expression module.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.splitlines">
+<span class="sig-name descname"><span class="pre">splitlines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keepends</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.splitlines" title="Link to this definition">#</a></dt>
+<dd><p>Return a list of the lines in the string, breaking at line boundaries.</p>
+<p>Line breaks are not included in the resulting list unless keepends is given and
+true.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.startswith">
+<span class="sig-name descname"><span class="pre">startswith</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.startswith" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string starts with the specified prefix, False otherwise.</p>
+<dl class="simple">
+<dt>prefix</dt><dd><p>A string or a tuple of strings to try.</p>
+</dd>
+<dt>start</dt><dd><p>Optional start position. Default: start of the string.</p>
+</dd>
+<dt>end</dt><dd><p>Optional stop position. Default: end of the string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.strip">
+<span class="sig-name descname"><span class="pre">strip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.strip" title="Link to this definition">#</a></dt>
+<dd><p>Return a copy of the string with leading and trailing whitespace removed.</p>
+<p>If chars is given and not None, remove characters in chars instead.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.swapcase">
+<span class="sig-name descname"><span class="pre">swapcase</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.swapcase" title="Link to this definition">#</a></dt>
+<dd><p>Convert uppercase characters to lowercase and lowercase characters to uppercase.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.title">
+<span class="sig-name descname"><span class="pre">title</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.title" title="Link to this definition">#</a></dt>
+<dd><p>Return a version of the string where each word is titlecased.</p>
+<p>More specifically, words start with uppercased characters and all remaining
+cased characters have lower case.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.translate">
+<span class="sig-name descname"><span class="pre">translate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.translate" title="Link to this definition">#</a></dt>
+<dd><p>Replace each character in the string using the given translation table.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>table</dt><dd><p>Translation table, which must be a mapping of Unicode ordinals to
+Unicode ordinals, strings, or None.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>The table must implement lookup/indexing via __getitem__, for instance a
+dictionary or list.  If this operation raises LookupError, the character is
+left untouched.  Characters mapped to None are deleted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.upper">
+<span class="sig-name descname"><span class="pre">upper</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.upper" title="Link to this definition">#</a></dt>
+<dd><p>Return a copy of the string converted to uppercase.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="clouddrift.adapters.hurdat2.SystemStatus.zfill">
+<span class="sig-name descname"><span class="pre">zfill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#clouddrift.adapters.hurdat2.SystemStatus.zfill" title="Link to this definition">#</a></dt>
+<dd><p>Pad a numeric string with zeros on the left, to fill a field of the given width.</p>
+<p>The string is never truncated.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="clouddrift.adapters.hurdat2.RecordIdentifier.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">clouddrift.adapters.hurdat2.RecordIdentifier</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="clouddrift.adapters.hurdat2.TrackData.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">clouddrift.adapters.hurdat2.TrackData</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus"><code class="docutils literal notranslate"><span class="pre">SystemStatus</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.__init__"><code class="docutils literal notranslate"><span class="pre">SystemStatus.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.capitalize"><code class="docutils literal notranslate"><span class="pre">SystemStatus.capitalize()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.casefold"><code class="docutils literal notranslate"><span class="pre">SystemStatus.casefold()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.center"><code class="docutils literal notranslate"><span class="pre">SystemStatus.center()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.count"><code class="docutils literal notranslate"><span class="pre">SystemStatus.count()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.encode"><code class="docutils literal notranslate"><span class="pre">SystemStatus.encode()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.endswith"><code class="docutils literal notranslate"><span class="pre">SystemStatus.endswith()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.expandtabs"><code class="docutils literal notranslate"><span class="pre">SystemStatus.expandtabs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.find"><code class="docutils literal notranslate"><span class="pre">SystemStatus.find()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.format"><code class="docutils literal notranslate"><span class="pre">SystemStatus.format()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.format_map"><code class="docutils literal notranslate"><span class="pre">SystemStatus.format_map()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.index"><code class="docutils literal notranslate"><span class="pre">SystemStatus.index()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isalnum"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isalnum()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isalpha"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isalpha()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isascii"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isascii()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isdecimal"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isdecimal()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isdigit"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isdigit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isidentifier"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isidentifier()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.islower"><code class="docutils literal notranslate"><span class="pre">SystemStatus.islower()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isnumeric"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isnumeric()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isprintable"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isprintable()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isspace"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isspace()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.istitle"><code class="docutils literal notranslate"><span class="pre">SystemStatus.istitle()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.isupper"><code class="docutils literal notranslate"><span class="pre">SystemStatus.isupper()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.join"><code class="docutils literal notranslate"><span class="pre">SystemStatus.join()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.ljust"><code class="docutils literal notranslate"><span class="pre">SystemStatus.ljust()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.lower"><code class="docutils literal notranslate"><span class="pre">SystemStatus.lower()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.lstrip"><code class="docutils literal notranslate"><span class="pre">SystemStatus.lstrip()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.maketrans"><code class="docutils literal notranslate"><span class="pre">SystemStatus.maketrans()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.partition"><code class="docutils literal notranslate"><span class="pre">SystemStatus.partition()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.removeprefix"><code class="docutils literal notranslate"><span class="pre">SystemStatus.removeprefix()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.removesuffix"><code class="docutils literal notranslate"><span class="pre">SystemStatus.removesuffix()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.replace"><code class="docutils literal notranslate"><span class="pre">SystemStatus.replace()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.rfind"><code class="docutils literal notranslate"><span class="pre">SystemStatus.rfind()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.rindex"><code class="docutils literal notranslate"><span class="pre">SystemStatus.rindex()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.rjust"><code class="docutils literal notranslate"><span class="pre">SystemStatus.rjust()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.rpartition"><code class="docutils literal notranslate"><span class="pre">SystemStatus.rpartition()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.rsplit"><code class="docutils literal notranslate"><span class="pre">SystemStatus.rsplit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.rstrip"><code class="docutils literal notranslate"><span class="pre">SystemStatus.rstrip()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.split"><code class="docutils literal notranslate"><span class="pre">SystemStatus.split()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.splitlines"><code class="docutils literal notranslate"><span class="pre">SystemStatus.splitlines()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.startswith"><code class="docutils literal notranslate"><span class="pre">SystemStatus.startswith()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.strip"><code class="docutils literal notranslate"><span class="pre">SystemStatus.strip()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.swapcase"><code class="docutils literal notranslate"><span class="pre">SystemStatus.swapcase()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.title"><code class="docutils literal notranslate"><span class="pre">SystemStatus.title()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.translate"><code class="docutils literal notranslate"><span class="pre">SystemStatus.translate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.upper"><code class="docutils literal notranslate"><span class="pre">SystemStatus.upper()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.adapters.hurdat2.SystemStatus.zfill"><code class="docutils literal notranslate"><span class="pre">SystemStatus.zfill()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Philippe Miron
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022-2023, CloudDrift.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

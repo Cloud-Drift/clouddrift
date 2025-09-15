@@ -1,0 +1,1347 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>clouddrift.wavelet &#8212; CloudDrift  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=35a8b989"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/clouddrift/wavelet';</script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.png" class="logo__image only-light" alt="CloudDrift  documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo.png" class="logo__image only-dark" alt="CloudDrift  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datasets.html">Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Cloud-Drift/clouddrift/blob/main/CONTRIBUTING.md">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api.html">API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.html">clouddrift.adapters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.andro.html">clouddrift.adapters.andro</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.andro.to_xarray.html">clouddrift.adapters.andro.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.html">clouddrift.adapters.gdp</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.cast_float64_variables_to_float32.html">clouddrift.adapters.gdp.cast_float64_variables_to_float32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.cut_str.html">clouddrift.adapters.gdp.cut_str</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.decode_date.html">clouddrift.adapters.gdp.decode_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.drogue_presence.html">clouddrift.adapters.gdp.drogue_presence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.fetch_netcdf.html">clouddrift.adapters.gdp.fetch_netcdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.fill_values.html">clouddrift.adapters.gdp.fill_values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.get_gdp_metadata.html">clouddrift.adapters.gdp.get_gdp_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.order_by_date.html">clouddrift.adapters.gdp.order_by_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.parse_directory_file.html">clouddrift.adapters.gdp.parse_directory_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.rowsize.html">clouddrift.adapters.gdp.rowsize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.str_to_float.html">clouddrift.adapters.gdp.str_to_float</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.gdp1h.html">clouddrift.adapters.gdp.gdp1h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.gdp6h.html">clouddrift.adapters.gdp.gdp6h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.gdpsource.html">clouddrift.adapters.gdp.gdpsource</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.glad.html">clouddrift.adapters.glad</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.glad.get_dataframe.html">clouddrift.adapters.glad.get_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.glad.to_xarray.html">clouddrift.adapters.glad.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.html">clouddrift.adapters.hurdat2</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.to_raggedarray.html">clouddrift.adapters.hurdat2.to_raggedarray</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.DataLine.html">clouddrift.adapters.hurdat2.DataLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.HeaderLine.html">clouddrift.adapters.hurdat2.HeaderLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.RecordIdentifier.html">clouddrift.adapters.hurdat2.RecordIdentifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.SystemStatus.html">clouddrift.adapters.hurdat2.SystemStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.TrackData.html">clouddrift.adapters.hurdat2.TrackData</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.ibtracs.html">clouddrift.adapters.ibtracs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.ibtracs.to_raggedarray.html">clouddrift.adapters.ibtracs.to_raggedarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.html">clouddrift.adapters.mosaic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.get_dataframes.html">clouddrift.adapters.mosaic.get_dataframes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.get_file_urls.html">clouddrift.adapters.mosaic.get_file_urls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.get_repository_metadata.html">clouddrift.adapters.mosaic.get_repository_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.to_xarray.html">clouddrift.adapters.mosaic.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.subsurface_floats.html">clouddrift.adapters.subsurface_floats</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.subsurface_floats.download.html">clouddrift.adapters.subsurface_floats.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.subsurface_floats.to_xarray.html">clouddrift.adapters.subsurface_floats.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.utils.html">clouddrift.adapters.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.utils.download_with_progress.html">clouddrift.adapters.utils.download_with_progress</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.yomaha.html">clouddrift.adapters.yomaha</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.yomaha.download.html">clouddrift.adapters.yomaha.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.yomaha.to_xarray.html">clouddrift.adapters.yomaha.to_xarray</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.binning.html">clouddrift.binning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.binning.binned_statistics.html">clouddrift.binning.binned_statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.binning.handle_datetime_conversion.html">clouddrift.binning.handle_datetime_conversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.html">clouddrift.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.andro.html">clouddrift.datasets.andro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.gdp1h.html">clouddrift.datasets.gdp1h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.gdp6h.html">clouddrift.datasets.gdp6h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.gdp_source.html">clouddrift.datasets.gdp_source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.glad.html">clouddrift.datasets.glad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.hurdat2.html">clouddrift.datasets.hurdat2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.ibtracs.html">clouddrift.datasets.ibtracs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.mosaic.html">clouddrift.datasets.mosaic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.spotters.html">clouddrift.datasets.spotters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.subsurface_floats.html">clouddrift.datasets.subsurface_floats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.yomaha.html">clouddrift.datasets.yomaha</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.html">clouddrift.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.inertial_oscillation_from_position.html">clouddrift.kinematics.inertial_oscillation_from_position</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.kinetic_energy.html">clouddrift.kinematics.kinetic_energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.position_from_velocity.html">clouddrift.kinematics.position_from_velocity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.residual_position_from_displacement.html">clouddrift.kinematics.residual_position_from_displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.spin.html">clouddrift.kinematics.spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.velocity_from_position.html">clouddrift.kinematics.velocity_from_position</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.html">clouddrift.pairs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.chance_pair.html">clouddrift.pairs.chance_pair</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.chance_pairs_from_ragged.html">clouddrift.pairs.chance_pairs_from_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_bounding_box_overlap.html">clouddrift.pairs.pair_bounding_box_overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_space_distance.html">clouddrift.pairs.pair_space_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_time_distance.html">clouddrift.pairs.pair_time_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_time_overlap.html">clouddrift.pairs.pair_time_overlap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.plotting.html">clouddrift.plotting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.plotting.plot_ragged.html">clouddrift.plotting.plot_ragged</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.html">clouddrift.ragged</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.apply_ragged.html">clouddrift.ragged.apply_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.chunk.html">clouddrift.ragged.chunk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.obs_index_to_row.html">clouddrift.ragged.obs_index_to_row</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.prune.html">clouddrift.ragged.prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.ragged_to_regular.html">clouddrift.ragged.ragged_to_regular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.regular_to_ragged.html">clouddrift.ragged.regular_to_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.rowsize_to_index.html">clouddrift.ragged.rowsize_to_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.segment.html">clouddrift.ragged.segment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.subset.html">clouddrift.ragged.subset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.unpack.html">clouddrift.ragged.unpack</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.raggedarray.html">clouddrift.raggedarray</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html">clouddrift.raggedarray.RaggedArray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.signal.html">clouddrift.signal</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.analytic_signal.html">clouddrift.signal.analytic_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.cartesian_to_rotary.html">clouddrift.signal.cartesian_to_rotary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.ellipse_parameters.html">clouddrift.signal.ellipse_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.modulated_ellipse_signal.html">clouddrift.signal.modulated_ellipse_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.rotary_to_cartesian.html">clouddrift.signal.rotary_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.html">clouddrift.sphere</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.bearing.html">clouddrift.sphere.bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.cartesian_to_spherical.html">clouddrift.sphere.cartesian_to_spherical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.cartesian_to_tangentplane.html">clouddrift.sphere.cartesian_to_tangentplane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.coriolis_frequency.html">clouddrift.sphere.coriolis_frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.cumulative_distance.html">clouddrift.sphere.cumulative_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.distance.html">clouddrift.sphere.distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.plane_to_sphere.html">clouddrift.sphere.plane_to_sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.position_from_distance_and_bearing.html">clouddrift.sphere.position_from_distance_and_bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.recast_lon.html">clouddrift.sphere.recast_lon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.recast_lon180.html">clouddrift.sphere.recast_lon180</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.recast_lon360.html">clouddrift.sphere.recast_lon360</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.sphere_to_plane.html">clouddrift.sphere.sphere_to_plane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.spherical_to_cartesian.html">clouddrift.sphere.spherical_to_cartesian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.tangentplane_to_cartesian.html">clouddrift.sphere.tangentplane_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.html">clouddrift.wavelet</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_amplitude.html">clouddrift.wavelet.morse_amplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_freq.html">clouddrift.wavelet.morse_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_logspace_freq.html">clouddrift.wavelet.morse_logspace_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_properties.html">clouddrift.wavelet.morse_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_wavelet.html">clouddrift.wavelet.morse_wavelet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_wavelet_transform.html">clouddrift.wavelet.morse_wavelet_transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.wavelet_transform.html">clouddrift.wavelet.wavelet_transform</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for clouddrift.wavelet</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides functions for computing wavelet transforms and time-frequency analyses,</span>
+<span class="sd">notably using generalized Morse wavelets.</span>
+
+<span class="sd">The Python code in this module was translated from the MATLAB implementation</span>
+<span class="sd">by J. M. Lilly in the jWavelet module of jLab (http://jmlilly.net/code.html).</span>
+
+<span class="sd">Lilly, J. M. (2021), jLab: A data analysis package for Matlab, v.1.7.1,</span>
+<span class="sd">doi:10.5281/zenodo.4547006, http://www.jmlilly.net/software.</span>
+
+<span class="sd">jLab is licensed under the Creative Commons Attribution-Noncommercial-ShareAlike</span>
+<span class="sd">License (https://creativecommons.org/licenses/by-nc-sa/4.0/). The code that is</span>
+<span class="sd">directly translated from jLab/jWavelet is licensed under the same license.</span>
+<span class="sd">Any other code that is added to this module and that is specific to Python and</span>
+<span class="sd">not the MATLAB implementation is licensed under CloudDrift&#39;s MIT license.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">gamma</span> <span class="k">as</span> <span class="n">_gamma</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">gammaln</span> <span class="k">as</span> <span class="n">_lgamma</span>
+
+
+<div class="viewcode-block" id="morse_wavelet_transform">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.wavelet.morse_wavelet_transform.html#clouddrift.wavelet.morse_wavelet_transform">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">morse_wavelet_transform</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">gamma</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">radian_frequency</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="nb">complex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">normalization</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bandpass&quot;</span><span class="p">,</span>
+    <span class="n">boundary</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;periodic&quot;</span><span class="p">,</span>
+    <span class="n">time_axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply a continuous wavelet transform to an input signal using the generalized Morse</span>
+<span class="sd">    wavelets of Olhede and Walden (2002). The wavelet transform is normalized differently</span>
+<span class="sd">    for complex-valued input than for real-valued input, and this in turns depends on whether the</span>
+<span class="sd">    optional argument ``normalization`` is set to ``&quot;bandpass&quot;`` or ``&quot;energy&quot;`` normalizations.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : np.ndarray</span>
+<span class="sd">        Real- or complex-valued signals. The time axis is assumed to be the last. If not, specify optional</span>
+<span class="sd">        argument `time_axis`.</span>
+<span class="sd">    gamma : float</span>
+<span class="sd">       Gamma parameter of the Morse wavelets.</span>
+<span class="sd">    beta : float</span>
+<span class="sd">       Beta parameter of the Morse wavelets.</span>
+<span class="sd">    radian_frequency : np.ndarray</span>
+<span class="sd">       An array of radian frequencies at which the Fourier transform of the wavelets</span>
+<span class="sd">       reach their maximum amplitudes. ``radian_frequency`` is typically between 0 and 2 * np.pi * 0.5,</span>
+<span class="sd">       the normalized Nyquist radian frequency.</span>
+<span class="sd">    complex : boolean, optional</span>
+<span class="sd">        Specify explicitely if the input signal ``x`` is a complex signal. Default is False which</span>
+<span class="sd">        means that the input is real but that is not explicitely tested by the function.</span>
+<span class="sd">        This choice affects the normalization of the outputs and their interpretation.</span>
+<span class="sd">        See examples below.</span>
+<span class="sd">    time_axis : int, optional</span>
+<span class="sd">        Axis on which the time is defined for input ``x`` (default is last, or -1).</span>
+<span class="sd">    normalization : str, optional</span>
+<span class="sd">        Normalization for the wavelet transforms. By default it is assumed to be</span>
+<span class="sd">        ``&quot;bandpass&quot;`` which uses a bandpass normalization, meaning that the FFT</span>
+<span class="sd">        of the wavelets have peak value of 2 for all central frequencies</span>
+<span class="sd">        ``radian_frequency``. However, if the optional argument ``complex=True``</span>
+<span class="sd">        is specified, the wavelets will be divided by 2 so that the total</span>
+<span class="sd">        variance of the input complex signal is equal to the sum of the</span>
+<span class="sd">        variances of the returned analytic (positive) and conjugate analytic</span>
+<span class="sd">        (negative) parts. See examples below. The other option is ``&quot;energy&quot;``</span>
+<span class="sd">        which uses the unit energy normalization. In this last case, the</span>
+<span class="sd">        time-domain wavelet energies ``np.sum(np.abs(wave)**2)`` are always</span>
+<span class="sd">        unity.</span>
+<span class="sd">    boundary : str, optional</span>
+<span class="sd">        The boundary condition to be imposed at the edges of the input signal ``x``.</span>
+<span class="sd">        Allowed values are ``&quot;mirror&quot;``, ``&quot;zeros&quot;``, and ``&quot;periodic&quot;``. Default is ``&quot;periodic&quot;``.</span>
+<span class="sd">    order : int, optional</span>
+<span class="sd">        Order of Morse wavelets, default is 1.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    If the input signal is real as specificied by ``complex=False``:</span>
+
+<span class="sd">    wtx : np.ndarray</span>
+<span class="sd">        Time-domain wavelet transform of input ``x`` with shape ((x shape without time_axis), orders, frequencies, time_axis)</span>
+<span class="sd">        but with dimensions of length 1 removed (squeezed).</span>
+
+<span class="sd">    If the input signal is complex as specificied by ``complex=True``, a tuple is returned:</span>
+
+<span class="sd">    wtx_p : np.array</span>
+<span class="sd">        Time-domain positive wavelet transform of input ``x`` with shape ((x shape without time_axis), frequencies, orders),</span>
+<span class="sd">        but with dimensions of length 1 removed (squeezed).</span>
+<span class="sd">    wtx_n : np.array</span>
+<span class="sd">        Time-domain negative wavelet transform of input ``x`` with shape ((x shape without time_axis), frequencies, orders),</span>
+<span class="sd">        but with dimensions of length 1 removed (squeezed).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Apply a wavelet transform with a Morse wavelet with gamma parameter 3, beta parameter 4,</span>
+<span class="sd">    at radian frequency 0.2 cycles per unit time:</span>
+
+<span class="sd">    &gt;&gt;&gt; x = np.random.random(1024)</span>
+<span class="sd">    &gt;&gt;&gt; wtx = morse_wavelet_transform(x, 3, 4, np.array([2*np.pi*0.2]))</span>
+
+<span class="sd">    Apply a wavelet transform with a Morse wavelet with gamma parameter 3, beta parameter 4,</span>
+<span class="sd">    for a complex input signal at radian frequency 0.2 cycles per unit time. This case returns the</span>
+<span class="sd">    analytic and conjugate analytic components:</span>
+
+<span class="sd">    &gt;&gt;&gt; z = np.random.random(1024) + 1j*np.random.random(1024)</span>
+<span class="sd">    &gt;&gt;&gt; wtz_p, wtz_n = morse_wavelet_transform(z, 3, 4, np.array([2*np.pi*0.2]), complex=True)</span>
+
+<span class="sd">    The same result as above can be otained by applying the Morse transform on the real and imaginary</span>
+<span class="sd">    component of z and recombining the results as follows for the &quot;bandpass&quot; normalization:</span>
+<span class="sd">    &gt;&gt;&gt; wtz_real = morse_wavelet_transform(np.real(z)), 3, 4, np.array([2*np.pi*0.2]))</span>
+<span class="sd">    &gt;&gt;&gt; wtz_imag = morse_wavelet_transform(np.imag(z)), 3, 4, np.array([2*np.pi*0.2]))</span>
+<span class="sd">    &gt;&gt;&gt; wtz_p, wtz_n = (wtz_real + 1j*wtz_imag) / 2, (wtz_real - 1j*wtz_imag) / 2</span>
+
+<span class="sd">    For the &quot;energy&quot; normalization, the analytic and conjugate analytic components are obtained as follows</span>
+<span class="sd">    with this alternative method:</span>
+<span class="sd">    &gt;&gt;&gt; wtz_real = morse_wavelet_transform(np.real(z)), 3, 4, np.array([2*np.pi*0.2]))</span>
+<span class="sd">    &gt;&gt;&gt; wtz_imag = morse_wavelet_transform(np.imag(z)), 3, 4, np.array([2*np.pi*0.2]))</span>
+<span class="sd">    &gt;&gt;&gt; wtz_p, wtz_n = (wtz_real + 1j*wtz_imag) / np.sqrt(2), (wtz_real - 1j*wtz_imag) / np.sqrt(2)</span>
+
+<span class="sd">    The input signal can have an arbitrary number of dimensions but its ``time_axis`` must be</span>
+<span class="sd">    specified if it is not the last:</span>
+
+<span class="sd">    &gt;&gt;&gt; x = np.random.random((1024,10,15))</span>
+<span class="sd">    &gt;&gt;&gt; wtx = morse_wavelet_transform(x, 3, 4, np.array([2*np.pi*0.2]), time_axis=0)</span>
+
+<span class="sd">    The default way to handle the boundary conditions is to assume periodicity of the</span>
+<span class="sd">    input but this can be changed by specifying another boundary condition:</span>
+
+<span class="sd">    &gt;&gt;&gt; x = np.random.random((10,15,1024))</span>
+<span class="sd">    &gt;&gt;&gt; wtx = morse_wavelet_transform(x, 3, 4, np.array([2*np.pi*0.2]), boundary=&quot;mirror&quot;)</span>
+
+<span class="sd">    This function can be used to conduct a time-frequency analysis of the input signal by specifying</span>
+<span class="sd">    a range of randian frequencies using the ``morse_logspace_freq`` function as an example:</span>
+
+<span class="sd">    &gt;&gt;&gt; x = np.random.random(1024)</span>
+<span class="sd">    &gt;&gt;&gt; gamma = 3</span>
+<span class="sd">    &gt;&gt;&gt; beta = 4</span>
+<span class="sd">    &gt;&gt;&gt; radian_frequency = morse_logspace_freq(gamma, beta, np.shape(x)[0])</span>
+<span class="sd">    &gt;&gt;&gt; wtx = morse_wavelet_transform(x, gamma, beta, radian_frequency)</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the time axis is outside of the valid range ([-1, np.ndim(x)-1]).</span>
+<span class="sd">        If boundary optional argument is not in [&quot;mirror&quot;, &quot;zeros&quot;, &quot;periodic&quot;]``.</span>
+<span class="sd">        If normalization optional argument is not in [&quot;bandpass&quot;, &quot;energy&quot;]``.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`morse_wavelet`, :func:`wavelet_transform`, :func:`morse_logspace_freq`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># time_axis must be in valid range</span>
+    <span class="k">if</span> <span class="n">time_axis</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">time_axis</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;time_axis (</span><span class="si">{</span><span class="n">time_axis</span><span class="si">}</span><span class="s2">) is outside of the valid range ([-1,&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">]).&quot;</span>
+        <span class="p">)</span>
+    <span class="c1"># generate the wavelet</span>
+    <span class="n">wavelet</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">morse_wavelet</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="n">time_axis</span><span class="p">],</span>
+        <span class="n">gamma</span><span class="p">,</span>
+        <span class="n">beta</span><span class="p">,</span>
+        <span class="n">radian_frequency</span><span class="p">,</span>
+        <span class="n">normalization</span><span class="o">=</span><span class="n">normalization</span><span class="p">,</span>
+        <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># apply the wavelet transform, distinguish complex and real cases</span>
+    <span class="k">if</span> <span class="nb">complex</span><span class="p">:</span>
+        <span class="c1"># imaginary case, divide by 2 the wavelet and return analytic and conjugate analytic</span>
+        <span class="k">if</span> <span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;bandpass&quot;</span><span class="p">:</span>
+            <span class="n">wtx_p</span> <span class="o">=</span> <span class="n">wavelet_transform</span><span class="p">(</span>
+                <span class="mf">0.5</span> <span class="o">*</span> <span class="n">x</span><span class="p">,</span> <span class="n">wavelet</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="n">boundary</span><span class="p">,</span> <span class="n">time_axis</span><span class="o">=</span><span class="n">time_axis</span>
+            <span class="p">)</span>
+            <span class="n">wtx_n</span> <span class="o">=</span> <span class="n">wavelet_transform</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">x</span><span class="p">),</span> <span class="n">wavelet</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="n">boundary</span><span class="p">,</span> <span class="n">time_axis</span><span class="o">=</span><span class="n">time_axis</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;energy&quot;</span><span class="p">:</span>
+            <span class="n">wtx_p</span> <span class="o">=</span> <span class="n">wavelet_transform</span><span class="p">(</span>
+                <span class="n">x</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">wavelet</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="n">boundary</span><span class="p">,</span> <span class="n">time_axis</span><span class="o">=</span><span class="n">time_axis</span>
+            <span class="p">)</span>
+            <span class="n">wtx_n</span> <span class="o">=</span> <span class="n">wavelet_transform</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="n">wavelet</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="n">boundary</span><span class="p">,</span> <span class="n">time_axis</span><span class="o">=</span><span class="n">time_axis</span>
+            <span class="p">)</span>
+        <span class="n">wtx</span> <span class="o">=</span> <span class="n">wtx_p</span><span class="p">,</span> <span class="n">wtx_n</span>
+
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">complex</span><span class="p">:</span>
+        <span class="c1"># real case</span>
+        <span class="n">wtx</span> <span class="o">=</span> <span class="n">wavelet_transform</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">wavelet</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="n">boundary</span><span class="p">,</span> <span class="n">time_axis</span><span class="o">=</span><span class="n">time_axis</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;`complex` optional argument must be boolean &#39;True&#39; or &#39;False&#39;&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wtx</span></div>
+
+
+
+<div class="viewcode-block" id="wavelet_transform">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.wavelet.wavelet_transform.html#clouddrift.wavelet.wavelet_transform">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">wavelet_transform</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">wavelet</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">boundary</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;periodic&quot;</span><span class="p">,</span>
+    <span class="n">time_axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">freq_axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">order_axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply a continuous wavelet transform to an input signal using an input wavelet</span>
+<span class="sd">    function. Such wavelet can be provided by the function ``morse_wavelet``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : np.ndarray</span>
+<span class="sd">        Real- or complex-valued signals.</span>
+<span class="sd">    wavelet : np.ndarray</span>
+<span class="sd">        A suite of time-domain wavelets, typically returned by the function ``morse_wavelet``.</span>
+<span class="sd">        The length of the time axis of the wavelets must be the last one and matches the</span>
+<span class="sd">        length of the time axis of x. The other dimensions (axes) of the wavelets (such as orders and frequencies) are</span>
+<span class="sd">        typically organized as orders, frequencies, and time, unless specified by optional arguments freq_axis and order_axis.</span>
+<span class="sd">        The normalization of the wavelets is assumed to be &quot;bandpass&quot;, if not, use kwarg normalization=&quot;energy&quot;, see ``morse_wavelet``.</span>
+<span class="sd">    boundary : str, optional</span>
+<span class="sd">        The boundary condition to be imposed at the edges of the input signal ``x``.</span>
+<span class="sd">        Allowed values are ``&quot;mirror&quot;``, ``&quot;zeros&quot;``, and ``&quot;periodic&quot;``. Default is ``&quot;periodic&quot;``.</span>
+<span class="sd">    time_axis : int, optional</span>
+<span class="sd">        Axis on which the time is defined for input ``x`` (default is last, or -1). Note that the time axis of the</span>
+<span class="sd">        wavelets must be last.</span>
+<span class="sd">    freq_axis : int, optional</span>
+<span class="sd">        Axis of ``wavelet`` for the frequencies (default is second or 1)</span>
+<span class="sd">    order_axis : int, optional</span>
+<span class="sd">        Axis of ``wavelet`` for the orders (default is first or 0)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    wtx : np.ndarray</span>
+<span class="sd">        Time-domain wavelet transform of ``x`` with shape ((x shape without time_axis), orders, frequencies, time_axis)</span>
+<span class="sd">        but with dimensions of length 1 removed (squeezed).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Apply a wavelet transform with a Morse wavelet with gamma parameter 3, beta</span>
+<span class="sd">    parameter 4, at radian frequency 0.2 cycles per unit time:</span>
+
+<span class="sd">    &gt;&gt;&gt; x = np.random.random(1024)</span>
+<span class="sd">    &gt;&gt;&gt; wavelet, _ = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2]))</span>
+<span class="sd">    &gt;&gt;&gt; wtx = wavelet_transform(x, wavelet)</span>
+
+<span class="sd">    The input signal can have an arbitrary number of dimensions but its</span>
+<span class="sd">    ``time_axis`` must be specified if it is not the last:</span>
+
+<span class="sd">    &gt;&gt;&gt; x = np.random.random((1024,10,15))</span>
+<span class="sd">    &gt;&gt;&gt; wavelet, _ = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2]))</span>
+<span class="sd">    &gt;&gt;&gt; wtx = wavelet_transform(x, wavelet,time_axis=0)</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the time axis is outside of the valid range ([-1, N-1]).</span>
+<span class="sd">        If the shape of time axis is different for input signal and wavelet.</span>
+<span class="sd">        If boundary optional argument is not in [&quot;mirror&quot;, &quot;zeros&quot;, &quot;periodic&quot;]``.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`morse_wavelet`, :func:`morse_wavelet_transform`, :func:`morse_freq`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># time_axis must be in valid range</span>
+    <span class="k">if</span> <span class="n">time_axis</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">time_axis</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;time_axis (</span><span class="si">{</span><span class="n">time_axis</span><span class="si">}</span><span class="s2">) is outside of the valid range ([-1,&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">]).&quot;</span>
+        <span class="p">)</span>
+    <span class="c1"># Positions and time arrays must have the same shape.</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">time_axis</span><span class="p">]</span> <span class="o">!=</span> <span class="n">wavelet</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;x and wavelet time axes must have the same length.&quot;</span><span class="p">)</span>
+
+    <span class="n">wavelet_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">wavelet</span><span class="p">,</span> <span class="p">[</span><span class="n">freq_axis</span><span class="p">,</span> <span class="n">order_axis</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">])</span>
+
+    <span class="c1"># if x is of dimension 1 we need to expand</span>
+    <span class="c1"># otherwise make sure time axis is last</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">x_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">x_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># add detrending option eventually</span>
+
+    <span class="c1"># apply boundary conditions</span>
+    <span class="k">if</span> <span class="n">boundary</span> <span class="o">==</span> <span class="s2">&quot;mirror&quot;</span><span class="p">:</span>
+        <span class="n">x_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">x_</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="n">x_</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">x_</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">boundary</span> <span class="o">==</span> <span class="s2">&quot;zeros&quot;</span><span class="p">:</span>
+        <span class="n">x_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x_</span><span class="p">),</span> <span class="n">x_</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x_</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">boundary</span> <span class="o">==</span> <span class="s2">&quot;periodic&quot;</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;boundary must be one of &#39;mirror&#39;, &#39;zeros&#39;, or &#39;periodic&#39;.&quot;</span><span class="p">)</span>
+
+    <span class="n">time_length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="n">time_axis</span><span class="p">]</span>
+    <span class="n">time_length_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x_</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># pad wavelet with zeros: JML ok</span>
+    <span class="n">order_length</span><span class="p">,</span> <span class="n">freq_length</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">wavelet</span><span class="p">)</span>
+    <span class="n">_wavelet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">order_length</span><span class="p">,</span> <span class="n">freq_length</span><span class="p">,</span> <span class="n">time_length_</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">cdouble</span><span class="p">)</span>
+
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">time_length_</span> <span class="o">-</span> <span class="n">time_length</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">time_length</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">time_length_</span> <span class="o">-</span> <span class="n">time_length</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">_wavelet</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">wavelet_</span>
+
+    <span class="c1"># take fft along axis = -1</span>
+    <span class="n">_wavelet_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">_wavelet</span><span class="p">)</span>
+    <span class="n">om</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">time_length_</span><span class="p">,</span> <span class="n">time_length_</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">time_length_</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">_wavelet_fft</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">_wavelet_fft</span>
+            <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="o">-</span><span class="n">om</span> <span class="o">*</span> <span class="p">(</span><span class="n">time_length_</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">om</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_wavelet_fft</span> <span class="o">=</span> <span class="n">_wavelet_fft</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="o">-</span><span class="n">om</span> <span class="o">*</span> <span class="p">(</span><span class="n">time_length_</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># here we should be able to automate the tiling without assuming extra dimensions of wave</span>
+    <span class="n">X_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">x_</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)),</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">order_length</span><span class="p">,</span> <span class="n">freq_length</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="c1"># finally the transform; return precision of input `x``; central part only</span>
+    <span class="n">complex_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cdouble</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">single</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">csingle</span>
+    <span class="n">wtx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">X_</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">_wavelet_fft</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">complex_dtype</span><span class="p">)</span>
+    <span class="n">wtx</span> <span class="o">=</span> <span class="n">wtx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">index</span><span class="p">]</span>
+
+    <span class="c1"># reposition the time axis if needed from axis -1</span>
+    <span class="k">if</span> <span class="n">time_axis</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">wtx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">wtx</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">time_axis</span><span class="p">)</span>
+
+    <span class="c1"># remove extra dimensions if needed</span>
+    <span class="n">wtx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">wtx</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wtx</span></div>
+
+
+
+<div class="viewcode-block" id="morse_wavelet">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.wavelet.morse_wavelet.html#clouddrift.wavelet.morse_wavelet">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">morse_wavelet</span><span class="p">(</span>
+    <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">gamma</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">radian_frequency</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">normalization</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bandpass&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the generalized Morse wavelets of Olhede and Walden (2002), doi: 10.1109/TSP.2002.804066.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    length : int</span>
+<span class="sd">       Length of the wavelets.</span>
+<span class="sd">    gamma : float</span>
+<span class="sd">       Gamma parameter of the wavelets.</span>
+<span class="sd">    beta : float</span>
+<span class="sd">       Beta parameter of the wavelets.</span>
+<span class="sd">    radian_frequency : np.ndarray</span>
+<span class="sd">       The radian frequencies at which the Fourier transform of the wavelets</span>
+<span class="sd">       reach their maximum amplitudes. radian_frequency is between 0 and 2 * np.pi * 0.5,</span>
+<span class="sd">       the normalized Nyquist radian frequency.</span>
+<span class="sd">    order : int, optional</span>
+<span class="sd">        Order of wavelets, default is 1.</span>
+<span class="sd">    normalization : str, optional</span>
+<span class="sd">       Normalization for the ``wavelet`` output. By default it is assumed to be ``&quot;bandpass&quot;``</span>
+<span class="sd">       which uses a bandpass normalization, meaning that the FFT of the wavelets</span>
+<span class="sd">       have peak value of 2 for all central frequencies ``radian_frequency``. The other option is</span>
+<span class="sd">       ``&quot;energy&quot;``which uses the unit energy normalization. In this last case, the time-domain wavelet</span>
+<span class="sd">       energies ``np.sum(np.abs(wave)**2)`` are always unity.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    wavelet : np.ndarray</span>
+<span class="sd">        Time-domain wavelets with shape (order, radian_frequency, length).</span>
+<span class="sd">    wavelet_fft: np.ndarray</span>
+<span class="sd">        Frequency-domain wavelets with shape (order, radian_frequency, length).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Compute a Morse wavelet with gamma parameter 3, beta parameter 4, at radian</span>
+<span class="sd">    frequency 0.2 cycles per unit time:</span>
+
+<span class="sd">    &gt;&gt;&gt; wavelet, wavelet_fft = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2]))</span>
+<span class="sd">    &gt;&gt;&gt; np.shape(wavelet)</span>
+<span class="sd">    (1, 1, 1024)</span>
+
+<span class="sd">    Compute a suite of Morse wavelets with gamma parameter 3, beta parameter 4, up to order 3,</span>
+<span class="sd">    at radian frequencies 0.2 and 0.3 cycles per unit time:</span>
+
+<span class="sd">    &gt;&gt;&gt; wavelet, wavelet_fft = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2, 2*np.pi*0.3]), order=3)</span>
+<span class="sd">    &gt;&gt;&gt; np.shape(wavelet)</span>
+<span class="sd">    (3, 2, 1024)</span>
+
+<span class="sd">    Compute a Morse wavelet specifying an energy normalization :</span>
+<span class="sd">    &gt;&gt;&gt; wavelet, wavelet_fft = morse_wavelet(1024, 3, 4, np.array([2*np.pi*0.2]), normalization=&quot;energy&quot;)</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If normalization optional argument is not in [&quot;bandpass&quot;, &quot;energy&quot;]``.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`wavelet_transform`, :func:`morse_wavelet_transform`, :func:`morse_freq`, :func:`morse_logspace_freq`, :func:`morse_amplitude`, :func:`morse_properties`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># ad test for radian_frequency being a numpy array</span>
+    <span class="c1"># initialization</span>
+    <span class="n">wavelet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">radian_frequency</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">cdouble</span><span class="p">)</span>
+    <span class="n">waveletfft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">radian_frequency</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">cdouble</span><span class="p">)</span>
+
+    <span class="c1"># call to morse_wavelet take only gamma and be as float, no array</span>
+    <span class="n">fo</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">morse_freq</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">radian_frequency</span><span class="p">)):</span>
+        <span class="n">wavelet_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span> <span class="n">order</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">cdouble</span><span class="p">)</span>
+        <span class="n">waveletfft_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span> <span class="n">order</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">cdouble</span><span class="p">)</span>
+
+        <span class="c1"># wavelet frequencies</span>
+        <span class="n">fact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">radian_frequency</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">fo</span>
+        <span class="c1"># norm_radian_frequency first dim is n points</span>
+        <span class="n">norm_radian_frequency</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">length</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span> <span class="o">/</span> <span class="n">fact</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;energy&quot;</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+                <span class="n">waveletzero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+                    <span class="n">beta</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">norm_radian_frequency</span><span class="p">)</span> <span class="o">-</span> <span class="n">norm_radian_frequency</span><span class="o">**</span><span class="n">gamma</span>
+                <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;bandpass&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">beta</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">waveletzero</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">norm_radian_frequency</span><span class="o">**</span><span class="n">gamma</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+                    <span class="n">waveletzero</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+                        <span class="o">-</span><span class="n">beta</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">fo</span><span class="p">)</span>
+                        <span class="o">+</span> <span class="n">fo</span><span class="o">**</span><span class="n">gamma</span>
+                        <span class="o">+</span> <span class="n">beta</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">norm_radian_frequency</span><span class="p">)</span>
+                        <span class="o">-</span> <span class="n">norm_radian_frequency</span><span class="o">**</span><span class="n">gamma</span>
+                    <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Normalization option (norm) must be one of &#39;energy&#39; or &#39;bandpass&#39;.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">waveletzero</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">waveletzero</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Replace NaN with zeros in waveletzero</span>
+        <span class="n">waveletzero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">waveletzero</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="c1"># second family is never used</span>
+        <span class="n">waveletfft_tmp</span> <span class="o">=</span> <span class="n">_morse_wavelet_first_family</span><span class="p">(</span>
+            <span class="n">fact</span><span class="p">,</span>
+            <span class="n">gamma</span><span class="p">,</span>
+            <span class="n">beta</span><span class="p">,</span>
+            <span class="n">norm_radian_frequency</span><span class="p">,</span>
+            <span class="n">waveletzero</span><span class="p">,</span>
+            <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>
+            <span class="n">normalization</span><span class="o">=</span><span class="n">normalization</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">waveletfft_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">waveletfft_tmp</span><span class="p">,</span> <span class="n">posinf</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">neginf</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># shape of waveletfft_tmp is points, order</span>
+        <span class="c1"># center wavelet</span>
+        <span class="n">norm_radian_frequency_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">norm_radian_frequency</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="n">order</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">waveletfft_tmp</span> <span class="o">=</span> <span class="n">waveletfft_tmp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+            <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">norm_radian_frequency_mat</span> <span class="o">*</span> <span class="p">(</span><span class="n">length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">fact</span>
+        <span class="p">)</span>
+        <span class="c1"># time domain waveletlet</span>
+        <span class="n">wavelet_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">waveletfft_tmp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">radian_frequency</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">wavelet</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">wavelet_tmp</span><span class="p">)</span>
+            <span class="n">waveletfft_tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">waveletfft_tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">waveletfft</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">waveletfft_tmp</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">waveletfft</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">waveletfft_tmp</span>
+            <span class="n">wavelet</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">wavelet_tmp</span>
+
+    <span class="c1"># reorder dimension to be (order, frequency, time steps)</span>
+    <span class="c1"># enforce length 1 for first axis if order=1 (no squeezing)</span>
+    <span class="n">wavelet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">wavelet</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">waveletfft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">waveletfft</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">wavelet</span><span class="p">,</span> <span class="n">waveletfft</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_morse_wavelet_first_family</span><span class="p">(</span>
+    <span class="n">fact</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">gamma</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">norm_radian_frequency</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">wavezero</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">normalization</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bandpass&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Derive first family of Morse wavelets. Internal use only.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">beta</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">gamma</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">r</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">norm_radian_frequency</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">wavefft1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">wavezero</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">order</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;energy&quot;</span><span class="p">:</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="n">morse_amplitude</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">normalization</span><span class="o">=</span><span class="n">normalization</span><span class="p">)</span>
+            <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">fact</span><span class="p">)</span> <span class="o">*</span> <span class="n">A</span>
+        <span class="k">elif</span> <span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;bandpass&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">beta</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">_lgamma</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">+</span> <span class="n">_lgamma</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">_lgamma</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">r</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">coeff</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">wavezero</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="p">)</span>  <span class="c1"># how to define indices?</span>
+        <span class="n">L</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">_laguerre</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norm_radian_frequency</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">**</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+        <span class="n">wavefft1</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">coeff</span> <span class="o">*</span> <span class="n">wavezero</span> <span class="o">*</span> <span class="n">L</span>
+
+    <span class="k">return</span> <span class="n">wavefft1</span>
+
+
+<div class="viewcode-block" id="morse_freq">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.wavelet.morse_freq.html#clouddrift.wavelet.morse_freq">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">morse_freq</span><span class="p">(</span>
+    <span class="n">gamma</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">beta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Frequency measures for generalized Morse wavelets. This functions calculates</span>
+<span class="sd">    three different measures fm, fe, and fi of the frequency of the lowest-order generalized Morse</span>
+<span class="sd">    wavelet specified by parameters ``gamma`` and ``beta``.</span>
+
+<span class="sd">    Note that all frequency quantities here are in *radian* as in cos(f t) and not</span>
+<span class="sd">    cyclic as in np.cos(2 np.pi f t).</span>
+
+<span class="sd">    For ``beta=0``, the corresponding wavelet becomes an analytic lowpass filter, and fm</span>
+<span class="sd">    is not defined in the usual way but as the point at which the filter has decayed</span>
+<span class="sd">    to one-half of its peak power.</span>
+
+<span class="sd">    For details see Lilly and Olhede (2009), doi: 10.1109/TSP.2008.2007607.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gamma : np.ndarray or float</span>
+<span class="sd">       Gamma parameter of the wavelets.</span>
+<span class="sd">    beta : np.ndarray or float</span>
+<span class="sd">       Beta parameter of the wavelets.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fm : np.ndarray</span>
+<span class="sd">        The modal or peak frequency.</span>
+<span class="sd">    fe : np.ndarray</span>
+<span class="sd">        The energy frequency.</span>
+<span class="sd">    fi : np.ndarray</span>
+<span class="sd">        The instantaneous frequency at the wavelets&#39; centers.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; fm, fe, fi = morse_freq(3, 4)</span>
+
+<span class="sd">    &gt;&gt;&gt; morse_freq(3, 4)</span>
+<span class="sd">    (array(1.10064242), 1.1025129235952809, 1.1077321674324723)</span>
+
+<span class="sd">    &gt;&gt;&gt; morse_freq(3, np.array([10, 20, 30]))</span>
+<span class="sd">    (array([1.49380158, 1.88207206, 2.15443469]),</span>
+<span class="sd">    array([1.49421505, 1.88220264, 2.15450116]),</span>
+<span class="sd">    array([1.49543843, 1.88259299, 2.15470024]))</span>
+
+<span class="sd">    &gt;&gt;&gt; morse_freq(np.array([3, 4, 5]), np.array([10, 20, 30]))</span>
+<span class="sd">    (array([1.49380158, 1.49534878, 1.43096908]),</span>
+<span class="sd">    array([1.49421505, 1.49080278, 1.4262489 ]),</span>
+<span class="sd">    array([1.49543843, 1.48652036, 1.42163583]))</span>
+
+<span class="sd">    &gt;&gt;&gt; morse_freq(np.array([3, 4, 5]), 10)</span>
+<span class="sd">    (array([1.49380158, 1.25743343, 1.14869835]),</span>
+<span class="sd">    array([1.49421505, 1.25000964, 1.13759731]),</span>
+<span class="sd">    array([1.49543843, 1.24350315, 1.12739747]))</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`morse_wavelet`, :func:`morse_amplitude`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>  <span class="c1"># ignore warning when beta=0</span>
+        <span class="n">fm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">beta</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="mi">1</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gamma</span><span class="p">))),</span>
+        <span class="p">)</span>
+
+    <span class="n">fe</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mi">1</span>
+        <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">))</span>
+        <span class="o">*</span> <span class="n">_gamma</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">beta</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">)</span>
+        <span class="o">/</span> <span class="n">_gamma</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">beta</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">fi</span> <span class="o">=</span> <span class="n">_gamma</span><span class="p">((</span><span class="n">beta</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">)</span> <span class="o">/</span> <span class="n">_gamma</span><span class="p">((</span><span class="n">beta</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fm</span><span class="p">,</span> <span class="n">fe</span><span class="p">,</span> <span class="n">fi</span></div>
+
+
+
+<div class="viewcode-block" id="morse_logspace_freq">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.wavelet.morse_logspace_freq.html#clouddrift.wavelet.morse_logspace_freq">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">morse_logspace_freq</span><span class="p">(</span>
+    <span class="n">gamma</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">highset</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
+    <span class="n">lowset</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="n">density</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute logarithmically-spaced frequencies for generalized Morse wavelets</span>
+<span class="sd">    with parameters gamma and beta. This is a useful function to obtain the frequencies</span>
+<span class="sd">    needed for time-frequency analyses using wavelets. If ``radian_frequencies`` is the</span>
+<span class="sd">    output, ``np.log(radian_frequencies)`` is uniformly spaced, following convention</span>
+<span class="sd">    for wavelet analysis. See Lilly (2017), doi: 10.1098/rspa.2016.0776.</span>
+
+<span class="sd">    Default settings to compute the frequencies can be changed by passing optional</span>
+<span class="sd">    arguments ``lowset``, ``highset``, and ``density``. See below.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gamma : float</span>
+<span class="sd">       Gamma parameter of the Morse wavelets.</span>
+<span class="sd">    beta : float</span>
+<span class="sd">       Beta parameter of the Morse wavelets.</span>
+<span class="sd">    length : int</span>
+<span class="sd">        Length of the Morse wavelets and input signals.</span>
+<span class="sd">    highset : tuple of floats, optional.</span>
+<span class="sd">        Tuple of values (eta, high) used for high-frequency cutoff calculation. The highest</span>
+<span class="sd">        frequency is set to be the minimum of a specified value and a cutoff frequency</span>
+<span class="sd">        based on a Nyquist overlap condition: the highest frequency is the minimum of</span>
+<span class="sd">        the specified value high, and the largest frequency for which the wavelet will</span>
+<span class="sd">        satisfy the threshold level eta. Here eta be a number between zero and one</span>
+<span class="sd">        specifying the ratio of a frequency-domain wavelet at the Nyquist frequency</span>
+<span class="sd">        to its peak value. Default is (eta, high) = (0.1, np.pi).</span>
+<span class="sd">    lowset : tuple of floats, optional.</span>
+<span class="sd">        Tupe of values (P, low) set used for low-frequency cutoff calculation based on an</span>
+<span class="sd">        endpoint overlap condition. The lowest frequency is set such that the lowest-frequency</span>
+<span class="sd">        wavelet will reach some number P, called the packing number, times its central window</span>
+<span class="sd">        width at the ends of the time series. A choice of P=1 corresponds to  roughly 95% of</span>
+<span class="sd">        the time-domain wavelet energy being contained within the time series endpoints for</span>
+<span class="sd">        a wavelet at the center of the domain. The second value of the tuple is the absolute</span>
+<span class="sd">        lowest frequency. Default is (P, low) = (5, 0).</span>
+<span class="sd">    density : int, optional</span>
+<span class="sd">        This optional argument controls the number of points in the returned frequency</span>
+<span class="sd">        array. Higher values of ``density`` mean more overlap in the frequency</span>
+<span class="sd">        domain between transforms. When ``density=1``, the peak of one wavelet is located at the</span>
+<span class="sd">        half-power points of the adjacent wavelet. The default ``density=4`` means</span>
+<span class="sd">        that four other wavelets will occur between the peak of one wavelet and</span>
+<span class="sd">        its half-power point.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    radian_frequency : np.ndarray</span>
+<span class="sd">        Logarithmically-spaced frequencies in radians cycles per unit time,</span>
+<span class="sd">        sorted in descending order.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Generate a frequency array for the generalized Morse wavelet</span>
+<span class="sd">    with parameters gamma=3 and beta=5 for a time series of length n=1024:</span>
+
+<span class="sd">    &gt;&gt;&gt; radian_frequency = morse_logspace_freq(3, 5, 1024)</span>
+<span class="sd">    &gt;&gt;&gt; radian_frequency = morse_logspace_freq(3, 5, 1024, highset=(0.2, np.pi), lowset=(5, 0))</span>
+<span class="sd">    &gt;&gt;&gt; radian_frequency = morse_logspace_freq(3, 5, 1024, highset=(0.2, np.pi), lowset=(5, 0), density=10)</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`morse_wavelet`, :func:`morse_freq`, :func:`morse_properties`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">gamma_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">gamma</span><span class="p">])</span>
+    <span class="n">beta_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">beta</span><span class="p">])</span>
+    <span class="n">width</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">morse_properties</span><span class="p">(</span><span class="n">gamma_</span><span class="p">,</span> <span class="n">beta_</span><span class="p">)</span>
+
+    <span class="n">_high</span> <span class="o">=</span> <span class="n">_morsehigh</span><span class="p">(</span><span class="n">gamma_</span><span class="p">,</span> <span class="n">beta_</span><span class="p">,</span> <span class="n">highset</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">high_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_high</span><span class="p">,</span> <span class="n">highset</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="n">low</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">width</span> <span class="o">*</span> <span class="n">lowset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">length</span>
+    <span class="n">low_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">lowset</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">density</span> <span class="o">*</span> <span class="n">width</span><span class="p">)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">high_</span> <span class="o">/</span> <span class="n">low_</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">r</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">radian_frequency</span> <span class="o">=</span> <span class="n">high_</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="n">r</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">radian_frequency</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_morsehigh</span><span class="p">(</span>
+    <span class="n">gamma</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">beta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">eta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;High-frequency cutoff of the generalized Morse wavelets.</span>
+<span class="sd">    gamma and be should be arrays of the same length. Internal use only.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="mi">10000</span>
+    <span class="n">omhigh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">gamma</span><span class="p">)):</span>
+        <span class="n">fm</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">morse_freq</span><span class="p">(</span><span class="n">gamma</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">beta</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+            <span class="n">om</span> <span class="o">=</span> <span class="n">fm</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">omhigh</span>
+            <span class="n">lnwave1</span> <span class="o">=</span> <span class="n">beta</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">gamma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">beta</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">lnwave2</span> <span class="o">=</span> <span class="n">beta</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">om</span><span class="p">)</span> <span class="o">-</span> <span class="n">om</span> <span class="o">**</span> <span class="n">gamma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">lnwave</span> <span class="o">=</span> <span class="n">lnwave1</span> <span class="o">+</span> <span class="n">lnwave2</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">eta</span><span class="p">)</span> <span class="o">-</span> <span class="n">lnwave</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">omhigh</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">f</span>
+
+
+<div class="viewcode-block" id="morse_properties">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.wavelet.morse_properties.html#clouddrift.wavelet.morse_properties">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">morse_properties</span><span class="p">(</span>
+    <span class="n">gamma</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">beta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the properties of the demodulated generalized Morse wavelets.</span>
+<span class="sd">    See Lilly and Olhede (2009), doi: 10.1109/TSP.2008.2007607.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gamma : np.ndarray or float</span>
+<span class="sd">       Gamma parameter of the wavelets.</span>
+<span class="sd">    beta : np.ndarray or float</span>
+<span class="sd">       Beta parameter of the wavelets.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    width : np.ndarray or float</span>
+<span class="sd">        Dimensionless time-domain window width of the wavelets.</span>
+<span class="sd">    skew : np.ndarray or float</span>
+<span class="sd">        Imaginary part of normalized third moment of the time-domain demodulate,</span>
+<span class="sd">        or &#39;demodulate skewness&#39;.</span>
+<span class="sd">    kurt : np.ndarray or float</span>
+<span class="sd">        Normalized fourth moment of the time-domain demodulate,</span>
+<span class="sd">        or &#39;demodulate kurtosis&#39;.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    TODO</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`morse_wavelet`, :func:`morse_freq`, :func:`morse_amplitude`, :func:`morse_logspace_freq`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># test common size? or could be broadcasted</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">beta</span><span class="p">)</span>
+    <span class="n">skew</span> <span class="o">=</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="n">width</span>
+    <span class="n">kurt</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">-</span> <span class="n">skew</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">width</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="k">return</span> <span class="n">width</span><span class="p">,</span> <span class="n">skew</span><span class="p">,</span> <span class="n">kurt</span></div>
+
+
+
+<div class="viewcode-block" id="morse_amplitude">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.wavelet.morse_amplitude.html#clouddrift.wavelet.morse_amplitude">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">morse_amplitude</span><span class="p">(</span>
+    <span class="n">gamma</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">beta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">normalization</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bandpass&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the amplitude coefficient of the generalized Morse wavelets.</span>
+<span class="sd">    By default, the amplitude is calculated such that the maximum of the</span>
+<span class="sd">    frequency-domain wavelet is equal to 2, which is the bandpass normalization.</span>
+<span class="sd">    Optionally, specify ``normalization=&quot;energy&quot;`` in order to return the coefficient</span>
+<span class="sd">    giving the wavelets unit energies. See Lilly and Olhede (2009), doi doi: 10.1109/TSP.2008.2007607.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gamma : np.ndarray or float</span>
+<span class="sd">       Gamma parameter of the wavelets.</span>
+<span class="sd">    beta : np.ndarray or float</span>
+<span class="sd">       Beta parameter of the wavelets.</span>
+<span class="sd">    order : int, optional</span>
+<span class="sd">        Order of wavelets, default is 1.</span>
+<span class="sd">    normalization : str, optional</span>
+<span class="sd">       Normalization for the wavelets. By default it is assumed to be ``&quot;bandpass&quot;``</span>
+<span class="sd">       which uses a bandpass normalization, meaning that the FFT of the wavelets</span>
+<span class="sd">       have peak value of 2 for all central frequencies ``radian_frequency``. The other option is ``&quot;energy&quot;``</span>
+<span class="sd">       which uses the unit energy normalization. In this last case the time-domain wavelet</span>
+<span class="sd">       energies ``np.sum(np.abs(wave)**2)`` are always unity.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    amp : np.ndarray or float</span>
+<span class="sd">        The amplitude coefficient of the wavelets.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    TODO</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`morse_wavelet`, :func:`morse_freq`, :func:`morse_properties`, :func:`morse_logspace_freq`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># add test for type and shape in case of ndarray</span>
+    <span class="k">if</span> <span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;energy&quot;</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">beta</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">gamma</span>
+        <span class="n">amp</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">gamma</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">r</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">_lgamma</span><span class="p">(</span><span class="n">order</span><span class="p">)</span> <span class="o">-</span> <span class="n">_lgamma</span><span class="p">(</span><span class="n">order</span> <span class="o">+</span> <span class="n">r</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
+    <span class="k">elif</span> <span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;bandpass&quot;</span><span class="p">:</span>
+        <span class="n">fm</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">morse_freq</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
+        <span class="n">amp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">beta</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">beta</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">fm</span><span class="p">)</span> <span class="o">-</span> <span class="n">fm</span><span class="o">**</span><span class="n">gamma</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Normalization option (normalization) must be one of &#39;energy&#39; or &#39;bandpass&#39;.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">amp</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_laguerre</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">k</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">c</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generalized Laguerre polynomials&quot;&quot;&quot;</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">fact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">_lgamma</span><span class="p">(</span><span class="n">k</span> <span class="o">+</span> <span class="n">c</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">_lgamma</span><span class="p">(</span><span class="n">c</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">_lgamma</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="n">i</span> <span class="o">*</span> <span class="n">fact</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="n">i</span> <span class="o">/</span> <span class="n">_gamma</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">y</span>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Philippe Miron
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022-2023, CloudDrift.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

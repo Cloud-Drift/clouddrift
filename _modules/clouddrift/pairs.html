@@ -1,0 +1,1042 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>clouddrift.pairs &#8212; CloudDrift  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=35a8b989"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/clouddrift/pairs';</script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.png" class="logo__image only-light" alt="CloudDrift  documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo.png" class="logo__image only-dark" alt="CloudDrift  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datasets.html">Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Cloud-Drift/clouddrift/blob/main/CONTRIBUTING.md">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api.html">API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.html">clouddrift.adapters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.andro.html">clouddrift.adapters.andro</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.andro.to_xarray.html">clouddrift.adapters.andro.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.html">clouddrift.adapters.gdp</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.cast_float64_variables_to_float32.html">clouddrift.adapters.gdp.cast_float64_variables_to_float32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.cut_str.html">clouddrift.adapters.gdp.cut_str</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.decode_date.html">clouddrift.adapters.gdp.decode_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.drogue_presence.html">clouddrift.adapters.gdp.drogue_presence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.fetch_netcdf.html">clouddrift.adapters.gdp.fetch_netcdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.fill_values.html">clouddrift.adapters.gdp.fill_values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.get_gdp_metadata.html">clouddrift.adapters.gdp.get_gdp_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.order_by_date.html">clouddrift.adapters.gdp.order_by_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.parse_directory_file.html">clouddrift.adapters.gdp.parse_directory_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.rowsize.html">clouddrift.adapters.gdp.rowsize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.str_to_float.html">clouddrift.adapters.gdp.str_to_float</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.gdp1h.html">clouddrift.adapters.gdp.gdp1h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.gdp6h.html">clouddrift.adapters.gdp.gdp6h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.gdpsource.html">clouddrift.adapters.gdp.gdpsource</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.glad.html">clouddrift.adapters.glad</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.glad.get_dataframe.html">clouddrift.adapters.glad.get_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.glad.to_xarray.html">clouddrift.adapters.glad.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.html">clouddrift.adapters.hurdat2</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.to_raggedarray.html">clouddrift.adapters.hurdat2.to_raggedarray</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.DataLine.html">clouddrift.adapters.hurdat2.DataLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.HeaderLine.html">clouddrift.adapters.hurdat2.HeaderLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.RecordIdentifier.html">clouddrift.adapters.hurdat2.RecordIdentifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.SystemStatus.html">clouddrift.adapters.hurdat2.SystemStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.TrackData.html">clouddrift.adapters.hurdat2.TrackData</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.ibtracs.html">clouddrift.adapters.ibtracs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.ibtracs.to_raggedarray.html">clouddrift.adapters.ibtracs.to_raggedarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.html">clouddrift.adapters.mosaic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.get_dataframes.html">clouddrift.adapters.mosaic.get_dataframes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.get_file_urls.html">clouddrift.adapters.mosaic.get_file_urls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.get_repository_metadata.html">clouddrift.adapters.mosaic.get_repository_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.to_xarray.html">clouddrift.adapters.mosaic.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.subsurface_floats.html">clouddrift.adapters.subsurface_floats</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.subsurface_floats.download.html">clouddrift.adapters.subsurface_floats.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.subsurface_floats.to_xarray.html">clouddrift.adapters.subsurface_floats.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.utils.html">clouddrift.adapters.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.utils.download_with_progress.html">clouddrift.adapters.utils.download_with_progress</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.yomaha.html">clouddrift.adapters.yomaha</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.yomaha.download.html">clouddrift.adapters.yomaha.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.yomaha.to_xarray.html">clouddrift.adapters.yomaha.to_xarray</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.binning.html">clouddrift.binning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.binning.binned_statistics.html">clouddrift.binning.binned_statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.binning.handle_datetime_conversion.html">clouddrift.binning.handle_datetime_conversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.html">clouddrift.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.andro.html">clouddrift.datasets.andro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.gdp1h.html">clouddrift.datasets.gdp1h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.gdp6h.html">clouddrift.datasets.gdp6h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.gdp_source.html">clouddrift.datasets.gdp_source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.glad.html">clouddrift.datasets.glad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.hurdat2.html">clouddrift.datasets.hurdat2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.ibtracs.html">clouddrift.datasets.ibtracs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.mosaic.html">clouddrift.datasets.mosaic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.spotters.html">clouddrift.datasets.spotters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.subsurface_floats.html">clouddrift.datasets.subsurface_floats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.yomaha.html">clouddrift.datasets.yomaha</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.html">clouddrift.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.inertial_oscillation_from_position.html">clouddrift.kinematics.inertial_oscillation_from_position</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.kinetic_energy.html">clouddrift.kinematics.kinetic_energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.position_from_velocity.html">clouddrift.kinematics.position_from_velocity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.residual_position_from_displacement.html">clouddrift.kinematics.residual_position_from_displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.spin.html">clouddrift.kinematics.spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.velocity_from_position.html">clouddrift.kinematics.velocity_from_position</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.html">clouddrift.pairs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.chance_pair.html">clouddrift.pairs.chance_pair</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.chance_pairs_from_ragged.html">clouddrift.pairs.chance_pairs_from_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_bounding_box_overlap.html">clouddrift.pairs.pair_bounding_box_overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_space_distance.html">clouddrift.pairs.pair_space_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_time_distance.html">clouddrift.pairs.pair_time_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_time_overlap.html">clouddrift.pairs.pair_time_overlap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.plotting.html">clouddrift.plotting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.plotting.plot_ragged.html">clouddrift.plotting.plot_ragged</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.html">clouddrift.ragged</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.apply_ragged.html">clouddrift.ragged.apply_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.chunk.html">clouddrift.ragged.chunk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.obs_index_to_row.html">clouddrift.ragged.obs_index_to_row</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.prune.html">clouddrift.ragged.prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.ragged_to_regular.html">clouddrift.ragged.ragged_to_regular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.regular_to_ragged.html">clouddrift.ragged.regular_to_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.rowsize_to_index.html">clouddrift.ragged.rowsize_to_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.segment.html">clouddrift.ragged.segment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.subset.html">clouddrift.ragged.subset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.unpack.html">clouddrift.ragged.unpack</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.raggedarray.html">clouddrift.raggedarray</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html">clouddrift.raggedarray.RaggedArray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.signal.html">clouddrift.signal</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.analytic_signal.html">clouddrift.signal.analytic_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.cartesian_to_rotary.html">clouddrift.signal.cartesian_to_rotary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.ellipse_parameters.html">clouddrift.signal.ellipse_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.modulated_ellipse_signal.html">clouddrift.signal.modulated_ellipse_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.rotary_to_cartesian.html">clouddrift.signal.rotary_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.html">clouddrift.sphere</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.bearing.html">clouddrift.sphere.bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.cartesian_to_spherical.html">clouddrift.sphere.cartesian_to_spherical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.cartesian_to_tangentplane.html">clouddrift.sphere.cartesian_to_tangentplane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.coriolis_frequency.html">clouddrift.sphere.coriolis_frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.cumulative_distance.html">clouddrift.sphere.cumulative_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.distance.html">clouddrift.sphere.distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.plane_to_sphere.html">clouddrift.sphere.plane_to_sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.position_from_distance_and_bearing.html">clouddrift.sphere.position_from_distance_and_bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.recast_lon.html">clouddrift.sphere.recast_lon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.recast_lon180.html">clouddrift.sphere.recast_lon180</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.recast_lon360.html">clouddrift.sphere.recast_lon360</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.sphere_to_plane.html">clouddrift.sphere.sphere_to_plane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.spherical_to_cartesian.html">clouddrift.sphere.spherical_to_cartesian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.tangentplane_to_cartesian.html">clouddrift.sphere.tangentplane_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.html">clouddrift.wavelet</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_amplitude.html">clouddrift.wavelet.morse_amplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_freq.html">clouddrift.wavelet.morse_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_logspace_freq.html">clouddrift.wavelet.morse_logspace_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_properties.html">clouddrift.wavelet.morse_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_wavelet.html">clouddrift.wavelet.morse_wavelet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_wavelet_transform.html">clouddrift.wavelet.morse_wavelet_transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.wavelet_transform.html">clouddrift.wavelet.wavelet_transform</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for clouddrift.pairs</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions to analyze pairs of contiguous data segments.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span><span class="p">,</span> <span class="n">as_completed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift</span><span class="w"> </span><span class="kn">import</span> <span class="n">ragged</span><span class="p">,</span> <span class="n">sphere</span>
+
+<span class="n">array_like</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="chance_pair">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.pairs.chance_pair.html#clouddrift.pairs.chance_pair">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">chance_pair</span><span class="p">(</span>
+    <span class="n">lon1</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">lat1</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">lon2</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">lat2</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">time1</span><span class="p">:</span> <span class="n">array_like</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">time2</span><span class="p">:</span> <span class="n">array_like</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">space_distance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">time_distance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given two sets of longitudes, latitudes, and times arrays, return in pairs</span>
+<span class="sd">    the indices of collocated data points that are within prescribed distances</span>
+<span class="sd">    in space and time. Also known as chance pairs.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lon1 : array_like</span>
+<span class="sd">        First array of longitudes in degrees.</span>
+<span class="sd">    lat1 : array_like</span>
+<span class="sd">        First array of latitudes in degrees.</span>
+<span class="sd">    lon2 : array_like</span>
+<span class="sd">        Second array of longitudes in degrees.</span>
+<span class="sd">    lat2 : array_like</span>
+<span class="sd">        Second array of latitudes in degrees.</span>
+<span class="sd">    time1 : array_like, optional</span>
+<span class="sd">        First array of times.</span>
+<span class="sd">    time2 : array_like, optional</span>
+<span class="sd">        Second array of times.</span>
+<span class="sd">    space_distance : float, optional</span>
+<span class="sd">        Maximum allowable space distance in meters for a pair to qualify as chance pair.</span>
+<span class="sd">        If the separation is within this distance, the pair is considered to be</span>
+<span class="sd">        a chance pair. Default is 0, or no distance, i.e. the positions must be</span>
+<span class="sd">        exactly the same.</span>
+<span class="sd">    time_distance : float, optional</span>
+<span class="sd">        Maximum allowable time distance for a pair to qualify as chance pair.</span>
+<span class="sd">        If a separation is within this distance, and a space distance</span>
+<span class="sd">        condition is satisfied, the pair is considered a chance pair. Default is</span>
+<span class="sd">        0, or no distance, i.e. the times must be exactly the same.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    indices1 : np.ndarray[int]</span>
+<span class="sd">        Indices within the first set of arrays that lead to chance pair.</span>
+<span class="sd">    indices2 : np.ndarray[int]</span>
+<span class="sd">        Indices within the second set of arrays that lead to chance pair.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    In the following example, we load the GLAD dataset, extract the first</span>
+<span class="sd">    two trajectories, and find between these the array indices that satisfy</span>
+<span class="sd">    the chance pair criteria of 6 km separation distance and no time separation:</span>
+
+<span class="sd">    &gt;&gt;&gt; from clouddrift.datasets import glad</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.pairs import chance_pair</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.ragged import unpack</span>
+<span class="sd">    &gt;&gt;&gt; ds = glad()</span>
+<span class="sd">    &gt;&gt;&gt; lon1 = unpack(ds[&quot;longitude&quot;], ds[&quot;rowsize&quot;], rows=0).pop()</span>
+<span class="sd">    &gt;&gt;&gt; lat1 = unpack(ds[&quot;latitude&quot;], ds[&quot;rowsize&quot;], rows=0).pop()</span>
+<span class="sd">    &gt;&gt;&gt; time1 = unpack(ds[&quot;time&quot;], ds[&quot;rowsize&quot;], rows=0).pop()</span>
+<span class="sd">    &gt;&gt;&gt; lon2 = unpack(ds[&quot;longitude&quot;], ds[&quot;rowsize&quot;], rows=1).pop()</span>
+<span class="sd">    &gt;&gt;&gt; lat2 = unpack(ds[&quot;latitude&quot;], ds[&quot;rowsize&quot;], rows=1).pop()</span>
+<span class="sd">    &gt;&gt;&gt; time2 = unpack(ds[&quot;time&quot;], ds[&quot;rowsize&quot;], rows=1).pop()</span>
+<span class="sd">    &gt;&gt;&gt; i1, i2 = chance_pair(lon1, lat1, lon2, lat2, time1, time2, 6000, np.timedelta64(0))</span>
+<span class="sd">    &gt;&gt;&gt; i1, i2</span>
+<span class="sd">    (array([177, 180, 183, 186, 189, 192]), array([166, 169, 172, 175, 178, 181]))</span>
+
+<span class="sd">    Check to ensure our collocation in space worked by calculating the distance</span>
+<span class="sd">    between the identified pairs:</span>
+
+<span class="sd">    &gt;&gt;&gt; sphere.distance(lon1[i1], lat1[i1], lon2[i2], lat2[i2])</span>
+<span class="sd">    array([5967.4844, 5403.253 , 5116.9136, 5185.715 , 5467.8555, 5958.4917],</span>
+<span class="sd">          dtype=float32)</span>
+
+<span class="sd">    Check the collocation in time:</span>
+
+<span class="sd">    &gt;&gt;&gt; time1[i1] - time2[i2]</span>
+<span class="sd">    &lt;xarray.DataArray &#39;time&#39; (obs: 6)&gt;</span>
+<span class="sd">    array([0, 0, 0, 0, 0, 0], dtype=&#39;timedelta64[ns]&#39;)</span>
+<span class="sd">    Coordinates:</span>
+<span class="sd">        time     (obs) datetime64[ns] 2012-07-21T21:30:00.524160 ... 2012-07-22T0...</span>
+<span class="sd">    Dimensions without coordinates: obs</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``time1`` and ``time2`` are not both provided or both omitted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">time1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">time2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">time1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">time2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Both time1 and time2 must be provided or both must be omitted.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">time_present</span> <span class="o">=</span> <span class="n">time1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">time2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">time_present</span><span class="p">:</span>
+        <span class="c1"># If time is provided, subset the trajectories to the overlapping times.</span>
+        <span class="n">overlap1</span><span class="p">,</span> <span class="n">overlap2</span> <span class="o">=</span> <span class="n">pair_time_overlap</span><span class="p">(</span><span class="n">time1</span><span class="p">,</span> <span class="n">time2</span><span class="p">,</span> <span class="n">time_distance</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Otherwise, initialize the overlap indices to the full length of the</span>
+        <span class="c1"># trajectories.</span>
+        <span class="n">overlap1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lon1</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">overlap2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lon2</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+    <span class="c1"># Provided space distance is in meters, but here we convert it to degrees</span>
+    <span class="c1"># for the bounding box overlap check.</span>
+    <span class="n">space_distance_degrees</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">space_distance</span> <span class="o">/</span> <span class="n">sphere</span><span class="o">.</span><span class="n">EARTH_RADIUS_METERS</span><span class="p">)</span>
+
+    <span class="c1"># Compute the indices for each trajectory where the two trajectories&#39;</span>
+    <span class="c1"># bounding boxes overlap.</span>
+    <span class="n">bbox_overlap1</span><span class="p">,</span> <span class="n">bbox_overlap2</span> <span class="o">=</span> <span class="n">pair_bounding_box_overlap</span><span class="p">(</span>
+        <span class="n">lon1</span><span class="p">[</span><span class="n">overlap1</span><span class="p">],</span>
+        <span class="n">lat1</span><span class="p">[</span><span class="n">overlap1</span><span class="p">],</span>
+        <span class="n">lon2</span><span class="p">[</span><span class="n">overlap2</span><span class="p">],</span>
+        <span class="n">lat2</span><span class="p">[</span><span class="n">overlap2</span><span class="p">],</span>
+        <span class="n">space_distance_degrees</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># bbox_overlap1 and bbox_overlap2 subset the overlap1 and overlap2 indices.</span>
+    <span class="n">overlap1</span> <span class="o">=</span> <span class="n">overlap1</span><span class="p">[</span><span class="n">bbox_overlap1</span><span class="p">]</span>
+    <span class="n">overlap2</span> <span class="o">=</span> <span class="n">overlap2</span><span class="p">[</span><span class="n">bbox_overlap2</span><span class="p">]</span>
+
+    <span class="c1"># If time is present, first search for collocation in time.</span>
+    <span class="k">if</span> <span class="n">time_present</span><span class="p">:</span>
+        <span class="n">time_separation</span> <span class="o">=</span> <span class="n">pair_time_distance</span><span class="p">(</span><span class="n">time1</span><span class="p">[</span><span class="n">overlap1</span><span class="p">],</span> <span class="n">time2</span><span class="p">[</span><span class="n">overlap2</span><span class="p">])</span>
+        <span class="n">time_match2</span><span class="p">,</span> <span class="n">time_match1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">time_separation</span> <span class="o">&lt;=</span> <span class="n">time_distance</span><span class="p">)</span>
+        <span class="n">overlap1</span> <span class="o">=</span> <span class="n">overlap1</span><span class="p">[</span><span class="n">time_match1</span><span class="p">]</span>
+        <span class="n">overlap2</span> <span class="o">=</span> <span class="n">overlap2</span><span class="p">[</span><span class="n">time_match2</span><span class="p">]</span>
+
+    <span class="c1"># Now search for collocation in space.</span>
+    <span class="n">space_separation</span> <span class="o">=</span> <span class="n">pair_space_distance</span><span class="p">(</span>
+        <span class="n">lon1</span><span class="p">[</span><span class="n">overlap1</span><span class="p">],</span> <span class="n">lat1</span><span class="p">[</span><span class="n">overlap1</span><span class="p">],</span> <span class="n">lon2</span><span class="p">[</span><span class="n">overlap2</span><span class="p">],</span> <span class="n">lat2</span><span class="p">[</span><span class="n">overlap2</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">space_overlap</span> <span class="o">=</span> <span class="n">space_separation</span> <span class="o">&lt;=</span> <span class="n">space_distance</span>
+    <span class="k">if</span> <span class="n">time_present</span><span class="p">:</span>
+        <span class="n">time_separation</span> <span class="o">=</span> <span class="n">pair_time_distance</span><span class="p">(</span><span class="n">time1</span><span class="p">[</span><span class="n">overlap1</span><span class="p">],</span> <span class="n">time2</span><span class="p">[</span><span class="n">overlap2</span><span class="p">])</span>
+        <span class="n">time_overlap</span> <span class="o">=</span> <span class="n">time_separation</span> <span class="o">&lt;=</span> <span class="n">time_distance</span>
+        <span class="n">match2</span><span class="p">,</span> <span class="n">match1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">space_overlap</span> <span class="o">&amp;</span> <span class="n">time_overlap</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">match2</span><span class="p">,</span> <span class="n">match1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">space_overlap</span><span class="p">)</span>
+
+    <span class="n">overlap1</span> <span class="o">=</span> <span class="n">overlap1</span><span class="p">[</span><span class="n">match1</span><span class="p">]</span>
+    <span class="n">overlap2</span> <span class="o">=</span> <span class="n">overlap2</span><span class="p">[</span><span class="n">match2</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">overlap1</span><span class="p">,</span> <span class="n">overlap2</span></div>
+
+
+
+<div class="viewcode-block" id="chance_pairs_from_ragged">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.pairs.chance_pairs_from_ragged.html#clouddrift.pairs.chance_pairs_from_ragged">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">chance_pairs_from_ragged</span><span class="p">(</span>
+    <span class="n">lon</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">rowsize</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">space_distance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">array_like</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">time_distance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return all chance pairs of contiguous trajectories in a ragged array,</span>
+<span class="sd">    and their collocated points in space and (optionally) time, given input</span>
+<span class="sd">    ragged arrays of longitude, latitude, and (optionally) time, and chance</span>
+<span class="sd">    pair criteria as maximum allowable distances in space and time.</span>
+
+<span class="sd">    If ``time`` and ``time_distance`` are omitted, the search will be done</span>
+<span class="sd">    only on the spatial criteria, and the result will not include the time</span>
+<span class="sd">    arrays.</span>
+
+<span class="sd">    If ``time`` and ``time_distance`` are provided, the search will be done</span>
+<span class="sd">    on both the spatial and temporal criteria, and the result will include the</span>
+<span class="sd">    time arrays.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lon : array_like</span>
+<span class="sd">        Array of longitudes in degrees.</span>
+<span class="sd">    lat : array_like</span>
+<span class="sd">        Array of latitudes in degrees.</span>
+<span class="sd">    rowsize : array_like</span>
+<span class="sd">        Array of rowsizes.</span>
+<span class="sd">    space_distance : float, optional</span>
+<span class="sd">        Maximum space distance in meters for the pair to qualify as chance pair.</span>
+<span class="sd">        If the separation is within this distance, the pair is considered to be</span>
+<span class="sd">        a chance pair. Default is 0, or no distance, i.e. the positions must be</span>
+<span class="sd">        exactly the same.</span>
+<span class="sd">    time : array_like, optional</span>
+<span class="sd">        Array of times.</span>
+<span class="sd">    time_distance : float, optional</span>
+<span class="sd">        Maximum time distance allowed for the pair to qualify as chance pair.</span>
+<span class="sd">        If the separation is within this distance, and the space distance</span>
+<span class="sd">        condition is satisfied, the pair is considered a chance pair. Default is</span>
+<span class="sd">        0, or no distance, i.e. the times must be exactly the same.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pairs : List[Tuple[Tuple[int, int], Tuple[np.ndarray, np.ndarray]]]</span>
+<span class="sd">        List of tuples, each tuple containing a Tuple of integer indices that</span>
+<span class="sd">        corresponds to the trajectory rows in the ragged array, indicating the</span>
+<span class="sd">        pair of trajectories that satisfy the chance pair criteria, and a Tuple</span>
+<span class="sd">        of arrays containing the indices of the collocated points for each</span>
+<span class="sd">        trajectory in the chance pair.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    In the following example, we load GLAD dataset as a ragged array dataset,</span>
+<span class="sd">    subset the result to retain the first five trajectories, and finally find</span>
+<span class="sd">    all trajectories that satisfy the chance pair criteria of 12 km separation</span>
+<span class="sd">    distance and no time separation, as well as the indices of the collocated</span>
+<span class="sd">    points for each pair.</span>
+
+<span class="sd">    &gt;&gt;&gt; from clouddrift.datasets import glad</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.pairs import chance_pairs_from_ragged</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.ragged import subset</span>
+<span class="sd">    &gt;&gt;&gt; ds = subset(glad(), {&quot;id&quot;: [&quot;CARTHE_001&quot;, &quot;CARTHE_002&quot;, &quot;CARTHE_003&quot;, &quot;CARTHE_004&quot;, &quot;CARTHE_005&quot;]}, id_var_name=&quot;id&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; pairs = chance_pairs_from_ragged(</span>
+<span class="sd">        ds[&quot;longitude&quot;].values,</span>
+<span class="sd">        ds[&quot;latitude&quot;].values,</span>
+<span class="sd">        ds[&quot;rowsize&quot;].values,</span>
+<span class="sd">        space_distance=12000,</span>
+<span class="sd">        time=ds[&quot;time&quot;].values,</span>
+<span class="sd">        time_distance=np.timedelta64(0)</span>
+<span class="sd">    )</span>
+<span class="sd">    [((0, 1),</span>
+<span class="sd">      (array([153, 156, 159, 162, 165, 168, 171, 174, 177, 180, 183, 186, 189,</span>
+<span class="sd">              192, 195, 198, 201, 204, 207, 210, 213, 216]),</span>
+<span class="sd">       array([142, 145, 148, 151, 154, 157, 160, 163, 166, 169, 172, 175, 178,</span>
+<span class="sd">              181, 184, 187, 190, 193, 196, 199, 202, 205]))),</span>
+<span class="sd">     ((3, 4),</span>
+<span class="sd">      (array([141, 144, 147, 150, 153, 156, 159, 162, 165, 168, 171, 174, 177,</span>
+<span class="sd">              180, 183]),</span>
+<span class="sd">       array([136, 139, 142, 145, 148, 151, 154, 157, 160, 163, 166, 169, 172,</span>
+<span class="sd">              175, 178])))]</span>
+
+<span class="sd">    The result above shows that 2 chance pairs were found.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``rowsize`` has fewer than two elements.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rowsize</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;rowsize must have at least two elements.&quot;</span><span class="p">)</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">rowsize</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">ragged</span><span class="o">.</span><span class="n">rowsize_to_index</span><span class="p">(</span><span class="n">rowsize</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">()</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">futures</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+                    <span class="n">chance_pair</span><span class="p">,</span>
+                    <span class="n">lon</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="p">:</span> <span class="n">i</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]],</span>
+                    <span class="n">lat</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="p">:</span> <span class="n">i</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]],</span>
+                    <span class="n">lon</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="p">:</span> <span class="n">i</span><span class="p">[</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]],</span>
+                    <span class="n">lat</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="p">:</span> <span class="n">i</span><span class="p">[</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]],</span>
+                    <span class="n">space_distance</span><span class="o">=</span><span class="n">space_distance</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">pairs</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">futures</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+                    <span class="n">chance_pair</span><span class="p">,</span>
+                    <span class="n">lon</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="p">:</span> <span class="n">i</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]],</span>
+                    <span class="n">lat</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="p">:</span> <span class="n">i</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]],</span>
+                    <span class="n">lon</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="p">:</span> <span class="n">i</span><span class="p">[</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]],</span>
+                    <span class="n">lat</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="p">:</span> <span class="n">i</span><span class="p">[</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]],</span>
+                    <span class="n">time</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="p">:</span> <span class="n">i</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]],</span>
+                    <span class="n">time</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="p">:</span> <span class="n">i</span><span class="p">[</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]],</span>
+                    <span class="n">space_distance</span><span class="p">,</span>
+                    <span class="n">time_distance</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">pairs</span>
+            <span class="p">]</span>
+        <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">futures</span><span class="p">):</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+            <span class="c1"># chance_pair function returns empty arrays if no chance criteria</span>
+            <span class="c1"># are satisfied. We only want to keep pairs that satisfy the</span>
+            <span class="c1"># criteria. chance_pair returns a tuple of arrays that are always</span>
+            <span class="c1"># the same size, so we only need to check the length of the first</span>
+            <span class="c1"># array.</span>
+            <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pairs</span><span class="p">[</span><span class="n">futures</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">future</span><span class="p">)],</span> <span class="n">res</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">results</span></div>
+
+
+
+<div class="viewcode-block" id="pair_bounding_box_overlap">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.pairs.pair_bounding_box_overlap.html#clouddrift.pairs.pair_bounding_box_overlap">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pair_bounding_box_overlap</span><span class="p">(</span>
+    <span class="n">lon1</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">lat1</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">lon2</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">lat2</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">distance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given two arrays of longitudes and latitudes, return boolean masks for</span>
+<span class="sd">    their overlapping bounding boxes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lon1 : array_like</span>
+<span class="sd">        First array of longitudes in degrees.</span>
+<span class="sd">    lat1 : array_like</span>
+<span class="sd">        First array of latitudes in degrees.</span>
+<span class="sd">    lon2 : array_like</span>
+<span class="sd">        Second array of longitudes in degrees.</span>
+<span class="sd">    lat2 : array_like</span>
+<span class="sd">        Second array of latitudes in degrees.</span>
+<span class="sd">    distance : float, optional</span>
+<span class="sd">        Distance in degrees for the overlap. If the overlap is within this</span>
+<span class="sd">        distance, the bounding boxes are considered to overlap. Default is 0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    overlap1 : np.ndarray[int]</span>
+<span class="sd">        Indices ``lon1`` and ``lat1`` where their bounding box overlaps with</span>
+<span class="sd">        that of ``lon2`` and ``lat2``.</span>
+<span class="sd">    overlap2 : np.ndarray[int]</span>
+<span class="sd">        Indices ``lon2`` and ``lat2`` where their bounding box overlaps with</span>
+<span class="sd">        that of ``lon1`` and ``lat1``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; lon1 = [0, 0, 1, 1]</span>
+<span class="sd">    &gt;&gt;&gt; lat1 = [0, 0, 1, 1]</span>
+<span class="sd">    &gt;&gt;&gt; lon2 = [1, 1, 2, 2]</span>
+<span class="sd">    &gt;&gt;&gt; lat2 = [1, 1, 2, 2]</span>
+<span class="sd">    &gt;&gt;&gt; pair_bounding_box_overlap(lon1, lat1, lon2, lat2, 0.5)</span>
+<span class="sd">    (array([2, 3]), array([0, 1]))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># First get the bounding box of each trajectory.</span>
+    <span class="c1"># We unwrap the longitudes before computing min/max because we want to</span>
+    <span class="c1"># consider trajectories that cross the dateline.</span>
+    <span class="n">lon1_min</span><span class="p">,</span> <span class="n">lon1_max</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">lon1</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="mi">360</span><span class="p">)),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">lon1</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="mi">360</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">lat1_min</span><span class="p">,</span> <span class="n">lat1_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">lat1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span>
+    <span class="n">lon2_min</span><span class="p">,</span> <span class="n">lon2_max</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">lon2</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="mi">360</span><span class="p">)),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">lon2</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="mi">360</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">lat2_min</span><span class="p">,</span> <span class="n">lat2_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">lat2</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span>
+
+    <span class="n">bounding_boxes_overlap</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">lon1_min</span> <span class="o">&lt;=</span> <span class="n">lon2_max</span> <span class="o">+</span> <span class="n">distance</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">lon1_max</span> <span class="o">&gt;=</span> <span class="n">lon2_min</span> <span class="o">-</span> <span class="n">distance</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">lat1_min</span> <span class="o">&lt;=</span> <span class="n">lat2_max</span> <span class="o">+</span> <span class="n">distance</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">lat1_max</span> <span class="o">&gt;=</span> <span class="n">lat2_min</span> <span class="o">-</span> <span class="n">distance</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Now check if the trajectories overlap within the bounding box.</span>
+    <span class="k">if</span> <span class="n">bounding_boxes_overlap</span><span class="p">:</span>
+        <span class="n">overlap_start</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">max</span><span class="p">(</span><span class="n">lon1_min</span><span class="p">,</span> <span class="n">lon2_min</span><span class="p">)</span> <span class="o">-</span> <span class="n">distance</span><span class="p">,</span>  <span class="c1"># West</span>
+            <span class="nb">max</span><span class="p">(</span><span class="n">lat1_min</span><span class="p">,</span> <span class="n">lat2_min</span><span class="p">)</span> <span class="o">-</span> <span class="n">distance</span><span class="p">,</span>  <span class="c1"># South</span>
+        <span class="p">)</span>
+        <span class="n">overlap_end</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">min</span><span class="p">(</span><span class="n">lon1_max</span><span class="p">,</span> <span class="n">lon2_max</span><span class="p">)</span> <span class="o">+</span> <span class="n">distance</span><span class="p">,</span>  <span class="c1"># East</span>
+            <span class="nb">min</span><span class="p">(</span><span class="n">lat1_max</span><span class="p">,</span> <span class="n">lat2_max</span><span class="p">)</span> <span class="o">+</span> <span class="n">distance</span><span class="p">,</span>  <span class="c1"># North</span>
+        <span class="p">)</span>
+        <span class="n">overlap1</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">lon1</span> <span class="o">&gt;=</span> <span class="n">overlap_start</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">lon1</span> <span class="o">&lt;=</span> <span class="n">overlap_end</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">lat1</span> <span class="o">&gt;=</span> <span class="n">overlap_start</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">lat1</span> <span class="o">&lt;=</span> <span class="n">overlap_end</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="n">overlap2</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">lon2</span> <span class="o">&gt;=</span> <span class="n">overlap_start</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">lon2</span> <span class="o">&lt;=</span> <span class="n">overlap_end</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">lat2</span> <span class="o">&gt;=</span> <span class="n">overlap_start</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">lat2</span> <span class="o">&lt;=</span> <span class="n">overlap_end</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">overlap1</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">overlap2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="pair_space_distance">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.pairs.pair_space_distance.html#clouddrift.pairs.pair_space_distance">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pair_space_distance</span><span class="p">(</span>
+    <span class="n">lon1</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">lat1</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">lon2</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">lat2</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given two arrays of longitudes and latitudes, return the distance</span>
+<span class="sd">    on a sphere between all pairs of points.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lon1 : array_like</span>
+<span class="sd">        First array of longitudes in degrees.</span>
+<span class="sd">    lat1 : array_like</span>
+<span class="sd">        First array of latitudes in degrees.</span>
+<span class="sd">    lon2 : array_like</span>
+<span class="sd">        Second array of longitudes in degrees.</span>
+<span class="sd">    lat2 : array_like</span>
+<span class="sd">        Second array of latitudes in degrees.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    distance : np.ndarray[float]</span>
+<span class="sd">        Array of distances between all pairs of points.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; lon1 = [0, 0, 1, 1]</span>
+<span class="sd">    &gt;&gt;&gt; lat1 = [0, 0, 1, 1]</span>
+<span class="sd">    &gt;&gt;&gt; lon2 = [1, 1, 2, 2]</span>
+<span class="sd">    &gt;&gt;&gt; lat2 = [1, 1, 2, 2]</span>
+<span class="sd">    &gt;&gt;&gt; pair_space_distance(lon1, lat1, lon2, lat2)</span>
+<span class="sd">    array([[157424.62387233, 157424.62387233,      0.        ,</span>
+<span class="sd">             0.        ],</span>
+<span class="sd">       [157424.62387233, 157424.62387233,      0.        ,</span>
+<span class="sd">             0.        ],</span>
+<span class="sd">       [314825.26360286, 314825.26360286, 157400.64794884,</span>
+<span class="sd">        157400.64794884],</span>
+<span class="sd">       [314825.26360286, 314825.26360286, 157400.64794884,</span>
+<span class="sd">        157400.64794884]])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create longitude and latitude matrices from arrays to compute distance</span>
+    <span class="n">lon1_2d</span><span class="p">,</span> <span class="n">lon2_2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">lon1</span><span class="p">,</span> <span class="n">lon2</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">lat1_2d</span><span class="p">,</span> <span class="n">lat2_2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">lat1</span><span class="p">,</span> <span class="n">lat2</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Compute distance between all pairs of points</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="n">sphere</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">lon1_2d</span><span class="p">,</span> <span class="n">lat1_2d</span><span class="p">,</span> <span class="n">lon2_2d</span><span class="p">,</span> <span class="n">lat2_2d</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">distance</span></div>
+
+
+
+<div class="viewcode-block" id="pair_time_distance">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.pairs.pair_time_distance.html#clouddrift.pairs.pair_time_distance">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pair_time_distance</span><span class="p">(</span>
+    <span class="n">time1</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">time2</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given two arrays of times (or any other monotonically increasing</span>
+<span class="sd">    quantity), return the temporal distance between all pairs of times.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time1 : array_like</span>
+<span class="sd">        First array of times.</span>
+<span class="sd">    time2 : array_like</span>
+<span class="sd">        Second array of times.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    distance : np.ndarray[float]</span>
+<span class="sd">        Array of distances between all pairs of times.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; time1 = np.arange(4)</span>
+<span class="sd">    &gt;&gt;&gt; time2 = np.arange(2, 6)</span>
+<span class="sd">    &gt;&gt;&gt; pair_time_distance(time1, time2)</span>
+<span class="sd">    array([[2, 1, 0, 1],</span>
+<span class="sd">           [3, 2, 1, 0],</span>
+<span class="sd">           [4, 3, 2, 1],</span>
+<span class="sd">           [5, 4, 3, 2]])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create time matrices from arrays to compute distance</span>
+    <span class="n">time1_2d</span><span class="p">,</span> <span class="n">time2_2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">time1</span><span class="p">,</span> <span class="n">time2</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Compute distance between all pairs of times</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">time1_2d</span> <span class="o">-</span> <span class="n">time2_2d</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">distance</span></div>
+
+
+
+<div class="viewcode-block" id="pair_time_overlap">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.pairs.pair_time_overlap.html#clouddrift.pairs.pair_time_overlap">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pair_time_overlap</span><span class="p">(</span>
+    <span class="n">time1</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">time2</span><span class="p">:</span> <span class="n">array_like</span><span class="p">,</span>
+    <span class="n">distance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given two arrays of times (or any other monotonically increasing</span>
+<span class="sd">    quantity), return indices where the times are within a prescribed distance.</span>
+
+<span class="sd">    Although higher-level array containers like xarray and pandas are supported</span>
+<span class="sd">    for input arrays, this function is an order of magnitude faster when passing</span>
+<span class="sd">    in numpy arrays.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    time1 : array_like</span>
+<span class="sd">        First array of times.</span>
+<span class="sd">    time2 : array_like</span>
+<span class="sd">        Second array of times.</span>
+<span class="sd">    distance : float</span>
+<span class="sd">        Maximum distance within which the values of ``time1`` and ``time2`` are</span>
+<span class="sd">        considered to overlap. Default is 0, or, the values must be exactly the</span>
+<span class="sd">        same.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    overlap1 : np.ndarray[int]</span>
+<span class="sd">        Indices of ``time1`` where its time overlaps with ``time2``.</span>
+<span class="sd">    overlap2 : np.ndarray[int]</span>
+<span class="sd">        Indices of ``time2`` where its time overlaps with ``time1``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; time1 = np.arange(4)</span>
+<span class="sd">    &gt;&gt;&gt; time2 = np.arange(2, 6)</span>
+<span class="sd">    &gt;&gt;&gt; pair_time_overlap(time1, time2)</span>
+<span class="sd">    (array([2, 3]), array([0, 1]))</span>
+
+<span class="sd">    &gt;&gt;&gt; pair_time_overlap(time1, time2, 1)</span>
+<span class="sd">    (array([1, 2, 3]), array([0, 1, 2]))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">time1_min</span><span class="p">,</span> <span class="n">time1_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">time1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">time1</span><span class="p">)</span>
+    <span class="n">time2_min</span><span class="p">,</span> <span class="n">time2_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">time2</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">time2</span><span class="p">)</span>
+    <span class="n">overlap_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">time1_min</span><span class="p">,</span> <span class="n">time2_min</span><span class="p">)</span> <span class="o">-</span> <span class="n">distance</span>
+    <span class="n">overlap_end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">time1_max</span><span class="p">,</span> <span class="n">time2_max</span><span class="p">)</span> <span class="o">+</span> <span class="n">distance</span>
+    <span class="n">overlap1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">time1</span> <span class="o">&gt;=</span> <span class="n">overlap_start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">time1</span> <span class="o">&lt;=</span> <span class="n">overlap_end</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">overlap2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">time2</span> <span class="o">&gt;=</span> <span class="n">overlap_start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">time2</span> <span class="o">&lt;=</span> <span class="n">overlap_end</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">overlap1</span><span class="p">,</span> <span class="n">overlap2</span></div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Philippe Miron
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022-2023, CloudDrift.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,886 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>clouddrift.adapters.yomaha &#8212; CloudDrift  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=35a8b989"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/clouddrift/adapters/yomaha';</script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.png" class="logo__image only-light" alt="CloudDrift  documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.png" class="logo__image only-dark" alt="CloudDrift  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Cloud-Drift/clouddrift/blob/main/CONTRIBUTING.md">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api.html">API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.html">clouddrift.adapters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.andro.html">clouddrift.adapters.andro</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.andro.to_xarray.html">clouddrift.adapters.andro.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.html">clouddrift.adapters.gdp</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.cast_float64_variables_to_float32.html">clouddrift.adapters.gdp.cast_float64_variables_to_float32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.cut_str.html">clouddrift.adapters.gdp.cut_str</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.decode_date.html">clouddrift.adapters.gdp.decode_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.drogue_presence.html">clouddrift.adapters.gdp.drogue_presence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.fetch_netcdf.html">clouddrift.adapters.gdp.fetch_netcdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.fill_values.html">clouddrift.adapters.gdp.fill_values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.get_gdp_metadata.html">clouddrift.adapters.gdp.get_gdp_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.order_by_date.html">clouddrift.adapters.gdp.order_by_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.parse_directory_file.html">clouddrift.adapters.gdp.parse_directory_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.rowsize.html">clouddrift.adapters.gdp.rowsize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.str_to_float.html">clouddrift.adapters.gdp.str_to_float</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.gdp1h.html">clouddrift.adapters.gdp.gdp1h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.gdp6h.html">clouddrift.adapters.gdp.gdp6h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.gdpsource.html">clouddrift.adapters.gdp.gdpsource</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.glad.html">clouddrift.adapters.glad</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.glad.get_dataframe.html">clouddrift.adapters.glad.get_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.glad.to_xarray.html">clouddrift.adapters.glad.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.hurdat2.html">clouddrift.adapters.hurdat2</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.hurdat2.to_raggedarray.html">clouddrift.adapters.hurdat2.to_raggedarray</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.hurdat2.DataLine.html">clouddrift.adapters.hurdat2.DataLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.hurdat2.HeaderLine.html">clouddrift.adapters.hurdat2.HeaderLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.hurdat2.RecordIdentifier.html">clouddrift.adapters.hurdat2.RecordIdentifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.hurdat2.SystemStatus.html">clouddrift.adapters.hurdat2.SystemStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.hurdat2.TrackData.html">clouddrift.adapters.hurdat2.TrackData</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.ibtracs.html">clouddrift.adapters.ibtracs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.ibtracs.to_raggedarray.html">clouddrift.adapters.ibtracs.to_raggedarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.mosaic.html">clouddrift.adapters.mosaic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.mosaic.get_dataframes.html">clouddrift.adapters.mosaic.get_dataframes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.mosaic.get_file_urls.html">clouddrift.adapters.mosaic.get_file_urls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.mosaic.get_repository_metadata.html">clouddrift.adapters.mosaic.get_repository_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.mosaic.to_xarray.html">clouddrift.adapters.mosaic.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.subsurface_floats.html">clouddrift.adapters.subsurface_floats</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.subsurface_floats.download.html">clouddrift.adapters.subsurface_floats.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.subsurface_floats.to_xarray.html">clouddrift.adapters.subsurface_floats.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.utils.html">clouddrift.adapters.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.utils.download_with_progress.html">clouddrift.adapters.utils.download_with_progress</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.yomaha.html">clouddrift.adapters.yomaha</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.yomaha.download.html">clouddrift.adapters.yomaha.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.yomaha.to_xarray.html">clouddrift.adapters.yomaha.to_xarray</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.binning.html">clouddrift.binning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.binning.binned_statistics.html">clouddrift.binning.binned_statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.binning.handle_datetime_conversion.html">clouddrift.binning.handle_datetime_conversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.html">clouddrift.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.andro.html">clouddrift.datasets.andro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.gdp1h.html">clouddrift.datasets.gdp1h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.gdp6h.html">clouddrift.datasets.gdp6h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.gdp_source.html">clouddrift.datasets.gdp_source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.glad.html">clouddrift.datasets.glad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.hurdat2.html">clouddrift.datasets.hurdat2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.ibtracs.html">clouddrift.datasets.ibtracs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.mosaic.html">clouddrift.datasets.mosaic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.spotters.html">clouddrift.datasets.spotters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.subsurface_floats.html">clouddrift.datasets.subsurface_floats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.yomaha.html">clouddrift.datasets.yomaha</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.kinematics.html">clouddrift.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.kinematics.inertial_oscillation_from_position.html">clouddrift.kinematics.inertial_oscillation_from_position</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.kinematics.kinetic_energy.html">clouddrift.kinematics.kinetic_energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.kinematics.position_from_velocity.html">clouddrift.kinematics.position_from_velocity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.kinematics.residual_position_from_displacement.html">clouddrift.kinematics.residual_position_from_displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.kinematics.spin.html">clouddrift.kinematics.spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.kinematics.velocity_from_position.html">clouddrift.kinematics.velocity_from_position</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.pairs.html">clouddrift.pairs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.pairs.chance_pair.html">clouddrift.pairs.chance_pair</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.pairs.chance_pairs_from_ragged.html">clouddrift.pairs.chance_pairs_from_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.pairs.pair_bounding_box_overlap.html">clouddrift.pairs.pair_bounding_box_overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.pairs.pair_space_distance.html">clouddrift.pairs.pair_space_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.pairs.pair_time_distance.html">clouddrift.pairs.pair_time_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.pairs.pair_time_overlap.html">clouddrift.pairs.pair_time_overlap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.plotting.html">clouddrift.plotting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.plotting.plot_ragged.html">clouddrift.plotting.plot_ragged</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.html">clouddrift.ragged</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.apply_ragged.html">clouddrift.ragged.apply_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.chunk.html">clouddrift.ragged.chunk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.obs_index_to_row.html">clouddrift.ragged.obs_index_to_row</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.prune.html">clouddrift.ragged.prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.ragged_to_regular.html">clouddrift.ragged.ragged_to_regular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.regular_to_ragged.html">clouddrift.ragged.regular_to_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.rowsize_to_index.html">clouddrift.ragged.rowsize_to_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.segment.html">clouddrift.ragged.segment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.subset.html">clouddrift.ragged.subset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.unpack.html">clouddrift.ragged.unpack</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.raggedarray.html">clouddrift.raggedarray</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.raggedarray.RaggedArray.html">clouddrift.raggedarray.RaggedArray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.signal.html">clouddrift.signal</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.signal.analytic_signal.html">clouddrift.signal.analytic_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.signal.cartesian_to_rotary.html">clouddrift.signal.cartesian_to_rotary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.signal.ellipse_parameters.html">clouddrift.signal.ellipse_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.signal.modulated_ellipse_signal.html">clouddrift.signal.modulated_ellipse_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.signal.rotary_to_cartesian.html">clouddrift.signal.rotary_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.html">clouddrift.sphere</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.bearing.html">clouddrift.sphere.bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.cartesian_to_spherical.html">clouddrift.sphere.cartesian_to_spherical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.cartesian_to_tangentplane.html">clouddrift.sphere.cartesian_to_tangentplane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.coriolis_frequency.html">clouddrift.sphere.coriolis_frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.cumulative_distance.html">clouddrift.sphere.cumulative_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.distance.html">clouddrift.sphere.distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.plane_to_sphere.html">clouddrift.sphere.plane_to_sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.position_from_distance_and_bearing.html">clouddrift.sphere.position_from_distance_and_bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.recast_lon.html">clouddrift.sphere.recast_lon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.recast_lon180.html">clouddrift.sphere.recast_lon180</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.recast_lon360.html">clouddrift.sphere.recast_lon360</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.sphere_to_plane.html">clouddrift.sphere.sphere_to_plane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.spherical_to_cartesian.html">clouddrift.sphere.spherical_to_cartesian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.tangentplane_to_cartesian.html">clouddrift.sphere.tangentplane_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.html">clouddrift.wavelet</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.morse_amplitude.html">clouddrift.wavelet.morse_amplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.morse_freq.html">clouddrift.wavelet.morse_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.morse_logspace_freq.html">clouddrift.wavelet.morse_logspace_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.morse_properties.html">clouddrift.wavelet.morse_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.morse_wavelet.html">clouddrift.wavelet.morse_wavelet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.morse_wavelet_transform.html">clouddrift.wavelet.morse_wavelet_transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.wavelet_transform.html">clouddrift.wavelet.wavelet_transform</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for clouddrift.adapters.yomaha</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines functions used to adapt the YoMaHa&#39;07: Velocity data assessed</span>
+<span class="sd">from trajectories of Argo floats at parking level and at the sea surface as</span>
+<span class="sd">a ragged-arrays dataset.</span>
+
+<span class="sd">The dataset is hosted at http://apdrc.soest.hawaii.edu/projects/yomaha/ and the user manual</span>
+<span class="sd">is available at http://apdrc.soest.hawaii.edu/projects/yomaha/yomaha07/YoMaHa070612.pdf.</span>
+
+<span class="sd">Example</span>
+<span class="sd">-------</span>
+<span class="sd">&gt;&gt;&gt; from clouddrift.adapters import yomaha</span>
+<span class="sd">&gt;&gt;&gt; ds = yomaha.to_xarray()</span>
+
+<span class="sd">Reference</span>
+<span class="sd">---------</span>
+<span class="sd">Lebedev, K. V., Yoshinari, H., Maximenko, N. A., &amp; Hacker, P. W. (2007). Velocity data assessed from trajectories of Argo floats at parking level and at the sea surface. IPRC Technical Note, 4(2), 1-16.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">gzip</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.adapters.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_with_progress</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">YOMAHA_URLS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># order of the URLs is important</span>
+    <span class="s2">&quot;http://apdrc.soest.hawaii.edu/projects/Argo/data/trjctry/float_types.txt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;http://apdrc.soest.hawaii.edu/projects/Argo/data/trjctry/DACs.txt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;http://apdrc.soest.hawaii.edu/projects/Argo/data/trjctry/0-Near-Real_Time/0-date_time.txt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;http://apdrc.soest.hawaii.edu/projects/Argo/data/trjctry/0-Near-Real_Time/WMO2DAC2type.txt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;http://apdrc.soest.hawaii.edu/projects/Argo/data/trjctry/0-Near-Real_Time/end-prog.lst&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;http://apdrc.soest.hawaii.edu/projects/Argo/data/trjctry/0-Near-Real_Time/yomaha07.dat.gz&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">YOMAHA_TMP_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;clouddrift&quot;</span><span class="p">,</span> <span class="s2">&quot;yomaha&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="download">
+<a class="viewcode-back" href="../../../_autosummary/clouddrift.adapters.yomaha.download.html#clouddrift.adapters.yomaha.download">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">download_requests</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmp_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">YOMAHA_URLS</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="n">download_with_progress</span><span class="p">(</span><span class="n">download_requests</span><span class="p">)</span>
+
+    <span class="n">filename_gz</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmp_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">YOMAHA_URLS</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">filename_gz</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">&quot;.gz&quot;</span><span class="p">)</span>
+
+    <span class="n">buffer</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+    <span class="n">download_with_progress</span><span class="p">([(</span><span class="n">YOMAHA_URLS</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">buffer</span><span class="p">)])</span>
+
+    <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">decompressed_fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">with</span> <span class="p">(</span>
+        <span class="nb">open</span><span class="p">(</span><span class="n">decompressed_fp</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">,</span>
+        <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">compressed_file</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">compressed_file</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="to_xarray">
+<a class="viewcode-back" href="../../../_autosummary/clouddrift.adapters.yomaha.to_xarray.html#clouddrift.adapters.yomaha.to_xarray">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_xarray</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">tmp_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tmp_path</span> <span class="o">=</span> <span class="n">YOMAHA_TMP_PATH</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># get or update required files</span>
+    <span class="n">download</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+
+    <span class="c1"># database last update</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmp_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">YOMAHA_URLS</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">YOMAHA_VERSION</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Last database update was: </span><span class="si">{</span><span class="n">YOMAHA_VERSION</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># parse with panda</span>
+    <span class="n">col_names</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;lon_d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lat_d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pres_d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;time_d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ve_d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vn_d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;err_ve_d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;err_vn_d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lon_s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lat_s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;time_s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ve_s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vn_s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;err_ve_s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;err_vn_s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lon_lp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lat_lp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;time_lp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lon_fc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lat_fc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;time_fc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lon_lc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lat_lc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;time_lc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;surf_fix&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cycle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;time_inv&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">na_col</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="nb">map</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+            <span class="p">[</span>
+                <span class="o">-</span><span class="mf">999.9999</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">99.9999</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.9</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.999</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">99.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">99.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">99.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">99.99</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">999.99</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># open with pandas</span>
+    <span class="n">filename_gz</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmp_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">YOMAHA_URLS</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">filename_gz</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">&quot;.gz&quot;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">filename</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">col_names</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">na_values</span><span class="o">=</span><span class="n">na_col</span>
+    <span class="p">)</span>
+
+    <span class="c1"># convert to an Xarray Dataset</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="n">unique_id</span><span class="p">,</span> <span class="n">rowsize</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># mapping of yomaha float id, wmo float id, daq id and float type</span>
+    <span class="n">df_wmo</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmp_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">YOMAHA_URLS</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">sep</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;wmo_id&quot;</span><span class="p">,</span> <span class="s2">&quot;dac_id&quot;</span><span class="p">,</span> <span class="s2">&quot;float_type_id&quot;</span><span class="p">],</span>
+        <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># mapping of Data Assembly Center (DAC) id and DAC name</span>
+    <span class="n">df_dac</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmp_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">YOMAHA_URLS</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;dac_id&quot;</span><span class="p">,</span> <span class="s2">&quot;dac&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">df_dac</span><span class="p">[</span><span class="s2">&quot;dac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_dac</span><span class="p">[</span><span class="s2">&quot;dac&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="c1"># mapping of float_type_id and float_type</span>
+    <span class="n">df_float</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tmp_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">YOMAHA_URLS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">skipfooter</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;float_type_id&quot;</span><span class="p">,</span> <span class="s2">&quot;float_type&quot;</span><span class="p">],</span>
+        <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># there is a note on METOCEAN * in float_types.txt but the</span>
+    <span class="c1"># float id, wmo id, and float type do not match (?)</span>
+    <span class="c1"># so we remove the * from the type</span>
+    <span class="n">df_float</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_float</span><span class="p">[</span><span class="s2">&quot;float_type_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;float_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;METOCEAN&quot;</span>
+
+    <span class="n">df_wmo</span><span class="p">[</span><span class="s2">&quot;dac_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_wmo</span><span class="p">[</span><span class="s2">&quot;dac_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int64&quot;</span><span class="p">)</span>
+    <span class="n">df_dac</span><span class="p">[</span><span class="s2">&quot;dac_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_dac</span><span class="p">[</span><span class="s2">&quot;dac_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int64&quot;</span><span class="p">)</span>
+
+    <span class="c1"># combine metadata</span>
+    <span class="n">df_metadata</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_wmo</span><span class="p">,</span> <span class="n">df_dac</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;dac_id&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_float</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;float_type_id&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">unique_id</span><span class="p">)]</span>
+    <span class="p">)</span>
+
+    <span class="n">ds</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">rename_dims</span><span class="p">({</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="s2">&quot;obs&quot;</span><span class="p">})</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">,</span> <span class="n">unique_id</span><span class="p">)})</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">({</span><span class="s2">&quot;rowsize&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">,</span> <span class="n">rowsize</span><span class="p">)})</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">({</span><span class="s2">&quot;wmo_id&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">,</span> <span class="n">df_metadata</span><span class="p">[</span><span class="s2">&quot;wmo_id&quot;</span><span class="p">])})</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">({</span><span class="s2">&quot;dac_id&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">,</span> <span class="n">df_metadata</span><span class="p">[</span><span class="s2">&quot;dac_id&quot;</span><span class="p">])})</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">({</span><span class="s2">&quot;float_type&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">,</span> <span class="n">df_metadata</span><span class="p">[</span><span class="s2">&quot;float_type_id&quot;</span><span class="p">])})</span>
+        <span class="o">.</span><span class="n">set_coords</span><span class="p">([</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;time_d&quot;</span><span class="p">,</span> <span class="s2">&quot;time_s&quot;</span><span class="p">,</span> <span class="s2">&quot;time_lp&quot;</span><span class="p">,</span> <span class="s2">&quot;time_lc&quot;</span><span class="p">,</span> <span class="s2">&quot;time_lp&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">drop_vars</span><span class="p">([</span><span class="s2">&quot;index&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Cast double floats to singles</span>
+    <span class="n">double_vars</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;lat_d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lon_d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lat_s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lon_s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lat_lp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lon_lp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lat_lc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lon_lc&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">double_vars</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;float64&quot;</span><span class="p">:</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+
+    <span class="c1"># define attributes</span>
+    <span class="n">vars_attrs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;lon_d&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Longitude of the location where the deep velocity is calculated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_east&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;lat_d&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Latitude of the location where the deep velocity is calculated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_north&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;pres_d&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Reference parking pressure for this cycle&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;dbar&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;time_d&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Julian time (days) when deep velocity is estimated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;days since 2000-01-01 00:00&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;ve_d&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Eastward component of the deep velocity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm s-1&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;vn_d&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Northward component of the deep velocity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm s-1&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;err_ve_d&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Error on the eastward component of the deep velocity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm s-1&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;err_vn_d&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Error on the northward component of the deep velocity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm s-1&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;lon_s&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Longitude of the location where the first surface velocity is calculated (over the first 6 h at surface)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_east&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;lat_s&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Latitude of the location where the first surface velocity is calculated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_north&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;time_s&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Julian time (days) when the first surface velocity is calculated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;days since 2000-01-01 00:00&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;ve_s&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Eastward component of first surface velocity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm s-1&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;vn_s&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Northward component of first surface velocity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm s-1&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;err_ve_s&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Error on the eastward component of the first surface velocity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm s-1&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;err_vn_s&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Error on the northward component of the first surface velocity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm s-1&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;lon_lp&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Longitude of the last fix at the sea surface during the previous cycle&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_east&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;lat_lp&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Latitude of the last fix at the sea surface during the previous cycle&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_north&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;time_lp&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Julian time of the last fix at the sea surface during the previous cycle&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;days since 2000-01-01 00:00&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;lon_fc&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Longitude of the first fix at the sea surface during the current cycle&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_east&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;lat_fc&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Latitude of the first fix at the sea surface during the current cycle&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_north&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;time_fc&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Julian time of the first fix at the sea surface during the current cycle&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;days since 2000-01-01 00:00&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;lon_lc&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Longitude of the last fix at the sea surface during the current cycle&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_east&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;lat_lc&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Latitude of the last fix at the sea surface during the current cycle&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_north&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;time_lc&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Julian time of the last fix at the sea surface during the current cycle&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;days since 2000-01-01 00:00&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;surf_fix&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of surface fixes during the current cycle&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Float WMO number&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;cycle&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Cycle number&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;time_inv&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Time inversion/duplication flag&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;1 if at least one duplicate or inversion of time is found in the sequence containing last fix from the previous cycle and all fixes from the current cycle. Otherwise, 0.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;wmo_id&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Float WMO number&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;dac_id&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Data Assembly Center (DAC) number&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;1: AOML (USA), 2: CORIOLIS (France), 3: JMA (Japan), 4: BODC (UK), 5: MEDS (Canada), 6: INCOIS (India), 7: KMA (Korea), 8: CSIRO (Australia), 9: CSIO (China)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;float_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Float type&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;1: APEX, 2: SOLO, 3: PROVOR, 4: R1, 5: MARTEC, 6: PALACE, 7: NINJA, 8: NEMO, 9: ALACE, 0: METOCEAN&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="c1"># global attributes</span>
+    <span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;YoMaHa&#39;07: Velocity data assessed from trajectories of Argo floats at parking level and at the sea surface&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;history&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Dataset updated on </span><span class="si">{</span><span class="n">YOMAHA_VERSION</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;date_created&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s2">&quot;publisher_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Asia-Pacific Data Research Center&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;publisher_url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://apdrc.soest.hawaii.edu/index.php&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;license&quot;</span><span class="p">:</span> <span class="s2">&quot;freely available&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># set attributes</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">vars_attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">vars_attrs</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Variable </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2"> not found in upstream data; skipping.&quot;</span><span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">attrs</span>
+
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Philippe Miron
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022-2023, CloudDrift.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

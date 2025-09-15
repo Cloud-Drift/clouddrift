@@ -1,0 +1,1136 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>clouddrift.kinematics &#8212; CloudDrift  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=35a8b989"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/clouddrift.kinematics';</script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="clouddrift.kinematics.inertial_oscillation_from_position" href="clouddrift.kinematics.inertial_oscillation_from_position.html" />
+    <link rel="prev" title="clouddrift.datasets.yomaha" href="clouddrift.datasets.yomaha.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.png" class="logo__image only-light" alt="CloudDrift  documentation - Home"/>
+    <script>document.write(`<img src="../_static/logo.png" class="logo__image only-dark" alt="CloudDrift  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datasets.html">Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Cloud-Drift/clouddrift/blob/main/CONTRIBUTING.md">Contributing</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.adapters.html">clouddrift.adapters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.andro.html">clouddrift.adapters.andro</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.andro.to_xarray.html">clouddrift.adapters.andro.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.gdp.html">clouddrift.adapters.gdp</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.cast_float64_variables_to_float32.html">clouddrift.adapters.gdp.cast_float64_variables_to_float32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.cut_str.html">clouddrift.adapters.gdp.cut_str</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.decode_date.html">clouddrift.adapters.gdp.decode_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.drogue_presence.html">clouddrift.adapters.gdp.drogue_presence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.fetch_netcdf.html">clouddrift.adapters.gdp.fetch_netcdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.fill_values.html">clouddrift.adapters.gdp.fill_values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.get_gdp_metadata.html">clouddrift.adapters.gdp.get_gdp_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.order_by_date.html">clouddrift.adapters.gdp.order_by_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.parse_directory_file.html">clouddrift.adapters.gdp.parse_directory_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.rowsize.html">clouddrift.adapters.gdp.rowsize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.str_to_float.html">clouddrift.adapters.gdp.str_to_float</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.gdp1h.html">clouddrift.adapters.gdp.gdp1h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.gdp6h.html">clouddrift.adapters.gdp.gdp6h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.gdp.gdpsource.html">clouddrift.adapters.gdp.gdpsource</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.glad.html">clouddrift.adapters.glad</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.glad.get_dataframe.html">clouddrift.adapters.glad.get_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.glad.to_xarray.html">clouddrift.adapters.glad.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.hurdat2.html">clouddrift.adapters.hurdat2</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.to_raggedarray.html">clouddrift.adapters.hurdat2.to_raggedarray</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.DataLine.html">clouddrift.adapters.hurdat2.DataLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.HeaderLine.html">clouddrift.adapters.hurdat2.HeaderLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.RecordIdentifier.html">clouddrift.adapters.hurdat2.RecordIdentifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.SystemStatus.html">clouddrift.adapters.hurdat2.SystemStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.hurdat2.TrackData.html">clouddrift.adapters.hurdat2.TrackData</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.ibtracs.html">clouddrift.adapters.ibtracs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.ibtracs.to_raggedarray.html">clouddrift.adapters.ibtracs.to_raggedarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.mosaic.html">clouddrift.adapters.mosaic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.mosaic.get_dataframes.html">clouddrift.adapters.mosaic.get_dataframes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.mosaic.get_file_urls.html">clouddrift.adapters.mosaic.get_file_urls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.mosaic.get_repository_metadata.html">clouddrift.adapters.mosaic.get_repository_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.mosaic.to_xarray.html">clouddrift.adapters.mosaic.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.subsurface_floats.html">clouddrift.adapters.subsurface_floats</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.subsurface_floats.download.html">clouddrift.adapters.subsurface_floats.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.subsurface_floats.to_xarray.html">clouddrift.adapters.subsurface_floats.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.utils.html">clouddrift.adapters.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.utils.download_with_progress.html">clouddrift.adapters.utils.download_with_progress</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="clouddrift.adapters.yomaha.html">clouddrift.adapters.yomaha</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.yomaha.download.html">clouddrift.adapters.yomaha.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="clouddrift.adapters.yomaha.to_xarray.html">clouddrift.adapters.yomaha.to_xarray</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.binning.html">clouddrift.binning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.binning.binned_statistics.html">clouddrift.binning.binned_statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.binning.handle_datetime_conversion.html">clouddrift.binning.handle_datetime_conversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.datasets.html">clouddrift.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.andro.html">clouddrift.datasets.andro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.gdp1h.html">clouddrift.datasets.gdp1h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.gdp6h.html">clouddrift.datasets.gdp6h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.gdp_source.html">clouddrift.datasets.gdp_source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.glad.html">clouddrift.datasets.glad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.hurdat2.html">clouddrift.datasets.hurdat2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.ibtracs.html">clouddrift.datasets.ibtracs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.mosaic.html">clouddrift.datasets.mosaic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.spotters.html">clouddrift.datasets.spotters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.subsurface_floats.html">clouddrift.datasets.subsurface_floats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.datasets.yomaha.html">clouddrift.datasets.yomaha</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">clouddrift.kinematics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.inertial_oscillation_from_position.html">clouddrift.kinematics.inertial_oscillation_from_position</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.kinetic_energy.html">clouddrift.kinematics.kinetic_energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.position_from_velocity.html">clouddrift.kinematics.position_from_velocity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.residual_position_from_displacement.html">clouddrift.kinematics.residual_position_from_displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.spin.html">clouddrift.kinematics.spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.kinematics.velocity_from_position.html">clouddrift.kinematics.velocity_from_position</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.pairs.html">clouddrift.pairs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.chance_pair.html">clouddrift.pairs.chance_pair</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.chance_pairs_from_ragged.html">clouddrift.pairs.chance_pairs_from_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.pair_bounding_box_overlap.html">clouddrift.pairs.pair_bounding_box_overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.pair_space_distance.html">clouddrift.pairs.pair_space_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.pair_time_distance.html">clouddrift.pairs.pair_time_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.pairs.pair_time_overlap.html">clouddrift.pairs.pair_time_overlap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.plotting.html">clouddrift.plotting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.plotting.plot_ragged.html">clouddrift.plotting.plot_ragged</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.ragged.html">clouddrift.ragged</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.apply_ragged.html">clouddrift.ragged.apply_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.chunk.html">clouddrift.ragged.chunk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.obs_index_to_row.html">clouddrift.ragged.obs_index_to_row</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.prune.html">clouddrift.ragged.prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.ragged_to_regular.html">clouddrift.ragged.ragged_to_regular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.regular_to_ragged.html">clouddrift.ragged.regular_to_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.rowsize_to_index.html">clouddrift.ragged.rowsize_to_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.segment.html">clouddrift.ragged.segment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.subset.html">clouddrift.ragged.subset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.ragged.unpack.html">clouddrift.ragged.unpack</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.raggedarray.html">clouddrift.raggedarray</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.raggedarray.RaggedArray.html">clouddrift.raggedarray.RaggedArray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.signal.html">clouddrift.signal</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.signal.analytic_signal.html">clouddrift.signal.analytic_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.signal.cartesian_to_rotary.html">clouddrift.signal.cartesian_to_rotary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.signal.ellipse_parameters.html">clouddrift.signal.ellipse_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.signal.modulated_ellipse_signal.html">clouddrift.signal.modulated_ellipse_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.signal.rotary_to_cartesian.html">clouddrift.signal.rotary_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.sphere.html">clouddrift.sphere</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.bearing.html">clouddrift.sphere.bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.cartesian_to_spherical.html">clouddrift.sphere.cartesian_to_spherical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.cartesian_to_tangentplane.html">clouddrift.sphere.cartesian_to_tangentplane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.coriolis_frequency.html">clouddrift.sphere.coriolis_frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.cumulative_distance.html">clouddrift.sphere.cumulative_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.distance.html">clouddrift.sphere.distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.plane_to_sphere.html">clouddrift.sphere.plane_to_sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.position_from_distance_and_bearing.html">clouddrift.sphere.position_from_distance_and_bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.recast_lon.html">clouddrift.sphere.recast_lon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.recast_lon180.html">clouddrift.sphere.recast_lon180</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.recast_lon360.html">clouddrift.sphere.recast_lon360</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.sphere_to_plane.html">clouddrift.sphere.sphere_to_plane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.spherical_to_cartesian.html">clouddrift.sphere.spherical_to_cartesian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.sphere.tangentplane_to_cartesian.html">clouddrift.sphere.tangentplane_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="clouddrift.wavelet.html">clouddrift.wavelet</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_amplitude.html">clouddrift.wavelet.morse_amplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_freq.html">clouddrift.wavelet.morse_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_logspace_freq.html">clouddrift.wavelet.morse_logspace_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_properties.html">clouddrift.wavelet.morse_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_wavelet.html">clouddrift.wavelet.morse_wavelet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.morse_wavelet_transform.html">clouddrift.wavelet.morse_wavelet_transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clouddrift.wavelet.wavelet_transform.html">clouddrift.wavelet.wavelet_transform</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/_autosummary/clouddrift.kinematics.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>clouddrift.kinematics</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.kinematics.inertial_oscillation_from_position"><code class="docutils literal notranslate"><span class="pre">inertial_oscillation_from_position()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.kinematics.kinetic_energy"><code class="docutils literal notranslate"><span class="pre">kinetic_energy()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.kinematics.position_from_velocity"><code class="docutils literal notranslate"><span class="pre">position_from_velocity()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.kinematics.residual_position_from_displacement"><code class="docutils literal notranslate"><span class="pre">residual_position_from_displacement()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.kinematics.spin"><code class="docutils literal notranslate"><span class="pre">spin()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.kinematics.velocity_from_position"><code class="docutils literal notranslate"><span class="pre">velocity_from_position()</span></code></a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-clouddrift.kinematics">
+<span id="clouddrift-kinematics"></span><h1>clouddrift.kinematics<a class="headerlink" href="#module-clouddrift.kinematics" title="Link to this heading">#</a></h1>
+<p>Functions for kinematic computations.</p>
+<p class="rubric">Functions</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="clouddrift.kinematics.inertial_oscillation_from_position.html#clouddrift.kinematics.inertial_oscillation_from_position" title="clouddrift.kinematics.inertial_oscillation_from_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inertial_oscillation_from_position</span></code></a>(...[, ...])</p></td>
+<td><p>Extract inertial oscillations from consecutive geographical positions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="clouddrift.kinematics.kinetic_energy.html#clouddrift.kinematics.kinetic_energy" title="clouddrift.kinematics.kinetic_energy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kinetic_energy</span></code></a>(u[, v])</p></td>
+<td><p>Compute kinetic energy from zonal and meridional velocities.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="clouddrift.kinematics.position_from_velocity.html#clouddrift.kinematics.position_from_velocity" title="clouddrift.kinematics.position_from_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">position_from_velocity</span></code></a>(u, v, time, x_origin, ...)</p></td>
+<td><p>Compute positions from arrays of velocities and time and a pair of origin coordinates.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="clouddrift.kinematics.residual_position_from_displacement.html#clouddrift.kinematics.residual_position_from_displacement" title="clouddrift.kinematics.residual_position_from_displacement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">residual_position_from_displacement</span></code></a>(...)</p></td>
+<td><p>Return residual longitudes and latitudes along a trajectory on the spherical Earth after correcting for zonal and meridional displacements x and y in meters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="clouddrift.kinematics.spin.html#clouddrift.kinematics.spin" title="clouddrift.kinematics.spin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spin</span></code></a>(u, v, time[, difference_scheme, time_axis])</p></td>
+<td><p>Compute spin continuously from velocities and times.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="clouddrift.kinematics.velocity_from_position.html#clouddrift.kinematics.velocity_from_position" title="clouddrift.kinematics.velocity_from_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">velocity_from_position</span></code></a>(x, y, time[, ...])</p></td>
+<td><p>Compute velocity from arrays of positions and time.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="clouddrift.kinematics.inertial_oscillation_from_position">
+<span class="sig-prename descclassname"><span class="pre">clouddrift.kinematics.</span></span><span class="sig-name descname"><span class="pre">inertial_oscillation_from_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">longitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative_bandwidth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelet_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3600.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative_vorticity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/clouddrift/kinematics.html#inertial_oscillation_from_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.kinematics.inertial_oscillation_from_position" title="Link to this definition">#</a></dt>
+<dd><p>Extract inertial oscillations from consecutive geographical positions.</p>
+<p>This function acts by performing a time-frequency analysis of horizontal displacements
+with analytic Morse wavelets. It extracts the portion of the wavelet transform signal
+that follows the inertial frequency (opposite of Coriolis frequency) as a function of time,
+potentially shifted in frequency by a measure of relative vorticity. The result is a pair
+of zonal and meridional relative displacements in meters.</p>
+<p>This function is equivalent to a bandpass filtering of the horizontal displacements. The characteristics
+of the filter are defined by the relative bandwidth of the wavelet transform or by the duration of the wavelet,
+see the parameters below.</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>longitude<span class="classifier">array-like</span></dt><dd><p>Longitude sequence. Unidimensional array input.</p>
+</dd>
+<dt>latitude<span class="classifier">array-like</span></dt><dd><p>Latitude sequence. Unidimensional array input.</p>
+</dd>
+<dt>relative_bandwidth<span class="classifier">float, optional</span></dt><dd><p>Bandwidth of the frequency-domain equivalent filter for the extraction of the inertial
+oscillations; a number less or equal to one which is a fraction of the inertial frequency.
+A value of 0.1 leads to a bandpass filter equivalent of +/- 10 percent of the inertial frequency.</p>
+</dd>
+<dt>wavelet_duration<span class="classifier">float, optional</span></dt><dd><p>Duration of the wavelet, or inverse of the relative bandwidth, which can be passed instead of the
+relative bandwidth.</p>
+</dd>
+<dt>time_step<span class="classifier">float, optional</span></dt><dd><p>The constant time interval between data points in seconds. Default is 3600.</p>
+</dd>
+<dt>relative_vorticity: Optional, float or array-like</dt><dd><p>Relative vorticity adding to the local Coriolis frequency. If “f” is the Coriolis
+frequency then “f” + <cite>relative_vorticity</cite> will be the effective Coriolis frequency as defined by Kunze (1985).
+Positive values correspond to cyclonic vorticity, irrespectively of the latitudes of the data
+points.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>xhat<span class="classifier">array-like</span></dt><dd><p>Zonal relative displacement in meters from inertial oscillations.</p>
+</dd>
+<dt>yhat<span class="classifier">array-like</span></dt><dd><p>Meridional relative displacement in meters from inertial oscillations.</p>
+</dd>
+</dl>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
+<p>To extract displacements from inertial oscillations from sequences of longitude
+and latitude values, equivalent to bandpass around 20 percent of the local inertial frequency:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xhat</span><span class="p">,</span> <span class="n">yhat</span> <span class="o">=</span> <span class="n">inertial_oscillation_from_position</span><span class="p">(</span><span class="n">longitude</span><span class="p">,</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">relative_bandwidth</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The same result can be obtained by specifying the wavelet duration instead of the relative bandwidth:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xhat</span><span class="p">,</span> <span class="n">yhat</span> <span class="o">=</span> <span class="n">inertial_oscillation_from_position</span><span class="p">(</span><span class="n">longitude</span><span class="p">,</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">wavelet_duration</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, the residual positions from the inertial displacements can be obtained with another function:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">residual_longitudes</span><span class="p">,</span> <span class="n">residual_latitudes</span> <span class="o">=</span> <span class="n">residual_position_from_displacement</span><span class="p">(</span><span class="n">longitude</span><span class="p">,</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">xhat</span><span class="p">,</span> <span class="n">yhat</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="raises">
+<h2>Raises<a class="headerlink" href="#raises" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>ValueError</dt><dd><p>If longitude and latitude arrays do not have the same shape.
+If relative_vorticity is an array and does not have the same shape as longitude and latitude.
+If time_step is not a float.
+If both relative_bandwidth and wavelet_duration are specified.
+If neither relative_bandwidth nor wavelet_duration are specified.
+If the absolute value of relative_bandwidth is not in the range (0,1].
+If the wavelet duration is not greater than or equal to 1.</p>
+</dd>
+</dl>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="clouddrift.kinematics.residual_position_from_displacement.html#clouddrift.kinematics.residual_position_from_displacement" title="clouddrift.kinematics.residual_position_from_displacement"><code class="xref py py-func docutils literal notranslate"><span class="pre">residual_position_from_displacement()</span></code></a>, <cite>wavelet_transform</cite>, <cite>morse_wavelet</cite></p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="clouddrift.kinematics.kinetic_energy">
+<span class="sig-prename descclassname"><span class="pre">clouddrift.kinematics.</span></span><span class="sig-name descname"><span class="pre">kinetic_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataArray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataArray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Series</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataArray</span></span></span><a class="reference internal" href="../_modules/clouddrift/kinematics.html#kinetic_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.kinematics.kinetic_energy" title="Link to this definition">#</a></dt>
+<dd><p>Compute kinetic energy from zonal and meridional velocities.</p>
+<section id="id1">
+<h2>Parameters<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>u<span class="classifier">float or array-like</span></dt><dd><p>Zonal velocity.</p>
+</dd>
+<dt>v<span class="classifier">float or array-like, optional.</span></dt><dd><p>Meridional velocity. If not provided, the flow is assumed one-dimensional
+in time and defined by <code class="docutils literal notranslate"><span class="pre">u</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h2>Returns<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>ke<span class="classifier">float or array-like</span></dt><dd><p>Kinetic energy.</p>
+</dd>
+</dl>
+</section>
+<section id="id3">
+<h2>Examples<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">kinetic_energy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kinetic_energy</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+<span class="go">array([1. , 2.5, 5. , 8.5])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">],</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kinetic_energy</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+<span class="go">array([[1. , 2.5, 5. , 8.5],</span>
+<span class="go">       [1. , 2.5, 5. , 8.5]])</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="clouddrift.kinematics.position_from_velocity">
+<span class="sig-prename descclassname"><span class="pre">clouddrift.kinematics.</span></span><span class="sig-name descname"><span class="pre">position_from_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_origin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_origin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'spherical'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_scheme</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'forward'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/clouddrift/kinematics.html#position_from_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.kinematics.position_from_velocity" title="Link to this definition">#</a></dt>
+<dd><p>Compute positions from arrays of velocities and time and a pair of origin
+coordinates.</p>
+<p>The units of the result are degrees if <code class="docutils literal notranslate"><span class="pre">coord_system</span> <span class="pre">==</span> <span class="pre">&quot;spherical&quot;</span></code> (default).
+If <code class="docutils literal notranslate"><span class="pre">coord_system</span> <span class="pre">==</span> <span class="pre">&quot;cartesian&quot;</span></code>, the units of the result are equal to the
+units of the input velocities multiplied by the units of the input time.
+For example, if the input velocities are in meters per second and the input
+time is in seconds, the units of the result will be meters.</p>
+<p>Integration scheme can take one of three values:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><dl class="simple">
+<dt>“forward” (default): integration from x[i] to x[i+1] is performed</dt><dd><p>using the velocity at x[i].</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>“backward”: integration from x[i] to x[i+1] is performed using the</dt><dd><p>velocity at x[i+1].</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>“centered”: integration from x[i] to x[i+1] is performed using the</dt><dd><p>arithmetic average of the velocities at x[i] and x[i+1]. Note that
+this method introduces some error due to the averaging.</p>
+</dd>
+</dl>
+</li>
+</ol>
+</div></blockquote>
+<p>u, v, and time can be multi-dimensional arrays. If the time axis, along
+which the finite differencing is performed, is not the last one (i.e.
+x.shape[-1]), use the <code class="docutils literal notranslate"><span class="pre">time_axis</span></code> optional argument to specify along which
+axis should the differencing be done. <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, and <code class="docutils literal notranslate"><span class="pre">time</span></code> must have
+the same shape.</p>
+<p>This function will not do any special handling of longitude ranges. If the
+integrated trajectory crosses the antimeridian (dateline) in either direction, the
+longitude values will not be adjusted to stay in any specific range such
+as [-180, 180] or [0, 360]. If you need your longitudes to be in a specific
+range, recast the resulting longitude from this function using the function
+<a class="reference internal" href="clouddrift.sphere.recast_lon.html#clouddrift.sphere.recast_lon" title="clouddrift.sphere.recast_lon"><code class="xref py py-func docutils literal notranslate"><span class="pre">clouddrift.sphere.recast_lon()</span></code></a>.</p>
+<section id="id4">
+<h2>Parameters<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>u<span class="classifier">np.ndarray</span></dt><dd><p>An array of eastward velocities.</p>
+</dd>
+<dt>v<span class="classifier">np.ndarray</span></dt><dd><p>An array of northward velocities.</p>
+</dd>
+<dt>time<span class="classifier">np.ndarray</span></dt><dd><p>An array of time values.</p>
+</dd>
+<dt>x_origin<span class="classifier">float</span></dt><dd><p>Origin x-coordinate or origin longitude.</p>
+</dd>
+<dt>y_origin<span class="classifier">float</span></dt><dd><p>Origin y-coordinate or origin latitude.</p>
+</dd>
+<dt>coord_system<span class="classifier">str, optional</span></dt><dd><p>The coordinate system of the input. Can be “spherical” or “cartesian”.
+Default is “spherical”.</p>
+</dd>
+<dt>integration_scheme<span class="classifier">str, optional</span></dt><dd><p>The difference scheme to use for computing the position. Can be
+“forward” or “backward”. Default is “forward”.</p>
+</dd>
+<dt>time_axis<span class="classifier">int, optional</span></dt><dd><p>The axis of the time array. Default is -1, which corresponds to the
+last axis.</p>
+</dd>
+</dl>
+</section>
+<section id="id5">
+<h2>Returns<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>x<span class="classifier">np.ndarray</span></dt><dd><p>An array of zonal displacements or longitudes.</p>
+</dd>
+<dt>y<span class="classifier">np.ndarray</span></dt><dd><p>An array of meridional displacements or latitudes.</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h2>Examples<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<p>Simple integration on a plane, using the forward scheme by default:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">position_from_velocity</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">position_from_velocity</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">coord_system</span><span class="o">=</span><span class="s2">&quot;cartesian&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span>
+<span class="go">array([0., 1., 3., 6.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span>
+<span class="go">array([0., 1., 2., 3.])</span>
+</pre></div>
+</div>
+<p>As above, but using centered scheme:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">position_from_velocity</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">coord_system</span><span class="o">=</span><span class="s2">&quot;cartesian&quot;</span><span class="p">,</span> <span class="n">integration_scheme</span><span class="o">=</span><span class="s2">&quot;centered&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span>
+<span class="go">array([0., 1.5, 4., 7.5])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span>
+<span class="go">array([0., 1., 2., 3.])</span>
+</pre></div>
+</div>
+<p>Simple integration on a sphere (default):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">])</span> <span class="o">*</span> <span class="mf">1e5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">position_from_velocity</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span>
+<span class="go">array([0.        , 0.89839411, 2.69584476, 5.39367518])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span>
+<span class="go">array([0.        , 0.89828369, 1.79601515, 2.69201609])</span>
+</pre></div>
+</div>
+<p>Integrating across the antimeridian (dateline) by default does not
+recast the resulting longitude:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1e5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">position_from_velocity</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="mf">179.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span>
+<span class="go">array([179.5      , 180.3983205])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span>
+<span class="go">array([0., 0.])</span>
+</pre></div>
+</div>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">clouddrift.sphere.recast_lon</span></code> function to recast the longitudes
+to the desired range:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.sphere</span><span class="w"> </span><span class="kn">import</span> <span class="n">recast_lon</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">recast_lon</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">180</span><span class="p">)</span>
+<span class="go">array([ 179.5      , -179.6016795])</span>
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h2>Raises<a class="headerlink" href="#id7" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>ValueError</dt><dd><p>If u and v do not have the same shape.
+If the time axis is outside of the valid range ([-1, N-1]).
+If lengths of x, y, and time along time_axis are not equal.
+If the input coordinate system is not “spherical” or “cartesian”.
+If the input integration scheme is not “forward”, “backward”, or “centered”</p>
+</dd>
+</dl>
+</section>
+<section id="id8">
+<h2>See Also<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="clouddrift.kinematics.velocity_from_position.html#clouddrift.kinematics.velocity_from_position" title="clouddrift.kinematics.velocity_from_position"><code class="xref py py-func docutils literal notranslate"><span class="pre">velocity_from_position()</span></code></a></p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="clouddrift.kinematics.residual_position_from_displacement">
+<span class="sig-prename descclassname"><span class="pre">clouddrift.kinematics.</span></span><span class="sig-name descname"><span class="pre">residual_position_from_displacement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">longitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataArray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataArray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/clouddrift/kinematics.html#residual_position_from_displacement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.kinematics.residual_position_from_displacement" title="Link to this definition">#</a></dt>
+<dd><p>Return residual longitudes and latitudes along a trajectory on the spherical Earth
+after correcting for zonal and meridional displacements x and y in meters.</p>
+<p>This is applicable as an example when one seeks to correct a trajectory for
+horizontal oscillations due to inertial motions, tides, etc.</p>
+<section id="id9">
+<h2>Parameters<a class="headerlink" href="#id9" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>longitude<span class="classifier">float or array-like</span></dt><dd><p>Longitude in degrees.</p>
+</dd>
+<dt>latitude<span class="classifier">float or array-like</span></dt><dd><p>Latitude in degrees.</p>
+</dd>
+<dt>x<span class="classifier">float or np.ndarray</span></dt><dd><p>Zonal displacement in meters.</p>
+</dd>
+<dt>y<span class="classifier">float or np.ndarray</span></dt><dd><p>Meridional displacement in meters.</p>
+</dd>
+</dl>
+</section>
+<section id="id10">
+<h2>Returns<a class="headerlink" href="#id10" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>residual_longitude<span class="classifier">float or np.ndarray</span></dt><dd><p>Residual longitude after correcting for zonal displacement, in degrees.</p>
+</dd>
+<dt>residual_latitude<span class="classifier">float or np.ndarray</span></dt><dd><p>Residual latitude after correcting for meridional displacement, in degrees.</p>
+</dd>
+</dl>
+</section>
+<section id="id11">
+<h2>Examples<a class="headerlink" href="#id11" title="Link to this heading">#</a></h2>
+<p>Obtain the new geographical position for a displacement of 1/360-th of the
+circumference of the Earth from original position (longitude,latitude) = (1,0):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.sphere</span><span class="w"> </span><span class="kn">import</span> <span class="n">EARTH_RADIUS_METERS</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">residual_position_from_displacement</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">EARTH_RADIUS_METERS</span> <span class="o">/</span> <span class="mi">360</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">(0.0, 0.0)</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="clouddrift.kinematics.spin">
+<span class="sig-prename descclassname"><span class="pre">clouddrift.kinematics.</span></span><span class="sig-name descname"><span class="pre">spin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">difference_scheme</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'forward'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/clouddrift/kinematics.html#spin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.kinematics.spin" title="Link to this definition">#</a></dt>
+<dd><p>Compute spin continuously from velocities and times.</p>
+<p>Spin is traditionally (Sawford, 1999; Veneziani et al., 2005) defined as
+(&lt;u’dv’ - v’du’&gt;) / (2 dt EKE) where u’ and v’ are eddy-perturbations of the
+velocity field, EKE is eddy kinetic energy, dt is the time step, and du’ and
+dv’ are velocity component increments during dt, and &lt; &gt; denotes ensemble
+average.</p>
+<p>To allow computing spin based on full velocity fields, this function does
+not do any demeaning of the velocity fields. If you need the spin based on
+velocity anomalies, ensure to demean the velocity fields before passing
+them to this function. This function also returns instantaneous spin values,
+so the rank of the result is not reduced relative to the input.</p>
+<p><code class="docutils literal notranslate"><span class="pre">u</span></code>, <code class="docutils literal notranslate"><span class="pre">v</span></code>, and <code class="docutils literal notranslate"><span class="pre">time</span></code> can be multi-dimensional arrays. If the time
+axis, along which the finite differencing is performed, is not the last one
+(i.e. <code class="docutils literal notranslate"><span class="pre">u.shape[-1]</span></code>), use the time_axis optional argument to specify along
+which the spin should be calculated. u, v, and time must either have the
+same shape, or time must be a 1-d array with the same length as
+<code class="docutils literal notranslate"><span class="pre">u.shape[time_axis]</span></code>.</p>
+<p>Difference scheme can be one of three values:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>“forward” (default): finite difference is evaluated as <code class="docutils literal notranslate"><span class="pre">dx[i]</span> <span class="pre">=</span> <span class="pre">dx[i+1]</span> <span class="pre">-</span> <span class="pre">dx[i]</span></code>;</p></li>
+<li><p>“backward”: finite difference is evaluated as <code class="docutils literal notranslate"><span class="pre">dx[i]</span> <span class="pre">=</span> <span class="pre">dx[i]</span> <span class="pre">-</span> <span class="pre">dx[i-1]</span></code>;</p></li>
+<li><p>“centered”: finite difference is evaluated as <code class="docutils literal notranslate"><span class="pre">dx[i]</span> <span class="pre">=</span> <span class="pre">(dx[i+1]</span> <span class="pre">-</span> <span class="pre">dx[i-1])</span> <span class="pre">/</span> <span class="pre">2</span></code>.</p></li>
+</ol>
+</div></blockquote>
+<p>Forward and backward schemes are effectively the same except that the
+position at which the velocity is evaluated is shifted one element down in
+the backward scheme relative to the forward scheme. In the case of a
+forward or backward difference scheme, the last or first element of the
+velocity, respectively, is extrapolated from its neighboring point. In the
+case of a centered difference scheme, the start and end boundary points are
+evaluated using the forward and backward difference scheme, respectively.</p>
+<section id="id12">
+<h2>Parameters<a class="headerlink" href="#id12" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>u<span class="classifier">np.ndarray</span></dt><dd><p>Zonal velocity</p>
+</dd>
+<dt>v<span class="classifier">np.ndarray</span></dt><dd><p>Meridional velocity</p>
+</dd>
+<dt>time<span class="classifier">array-like</span></dt><dd><p>Time</p>
+</dd>
+<dt>difference_scheme<span class="classifier">str, optional</span></dt><dd><p>Difference scheme to use; possible values are “forward”, “backward”, and “centered”.</p>
+</dd>
+<dt>time_axis<span class="classifier">int, optional</span></dt><dd><p>Axis along which the time varies (default is -1)</p>
+</dd>
+</dl>
+</section>
+<section id="id13">
+<h2>Returns<a class="headerlink" href="#id13" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>s<span class="classifier">float or np.ndarray</span></dt><dd><p>Spin</p>
+</dd>
+</dl>
+</section>
+<section id="id14">
+<h2>Raises<a class="headerlink" href="#id14" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>ValueError</dt><dd><p>If u and v do not have the same shape.
+If the time axis is outside of the valid range ([-1, N-1]).
+If lengths of u, v, and time along time_axis are not equal.
+If difference_scheme is not “forward”, “backward”, or “centered”.</p>
+</dd>
+</dl>
+</section>
+<section id="id15">
+<h2>Examples<a class="headerlink" href="#id15" title="Link to this heading">#</a></h2>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">spin</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spin</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+<span class="go">array([ 0.5       , -0.07692308,  1.4       ,  0.41176471])</span>
+</pre></div>
+</div>
+<p>Use <code class="docutils literal notranslate"><span class="pre">difference_scheme</span></code> to specify an alternative finite difference
+scheme for the velocity differences:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spin</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">difference_scheme</span><span class="o">=</span><span class="s2">&quot;centered&quot;</span><span class="p">)</span>
+<span class="go">array([0.5       , 0.        , 0.6       , 0.41176471])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spin</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">difference_scheme</span><span class="o">=</span><span class="s2">&quot;backward&quot;</span><span class="p">)</span>
+<span class="go">array([ 0.5       ,  0.07692308, -0.2       ,  0.41176471])</span>
+</pre></div>
+</div>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Sawford, B.L., 1999. Rotation of trajectories in Lagrangian stochastic models of turbulent dispersion. Boundary-layer meteorology, 93, pp.411-424. <a class="reference external" href="https://doi.org/10.1023/A:1002114132715">https://doi.org/10.1023/A:1002114132715</a></p></li>
+<li><p>Veneziani, M., Griffa, A., Garraffo, Z.D. and Chassignet, E.P., 2005. Lagrangian spin parameter and coherent structures from trajectories released in a high-resolution ocean model. Journal of Marine Research, 63(4), pp.753-788. <a class="reference external" href="https://elischolar.library.yale.edu/journal_of_marine_research/100/">https://elischolar.library.yale.edu/journal_of_marine_research/100/</a></p></li>
+</ul>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="clouddrift.kinematics.velocity_from_position">
+<span class="sig-prename descclassname"><span class="pre">clouddrift.kinematics.</span></span><span class="sig-name descname"><span class="pre">velocity_from_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'spherical'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">difference_scheme</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'forward'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataArray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataArray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/clouddrift/kinematics.html#velocity_from_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clouddrift.kinematics.velocity_from_position" title="Link to this definition">#</a></dt>
+<dd><p>Compute velocity from arrays of positions and time.</p>
+<p>x and y can be provided as longitude and latitude in degrees if
+coord_system == “spherical” (default), or as easting and northing if
+coord_system == “cartesian”.</p>
+<p>The units of the result are meters per unit of time if
+coord_system == “spherical”. For example, if the time is provided in the
+units of seconds, the resulting velocity is in the units of meters per
+second. Otherwise, if coord_system == “cartesian”, the units of the
+resulting velocity correspond to the units of the input. For example,
+if zonal and meridional displacements are in the units of kilometers and
+time is in the units of hours, the resulting velocity is in the units of
+kilometers per hour.</p>
+<p>x, y, and time can be multi-dimensional arrays. If the time axis, along
+which the finite differencing is performed, is not the last one (i.e.
+x.shape[-1]), use the time_axis optional argument to specify along which
+axis should the differencing be done. x, y, and time must have the same
+shape.</p>
+<p>Difference scheme can take one of three values:</p>
+<ol class="arabic simple">
+<li><p>“forward” (default): finite difference is evaluated as <code class="docutils literal notranslate"><span class="pre">dx[i]</span> <span class="pre">=</span> <span class="pre">dx[i+1]</span> <span class="pre">-</span> <span class="pre">dx[i]</span></code>;</p></li>
+<li><p>“backward”: finite difference is evaluated as <code class="docutils literal notranslate"><span class="pre">dx[i]</span> <span class="pre">=</span> <span class="pre">dx[i]</span> <span class="pre">-</span> <span class="pre">dx[i-1]</span></code>;</p></li>
+<li><p>“centered”: finite difference is evaluated as <code class="docutils literal notranslate"><span class="pre">dx[i]</span> <span class="pre">=</span> <span class="pre">(dx[i+1]</span> <span class="pre">-</span> <span class="pre">dx[i-1])</span> <span class="pre">/</span> <span class="pre">2</span></code>.</p></li>
+</ol>
+<p>Forward and backward schemes are effectively the same except that the
+position at which the velocity is evaluated is shifted one element down in
+the backward scheme relative to the forward scheme. In the case of a
+forward or backward difference scheme, the last or first element of the
+velocity, respectively, is extrapolated from its neighboring point. In the
+case of a centered difference scheme, the start and end boundary points are
+evaluated using the forward and backward difference scheme, respectively.</p>
+<section id="id16">
+<h2>Parameters<a class="headerlink" href="#id16" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>x<span class="classifier">array_like</span></dt><dd><p>An N-d array of x-positions (longitude in degrees or zonal displacement in any unit)</p>
+</dd>
+<dt>y<span class="classifier">array_like</span></dt><dd><p>An N-d array of y-positions (latitude in degrees or meridional displacement in any unit)</p>
+</dd>
+<dt>time<span class="classifier">array_like</span></dt><dd><p>An N-d array of times as floating point values (in any unit)</p>
+</dd>
+<dt>coord_system<span class="classifier">str, optional</span></dt><dd><p>Coordinate system that x and y arrays are in; possible values are “spherical” (default) or “cartesian”.</p>
+</dd>
+<dt>difference_scheme<span class="classifier">str, optional</span></dt><dd><p>Difference scheme to use; possible values are “forward”, “backward”, and “centered”.</p>
+</dd>
+<dt>time_axis<span class="classifier">int, optional</span></dt><dd><p>Axis along which to differentiate (default is -1)</p>
+</dd>
+</dl>
+</section>
+<section id="id17">
+<h2>Returns<a class="headerlink" href="#id17" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>u<span class="classifier">np.ndarray</span></dt><dd><p>Zonal velocity</p>
+</dd>
+<dt>v<span class="classifier">np.ndarray</span></dt><dd><p>Meridional velocity</p>
+</dd>
+</dl>
+</section>
+<section id="id18">
+<h2>Raises<a class="headerlink" href="#id18" title="Link to this heading">#</a></h2>
+<dl class="simple">
+<dt>ValueError</dt><dd><p>If x and y do not have the same shape.
+If time_axis is outside of the valid range.
+If lengths of x, y, and time along time_axis are not equal.
+If coord_system is not “spherical” or “cartesian”.
+If difference_scheme is not “forward”, “backward”, or “centered”.</p>
+</dd>
+</dl>
+</section>
+<section id="id19">
+<h2>Examples<a class="headerlink" href="#id19" title="Link to this heading">#</a></h2>
+<p>Simple integration on a sphere, using the forward scheme by default:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">velocity_from_position</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">])</span> <span class="o">*</span> <span class="mf">1e5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">velocity_from_position</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span>
+<span class="go">array([1.11307541, 2.22513331, 3.33515501, 3.33515501])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span>
+<span class="go">array([1.11324496, 1.11409224, 1.1167442 , 1.1167442 ])</span>
+</pre></div>
+</div>
+<p>Integration on a Cartesian plane, using the forward scheme by default:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">velocity_from_position</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">coord_system</span><span class="o">=</span><span class="s2">&quot;cartesian&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span>
+<span class="go">array([1., 2., 3., 3.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span>
+<span class="go">array([1., 1., 1., 1.])</span>
+</pre></div>
+</div>
+</section>
+<section id="id20">
+<h2>See Also<a class="headerlink" href="#id20" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="clouddrift.kinematics.position_from_velocity.html#clouddrift.kinematics.position_from_velocity" title="clouddrift.kinematics.position_from_velocity"><code class="xref py py-func docutils literal notranslate"><span class="pre">position_from_velocity()</span></code></a></p>
+</section>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="clouddrift.datasets.yomaha.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">clouddrift.datasets.yomaha</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="clouddrift.kinematics.inertial_oscillation_from_position.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">clouddrift.kinematics.inertial_oscillation_from_position</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.kinematics.inertial_oscillation_from_position"><code class="docutils literal notranslate"><span class="pre">inertial_oscillation_from_position()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.kinematics.kinetic_energy"><code class="docutils literal notranslate"><span class="pre">kinetic_energy()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.kinematics.position_from_velocity"><code class="docutils literal notranslate"><span class="pre">position_from_velocity()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.kinematics.residual_position_from_displacement"><code class="docutils literal notranslate"><span class="pre">residual_position_from_displacement()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.kinematics.spin"><code class="docutils literal notranslate"><span class="pre">spin()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clouddrift.kinematics.velocity_from_position"><code class="docutils literal notranslate"><span class="pre">velocity_from_position()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Philippe Miron
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022-2023, CloudDrift.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

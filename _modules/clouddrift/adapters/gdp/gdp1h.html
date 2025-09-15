@@ -1,0 +1,1139 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>clouddrift.adapters.gdp.gdp1h &#8212; CloudDrift  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=35a8b989"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/clouddrift/adapters/gdp/gdp1h';</script>
+    <link rel="icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/logo.png" class="logo__image only-light" alt="CloudDrift  documentation - Home"/>
+    <script>document.write(`<img src="../../../../_static/logo.png" class="logo__image only-dark" alt="CloudDrift  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../datasets.html">Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Cloud-Drift/clouddrift/blob/main/CONTRIBUTING.md">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../api.html">API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.html">clouddrift.adapters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.andro.html">clouddrift.adapters.andro</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.andro.to_xarray.html">clouddrift.adapters.andro.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.gdp.html">clouddrift.adapters.gdp</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.gdp.cast_float64_variables_to_float32.html">clouddrift.adapters.gdp.cast_float64_variables_to_float32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.gdp.cut_str.html">clouddrift.adapters.gdp.cut_str</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.gdp.decode_date.html">clouddrift.adapters.gdp.decode_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.gdp.drogue_presence.html">clouddrift.adapters.gdp.drogue_presence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.gdp.fetch_netcdf.html">clouddrift.adapters.gdp.fetch_netcdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.gdp.fill_values.html">clouddrift.adapters.gdp.fill_values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.gdp.get_gdp_metadata.html">clouddrift.adapters.gdp.get_gdp_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.gdp.order_by_date.html">clouddrift.adapters.gdp.order_by_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.gdp.parse_directory_file.html">clouddrift.adapters.gdp.parse_directory_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.gdp.rowsize.html">clouddrift.adapters.gdp.rowsize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.gdp.str_to_float.html">clouddrift.adapters.gdp.str_to_float</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.gdp.gdp1h.html">clouddrift.adapters.gdp.gdp1h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.gdp.gdp6h.html">clouddrift.adapters.gdp.gdp6h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.gdp.gdpsource.html">clouddrift.adapters.gdp.gdpsource</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.glad.html">clouddrift.adapters.glad</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.glad.get_dataframe.html">clouddrift.adapters.glad.get_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.glad.to_xarray.html">clouddrift.adapters.glad.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.hurdat2.html">clouddrift.adapters.hurdat2</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.hurdat2.to_raggedarray.html">clouddrift.adapters.hurdat2.to_raggedarray</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.hurdat2.DataLine.html">clouddrift.adapters.hurdat2.DataLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.hurdat2.HeaderLine.html">clouddrift.adapters.hurdat2.HeaderLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.hurdat2.RecordIdentifier.html">clouddrift.adapters.hurdat2.RecordIdentifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.hurdat2.SystemStatus.html">clouddrift.adapters.hurdat2.SystemStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.hurdat2.TrackData.html">clouddrift.adapters.hurdat2.TrackData</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.ibtracs.html">clouddrift.adapters.ibtracs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.ibtracs.to_raggedarray.html">clouddrift.adapters.ibtracs.to_raggedarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.mosaic.html">clouddrift.adapters.mosaic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.mosaic.get_dataframes.html">clouddrift.adapters.mosaic.get_dataframes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.mosaic.get_file_urls.html">clouddrift.adapters.mosaic.get_file_urls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.mosaic.get_repository_metadata.html">clouddrift.adapters.mosaic.get_repository_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.mosaic.to_xarray.html">clouddrift.adapters.mosaic.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.subsurface_floats.html">clouddrift.adapters.subsurface_floats</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.subsurface_floats.download.html">clouddrift.adapters.subsurface_floats.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.subsurface_floats.to_xarray.html">clouddrift.adapters.subsurface_floats.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.utils.html">clouddrift.adapters.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.utils.download_with_progress.html">clouddrift.adapters.utils.download_with_progress</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.yomaha.html">clouddrift.adapters.yomaha</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.yomaha.download.html">clouddrift.adapters.yomaha.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/clouddrift.adapters.yomaha.to_xarray.html">clouddrift.adapters.yomaha.to_xarray</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.binning.html">clouddrift.binning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.binning.binned_statistics.html">clouddrift.binning.binned_statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.binning.handle_datetime_conversion.html">clouddrift.binning.handle_datetime_conversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.datasets.html">clouddrift.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.datasets.andro.html">clouddrift.datasets.andro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.datasets.gdp1h.html">clouddrift.datasets.gdp1h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.datasets.gdp6h.html">clouddrift.datasets.gdp6h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.datasets.gdp_source.html">clouddrift.datasets.gdp_source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.datasets.glad.html">clouddrift.datasets.glad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.datasets.hurdat2.html">clouddrift.datasets.hurdat2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.datasets.ibtracs.html">clouddrift.datasets.ibtracs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.datasets.mosaic.html">clouddrift.datasets.mosaic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.datasets.spotters.html">clouddrift.datasets.spotters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.datasets.subsurface_floats.html">clouddrift.datasets.subsurface_floats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.datasets.yomaha.html">clouddrift.datasets.yomaha</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.kinematics.html">clouddrift.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.kinematics.inertial_oscillation_from_position.html">clouddrift.kinematics.inertial_oscillation_from_position</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.kinematics.kinetic_energy.html">clouddrift.kinematics.kinetic_energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.kinematics.position_from_velocity.html">clouddrift.kinematics.position_from_velocity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.kinematics.residual_position_from_displacement.html">clouddrift.kinematics.residual_position_from_displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.kinematics.spin.html">clouddrift.kinematics.spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.kinematics.velocity_from_position.html">clouddrift.kinematics.velocity_from_position</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.pairs.html">clouddrift.pairs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.pairs.chance_pair.html">clouddrift.pairs.chance_pair</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.pairs.chance_pairs_from_ragged.html">clouddrift.pairs.chance_pairs_from_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.pairs.pair_bounding_box_overlap.html">clouddrift.pairs.pair_bounding_box_overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.pairs.pair_space_distance.html">clouddrift.pairs.pair_space_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.pairs.pair_time_distance.html">clouddrift.pairs.pair_time_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.pairs.pair_time_overlap.html">clouddrift.pairs.pair_time_overlap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.plotting.html">clouddrift.plotting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.plotting.plot_ragged.html">clouddrift.plotting.plot_ragged</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.ragged.html">clouddrift.ragged</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.ragged.apply_ragged.html">clouddrift.ragged.apply_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.ragged.chunk.html">clouddrift.ragged.chunk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.ragged.obs_index_to_row.html">clouddrift.ragged.obs_index_to_row</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.ragged.prune.html">clouddrift.ragged.prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.ragged.ragged_to_regular.html">clouddrift.ragged.ragged_to_regular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.ragged.regular_to_ragged.html">clouddrift.ragged.regular_to_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.ragged.rowsize_to_index.html">clouddrift.ragged.rowsize_to_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.ragged.segment.html">clouddrift.ragged.segment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.ragged.subset.html">clouddrift.ragged.subset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.ragged.unpack.html">clouddrift.ragged.unpack</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.raggedarray.html">clouddrift.raggedarray</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.raggedarray.RaggedArray.html">clouddrift.raggedarray.RaggedArray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.signal.html">clouddrift.signal</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.signal.analytic_signal.html">clouddrift.signal.analytic_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.signal.cartesian_to_rotary.html">clouddrift.signal.cartesian_to_rotary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.signal.ellipse_parameters.html">clouddrift.signal.ellipse_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.signal.modulated_ellipse_signal.html">clouddrift.signal.modulated_ellipse_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.signal.rotary_to_cartesian.html">clouddrift.signal.rotary_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.sphere.html">clouddrift.sphere</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.sphere.bearing.html">clouddrift.sphere.bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.sphere.cartesian_to_spherical.html">clouddrift.sphere.cartesian_to_spherical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.sphere.cartesian_to_tangentplane.html">clouddrift.sphere.cartesian_to_tangentplane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.sphere.coriolis_frequency.html">clouddrift.sphere.coriolis_frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.sphere.cumulative_distance.html">clouddrift.sphere.cumulative_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.sphere.distance.html">clouddrift.sphere.distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.sphere.plane_to_sphere.html">clouddrift.sphere.plane_to_sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.sphere.position_from_distance_and_bearing.html">clouddrift.sphere.position_from_distance_and_bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.sphere.recast_lon.html">clouddrift.sphere.recast_lon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.sphere.recast_lon180.html">clouddrift.sphere.recast_lon180</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.sphere.recast_lon360.html">clouddrift.sphere.recast_lon360</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.sphere.sphere_to_plane.html">clouddrift.sphere.sphere_to_plane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.sphere.spherical_to_cartesian.html">clouddrift.sphere.spherical_to_cartesian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.sphere.tangentplane_to_cartesian.html">clouddrift.sphere.tangentplane_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/clouddrift.wavelet.html">clouddrift.wavelet</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.wavelet.morse_amplitude.html">clouddrift.wavelet.morse_amplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.wavelet.morse_freq.html">clouddrift.wavelet.morse_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.wavelet.morse_logspace_freq.html">clouddrift.wavelet.morse_logspace_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.wavelet.morse_properties.html">clouddrift.wavelet.morse_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.wavelet.morse_wavelet.html">clouddrift.wavelet.morse_wavelet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.wavelet.morse_wavelet_transform.html">clouddrift.wavelet.morse_wavelet_transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/clouddrift.wavelet.wavelet_transform.html">clouddrift.wavelet.wavelet_transform</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for clouddrift.adapters.gdp.gdp1h</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides functions and metadata that can be used to convert the</span>
+<span class="sd">hourly Global Drifter Program (GDP) data to a ``clouddrift.RaggedArray``</span>
+<span class="sd">instance.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">clouddrift.adapters.gdp</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gdp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.adapters.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_with_progress</span><span class="p">,</span> <span class="n">standard_retry_protocol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.raggedarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">RaggedArray</span>
+
+<span class="n">GDP_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2.01.1&quot;</span>
+
+
+<span class="n">GDP_DATA_URL</span> <span class="o">=</span> <span class="s2">&quot;https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01&quot;</span>
+<span class="n">GDP_DATA_URL_EXPERIMENTAL</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental&quot;</span>
+<span class="p">)</span>
+
+
+<span class="n">GDP_TMP_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;clouddrift&quot;</span><span class="p">,</span> <span class="s2">&quot;gdp&quot;</span><span class="p">)</span>
+<span class="n">GDP_TMP_PATH_EXPERIMENTAL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;clouddrift&quot;</span><span class="p">,</span> <span class="s2">&quot;gdp_exp&quot;</span><span class="p">)</span>
+<span class="n">GDP_DATA</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;lon&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ve&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vn&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;err_lat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;err_lon&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;err_ve&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;err_vn&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gap&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sst&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sst1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sst2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;err_sst&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;err_sst1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;err_sst2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;flg_sst&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;flg_sst1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;flg_sst2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;drogue_status&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="to_raggedarray">
+<a class="viewcode-back" href="../../../../_autosummary/clouddrift.adapters.gdp.gdp1h.to_raggedarray.html#clouddrift.adapters.gdp.gdp1h.to_raggedarray">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_raggedarray</span><span class="p">(</span>
+    <span class="n">drifter_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">n_random_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">GDP_DATA_URL</span><span class="p">,</span>
+    <span class="n">tmp_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RaggedArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download and process individual GDP hourly files and return a RaggedArray</span>
+<span class="sd">    instance with the data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    drifter_ids : list[int], optional</span>
+<span class="sd">        List of drifters to retrieve (Default: all)</span>
+<span class="sd">    n_random_id : list[int], optional</span>
+<span class="sd">        Randomly select n_random_id drifter NetCDF files</span>
+<span class="sd">    url : str</span>
+<span class="sd">        URL from which to download the data (Default: GDP_DATA_URL)</span>
+<span class="sd">        Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL</span>
+<span class="sd">    tmp_path : str, optional</span>
+<span class="sd">        Path to the directory where the individual NetCDF files are stored</span>
+<span class="sd">        (default varies depending on operating system; /tmp/clouddrift/gdp on Linux)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    out : RaggedArray</span>
+<span class="sd">        A RaggedArray instance of the requested dataset</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    Invoke `to_raggedarray` without any arguments to download all drifter data</span>
+<span class="sd">    from the 2.01 GDP feed:</span>
+
+<span class="sd">    &gt;&gt;&gt; from clouddrift.adapters.gdp.gdp1h import to_raggedarray</span>
+<span class="sd">    &gt;&gt;&gt; ra = to_raggedarray()</span>
+
+<span class="sd">    To download a random sample of 100 drifters, for example for development</span>
+<span class="sd">    or testing, use the `n_random_id` argument:</span>
+
+<span class="sd">    &gt;&gt;&gt; ra = to_raggedarray(n_random_id=100)</span>
+
+<span class="sd">    To download a specific list of drifters, use the `drifter_ids` argument:</span>
+
+<span class="sd">    &gt;&gt;&gt; ra = to_raggedarray(drifter_ids=[44136, 54680, 83463])</span>
+
+<span class="sd">    To download the experimental 3.00 GDP data, use the `url` argument to</span>
+<span class="sd">    specify the experimental feed URL:</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.adapters.gdp.gdp1h import GDP_DATA_URL_EXPERIMENTAL, to_raggedarray</span>
+<span class="sd">    &gt;&gt;&gt; ra = to_raggedarray(url=GDP_DATA_URL_EXPERIMENTAL)</span>
+
+<span class="sd">    Finally, `to_raggedarray` returns a `RaggedArray` instance which provides</span>
+<span class="sd">    a convenience method to emit a `xarray.Dataset` instance:</span>
+
+<span class="sd">    &gt;&gt;&gt; ds = ra.to_xarray()</span>
+
+<span class="sd">    To write the ragged array dataset to a NetCDF file on disk, do</span>
+
+<span class="sd">    &gt;&gt;&gt; ds.to_netcdf(&quot;gdp1h.nc&quot;, format=&quot;NETCDF4&quot;)</span>
+
+<span class="sd">    Alternatively, to write the ragged array to a Parquet file, first create</span>
+<span class="sd">    it as an Awkward Array:</span>
+
+<span class="sd">    &gt;&gt;&gt; arr = ra.to_awkward()</span>
+<span class="sd">    &gt;&gt;&gt; arr.to_parquet(&quot;gdp1h.parquet&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># adjust the tmp_path if using the experimental source</span>
+    <span class="k">if</span> <span class="n">tmp_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tmp_path</span> <span class="o">=</span> <span class="n">GDP_TMP_PATH</span> <span class="k">if</span> <span class="n">url</span> <span class="o">==</span> <span class="n">GDP_DATA_URL</span> <span class="k">else</span> <span class="n">GDP_TMP_PATH_EXPERIMENTAL</span>
+
+    <span class="n">ids</span> <span class="o">=</span> <span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">drifter_ids</span><span class="p">,</span> <span class="n">n_random_id</span><span class="p">)</span>
+    <span class="n">filename_pattern</span> <span class="o">=</span> <span class="s2">&quot;drifter_hourly_</span><span class="si">{id}</span><span class="s2">.nc&quot;</span>
+
+    <span class="c1"># Add location_type to metadata</span>
+    <span class="n">gdp_metadata</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">GDP_METADATA</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s2">&quot;location_type&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdp_metadata</span><span class="p">:</span>
+        <span class="n">gdp_metadata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;location_type&quot;</span><span class="p">)</span>
+
+    <span class="n">ra</span> <span class="o">=</span> <span class="n">RaggedArray</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+        <span class="n">indices</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span>
+        <span class="n">preprocess_func</span><span class="o">=</span><span class="n">preprocess</span><span class="p">,</span>
+        <span class="n">name_coords</span><span class="o">=</span><span class="n">gdp</span><span class="o">.</span><span class="n">GDP_COORDS</span><span class="p">,</span>
+        <span class="n">name_meta</span><span class="o">=</span><span class="n">gdp_metadata</span><span class="p">,</span>
+        <span class="n">name_data</span><span class="o">=</span><span class="n">GDP_DATA</span><span class="p">,</span>
+        <span class="n">name_dims</span><span class="o">=</span><span class="n">gdp</span><span class="o">.</span><span class="n">GDP_DIMS</span><span class="p">,</span>
+        <span class="n">rowsize_func</span><span class="o">=</span><span class="n">gdp</span><span class="o">.</span><span class="n">rowsize</span><span class="p">,</span>
+        <span class="n">filename_pattern</span><span class="o">=</span><span class="n">filename_pattern</span><span class="p">,</span>
+        <span class="n">tmp_path</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># set dynamic global attributes</span>
+    <span class="k">if</span> <span class="n">ra</span><span class="o">.</span><span class="n">attrs_global</span><span class="p">:</span>
+        <span class="n">ra</span><span class="o">.</span><span class="n">attrs_global</span><span class="p">[</span><span class="s2">&quot;time_coverage_start&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">ra</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">])))</span><span class="si">:</span><span class="s2">%Y-%m-%d:%H:%M:%SZ</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">ra</span><span class="o">.</span><span class="n">attrs_global</span><span class="p">[</span><span class="s2">&quot;time_coverage_end&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ra</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">])))</span><span class="si">:</span><span class="s2">%Y-%m-%d:%H:%M:%SZ</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ra</span></div>
+
+
+
+<div class="viewcode-block" id="download">
+<a class="viewcode-back" href="../../../../_autosummary/clouddrift.adapters.gdp.gdp1h.download.html#clouddrift.adapters.gdp.gdp1h.download">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span>
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">GDP_DATA_URL</span><span class="p">,</span>
+    <span class="n">tmp_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">GDP_TMP_PATH</span><span class="p">,</span>
+    <span class="n">drifter_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">n_random_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download individual NetCDF files from the AOML server.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    url : str</span>
+<span class="sd">        URL from which to download the data.</span>
+<span class="sd">    tmp_path : str</span>
+<span class="sd">        Path to the directory where the individual NetCDF files are stored.</span>
+
+<span class="sd">    drifter_ids : list, optional</span>
+<span class="sd">        List of drifter to retrieve (Default: all)</span>
+<span class="sd">    n_random_id : int, optional</span>
+<span class="sd">        Randomly select n_random_id drifter IDs to download (Default: None)</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    out : list</span>
+<span class="sd">        List of retrieved drifters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading GDP hourly data from (</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">) to (</span><span class="si">{</span><span class="n">tmp_path</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Create a temporary directory if doesn&#39;t already exists.</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="s2">&quot;drifter_hourly_[0-9]*.nc&quot;</span>
+    <span class="n">filename_pattern</span> <span class="o">=</span> <span class="s2">&quot;drifter_hourly_</span><span class="si">{id}</span><span class="s2">.nc&quot;</span>
+
+    <span class="c1"># retrieve all drifter ID numbers</span>
+    <span class="k">if</span> <span class="n">drifter_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">urlpath</span> <span class="o">=</span> <span class="n">standard_retry_protocol</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">))()</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="n">urlpath</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">filelist</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>  <span class="c1"># noqa: F821</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">filelist</span> <span class="o">=</span> <span class="p">[</span><span class="n">filename_pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">did</span><span class="p">)</span> <span class="k">for</span> <span class="n">did</span> <span class="ow">in</span> <span class="n">drifter_ids</span><span class="p">]</span>
+    <span class="n">filelist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">filelist</span><span class="p">))</span>
+
+    <span class="c1"># retrieve only a subset of n_random_id trajectories</span>
+    <span class="k">if</span> <span class="n">n_random_id</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n_random_id</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">filelist</span><span class="p">):</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Retrieving all listed trajectories because </span><span class="si">{</span><span class="n">n_random_id</span><span class="si">}</span><span class="s2"> is larger than the </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">filelist</span><span class="p">)</span><span class="si">}</span><span class="s2"> listed trajectories.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">MT19937</span><span class="p">(</span><span class="mi">42</span><span class="p">))</span>
+            <span class="n">filelist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">n_random_id</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+    <span class="n">download_with_progress</span><span class="p">(</span>
+        <span class="p">[(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filelist</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="c1"># Download the metadata so we can order the drifter IDs by end date.</span>
+    <span class="n">gdp_metadata</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">get_gdp_metadata</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gdp</span><span class="o">.</span><span class="n">order_by_date</span><span class="p">(</span>
+        <span class="n">gdp_metadata</span><span class="p">,</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">&quot;.nc&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filelist</span><span class="p">]</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="preprocess">
+<a class="viewcode-back" href="../../../../_autosummary/clouddrift.adapters.gdp.gdp1h.preprocess.html#clouddrift.adapters.gdp.gdp1h.preprocess">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">preprocess</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract and preprocess the Lagrangian data and attributes.</span>
+
+<span class="sd">    This function takes an identification number that can be used to create a</span>
+<span class="sd">    file or url pattern or select data from a Dataframe. It then preprocesses</span>
+<span class="sd">    the data and returns a clean Xarray Dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    index : int</span>
+<span class="sd">        Drifter&#39;s identification number</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Xarray Dataset containing the data and attributes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;tmp_path&quot;</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;filename_pattern&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">index</span><span class="p">))</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span>
+        <span class="n">fp</span><span class="p">,</span>
+        <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">decode_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;netcdf4&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># parse the date with custom function</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;deploy_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">decode_date</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ds</span><span class="o">.</span><span class="n">deploy_date</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;end_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">decode_date</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ds</span><span class="o">.</span><span class="n">end_date</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;drogue_lost_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">decode_date</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ds</span><span class="o">.</span><span class="n">drogue_lost_date</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">decode_date</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))</span>
+
+    <span class="c1"># convert fill values to nan</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s2">&quot;err_lon&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;err_lat&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;err_ve&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;err_vn&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sst&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sst1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sst2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;err_sst&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;err_sst1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;err_sst2&quot;</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">fill_values</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Variable </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2"> not found; skipping.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># fix missing values stored as str</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s2">&quot;longitude&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;latitude&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;err_lat&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;err_lon&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ve&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vn&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;err_ve&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;err_vn&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sst&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sst1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sst2&quot;</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">encoding</span><span class="p">[</span><span class="s2">&quot;missing value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1e-34</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Variable </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2"> not found in upstream data; skipping.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># convert type of some variable</span>
+    <span class="n">target_dtype</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;ID&quot;</span><span class="p">:</span> <span class="s2">&quot;int64&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;WMO&quot;</span><span class="p">:</span> <span class="s2">&quot;int32&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;expno&quot;</span><span class="p">:</span> <span class="s2">&quot;int32&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;typedeath&quot;</span><span class="p">:</span> <span class="s2">&quot;int8&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;flg_sst&quot;</span><span class="p">:</span> <span class="s2">&quot;int8&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;flg_sst1&quot;</span><span class="p">:</span> <span class="s2">&quot;int8&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;flg_sst2&quot;</span><span class="p">:</span> <span class="s2">&quot;int8&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">target_dtype</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">target_dtype</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Variable </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2"> not found in upstream data; skipping.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># new variables</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;drogue_status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;traj&quot;</span><span class="p">,</span> <span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="n">gdp</span><span class="o">.</span><span class="n">drogue_presence</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">drogue_lost_date</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># convert attributes to variable</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;location_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="p">[</span><span class="kc">False</span> <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;location_type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Argos&quot;</span> <span class="k">else</span> <span class="kc">True</span><span class="p">],</span>
+    <span class="p">)</span>  <span class="c1"># 0 for Argos, 1 for GPS</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;DeployingShip&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span> <span class="n">gdp</span><span class="o">.</span><span class="n">cut_str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DeployingShip&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">20</span><span class="p">))</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;DeploymentStatus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="n">gdp</span><span class="o">.</span><span class="n">cut_str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DeploymentStatus&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;BuoyTypeManufacturer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="n">gdp</span><span class="o">.</span><span class="n">cut_str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;BuoyTypeManufacturer&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;BuoyTypeSensorArray&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="n">gdp</span><span class="o">.</span><span class="n">cut_str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;BuoyTypeSensorArray&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;CurrentProgram&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">gdp</span><span class="o">.</span><span class="n">str_to_float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;CurrentProgram&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;PurchaserFunding&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="n">gdp</span><span class="o">.</span><span class="n">cut_str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PurchaserFunding&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;SensorUpgrade&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span> <span class="n">gdp</span><span class="o">.</span><span class="n">cut_str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SensorUpgrade&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">20</span><span class="p">))</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;Transmissions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span> <span class="n">gdp</span><span class="o">.</span><span class="n">cut_str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Transmissions&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">20</span><span class="p">))</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;DeployingCountry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="n">gdp</span><span class="o">.</span><span class="n">cut_str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DeployingCountry&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;DeploymentComments&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="n">gdp</span><span class="o">.</span><span class="n">cut_str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DeploymentComments&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;ManufactureMonth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">gdp</span><span class="o">.</span><span class="n">str_to_float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ManufactureMonth&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;ManufactureSensorType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="n">gdp</span><span class="o">.</span><span class="n">cut_str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ManufactureSensorType&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;ManufactureVoltage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">gdp</span><span class="o">.</span><span class="n">str_to_float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ManufactureVoltage&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)],</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>  <span class="c1"># e.g. 56 V</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;FloatDiameter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="p">[</span><span class="n">gdp</span><span class="o">.</span><span class="n">str_to_float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;FloatDiameter&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">3</span><span class="p">])],</span>
+    <span class="p">)</span>  <span class="c1"># e.g. 35.5 cm</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;SubsfcFloatPresence&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">gdp</span><span class="o">.</span><span class="n">str_to_float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SubsfcFloatPresence&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;bool&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;DrogueType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span> <span class="n">gdp</span><span class="o">.</span><span class="n">cut_str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DrogueType&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">7</span><span class="p">))</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;DrogueLength&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="p">[</span><span class="n">gdp</span><span class="o">.</span><span class="n">str_to_float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DrogueLength&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">2</span><span class="p">])],</span>
+    <span class="p">)</span>  <span class="c1"># e.g. 4.8 m</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;DrogueBallast&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="p">[</span><span class="n">gdp</span><span class="o">.</span><span class="n">str_to_float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DrogueBallast&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">3</span><span class="p">])],</span>
+    <span class="p">)</span>  <span class="c1"># e.g. 1.4 kg</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;DragAreaAboveDrogue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="p">[</span><span class="n">gdp</span><span class="o">.</span><span class="n">str_to_float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DragAreaAboveDrogue&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">4</span><span class="p">])],</span>
+    <span class="p">)</span>  <span class="c1"># 10.66 m^2</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;DragAreaOfDrogue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="p">[</span><span class="n">gdp</span><span class="o">.</span><span class="n">str_to_float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DragAreaOfDrogue&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">4</span><span class="p">])],</span>
+    <span class="p">)</span>  <span class="c1"># e.g. 416.6 m^2</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;DragAreaRatio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="p">[</span><span class="n">gdp</span><span class="o">.</span><span class="n">str_to_float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DragAreaRatio&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))],</span>
+    <span class="p">)</span>  <span class="c1"># e.g. 39.08</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;DrogueCenterDepth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="p">[</span><span class="n">gdp</span><span class="o">.</span><span class="n">str_to_float</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DrogueCenterDepth&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">2</span><span class="p">])],</span>
+    <span class="p">)</span>  <span class="c1"># e.g. 20.0 m</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;DrogueDetectSensor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;traj&quot;</span><span class="p">),</span>
+        <span class="n">gdp</span><span class="o">.</span><span class="n">cut_str</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DrogueDetectSensor&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="c1"># vars attributes</span>
+    <span class="n">vars_attrs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;ID&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Global Drifter Program Buoy ID&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Longitude&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_east&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Latitude&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_north&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;seconds since 1970-01-01 00:00:00&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;rowsize&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of observations per trajectory&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sample_dimension&quot;</span><span class="p">:</span> <span class="s2">&quot;obs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;location_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Satellite-based location system&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;0 (Argos), 1 (GPS)&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;WMO&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;World Meteorological Organization buoy identification number&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;expno&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Experiment number&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;deploy_date&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Deployment date and time&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;seconds since 1970-01-01 00:00:00&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;deploy_lon&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Deployment longitude&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_east&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;deploy_lat&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Deployment latitude&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_north&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;First good date and time derived by DAC quality control&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;seconds since 1970-01-01 00:00:00&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;First good longitude derived by DAC quality control&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_east&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Last good latitude derived by DAC quality control&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_north&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Last good date and time derived by DAC quality control&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;seconds since 1970-01-01 00:00:00&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;end_lon&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Last good longitude derived by DAC quality control&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_east&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;end_lat&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Last good latitude derived by DAC quality control&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_north&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;drogue_lost_date&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Date and time of drogue loss&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;seconds since 1970-01-01 00:00:00&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;typedeath&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Type of death&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;0 (buoy still alive), 1 (buoy ran aground), 2 (picked up by vessel), 3 (stop transmitting), 4 (sporadic transmissions), 5 (bad batteries), 6 (inactive status)&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;typebuoy&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Buoy type (see https://www.aoml.noaa.gov/phod/dac/dirall.html)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;DeployingShip&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Name of deployment ship&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;DeploymentStatus&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Deployment status&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;BuoyTypeManufacturer&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Buoy type manufacturer&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;BuoyTypeSensorArray&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Buoy type sensor array&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;CurrentProgram&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Current Program&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_FillValue&quot;</span><span class="p">:</span> <span class="s2">&quot;-1&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;PurchaserFunding&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Purchaser funding&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;SensorUpgrade&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Sensor upgrade&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;Transmissions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Transmissions&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;DeployingCountry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Deploying country&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;DeploymentComments&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Deployment comments&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;ManufactureMonth&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Manufacture month&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_FillValue&quot;</span><span class="p">:</span> <span class="s2">&quot;-1&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;ManufactureSensorType&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Manufacture Sensor Type&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;ManufactureVoltage&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Manufacture voltage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;V&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_FillValue&quot;</span><span class="p">:</span> <span class="s2">&quot;-1&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;FloatDiameter&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Diameter of surface floater&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;SubsfcFloatPresence&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Subsurface Float Presence&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;DrogueType&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;drogue_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Drogue Type&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;DrogueLength&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Length of drogue.&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;DrogueBallast&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Weight of the drogue&#39;s ballast.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;kg&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;DragAreaAboveDrogue&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Drag area above drogue.&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m^2&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;DragAreaOfDrogue&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Drag area drogue.&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m^2&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;DragAreaRatio&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Drag area ratio&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;DrogueCenterDepth&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Average depth of the drogue.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;DrogueDetectSensor&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Drogue detection sensor&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;ve&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Eastward velocity&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m/s&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;vn&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Northward velocity&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m/s&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;gap&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Time interval between previous and next location&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;err_lat&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;95</span><span class="si">% c</span><span class="s2">onfidence interval in latitude&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_north&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;err_lon&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;95</span><span class="si">% c</span><span class="s2">onfidence interval in longitude&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_east&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;err_ve&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;95</span><span class="si">% c</span><span class="s2">onfidence interval in eastward velocity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m/s&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;err_vn&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;95</span><span class="si">% c</span><span class="s2">onfidence interval in northward velocity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m/s&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;drogue_status&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Status indicating the presence of the drogue&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;flag_values&quot;</span><span class="p">:</span> <span class="s2">&quot;1,0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;flag_meanings&quot;</span><span class="p">:</span> <span class="s2">&quot;drogued, undrogued&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sst&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Fitted sea water temperature&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;Kelvin&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Estimated near-surface sea water temperature from drifting buoy measurements. It is the sum of the fitted near-surface non-diurnal sea water temperature and fitted diurnal sea water temperature anomaly. Discrepancies may occur because of rounding.&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sst1&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Fitted non-diurnal sea water temperature&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;Kelvin&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Estimated near-surface non-diurnal sea water temperature from drifting buoy measurements&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sst2&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Fitted diurnal sea water temperature anomaly&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;Kelvin&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Estimated near-surface diurnal sea water temperature anomaly from drifting buoy measurements&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;err_sst&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Standard uncertainty of fitted sea water temperature&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;Kelvin&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Estimated one standard error of near-surface sea water temperature estimate from drifting buoy measurements&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;err_sst1&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Standard uncertainty of fitted non-diurnal sea water temperature&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;Kelvin&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Estimated one standard error of near-surface non-diurnal sea water temperature estimate from drifting buoy measurements&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;err_sst2&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Standard uncertainty of fitted diurnal sea water temperature anomaly&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;Kelvin&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Estimated one standard error of near-surface diurnal sea water temperature anomaly estimate from drifting buoy measurements&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;flg_sst&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Fitted sea water temperature quality flag&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;flag_values&quot;</span><span class="p">:</span> <span class="s2">&quot;0, 1, 2, 3, 4, 5&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;flag_meanings&quot;</span><span class="p">:</span> <span class="s2">&quot;no-estimate, no-uncertainty-estimate, estimate-not-in-range-uncertainty-not-in-range, estimate-not-in-range-uncertainty-in-range estimate-in-range-uncertainty-not-in-range, estimate-in-range-uncertainty-in-range&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;flg_sst1&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Fitted non-diurnal sea water temperature quality flag&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;flag_values&quot;</span><span class="p">:</span> <span class="s2">&quot;0, 1, 2, 3, 4, 5&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;flag_meanings&quot;</span><span class="p">:</span> <span class="s2">&quot;no-estimate, no-uncertainty-estimate, estimate-not-in-range-uncertainty-not-in-range, estimate-not-in-range-uncertainty-in-range estimate-in-range-uncertainty-not-in-range, estimate-in-range-uncertainty-in-range&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;flg_sst2&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Fitted diurnal sea water temperature anomaly quality flag&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;flag_values&quot;</span><span class="p">:</span> <span class="s2">&quot;0, 1, 2, 3, 4, 5&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;flag_meanings&quot;</span><span class="p">:</span> <span class="s2">&quot;no-estimate, no-uncertainty-estimate, estimate-not-in-range-uncertainty-not-in-range, estimate-not-in-range-uncertainty-in-range estimate-in-range-uncertainty-not-in-range, estimate-in-range-uncertainty-in-range&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="c1"># global attributes</span>
+    <span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Global Drifter Program hourly drifting buoy collection&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;history&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;version </span><span class="si">{</span><span class="n">GDP_VERSION</span><span class="si">}</span><span class="s2">. Metadata from dirall.dat and deplog.dat&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Conventions&quot;</span><span class="p">:</span> <span class="s2">&quot;CF-1.6&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;time_coverage_start&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;time_coverage_end&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;date_created&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s2">&quot;publisher_name&quot;</span><span class="p">:</span> <span class="s2">&quot;GDP Drifter DAC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;publisher_email&quot;</span><span class="p">:</span> <span class="s2">&quot;aoml.dftr@noaa.gov&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;publisher_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.aoml.noaa.gov/phod/gdp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;license&quot;</span><span class="p">:</span> <span class="s2">&quot;freely available&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;processing_level&quot;</span><span class="p">:</span> <span class="s2">&quot;Level 2 QC by GDP drifter DAC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;metadata_link&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.aoml.noaa.gov/phod/dac/dirall.html&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;contributor_name&quot;</span><span class="p">:</span> <span class="s2">&quot;NOAA Global Drifter Program&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;contributor_role&quot;</span><span class="p">:</span> <span class="s2">&quot;Data Acquisition Center&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;institution&quot;</span><span class="p">:</span> <span class="s2">&quot;NOAA Atlantic Oceanographic and Meteorological Laboratory&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;acknowledgement&quot;</span><span class="p">:</span> <span class="s2">&quot;Elipot, Shane; Sykulski, Adam; Lumpkin, Rick; Centurioni, Luca; Pazos, Mayra (2022). Hourly location, current velocity, and temperature collected from Global Drifter Program drifters world-wide. [indicate subset used]. NOAA National Centers for Environmental Information. Dataset. https://doi.org/10.25921/x46c-3620. Accessed [date]. Elipot et al. (2022): A Dataset of Hourly Sea Surface Temperature From Drifting Buoys, Scientific Data, 9, 567, https://dx.doi.org/10.1038/s41597-022-01670-2. Elipot et al. (2016): A global surface drifter dataset at hourly resolution, J. Geophys. Res.-Oceans, 121, https://dx.doi.org/10.1002/2016JC011716.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;summary&quot;</span><span class="p">:</span> <span class="s2">&quot;Global Drifter Program hourly data&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;doi&quot;</span><span class="p">:</span> <span class="s2">&quot;10.25921/x46c-3620&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># set attributes</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">vars_attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">vars_attrs</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Variable </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2"> not found in upstream data; skipping.&quot;</span><span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">attrs</span>
+
+    <span class="c1"># rename variables</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">rename_vars</span><span class="p">({</span><span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="s2">&quot;ID&quot;</span><span class="p">:</span> <span class="s2">&quot;id&quot;</span><span class="p">})</span>
+
+    <span class="c1"># Cast float64 variables to float32 to reduce memory footprint.</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">cast_float64_variables_to_float32</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Philippe Miron
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022-2023, CloudDrift.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

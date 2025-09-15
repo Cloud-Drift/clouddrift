@@ -1,0 +1,1174 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>clouddrift.raggedarray &#8212; CloudDrift  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=35a8b989"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/clouddrift/raggedarray';</script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.png" class="logo__image only-light" alt="CloudDrift  documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo.png" class="logo__image only-dark" alt="CloudDrift  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datasets.html">Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Cloud-Drift/clouddrift/blob/main/CONTRIBUTING.md">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api.html">API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.html">clouddrift.adapters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.andro.html">clouddrift.adapters.andro</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.andro.to_xarray.html">clouddrift.adapters.andro.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.html">clouddrift.adapters.gdp</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.cast_float64_variables_to_float32.html">clouddrift.adapters.gdp.cast_float64_variables_to_float32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.cut_str.html">clouddrift.adapters.gdp.cut_str</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.decode_date.html">clouddrift.adapters.gdp.decode_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.drogue_presence.html">clouddrift.adapters.gdp.drogue_presence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.fetch_netcdf.html">clouddrift.adapters.gdp.fetch_netcdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.fill_values.html">clouddrift.adapters.gdp.fill_values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.get_gdp_metadata.html">clouddrift.adapters.gdp.get_gdp_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.order_by_date.html">clouddrift.adapters.gdp.order_by_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.parse_directory_file.html">clouddrift.adapters.gdp.parse_directory_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.rowsize.html">clouddrift.adapters.gdp.rowsize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.str_to_float.html">clouddrift.adapters.gdp.str_to_float</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.gdp1h.html">clouddrift.adapters.gdp.gdp1h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.gdp6h.html">clouddrift.adapters.gdp.gdp6h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.gdpsource.html">clouddrift.adapters.gdp.gdpsource</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.glad.html">clouddrift.adapters.glad</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.glad.get_dataframe.html">clouddrift.adapters.glad.get_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.glad.to_xarray.html">clouddrift.adapters.glad.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.html">clouddrift.adapters.hurdat2</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.to_raggedarray.html">clouddrift.adapters.hurdat2.to_raggedarray</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.DataLine.html">clouddrift.adapters.hurdat2.DataLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.HeaderLine.html">clouddrift.adapters.hurdat2.HeaderLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.RecordIdentifier.html">clouddrift.adapters.hurdat2.RecordIdentifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.SystemStatus.html">clouddrift.adapters.hurdat2.SystemStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.TrackData.html">clouddrift.adapters.hurdat2.TrackData</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.ibtracs.html">clouddrift.adapters.ibtracs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.ibtracs.to_raggedarray.html">clouddrift.adapters.ibtracs.to_raggedarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.html">clouddrift.adapters.mosaic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.get_dataframes.html">clouddrift.adapters.mosaic.get_dataframes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.get_file_urls.html">clouddrift.adapters.mosaic.get_file_urls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.get_repository_metadata.html">clouddrift.adapters.mosaic.get_repository_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.to_xarray.html">clouddrift.adapters.mosaic.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.subsurface_floats.html">clouddrift.adapters.subsurface_floats</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.subsurface_floats.download.html">clouddrift.adapters.subsurface_floats.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.subsurface_floats.to_xarray.html">clouddrift.adapters.subsurface_floats.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.utils.html">clouddrift.adapters.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.utils.download_with_progress.html">clouddrift.adapters.utils.download_with_progress</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.yomaha.html">clouddrift.adapters.yomaha</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.yomaha.download.html">clouddrift.adapters.yomaha.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.yomaha.to_xarray.html">clouddrift.adapters.yomaha.to_xarray</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.binning.html">clouddrift.binning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.binning.binned_statistics.html">clouddrift.binning.binned_statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.binning.handle_datetime_conversion.html">clouddrift.binning.handle_datetime_conversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.html">clouddrift.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.andro.html">clouddrift.datasets.andro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.gdp1h.html">clouddrift.datasets.gdp1h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.gdp6h.html">clouddrift.datasets.gdp6h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.gdp_source.html">clouddrift.datasets.gdp_source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.glad.html">clouddrift.datasets.glad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.hurdat2.html">clouddrift.datasets.hurdat2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.ibtracs.html">clouddrift.datasets.ibtracs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.mosaic.html">clouddrift.datasets.mosaic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.spotters.html">clouddrift.datasets.spotters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.subsurface_floats.html">clouddrift.datasets.subsurface_floats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.yomaha.html">clouddrift.datasets.yomaha</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.html">clouddrift.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.inertial_oscillation_from_position.html">clouddrift.kinematics.inertial_oscillation_from_position</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.kinetic_energy.html">clouddrift.kinematics.kinetic_energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.position_from_velocity.html">clouddrift.kinematics.position_from_velocity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.residual_position_from_displacement.html">clouddrift.kinematics.residual_position_from_displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.spin.html">clouddrift.kinematics.spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.velocity_from_position.html">clouddrift.kinematics.velocity_from_position</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.html">clouddrift.pairs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.chance_pair.html">clouddrift.pairs.chance_pair</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.chance_pairs_from_ragged.html">clouddrift.pairs.chance_pairs_from_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_bounding_box_overlap.html">clouddrift.pairs.pair_bounding_box_overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_space_distance.html">clouddrift.pairs.pair_space_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_time_distance.html">clouddrift.pairs.pair_time_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_time_overlap.html">clouddrift.pairs.pair_time_overlap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.plotting.html">clouddrift.plotting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.plotting.plot_ragged.html">clouddrift.plotting.plot_ragged</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.html">clouddrift.ragged</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.apply_ragged.html">clouddrift.ragged.apply_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.chunk.html">clouddrift.ragged.chunk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.obs_index_to_row.html">clouddrift.ragged.obs_index_to_row</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.prune.html">clouddrift.ragged.prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.ragged_to_regular.html">clouddrift.ragged.ragged_to_regular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.regular_to_ragged.html">clouddrift.ragged.regular_to_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.rowsize_to_index.html">clouddrift.ragged.rowsize_to_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.segment.html">clouddrift.ragged.segment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.subset.html">clouddrift.ragged.subset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.unpack.html">clouddrift.ragged.unpack</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.raggedarray.html">clouddrift.raggedarray</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html">clouddrift.raggedarray.RaggedArray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.signal.html">clouddrift.signal</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.analytic_signal.html">clouddrift.signal.analytic_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.cartesian_to_rotary.html">clouddrift.signal.cartesian_to_rotary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.ellipse_parameters.html">clouddrift.signal.ellipse_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.modulated_ellipse_signal.html">clouddrift.signal.modulated_ellipse_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.rotary_to_cartesian.html">clouddrift.signal.rotary_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.html">clouddrift.sphere</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.bearing.html">clouddrift.sphere.bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.cartesian_to_spherical.html">clouddrift.sphere.cartesian_to_spherical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.cartesian_to_tangentplane.html">clouddrift.sphere.cartesian_to_tangentplane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.coriolis_frequency.html">clouddrift.sphere.coriolis_frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.cumulative_distance.html">clouddrift.sphere.cumulative_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.distance.html">clouddrift.sphere.distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.plane_to_sphere.html">clouddrift.sphere.plane_to_sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.position_from_distance_and_bearing.html">clouddrift.sphere.position_from_distance_and_bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.recast_lon.html">clouddrift.sphere.recast_lon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.recast_lon180.html">clouddrift.sphere.recast_lon180</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.recast_lon360.html">clouddrift.sphere.recast_lon360</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.sphere_to_plane.html">clouddrift.sphere.sphere_to_plane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.spherical_to_cartesian.html">clouddrift.sphere.spherical_to_cartesian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.tangentplane_to_cartesian.html">clouddrift.sphere.tangentplane_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.html">clouddrift.wavelet</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_amplitude.html">clouddrift.wavelet.morse_amplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_freq.html">clouddrift.wavelet.morse_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_logspace_freq.html">clouddrift.wavelet.morse_logspace_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_properties.html">clouddrift.wavelet.morse_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_wavelet.html">clouddrift.wavelet.morse_wavelet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_wavelet_transform.html">clouddrift.wavelet.morse_wavelet_transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.wavelet_transform.html">clouddrift.wavelet.wavelet_transform</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for clouddrift.raggedarray</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines the RaggedArray class, which is the intermediate data</span>
+<span class="sd">structure used by CloudDrift to process custom Lagrangian datasets to Xarray</span>
+<span class="sd">Datasets and Awkward Arrays.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">awkward</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>  <span class="c1"># type: ignore</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.ragged</span><span class="w"> </span><span class="kn">import</span> <span class="n">rowsize_to_index</span>
+
+<span class="n">DimNames</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;rows&quot;</span><span class="p">,</span> <span class="s2">&quot;obs&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span>
+<span class="n">_DISABLE_SHOW_PROGRESS</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># purely to de-noise our test suite output, should never be used/configured outside of that.</span>
+
+
+<div class="viewcode-block" id="RaggedArray">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html#clouddrift.raggedarray.RaggedArray">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RaggedArray</span><span class="p">:</span>
+<div class="viewcode-block" id="RaggedArray.__init__">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html#clouddrift.raggedarray.RaggedArray.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">coords</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">attrs_global</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">attrs_variables</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">name_dims</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DimNames</span><span class="p">]</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">coord_dims</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">var_dims</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{},</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coord_dims</span> <span class="o">=</span> <span class="n">coord_dims</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attrs_global</span> <span class="o">=</span> <span class="n">attrs_global</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attrs_variables</span> <span class="o">=</span> <span class="n">attrs_variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_dims</span> <span class="o">=</span> <span class="n">name_dims</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coord_dims</span> <span class="o">=</span> <span class="n">coord_dims</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_var_dims</span> <span class="o">=</span> <span class="n">var_dims</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_attributes</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="RaggedArray.from_awkward">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html#clouddrift.raggedarray.RaggedArray.from_awkward">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_awkward</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">array</span><span class="p">:</span> <span class="n">ak</span><span class="o">.</span><span class="n">Array</span><span class="p">,</span>
+        <span class="n">name_coords</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">name_dims</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DimNames</span><span class="p">],</span>
+        <span class="n">coord_dims</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a RaggedArray instance from an Awkward Array.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array : ak.Array</span>
+<span class="sd">            Awkward Array instance to load the data from</span>
+<span class="sd">        name_coords : list, optional</span>
+<span class="sd">            Names of the coordinate variables in the ragged arrays</span>
+<span class="sd">        name_dims: dict</span>
+<span class="sd">            Map a dimension to an alias.</span>
+<span class="sd">        coord_dims: dict</span>
+<span class="sd">            Map a coordinate to a dimension alias.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        RaggedArray</span>
+<span class="sd">            A RaggedArray instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coords</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">attrs_variables</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">attrs_global</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;attrs&quot;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">name_coords</span><span class="p">:</span>
+            <span class="n">alias</span> <span class="o">=</span> <span class="n">coord_dims</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">name_dims</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;obs&quot;</span><span class="p">:</span>
+                <span class="n">coords</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">var</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">coords</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+            <span class="n">attrs_variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;attrs&quot;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">array</span><span class="o">.</span><span class="n">fields</span> <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="s2">&quot;obs&quot;</span><span class="p">]:</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+            <span class="n">attrs_variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;attrs&quot;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">array</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">fields</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">coords</span><span class="o">.</span><span class="n">keys</span><span class="p">()]:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">var</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+            <span class="n">attrs_variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;attrs&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">RaggedArray</span><span class="p">(</span>
+            <span class="n">coords</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">attrs_global</span><span class="p">,</span> <span class="n">attrs_variables</span><span class="p">,</span> <span class="n">name_dims</span><span class="p">,</span> <span class="n">coord_dims</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RaggedArray.from_files">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html#clouddrift.raggedarray.RaggedArray.from_files">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_files</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">preprocess_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
+        <span class="n">name_coords</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">name_meta</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(),</span>
+        <span class="n">name_data</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(),</span>
+        <span class="n">name_dims</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DimNames</span><span class="p">]</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">rowsize_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">attrs_global</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">attrs_variables</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a ragged array archive from a list of files</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        indices : list</span>
+<span class="sd">            Identification numbers list to iterate</span>
+<span class="sd">        preprocess_func : Callable[[int], xr.Dataset]</span>
+<span class="sd">            Returns a processed xarray Dataset from an identification number</span>
+<span class="sd">        name_meta : list, optional</span>
+<span class="sd">            Name of metadata variables to include in the archive (Defaults to [])</span>
+<span class="sd">        name_data : list, optional</span>
+<span class="sd">            Name of the data variables to include in the archive (Defaults to [])</span>
+<span class="sd">        name_dims: dict</span>
+<span class="sd">            Map an alias to a dimension.</span>
+<span class="sd">        rowsize_func : Optional[Callable[[int], int]], optional</span>
+<span class="sd">            Returns the number of observations from an identification number (to speed up processing) (Defaults to None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        RaggedArray</span>
+<span class="sd">            A RaggedArray instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if no method is supplied, get the dimension from the preprocessing function</span>
+        <span class="n">rowsize_func</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">rowsize_func</span>
+            <span class="k">if</span> <span class="n">rowsize_func</span>
+            <span class="k">else</span> <span class="k">lambda</span> <span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">preprocess_func</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">rowsize</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">number_of_observations</span><span class="p">(</span><span class="n">rowsize_func</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">coords</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">coord_dims</span><span class="p">,</span> <span class="n">var_dims</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">allocate</span><span class="p">(</span>
+            <span class="n">preprocess_func</span><span class="p">,</span>
+            <span class="n">indices</span><span class="p">,</span>
+            <span class="n">rowsize</span><span class="p">,</span>
+            <span class="n">name_coords</span><span class="p">,</span>
+            <span class="n">name_meta</span><span class="p">,</span>
+            <span class="n">name_data</span><span class="p">,</span>
+            <span class="n">name_dims</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">extracted_attrs_global</span><span class="p">,</span> <span class="n">extracted_attrs_variables</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">attributes</span><span class="p">(</span>
+            <span class="n">preprocess_func</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
+            <span class="n">name_coords</span><span class="p">,</span>
+            <span class="n">name_meta</span><span class="p">,</span>
+            <span class="n">name_data</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">attrs_global</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">attrs_global</span> <span class="o">=</span> <span class="n">extracted_attrs_global</span>
+
+        <span class="k">if</span> <span class="n">attrs_variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">attrs_variables</span> <span class="o">=</span> <span class="n">extracted_attrs_variables</span>
+
+        <span class="k">return</span> <span class="n">RaggedArray</span><span class="p">(</span>
+            <span class="n">coords</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">,</span>
+            <span class="n">attrs_global</span><span class="p">,</span>
+            <span class="n">attrs_variables</span><span class="p">,</span>
+            <span class="n">name_dims</span><span class="p">,</span>
+            <span class="n">coord_dims</span><span class="p">,</span>
+            <span class="n">var_dims</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RaggedArray.from_netcdf">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html#clouddrift.raggedarray.RaggedArray.from_netcdf">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_netcdf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rows_dim_name</span><span class="o">=</span><span class="s2">&quot;rows&quot;</span><span class="p">,</span> <span class="n">obs_dim_name</span><span class="o">=</span><span class="s2">&quot;obs&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read a ragged arrays archive from a NetCDF file.</span>
+
+<span class="sd">        This is a thin wrapper around ``from_xarray()``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            File name of the NetCDF archive to read.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        RaggedArray</span>
+<span class="sd">            A ragged array instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_xarray</span><span class="p">(</span><span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">rows_dim_name</span><span class="p">,</span> <span class="n">obs_dim_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RaggedArray.from_parquet">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html#clouddrift.raggedarray.RaggedArray.from_parquet">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_parquet</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">name_coords</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">name_dims</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DimNames</span><span class="p">],</span>
+        <span class="n">coord_dims</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read a ragged array from a parquet file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            File name of the parquet archive to read.</span>
+<span class="sd">        name_coords : list, optional</span>
+<span class="sd">            Names of the coordinate variables in the ragged arrays</span>
+<span class="sd">        name_dims: dict</span>
+<span class="sd">            Map a alias to a dimension.</span>
+<span class="sd">        coord_dims: dict</span>
+<span class="sd">            Map a coordinate to a dimension alias.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        RaggedArray</span>
+<span class="sd">            A ragged array instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">RaggedArray</span><span class="o">.</span><span class="n">from_awkward</span><span class="p">(</span>
+            <span class="n">ak</span><span class="o">.</span><span class="n">from_parquet</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">name_coords</span><span class="p">,</span> <span class="n">name_dims</span><span class="p">,</span> <span class="n">coord_dims</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RaggedArray.from_xarray">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html#clouddrift.raggedarray.RaggedArray.from_xarray">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_xarray</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">rows_dim_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rows&quot;</span><span class="p">,</span> <span class="n">obs_dim_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;obs&quot;</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Populate a RaggedArray instance from an xarray Dataset instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds : xr.Dataset</span>
+<span class="sd">            Xarray Dataset from which to load the RaggedArray</span>
+<span class="sd">        rows_dim_name : str, optional</span>
+<span class="sd">            Name of the row dimension in the xarray Dataset</span>
+<span class="sd">        obs_dim_name : str, optional</span>
+<span class="sd">            Name of the observations dimension in the xarray Dataset</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        RaggedArray</span>
+<span class="sd">            A RaggedArray instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">coord_dims</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">name_dims</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DimNames</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">rows_dim_name</span><span class="p">:</span> <span class="s2">&quot;rows&quot;</span><span class="p">,</span> <span class="n">obs_dim_name</span><span class="p">:</span> <span class="s2">&quot;obs&quot;</span><span class="p">}</span>
+        <span class="n">attrs_global</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">attrs_variables</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">attrs_global</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span>
+
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+            <span class="n">dim</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">coord_dims</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+            <span class="n">coords</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+            <span class="n">attrs_variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
+
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">])</span> <span class="o">==</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rows_dim_name</span><span class="p">):</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">])</span> <span class="o">==</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">obs_dim_name</span><span class="p">):</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                    Variable &#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">&#39; has unknown dimension size of</span>
+<span class="s2">                    </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">])</span><span class="si">}</span><span class="s2">, which is not rows=</span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rows_dim_name</span><span class="p">)</span><span class="si">}</span><span class="s2"> or</span>
+<span class="s2">                    obs=</span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">obs_dim_name</span><span class="p">)</span><span class="si">}</span><span class="s2">; skipping.</span>
+<span class="s2">                    &quot;&quot;&quot;</span>
+                <span class="p">)</span>
+            <span class="n">attrs_variables</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">)]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
+
+        <span class="k">return</span> <span class="n">RaggedArray</span><span class="p">(</span>
+            <span class="n">coords</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">attrs_global</span><span class="p">,</span> <span class="n">attrs_variables</span><span class="p">,</span> <span class="n">name_dims</span><span class="p">,</span> <span class="n">coord_dims</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RaggedArray.number_of_observations">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html#clouddrift.raggedarray.RaggedArray.number_of_observations">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">number_of_observations</span><span class="p">(</span>
+        <span class="n">rowsize_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">],</span> <span class="n">indices</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterate through the files and evaluate the number of observations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rowsize_func : Callable[[int], int]]</span>
+<span class="sd">            Function that returns the number observations of a row from</span>
+<span class="sd">            its identification number</span>
+<span class="sd">        indices : list</span>
+<span class="sd">            Identification numbers list to iterate</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            Number of observations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rowsize</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span>
+            <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span>
+            <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Retrieving the number of obs&quot;</span><span class="p">,</span>
+            <span class="n">ncols</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
+            <span class="n">disable</span><span class="o">=</span><span class="n">_DISABLE_SHOW_PROGRESS</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">rowsize</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rowsize_func</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rowsize</span></div>
+
+
+<div class="viewcode-block" id="RaggedArray.attributes">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html#clouddrift.raggedarray.RaggedArray.attributes">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">attributes</span><span class="p">(</span>
+        <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">name_coords</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">name_meta</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">name_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return global attributes and the attributes of all variables</span>
+<span class="sd">        (name_coords, name_meta, and name_data) from an Xarray Dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds : xr.Dataset</span>
+<span class="sd">            _description_</span>
+<span class="sd">        name_coords : list, optional</span>
+<span class="sd">            Name of metadata variables to include in the archive (default is [])</span>
+<span class="sd">        name_meta : list, optional</span>
+<span class="sd">            Name of metadata variables to include in the archive (default is [])</span>
+<span class="sd">        name_data : list, optional</span>
+<span class="sd">            Name of the data variables to include in the archive (default is [])</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple[dict, dict]</span>
+<span class="sd">            The global and variables attributes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">attrs_global</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span>
+
+        <span class="c1"># coordinates, metadata, and data</span>
+        <span class="n">attrs_variables</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">name_meta</span> <span class="o">+</span> <span class="n">name_data</span> <span class="o">+</span> <span class="n">name_coords</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">attrs_variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Variable </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2"> requested but not found; skipping.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">attrs_global</span><span class="p">,</span> <span class="n">attrs_variables</span></div>
+
+
+<div class="viewcode-block" id="RaggedArray.allocate">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html#clouddrift.raggedarray.RaggedArray.allocate">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">allocate</span><span class="p">(</span>
+        <span class="n">preprocess_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
+        <span class="n">indices</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">rowsize</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+        <span class="n">name_coords</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">name_meta</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">name_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">name_dims</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DimNames</span><span class="p">],</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate through the files and fill for the ragged array associated</span>
+<span class="sd">        with coordinates, and selected metadata and data variables.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        preprocess_func : Callable[[int], xr.Dataset]</span>
+<span class="sd">            Returns a processed xarray Dataset from an identification number.</span>
+<span class="sd">        indices : list</span>
+<span class="sd">            List of indices separating row in the ragged arrays.</span>
+<span class="sd">        rowsize : list</span>
+<span class="sd">            List of the number of observations per row.</span>
+<span class="sd">        name_coords : list</span>
+<span class="sd">            Name of the coordinate variables to include in the archive.</span>
+<span class="sd">        name_meta : list, optional</span>
+<span class="sd">            Name of metadata variables to include in the archive (Defaults to []).</span>
+<span class="sd">        name_data : list, optional</span>
+<span class="sd">            Name of the data variables to include in the archive (Defaults to []).</span>
+<span class="sd">        name_dims: dict[str, DimNames]</span>
+<span class="sd">            Dimension alias mapped to the name used by clouddrift.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple[dict, dict, dict, dict]</span>
+<span class="sd">            Dictionaries containing numerical data and attributes of coordinates, metadata and data variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># open one file to get dtype of variables</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">preprocess_func</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">nb_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rowsize</span><span class="p">)</span>
+        <span class="n">nb_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rowsize</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
+        <span class="n">index_traj</span> <span class="o">=</span> <span class="n">rowsize_to_index</span><span class="p">(</span><span class="n">rowsize</span><span class="p">)</span>
+        <span class="n">dim_sizes</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">name_dims</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name_dims</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;rows&quot;</span><span class="p">:</span>
+                <span class="n">dim_sizes</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span> <span class="o">=</span> <span class="n">nb_rows</span>
+            <span class="k">elif</span> <span class="n">name_dims</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;obs&quot;</span><span class="p">:</span>
+                <span class="n">dim_sizes</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span> <span class="o">=</span> <span class="n">nb_obs</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dim_sizes</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span>
+
+        <span class="c1"># allocate memory</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">coord_dims</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">name_coords</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">dim</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dim</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">dim_size</span> <span class="o">=</span> <span class="n">dim_sizes</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
+            <span class="n">coords</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dim_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="n">coord_dims</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">dim</span>
+
+        <span class="n">var_dims</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">name_meta</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">dimsizes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+                <span class="n">dimnames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+                <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">name_dims</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">name_dims</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;obs&quot;</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">dimsize</span> <span class="o">=</span> <span class="n">dim_sizes</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
+                    <span class="n">dimsizes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dimsize</span><span class="p">)</span>
+                    <span class="n">dimnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+
+                <span class="n">var_dims</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">dimnames</span>
+                <span class="n">metadata</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dimsizes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Variable </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2"> requested but not found; skipping.&quot;</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">name_data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">dimsizes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+                <span class="n">dimnames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+                <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">name_dims</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">name_dims</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;rows&quot;</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">dimsize</span> <span class="o">=</span> <span class="n">dim_sizes</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
+                    <span class="n">dimsizes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dimsize</span><span class="p">)</span>
+                    <span class="n">dimnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+
+                <span class="n">var_dims</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">dimnames</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dimsizes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Variable </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2"> requested but not found; skipping.&quot;</span><span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># loop and fill the ragged array</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span>
+            <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span>
+            <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Filling the Ragged Array&quot;</span><span class="p">,</span>
+            <span class="n">ncols</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
+            <span class="n">disable</span><span class="o">=</span><span class="n">_DISABLE_SHOW_PROGRESS</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="k">with</span> <span class="n">preprocess_func</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rowsize</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+                    <span class="n">size</span> <span class="o">=</span> <span class="n">rowsize</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rowsize</span><span class="p">,</span> <span class="p">(</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,)):</span>
+                    <span class="n">size</span> <span class="o">=</span> <span class="n">rowsize</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+                <span class="n">oid</span> <span class="o">=</span> <span class="n">index_traj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">name_coords</span><span class="p">:</span>
+                    <span class="n">dim</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">name_dims</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;obs&quot;</span><span class="p">:</span>
+                        <span class="n">coords</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="n">oid</span> <span class="p">:</span> <span class="n">oid</span> <span class="o">+</span> <span class="n">size</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">coords</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">name_meta</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">metadata</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Variable </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2"> requested but not found; skipping.&quot;</span>
+                        <span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">name_data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="n">oid</span> <span class="p">:</span> <span class="n">oid</span> <span class="o">+</span> <span class="n">size</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Variable </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2"> requested but not found; skipping.&quot;</span>
+                        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">coords</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">coord_dims</span><span class="p">,</span> <span class="n">var_dims</span></div>
+
+
+<div class="viewcode-block" id="RaggedArray.validate_attributes">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html#clouddrift.raggedarray.RaggedArray.validate_attributes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate that each variable has an assigned attribute tag.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs_variables</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrs_variables</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+
+<div class="viewcode-block" id="RaggedArray.to_xarray">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html#clouddrift.raggedarray.RaggedArray.to_xarray">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert ragged array object to a xarray Dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cast_to_float32 : bool, optional</span>
+<span class="sd">            Cast all float64 variables to float32 (default is True). This option aims at</span>
+<span class="sd">            minimizing the size of the xarray dataset.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xr.Dataset</span>
+<span class="sd">            Xarray Dataset containing the ragged arrays and their attributes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xr_coords</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">xr_coords</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_coord_dims</span><span class="p">[</span><span class="n">var</span><span class="p">]],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrs_variables</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
+            <span class="p">)</span>
+
+        <span class="n">xr_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">xr_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_var_dims</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrs_variables</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">xr_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_var_dims</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrs_variables</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="n">xr_coords</span><span class="p">,</span> <span class="n">data_vars</span><span class="o">=</span><span class="n">xr_data</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">attrs_global</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RaggedArray.to_awkward">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html#clouddrift.raggedarray.RaggedArray.to_awkward">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_awkward</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert ragged array object to an Awkward Array.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ak.Array</span>
+<span class="sd">            Awkward Array containing the ragged array and its attributes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">index_traj</span> <span class="o">=</span> <span class="n">rowsize_to_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;rowsize&quot;</span><span class="p">])</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">Index64</span><span class="p">(</span><span class="n">index_traj</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coord_dims</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_dims</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;obs&quot;</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">ak</span><span class="o">.</span><span class="n">contents</span><span class="o">.</span><span class="n">ListOffsetArray</span><span class="p">(</span>
+                        <span class="n">offset</span><span class="p">,</span>
+                        <span class="n">ak</span><span class="o">.</span><span class="n">contents</span><span class="o">.</span><span class="n">NumpyArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">var</span><span class="p">]),</span>
+                        <span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;attrs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs_variables</span><span class="p">[</span><span class="n">var</span><span class="p">]},</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">ak</span><span class="o">.</span><span class="n">with_parameter</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
+                        <span class="s2">&quot;attrs&quot;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">attrs_variables</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
+                        <span class="n">highlevel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ak</span><span class="o">.</span><span class="n">contents</span><span class="o">.</span><span class="n">ListOffsetArray</span><span class="p">(</span>
+                    <span class="n">offset</span><span class="p">,</span>
+                    <span class="n">ak</span><span class="o">.</span><span class="n">contents</span><span class="o">.</span><span class="n">NumpyArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">]),</span>
+                    <span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;attrs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs_variables</span><span class="p">[</span><span class="n">var</span><span class="p">]},</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">data_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="n">metadata</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">metadata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ak</span><span class="o">.</span><span class="n">with_parameter</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
+                    <span class="s2">&quot;attrs&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">attrs_variables</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
+                    <span class="n">highlevel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">metadata_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="c1"># include the data inside the metadata list as a nested array</span>
+        <span class="n">metadata_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;obs&quot;</span><span class="p">)</span>
+        <span class="n">metadata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ak</span><span class="o">.</span><span class="n">Array</span><span class="p">(</span><span class="n">ak</span><span class="o">.</span><span class="n">contents</span><span class="o">.</span><span class="n">RecordArray</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_names</span><span class="p">))</span><span class="o">.</span><span class="n">layout</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ak</span><span class="o">.</span><span class="n">Array</span><span class="p">(</span>
+            <span class="n">ak</span><span class="o">.</span><span class="n">contents</span><span class="o">.</span><span class="n">RecordArray</span><span class="p">(</span>
+                <span class="n">metadata</span><span class="p">,</span> <span class="n">metadata_names</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;attrs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs_global</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RaggedArray.to_netcdf">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html#clouddrift.raggedarray.RaggedArray.to_netcdf">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Export ragged array object to a NetCDF file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            Name of the NetCDF file to create.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RaggedArray.to_parquet">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html#clouddrift.raggedarray.RaggedArray.to_parquet">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Export ragged array object to a parquet file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            Name of the parquet file to create.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ak</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_awkward</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Philippe Miron
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022-2023, CloudDrift.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

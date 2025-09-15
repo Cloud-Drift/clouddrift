@@ -1,0 +1,1043 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>clouddrift.adapters.hurdat2 &#8212; CloudDrift  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=35a8b989"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/clouddrift/adapters/hurdat2';</script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.png" class="logo__image only-light" alt="CloudDrift  documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.png" class="logo__image only-dark" alt="CloudDrift  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasets.html">Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Cloud-Drift/clouddrift/blob/main/CONTRIBUTING.md">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api.html">API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.html">clouddrift.adapters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.andro.html">clouddrift.adapters.andro</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.andro.to_xarray.html">clouddrift.adapters.andro.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.html">clouddrift.adapters.gdp</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.cast_float64_variables_to_float32.html">clouddrift.adapters.gdp.cast_float64_variables_to_float32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.cut_str.html">clouddrift.adapters.gdp.cut_str</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.decode_date.html">clouddrift.adapters.gdp.decode_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.drogue_presence.html">clouddrift.adapters.gdp.drogue_presence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.fetch_netcdf.html">clouddrift.adapters.gdp.fetch_netcdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.fill_values.html">clouddrift.adapters.gdp.fill_values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.get_gdp_metadata.html">clouddrift.adapters.gdp.get_gdp_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.order_by_date.html">clouddrift.adapters.gdp.order_by_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.parse_directory_file.html">clouddrift.adapters.gdp.parse_directory_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.rowsize.html">clouddrift.adapters.gdp.rowsize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.str_to_float.html">clouddrift.adapters.gdp.str_to_float</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.gdp1h.html">clouddrift.adapters.gdp.gdp1h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.gdp6h.html">clouddrift.adapters.gdp.gdp6h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.gdp.gdpsource.html">clouddrift.adapters.gdp.gdpsource</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.glad.html">clouddrift.adapters.glad</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.glad.get_dataframe.html">clouddrift.adapters.glad.get_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.glad.to_xarray.html">clouddrift.adapters.glad.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.hurdat2.html">clouddrift.adapters.hurdat2</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.hurdat2.to_raggedarray.html">clouddrift.adapters.hurdat2.to_raggedarray</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.hurdat2.DataLine.html">clouddrift.adapters.hurdat2.DataLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.hurdat2.HeaderLine.html">clouddrift.adapters.hurdat2.HeaderLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.hurdat2.RecordIdentifier.html">clouddrift.adapters.hurdat2.RecordIdentifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.hurdat2.SystemStatus.html">clouddrift.adapters.hurdat2.SystemStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.hurdat2.TrackData.html">clouddrift.adapters.hurdat2.TrackData</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.ibtracs.html">clouddrift.adapters.ibtracs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.ibtracs.to_raggedarray.html">clouddrift.adapters.ibtracs.to_raggedarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.mosaic.html">clouddrift.adapters.mosaic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.mosaic.get_dataframes.html">clouddrift.adapters.mosaic.get_dataframes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.mosaic.get_file_urls.html">clouddrift.adapters.mosaic.get_file_urls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.mosaic.get_repository_metadata.html">clouddrift.adapters.mosaic.get_repository_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.mosaic.to_xarray.html">clouddrift.adapters.mosaic.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.subsurface_floats.html">clouddrift.adapters.subsurface_floats</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.subsurface_floats.download.html">clouddrift.adapters.subsurface_floats.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.subsurface_floats.to_xarray.html">clouddrift.adapters.subsurface_floats.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.utils.html">clouddrift.adapters.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.utils.download_with_progress.html">clouddrift.adapters.utils.download_with_progress</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.yomaha.html">clouddrift.adapters.yomaha</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.yomaha.download.html">clouddrift.adapters.yomaha.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/clouddrift.adapters.yomaha.to_xarray.html">clouddrift.adapters.yomaha.to_xarray</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.binning.html">clouddrift.binning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.binning.binned_statistics.html">clouddrift.binning.binned_statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.binning.handle_datetime_conversion.html">clouddrift.binning.handle_datetime_conversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.html">clouddrift.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.andro.html">clouddrift.datasets.andro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.gdp1h.html">clouddrift.datasets.gdp1h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.gdp6h.html">clouddrift.datasets.gdp6h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.gdp_source.html">clouddrift.datasets.gdp_source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.glad.html">clouddrift.datasets.glad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.hurdat2.html">clouddrift.datasets.hurdat2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.ibtracs.html">clouddrift.datasets.ibtracs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.mosaic.html">clouddrift.datasets.mosaic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.spotters.html">clouddrift.datasets.spotters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.subsurface_floats.html">clouddrift.datasets.subsurface_floats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.datasets.yomaha.html">clouddrift.datasets.yomaha</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.kinematics.html">clouddrift.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.kinematics.inertial_oscillation_from_position.html">clouddrift.kinematics.inertial_oscillation_from_position</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.kinematics.kinetic_energy.html">clouddrift.kinematics.kinetic_energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.kinematics.position_from_velocity.html">clouddrift.kinematics.position_from_velocity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.kinematics.residual_position_from_displacement.html">clouddrift.kinematics.residual_position_from_displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.kinematics.spin.html">clouddrift.kinematics.spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.kinematics.velocity_from_position.html">clouddrift.kinematics.velocity_from_position</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.pairs.html">clouddrift.pairs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.pairs.chance_pair.html">clouddrift.pairs.chance_pair</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.pairs.chance_pairs_from_ragged.html">clouddrift.pairs.chance_pairs_from_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.pairs.pair_bounding_box_overlap.html">clouddrift.pairs.pair_bounding_box_overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.pairs.pair_space_distance.html">clouddrift.pairs.pair_space_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.pairs.pair_time_distance.html">clouddrift.pairs.pair_time_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.pairs.pair_time_overlap.html">clouddrift.pairs.pair_time_overlap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.plotting.html">clouddrift.plotting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.plotting.plot_ragged.html">clouddrift.plotting.plot_ragged</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.html">clouddrift.ragged</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.apply_ragged.html">clouddrift.ragged.apply_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.chunk.html">clouddrift.ragged.chunk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.obs_index_to_row.html">clouddrift.ragged.obs_index_to_row</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.prune.html">clouddrift.ragged.prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.ragged_to_regular.html">clouddrift.ragged.ragged_to_regular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.regular_to_ragged.html">clouddrift.ragged.regular_to_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.rowsize_to_index.html">clouddrift.ragged.rowsize_to_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.segment.html">clouddrift.ragged.segment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.subset.html">clouddrift.ragged.subset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.ragged.unpack.html">clouddrift.ragged.unpack</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.raggedarray.html">clouddrift.raggedarray</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.raggedarray.RaggedArray.html">clouddrift.raggedarray.RaggedArray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.signal.html">clouddrift.signal</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.signal.analytic_signal.html">clouddrift.signal.analytic_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.signal.cartesian_to_rotary.html">clouddrift.signal.cartesian_to_rotary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.signal.ellipse_parameters.html">clouddrift.signal.ellipse_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.signal.modulated_ellipse_signal.html">clouddrift.signal.modulated_ellipse_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.signal.rotary_to_cartesian.html">clouddrift.signal.rotary_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.html">clouddrift.sphere</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.bearing.html">clouddrift.sphere.bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.cartesian_to_spherical.html">clouddrift.sphere.cartesian_to_spherical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.cartesian_to_tangentplane.html">clouddrift.sphere.cartesian_to_tangentplane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.coriolis_frequency.html">clouddrift.sphere.coriolis_frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.cumulative_distance.html">clouddrift.sphere.cumulative_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.distance.html">clouddrift.sphere.distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.plane_to_sphere.html">clouddrift.sphere.plane_to_sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.position_from_distance_and_bearing.html">clouddrift.sphere.position_from_distance_and_bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.recast_lon.html">clouddrift.sphere.recast_lon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.recast_lon180.html">clouddrift.sphere.recast_lon180</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.recast_lon360.html">clouddrift.sphere.recast_lon360</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.sphere_to_plane.html">clouddrift.sphere.sphere_to_plane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.spherical_to_cartesian.html">clouddrift.sphere.spherical_to_cartesian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.sphere.tangentplane_to_cartesian.html">clouddrift.sphere.tangentplane_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.html">clouddrift.wavelet</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.morse_amplitude.html">clouddrift.wavelet.morse_amplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.morse_freq.html">clouddrift.wavelet.morse_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.morse_logspace_freq.html">clouddrift.wavelet.morse_logspace_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.morse_properties.html">clouddrift.wavelet.morse_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.morse_wavelet.html">clouddrift.wavelet.morse_wavelet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.morse_wavelet_transform.html">clouddrift.wavelet.morse_wavelet_transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/clouddrift.wavelet.wavelet_transform.html">clouddrift.wavelet.wavelet_transform</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for clouddrift.adapters.hurdat2</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines functions used to adapt the HURDAT2 cyclone track data as</span>
+<span class="sd">a ragged-array dataset.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">fields</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.adapters.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_with_progress</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.raggedarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">RaggedArray</span>
+
+<span class="n">_DEFAULT_NAME</span> <span class="o">=</span> <span class="s2">&quot;hurdat2&quot;</span>
+<span class="n">_ATLANTIC_BASIN_URL</span> <span class="o">=</span> <span class="s2">&quot;https://www.aoml.noaa.gov/hrd/hurdat/hurdat2.html&quot;</span>
+<span class="n">_PACIFIC_BASIN_URL</span> <span class="o">=</span> <span class="s2">&quot;https://www.aoml.noaa.gov/hrd/hurdat/hurdat2-nepac.html&quot;</span>
+
+<span class="n">_DEFAULT_FILE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;clouddrift&quot;</span><span class="p">,</span> <span class="n">_DEFAULT_NAME</span><span class="p">)</span>
+
+<span class="n">_METERS_IN_NAUTICAL_MILES</span> <span class="o">=</span> <span class="mi">1825</span>
+<span class="n">_PASCAL_PER_MILLIBAR</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="n">_BasinOption</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;atlantic&quot;</span><span class="p">,</span> <span class="s2">&quot;pacific&quot;</span><span class="p">,</span> <span class="s2">&quot;both&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="RecordIdentifier">
+<a class="viewcode-back" href="../../../_autosummary/clouddrift.adapters.hurdat2.RecordIdentifier.html#clouddrift.adapters.hurdat2.RecordIdentifier">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RecordIdentifier</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    C – Closest approach to a coast, not followed by a landfall</span>
+<span class="sd">    G – Genesis</span>
+<span class="sd">    I – An intensity peak in terms of both pressure and wind</span>
+<span class="sd">    L – Landfall (center of system crossing a coastline)</span>
+<span class="sd">    P – Minimum in central pressure</span>
+<span class="sd">    R – Provides additional detail on the intensity of the cyclone when rapid changes are underway</span>
+<span class="sd">    S – Change of status of the system</span>
+<span class="sd">    T – Provides additional detail on the track (position) of the cyclone</span>
+<span class="sd">    W – Maximum sustained wind speed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">CLOSEST_TO_COAST</span> <span class="o">=</span> <span class="s2">&quot;C&quot;</span>
+    <span class="n">GENESIS</span> <span class="o">=</span> <span class="s2">&quot;G&quot;</span>
+    <span class="n">INTENSITY_PEAK</span> <span class="o">=</span> <span class="s2">&quot;I&quot;</span>
+    <span class="n">LANDFALL</span> <span class="o">=</span> <span class="s2">&quot;L&quot;</span>
+    <span class="n">MINIMUM_CENTRAL_PRESSURE</span> <span class="o">=</span> <span class="s2">&quot;P&quot;</span>
+    <span class="n">RAPID_CHANGE</span> <span class="o">=</span> <span class="s2">&quot;R&quot;</span>
+    <span class="n">STATUS_CHANGE</span> <span class="o">=</span> <span class="s2">&quot;S&quot;</span>
+    <span class="n">TRACK_POSITION</span> <span class="o">=</span> <span class="s2">&quot;T&quot;</span>
+    <span class="n">MAX_SUSTAINED_WIND_SPEED</span> <span class="o">=</span> <span class="s2">&quot;W&quot;</span>
+    <span class="n">NOT_AVAILABLE</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="SystemStatus">
+<a class="viewcode-back" href="../../../_autosummary/clouddrift.adapters.hurdat2.SystemStatus.html#clouddrift.adapters.hurdat2.SystemStatus">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SystemStatus</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    TD – Tropical cyclone of tropical depression intensity (&lt; 34 knots)</span>
+<span class="sd">    TS – Tropical cyclone of tropical storm intensity (34-63 knots)</span>
+<span class="sd">    HU – Tropical cyclone of hurricane intensity (&gt; 64 knots)</span>
+<span class="sd">    EX – Extratropical cyclone (of any intensity)</span>
+<span class="sd">    SD – Subtropical cyclone of subtropical depression intensity (&lt; 34 knots)</span>
+<span class="sd">    SS – Subtropical cyclone of subtropical storm intensity (&gt; 34 knots)</span>
+<span class="sd">    LO – A low that is neither a tropical cyclone, a subtropical cyclone, nor an extratropical cyclone (of any intensity)</span>
+<span class="sd">    WV – Tropical Wave (of any intensity)</span>
+<span class="sd">    DB – Disturbance (of any intensity)</span>
+<span class="sd">    ET - UNKNOWN found in Northeast Pacific Basin</span>
+<span class="sd">    PT - UNKNOWN found in Northeast Pacific Basin</span>
+<span class="sd">    ST - UNKNOWN found in Northeast Pacific Basin</span>
+<span class="sd">    TY - UNKNOWN found in Northeast Pacific Basin</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">TD</span> <span class="o">=</span> <span class="s2">&quot;TD&quot;</span>
+    <span class="n">TS</span> <span class="o">=</span> <span class="s2">&quot;TS&quot;</span>
+    <span class="n">HU</span> <span class="o">=</span> <span class="s2">&quot;HU&quot;</span>
+    <span class="n">EX</span> <span class="o">=</span> <span class="s2">&quot;EX&quot;</span>
+    <span class="n">SD</span> <span class="o">=</span> <span class="s2">&quot;SD&quot;</span>
+    <span class="n">SS</span> <span class="o">=</span> <span class="s2">&quot;SS&quot;</span>
+    <span class="n">LO</span> <span class="o">=</span> <span class="s2">&quot;LO&quot;</span>
+    <span class="n">WV</span> <span class="o">=</span> <span class="s2">&quot;WV&quot;</span>
+    <span class="n">DB</span> <span class="o">=</span> <span class="s2">&quot;DB&quot;</span>
+    <span class="n">ET</span> <span class="o">=</span> <span class="s2">&quot;ET&quot;</span>
+    <span class="n">PT</span> <span class="o">=</span> <span class="s2">&quot;PT&quot;</span>
+    <span class="n">ST</span> <span class="o">=</span> <span class="s2">&quot;ST&quot;</span>
+    <span class="n">TY</span> <span class="o">=</span> <span class="s2">&quot;TY&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="HeaderLine">
+<a class="viewcode-back" href="../../../_autosummary/clouddrift.adapters.hurdat2.HeaderLine.html#clouddrift.adapters.hurdat2.HeaderLine">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HeaderLine</span><span class="p">:</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;automated_tropical_cyclone_forecasting_system_storm_identifier&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;The Automated Tropical Cyclone Forecasting System (ATCF) storm identifier is an 8 character string which identifies a tropical cyclone. The storm identifier has the form BBCCYYYY, where BB is the ocean basin, specifically: AL - North Atlantic basin, north of the Equator; SL - South Atlantic basin, south of the Equator; EP - North East Pacific basin, eastward of 140 degrees west longitude; CP - North Central Pacific basin, between the dateline and 140 degrees west longitude; WP - North West Pacific basin, westward of the dateline; IO - North Indian Ocean basin, north of the Equator between 40 and 100 degrees east longitude; SH - South Pacific Ocean basin and South Indian Ocean basin. CC is the cyclone number. Numbers 01 through 49 are reserved for tropical and subtropical cyclones. A cyclone number is assigned to each tropical or subtropical cyclone in each basin as it develops. Numbers are assigned in chronological order. Numbers 50 through 79 are reserved for internal use by operational forecast centers. Numbers 80 through 89 are reserved for training, exercises and testing. Numbers 90 through 99 are reserved for tropical disturbances having the potential to become tropical or subtropical cyclones. The 90&#39;s are assigned sequentially and reused throughout the calendar year. YYYY is the four-digit year. This is calendar year for the northern hemisphere. For the southern hemisphere, the year begins July 1, with calendar year plus one. Reference: Miller, R.J., Schrader, A.J., Sampson, C.R., &amp; Tsui, T.L. (1990), The Automated Tropical Cyclone Forecasting System (ATCF), American Meteorological Society Computer Techniques, 5, 653 - 660.&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">basin</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Basin of origin, possible values: AL - North Atlantic basin, north of the Equator; SL - South Atlantic basin, south of the Equator; EP - North East Pacific basin, eastward of 140 degrees west longitude; CP - North Central Pacific basin, between the dateline and 140 degrees west longitude; WP - North West Pacific basin, westward of the dateline; IO - North Indian Ocean basin, north of the Equator between 40 and 100 degrees east longitude; SH - South Pacific Ocean basin and South Indian Ocean basin&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Year&quot;</span><span class="p">})</span>
+    <span class="n">rowsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of best track entries&quot;</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="DataLine">
+<a class="viewcode-back" href="../../../_autosummary/clouddrift.adapters.hurdat2.DataLine.html#clouddrift.adapters.hurdat2.DataLine">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataLine</span><span class="p">:</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Computed property from YYY-MM-DD HH:MM in UTC&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">record_identifier</span><span class="p">:</span> <span class="n">RecordIdentifier</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Record Idenfier&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="n">RecordIdentifier</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">system_status</span><span class="p">:</span> <span class="n">SystemStatus</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;System Status&quot;</span><span class="p">,</span> <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="n">SystemStatus</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degree_north&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degree_east&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">wind_speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;wind_speed&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m s-1&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;air_pressure&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;Pa&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">max_low_wind_radius_ne</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;34 kt Wind maximum radius in the storms NE Quadrant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">max_low_wind_radius_se</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;34 kt Wind maximum radius in the storms SE Quadrant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">max_low_wind_radius_sw</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;34 kt Wind maximum radius in the storms SW Quadrant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">max_low_wind_radius_nw</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;34 kt Wind maximum radius in the storms NW Quadrant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">max_med_wind_radius_ne</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;50 kt Wind maximum radius in the storms NE Quadrant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">max_med_wind_radius_se</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;50 kt Wind maximum radius in the storms SE Quadrant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">max_med_wind_radius_sw</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;50 kt Wind maximum radius in the storms SW Quadrant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">max_med_wind_radius_nw</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;50 kt Wind maximum radius in the storms NW Quadrant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">max_high_wind_radius_ne</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;64 kt Wind maximum radius in the storms NE Quadrant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">max_high_wind_radius_se</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;64 kt Wind maximum radius in the storms SE Quadrant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">max_high_wind_radius_sw</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;64 kt Wind maximum radius in the storms SW Quadrant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">max_high_wind_radius_nw</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;64 kt Wind maximum radius in the storms NW Quadrant&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">max_sustained_wind_speed_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;radius_of_tropical_cyclone_maximum_sustained_wind_speed&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="TrackData">
+<a class="viewcode-back" href="../../../_autosummary/clouddrift.adapters.hurdat2.TrackData.html#clouddrift.adapters.hurdat2.TrackData">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TrackData</span><span class="p">:</span>
+    <span class="n">global_attrs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;HURricane DATa 2nd generation (HURDAT2)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;date_created&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s2">&quot;publisher_name&quot;</span><span class="p">:</span> <span class="s2">&quot;NOAA AOML Hurricane Research Division&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;publisher_email&quot;</span><span class="p">:</span> <span class="s2">&quot;AOML.HRDWebmaster@noaa.gov&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;publisher_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.aoml.noaa.gov/hrd/hurdat/Data_Storm.html&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;institution&quot;</span><span class="p">:</span> <span class="s2">&quot;NOAA Atlantic Oceanographic and Meteorological Laboratory&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;summary&quot;</span><span class="p">:</span> <span class="s2">&quot;The National Hurricane Center (NHC) conducts a post-storm analysis of each tropical cyclone in its area of responsibility to determine the official assessment of the cyclone&#39;s history&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">header</span><span class="p">:</span> <span class="n">HeaderLine</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DataLine</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_rowsize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_xarray_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;basin&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;traj&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">basin</span><span class="p">])),</span>
+                <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;traj&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">year</span><span class="p">])),</span>
+                <span class="s2">&quot;rowsize&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;traj&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">rowsize</span><span class="p">])),</span>
+                <span class="s2">&quot;record_identifier&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">record_identifier</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;system_status&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">system_status</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">lat</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">])),</span>
+                <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">lon</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">])),</span>
+                <span class="s2">&quot;wind_speed&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">wind_speed</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;pressure&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">pressure</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">])),</span>
+                <span class="s2">&quot;max_low_wind_radius_ne&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">max_low_wind_radius_ne</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;max_low_wind_radius_se&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">max_low_wind_radius_se</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;max_low_wind_radius_sw&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">max_low_wind_radius_sw</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;max_low_wind_radius_nw&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">max_low_wind_radius_nw</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;max_med_wind_radius_ne&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">max_med_wind_radius_ne</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;max_med_wind_radius_se&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">max_med_wind_radius_se</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;max_med_wind_radius_sw&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">max_med_wind_radius_sw</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;max_med_wind_radius_nw&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">max_med_wind_radius_nw</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;max_high_wind_radius_ne&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">max_high_wind_radius_ne</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;max_high_wind_radius_se&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">max_high_wind_radius_se</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;max_high_wind_radius_sw&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">max_high_wind_radius_sw</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;max_high_wind_radius_nw&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">max_high_wind_radius_nw</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;max_sustained_wind_speed_radius&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                        <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">max_sustained_wind_speed_radius</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">},</span>
+            <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;traj&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">id</span><span class="p">])),</span>
+                <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                        <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="mi">9</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">],</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;datetime64[ns]&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_map_heading</span><span class="p">(</span><span class="n">coordinate</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="n">heading_map</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;W&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">}</span>
+    <span class="n">cardinal_direction</span> <span class="o">=</span> <span class="n">coordinate</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">heading</span> <span class="o">=</span> <span class="n">coordinate</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">sign</span> <span class="o">:=</span> <span class="n">heading_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cardinal_direction</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">heading</span><span class="p">)</span> <span class="o">*</span> <span class="n">sign</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid cardinal direction: </span><span class="si">{</span><span class="n">cardinal_direction</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_download_requests</span><span class="p">(</span><span class="n">basin</span><span class="p">:</span> <span class="n">_BasinOption</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">download_requests</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">basin</span> <span class="o">==</span> <span class="s2">&quot;atlantic&quot;</span> <span class="ow">or</span> <span class="n">basin</span> <span class="o">==</span> <span class="s2">&quot;both&quot;</span><span class="p">:</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">_ATLANTIC_BASIN_URL</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="n">download_requests</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">_ATLANTIC_BASIN_URL</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">basin</span> <span class="o">==</span> <span class="s2">&quot;pacific&quot;</span> <span class="ow">or</span> <span class="n">basin</span> <span class="o">==</span> <span class="s2">&quot;both&quot;</span><span class="p">:</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">_PACIFIC_BASIN_URL</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="n">download_requests</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">_PACIFIC_BASIN_URL</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">download_requests</span>
+
+
+<div class="viewcode-block" id="to_raggedarray">
+<a class="viewcode-back" href="../../../_autosummary/clouddrift.adapters.hurdat2.to_raggedarray.html#clouddrift.adapters.hurdat2.to_raggedarray">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_raggedarray</span><span class="p">(</span>
+    <span class="n">basin</span><span class="p">:</span> <span class="n">_BasinOption</span> <span class="o">=</span> <span class="s2">&quot;both&quot;</span><span class="p">,</span>
+    <span class="n">tmp_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_FILE_PATH</span><span class="p">,</span>
+    <span class="n">convert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RaggedArray</span><span class="p">:</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span>
+        <span class="n">tmp_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>  <span class="c1"># generate temp directory for hurdat related intermerdiary data</span>
+    <span class="n">download_requests</span> <span class="o">=</span> <span class="n">_get_download_requests</span><span class="p">(</span><span class="n">basin</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">download_with_progress</span><span class="p">(</span><span class="n">download_requests</span><span class="p">)</span>
+    <span class="n">track_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">download_requests</span><span class="p">:</span>
+        <span class="n">track_data</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_extract_track_data</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">convert</span><span class="p">))</span>
+
+    <span class="n">metadata_fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">data_fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="n">HeaderLine</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span>
+            <span class="n">metadata_fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="n">DataLine</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;time&quot;</span><span class="p">:</span>
+            <span class="n">data_fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="n">ra</span> <span class="o">=</span> <span class="n">RaggedArray</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span>
+        <span class="n">indices</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">track_data</span><span class="p">))),</span>
+        <span class="n">name_coords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">],</span>
+        <span class="n">name_meta</span><span class="o">=</span><span class="n">metadata_fields</span><span class="p">,</span>
+        <span class="n">name_data</span><span class="o">=</span><span class="n">data_fields</span><span class="p">,</span>
+        <span class="n">name_dims</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;traj&quot;</span><span class="p">:</span> <span class="s2">&quot;rows&quot;</span><span class="p">,</span> <span class="s2">&quot;obs&quot;</span><span class="p">:</span> <span class="s2">&quot;obs&quot;</span><span class="p">},</span>
+        <span class="n">rowsize_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">idx</span><span class="p">:</span> <span class="n">track_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">get_rowsize</span><span class="p">(),</span>
+        <span class="n">preprocess_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">idx</span><span class="p">:</span> <span class="n">track_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">to_xarray_dataset</span><span class="p">(),</span>
+        <span class="n">attrs_global</span><span class="o">=</span><span class="n">TrackData</span><span class="o">.</span><span class="n">global_attrs</span><span class="p">,</span>
+        <span class="n">attrs_variables</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">metadata</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="n">HeaderLine</span><span class="p">)</span> <span class="o">+</span> <span class="n">fields</span><span class="p">(</span><span class="n">DataLine</span><span class="p">)</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ra</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_or_nan</span><span class="p">(</span><span class="n">val</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cond</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;If `val` is None or condition is true return nan otherwise apply the `func` to `val` and return the result&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">cond</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_track_data</span><span class="p">(</span><span class="n">datafile_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">convert</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">TrackData</span><span class="p">]:</span>
+    <span class="n">datapage</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">datafile_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">data</span> <span class="o">:=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span> <span class="o">!=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">datapage</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+    <span class="n">datapage</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">data_line_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">current_header</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">data_lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">track_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">[</span><span class="n">TrackData</span><span class="p">]()</span>
+
+    <span class="n">is_html_line</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">line</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[html|head|pre]+&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+    <span class="n">is_header_line</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">cols</span><span class="p">,</span> <span class="n">data_line_count</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">data_line_count</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="p">)</span>
+    <span class="n">is_data_line</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">cols</span><span class="p">,</span> <span class="n">data_line_count</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">==</span> <span class="mi">21</span> <span class="ow">and</span> <span class="n">data_line_count</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">convert</span><span class="p">:</span>
+        <span class="n">nm_to_m</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">_METERS_IN_NAUTICAL_MILES</span>
+        <span class="p">)</span>  <span class="c1"># nautical-miles to meters</span>
+        <span class="n">k_to_mps</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">_METERS_IN_NAUTICAL_MILES</span> <span class="o">/</span> <span class="mi">3600</span>
+        <span class="p">)</span>  <span class="c1"># knots to meters per second</span>
+        <span class="n">mb_to_pa</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">_PASCAL_PER_MILLIBAR</span>  <span class="c1"># millibar to pascal</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nm_to_m</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">k_to_mps</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">mb_to_pa</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="n">line</span> <span class="o">:=</span> <span class="n">datapage</span><span class="o">.</span><span class="n">readline</span><span class="p">())</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_html_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="ow">or</span> <span class="n">line</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">current_header</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">track_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TrackData</span><span class="p">(</span><span class="n">current_header</span><span class="p">,</span> <span class="n">data_lines</span><span class="p">))</span>
+                <span class="n">data_lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+                <span class="n">current_header</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">continue</span>
+
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_header_line</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="n">data_line_count</span><span class="p">):</span>
+            <span class="n">data_line_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">HeaderLine</span><span class="p">(</span>
+                <span class="nb">id</span><span class="o">=</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">basin</span><span class="o">=</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">2</span><span class="p">],</span>
+                <span class="n">year</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">4</span><span class="p">:</span><span class="mi">8</span><span class="p">]),</span>
+                <span class="n">rowsize</span><span class="o">=</span><span class="n">data_line_count</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">current_header</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">current_header</span> <span class="o">=</span> <span class="n">header</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">track_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TrackData</span><span class="p">(</span><span class="n">current_header</span><span class="p">,</span> <span class="n">data_lines</span><span class="p">))</span>
+                <span class="n">data_lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+                <span class="n">current_header</span> <span class="o">=</span> <span class="n">header</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">is_data_line</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="n">data_line_count</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">8</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">4</span>
+        <span class="p">):</span>
+            <span class="n">data_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">DataLine</span><span class="p">(</span>
+                    <span class="n">time</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span>
+                        <span class="n">year</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">4</span><span class="p">]),</span>
+                        <span class="n">month</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]),</span>
+                        <span class="n">day</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">6</span><span class="p">:</span><span class="mi">8</span><span class="p">]),</span>
+                        <span class="n">hour</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">1</span><span class="p">][:</span><span class="mi">2</span><span class="p">]),</span>
+                        <span class="n">minute</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">]),</span>
+                        <span class="n">tzinfo</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">record_identifier</span><span class="o">=</span><span class="n">RecordIdentifier</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+                    <span class="n">system_status</span><span class="o">=</span><span class="n">SystemStatus</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span>
+                    <span class="n">lat</span><span class="o">=</span><span class="n">_map_heading</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">4</span><span class="p">]),</span>
+                    <span class="n">lon</span><span class="o">=</span><span class="n">_map_heading</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">5</span><span class="p">]),</span>
+                    <span class="n">wind_speed</span><span class="o">=</span><span class="n">_apply_or_nan</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">k_to_mps</span><span class="p">),</span>
+                    <span class="n">pressure</span><span class="o">=</span><span class="n">_apply_or_nan</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">cols</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-999&quot;</span><span class="p">,</span> <span class="n">mb_to_pa</span><span class="p">),</span>
+                    <span class="n">max_low_wind_radius_ne</span><span class="o">=</span><span class="n">_apply_or_nan</span><span class="p">(</span>
+                        <span class="n">cols</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="n">cols</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-999&quot;</span><span class="p">,</span> <span class="n">nm_to_m</span>
+                    <span class="p">),</span>
+                    <span class="n">max_low_wind_radius_se</span><span class="o">=</span><span class="n">_apply_or_nan</span><span class="p">(</span>
+                        <span class="n">cols</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span> <span class="n">cols</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-999&quot;</span><span class="p">,</span> <span class="n">nm_to_m</span>
+                    <span class="p">),</span>
+                    <span class="n">max_low_wind_radius_sw</span><span class="o">=</span><span class="n">_apply_or_nan</span><span class="p">(</span>
+                        <span class="n">cols</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span> <span class="n">cols</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-999&quot;</span><span class="p">,</span> <span class="n">nm_to_m</span>
+                    <span class="p">),</span>
+                    <span class="n">max_low_wind_radius_nw</span><span class="o">=</span><span class="n">_apply_or_nan</span><span class="p">(</span>
+                        <span class="n">cols</span><span class="p">[</span><span class="mi">11</span><span class="p">],</span> <span class="n">cols</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-999&quot;</span><span class="p">,</span> <span class="n">nm_to_m</span>
+                    <span class="p">),</span>
+                    <span class="n">max_med_wind_radius_ne</span><span class="o">=</span><span class="n">_apply_or_nan</span><span class="p">(</span>
+                        <span class="n">cols</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span> <span class="n">cols</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-999&quot;</span><span class="p">,</span> <span class="n">nm_to_m</span>
+                    <span class="p">),</span>
+                    <span class="n">max_med_wind_radius_se</span><span class="o">=</span><span class="n">_apply_or_nan</span><span class="p">(</span>
+                        <span class="n">cols</span><span class="p">[</span><span class="mi">13</span><span class="p">],</span> <span class="n">cols</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-999&quot;</span><span class="p">,</span> <span class="n">nm_to_m</span>
+                    <span class="p">),</span>
+                    <span class="n">max_med_wind_radius_sw</span><span class="o">=</span><span class="n">_apply_or_nan</span><span class="p">(</span>
+                        <span class="n">cols</span><span class="p">[</span><span class="mi">14</span><span class="p">],</span> <span class="n">cols</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-999&quot;</span><span class="p">,</span> <span class="n">nm_to_m</span>
+                    <span class="p">),</span>
+                    <span class="n">max_med_wind_radius_nw</span><span class="o">=</span><span class="n">_apply_or_nan</span><span class="p">(</span>
+                        <span class="n">cols</span><span class="p">[</span><span class="mi">15</span><span class="p">],</span> <span class="n">cols</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-999&quot;</span><span class="p">,</span> <span class="n">nm_to_m</span>
+                    <span class="p">),</span>
+                    <span class="n">max_high_wind_radius_ne</span><span class="o">=</span><span class="n">_apply_or_nan</span><span class="p">(</span>
+                        <span class="n">cols</span><span class="p">[</span><span class="mi">16</span><span class="p">],</span> <span class="n">cols</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-999&quot;</span><span class="p">,</span> <span class="n">nm_to_m</span>
+                    <span class="p">),</span>
+                    <span class="n">max_high_wind_radius_se</span><span class="o">=</span><span class="n">_apply_or_nan</span><span class="p">(</span>
+                        <span class="n">cols</span><span class="p">[</span><span class="mi">17</span><span class="p">],</span> <span class="n">cols</span><span class="p">[</span><span class="mi">17</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-999&quot;</span><span class="p">,</span> <span class="n">nm_to_m</span>
+                    <span class="p">),</span>
+                    <span class="n">max_high_wind_radius_sw</span><span class="o">=</span><span class="n">_apply_or_nan</span><span class="p">(</span>
+                        <span class="n">cols</span><span class="p">[</span><span class="mi">18</span><span class="p">],</span> <span class="n">cols</span><span class="p">[</span><span class="mi">18</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-999&quot;</span><span class="p">,</span> <span class="n">nm_to_m</span>
+                    <span class="p">),</span>
+                    <span class="n">max_high_wind_radius_nw</span><span class="o">=</span><span class="n">_apply_or_nan</span><span class="p">(</span>
+                        <span class="n">cols</span><span class="p">[</span><span class="mi">19</span><span class="p">],</span> <span class="n">cols</span><span class="p">[</span><span class="mi">19</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-999&quot;</span><span class="p">,</span> <span class="n">nm_to_m</span>
+                    <span class="p">),</span>
+                    <span class="n">max_sustained_wind_speed_radius</span><span class="o">=</span><span class="n">_apply_or_nan</span><span class="p">(</span>
+                        <span class="n">cols</span><span class="p">[</span><span class="mi">20</span><span class="p">],</span> <span class="n">cols</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-999&quot;</span><span class="p">,</span> <span class="n">nm_to_m</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">data_line_count</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">track_data</span>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Philippe Miron
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022-2023, CloudDrift.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

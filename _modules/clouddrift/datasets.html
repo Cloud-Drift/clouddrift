@@ -1,0 +1,1348 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>clouddrift.datasets &#8212; CloudDrift  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=35a8b989"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/clouddrift/datasets';</script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.png" class="logo__image only-light" alt="CloudDrift  documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo.png" class="logo__image only-dark" alt="CloudDrift  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datasets.html">Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Cloud-Drift/clouddrift/blob/main/CONTRIBUTING.md">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api.html">API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.html">clouddrift.adapters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.andro.html">clouddrift.adapters.andro</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.andro.to_xarray.html">clouddrift.adapters.andro.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.html">clouddrift.adapters.gdp</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.cast_float64_variables_to_float32.html">clouddrift.adapters.gdp.cast_float64_variables_to_float32</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.cut_str.html">clouddrift.adapters.gdp.cut_str</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.decode_date.html">clouddrift.adapters.gdp.decode_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.drogue_presence.html">clouddrift.adapters.gdp.drogue_presence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.fetch_netcdf.html">clouddrift.adapters.gdp.fetch_netcdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.fill_values.html">clouddrift.adapters.gdp.fill_values</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.get_gdp_metadata.html">clouddrift.adapters.gdp.get_gdp_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.order_by_date.html">clouddrift.adapters.gdp.order_by_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.parse_directory_file.html">clouddrift.adapters.gdp.parse_directory_file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.rowsize.html">clouddrift.adapters.gdp.rowsize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.str_to_float.html">clouddrift.adapters.gdp.str_to_float</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.gdp1h.html">clouddrift.adapters.gdp.gdp1h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.gdp6h.html">clouddrift.adapters.gdp.gdp6h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.gdp.gdpsource.html">clouddrift.adapters.gdp.gdpsource</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.glad.html">clouddrift.adapters.glad</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.glad.get_dataframe.html">clouddrift.adapters.glad.get_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.glad.to_xarray.html">clouddrift.adapters.glad.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.html">clouddrift.adapters.hurdat2</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.to_raggedarray.html">clouddrift.adapters.hurdat2.to_raggedarray</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.DataLine.html">clouddrift.adapters.hurdat2.DataLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.HeaderLine.html">clouddrift.adapters.hurdat2.HeaderLine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.RecordIdentifier.html">clouddrift.adapters.hurdat2.RecordIdentifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.SystemStatus.html">clouddrift.adapters.hurdat2.SystemStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.hurdat2.TrackData.html">clouddrift.adapters.hurdat2.TrackData</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.ibtracs.html">clouddrift.adapters.ibtracs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.ibtracs.to_raggedarray.html">clouddrift.adapters.ibtracs.to_raggedarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.html">clouddrift.adapters.mosaic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.get_dataframes.html">clouddrift.adapters.mosaic.get_dataframes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.get_file_urls.html">clouddrift.adapters.mosaic.get_file_urls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.get_repository_metadata.html">clouddrift.adapters.mosaic.get_repository_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.mosaic.to_xarray.html">clouddrift.adapters.mosaic.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.subsurface_floats.html">clouddrift.adapters.subsurface_floats</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.subsurface_floats.download.html">clouddrift.adapters.subsurface_floats.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.subsurface_floats.to_xarray.html">clouddrift.adapters.subsurface_floats.to_xarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.utils.html">clouddrift.adapters.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.utils.download_with_progress.html">clouddrift.adapters.utils.download_with_progress</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.yomaha.html">clouddrift.adapters.yomaha</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.yomaha.download.html">clouddrift.adapters.yomaha.download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/clouddrift.adapters.yomaha.to_xarray.html">clouddrift.adapters.yomaha.to_xarray</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.binning.html">clouddrift.binning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.binning.binned_statistics.html">clouddrift.binning.binned_statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.binning.handle_datetime_conversion.html">clouddrift.binning.handle_datetime_conversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.html">clouddrift.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.andro.html">clouddrift.datasets.andro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.gdp1h.html">clouddrift.datasets.gdp1h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.gdp6h.html">clouddrift.datasets.gdp6h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.gdp_source.html">clouddrift.datasets.gdp_source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.glad.html">clouddrift.datasets.glad</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.hurdat2.html">clouddrift.datasets.hurdat2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.ibtracs.html">clouddrift.datasets.ibtracs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.mosaic.html">clouddrift.datasets.mosaic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.spotters.html">clouddrift.datasets.spotters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.subsurface_floats.html">clouddrift.datasets.subsurface_floats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.datasets.yomaha.html">clouddrift.datasets.yomaha</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.html">clouddrift.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.inertial_oscillation_from_position.html">clouddrift.kinematics.inertial_oscillation_from_position</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.kinetic_energy.html">clouddrift.kinematics.kinetic_energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.position_from_velocity.html">clouddrift.kinematics.position_from_velocity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.residual_position_from_displacement.html">clouddrift.kinematics.residual_position_from_displacement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.spin.html">clouddrift.kinematics.spin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.kinematics.velocity_from_position.html">clouddrift.kinematics.velocity_from_position</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.html">clouddrift.pairs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.chance_pair.html">clouddrift.pairs.chance_pair</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.chance_pairs_from_ragged.html">clouddrift.pairs.chance_pairs_from_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_bounding_box_overlap.html">clouddrift.pairs.pair_bounding_box_overlap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_space_distance.html">clouddrift.pairs.pair_space_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_time_distance.html">clouddrift.pairs.pair_time_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.pairs.pair_time_overlap.html">clouddrift.pairs.pair_time_overlap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.plotting.html">clouddrift.plotting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.plotting.plot_ragged.html">clouddrift.plotting.plot_ragged</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.html">clouddrift.ragged</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.apply_ragged.html">clouddrift.ragged.apply_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.chunk.html">clouddrift.ragged.chunk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.obs_index_to_row.html">clouddrift.ragged.obs_index_to_row</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.prune.html">clouddrift.ragged.prune</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.ragged_to_regular.html">clouddrift.ragged.ragged_to_regular</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.regular_to_ragged.html">clouddrift.ragged.regular_to_ragged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.rowsize_to_index.html">clouddrift.ragged.rowsize_to_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.segment.html">clouddrift.ragged.segment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.subset.html">clouddrift.ragged.subset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.ragged.unpack.html">clouddrift.ragged.unpack</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.raggedarray.html">clouddrift.raggedarray</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.raggedarray.RaggedArray.html">clouddrift.raggedarray.RaggedArray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.signal.html">clouddrift.signal</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.analytic_signal.html">clouddrift.signal.analytic_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.cartesian_to_rotary.html">clouddrift.signal.cartesian_to_rotary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.ellipse_parameters.html">clouddrift.signal.ellipse_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.modulated_ellipse_signal.html">clouddrift.signal.modulated_ellipse_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.signal.rotary_to_cartesian.html">clouddrift.signal.rotary_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.html">clouddrift.sphere</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.bearing.html">clouddrift.sphere.bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.cartesian_to_spherical.html">clouddrift.sphere.cartesian_to_spherical</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.cartesian_to_tangentplane.html">clouddrift.sphere.cartesian_to_tangentplane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.coriolis_frequency.html">clouddrift.sphere.coriolis_frequency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.cumulative_distance.html">clouddrift.sphere.cumulative_distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.distance.html">clouddrift.sphere.distance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.plane_to_sphere.html">clouddrift.sphere.plane_to_sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.position_from_distance_and_bearing.html">clouddrift.sphere.position_from_distance_and_bearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.recast_lon.html">clouddrift.sphere.recast_lon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.recast_lon180.html">clouddrift.sphere.recast_lon180</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.recast_lon360.html">clouddrift.sphere.recast_lon360</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.sphere_to_plane.html">clouddrift.sphere.sphere_to_plane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.spherical_to_cartesian.html">clouddrift.sphere.spherical_to_cartesian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.sphere.tangentplane_to_cartesian.html">clouddrift.sphere.tangentplane_to_cartesian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.html">clouddrift.wavelet</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_amplitude.html">clouddrift.wavelet.morse_amplitude</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_freq.html">clouddrift.wavelet.morse_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_logspace_freq.html">clouddrift.wavelet.morse_logspace_freq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_properties.html">clouddrift.wavelet.morse_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_wavelet.html">clouddrift.wavelet.morse_wavelet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.morse_wavelet_transform.html">clouddrift.wavelet.morse_wavelet_transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/clouddrift.wavelet.wavelet_transform.html">clouddrift.wavelet.wavelet_transform</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for clouddrift.datasets</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides functions to easily access ragged array datasets. If the datasets are</span>
+<span class="sd">not accessed via cloud storage platforms or are not found on the local filesystem,</span>
+<span class="sd">they will be downloaded from their upstream repositories and stored for later access</span>
+<span class="sd">(~/.clouddrift for UNIX-based systems).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift</span><span class="w"> </span><span class="kn">import</span> <span class="n">adapters</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.adapters.hurdat2</span><span class="w"> </span><span class="kn">import</span> <span class="n">_BasinOption</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">clouddrift.adapters.ibtracs</span><span class="w"> </span><span class="kn">import</span> <span class="n">_Kind</span><span class="p">,</span> <span class="n">_Version</span>
+
+
+<div class="viewcode-block" id="gdp1h">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.datasets.gdp1h.html#clouddrift.datasets.gdp1h">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gdp1h</span><span class="p">(</span><span class="n">decode_times</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the latest version of the NOAA Global Drifter Program (GDP) hourly</span>
+<span class="sd">    dataset as a ragged array Xarray dataset.</span>
+
+<span class="sd">    The data is accessed from zarr archive hosted on a public AWS S3 bucket accessible at</span>
+<span class="sd">    https://registry.opendata.aws/noaa-oar-hourly-gdp/. Original data source from NOAA NCEI</span>
+<span class="sd">    is https://doi.org/10.25921/x46c-3620).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    decode_times : bool, optional</span>
+<span class="sd">        If True, decode the time coordinate into a datetime object. If False, the time</span>
+<span class="sd">        coordinate will be an int64 or float64 array of increments since the origin</span>
+<span class="sd">        time indicated in the units attribute. Default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        Hourly GDP dataset as a ragged array</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.datasets import gdp1h</span>
+<span class="sd">    &gt;&gt;&gt; ds = gdp1h()</span>
+<span class="sd">    &gt;&gt;&gt; ds</span>
+<span class="sd">    &lt;xarray.Dataset&gt;</span>
+<span class="sd">    Dimensions:                (traj: 19396, obs: 197214787)</span>
+<span class="sd">    Coordinates:</span>
+<span class="sd">        id                     (traj) int64 ...</span>
+<span class="sd">        time                   (obs) datetime64[ns] ...</span>
+<span class="sd">    Dimensions without coordinates: traj, obs</span>
+<span class="sd">    Data variables: (12/60)</span>
+<span class="sd">        BuoyTypeManufacturer   (traj) |S20 ...</span>
+<span class="sd">        BuoyTypeSensorArray    (traj) |S20 ...</span>
+<span class="sd">        CurrentProgram         (traj) float32 ...</span>
+<span class="sd">        DeployingCountry       (traj) |S20 ...</span>
+<span class="sd">        DeployingShip          (traj) |S20 ...</span>
+<span class="sd">        DeploymentComments     (traj) |S20 ...</span>
+<span class="sd">        ...                     ...</span>
+<span class="sd">        start_lat              (traj) float32 ...</span>
+<span class="sd">        start_lon              (traj) float32 ...</span>
+<span class="sd">        typebuoy               (traj) |S10 ...</span>
+<span class="sd">        typedeath              (traj) int8 ...</span>
+<span class="sd">        ve                     (obs) float32 ...</span>
+<span class="sd">        vn                     (obs) float32 ...</span>
+<span class="sd">    Attributes: (12/16)</span>
+<span class="sd">        Conventions:       CF-1.6</span>
+<span class="sd">        acknowledgement:   Elipot, Shane; Sykulski, Adam; Lumpkin, Rick; Centurio...</span>
+<span class="sd">        contributor_name:  NOAA Global Drifter Program</span>
+<span class="sd">        contributor_role:  Data Acquisition Center</span>
+<span class="sd">        date_created:      2023-09-08T17:05:12.130123</span>
+<span class="sd">        doi:               10.25921/x46c-3620</span>
+<span class="sd">        ...                ...</span>
+<span class="sd">        processing_level:  Level 2 QC by GDP drifter DAC</span>
+<span class="sd">        publisher_email:   aoml.dftr@noaa.gov</span>
+<span class="sd">        publisher_name:    GDP Drifter DAC</span>
+<span class="sd">        publisher_url:     https://www.aoml.noaa.gov/phod/gdp</span>
+<span class="sd">        summary:           Global Drifter Program hourly data</span>
+<span class="sd">        title:             Global Drifter Program hourly drifting buoy collection</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`gdp6h`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/latest/gdp-v2.01.1.zarr&quot;</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;zarr&quot;</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="n">decode_times</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+
+<div class="viewcode-block" id="gdp6h">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.datasets.gdp6h.html#clouddrift.datasets.gdp6h">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gdp6h</span><span class="p">(</span><span class="n">decode_times</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the NOAA Global Drifter Program (GDP) 6-hourly dataset as a ragged array</span>
+<span class="sd">    Xarray dataset.</span>
+
+<span class="sd">    The data is accessed from zarr archive hosted on a public AWS S3 bucket accessible at</span>
+<span class="sd">    s3://noaa-oar-hourly-gdp-pds/experimental/. Original data source from NOAA&#39;s Atlantic</span>
+<span class="sd">    Oceanographic and Meteorological Laboratory (AOML) accessible at</span>
+<span class="sd">    https://www.aoml.noaa.gov/phod/gdp/index.php.</span>
+
+<span class="sd">    This returns the December 2024 version of the dataset including data from 1979-02-15:00:00:00Z</span>
+<span class="sd">    to 2025-01-20:00:00:00Z.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    decode_times : bool, optional</span>
+<span class="sd">        If True, decode the time coordinate into a datetime object. If False, the time</span>
+<span class="sd">        coordinate will be an int64 or float64 array of increments since the origin</span>
+<span class="sd">        time indicated in the units attribute. Default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        6-hourly GDP dataset as a ragged array</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.datasets import gdp6h</span>
+<span class="sd">    &gt;&gt;&gt; ds = gdp6h()</span>
+<span class="sd">    &gt;&gt;&gt; ds</span>
+<span class="sd">    &lt;xarray.Dataset&gt; Size: 2GB</span>
+<span class="sd">    Dimensions:                (traj: 28341, obs: 48044996)</span>
+<span class="sd">    Coordinates:</span>
+<span class="sd">        id                     (traj) int64 227kB ...</span>
+<span class="sd">        time                   (obs) datetime64[ns] 384MB ...</span>
+<span class="sd">    Dimensions without coordinates: traj, obs</span>
+<span class="sd">    Data variables: (12/48)</span>
+<span class="sd">        BuoyTypeManufacturer   (traj) &lt;U1 113kB ...</span>
+<span class="sd">        BuoyTypeSensorArray    (traj) &lt;U10 1MB ...</span>
+<span class="sd">        CurrentProgram         (traj) float64 227kB ...</span>
+<span class="sd">        DeployingCountry       (traj) &lt;U14 2MB ...</span>
+<span class="sd">        DeployingShip          (traj) &lt;U20 2MB ...</span>
+<span class="sd">        DeploymentComments     (traj) &lt;U20 2MB ...</span>
+<span class="sd">        ...                     ...</span>
+<span class="sd">        start_lon              (traj) float32 113kB ...</span>
+<span class="sd">        temp                   (obs) float32 192MB ...</span>
+<span class="sd">        typebuoy               (traj) |S10 283kB ...</span>
+<span class="sd">        typedeath              (traj) int8 28kB ...</span>
+<span class="sd">        ve                     (obs) float32 192MB ...</span>
+<span class="sd">        vn                     (obs) float32 192MB ...</span>
+<span class="sd">    Attributes: (12/18)</span>
+<span class="sd">        Conventions:          CF-1.6</span>
+<span class="sd">        acknowledgement:      Lumpkin, Rick; Centurioni, Luca (2019). NOAA Global...</span>
+<span class="sd">        contributor_name:     NOAA Global Drifter Program</span>
+<span class="sd">        contributor_role:     Data Acquisition Center</span>
+<span class="sd">        date_created:         2025-07-03T13:33:40.973074</span>
+<span class="sd">        doi:                  10.25921/7ntx-z961</span>
+<span class="sd">        ...                   ...</span>
+<span class="sd">        publisher_name:       GDP Drifter DAC</span>
+<span class="sd">        publisher_url:        https://www.aoml.noaa.gov/phod/gdp</span>
+<span class="sd">        summary:              Global Drifter Program six-hourly data</span>
+<span class="sd">        time_coverage_end:    2024-08-16:12:00:00Z</span>
+<span class="sd">        time_coverage_start:  1979-02-15:00:00:00Z</span>
+<span class="sd">        title:                Global Drifter Program drifting buoy collection</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`gdp1h`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/experimental/gdp6h_ragged_dec24.zarr&quot;</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="n">decode_times</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;zarr&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+
+<div class="viewcode-block" id="gdp_source">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.datasets.gdp_source.html#clouddrift.datasets.gdp_source">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gdp_source</span><span class="p">(</span>
+    <span class="n">tmp_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">adapters</span><span class="o">.</span><span class="n">gdp_source</span><span class="o">.</span><span class="n">_TMP_PATH</span><span class="p">,</span>
+    <span class="nb">max</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">skip_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">use_fill_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">decode_times</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the NOAA Global Drifter Program (GDP) source (raw) dataset as a ragged array</span>
+<span class="sd">    Xarray dataset.</span>
+
+<span class="sd">    The function will first look for the ragged-array dataset on the local</span>
+<span class="sd">    filesystem. If it is not found, the dataset will be downloaded using the</span>
+<span class="sd">    corresponding adapter function and stored as zarr archive for later access.</span>
+
+<span class="sd">    The data is accessed from a public HTTPS server at NOAA&#39;s Atlantic</span>
+<span class="sd">    Oceanographic and Meteorological Laboratory (AOML) at</span>
+<span class="sd">    https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst/.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tmp_path: str, default adapter temp path (default)</span>
+<span class="sd">        Temporary path where intermediary files are stored.</span>
+<span class="sd">    max: int, optional</span>
+<span class="sd">        Maximum number of files to retrieve and parse to generate the aggregate file. Mainly used</span>
+<span class="sd">        for testing purposes.</span>
+<span class="sd">    skip_download: bool, False (default)</span>
+<span class="sd">        If True, skips downloading the data files and the code assumes the files have already been downloaded.</span>
+<span class="sd">        This is mainly used to skip downloading files if the remote doesn&#39;t provide the HTTP  Last-Modified header.</span>
+<span class="sd">    use_fill_values: bool, True (default)</span>
+<span class="sd">        When True, missing metadata fields are replaced with fill values. When False and no metadata</span>
+<span class="sd">        is found for a given drifter its observations are ignored.</span>
+<span class="sd">    decode_times : bool, True (default)</span>
+<span class="sd">        If True, decode the time coordinate into a datetime object. If False, the time</span>
+<span class="sd">        coordinate will be an int64 or float64 array of increments since the origin</span>
+<span class="sd">        time indicated in the units attribute. Default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        source GDP dataset as a ragged array</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.datasets import gdp_source</span>
+<span class="sd">    &gt;&gt;&gt; ds = gdp_source()</span>
+<span class="sd">    &gt;&gt;&gt; ds</span>
+<span class="sd">    &lt;xarray.Dataset&gt; Size: ...</span>
+<span class="sd">    Dimensions:            (traj: ..., obs: ...)</span>
+<span class="sd">    Coordinates:</span>
+<span class="sd">        id                 (traj) int64 222kB ...</span>
+<span class="sd">        obs_index          (obs) int32 1GB ...</span>
+<span class="sd">    Dimensions without coordinates: traj, obs</span>
+<span class="sd">    Data variables: (12/22)</span>
+<span class="sd">        buoys_type         (traj) &lt;U5 ...</span>
+<span class="sd">        death_code         (traj) int64 ...</span>
+<span class="sd">        drogue             (obs) float32 ...</span>
+<span class="sd">        drogue_off_date    (traj) datetime64[ns] ...</span>
+<span class="sd">        end_date           (traj) datetime64[ns] ...</span>
+<span class="sd">        end_lat            (traj) float64 222kB ...</span>
+<span class="sd">        ...                 ...</span>
+<span class="sd">        sst                (obs) float32 ...</span>
+<span class="sd">        start_date         (traj) datetime64[ns] ...</span>
+<span class="sd">        start_lat          (traj) float64 ...</span>
+<span class="sd">        start_lon          (traj) float64 ...</span>
+<span class="sd">        voltage            (obs) float32 ...</span>
+<span class="sd">        wmo_number         (traj) int64 ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_selection_label</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span> <span class="k">if</span> <span class="nb">max</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;first-</span><span class="si">{</span><span class="nb">max</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">_dataset_filecache</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;gdpsource_agg_</span><span class="si">{</span><span class="n">file_selection_label</span><span class="si">}</span><span class="s2">.zarr&quot;</span><span class="p">,</span>
+        <span class="n">decode_times</span><span class="p">,</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">adapters</span><span class="o">.</span><span class="n">gdp_source</span><span class="o">.</span><span class="n">to_raggedarray</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span> <span class="n">skip_download</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">use_fill_values</span><span class="o">=</span><span class="n">use_fill_values</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="glad">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.datasets.glad.html#clouddrift.datasets.glad">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">glad</span><span class="p">(</span><span class="n">decode_times</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the Grand LAgrangian Deployment (GLAD) dataset as a ragged array</span>
+<span class="sd">    Xarray dataset.</span>
+
+<span class="sd">    The function will first look for the ragged-array dataset on the local</span>
+<span class="sd">    filesystem. If it is not found, the dataset will be downloaded using the</span>
+<span class="sd">    corresponding adapter function and stored for later access.</span>
+
+<span class="sd">    The upstream data is available at https://doi.org/10.7266/N7VD6WC8.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    decode_times : bool, optional</span>
+<span class="sd">        If True, decode the time coordinate into a datetime object. If False, the time</span>
+<span class="sd">        coordinate will be an int64 or float64 array of increments since the origin</span>
+<span class="sd">        time indicated in the units attribute. Default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        GLAD dataset as a ragged array</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.datasets import glad</span>
+<span class="sd">    &gt;&gt;&gt; ds = glad()</span>
+<span class="sd">    &gt;&gt;&gt; ds</span>
+<span class="sd">    &lt;xarray.Dataset&gt;</span>
+<span class="sd">    Dimensions:         (obs: 1602883, traj: 297)</span>
+<span class="sd">    Coordinates:</span>
+<span class="sd">      time            (obs) datetime64[ns] ...</span>
+<span class="sd">      id              (traj) object ...</span>
+<span class="sd">    Data variables:</span>
+<span class="sd">      latitude        (obs) float32 ...</span>
+<span class="sd">      longitude       (obs) float32 ...</span>
+<span class="sd">      position_error  (obs) float32 ...</span>
+<span class="sd">      u               (obs) float32 ...</span>
+<span class="sd">      v               (obs) float32 ...</span>
+<span class="sd">      velocity_error  (obs) float32 ...</span>
+<span class="sd">      rowsize         (traj) int64 ...</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">      title:        GLAD experiment CODE-style drifter trajectories (low-pass f...</span>
+<span class="sd">      institution:  Consortium for Advanced Research on Transport of Hydrocarbo...</span>
+<span class="sd">      source:       CODE-style drifters</span>
+<span class="sd">      history:      Downloaded from https://data.gulfresearchinitiative.org/dat...</span>
+<span class="sd">      references:   Özgökmen, Tamay. 2013. GLAD experiment CODE-style drifter t...</span>
+
+<span class="sd">    Reference</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Özgökmen, Tamay. 2013. GLAD experiment CODE-style drifter trajectories (low-pass filtered, 15 minute interval records), northern Gulf of Mexico near DeSoto Canyon, July-October 2012. Distributed by: Gulf of Mexico Research Initiative Information and Data Cooperative (GRIIDC), Harte Research Institute, Texas A&amp;M University–Corpus Christi. doi:10.7266/N7VD6WC8</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_dataset_filecache</span><span class="p">(</span><span class="s2">&quot;glad.nc&quot;</span><span class="p">,</span> <span class="n">decode_times</span><span class="p">,</span> <span class="n">adapters</span><span class="o">.</span><span class="n">glad</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="hurdat2">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.datasets.hurdat2.html#clouddrift.datasets.hurdat2">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hurdat2</span><span class="p">(</span>
+    <span class="n">basin</span><span class="p">:</span> <span class="n">_BasinOption</span> <span class="o">=</span> <span class="s2">&quot;both&quot;</span><span class="p">,</span>
+    <span class="n">decode_times</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">tmp_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">adapters</span><span class="o">.</span><span class="n">hurdat2</span><span class="o">.</span><span class="n">_DEFAULT_FILE_PATH</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the revised hurricane database (HURDAT2) as a ragged array xarray dataset.</span>
+
+<span class="sd">    The function will first look for the ragged array dataset on the local</span>
+<span class="sd">    filesystem. If it is not found, the dataset will be downloaded using the</span>
+<span class="sd">    corresponding adapter function and stored for later access.</span>
+
+<span class="sd">    The upstream data is available at https://www.aoml.noaa.gov/hrd/hurdat/hurdat2.html.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    basin : &quot;atlantic&quot;, &quot;pacific&quot;, &quot;both&quot; (default)</span>
+<span class="sd">        Specify which ocean basin to download storm data for. Current available options are the</span>
+<span class="sd">        Atlantic Ocean &quot;atlantic&quot;, Pacific Ocean &quot;pacific&quot; and, both &quot;both&quot; to download</span>
+<span class="sd">        storm data for both oceans.</span>
+<span class="sd">    decode_times : bool, optional</span>
+<span class="sd">        If True, decode the time coordinate into a datetime object. If False, the time</span>
+<span class="sd">        coordinate will be an int64 or float64 array of increments since the origin</span>
+<span class="sd">        time indicated in the units attribute. Default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        HURDAT2 dataset as a ragged array.</span>
+
+<span class="sd">    Standard usage of the dataset.</span>
+
+<span class="sd">    &gt;&gt;&gt; from clouddrift.datasets import hurdat2</span>
+<span class="sd">    &gt;&gt;&gt; ds = hurdat2()</span>
+<span class="sd">    &gt;&gt;&gt; ds</span>
+<span class="sd">    &lt;xarray.Dataset&gt;</span>
+<span class="sd">    Dimensions:                          (traj: ..., obs: ...)</span>
+<span class="sd">    Coordinates:</span>
+<span class="sd">        atcf_identifier                  (traj) &lt;U8 ...</span>
+<span class="sd">        time                             (obs) datetime64[ns] ...</span>
+<span class="sd">    Dimensions without coordinates: traj, obs</span>
+<span class="sd">    Data variables: (12/23)</span>
+<span class="sd">        basin                            (traj) &lt;U2 ...</span>
+<span class="sd">        year                             (traj) int64 ...</span>
+<span class="sd">        rowsize                          (traj) int64 ...</span>
+<span class="sd">        record_identifier                (obs) &lt;U1 ...</span>
+<span class="sd">        system_status                    (obs) &lt;U2 ...</span>
+<span class="sd">        ...                               ...</span>
+<span class="sd">        max_med_wind_radius_nw           (obs) float64 ...</span>
+<span class="sd">        max_high_wind_radius_ne          (obs) float64 ...</span>
+<span class="sd">        max_high_wind_radius_se          (obs) float64 ...</span>
+<span class="sd">        max_high_wind_radius_sw          (obs) float64 ...</span>
+<span class="sd">        max_high_wind_radius_nw          (obs) float64 ...</span>
+<span class="sd">        max_sustained_wind_speed_radius  (obs) float64 ...</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        title:            HURricane DATa 2nd generation (HURDAT2)</span>
+<span class="sd">        date_created:     ...</span>
+<span class="sd">        publisher_name:   NOAA AOML Hurricane Research Division</span>
+<span class="sd">        publisher_email:  AOML.HRDWebmaster@noaa.gov</span>
+<span class="sd">        publisher_url:    https://www.aoml.noaa.gov/hrd/hurdat/Data_Storm.html</span>
+<span class="sd">        institution:      NOAA Atlantic Oceanographic and Meteorological Laboratory</span>
+<span class="sd">        summary:          The National Hurricane Center (NHC) conducts a post-sto...</span>
+<span class="sd">    ...</span>
+
+<span class="sd">    To only retrieve records for the Atlantic Ocean basin.</span>
+
+<span class="sd">    &gt;&gt;&gt; from clouddrift.datasets import hurdat2</span>
+<span class="sd">    &gt;&gt;&gt; ds = hurdat2(basin=&quot;atlantic&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; ds</span>
+<span class="sd">    &lt;xarray.Dataset&gt;</span>
+<span class="sd">    ...</span>
+
+<span class="sd">    Reference</span>
+<span class="sd">    ---------</span>
+<span class="sd">    https://www.aoml.noaa.gov/hrd/hurdat/Data_Storm.html.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_dataset_filecache</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;hurdat2_</span><span class="si">{</span><span class="n">basin</span><span class="si">}</span><span class="s2">.nc&quot;</span><span class="p">,</span>
+        <span class="n">decode_times</span><span class="p">,</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">adapters</span><span class="o">.</span><span class="n">hurdat2</span><span class="o">.</span><span class="n">to_raggedarray</span><span class="p">(</span><span class="n">basin</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">(),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ibtracs">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.datasets.ibtracs.html#clouddrift.datasets.ibtracs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ibtracs</span><span class="p">(</span>
+    <span class="n">version</span><span class="p">:</span> <span class="n">_Version</span> <span class="o">=</span> <span class="s2">&quot;v04r01&quot;</span><span class="p">,</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">_Kind</span> <span class="o">=</span> <span class="s2">&quot;LAST_3_YEARS&quot;</span><span class="p">,</span>
+    <span class="n">tmp_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">adapters</span><span class="o">.</span><span class="n">ibtracs</span><span class="o">.</span><span class="n">_DEFAULT_FILE_PATH</span><span class="p">,</span>
+    <span class="n">decode_times</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns International Best Track Archive for Climate Stewardship (IBTrACS) as a ragged array xarray dataset.</span>
+
+<span class="sd">    The function will first look for the ragged array dataset on the local</span>
+<span class="sd">    filesystem. If it is not found, the dataset will be downloaded using the</span>
+<span class="sd">    corresponding adapter function and stored for later access.</span>
+
+<span class="sd">    The upstream data is available at https://www.ncei.noaa.gov/products/international-best-track-archive</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    version : str, optional</span>
+<span class="sd">        Specify the dataset version to retrieve. Default to the latest version. Default is &quot;v04r01&quot;.</span>
+<span class="sd">    kind: str, optional</span>
+<span class="sd">        Specify the dataset kind to retrieve. Specifying the kind can speed up execution time of specific querries</span>
+<span class="sd">        and operations. Default is &quot;LAST_3_YEARS&quot;.</span>
+<span class="sd">    tmp_path: str, default adapter temp path (default)</span>
+<span class="sd">        Temporary path where intermediary files are stored. Default is ${osSpecificLocation}/clouddrift/ibtracs/.</span>
+<span class="sd">    decode_times : bool, optional</span>
+<span class="sd">        If True, decode the time coordinate into a datetime object. If False, the time</span>
+<span class="sd">        coordinate will be an int64 or float64 array of increments since the origin</span>
+<span class="sd">        time indicated in the units attribute. Default is True.</span>
+<span class="sd">    force: bool, optional</span>
+<span class="sd">        If True, force the download process regardless if there is a cached version of the generated dataset. Default</span>
+<span class="sd">        is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        IBTRACS dataset as a ragged array.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift import datasets</span>
+<span class="sd">    &gt;&gt;&gt; ds = datasets.ibtracs()</span>
+<span class="sd">    &gt;&gt;&gt; ds</span>
+<span class="sd">    &lt;xarray.Dataset&gt; Size: 18MB</span>
+<span class="sd">    Dimensions:           (storm: 380, obs: 22055, quadrant: 4)</span>
+<span class="sd">    Coordinates:</span>
+<span class="sd">        id                (storm) int64 3kB ...</span>
+<span class="sd">        time              (obs) datetime64[ns] 176kB ...</span>
+<span class="sd">    Dimensions without coordinates: storm, obs, quadrant</span>
+<span class="sd">    Data variables: (12/161)</span>
+<span class="sd">        numobs            (storm) int64 3kB ...</span>
+<span class="sd">        sid               (storm) |S13 5kB ...</span>
+<span class="sd">        season            (storm) float32 2kB ...</span>
+<span class="sd">        number            (storm) int16 760B ...</span>
+<span class="sd">        name              (storm) |S128 49kB ...</span>
+<span class="sd">        source_usa        (storm) |S128 49kB ...</span>
+<span class="sd">        ...                ...</span>
+<span class="sd">        usa_seahgt        (obs) float32 88kB ...</span>
+<span class="sd">        usa_searad        (obs, quadrant) float32 353kB ...</span>
+<span class="sd">        storm_speed       (obs) float32 88kB ...</span>
+<span class="sd">        storm_dir         (obs) float32 88kB ...</span>
+<span class="sd">        lat               (obs) float32 88kB ...</span>
+<span class="sd">        lon               (obs) float32 88kB ...</span>
+<span class="sd">    Attributes: (12/49)</span>
+<span class="sd">        title:                      IBTrACS - International Best Track Archive fo...</span>
+<span class="sd">        summary:                    The intent of the IBTrACS project is to overc...</span>
+<span class="sd">        source:                     The original data are tropical cyclone positi...</span>
+<span class="sd">        Conventions:                ACDD-1.3</span>
+<span class="sd">        Conventions_note:           Data are nearly CF-1.7 compliant. The sole is...</span>
+<span class="sd">        product_version:            v04r01</span>
+<span class="sd">        ...                         ...</span>
+<span class="sd">        history:                    Thu Oct 17 05:37:12 2024: ncks --no_abc --cnk...</span>
+<span class="sd">        license:                    These data may be redistributed and used with...</span>
+<span class="sd">        featureType:                trajectory</span>
+<span class="sd">        cdm_data_type:              Trajectory</span>
+<span class="sd">        comment:                    The tracks of TCs generally look like a traje...</span>
+<span class="sd">        NCO:                        netCDF Operators version 5.0.7 (Homepage = ht...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">_dataset_filecache</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;ibtracs_ra_</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">.nc&quot;</span><span class="p">,</span>
+        <span class="n">decode_times</span><span class="p">,</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">adapters</span><span class="o">.</span><span class="n">ibtracs</span><span class="o">.</span><span class="n">to_raggedarray</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">),</span>
+        <span class="n">force</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="mosaic">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.datasets.mosaic.html#clouddrift.datasets.mosaic">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mosaic</span><span class="p">(</span><span class="n">decode_times</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the MOSAiC sea-ice drift dataset as a ragged array Xarray dataset.</span>
+
+<span class="sd">    The function will first look for the ragged-array dataset on the local</span>
+<span class="sd">    filesystem. If it is not found, the dataset will be downloaded using the</span>
+<span class="sd">    corresponding adapter function and stored for later access.</span>
+
+<span class="sd">    The upstream data is available at https://arcticdata.io/catalog/view/doi:10.18739/A2KP7TS83.</span>
+
+<span class="sd">    Reference</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Angela Bliss, Jennifer Hutchings, Philip Anderson, Philipp Anhaus,</span>
+<span class="sd">    Hans Jakob Belter, Jørgen Berge, Vladimir Bessonov, Bin Cheng, Sylvia Cole,</span>
+<span class="sd">    Dave Costa, Finlo Cottier, Christopher J Cox, Pedro R De La Torre, Dmitry V Divine,</span>
+<span class="sd">    Gilbert Emzivat, Ying-Chih Fang, Steven Fons, Michael Gallagher, Maxime Geoffrey,</span>
+<span class="sd">    Mats A Granskog, ... Guangyu Zuo. (2022). Sea ice drift tracks from the Distributed</span>
+<span class="sd">    Network of autonomous buoys deployed during the Multidisciplinary drifting Observatory</span>
+<span class="sd">    for the Study of Arctic Climate (MOSAiC) expedition 2019 - 2021. Arctic Data Center.</span>
+<span class="sd">    doi:10.18739/A2KP7TS83.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    decode_times : bool, optional</span>
+<span class="sd">        If True, decode the time coordinate into a datetime object. If False, the time</span>
+<span class="sd">        coordinate will be an int64 or float64 array of increments since the origin</span>
+<span class="sd">        time indicated in the units attribute. Default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        MOSAiC sea-ice drift dataset as a ragged array</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.datasets import mosaic</span>
+<span class="sd">    &gt;&gt;&gt; ds = mosaic()</span>
+<span class="sd">    &gt;&gt;&gt; ds</span>
+<span class="sd">    &lt;xarray.Dataset&gt;</span>
+<span class="sd">    Dimensions:                     (obs: 1926226, traj: 216)</span>
+<span class="sd">    Coordinates:</span>
+<span class="sd">        time                        (obs) datetime64[ns] ...</span>
+<span class="sd">        id                          (traj) object ...</span>
+<span class="sd">    Dimensions without coordinates: obs, traj</span>
+<span class="sd">    Data variables: (12/19)</span>
+<span class="sd">        latitude                    (obs) float64 ...</span>
+<span class="sd">        longitude                   (obs) float64 ...</span>
+<span class="sd">        Deployment Leg              (traj) int64 ...</span>
+<span class="sd">        DN Station ID               (traj) object ...</span>
+<span class="sd">        IMEI                        (traj) object ...</span>
+<span class="sd">        Deployment Date             (traj) datetime64[ns] ...</span>
+<span class="sd">        ...                          ...</span>
+<span class="sd">        Buoy Type                   (traj) object ...</span>
+<span class="sd">        Manufacturer                (traj) object ...</span>
+<span class="sd">        Model                       (traj) object ...</span>
+<span class="sd">        PI                          (traj) object ...</span>
+<span class="sd">        Data Authors                (traj) object ...</span>
+<span class="sd">        rowsize                     (traj) int64 ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_dataset_filecache</span><span class="p">(</span><span class="s2">&quot;mosaic.nc&quot;</span><span class="p">,</span> <span class="n">decode_times</span><span class="p">,</span> <span class="n">adapters</span><span class="o">.</span><span class="n">mosaic</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="spotters">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.datasets.spotters.html#clouddrift.datasets.spotters">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">spotters</span><span class="p">(</span><span class="n">decode_times</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the Sofar Ocean Spotter drifters ragged array dataset as an Xarray dataset.</span>
+
+<span class="sd">    The data is accessed from a zarr archive hosted on a public AWS S3 bucket accessible</span>
+<span class="sd">    at https://sofar-spotter-archive.s3.amazonaws.com/spotter_data_bulk_zarr.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    decode_times : bool, optional</span>
+<span class="sd">        If True, decode the time coordinate into a datetime object. If False, the time</span>
+<span class="sd">        coordinate will be an int64 or float64 array of increments since the origin</span>
+<span class="sd">        time indicated in the units attribute. Default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        Sofar ocean floats dataset as a ragged array</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.datasets import spotters</span>
+<span class="sd">    &gt;&gt;&gt; ds = spotters()</span>
+<span class="sd">    &gt;&gt;&gt; ds</span>
+<span class="sd">    &lt;xarray.Dataset&gt;</span>
+<span class="sd">    Dimensions:                (index: 6390651, trajectory: 871)</span>
+<span class="sd">    Coordinates:</span>
+<span class="sd">        time                   (index) datetime64[ns] ...</span>
+<span class="sd">      * trajectory             (trajectory) object &#39;SPOT-010001&#39; ... &#39;SPOT-1975&#39;</span>
+<span class="sd">    Dimensions without coordinates: index</span>
+<span class="sd">    Data variables:</span>
+<span class="sd">        latitude               (index) float64 ...</span>
+<span class="sd">        longitude              (index) float64 ...</span>
+<span class="sd">        meanDirection          (index) float64 ...</span>
+<span class="sd">        meanDirectionalSpread  (index) float64 ...</span>
+<span class="sd">        meanPeriod             (index) float64 ...</span>
+<span class="sd">        peakDirection          (index) float64 ...</span>
+<span class="sd">        peakDirectionalSpread  (index) float64 ...</span>
+<span class="sd">        peakPeriod             (index) float64 ...</span>
+<span class="sd">        rowsize                (trajectory) int64 ...</span>
+<span class="sd">        significantWaveHeight  (index) float64 ...</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        author:         Isabel A. Houghton</span>
+<span class="sd">        creation_date:  2023-10-18 00:43:55.333537</span>
+<span class="sd">        email:          isabel.houghton@sofarocean.com</span>
+<span class="sd">        institution:    Sofar Ocean</span>
+<span class="sd">        references:     https://content.sofarocean.com/hubfs/Spotter%20product%20...</span>
+<span class="sd">        source:         Spotter wave buoy</span>
+<span class="sd">        title:          Sofar Spotter Data Archive - Bulk Wave Parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://sofar-spotter-archive.s3.amazonaws.com/spotter_data_bulk_zarr&quot;</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;zarr&quot;</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="n">decode_times</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="subsurface_floats">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.datasets.subsurface_floats.html#clouddrift.datasets.subsurface_floats">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">subsurface_floats</span><span class="p">(</span><span class="n">decode_times</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the subsurface floats dataset as a ragged array Xarray dataset.</span>
+
+<span class="sd">    The data is accessed from a public HTTPS server at NOAA&#39;s Atlantic</span>
+<span class="sd">    Oceanographic and Meteorological Laboratory (AOML) accessible at</span>
+<span class="sd">    https://www.aoml.noaa.gov/phod/gdp/index.php.</span>
+
+<span class="sd">    The upstream data is available at</span>
+<span class="sd">    https://www.aoml.noaa.gov/phod/float_traj/files/allFloats_12122017.mat.</span>
+
+<span class="sd">    This dataset of subsurface float observations was compiled by the WOCE Subsurface</span>
+<span class="sd">    Float Data Assembly Center (WFDAC) in Woods Hole maintained by Andree Ramsey and</span>
+<span class="sd">    Heather Furey and copied to NOAA/AOML in October 2014 (version 1) and in December</span>
+<span class="sd">    2017 (version 2). Subsequent updates will be included as additional appropriate</span>
+<span class="sd">    float data, quality controlled by the appropriate principal investigators, is</span>
+<span class="sd">    submitted for inclusion.</span>
+
+<span class="sd">    Note that these observations are collected by ALACE/RAFOS/Eurofloat-style</span>
+<span class="sd">    acoustically-tracked, neutrally-buoyant subsurface floats which collect data while</span>
+<span class="sd">    drifting beneath the ocean surface. These data are the result of the effort and</span>
+<span class="sd">    resources of many individuals and institutions. You are encouraged to acknowledge</span>
+<span class="sd">    the work of the data originators and Data Centers in publications arising from use</span>
+<span class="sd">    of these data.</span>
+
+<span class="sd">    The float data were originally divided by project at the WFDAC. Here they have been</span>
+<span class="sd">    compiled in a single Matlab data set. See here for more information on the variables</span>
+<span class="sd">    contained in these files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    decode_times : bool, optional</span>
+<span class="sd">        If True, decode the time coordinate into a datetime object. If False, the time</span>
+<span class="sd">        coordinate will be an int64 or float64 array of increments since the origin</span>
+<span class="sd">        time indicated in the units attribute. Default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        Subsurface floats dataset as a ragged array</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.datasets import subsurface_floats</span>
+<span class="sd">    &gt;&gt;&gt; ds = subsurface_floats()</span>
+<span class="sd">    &gt;&gt;&gt; ds</span>
+<span class="sd">    &lt;xarray.Dataset&gt;</span>
+<span class="sd">    Dimensions:   (traj: 2193, obs: 1402840)</span>
+<span class="sd">    Coordinates:</span>
+<span class="sd">        id        (traj) uint16 ...</span>
+<span class="sd">        time      (obs) datetime64[ns] ...</span>
+<span class="sd">    Dimensions without coordinates: traj, obs</span>
+<span class="sd">    Data variables: (12/13)</span>
+<span class="sd">        expList   (traj) object ...</span>
+<span class="sd">        expName   (traj) object ...</span>
+<span class="sd">        expOrg    (traj) object ...</span>
+<span class="sd">        expPI     (traj) object ...</span>
+<span class="sd">        indexExp  (traj) uint8 ...</span>
+<span class="sd">        fltType   (traj) object ...</span>
+<span class="sd">        ...        ...</span>
+<span class="sd">        lon       (obs) float64 ...</span>
+<span class="sd">        lat       (obs) float64 ...</span>
+<span class="sd">        pres      (obs) float64 ...</span>
+<span class="sd">        temp      (obs) float64 ...</span>
+<span class="sd">        ve        (obs) float64 ...</span>
+<span class="sd">        vn        (obs) float64 ...</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        title:            Subsurface float trajectories dataset</span>
+<span class="sd">        history:          December 2017 (version 2)</span>
+<span class="sd">        date_created:     2023-11-14T22:30:38.831656</span>
+<span class="sd">        publisher_name:   WOCE Subsurface Float Data Assembly Center and NOAA AOML</span>
+<span class="sd">        publisher_url:    https://www.aoml.noaa.gov/phod/float_traj/data.php</span>
+<span class="sd">        license:          freely available</span>
+<span class="sd">        acknowledgement:  Maintained by Andree Ramsey and Heather Furey from the ...</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    WOCE Subsurface Float Data Assembly Center (WFDAC) https://www.aoml.noaa.gov/phod/float_traj/index.php</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_dataset_filecache</span><span class="p">(</span>
+        <span class="s2">&quot;subsurface_floats.nc&quot;</span><span class="p">,</span> <span class="n">decode_times</span><span class="p">,</span> <span class="n">adapters</span><span class="o">.</span><span class="n">subsurface_floats</span><span class="o">.</span><span class="n">to_xarray</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="yomaha">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.datasets.yomaha.html#clouddrift.datasets.yomaha">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">yomaha</span><span class="p">(</span><span class="n">decode_times</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the YoMaHa dataset as a ragged array Xarray dataset.</span>
+
+<span class="sd">    The function will first look for the ragged-array dataset on the local</span>
+<span class="sd">    filesystem. If it is not found, the dataset will be downloaded using the</span>
+<span class="sd">    corresponding adapter function and stored for later access. The upstream</span>
+<span class="sd">    data is available at http://apdrc.soest.hawaii.edu/projects/yomaha/.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    decode_times : bool, optional</span>
+<span class="sd">        If True, decode the time coordinate into a datetime object. If False, the time</span>
+<span class="sd">        coordinate will be an int64 or float64 array of increments since the origin</span>
+<span class="sd">        time indicated in the units attribute. Default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        YoMaHa&#39;07 dataset as a ragged array</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    &gt;&gt;&gt; from clouddrift.datasets import yomaha</span>
+<span class="sd">    &gt;&gt;&gt; ds = yomaha()</span>
+<span class="sd">    &gt;&gt;&gt; ds</span>
+<span class="sd">    &lt;xarray.Dataset&gt;</span>
+<span class="sd">    Dimensions:     (obs: 1926743, traj: 12196)</span>
+<span class="sd">    Coordinates:</span>
+<span class="sd">        time_d      (obs) datetime64[ns] ...</span>
+<span class="sd">        time_s      (obs) datetime64[ns] ...</span>
+<span class="sd">        time_lp     (obs) datetime64[ns] ...</span>
+<span class="sd">        time_lc     (obs) datetime64[ns] ...</span>
+<span class="sd">        id          (traj) int64 ...</span>
+<span class="sd">    Dimensions without coordinates: obs, traj</span>
+<span class="sd">    Data variables: (12/27)</span>
+<span class="sd">        lon_d       (obs) float64 ...</span>
+<span class="sd">        lat_d       (obs) float64 ...</span>
+<span class="sd">        pres_d      (obs) float32 ...</span>
+<span class="sd">        ve_d        (obs) float32 ...</span>
+<span class="sd">        vn_d        (obs) float32 ...</span>
+<span class="sd">        err_ve_d    (obs) float32 ...</span>
+<span class="sd">        ...          ...</span>
+<span class="sd">        cycle       (obs) int64 ...</span>
+<span class="sd">        time_inv    (obs) int64 ...</span>
+<span class="sd">        rowsize     (traj) int64 ...</span>
+<span class="sd">        wmo_id      (traj) int64 ...</span>
+<span class="sd">        dac_id      (traj) int64 ...</span>
+<span class="sd">        float_type  (traj) int64 ...</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        title:           YoMaHa&#39;07: Velocity data assessed from trajectories of A...</span>
+<span class="sd">        history:         Dataset updated on Tue Jun 28 03:14:34 HST 2022</span>
+<span class="sd">        date_created:    2023-12-08T00:52:08.478075</span>
+<span class="sd">        publisher_name:  Asia-Pacific Data Research Center</span>
+<span class="sd">        publisher_url:   http://apdrc.soest.hawaii.edu/index.php</span>
+<span class="sd">        license:         Creative Commons Attribution 4.0 International License..</span>
+
+<span class="sd">    Reference</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Lebedev, K. V., Yoshinari, H., Maximenko, N. A., &amp; Hacker, P. W. (2007). Velocity data</span>
+<span class="sd">    assessed  from trajectories of Argo floats at parking level and at the sea</span>
+<span class="sd">    surface. IPRC Technical Note, 4(2), 1-16.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_dataset_filecache</span><span class="p">(</span><span class="s2">&quot;yomaha.nc&quot;</span><span class="p">,</span> <span class="n">decode_times</span><span class="p">,</span> <span class="n">adapters</span><span class="o">.</span><span class="n">yomaha</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="andro">
+<a class="viewcode-back" href="../../_autosummary/clouddrift.datasets.andro.html#clouddrift.datasets.andro">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">andro</span><span class="p">(</span><span class="n">decode_times</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the ANDRO as a ragged array Xarray dataset.</span>
+
+<span class="sd">    The function will first look for the ragged-array dataset on the local</span>
+<span class="sd">    filesystem. If it is not found, the dataset will be downloaded using the</span>
+<span class="sd">    corresponding adapter function and stored for later access. The upstream</span>
+<span class="sd">    data is available at https://www.seanoe.org/data/00360/47077/.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    decode_times : bool, optional</span>
+<span class="sd">        If True, decode the time coordinate into a datetime object. If False, the time</span>
+<span class="sd">        coordinate will be an int64 or float64 array of increments since the origin</span>
+<span class="sd">        time indicated in the units attribute. Default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        ANDRO dataset as a ragged array</span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from clouddrift.datasets import andro</span>
+<span class="sd">    &gt;&gt;&gt; ds = andro()</span>
+<span class="sd">    &gt;&gt;&gt; ds</span>
+<span class="sd">    &lt;xarray.Dataset&gt; Size: 110MB</span>
+<span class="sd">    Dimensions:     (obs: 510630, traj: 3344)</span>
+<span class="sd">    Coordinates:</span>
+<span class="sd">        time_d      (obs) datetime64[ns] 4MB ...</span>
+<span class="sd">        time_s      (obs) datetime64[ns] 4MB ...</span>
+<span class="sd">        time_lp     (obs) datetime64[ns] 4MB ...</span>
+<span class="sd">        time_lc     (obs) datetime64[ns] 4MB ...</span>
+<span class="sd">        id          (traj) float32 13kB ...</span>
+<span class="sd">    Dimensions without coordinates: obs, traj</span>
+<span class="sd">    Data variables: (12/33)</span>
+<span class="sd">        lon_d       (obs) float64 4MB ...</span>
+<span class="sd">        lat_d       (obs) float64 4MB ...</span>
+<span class="sd">        pres_d      (obs) float32 2MB ...</span>
+<span class="sd">        temp_d      (obs) float32 2MB ...</span>
+<span class="sd">        sal_d       (obs) float32 2MB ...</span>
+<span class="sd">        ve_d        (obs) float32 2MB ...</span>
+<span class="sd">        ...          ...</span>
+<span class="sd">        lon_lc      (obs) float64 4MB ...</span>
+<span class="sd">        lat_lc      (obs) float64 4MB ...</span>
+<span class="sd">        surf_fix    (obs) float32 2MB ...</span>
+<span class="sd">        cycle       (obs) float32 2MB ...</span>
+<span class="sd">        profile_id  (obs) float32 2MB ...</span>
+<span class="sd">        rowsize     (traj) int64 27kB ...</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        title:           ANDRO: An Argo-based deep displacement dataset (Quality ...</span>
+<span class="sd">        history:         Dataset updated on 2024-03-25</span>
+<span class="sd">        date_created:    2024-07-02T12:11:50.643492</span>
+<span class="sd">        publisher_name:  SEANOE (SEA scieNtific Open data Edition)</span>
+<span class="sd">        publisher_url:   https://www.seanoe.org/data/00360/47077/</span>
+<span class="sd">        license:         Creative Commons Attribution 4.0 International License (...</span>
+
+<span class="sd">    Reference</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Ollitrault Michel, Rannou Philippe, Brion Emilie, Cabanes Cecile, Piron Anne, Reverdin Gilles,</span>
+<span class="sd">    Kolodziejczyk Nicolas (2022). ANDRO: An Argo-based deep displacement dataset.</span>
+<span class="sd">    SEANOE. https://doi.org/10.17882/47077</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_dataset_filecache</span><span class="p">(</span><span class="s2">&quot;andro.nc&quot;</span><span class="p">,</span> <span class="n">decode_times</span><span class="p">,</span> <span class="n">adapters</span><span class="o">.</span><span class="n">andro</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_dataset_filecache</span><span class="p">(</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">decode_times</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">get_ds</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">clouddrift_path</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/.clouddrift&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLOUDDRIFT_PATH&quot;</span><span class="p">)</span>
+        <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLOUDDRIFT_PATH&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">fp</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">clouddrift_path</span><span class="si">}</span><span class="s2">/data/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span> <span class="ow">or</span> <span class="n">force</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">get_ds</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;.nc&quot;</span><span class="p">:</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;.zarr&quot;</span><span class="p">:</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">to_zarr</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+
+    <span class="n">engine</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;.zarr&quot;</span><span class="p">:</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="s2">&quot;zarr&quot;</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="n">decode_times</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Philippe Miron
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022-2023, CloudDrift.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
