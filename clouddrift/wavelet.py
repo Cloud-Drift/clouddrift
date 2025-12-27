@@ -854,34 +854,34 @@ def morse_spherical_wavelet_transform(
     Parameters
     ----------
     lat : array-like
-        Latitude in degrees
+        Latitude in degrees.
     lon : array-like
-        Longitude in degrees
+        Longitude in degrees.
     gamma : float
-        Gamma parameter of the Morse wavelets
+        Gamma parameter of the Morse wavelets.
     beta : float
-        Beta parameter of the Morse wavelets
+        Beta parameter of the Morse wavelets.
     radian_frequency : array-like
         Array of radian frequencies at which the Fourier transform of the wavelets
-        reach their maximum amplitudes
+        reach their maximum amplitudes.
     radius : float, optional
-        Sphere radius in kilometers (default: Earth radius)
+        Sphere radius in meters (default: Earth radius).
     complex : bool, optional
         Specify if the input signal is complex. Default is False.
         This affects normalization and interpretation of outputs.
     time_axis : int, optional
-        Axis on which time is defined for input arrays (default is last, or -1)
+        Axis on which time is defined for input arrays (default is last, or -1).
     normalization : str, optional
         Normalization for wavelet transforms. Options:
-        - "bandpass": bandpass normalization (default)
-        - "energy": unit energy normalization
+        - "bandpass": bandpass normalization (default),
+        - "energy": unit energy normalization.
     boundary : str, optional
         Boundary condition at edges. Options:
-        - "periodic": periodic boundary (default)
-        - "mirror": mirror boundary
-        - "zeros": zero padding
+        - "periodic": periodic boundary (default),
+        - "mirror": mirror boundary,
+        - "zeros": zero padding.
     order : int, optional
-        Order of Morse wavelets (default is 1)
+        Order of Morse wavelets (default is 1).
 
     Returns
     -------
@@ -963,7 +963,7 @@ def _wavelet_transform_spherical_to_tangent(
     time_axis: int = -1,
 ) -> tuple:
     """
-    Project 3D wavelet transform onto local horizontal tangent plane.
+    Project 3D wavelet transforms onto local horizontal tangent plane of spherical Earth.
 
     This function projects the 3D wavelet coefficients back onto a tangent plane
     centered on the time-varying center of the oscillation in each wavelet band.
@@ -971,18 +971,18 @@ def _wavelet_transform_spherical_to_tangent(
     Parameters
     ----------
     lat, lon : array-like
-        Latitude and longitude arrays in degrees
+        Latitude and longitude arrays in degrees.
     x, y, z : array-like
-        3D Cartesian coordinate arrays
+        3D Cartesian coordinate arrays.
     wx, wy, wz : array-like
-        3D wavelet transform coefficients
+        3D wavelet transform coefficients.
     time_axis : int, optional
-        Axis along which time varies (default: -1)
+        Axis along which time varies (default: -1).
 
     Returns
     -------
     wxh, wyh : arrays
-        Horizontal components of wavelet transform in tangent plane
+        Horizontal components of wavelet transform in tangent plane.
     """
 
     # Handle time_axis parameter - move time axis to last position if needed
