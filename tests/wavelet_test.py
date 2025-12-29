@@ -8,10 +8,10 @@ from clouddrift.wavelet import (
     morse_freq,
     morse_logspace_freq,
     morse_properties,
+    morse_spherical_wavelet_transform,
     morse_wavelet,
     morse_wavelet_transform,
     wavelet_transform,
-    morse_spherical_wavelet_transform,
 )
 
 if __name__ == "__main__":
@@ -378,88 +378,86 @@ class morse_spherical_wavelet_transform_tests(unittest.TestCase):
         lat = np.linspace(-90, 90, length)
         lon = np.linspace(-180, 180, length)
         radian_frequency = 2 * np.pi / np.logspace(np.log10(10), np.log10(100), 5)
-        
-        wxh, wyh = morse_spherical_wavelet_transform(
-            lat, lon, 3, 10, radian_frequency
-        )
-        
+
+        wxh, wyh = morse_spherical_wavelet_transform(lat, lon, 3, 10, radian_frequency)
+
         # Check output shapes - default order=1 gives (freq, time)
         self.assertEqual(wxh.shape, wyh.shape)
         self.assertEqual(wxh.ndim, 2)  # (freq, time)
         self.assertEqual(wxh.shape[0], len(radian_frequency))  # number of frequencies
         self.assertEqual(wxh.shape[1], length)  # time dimension
-    
+
     def test_morse_spherical_wavelet_transform_output_types(self):
         """Test that outputs are complex-valued"""
         length = 128
         lat = np.random.uniform(-90, 90, length)
         lon = np.random.uniform(-180, 180, length)
         radian_frequency = np.array([0.1, 0.2])
-        
-        wxh, wyh = morse_spherical_wavelet_transform(
-            lat, lon, 3, 10, radian_frequency
-        )
-        
+
+        wxh, wyh = morse_spherical_wavelet_transform(lat, lon, 3, 10, radian_frequency)
+
         self.assertTrue(np.iscomplexobj(wxh))
         self.assertTrue(np.iscomplexobj(wyh))
-    
+
     def test_morse_spherical_wavelet_transform_with_order(self):
         """Test with different wavelet orders"""
         length = 256
         lat = np.random.uniform(-90, 90, length)
-        lon = np.random.uniform(-180, 180, length)  # Fix: use longitude values, not latitude
+        lon = np.random.uniform(
+            -180, 180, length
+        )  # Fix: use longitude values, not latitude
         radian_frequency = np.array([0.1, 0.2, 0.3])
         order = 2
-        
+
         wxh, wyh = morse_spherical_wavelet_transform(
             lat, lon, 3, 10, radian_frequency, order=order
         )
-        
+
         # Shape should be (order, freq, time)
         self.assertEqual(wxh.shape[0], order)
         self.assertEqual(wxh.shape[1], len(radian_frequency))
         self.assertEqual(wxh.shape[2], length)
-    
+
     def test_morse_spherical_wavelet_transform_normalization_energy(self):
         """Test with energy normalization"""
         length = 256
         lat = np.random.uniform(-90, 90, length)
         lon = np.random.uniform(-180, 180, length)
         radian_frequency = np.array([0.1, 0.2])
-        
+
         wxh, wyh = morse_spherical_wavelet_transform(
             lat, lon, 3, 10, radian_frequency, normalization="energy"
         )
-        
+
         self.assertEqual(wxh.shape, wyh.shape)
         self.assertTrue(np.iscomplexobj(wxh))
-    
+
     def test_morse_spherical_wavelet_transform_normalization_bandpass(self):
         """Test with bandpass normalization"""
         length = 256
         lat = np.random.uniform(-90, 90, length)
         lon = np.random.uniform(-180, 180, length)
         radian_frequency = np.array([0.1, 0.2])
-        
+
         wxh, wyh = morse_spherical_wavelet_transform(
             lat, lon, 3, 10, radian_frequency, normalization="bandpass"
         )
-        
+
         self.assertEqual(wxh.shape, wyh.shape)
-    
+
     def test_morse_spherical_wavelet_transform_boundary_periodic(self):
         """Test with periodic boundary condition"""
         length = 256
         lat = np.random.uniform(-90, 90, length)
         lon = np.random.uniform(-180, 180, length)
         radian_frequency = np.array([0.1])
-        
+
         wxh, wyh = morse_spherical_wavelet_transform(
             lat, lon, 3, 10, radian_frequency, boundary="periodic"
         )
-        
+
         self.assertEqual(wxh.shape, wyh.shape)
-    
+
     def test_morse_spherical_wavelet_transform_custom_radius(self):
         """Test with custom sphere radius"""
         length = 128
@@ -467,43 +465,39 @@ class morse_spherical_wavelet_transform_tests(unittest.TestCase):
         lon = np.random.uniform(-180, 180, length)
         radian_frequency = np.array([0.1, 0.2])
         custom_radius = 1000.0  # 1000 meters
-        
+
         wxh, wyh = morse_spherical_wavelet_transform(
             lat, lon, 3, 10, radian_frequency, radius=custom_radius
         )
-        
+
         self.assertEqual(wxh.shape, wyh.shape)
-    
+
     def test_morse_spherical_wavelet_transform_time_axis(self):
         """Test with different time axis specification"""
         length = 256
         lat = np.random.uniform(-90, 90, length)
         lon = np.random.uniform(-180, 180, length)
         radian_frequency = np.array([0.1, 0.2])
-        
+
         # Default time_axis=-1
         wxh, wyh = morse_spherical_wavelet_transform(
             lat, lon, 3, 10, radian_frequency, time_axis=-1
         )
-        
+
         self.assertTrue(wxh.shape[-1] == length)
-    
+
     def test_morse_spherical_wavelet_transform_longitude_wrapping(self):
         """Test that function handles longitude wrapping correctly"""
         length = 256
         lat = np.random.uniform(-90, 90, length)
         # Longitude near discontinuity
-        lon = np.concatenate([
-            np.linspace(170, 180, length//2),
-            np.linspace(-180, -170, length//2)
-        ])
-        radian_frequency = np.array([0.1])
-        
-        wxh, wyh = morse_spherical_wavelet_transform(
-            lat, lon, 3, 10, radian_frequency
+        lon = np.concatenate(
+            [np.linspace(170, 180, length // 2), np.linspace(-180, -170, length // 2)]
         )
-        
+        radian_frequency = np.array([0.1])
+
+        wxh, wyh = morse_spherical_wavelet_transform(lat, lon, 3, 10, radian_frequency)
+
         self.assertEqual(wxh.shape, wyh.shape)
         self.assertFalse(np.any(np.isnan(wxh)))
         self.assertFalse(np.any(np.isnan(wyh)))
-

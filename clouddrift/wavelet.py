@@ -1042,7 +1042,11 @@ def _wavelet_transform_spherical_to_tangent(
         # Project 3D vectors to horizontal components using new coordinates
         if wx.ndim == 3:  # (order, freq, time)
             wxh_freq, wyh_freq = cartesian_to_tangentplane(
-                wx[:, freq_idx, :], wy[:, freq_idx, :], wz[:, freq_idx, :], lon_new, lat_new
+                wx[:, freq_idx, :],
+                wy[:, freq_idx, :],
+                wz[:, freq_idx, :],
+                lon_new,
+                lat_new,
             )
             wxh[:, freq_idx, :] = wxh_freq
             wyh[:, freq_idx, :] = wyh_freq
