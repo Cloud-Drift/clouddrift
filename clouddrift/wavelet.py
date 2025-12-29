@@ -1014,7 +1014,7 @@ def _wavelet_transform_spherical_to_tangent(
     else:
         squeeze_output = False
 
-    n_freq, _ = wx.shape[-2:]
+    n_freq = wx.shape[1] if wx.ndim == 3 else wx.shape[0] if wx.ndim == 2 else 1
 
     # Initialize output arrays
     wxh = np.zeros_like(wx, dtype=complex)
@@ -1027,20 +1027,31 @@ def _wavelet_transform_spherical_to_tangent(
         z_vec = z
 
         # Subtract the real part of wavelet coefficients to find new positions
-        x_new = x_vec - np.real(wx[freq_idx, :])
-        y_new = y_vec - np.real(wy[freq_idx, :])
-        z_new = z_vec - np.real(wz[freq_idx, :])
+        if wx.ndim == 3:  # (order, freq, time)
+            x_new = x_vec - np.real(wx[:, freq_idx, :])
+            y_new = y_vec - np.real(wy[:, freq_idx, :])
+            z_new = z_vec - np.real(wz[:, freq_idx, :])
+        else:  # (freq, time)
+            x_new = x_vec - np.real(wx[freq_idx, :])
+            y_new = y_vec - np.real(wy[freq_idx, :])
+            z_new = z_vec - np.real(wz[freq_idx, :])
 
         # Convert back to lat/lon
         lon_new, lat_new = cartesian_to_spherical(x_new, y_new, z_new)
 
         # Project 3D vectors to horizontal components using new coordinates
-        wxh_freq, wyh_freq = cartesian_to_tangentplane(
-            wx[freq_idx, :], wy[freq_idx, :], wz[freq_idx, :], lon_new, lat_new
-        )
-
-        wxh[freq_idx, :] = wxh_freq
-        wyh[freq_idx, :] = wyh_freq
+        if wx.ndim == 3:  # (order, freq, time)
+            wxh_freq, wyh_freq = cartesian_to_tangentplane(
+                wx[:, freq_idx, :], wy[:, freq_idx, :], wz[:, freq_idx, :], lon_new, lat_new
+            )
+            wxh[:, freq_idx, :] = wxh_freq
+            wyh[:, freq_idx, :] = wyh_freq
+        else:  # (freq, time)
+            wxh_freq, wyh_freq = cartesian_to_tangentplane(
+                wx[freq_idx, :], wy[freq_idx, :], wz[freq_idx, :], lon_new, lat_new
+            )
+            wxh[freq_idx, :] = wxh_freq
+            wyh[freq_idx, :] = wyh_freq
 
     # Restore original axis order if needed
     if move_back:
