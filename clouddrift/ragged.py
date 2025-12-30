@@ -762,7 +762,7 @@ def subset(
         mask_obs
     ]
     mask_row = np.logical_and(
-        mask_row, np.in1d(ds[id_var_name], np.unique(ids_with_mask_obs))
+        mask_row, np.isin(ds[id_var_name], np.unique(ids_with_mask_obs))
     )
 
     # reset mask_obs to True if we want to keep complete rows

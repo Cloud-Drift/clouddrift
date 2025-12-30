@@ -42,7 +42,6 @@ GDP_METADATA = [
     "drogue_lost_date",
     "typedeath",
     "typebuoy",
-    "location_type",
     "DeployingShip",
     "DeploymentStatus",
     "BuoyTypeManufacturer",
@@ -53,7 +52,6 @@ GDP_METADATA = [
     "Transmissions",
     "DeployingCountry",
     "DeploymentComments",
-    "ManufactureYear",
     "ManufactureMonth",
     "ManufactureSensorType",
     "ManufactureVoltage",
@@ -187,7 +185,7 @@ def order_by_date(df: pd.DataFrame, idx: list[int]) -> list[int]:  # noqa: F821
     idx : list
         Unique set of drifter IDs sorted by their start date.
     """
-    return df.ID[np.where(np.in1d(df.ID, idx))[0]].values  # type: ignore
+    return df.ID[np.where(np.isin(df.ID, idx))[0]].values  # type: ignore
 
 
 def fetch_netcdf(url: str, file: str):
