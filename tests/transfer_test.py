@@ -1,5 +1,6 @@
 import unittest
 import warnings
+from unittest import result
 
 import numpy as np
 from numpy.lib.scimath import sqrt
@@ -612,17 +613,34 @@ class TransferFunctionTestGradient(unittest.TestCase):
 
         for i in range(len(self.delta)):
             for j in range(len(self.bld)):
-                wind_transfer_init[i, j], dG_ddelta[i, j], dG_dbld[i, j] = (
-                    wind_transfer(
-                        omega=omega,
-                        z=z,
-                        cor_freq=cor_freq,
-                        delta=self.delta[i],
-                        mu=mu,
-                        bld=self.bld[j],
-                    )
+                results = wind_transfer(
+                    omega=omega,
+                    z=z,
+                    cor_freq=cor_freq,
+                    delta=self.delta[i],
+                    mu=mu,
+                    bld=self.bld[j],
                 )
-                wind_transfer_ddelta_plus[i, j], _, _ = wind_transfer(
+                wind_transfer_init[i, j] = (
+                    result[0].item() if isinstance(result[0], np.ndarray) else result[0]
+                )
+                dG_ddelta[i, j] = (
+                    result[1].item() if isinstance(result[1], np.ndarray) else result[1]
+                )
+                dG_dbld[i, j] = (
+                    result[2].item() if isinstance(result[2], np.ndarray) else result[2]
+                )
+                # wind_transfer_init[i, j], dG_ddelta[i, j], dG_dbld[i, j] = (
+                #     wind_transfer(
+                #         omega=omega,
+                #         z=z,
+                #         cor_freq=cor_freq,
+                #         delta=self.delta[i],
+                #         mu=mu,
+                #         bld=self.bld[j],
+                #     )
+                # )
+                results = wind_transfer(
                     omega=omega,
                     z=z,
                     cor_freq=cor_freq,
@@ -630,7 +648,12 @@ class TransferFunctionTestGradient(unittest.TestCase):
                     mu=mu,
                     bld=self.bld[j],
                 )
-                wind_transfer_ddelta_minus[i, j], _, _ = wind_transfer(
+                wind_transfer_ddelta_plus[i, j] = (
+                    results[0].item()
+                    if isinstance(results[0], np.ndarray)
+                    else results[0]
+                )
+                results = wind_transfer(
                     omega=omega,
                     z=z,
                     cor_freq=cor_freq,
@@ -638,7 +661,12 @@ class TransferFunctionTestGradient(unittest.TestCase):
                     mu=mu,
                     bld=self.bld[j],
                 )
-                wind_transfer_dbld_plus[i, j], _, _ = wind_transfer(
+                wind_transfer_ddelta_minus[i, j] = (
+                    results[0].item()
+                    if isinstance(results[0], np.ndarray)
+                    else results[0]
+                )
+                results = wind_transfer(
                     omega=omega,
                     z=z,
                     cor_freq=cor_freq,
@@ -646,13 +674,23 @@ class TransferFunctionTestGradient(unittest.TestCase):
                     mu=mu,
                     bld=self.bld[j] + delta_bld / 2,
                 )
-                wind_transfer_dbld_minus[i, j], _, _ = wind_transfer(
+                wind_transfer_dbld_plus[i, j] = (
+                    results[0].item()
+                    if isinstance(results[0], np.ndarray)
+                    else results[0]
+                )
+                results = wind_transfer(
                     omega=omega,
                     z=z,
                     cor_freq=cor_freq,
                     delta=self.delta[i],
                     mu=mu,
                     bld=self.bld[j] - delta_bld / 2,
+                )
+                wind_transfer_dbld_minus[i, j] = (
+                    results[0].item()
+                    if isinstance(results[0], np.ndarray)
+                    else results[0]
                 )
 
         dG_ddelta_fd = (
