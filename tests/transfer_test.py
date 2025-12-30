@@ -1,6 +1,5 @@
 import unittest
 import warnings
-from unittest import result
 
 import numpy as np
 from numpy.lib.scimath import sqrt
@@ -622,13 +621,19 @@ class TransferFunctionTestGradient(unittest.TestCase):
                     bld=self.bld[j],
                 )
                 wind_transfer_init[i, j] = (
-                    result[0].item() if isinstance(result[0], np.ndarray) else result[0]
+                    results[0].item()
+                    if isinstance(results[0], np.ndarray)
+                    else results[0]
                 )
                 dG_ddelta[i, j] = (
-                    result[1].item() if isinstance(result[1], np.ndarray) else result[1]
+                    results[1].item()
+                    if isinstance(results[1], np.ndarray)
+                    else results[1]
                 )
                 dG_dbld[i, j] = (
-                    result[2].item() if isinstance(result[2], np.ndarray) else result[2]
+                    results[2].item()
+                    if isinstance(results[2], np.ndarray)
+                    else results[2]
                 )
                 # wind_transfer_init[i, j], dG_ddelta[i, j], dG_dbld[i, j] = (
                 #     wind_transfer(
