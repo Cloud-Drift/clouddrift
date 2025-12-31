@@ -93,8 +93,8 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     Oceanographic and Meteorological Laboratory (AOML) accessible at
     https://www.aoml.noaa.gov/phod/gdp/index.php.
 
-    This returns the July 2024 version of the dataset including data from 1979-02-15:00:00:00Z
-    to 2024-08-16:12:00:00Z.
+    This returns the December 2024 version of the dataset including data from 1979-02-15:00:00:00Z
+    to 2025-01-20:00:00:00Z.
 
     Parameters
     ----------
@@ -152,7 +152,7 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     --------
     :func:`gdp1h`
     """
-    url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/experimental/gdp6h_ragged_jul24.zarr"
+    url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/experimental/gdp6h_ragged_dec24.zarr"
     ds = xr.open_dataset(url, decode_times=decode_times, engine="zarr")
     return ds
 

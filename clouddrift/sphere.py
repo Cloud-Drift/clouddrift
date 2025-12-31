@@ -645,17 +645,17 @@ def cartesian_to_spherical(
     """
 
     R = np.sqrt(x**2 + y**2 + z**2)
-    x /= R
-    y /= R
-    z /= R
+    x_norm = x / R
+    y_norm = y / R
+    z_norm = z / R
 
     with np.errstate(divide="ignore"):
         lon = np.where(
-            np.logical_and(x == 0, y == 0),
+            np.logical_and(x_norm == 0, y_norm == 0),
             0,
-            recast_lon180(np.rad2deg(np.imag(np.log(x + 1j * y)))),
+            recast_lon180(np.rad2deg(np.imag(np.log(x_norm + 1j * y_norm)))),
         )
-    lat = np.rad2deg(np.arcsin(z))
+    lat = np.rad2deg(np.arcsin(z_norm))
 
     return lon, lat
 
