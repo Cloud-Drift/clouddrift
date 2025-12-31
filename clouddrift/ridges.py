@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -330,7 +331,9 @@ def find_ridge_points(
         )[:2]
     else:
         # Univariate case
-        amplitude, inst_frequency = calculate_univariate_inst_moments(wavelet_transform, axis=-1)[:2]
+        amplitude, inst_frequency = calculate_univariate_inst_moments(
+            wavelet_transform, axis=-1
+        )[:2]
 
     # Determine ridge quantity based on ridge type
     if ridge_type.lower().startswith("amp"):
@@ -496,7 +499,7 @@ def ridge_shift_interpolation(
     """
     # Skip if no ridge points
     if not np.any(ridge_points):
-        print("No ridge points found, returning empty result.")
+        logging.info("No ridge points found, returning empty result.")
 
         return [np.array([], dtype=y_array.dtype) for y_array in y_arrays]
 
@@ -1030,7 +1033,6 @@ def calculate_ridge_lengths(
 
     # Process each ridge to calculate its length
     for ridge_id in range(1, num_ridges + 1):
-        
         if ridge_id not in ridge_data:
             ridge_lengths.append(0.0)
             continue
@@ -1051,7 +1053,7 @@ def calculate_ridge_lengths(
             )
             ridge_lengths.append(ridge_length)
         except Exception as e:
-            print(f"Error calculating length for ridge {ridge_id}: {e}")
+            logging.error(f"Error calculating length for ridge {ridge_id}: {e}")
             ridge_lengths.append(0.0)
 
     return ridge_lengths
@@ -1102,11 +1104,13 @@ def ridge_analysis(
     """
 
     # Find ridge points in wavelet transform
-    ridge_points, ridge_quantity, processed_transform, inst_frequency = find_ridge_points(
-        wavelet_transform=wavelet,
-        scale_frequencies=freqs,
-        amplitude_threshold=amplitude_threshold,
-        ridge_type=ridge_type,
+    ridge_points, ridge_quantity, processed_transform, inst_frequency = (
+        find_ridge_points(
+            wavelet_transform=wavelet,
+            scale_frequencies=freqs,
+            amplitude_threshold=amplitude_threshold,
+            ridge_type=ridge_type,
+        )
     )
 
     # Create frequency meshgrid for ridge point shifting

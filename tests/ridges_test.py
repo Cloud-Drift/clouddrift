@@ -70,7 +70,9 @@ class TestInstantaneousMoments(unittest.TestCase):
         t = np.linspace(0, 2 * np.pi, 100)
         dt = t[1] - t[0]  # Time step
         signal = np.exp(1j * t)
-        amp, omega, upsilon, xi = calculate_univariate_inst_moments(signal, sample_rate=1 / dt, axis=0)
+        amp, omega, upsilon, xi = calculate_univariate_inst_moments(
+            signal, sample_rate=1 / dt, axis=0
+        )
         self.assertTrue(np.allclose(amp, 1.0, atol=1e-6))
         self.assertTrue(np.allclose(omega, 1.0, atol=1e-2))
         self.assertTrue(np.allclose(upsilon, 0.0, atol=1e-2))
