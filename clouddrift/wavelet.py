@@ -844,7 +844,7 @@ def morse_spherical_wavelet_transform(
     normalization: str = "bandpass",
     boundary: str = "periodic",
     order: int = 1,
-) -> np.ndarray:
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Spherical wavelet transform for oscillations on the surface of a sphere.
 
@@ -885,14 +885,24 @@ def morse_spherical_wavelet_transform(
 
     Returns
     -------
-    wx, wy : tuple of arrays
-        Horizontal components of the wavelet transform projected onto tangent plane
+    wxh, wyh : tuple[np.ndarray, np.ndarray]
+        Horizontal components of the wavelet transform projected onto tangent plane.
 
     Notes
     -----
     - This function was ported over from Jonathan Lilly's jLab, which you can read about here:
-        “Lilly, J. M. (2024), jLab: A data analysis package for Matlab, v.1.7.3,
-        doi:10.5281/zenodo.4547006, http://www.jmlilly.net/code.”
+        "Lilly, J. M. (2024), jLab: A data analysis package for Matlab, v.1.7.3,
+        doi:10.5281/zenodo.4547006, http://www.jmlilly.net/code."
+
+    Examples
+    --------
+    Apply a wavelet transform to the displacement of GDP drifter "Betty" (id 44000) with a Morse wavelet with gamma parameter 3 and beta parameter 2:
+
+    >>> from clouddrift import datasets, ragged, wavelet
+    >>> ds = datasets.gdp1h()
+    >>> ds_betty = ragged.subset(ds, {"id": [44000]}, row_dim_name="traj")
+    >>> freqs = wavelet.morse_logspace_freq(3, 2, len(ds_betty["time"]))
+    >>> wxh, wyh = wavelet.morse_spherical_wavelet_transform(ds_betty["lat"], ds_betty["lon"], 3, 2, freqs)
     """
 
     # Unwrap longitude to avoid discontinuities
