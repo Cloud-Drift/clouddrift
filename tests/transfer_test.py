@@ -887,8 +887,8 @@ class TransferFunctionTestMethods(unittest.TestCase):
         self.z = 15.0  # np.arange(0.1, 101, 1)
         # cannot test K0 = 0 and K1 = 0: edge cases
         self.bld = [100.0, 200.0, 200.0, np.inf]
-        self.K0 = [1 / 10, 1 / 20, 1 / 30]
-        self.K1 = [1, 2, 3]
+        self.K0 = [1 / 10, 1 / 10, 1 / 20, 1 / 20]
+        self.K1 = [1, 1, 2, 2]
         self.cor_freq = 2 * np.pi * 1.5
         self.delta = sqrt(2 * np.array(self.K0) / self.cor_freq)
         self.mu = 2 * np.array(self.K1) / self.cor_freq
@@ -903,7 +903,7 @@ class TransferFunctionTestMethods(unittest.TestCase):
                     Ge, _, _ = wind_transfer(
                         self.omega,
                         self.z,
-                        self.cor_freq,
+                        s * self.cor_freq,
                         delta,
                         mu,
                         bld,
@@ -913,17 +913,13 @@ class TransferFunctionTestMethods(unittest.TestCase):
                     Gl, _, _ = wind_transfer(
                         self.omega,
                         self.z,
-                        self.cor_freq,
+                        s * self.cor_freq,
                         delta,
                         mu,
                         bld,
                         method="lilly",
                         boundary_condition=self.slipstr1,
                     )
-                    # bool_idx = Ge != np.nan and Gl != np.nan
-                    # print(Ge[bool_idx], Gl[bool_idx])
-                    print(Ge, Gl)
-                    # bool1 = np.allclose(Ge[bool_idx], Gl[bool_idx], atol=1e-8)
                     bool1 = np.allclose(Ge, Gl, atol=1e-8, equal_nan=True)
                     self.assertTrue(bool1)
 
@@ -934,7 +930,7 @@ class TransferFunctionTestMethods(unittest.TestCase):
                     Ge, _, _ = wind_transfer(
                         self.omega,
                         self.z,
-                        self.cor_freq,
+                        s * self.cor_freq,
                         delta,
                         mu,
                         bld,
@@ -944,16 +940,13 @@ class TransferFunctionTestMethods(unittest.TestCase):
                     Gl, _, _ = wind_transfer(
                         self.omega,
                         self.z,
-                        self.cor_freq,
+                        s * self.cor_freq,
                         delta,
                         mu,
                         bld,
                         method="lilly",
                         boundary_condition=self.slipstr2,
                     )
-                    # bool_idx = Ge != np.nan and Gl != np.nan
-                    # print(Ge, Gl)
-                    # bool1 = np.allclose(Ge[bool_idx], Gl[bool_idx], atol=1e-8)
                     bool1 = np.allclose(Ge, Gl, atol=1e-8, equal_nan=True)
                     self.assertTrue(bool1)
 
