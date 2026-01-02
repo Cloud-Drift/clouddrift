@@ -33,7 +33,7 @@ class TransferFunctionTestShapes(unittest.TestCase):
         self.bld = 50  # Boundary layer depth in meters
         self.density = 1025  # Seawater density in kg/m^3
 
-    def test_output_size_wind_transfer_no_slip_mu_is_0(self):
+    def test_output_size_wind_lilly_transfer_no_slip_mu_is_0(self):
         G, dG1, dG2 = wind_transfer(
             self.omega,
             self.z,
@@ -48,7 +48,23 @@ class TransferFunctionTestShapes(unittest.TestCase):
         self.assertEqual(dG1.shape, (len(self.z), len(self.omega)))
         self.assertEqual(dG2.shape, (len(self.z), len(self.omega)))
 
-    def test_output_size_wind_transfer_no_slip_mu_not_0(self):
+    def test_output_size_wind_elipot_transfer_no_slip_mu_is_0(self):
+        G, dG1, dG2 = wind_transfer(
+            self.omega,
+            self.z,
+            self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="no-slip",
+            density=self.density,
+            method="elipot",
+        )
+        self.assertEqual(G.shape, (len(self.z), len(self.omega)))
+        self.assertEqual(dG1.shape, (0,))
+        self.assertEqual(dG2.shape, (0,))
+
+    def test_output_size_wind_lilly_transfer_no_slip_mu_not_0(self):
         G, dG1, dG2 = wind_transfer(
             self.omega,
             self.z,
@@ -63,6 +79,7 @@ class TransferFunctionTestShapes(unittest.TestCase):
         self.assertEqual(dG1.shape, (0,))
         self.assertEqual(dG2.shape, (0,))
 
+    def test_output_size_wind_elipot_transfer_no_slip_mu_not_0(self):
         G, dG1, dG2 = wind_transfer(
             self.omega,
             self.z,
@@ -78,7 +95,38 @@ class TransferFunctionTestShapes(unittest.TestCase):
         self.assertEqual(dG1.shape, (0,))
         self.assertEqual(dG2.shape, (0,))
 
-    def test_output_size_wind_transfer_free_slip(self):
+    def test_output_size_wind_lilly_transfer_free_slip_mu_is_0(self):
+        G, dG1, dG2 = wind_transfer(
+            self.omega,
+            self.z,
+            self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+        )
+        self.assertEqual(G.shape, (len(self.z), len(self.omega)))
+        self.assertEqual(dG1.shape, (0,))
+        self.assertEqual(dG2.shape, (0,))
+
+    def test_output_size_wind_elipot_transfer_free_slip_mu_is_0(self):
+        G, dG1, dG2 = wind_transfer(
+            self.omega,
+            self.z,
+            self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+            method="elipot",
+        )
+        self.assertEqual(G.shape, (len(self.z), len(self.omega)))
+        self.assertEqual(dG1.shape, (0,))
+        self.assertEqual(dG2.shape, (0,))
+
+    def test_output_size_wind_lilly_transfer_free_slip_mu_not_0(self):
         G, dG1, dG2 = wind_transfer(
             self.omega,
             self.z,
@@ -88,6 +136,22 @@ class TransferFunctionTestShapes(unittest.TestCase):
             self.bld,
             boundary_condition="free-slip",
             density=self.density,
+        )
+        self.assertEqual(G.shape, (len(self.z), len(self.omega)))
+        self.assertEqual(dG1.shape, (0,))
+        self.assertEqual(dG2.shape, (0,))
+
+    def test_output_size_wind_elipot_transfer_free_slip_mu_not_0(self):
+        G, dG1, dG2 = wind_transfer(
+            self.omega,
+            self.z,
+            self.cor_freq,
+            self.delta,
+            5,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+            method="elipot",
         )
         self.assertEqual(G.shape, (len(self.z), len(self.omega)))
         self.assertEqual(dG1.shape, (0,))
@@ -203,7 +267,7 @@ class TransferFunctionSurfaceValues(unittest.TestCase):
         self.bld = 50  # Boundary layer depth in meters
         self.density = 1025  # Seawater density in kg/m^3
 
-    def test_surface_angle_wind_transfer_no_slip_lilly_nh(self):
+    def test_surface_angle_wind_lilly_transfer_no_slip_nh(self):
         G, _, _ = wind_transfer(
             self.omega,
             self.z[0],
@@ -222,7 +286,7 @@ class TransferFunctionSurfaceValues(unittest.TestCase):
             )
         )
 
-    def test_surface_angle_wind_transfer_no_slip_elipot_nh(self):
+    def test_surface_angle_wind_elipot_transfer_no_slip_nh(self):
         G, _, _ = wind_transfer(
             self.omega,
             self.z[0],
@@ -237,13 +301,14 @@ class TransferFunctionSurfaceValues(unittest.TestCase):
         # except at inertial frequency which is not defined for elipot case
         self.assertTrue(
             np.allclose(
-                np.angle(np.delete(G, 1)),
-                np.pi / 4 * np.array([1, -1, -1, -1, -1, -1, -1]),
+                np.angle(G),
+                np.pi / 4 * np.array([1, np.nan, -1, -1, -1, -1, -1, -1]),
                 atol=1e-1,
+                equal_nan=True,
             )
         )
 
-    def test_surface_angle_wind_transfer_no_slip_lilly_sh(self):
+    def test_surface_angle_wind_lilly_transfer_no_slip_sh(self):
         G, _, _ = wind_transfer(
             self.omega,
             self.z[0],
@@ -262,7 +327,7 @@ class TransferFunctionSurfaceValues(unittest.TestCase):
             )
         )
 
-    def test_surface_angle_wind_transfer_no_slip_elipot_sh(self):
+    def test_surface_angle_wind_elipot_transfer_no_slip_sh(self):
         G, _, _ = wind_transfer(
             self.omega,
             self.z[0],
@@ -277,9 +342,94 @@ class TransferFunctionSurfaceValues(unittest.TestCase):
         # except at inertial frequency which is not defined for elipot case
         self.assertTrue(
             np.allclose(
-                np.angle(np.delete(G, 6)),
-                np.pi / 4 * np.array([1, 1, 1, 1, 1, 1, -1]),
+                np.angle(G),
+                np.pi / 4 * np.array([1, 1, 1, 1, 1, 1, np.nan, -1]),
                 atol=1e-1,
+                equal_nan=True,
+            )
+        )
+
+    def test_surface_angle_wind_lilly_transfer_free_slip_nh(self):
+        G, _, _ = wind_transfer(
+            self.omega,
+            self.z[0],
+            self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+        )
+        self.assertTrue(
+            np.allclose(
+                np.angle(G),
+                np.pi / 4 * np.array([1, np.nan, -1, -1, -1, -1, -1, -1]),
+                atol=1e-1,
+                equal_nan=True,
+            )
+        )
+
+    def test_surface_angle_wind_elipot_transfer_free_slip_nh(self):
+        G, _, _ = wind_transfer(
+            self.omega,
+            self.z[0],
+            self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+            method="elipot",
+        )
+        # except at inertial frequency which is not defined for elipot case
+        self.assertTrue(
+            np.allclose(
+                np.angle(G),
+                np.pi / 4 * np.array([1, np.nan, -1, -1, -1, -1, -1, -1]),
+                atol=1e-1,
+                equal_nan=True,
+            )
+        )
+
+    def test_surface_angle_wind_lilly_transfer_free_slip_sh(self):
+        G, _, _ = wind_transfer(
+            self.omega,
+            self.z[0],
+            -self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+        )
+        self.assertTrue(
+            np.allclose(
+                np.angle(G),
+                np.pi / 4 * np.array([1, 1, 1, 1, 1, 1, np.nan, -1]),
+                atol=1e-1,
+                equal_nan=True,
+            )
+        )
+
+    def test_surface_angle_wind_elipot_transfer_free_slip_sh(self):
+        G, _, _ = wind_transfer(
+            self.omega,
+            self.z[0],
+            -self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+            method="elipot",
+        )
+        # except at inertial frequency which is not defined for elipot case
+        self.assertTrue(
+            np.allclose(
+                np.angle(G),
+                np.pi / 4 * np.array([1, 1, 1, 1, 1, 1, np.nan, -1]),
+                atol=1e-1,
+                equal_nan=True,
             )
         )
 
@@ -732,80 +882,73 @@ class TransferFunctionTestGradient(unittest.TestCase):
         )
 
 
-# class TransferFunctionTestMethods(unittest.TestCase):
-#     def setUp(self):
-#         self.z = 15.0  # np.arange(0.1, 101, 1)
-#         # need to also test bld = np.inf, K0 = 0 and K1 = 0
-#         self.bld = [np.inf, 200.0]
-#         self.K0 = [0, 1/10, 1/10]
-#         self.K1 = [1,0,1]
-#         self.cor_freq = 2 * np.pi * 1.5
-#         self.delta = sqrt(2 * np.array(self.K0) / self.cor_freq)
-#         self.mu = 2 * np.array(self.K1) / self.cor_freq
-#         self.omega = 2 * np.pi * np.array([0.5])
-#         self.slipstr1 = "no-slip"
-#         self.slipstr2 = "free-slip"
+class TransferFunctionTestMethods(unittest.TestCase):
+    def setUp(self):
+        self.z = 15.0  # np.arange(0.1, 101, 1)
+        # cannot test K0 = 0 and K1 = 0: edge cases
+        self.bld = [100.0, 200.0, 200.0, np.inf]
+        self.K0 = [1 / 10, 1 / 10, 1 / 20, 1 / 20]
+        self.K1 = [1, 1, 2, 2]
+        self.cor_freq = 2 * np.pi * 1.5
+        self.delta = sqrt(2 * np.array(self.K0) / self.cor_freq)
+        self.mu = 2 * np.array(self.K1) / self.cor_freq
+        self.omega = 2 * np.pi * np.array([0.5])
+        self.slipstr1 = "no-slip"
+        self.slipstr2 = "free-slip"
 
-#     def test_method_equivalence_no_slip(self):
-#         for s in [1, -1]:
-#             for i, (delta, mu) in enumerate(zip(self.delta, self.mu)):
-#                 for j, bld in enumerate(self.bld):
-#                     Ge, _, _ = wind_transfer(
-#                         self.omega,
-#                         self.z,
-#                         self.cor_freq,
-#                         delta,
-#                         mu,
-#                         bld,
-#                         method="elipot",
-#                         boundary_condition=self.slipstr1,
-#                     )
-#                     Gl, _, _ = wind_transfer(
-#                         self.omega,
-#                         self.z,
-#                         self.cor_freq,
-#                         delta,
-#                         mu,
-#                         bld,
-#                         method="lilly",
-#                         boundary_condition=self.slipstr1,
-#                     )
-#                     #bool_idx = Ge != np.nan and Gl != np.nan
-#                     #print(Ge[bool_idx], Gl[bool_idx])
-#                     print(Ge, Gl)
-#                     #bool1 = np.allclose(Ge[bool_idx], Gl[bool_idx], atol=1e-8)
-#                     bool1 = np.allclose(Ge, Gl, atol=1e-8, equal_nan=True)
-#                     self.assertTrue(bool1)
+    def test_method_equivalence_no_slip(self):
+        for s in [1, -1]:
+            for i, (delta, mu) in enumerate(zip(self.delta, self.mu)):
+                for j, bld in enumerate(self.bld):
+                    Ge, _, _ = wind_transfer(
+                        self.omega,
+                        self.z,
+                        s * self.cor_freq,
+                        delta,
+                        mu,
+                        bld,
+                        method="elipot",
+                        boundary_condition=self.slipstr1,
+                    )
+                    Gl, _, _ = wind_transfer(
+                        self.omega,
+                        self.z,
+                        s * self.cor_freq,
+                        delta,
+                        mu,
+                        bld,
+                        method="lilly",
+                        boundary_condition=self.slipstr1,
+                    )
+                    bool1 = np.allclose(Ge, Gl, atol=1e-8, equal_nan=True)
+                    self.assertTrue(bool1)
 
-#     def test_method_equivalence_free_slip(self):
-#         for s in [1, -1]:
-#             for i, (delta, mu) in enumerate(zip(self.delta, self.mu)):
-#                 for j, bld in enumerate(self.bld):
-#                     Ge, _, _ = wind_transfer(
-#                         self.omega,
-#                         self.z,
-#                         self.cor_freq,
-#                         delta,
-#                         mu,
-#                         bld,
-#                         method="elipot",
-#                         boundary_condition=self.slipstr2,
-#                     )
-#                     Gl, _, _ = wind_transfer(
-#                         self.omega,
-#                         self.z,
-#                         self.cor_freq,
-#                         delta,
-#                         mu,
-#                         bld,
-#                         method="lilly",
-#                         boundary_condition=self.slipstr2,
-#                     )
-#                     #bool_idx = Ge != np.nan and Gl != np.nan
-#                     #print(Ge, Gl)
-#                     #bool1 = np.allclose(Ge[bool_idx], Gl[bool_idx], atol=1e-8)
-#                     bool1 = np.allclose(Ge, Gl, atol=1e-8, equal_nan=True)
-#                     self.assertTrue(bool1)
+    def test_method_equivalence_free_slip(self):
+        for s in [1, -1]:
+            for i, (delta, mu) in enumerate(zip(self.delta, self.mu)):
+                for j, bld in enumerate(self.bld):
+                    Ge, _, _ = wind_transfer(
+                        self.omega,
+                        self.z,
+                        s * self.cor_freq,
+                        delta,
+                        mu,
+                        bld,
+                        method="elipot",
+                        boundary_condition=self.slipstr2,
+                    )
+                    Gl, _, _ = wind_transfer(
+                        self.omega,
+                        self.z,
+                        s * self.cor_freq,
+                        delta,
+                        mu,
+                        bld,
+                        method="lilly",
+                        boundary_condition=self.slipstr2,
+                    )
+                    bool1 = np.allclose(Ge, Gl, atol=1e-8, equal_nan=True)
+                    self.assertTrue(bool1)
 
 
 class TestKvTilde(unittest.TestCase):

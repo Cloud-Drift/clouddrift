@@ -309,7 +309,8 @@ def apply_sliding_transfer_function(
         result_weight[start : start + window_size] += kernel_arr
 
     # average the results
-    average_result = result_sum / result_weight
+    with np.errstate(divide="ignore", invalid="ignore"):
+        average_result = result_sum / result_weight
     # truncate the average_result to the original length of x
     average_result = average_result[before_window : before_window + n]
 
@@ -338,6 +339,17 @@ def slab_wind_transfer(
             Thickness of the slab layer, in meters.
         density: float
             Seawater density, in kg m-3. Default is 1025.
+
+    Returns
+    -------
+        G: np.ndarray
+            The transfer function from wind stress to oceanic velocity in units of kg-1 m 2 s.
+
+    References
+    ----------
+    Pollard, R. T., and R. C. Millard Jr., 1970: Comparison between
+    observed and simulated wind-generated inertial oscillations.
+    Deep-Sea Res., 17, 813–816, https://doi.org/10.1016/0011-7471(70) 90043-4.
     """
     # check that the boundary layer depth is positive
     if bld < 0:
@@ -476,6 +488,7 @@ def wind_transfer(
     # Create the gridmesh of frequency and depth
     [omega_grid, z_grid] = np.meshgrid(omega_, z_)
 
+    # apply the selected method and boundary condition, see references [1] and [2].
     if boundary_condition == "no-slip":
         if method == "lilly":
             G = _wind_transfer_no_slip(
@@ -522,31 +535,34 @@ def wind_transfer(
     # set G to nan where z > bld; may be mathematcially valid but not physically meaningful
     G[z_grid > bld] = np.nan
 
-    # analytical gradients of the transfer function for mu = 0 and free slip, lilly method
+    # analytical gradients of the transfer function for mu = 0 and no-slip, see reference [2]
     if boundary_condition == "no-slip" and method == "lilly" and mu == 0:
-        s = np.sign(cor_freq_) * np.sign(1 + omega_grid / cor_freq_)
-        Gamma = sqrt(2) * _rot(s * np.pi / 4) * sqrt(np.abs(1 + omega_grid / cor_freq_))
-        ddelta1 = (
-            (Gamma * (bld / delta) * np.tanh(Gamma * (bld / delta)) - 1) * G / delta
-        )
+        with np.errstate(divide="ignore", invalid="ignore"):
+            s = np.sign(cor_freq_) * np.sign(1 + omega_grid / cor_freq_)
+            Gamma = (
+                sqrt(2) * _rot(s * np.pi / 4) * sqrt(np.abs(1 + omega_grid / cor_freq_))
+            )
+            ddelta1 = (
+                (Gamma * (bld / delta) * np.tanh(Gamma * (bld / delta)) - 1) * G / delta
+            )
 
-        numer = np.exp(Gamma * (-z_grid / delta)) + np.exp(
-            -Gamma * (2 * bld - z_grid) / delta
-        )
-        denom = 1 + np.exp(-Gamma * (2 * bld / delta))
-        ddelta2 = (
-            -2
-            / (delta**2 * np.abs(cor_freq_) * density)
-            * (bld - z_grid)
-            / delta
-            * (numer / denom)
-        )
+            numer = np.exp(Gamma * (-z_grid / delta)) + np.exp(
+                -Gamma * (2 * bld - z_grid) / delta
+            )
+            denom = 1 + np.exp(-Gamma * (2 * bld / delta))
+            ddelta2 = (
+                -2
+                / (delta**2 * np.abs(cor_freq_) * density)
+                * (bld - z_grid)
+                / delta
+                * (numer / denom)
+            )
 
-        dG_ddelta = ddelta1 + ddelta2
+            dG_ddelta = ddelta1 + ddelta2
 
-        dbld1 = -Gamma / delta * np.tanh(Gamma * (bld / delta)) * G
-        dbld2 = 2 / (delta**2 * np.abs(cor_freq_) * density) * (numer / denom)
-        dG_dbld = dbld1 + dbld2
+            dbld1 = -Gamma / delta * np.tanh(Gamma * (bld / delta)) * G
+            dbld2 = 2 / (delta**2 * np.abs(cor_freq_) * density) * (numer / denom)
+            dG_dbld = dbld1 + dbld2
 
     else:
         dG_ddelta = np.array([], dtype=float)  # Empty array for consistency
@@ -565,114 +581,116 @@ def _wind_transfer_no_slip(
     density: float,
 ) -> np.ndarray:
     """
-    Transfer function from wind stress to oceanic velocity with no-slip boundary condition.
+    Transfer function from wind stress to oceanic velocity with no-slip boundary condition,
+    Lilly's method, see reference [2].
     """
 
-    zo = np.divide(delta**2, mu)
+    zo = delta**2 / mu if mu != 0 else np.inf
     s = np.sign(coriolis_frequency) * np.sign(1 + omega_grid / coriolis_frequency)
 
     xiz, xih, xi0 = _xis(s, zo, delta, z_grid, omega_grid, coriolis_frequency, bld)
 
-    if bld == np.inf:
-        if mu == 0:
-            # Ekman solution
-            coeff = (sqrt(2) * _rot(-s * np.pi / 4)) / (
-                delta * np.abs(coriolis_frequency) * density
-            )
-            G = (
-                coeff
-                * (
-                    np.exp(
-                        -(1 + s * 1j)
-                        * (z_grid / delta)
-                        * sqrt(np.abs(1 + omega_grid / coriolis_frequency))
-                    )
+    with np.errstate(divide="ignore", invalid="ignore"):
+        if bld == np.inf:
+            if mu == 0:
+                # Ekman solution
+                coeff = (sqrt(2) * _rot(-s * np.pi / 4)) / (
+                    delta * np.abs(coriolis_frequency) * density
                 )
-                / (sqrt(np.abs(1 + omega_grid / coriolis_frequency)))
-            )
-        elif delta == 0:
-            # Madsen solution
-            coeff = 4 / (density * np.abs(coriolis_frequency) * mu)
-            G = coeff * kv(
-                0,
-                2
-                * sqrt(2)
-                * _rot(s * np.pi / 4)
-                * sqrt((z_grid / mu) * np.abs(1 + omega_grid / coriolis_frequency)),
-            )
-        else:
-            # mixed solution
-            k0z = kv(0, xiz)
-            k10 = kv(1, xi0)
-            coeff = (sqrt(2) * _rot(-s * np.pi / 4)) / (
-                delta
-                * np.abs(coriolis_frequency)
-                * density
-                * sqrt(np.abs(1 + omega_grid / coriolis_frequency))
-            )
-            G = coeff * k0z / k10
-    else:
-        if mu == 0:
-            # finite layer Ekman
-            coeff = (sqrt(2) * _rot(-s * np.pi / 4)) / (
-                delta
-                * np.abs(coriolis_frequency)
-                * density
-                * sqrt(np.abs(1 + omega_grid / coriolis_frequency))
-            )
-            argh = (
-                sqrt(2)
-                * _rot(s * np.pi / 4)
-                * (bld / delta)
-                * sqrt(np.abs(1 + omega_grid / coriolis_frequency))
-            )
-            argz = (
-                sqrt(2)
-                * _rot(s * np.pi / 4)
-                * (z_grid / delta)
-                * sqrt(np.abs(1 + omega_grid / coriolis_frequency))
-            )
-
-            numer = np.exp(-argz) - np.exp(argz) * np.exp(-2 * argh)
-            denom = 1 + np.exp(-2 * argh)
-            G = coeff * np.divide(numer, denom)
-
-            # solution at inertial frequency
-            bool_idx = omega_grid == -coriolis_frequency
-            G[bool_idx] = 2 / (
-                (density * np.abs(coriolis_frequency) * delta**2)
-                * (bld - z_grid[bool_idx])
-            )
-
-        elif delta == 0:
-            # finite layer Madsen
-            coeff = 4 / (density * np.abs(coriolis_frequency) * mu)
-            argz = (
-                2
-                * sqrt(2)
-                * _rot(s * np.pi / 4)
-                * sqrt((z_grid / mu) * np.abs(1 + omega_grid / coriolis_frequency))
-            )
-            argh = (
-                2
-                * sqrt(2)
-                * _rot(s * np.pi / 4)
-                * sqrt((bld / mu) * np.abs(1 + omega_grid / coriolis_frequency))
-            )
-            k0z, i0z, k0h, i0h, _, _ = _bessels_noslip(argz, argh)
-            G = coeff * (k0z - i0z * k0h / i0h)
-
-            # solution at inertial frequency
-            bool_idx = omega_grid == -coriolis_frequency
-            if isinstance(z_grid, np.ndarray):
-                G[bool_idx] = 0.5 * coeff * np.log(bld / z_grid[bool_idx])
+                G = (
+                    coeff
+                    * (
+                        np.exp(
+                            -(1 + s * 1j)
+                            * (z_grid / delta)
+                            * sqrt(np.abs(1 + omega_grid / coriolis_frequency))
+                        )
+                    )
+                    / (sqrt(np.abs(1 + omega_grid / coriolis_frequency)))
+                )
+            elif delta == 0:
+                # Madsen solution
+                coeff = 4 / (density * np.abs(coriolis_frequency) * mu)
+                G = coeff * kv(
+                    0,
+                    2
+                    * sqrt(2)
+                    * _rot(s * np.pi / 4)
+                    * sqrt((z_grid / mu) * np.abs(1 + omega_grid / coriolis_frequency)),
+                )
             else:
-                G = 0.5 * coeff * np.log(bld / z_grid)
+                # mixed solution
+                k0z = kv(0, xiz)
+                k10 = kv(1, xi0)
+                coeff = (sqrt(2) * _rot(-s * np.pi / 4)) / (
+                    delta
+                    * np.abs(coriolis_frequency)
+                    * density
+                    * sqrt(np.abs(1 + omega_grid / coriolis_frequency))
+                )
+                G = coeff * k0z / k10
         else:
-            # finite layer mixed
-            G = _wind_transfer_general_no_slip(
-                omega_grid, z_grid, coriolis_frequency, delta, mu, bld, density
-            )
+            if mu == 0:
+                # finite layer Ekman
+                coeff = (sqrt(2) * _rot(-s * np.pi / 4)) / (
+                    delta
+                    * np.abs(coriolis_frequency)
+                    * density
+                    * sqrt(np.abs(1 + omega_grid / coriolis_frequency))
+                )
+                argh = (
+                    sqrt(2)
+                    * _rot(s * np.pi / 4)
+                    * (bld / delta)
+                    * sqrt(np.abs(1 + omega_grid / coriolis_frequency))
+                )
+                argz = (
+                    sqrt(2)
+                    * _rot(s * np.pi / 4)
+                    * (z_grid / delta)
+                    * sqrt(np.abs(1 + omega_grid / coriolis_frequency))
+                )
+
+                numer = np.exp(-argz) - np.exp(argz) * np.exp(-2 * argh)
+                denom = 1 + np.exp(-2 * argh)
+                G = coeff * np.divide(numer, denom)
+
+                # solution at inertial frequency
+                bool_idx = omega_grid == -coriolis_frequency
+                G[bool_idx] = 2 / (
+                    (density * np.abs(coriolis_frequency) * delta**2)
+                    * (bld - z_grid[bool_idx])
+                )
+
+            elif delta == 0:
+                # finite layer Madsen
+                coeff = 4 / (density * np.abs(coriolis_frequency) * mu)
+                argz = (
+                    2
+                    * sqrt(2)
+                    * _rot(s * np.pi / 4)
+                    * sqrt((z_grid / mu) * np.abs(1 + omega_grid / coriolis_frequency))
+                )
+                argh = (
+                    2
+                    * sqrt(2)
+                    * _rot(s * np.pi / 4)
+                    * sqrt((bld / mu) * np.abs(1 + omega_grid / coriolis_frequency))
+                )
+                k0z, i0z, k0h, i0h, _, _ = _bessels_noslip(argz, argh)
+                G = coeff * (k0z - i0z * k0h / i0h)
+
+                # solution at inertial frequency
+                bool_idx = omega_grid == -coriolis_frequency
+                if isinstance(z_grid, np.ndarray):
+                    G[bool_idx] = 0.5 * coeff * np.log(bld / z_grid[bool_idx])
+                else:
+                    G = 0.5 * coeff * np.log(bld / z_grid)
+            else:
+                # finite layer mixed
+                G = _wind_transfer_general_no_slip(
+                    omega_grid, z_grid, coriolis_frequency, delta, mu, bld, density
+                )
 
     return G
 
@@ -687,32 +705,35 @@ def _wind_transfer_general_no_slip(
     density: float,
 ) -> np.ndarray:
     """
-    Transfer function from wind stress to oceanic velocity with no-slip boundary condition, general form.
+    Transfer function from wind stress to oceanic velocity with no-slip boundary condition,
+    general form, Lilly's method, see reference [2].
     """
-    zo = np.divide(delta**2, mu)
+    zo = delta**2 / mu if mu != 0 else np.inf
     s = np.sign(coriolis_frequency) * np.sign(1 + omega / coriolis_frequency)
     xiz, xih, xi0 = _xis(s, zo, delta, z, omega, coriolis_frequency, bld)
-    coeff = (
-        sqrt(2)
-        * _rot(-s * np.pi / 4)
-        / (
-            delta
-            * density
-            * np.abs(coriolis_frequency)
-            * sqrt(np.abs(1 + omega / coriolis_frequency))
+
+    with np.errstate(divide="ignore", invalid="ignore"):
+        coeff = (
+            sqrt(2)
+            * _rot(-s * np.pi / 4)
+            / (
+                delta
+                * density
+                * np.abs(coriolis_frequency)
+                * sqrt(np.abs(1 + omega / coriolis_frequency))
+            )
         )
-    )
 
-    k0z, i0z, k0h, i0h, k10, i10 = _bessels_noslip(xiz, xih, xi0=xi0)
-    numer = k0z / k10 - (k0h / k10) * (i0z / i0h)
-    denom = 1 + (k0h / k10) * (i10 / i0h)
-    G = coeff * np.divide(numer, denom)
+        k0z, i0z, k0h, i0h, k10, i10 = _bessels_noslip(xiz, xih, xi0=xi0)
+        numer = k0z / k10 - (k0h / k10) * (i0z / i0h)
+        denom = 1 + (k0h / k10) * (i10 / i0h)
+        G = coeff * np.divide(numer, denom)
 
-    # large argument approximation
-    bool_idx = np.log10(np.abs(xiz)) > 2.9
-    G[bool_idx] = _wind_transfer_general_no_slip_expansion(
-        omega[bool_idx], z[bool_idx], coriolis_frequency, delta, mu, bld, density
-    )
+        # large argument approximation
+        bool_idx = np.log10(np.abs(xiz)) > 2.9
+        G[bool_idx] = _wind_transfer_general_no_slip_expansion(
+            omega[bool_idx], z[bool_idx], coriolis_frequency, delta, mu, bld, density
+        )
 
     # inertial limit
     G = _wind_transfer_inertiallimit(
@@ -732,9 +753,10 @@ def _wind_transfer_general_no_slip_expansion(
     density: float,
 ) -> np.ndarray:
     """
-    Compute the transfer function from wind stress to oceanic velocity with no-slip boundary, large argument approximation.
+    Compute the transfer function from wind stress to oceanic velocity with no-slip boundary,
+    large argument approximation, Lilly's method, see reference [2].
     """
-    zo = np.divide(delta**2, mu)
+    zo = delta**2 / mu if mu != 0 else np.inf
     s = np.sign(coriolis_frequency) * np.sign(1 + omega / coriolis_frequency)
     xiz, xih, xi0 = _xis(s, zo, delta, z, omega, coriolis_frequency, bld)
     coeff = (
@@ -779,9 +801,10 @@ def _wind_transfer_inertiallimit(
     density: float,
 ) -> np.ndarray:
     """
-    Transfer function from wind stress to oceanic velocity with no-slip boundary, inertial limit.
+    Transfer function from wind stress to oceanic velocity with no-slip boundary, inertial limit,
+    Lilly's method, see reference [2].
     """
-    zo = delta**2 / mu
+    zo = delta**2 / mu if mu != 0 else np.inf
     bool_idx = omega == -coriolis_freq
 
     if np.any(bool_idx):
@@ -809,62 +832,64 @@ def _wind_transfer_free_slip(
     density: float,
 ) -> np.ndarray:
     """
-    Transfer function from wind stress to oceanic velocity with free-slip boundary condition.
+    Transfer function from wind stress to oceanic velocity with free-slip boundary condition,
+    Lilly's method, see reference [2].
     """
 
-    zo = np.divide(delta**2, mu)
+    zo = delta**2 / mu if mu != 0 else np.inf
 
     s = np.sign(coriolis_frequency) * np.sign(1 + omega / coriolis_frequency)
 
     xiz, xih, xi0 = _xis(s, zo, delta, z, omega, coriolis_frequency, bld)
 
-    if delta != 0.0 and mu != 0.0:
-        coeff = (
-            sqrt(2)
-            * _rot(-s * np.pi / 4)
-            / (
+    with np.errstate(divide="ignore", invalid="ignore"):
+        if delta != 0.0 and mu != 0.0:
+            coeff = (
+                sqrt(2)
+                * _rot(-s * np.pi / 4)
+                / (
+                    delta
+                    * density
+                    * np.abs(coriolis_frequency)
+                    * sqrt(np.abs(1 + omega / coriolis_frequency))
+                )
+            )
+            k0z, i0z, k1h, i1h, k10, i10 = _bessels_freeslip(xiz, xih, xi0=xi0)
+            numer = i0z * k1h + i1h * k0z
+            denom = i1h * k10 - i10 * k1h
+            G = coeff * np.divide(numer, denom)
+
+        elif mu == 0.0:
+            coeff = (sqrt(2) * _rot(-s * np.pi / 4)) / (
                 delta
-                * density
                 * np.abs(coriolis_frequency)
+                * density
                 * sqrt(np.abs(1 + omega / coriolis_frequency))
             )
-        )
-        k0z, i0z, k1h, i1h, k10, i10 = _bessels_freeslip(xiz, xih, xi0=xi0)
-        numer = i0z * k1h + i1h * k0z
-        denom = i1h * k10 - i10 * k1h
-        G = coeff * np.divide(numer, denom)
+            cosharg = (
+                sqrt(2)
+                * _rot(s * np.pi / 4)
+                * (bld - z)
+                / delta
+                * sqrt(np.abs(1 + omega / coriolis_frequency))
+            )
+            sinharg = (
+                sqrt(2)
+                * _rot(s * np.pi / 4)
+                * bld
+                / delta
+                * sqrt(np.abs(1 + omega / coriolis_frequency))
+            )
+            G = coeff * np.cosh(cosharg) / np.sinh(sinharg)
 
-    elif mu == 0.0:
-        coeff = (sqrt(2) * _rot(-s * np.pi / 4)) / (
-            delta
-            * np.abs(coriolis_frequency)
-            * density
-            * sqrt(np.abs(1 + omega / coriolis_frequency))
-        )
-        cosharg = (
-            sqrt(2)
-            * _rot(s * np.pi / 4)
-            * (bld - z)
-            / delta
-            * sqrt(np.abs(1 + omega / coriolis_frequency))
-        )
-        sinharg = (
-            sqrt(2)
-            * _rot(s * np.pi / 4)
-            * bld
-            / delta
-            * sqrt(np.abs(1 + omega / coriolis_frequency))
-        )
-        G = coeff * np.cosh(cosharg) / np.sinh(sinharg)
+        elif delta == 0.0:
+            k0z, i0z, k1h, i1h, _, _ = _bessels_freeslip(xiz, xih)
 
-    elif delta == 0.0:
-        k0z, i0z, k1h, i1h, _, _ = _bessels_freeslip(xiz, xih)
+            K1 = 0.5 * mu * np.abs(coriolis_frequency)
 
-        K1 = 0.5 * mu * np.abs(coriolis_frequency)
+            coeff = 2 / (density * K1)
 
-        coeff = 2 / (density * K1)
-
-        G = coeff * (k0z + k1h * i0z / i1h)
+            G = coeff * (k0z + k1h * i0z / i1h)
 
     return G
 
@@ -879,55 +904,57 @@ def _wind_transfer_elipot_no_slip(
     density: float,
 ) -> np.ndarray:
     """
-    Transfer function from wind stress to oceanic velocity with no-slip boundary condition, Elipot method.
+    Transfer function from wind stress to oceanic velocity with no-slip boundary condition,
+    Elipot's method, see reference [1].
     """
 
-    zo = np.divide(delta**2, mu)
+    zo = delta**2 / mu if mu != 0 else np.inf
     K0 = 0.5 * delta**2 * np.abs(coriolis_frequency)
     K1 = 0.5 * mu * np.abs(coriolis_frequency)
 
-    delta1 = sqrt(2 * K0 / (omega + coriolis_frequency))
-    delta2 = K1 / (omega + coriolis_frequency)
-    xiz = 2 * sqrt(1j * (zo + z) / delta2)
-    xi0 = 2 * sqrt(1j * zo / delta2)
-    xih = 2 * sqrt(1j * (zo + bld) / delta2)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        delta1 = sqrt(2 * K0 / (omega + coriolis_frequency))
+        delta2 = K1 / (omega + coriolis_frequency)
+        xiz = 2 * sqrt(1j * (zo + z) / delta2)
+        xi0 = 2 * sqrt(1j * zo / delta2)
+        xih = 2 * sqrt(1j * (zo + bld) / delta2)
 
-    if bld == np.inf:
-        if K1 == 0:
-            # Ekman solution
-            coeff = 1 / (density * sqrt(1j * (omega + coriolis_frequency) * K0))
-            G = coeff * np.exp(-z * (1 + 1j) / delta1)
-        elif K0 == 0:
-            # Madsen solution
-            coeff = 2 / (density * K1)
-            k0z = kv(0, 2 * sqrt(1j * z / delta2))
-            G = coeff * k0z
+        if bld == np.inf:
+            if K1 == 0:
+                # Ekman solution
+                coeff = 1 / (density * sqrt(1j * (omega + coriolis_frequency) * K0))
+                G = coeff * np.exp(-z * (1 + 1j) / delta1)
+            elif K0 == 0:
+                # Madsen solution
+                coeff = 2 / (density * K1)
+                k0z = kv(0, 2 * sqrt(1j * z / delta2))
+                G = coeff * k0z
+            else:
+                # Mixed solution
+                coeff = 1 / (density * sqrt(1j * (omega + coriolis_frequency) * K0))
+                G = coeff * kv(0, xiz) / kv(1, xi0)
         else:
-            # Mixed solution
-            coeff = 1 / (density * sqrt(1j * (omega + coriolis_frequency) * K0))
-            G = coeff * kv(0, xiz) / kv(1, xi0)
-    else:
-        if K1 == 0:
-            # Finite-layer Ekman
-            coeff = 1 / (density * sqrt(1j * (omega + coriolis_frequency) * K0))
-            numer = np.sinh((1 + 1j) * (bld - z) / delta1)
-            denom = np.cosh((1 + 1j) * bld / delta1)
-            G = coeff * numer / denom
-        elif K0 == 0:
-            # Finite-layer Madsen
-            coeff = 2 / (density * K1)
-            k0z = kv(0, 2 * sqrt(1j * z / delta2))
-            k0h = kv(0, 2 * sqrt(1j * bld / delta2))
-            i0z = iv(0, 2 * sqrt(1j * z / delta2))
-            i0h = iv(0, 2 * sqrt(1j * bld / delta2))
-            G = coeff * (k0z - (k0h * i0z / i0h))
-        else:
-            # Finite-layer mixed solution
-            coeff = 1 / (density * sqrt(1j * (omega + coriolis_frequency) * K0))
-            k0z, i0z, k0h, i0h, k10, i10 = _bessels_noslip(xiz, xih, xi0)
-            numer = i0h * k0z - k0h * i0z
-            denom = i10 * k0h + k10 * i0h
-            G = coeff * numer / denom
+            if K1 == 0:
+                # Finite-layer Ekman
+                coeff = 1 / (density * sqrt(1j * (omega + coriolis_frequency) * K0))
+                numer = np.sinh((1 + 1j) * (bld - z) / delta1)
+                denom = np.cosh((1 + 1j) * bld / delta1)
+                G = coeff * numer / denom
+            elif K0 == 0:
+                # Finite-layer Madsen
+                coeff = 2 / (density * K1)
+                k0z = kv(0, 2 * sqrt(1j * z / delta2))
+                k0h = kv(0, 2 * sqrt(1j * bld / delta2))
+                i0z = iv(0, 2 * sqrt(1j * z / delta2))
+                i0h = iv(0, 2 * sqrt(1j * bld / delta2))
+                G = coeff * (k0z - (k0h * i0z / i0h))
+            else:
+                # Finite-layer mixed solution
+                coeff = 1 / (density * sqrt(1j * (omega + coriolis_frequency) * K0))
+                k0z, i0z, k0h, i0h, k10, i10 = _bessels_noslip(xiz, xih, xi0)
+                numer = i0h * k0z - k0h * i0z
+                denom = i10 * k0h + k10 * i0h
+                G = coeff * numer / denom
 
     return G
 
@@ -942,44 +969,47 @@ def _wind_transfer_elipot_free_slip(
     density: float,
 ) -> np.ndarray:
     """
-    Transfer function from wind stress to oceanic velocity with free-slip boundary condition, Elipot method.
+    Transfer function from wind stress to oceanic velocity with free-slip boundary condition,
+    Elipot's method, see reference [1].
     """
 
-    zo = np.divide(delta**2, mu)
+    zo = delta**2 / mu if mu != 0 else np.inf
     K0 = 0.5 * delta**2 * np.abs(coriolis_frequency)
     K1 = 0.5 * mu * np.abs(coriolis_frequency)
-    delta1 = sqrt(2 * K0 / (omega + coriolis_frequency))
-    delta2 = K1 / (omega + coriolis_frequency)
-    xiz = 2 * sqrt(1j * (zo + z) / delta2)
-    xi0 = 2 * sqrt(1j * zo / delta2)
-    xih = 2 * sqrt(1j * (zo + bld) / delta2)
 
-    if K1 == 0.0:
-        # Finite-layer Ekman
-        coeff = 1 / (density * sqrt(1j * (omega + coriolis_frequency) * K0))
-        numer = np.cosh((1 + 1j) * (bld - z) / delta1)
-        denom = np.sinh((1 + 1j) * bld / delta1)
-        G = coeff * numer / denom
-    elif K0 == 0.0:
-        # Finite-layer Madsen
-        coeff = 2 / (density * K1)
-        k0z = kv(0, 2 * sqrt(1j * z / delta2))
-        k0h = kv(0, 2 * sqrt(1j * bld / delta2))
-        i0z = iv(0, 2 * sqrt(1j * z / delta2))
-        i1h = iv(1, 2 * sqrt(1j * bld / delta2))
-        G = coeff * (k0z - (k0h * i0z / i1h))
-    else:
-        # Finite-layer mixed solution
-        coeff = 1 / (density * sqrt(1j * (omega + coriolis_frequency) * K0))
-        k1h = kv(1, xih)
-        i0z = iv(0, xiz)
-        i1h = iv(1, xih)
-        k10 = kv(1, xi0)
-        i10 = iv(1, xi0)
-        k0z = kv(0, xiz)
-        numer = k1h * i0z + i1h * k0z
-        denom = i1h * k10 - i10 * k1h
-        G = coeff * numer / denom
+    with np.errstate(divide="ignore", invalid="ignore"):
+        delta1 = sqrt(2 * K0 / (omega + coriolis_frequency))
+        delta2 = K1 / (omega + coriolis_frequency)
+        xiz = 2 * sqrt(1j * (zo + z) / delta2)
+        xi0 = 2 * sqrt(1j * zo / delta2)
+        xih = 2 * sqrt(1j * (zo + bld) / delta2)
+
+        if K1 == 0.0:
+            # Finite-layer Ekman
+            coeff = 1 / (density * sqrt(1j * (omega + coriolis_frequency) * K0))
+            numer = np.cosh((1 + 1j) * (bld - z) / delta1)
+            denom = np.sinh((1 + 1j) * bld / delta1)
+            G = coeff * numer / denom
+        elif K0 == 0.0:
+            # Finite-layer Madsen
+            coeff = 2 / (density * K1)
+            k0z = kv(0, 2 * sqrt(1j * z / delta2))
+            k0h = kv(0, 2 * sqrt(1j * bld / delta2))
+            i0z = iv(0, 2 * sqrt(1j * z / delta2))
+            i1h = iv(1, 2 * sqrt(1j * bld / delta2))
+            G = coeff * (k0z - (k0h * i0z / i1h))
+        else:
+            # Finite-layer mixed solution
+            coeff = 1 / (density * sqrt(1j * (omega + coriolis_frequency) * K0))
+            k1h = kv(1, xih)
+            i0z = iv(0, xiz)
+            i1h = iv(1, xih)
+            k10 = kv(1, xi0)
+            i10 = iv(1, xi0)
+            k0z = kv(0, xiz)
+            numer = k1h * i0z + i1h * k0z
+            denom = i1h * k10 - i10 * k1h
+            G = coeff * numer / denom
 
     return G
 
@@ -990,7 +1020,8 @@ def _bessels_freeslip(
     xi0: float | np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Compute the Bessel functions for the free-slip boundary condition for the xsi(z), xsi(h), and xsi(0) functions.
+    Compute the Bessel functions for the free-slip boundary condition for the xsi(z),
+    xsi(h), and xsi(0) functions.
     """
     # Convert inputs to numpy arrays
     xiz = np.asarray(xiz)
@@ -1020,7 +1051,8 @@ def _bessels_noslip(
     xi0: float | np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Compute the Bessel functions for the no-slip boundary condition for the xsi(z), xsi(h), and xsi(0) functions.
+    Compute the Bessel functions for the no-slip boundary condition for the xsi(z),
+    xsi(h), and xsi(0) functions.
     """
     # Convert inputs to numpy arrays
     xiz = np.asarray(xiz)
@@ -1157,27 +1189,31 @@ def _xis(
     """
     Compute the complex-valued "xsi" functions.
     """
-    xiz = (
-        2
-        * sqrt(2)
-        * _rot(s * np.pi / 4)
-        * np.divide(zo, delta)
-        * sqrt((1 + np.divide(z, zo)) * np.abs(1 + omega / coriolis_frequency))
-    )
-    xih = (
-        2
-        * sqrt(2)
-        * _rot(s * np.pi / 4)
-        * np.divide(zo, delta)
-        * sqrt((1 + np.divide(bld, zo)) * np.abs(1 + omega / coriolis_frequency))
-    )
-    xi0 = (
-        2
-        * sqrt(2)
-        * _rot(s * np.pi / 4)
-        * np.divide(zo, delta)
-        * sqrt(np.abs(1 + omega / coriolis_frequency))
-    )
+    with np.errstate(divide="ignore", invalid="ignore"):
+        xiz = (
+            2
+            * sqrt(2)
+            * _rot(s * np.pi / 4)
+            * np.divide(zo, delta)
+            * sqrt((1 + np.divide(z, zo)) * np.abs(1 + omega / coriolis_frequency))
+        )
+        xiz = np.where(np.isfinite(xiz), xiz, np.nan)
+        xih = (
+            2
+            * sqrt(2)
+            * _rot(s * np.pi / 4)
+            * np.divide(zo, delta)
+            * sqrt((1 + np.divide(bld, zo)) * np.abs(1 + omega / coriolis_frequency))
+        )
+        xih = np.where(np.isfinite(xih), xih, np.nan)
+        xi0 = (
+            2
+            * sqrt(2)
+            * _rot(s * np.pi / 4)
+            * np.divide(zo, delta)
+            * sqrt(np.abs(1 + omega / coriolis_frequency))
+        )
+        xi0 = np.where(np.isfinite(xi0), xi0, np.nan)
 
     return xiz, xih, xi0
 
