@@ -339,6 +339,17 @@ def slab_wind_transfer(
             Thickness of the slab layer, in meters.
         density: float
             Seawater density, in kg m-3. Default is 1025.
+
+    Returns
+    -------
+        G: np.ndarray
+            The transfer function from wind stress to oceanic velocity in units of kg-1 m 2 s.
+
+    References
+    ----------
+    Pollard, R. T., and R. C. Millard Jr., 1970: Comparison between
+    observed and simulated wind-generated inertial oscillations.
+    Deep-Sea Res., 17, 813–816, https://doi.org/10.1016/0011-7471(70) 90043-4.
     """
     # check that the boundary layer depth is positive
     if bld < 0:
@@ -477,6 +488,7 @@ def wind_transfer(
     # Create the gridmesh of frequency and depth
     [omega_grid, z_grid] = np.meshgrid(omega_, z_)
 
+    # apply the selected method and boundary condition, see references [1] and [2].
     if boundary_condition == "no-slip":
         if method == "lilly":
             G = _wind_transfer_no_slip(
@@ -523,7 +535,7 @@ def wind_transfer(
     # set G to nan where z > bld; may be mathematcially valid but not physically meaningful
     G[z_grid > bld] = np.nan
 
-    # analytical gradients of the transfer function for mu = 0 and no-slip, lilly method
+    # analytical gradients of the transfer function for mu = 0 and no-slip, see reference [2]
     if boundary_condition == "no-slip" and method == "lilly" and mu == 0:
         with np.errstate(divide="ignore", invalid="ignore"):
             s = np.sign(cor_freq_) * np.sign(1 + omega_grid / cor_freq_)
@@ -569,10 +581,11 @@ def _wind_transfer_no_slip(
     density: float,
 ) -> np.ndarray:
     """
-    Transfer function from wind stress to oceanic velocity with no-slip boundary condition.
+    Transfer function from wind stress to oceanic velocity with no-slip boundary condition,
+    Lilly's method, see reference [2].
     """
 
-    zo = np.inf if mu == 0 else np.divide(delta**2, mu)
+    zo = delta**2 / mu if mu != 0 else np.inf
     s = np.sign(coriolis_frequency) * np.sign(1 + omega_grid / coriolis_frequency)
 
     xiz, xih, xi0 = _xis(s, zo, delta, z_grid, omega_grid, coriolis_frequency, bld)
@@ -692,9 +705,10 @@ def _wind_transfer_general_no_slip(
     density: float,
 ) -> np.ndarray:
     """
-    Transfer function from wind stress to oceanic velocity with no-slip boundary condition, general form.
+    Transfer function from wind stress to oceanic velocity with no-slip boundary condition,
+    general form, Lilly's method, see reference [2].
     """
-    zo = np.inf if mu == 0 else np.divide(delta**2, mu)
+    zo = delta**2 / mu if mu != 0 else np.inf
     s = np.sign(coriolis_frequency) * np.sign(1 + omega / coriolis_frequency)
     xiz, xih, xi0 = _xis(s, zo, delta, z, omega, coriolis_frequency, bld)
 
@@ -739,9 +753,10 @@ def _wind_transfer_general_no_slip_expansion(
     density: float,
 ) -> np.ndarray:
     """
-    Compute the transfer function from wind stress to oceanic velocity with no-slip boundary, large argument approximation.
+    Compute the transfer function from wind stress to oceanic velocity with no-slip boundary,
+    large argument approximation, Lilly's method, see reference [2].
     """
-    zo = np.inf if mu == 0 else np.divide(delta**2, mu)
+    zo = delta**2 / mu if mu != 0 else np.inf
     s = np.sign(coriolis_frequency) * np.sign(1 + omega / coriolis_frequency)
     xiz, xih, xi0 = _xis(s, zo, delta, z, omega, coriolis_frequency, bld)
     coeff = (
@@ -786,9 +801,10 @@ def _wind_transfer_inertiallimit(
     density: float,
 ) -> np.ndarray:
     """
-    Transfer function from wind stress to oceanic velocity with no-slip boundary, inertial limit.
+    Transfer function from wind stress to oceanic velocity with no-slip boundary, inertial limit,
+    Lilly's method, see reference [2].
     """
-    zo = np.inf if mu == 0 else np.divide(delta**2, mu)
+    zo = delta**2 / mu if mu != 0 else np.inf
     bool_idx = omega == -coriolis_freq
 
     if np.any(bool_idx):
@@ -816,10 +832,11 @@ def _wind_transfer_free_slip(
     density: float,
 ) -> np.ndarray:
     """
-    Transfer function from wind stress to oceanic velocity with free-slip boundary condition.
+    Transfer function from wind stress to oceanic velocity with free-slip boundary condition,
+    Lilly's method, see reference [2].
     """
 
-    zo = np.inf if mu == 0 else np.divide(delta**2, mu)
+    zo = delta**2 / mu if mu != 0 else np.inf
 
     s = np.sign(coriolis_frequency) * np.sign(1 + omega / coriolis_frequency)
 
@@ -887,10 +904,11 @@ def _wind_transfer_elipot_no_slip(
     density: float,
 ) -> np.ndarray:
     """
-    Transfer function from wind stress to oceanic velocity with no-slip boundary condition, Elipot method.
+    Transfer function from wind stress to oceanic velocity with no-slip boundary condition,
+    Elipot's method, see reference [1].
     """
 
-    zo = np.inf if mu == 0 else np.divide(delta**2, mu)
+    zo = delta**2 / mu if mu != 0 else np.inf
     K0 = 0.5 * delta**2 * np.abs(coriolis_frequency)
     K1 = 0.5 * mu * np.abs(coriolis_frequency)
 
@@ -951,10 +969,11 @@ def _wind_transfer_elipot_free_slip(
     density: float,
 ) -> np.ndarray:
     """
-    Transfer function from wind stress to oceanic velocity with free-slip boundary condition, Elipot method.
+    Transfer function from wind stress to oceanic velocity with free-slip boundary condition,
+    Elipot's method, see reference [1].
     """
 
-    zo = np.inf if mu == 0 else np.divide(delta**2, mu)
+    zo = delta**2 / mu if mu != 0 else np.inf
     K0 = 0.5 * delta**2 * np.abs(coriolis_frequency)
     K1 = 0.5 * mu * np.abs(coriolis_frequency)
 
@@ -1001,7 +1020,8 @@ def _bessels_freeslip(
     xi0: float | np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Compute the Bessel functions for the free-slip boundary condition for the xsi(z), xsi(h), and xsi(0) functions.
+    Compute the Bessel functions for the free-slip boundary condition for the xsi(z),
+    xsi(h), and xsi(0) functions.
     """
     # Convert inputs to numpy arrays
     xiz = np.asarray(xiz)
@@ -1031,7 +1051,8 @@ def _bessels_noslip(
     xi0: float | np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Compute the Bessel functions for the no-slip boundary condition for the xsi(z), xsi(h), and xsi(0) functions.
+    Compute the Bessel functions for the no-slip boundary condition for the xsi(z),
+    xsi(h), and xsi(0) functions.
     """
     # Convert inputs to numpy arrays
     xiz = np.asarray(xiz)
