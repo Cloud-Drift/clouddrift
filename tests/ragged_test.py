@@ -705,8 +705,8 @@ class subset_tests(unittest.TestCase):
         self.assertTrue(all(ds_sub["rowsize"] == [5, 4]))
 
     def test_subset_callable(self):
-        func = (
-            lambda arr: ((arr - arr[0]) % 2) == 0
+        func = lambda arr: (
+            ((arr - arr[0]) % 2) == 0
         )  # test keeping obs every two time intervals
         ds_sub = subset(self.ds, {"time": func})
         self.assertTrue(all(ds_sub["id"] == [1, 3, 2]))
