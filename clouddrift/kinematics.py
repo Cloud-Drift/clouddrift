@@ -2,6 +2,8 @@
 Functions for kinematic computations.
 """
 
+import warnings
+
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -76,6 +78,10 @@ def inertial_oscillation_from_position(
     potentially shifted in frequency by a measure of relative vorticity. The result is a pair
     of zonal and meridional relative displacements in meters.
 
+    If the length of the data is too short to capture the inertial frequency, as implied by the
+    time step and range of latitudes of the data, the function will raise a warning and return arrays
+    of NaNs.
+
     This function is equivalent to a bandpass filtering of the horizontal displacements. The characteristics
     of the filter are defined by the relative bandwidth of the wavelet transform or by the duration of the wavelet,
     see the parameters below.
@@ -134,6 +140,13 @@ def inertial_oscillation_from_position(
         If the absolute value of relative_bandwidth is not in the range (0,1].
         If the wavelet duration is not greater than or equal to 1.
 
+    Warns
+    -----
+    UserWarning
+        If the length of the data is too short to capture the inertial frequency,
+        as implied by the time step and range of latitudes of the data, a warning is
+        issued and the function returns arrays of NaNs.
+
     See Also
     --------
     :func:`residual_position_from_displacement`, `wavelet_transform`, `morse_wavelet`
@@ -186,6 +199,23 @@ def inertial_oscillation_from_position(
     cor_freq = np.abs(
         coriolis_frequency(latitude) + relative_vorticity * np.sign(latitude)
     )
+
+    # test if the length of the data is sufficient to capture 95% of the inertial frequency,
+    # as implied by the time step and range of latitudes of the data; if not,
+    # issue a warning and return arrays of NaNs because the wavelet transform will
+    # not be able to capture the inertial oscillations
+    if data_length < 2 * np.pi / (time_step * np.min(cor_freq * 0.95)):
+        warnings.warn(
+            "The length of the data is too short to capture the inertial frequency",
+            UserWarning,
+        )
+        return np.full_like(latitude, np.nan), np.full_like(latitude, np.nan)
+
+    # Now defines the range of frequencies for the wavelet transform.
+    # The maximum frequency is set to 1.05 times the maximum inertial frequency,
+    # and the minimum frequency is set to the maximum of 0.95 times the minimum
+    # inertial frequency and the Rayleigh frequency implied by the time step and
+    # data length.
     cor_freq_max = np.max(cor_freq * 1.05)
     cor_freq_min = np.max(
         [np.min(cor_freq * 0.95), 2 * np.pi / (time_step * data_length)]
