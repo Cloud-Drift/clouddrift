@@ -70,21 +70,40 @@ def inertial_oscillation_from_position(
     time_step: float = 3600.0,
     relative_vorticity: float | np.ndarray = 0.0,
 ) -> np.ndarray:
-    """Extract inertial oscillations from consecutive geographical positions.
+    """Extract inertial oscillations from consecutive geographical
+    positions.
 
-    This function acts by performing a time-frequency analysis of horizontal displacements
-    with analytic Morse wavelets. It extracts the portion of the wavelet transform signal
-    that follows the inertial frequency (opposite of Coriolis frequency) as a function of time,
-    potentially shifted in frequency by a measure of relative vorticity. The result is a pair
-    of zonal and meridional relative displacements in meters.
+    This function acts by performing a time-frequency analysis of
+    horizontal displacements with analytic Morse wavelets. It extracts
+    the portion of the wavelet transform signal that follows the
+    inertial frequency (opposite of Coriolis frequency) as a function
+    of time, potentially shifted in frequency by a measure of relative
+    vorticity. The result is a pair of zonal and meridional relative
+    displacements in meters.
 
-    If the length of the data is too short to capture the inertial frequency, as implied by the
-    time step and range of latitudes of the data, the function will raise a warning and return arrays
-    of NaNs.
+    If the length of the data is too short to capture the inertial
+    frequency, as implied by the time step and range of latitudes of
+    the data, the function will issue a warning and return arrays of
+    NaNs.
 
-    This function is equivalent to a bandpass filtering of the horizontal displacements. The characteristics
-    of the filter are defined by the relative bandwidth of the wavelet transform or by the duration of the wavelet,
-    see the parameters below.
+    This function is equivalent to a bandpass filtering of the
+    horizontal displacements. The characteristics of the filter are
+    defined by the relative bandwidth of the wavelet transform or by
+    the duration of the wavelet, see the parameters below.
+
+    The function searches for the inertial frequency in the positive
+    and negative frequency components of the wavelet transform,
+    depending on the latitude of the data. However, since it applies
+    a wavelet transform on the entirety of the data, it will likely
+    fail if the data crosses the equator as it will seek very low
+    inertial frequencies which cannot by captured if the time series
+    is not long enough. In this case, the function will issue a
+    warning and return arrays of NaNs. It is generally recommended to
+    segment your trajectories to avoid crossing the equator and reduce
+    the range of inertial frequencies to be captured by the wavelet
+    transform. If you have a trajectory that crosses the equator,
+    you can use the function :func:`clouddrift.ragged.subset`
+    to split the trajectory into segments that do not cross the equator.
 
     Parameters
     ----------
@@ -93,19 +112,23 @@ def inertial_oscillation_from_position(
     latitude : array-like
         Latitude sequence. Unidimensional array input.
     relative_bandwidth : float, optional
-        Bandwidth of the frequency-domain equivalent filter for the extraction of the inertial
-        oscillations; a number less or equal to one which is a fraction of the inertial frequency.
-        A value of 0.1 leads to a bandpass filter equivalent of +/- 10 percent of the inertial frequency.
+        Bandwidth of the frequency-domain equivalent filter for the
+        extraction of the inertial oscillations; a number less or equal
+        to one which is a fraction of the inertial frequency.
+        A value of 0.1 leads to a bandpass filter equivalent of +/- 10
+        percent of the inertial frequency.
     wavelet_duration : float, optional
-        Duration of the wavelet, or inverse of the relative bandwidth, which can be passed instead of the
-        relative bandwidth.
+        Duration of the wavelet, or inverse of the relative bandwidth,
+        which can be passed instead of the relative bandwidth.
     time_step : float, optional
-        The constant time interval between data points in seconds. Default is 3600.
+        The constant time interval between data points in seconds.
+        Default is 3600.
     relative_vorticity: Optional, float or array-like
-        Relative vorticity adding to the local Coriolis frequency. If "f" is the Coriolis
-        frequency then "f" + `relative_vorticity` will be the effective Coriolis frequency as defined by Kunze (1985).
-        Positive values correspond to cyclonic vorticity, irrespectively of the latitudes of the data
-        points.
+        Relative vorticity adding to the local Coriolis frequency.
+        If "f" is the Coriolis frequency then "f" + `relative_vorticity`
+        will be the effective Coriolis frequency as defined by Kunze (1985).
+        Positive values correspond to cyclonic vorticity, irrespectively
+        of the latitudes of the data points.
 
     Returns
     -------
@@ -116,24 +139,33 @@ def inertial_oscillation_from_position(
 
     Examples
     --------
-    To extract displacements from inertial oscillations from sequences of longitude
-    and latitude values, equivalent to bandpass around 20 percent of the local inertial frequency:
+    To extract displacements from inertial oscillations from sequences
+    of longitude and latitude values, equivalent to bandpass around 20
+    percent of the local inertial frequency:
 
-    >>> xhat, yhat = inertial_oscillation_from_position(longitude, latitude, relative_bandwidth=0.2)
+    >>> xhat, yhat = inertial_oscillation_from_position(
+    ...     longitude, latitude, relative_bandwidth=0.2
+    ... )
 
-    The same result can be obtained by specifying the wavelet duration instead of the relative bandwidth:
+    The same result can be obtained by specifying the wavelet duration
+    instead of the relative bandwidth:
 
-    >>> xhat, yhat = inertial_oscillation_from_position(longitude, latitude, wavelet_duration=5)
+    >>> xhat, yhat = inertial_oscillation_from_position(
+    ...     longitude, latitude, wavelet_duration=5
+    ... )
 
-    Next, the residual positions from the inertial displacements can be obtained with another function:
+    Next, the residual positions from the inertial displacements can be
+    obtained with another function:
 
-    >>> residual_longitudes, residual_latitudes = residual_position_from_displacement(longitude, latitude, xhat, yhat)
+    >>> residual_longitudes, residual_latitudes =
+    ...     residual_position_from_displacement(longitude, latitude, xhat, yhat)
 
     Raises
     ------
     ValueError
         If longitude and latitude arrays do not have the same shape.
-        If relative_vorticity is an array and does not have the same shape as longitude and latitude.
+        If relative_vorticity is an array and does not have the same shape
+        as longitude and latitude.
         If time_step is not a float.
         If both relative_bandwidth and wavelet_duration are specified.
         If neither relative_bandwidth nor wavelet_duration are specified.
@@ -204,12 +236,15 @@ def inertial_oscillation_from_position(
     # as implied by the time step and range of latitudes of the data; if not,
     # issue a warning and return arrays of NaNs because the wavelet transform will
     # not be able to capture the inertial oscillations
-    if data_length < 2 * np.pi / (time_step * np.min(cor_freq * 0.95)):
+    positive_cor_freq = cor_freq[cor_freq > 0]
+    if data_length < 2 * np.pi / (time_step * np.min(positive_cor_freq) * 0.95):
         warnings.warn(
             "The length of the data is too short to capture the inertial frequency",
             UserWarning,
         )
-        return np.full_like(latitude, np.nan), np.full_like(latitude, np.nan)
+        return np.full_like(latitude, np.nan, dtype=float), np.full_like(
+            latitude, np.nan, dtype=float
+        )
 
     # Now defines the range of frequencies for the wavelet transform.
     # The maximum frequency is set to 1.05 times the maximum inertial frequency,
