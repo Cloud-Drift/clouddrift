@@ -101,8 +101,8 @@ class kinetic_energy_tests(unittest.TestCase):
 
 class inertial_oscillation_from_position_tests(unittest.TestCase):
     def test_warns_and_returns_nan_for_short_data(self):
-        # Use a high latitude (large f) and a very short series so the default  
-        # time_step still yields too few samples per inertial period; 
+        # Use a high latitude (large f) and a very short series so the default
+        # time_step still yields too few samples per inertial period;
         latitude = np.linspace(80.0, 80.1, 10)
         longitude = np.linspace(0.0, 1.0, 10)
         # time_step is default 3600, relative_bandwidth is required
