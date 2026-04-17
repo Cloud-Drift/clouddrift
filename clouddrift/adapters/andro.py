@@ -31,7 +31,7 @@ from clouddrift.adapters.utils import download_with_progress
 # order of the URLs is important
 ANDRO_URL = "https://www.seanoe.org/data/00360/47077/data/127690.zip"
 ANDRO_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "andro")
-ANDRO_VERSION = "2025-01"
+ANDRO_VERSION = "2026-01"
 
 
 def to_xarray(tmp_path: str | None = None):
