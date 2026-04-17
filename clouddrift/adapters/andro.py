@@ -29,7 +29,7 @@ import xarray as xr
 from clouddrift.adapters.utils import download_with_progress
 
 # order of the URLs is important
-ANDRO_URL = "https://www.seanoe.org/data/00360/47077/data/116520.dat"
+ANDRO_URL = "https://www.seanoe.org/data/00360/47077/data/127690.zip"
 ANDRO_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "andro")
 ANDRO_VERSION = "2025-01"
 
