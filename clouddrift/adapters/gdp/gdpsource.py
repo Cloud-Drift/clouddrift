@@ -494,10 +494,14 @@ def _process_chunk(
         preremove_df_chunk,
         filters=[
             # Filter out year values that are in the future or predating the GDP program
-            lambda df: (df["posObsYear"] > datetime.datetime.now().year)
-            | (df["posObsYear"] < 0),
-            lambda df: (df["senObsYear"] > datetime.datetime.now().year)
-            | (df["senObsYear"] < 0),
+            lambda df: (
+                (df["posObsYear"] > datetime.datetime.now().year)
+                | (df["posObsYear"] < 0)
+            ),
+            lambda df: (
+                (df["senObsYear"] > datetime.datetime.now().year)
+                | (df["senObsYear"] < 0)
+            ),
             # Filter out month values that contain non-numeric characters
             lambda df: df["senObsMonth"].astype(np.str_).str.contains(r"[\D]"),
             lambda df: df["posObsMonth"].astype(np.str_).str.contains(r"[\D]"),

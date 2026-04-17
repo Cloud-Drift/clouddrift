@@ -417,16 +417,16 @@ def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
     track_data = list[TrackData]()
 
     is_html_line = lambda line: re.match(r"[html|head|pre]+", line)
-    is_header_line = (
-        lambda cols, data_line_count: len(cols) == 4 and data_line_count == 0
+    is_header_line = lambda cols, data_line_count: (
+        len(cols) == 4 and data_line_count == 0
     )
     is_data_line = lambda cols, data_line_count: len(cols) == 21 and data_line_count > 0
     if convert:
-        nm_to_m = (
-            lambda x: float(x) * _METERS_IN_NAUTICAL_MILES
+        nm_to_m = lambda x: (
+            float(x) * _METERS_IN_NAUTICAL_MILES
         )  # nautical-miles to meters
-        k_to_mps = (
-            lambda x: float(x) * _METERS_IN_NAUTICAL_MILES / 3600
+        k_to_mps = lambda x: (
+            float(x) * _METERS_IN_NAUTICAL_MILES / 3600
         )  # knots to meters per second
         mb_to_pa = lambda x: float(x) * _PASCAL_PER_MILLIBAR  # millibar to pascal
     else:
