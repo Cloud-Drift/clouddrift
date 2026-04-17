@@ -1,4 +1,5 @@
 import unittest
+import warnings
 
 import numpy as np
 import xarray as xr
@@ -99,6 +100,77 @@ class kinetic_energy_tests(unittest.TestCase):
 
 
 class inertial_oscillation_from_position_tests(unittest.TestCase):
+    def test_warns_and_returns_nan_for_short_data(self):
+        # Use a high latitude (large f) and a very short series so the default
+        # time_step still yields too few samples per inertial period;
+        latitude = np.linspace(80.0, 80.1, 10)
+        longitude = np.linspace(0.0, 1.0, 10)
+        # time_step is default 3600, relative_bandwidth is required
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            x, y = inertial_oscillation_from_position(
+                longitude, latitude, relative_bandwidth=0.1
+            )
+            # Check that a UserWarning was raised
+            self.assertTrue(any(issubclass(warn.category, UserWarning) for warn in w))
+            # Check that all outputs are NaN
+            self.assertTrue(np.all(np.isnan(x)))
+            self.assertTrue(np.all(np.isnan(y)))
+
+    def test_raises_valueerror_invalid_shapes(self):
+        longitude = np.linspace(0, 10, 10)
+        latitude = np.linspace(0, 10, 9)  # Different shape
+        with self.assertRaises(ValueError):
+            inertial_oscillation_from_position(
+                longitude, latitude, relative_bandwidth=0.1
+            )
+
+    def test_raises_valueerror_relative_vorticity_shape(self):
+        longitude = np.linspace(0, 10, 10)
+        latitude = np.linspace(0, 10, 10)
+        relative_vorticity = np.linspace(0, 1, 9)  # Wrong shape
+        with self.assertRaises(ValueError):
+            inertial_oscillation_from_position(
+                longitude,
+                latitude,
+                relative_bandwidth=0.1,
+                relative_vorticity=relative_vorticity,
+            )
+
+    def test_raises_valueerror_both_bandwidth_and_duration(self):
+        longitude = np.linspace(0, 10, 10)
+        latitude = np.linspace(0, 10, 10)
+        with self.assertRaises(ValueError):
+            inertial_oscillation_from_position(
+                longitude, latitude, relative_bandwidth=0.1, wavelet_duration=2
+            )
+
+    def test_raises_valueerror_neither_bandwidth_nor_duration(self):
+        longitude = np.linspace(0, 10, 10)
+        latitude = np.linspace(0, 10, 10)
+        with self.assertRaises(ValueError):
+            inertial_oscillation_from_position(longitude, latitude)
+
+    def test_raises_valueerror_bandwidth_out_of_range(self):
+        longitude = np.linspace(0, 10, 10)
+        latitude = np.linspace(0, 10, 10)
+        with self.assertRaises(ValueError):
+            inertial_oscillation_from_position(
+                longitude, latitude, relative_bandwidth=1.5
+            )
+        with self.assertRaises(ValueError):
+            inertial_oscillation_from_position(
+                longitude, latitude, relative_bandwidth=0.0
+            )
+
+    def test_raises_valueerror_wavelet_duration_too_small(self):
+        longitude = np.linspace(0, 10, 10)
+        latitude = np.linspace(0, 10, 10)
+        with self.assertRaises(ValueError):
+            inertial_oscillation_from_position(
+                longitude, latitude, wavelet_duration=0.5
+            )
+
     def setUp(self):
         self.INPUT_SIZE = 1440
         self.longitude = np.linspace(0, 45, self.INPUT_SIZE)
@@ -139,6 +211,7 @@ class inertial_oscillation_from_position_tests(unittest.TestCase):
         t = np.arange(0, 60 - 1 / 24, 1 / 24)
         f = coriolis_frequency(lat0)
         uv = 0.5 * np.exp(-1j * (f * t * 86400 + 0.5 * np.pi))
+        # create coordinate time series by integrating the velocity time series
         lon1, lat1 = position_from_velocity(
             np.real(uv),
             np.imag(uv),
@@ -148,6 +221,7 @@ class inertial_oscillation_from_position_tests(unittest.TestCase):
             integration_scheme="forward",
             coord_system="spherical",
         )
+        # create horizontal position time series by integrating the velocity time series
         x_expected, y_expected = position_from_velocity(
             np.real(uv),
             np.imag(uv),
