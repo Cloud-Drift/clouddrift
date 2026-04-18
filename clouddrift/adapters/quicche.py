@@ -1,5 +1,5 @@
 """
-This module defines functions used to adapt the Cape Basin CARTHE dataset as a
+This module defines functions used to adapt the QUICCHE CARTHE dataset as a
 ragged-arrays dataset.
 
 The dataset contains CARTHE surface drifter trajectories from the Cape Basin
@@ -7,9 +7,10 @@ The dataset contains CARTHE surface drifter trajectories from the Cape Basin
 
 Example
 -------
->>> from clouddrift.adapters import cape_basin
->>> ds = cape_basin.to_xarray()
->>> ds = cape_basin.to_xarray(version='qc2')
+>>> from clouddrift.adapters import quicche
+>>> ds = quicche.to_xarray()
+>>> ds = quicche.to_xarray(version="qc1")
+>>> ds = quicche.to_xarray(version="raw")
 
 Reference
 ---------
@@ -29,26 +30,29 @@ import xarray as xr
 from clouddrift.adapters.utils import download_with_progress
 
 # Zenodo record and URL
-CAPE_BASIN_ZENODO_RECORD = "14902851"
-CAPE_BASIN_URL = (
+QUICCHE_ZENODO_RECORD = "14902851"
+QUICCHE_URL = (
     "https://zenodo.org/records/14902851/files/CARTHE_Drifters_NSF_QUICCHE.zip"
 )
-CAPE_BASIN_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "cape_basin")
-CAPE_BASIN_VERSION = "2026-04"
+QUICCHE_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "quicche")
+QUICCHE_VERSION = "2026-04"
 
 
 def to_xarray(
-    version: Literal["qc2", "qc3"] = "qc3",
+    version: Literal["raw", "qc1", "qc2", "qc3"] = "qc3",
     tmp_path: str | None = None,
 ) -> xr.Dataset:
     """
-    Parse and convert Cape Basin CARTHE drifter data to an xarray Dataset.
+    Parse and convert QUICCHE CARTHE drifter data to an xarray Dataset.
 
     Parameters
     ----------
-    version : Literal["qc2", "qc3"], optional
-        Which quality control level to return. "qc2" = bad records removed;
-        "qc3" = QC2 interpolated on a regular 30-minute time grid. Default is "qc3".
+    version : Literal["raw", "qc1", "qc2", "qc3"], optional
+        Which quality control level to return. "raw" = original raw messages,
+        "qc1" = raw data with pre-deployment GPS tests flagged,
+        "qc2" = bad records removed,
+        "qc3" = QC2 interpolated on a regular 30-minute time grid.
+        Default is "qc3".
     tmp_path : str, optional
         Temporary path where intermediary files are stored. If None, uses the default
         temp path defined in this module.
@@ -56,27 +60,32 @@ def to_xarray(
     Returns
     -------
     xarray.Dataset
-        Cape Basin CARTHE drifter trajectories as a ragged array with dimensions
+        QUICCHE CARTHE drifter trajectories as a ragged array with dimensions
         (traj, obs) and coordinates (id, time).
     """
     if tmp_path is None:
-        tmp_path = CAPE_BASIN_TMP_PATH
+        tmp_path = QUICCHE_TMP_PATH
         os.makedirs(tmp_path, exist_ok=True)
 
     # Validate version
-    if version not in ("qc2", "qc3"):
-        raise ValueError(f"Invalid version '{version}'. Must be 'qc2' or 'qc3'.")
+    if version not in ("raw", "qc1", "qc2", "qc3"):
+        raise ValueError(
+            f"Invalid version '{version}'. Must be one of: raw, qc1, qc2, qc3."
+        )
 
     # Download and extract zip file
     local_zip = f"{tmp_path}/CARTHE_Drifters_NSF_QUICCHE.zip"
-    download_with_progress([(CAPE_BASIN_URL, local_zip)])
+    download_with_progress([(QUICCHE_URL, local_zip)])
 
     # Extract the requested QC file
-    target_filename = f"quicche_spot_xml_data_{version}.dat"
+    if version == "raw":
+        target_filename = "quicche_spot_xml_data.dat"
+    else:
+        target_filename = f"quicche_spot_xml_data_{version}.dat"
     extracted_file = _extract_qc_file(local_zip, target_filename, tmp_path)
 
     # Parse the data file
-    df = _parse_cape_basin_data(extracted_file)
+    df = _parse_quicche_data(extracted_file)
 
     # Convert to ragged array xarray Dataset
     ds = _dataframe_to_ragged_xarray(df, version)
@@ -130,9 +139,9 @@ def _extract_qc_file(zip_path: str, target_filename: str, extract_path: str) -> 
     return extracted_file
 
 
-def _parse_cape_basin_data(filepath: str) -> pd.DataFrame:
+def _parse_quicche_data(filepath: str) -> pd.DataFrame:
     """
-    Parse a Cape Basin CARTHE data file into a pandas DataFrame.
+    Parse a QUICCHE CARTHE data file into a pandas DataFrame.
 
     The file is whitespace-delimited with 9-10 columns:
     1. manufacturer_message_id
@@ -217,7 +226,7 @@ def _dataframe_to_ragged_xarray(df: pd.DataFrame, version: str) -> xr.Dataset:
     df : pd.DataFrame
         DataFrame with columns: drifter_id, time, latitude, longitude.
     version : str
-        QC version ("qc2" or "qc3") for metadata.
+        Version ("raw", "qc1", "qc2", or "qc3") for metadata.
 
     Returns
     -------
@@ -282,19 +291,21 @@ def _dataframe_to_ragged_xarray(df: pd.DataFrame, version: str) -> xr.Dataset:
 
     # Define global attributes
     qc_description = {
+        "raw": "raw data",
+        "qc1": "raw data with pre-deployment GPS tests flagged",
         "qc2": "bad records removed",
         "qc3": "QC2 interpolated on a regular 30 minute time grid",
     }
 
     global_attrs = {
-        "title": f"Cape Basin CARTHE Surface Drifter Trajectories ({version.upper()})",
+        "title": f"QUICCHE CARTHE Surface Drifter Trajectories ({version.upper()})",
         "summary": f"CARTHE surface drifter trajectories from the Cape Basin (South Atlantic), March 2023. QC level {version.upper()}: {qc_description[version]}",
         "source": "CARTHE surface drifters",
         "time_zone": "UTC",
         "date_created": datetime.now().isoformat(),
-        "history": f"Dataset downloaded from Zenodo record {CAPE_BASIN_ZENODO_RECORD}; processed on {datetime.now().strftime('%Y-%m-%d')}",
+        "history": f"Dataset downloaded from Zenodo record {QUICCHE_ZENODO_RECORD}; processed on {datetime.now().strftime('%Y-%m-%d')}",
         "publisher_name": "Zenodo",
-        "publisher_url": f"https://zenodo.org/records/{CAPE_BASIN_ZENODO_RECORD}",
+        "publisher_url": f"https://zenodo.org/records/{QUICCHE_ZENODO_RECORD}",
         "Conventions": "CF-1.6",
         "featureType": "trajectory",
         "qc_level": version,

@@ -5,11 +5,11 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from clouddrift.adapters import cape_basin
+from clouddrift.adapters import quicche
 
 
-class cape_basin_tests(unittest.TestCase):
-    """Unit tests for Cape Basin CARTHE adapter parsing and transformation."""
+class quicche_tests(unittest.TestCase):
+    """Unit tests for QUICCHE CARTHE adapter parsing and transformation."""
 
     def setUp(self):
         """Set up temporary directory for test data."""
@@ -30,7 +30,7 @@ class cape_basin_tests(unittest.TestCase):
                 f.write(line + "\n")
         return filepath
 
-    def test_parse_cape_basin_data_9_columns(self):
+    def test_parse_quicche_data_9_columns(self):
         """Test parsing a data file with 9 columns (no predeployment flag)."""
         data_lines = [
             "1865211416	0-4435604	Q1_0001	2023-03-15T10:00:00.000Z	1679048400	25.73166	-80.1633	UNLIMITED-TRACK	GOOD",
@@ -38,7 +38,7 @@ class cape_basin_tests(unittest.TestCase):
         ]
         filepath = self._create_test_data_file("test_qc2.dat", data_lines)
 
-        df = cape_basin._parse_cape_basin_data(filepath)
+        df = quicche._parse_quicche_data(filepath)
 
         self.assertEqual(len(df), 2)
         self.assertEqual(
@@ -49,7 +49,7 @@ class cape_basin_tests(unittest.TestCase):
         self.assertEqual(df.iloc[0]["longitude"], -80.1633)
         self.assertTrue(pd.notna(df.iloc[0]["time"]))
 
-    def test_parse_cape_basin_data_10_columns(self):
+    def test_parse_quicche_data_10_columns(self):
         """Test parsing a data file with 10 columns (including predeployment flag)."""
         data_lines = [
             "1865211416	0-4435604	Q1_0001	2023-03-15T10:00:00.000Z	1679048400	25.73166	-80.1633	UNLIMITED-TRACK	GOOD	PRE",
@@ -57,7 +57,7 @@ class cape_basin_tests(unittest.TestCase):
         ]
         filepath = self._create_test_data_file("test_mixed.dat", data_lines)
 
-        df = cape_basin._parse_cape_basin_data(filepath)
+        df = quicche._parse_quicche_data(filepath)
 
         self.assertEqual(len(df), 2)
         self.assertEqual(df.iloc[0]["drifter_id"], "Q1_0001")
@@ -71,7 +71,7 @@ class cape_basin_tests(unittest.TestCase):
         ]
         filepath = self._create_test_data_file("test_unsorted.dat", data_lines)
 
-        df = cape_basin._parse_cape_basin_data(filepath)
+        df = quicche._parse_quicche_data(filepath)
 
         # Check sort order: Q1_0001 entries first, then Q1_0002
         self.assertEqual(df.iloc[0]["drifter_id"], "Q1_0001")
@@ -89,7 +89,7 @@ class cape_basin_tests(unittest.TestCase):
             }
         )
 
-        ds = cape_basin._dataframe_to_ragged_xarray(df, "qc3")
+        ds = quicche._dataframe_to_ragged_xarray(df, "qc3")
 
         # Check dimensions
         self.assertIn("traj", ds.dims)
@@ -108,7 +108,7 @@ class cape_basin_tests(unittest.TestCase):
             }
         )
 
-        ds = cape_basin._dataframe_to_ragged_xarray(df, "qc2")
+        ds = quicche._dataframe_to_ragged_xarray(df, "qc2")
 
         # Check coordinates
         self.assertIn("id", ds.coords)
@@ -132,7 +132,7 @@ class cape_basin_tests(unittest.TestCase):
             }
         )
 
-        ds = cape_basin._dataframe_to_ragged_xarray(df, "qc3")
+        ds = quicche._dataframe_to_ragged_xarray(df, "qc3")
 
         rowsize = ds["rowsize"].values
         # Q1_0001 has 2 observations, Q1_0002 has 3
@@ -149,7 +149,7 @@ class cape_basin_tests(unittest.TestCase):
             }
         )
 
-        ds = cape_basin._dataframe_to_ragged_xarray(df, "qc3")
+        ds = quicche._dataframe_to_ragged_xarray(df, "qc3")
 
         # Check float32 for lat/lon
         self.assertEqual(ds["latitude"].dtype, np.float32)
@@ -169,16 +169,22 @@ class cape_basin_tests(unittest.TestCase):
             }
         )
 
-        ds_qc2 = cape_basin._dataframe_to_ragged_xarray(df, "qc2")
-        ds_qc3 = cape_basin._dataframe_to_ragged_xarray(df, "qc3")
+        ds_raw = quicche._dataframe_to_ragged_xarray(df, "raw")
+        ds_qc1 = quicche._dataframe_to_ragged_xarray(df, "qc1")
+        ds_qc2 = quicche._dataframe_to_ragged_xarray(df, "qc2")
+        ds_qc3 = quicche._dataframe_to_ragged_xarray(df, "qc3")
 
         # Check version is in title and attributes
+        self.assertIn("RAW", ds_raw.attrs["title"])
+        self.assertIn("QC1", ds_qc1.attrs["title"])
         self.assertIn("QC2", ds_qc2.attrs["title"])
         self.assertIn("QC3", ds_qc3.attrs["title"])
+        self.assertEqual(ds_raw.attrs["qc_level"], "raw")
+        self.assertEqual(ds_qc1.attrs["qc_level"], "qc1")
         self.assertEqual(ds_qc2.attrs["qc_level"], "qc2")
         self.assertEqual(ds_qc3.attrs["qc_level"], "qc3")
 
     def test_to_xarray_version_validation(self):
         """Test that invalid versions raise ValueError."""
         with self.assertRaises(ValueError):
-            cape_basin.to_xarray(version="invalid", tmp_path=self.test_dir)
+            quicche.to_xarray(version="invalid", tmp_path=self.test_dir)

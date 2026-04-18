@@ -785,11 +785,11 @@ def andro(decode_times: bool = True) -> xr.Dataset:
     return _dataset_filecache("andro.nc", decode_times, adapters.andro.to_xarray)
 
 
-def cape_basin(
-    version: Literal["qc2", "qc3"] = "qc3",
+def quicche(
+    version: Literal["raw", "qc1", "qc2", "qc3"] = "qc3",
     decode_times: bool = True,
 ) -> xr.Dataset:
-    """Returns the Cape Basin CARTHE surface drifter trajectories as a ragged array
+    """Returns the QUICCHE CARTHE surface drifter trajectories as a ragged array
     Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
@@ -800,8 +800,10 @@ def cape_basin(
 
     Parameters
     ----------
-    version : Literal["qc2", "qc3"], optional
-        Specify the quality control level to retrieve. "qc2" = bad records removed;
+    version : Literal["raw", "qc1", "qc2", "qc3"], optional
+        Specify the version to retrieve. "raw" = original raw messages,
+        "qc1" = raw data with pre-deployment GPS tests flagged,
+        "qc2" = bad records removed,
         "qc3" = QC2 interpolated on a regular 30 minute time grid. Default is "qc3".
     decode_times : bool, optional
         If True, decode the time coordinate into a datetime object. If False, the time
@@ -811,12 +813,12 @@ def cape_basin(
     Returns
     -------
     xarray.Dataset
-        Cape Basin CARTHE drifter trajectories as a ragged array
+        QUICCHE CARTHE drifter trajectories as a ragged array
 
     Examples
     --------
-    >>> from clouddrift.datasets import cape_basin
-    >>> ds = cape_basin()
+    >>> from clouddrift.datasets import quicche
+    >>> ds = quicche()
     >>> ds
     <xarray.Dataset>
     Dimensions:    (traj: ..., obs: ...)
@@ -829,15 +831,16 @@ def cape_basin(
         longitude  (obs) float32 ...
         rowsize    (traj) int64 ...
     Attributes:
-        title:           Cape Basin CARTHE Surface Drifter Trajectories (QC3)
+        title:           QUICCHE CARTHE Surface Drifter Trajectories (QC3)
         summary:         CARTHE surface drifter trajectories from the Cape Basin...
         date_created:    2026-04-17T...
         publisher_name:  Zenodo
         publisher_url:   https://zenodo.org/records/14902851
 
-    To retrieve QC2 data instead:
+    To retrieve RAW or QC1 data instead:
 
-    >>> ds = cape_basin(version="qc2")
+    >>> ds = quicche(version="raw")
+    >>> ds = quicche(version="qc1")
 
     Reference
     ---------
@@ -846,11 +849,11 @@ def cape_basin(
     (NCEI Accession 0301712). (Version 1) [Data set]. National Centers for
     Environmental Information. https://doi.org/10.25921/9m27-m532
     """
-    filename = f"cape_basin_{version}.nc"
+    filename = f"quicche_{version}.nc"
     ds = _dataset_filecache(
         filename,
         decode_times,
-        lambda: adapters.cape_basin.to_xarray(version),
+        lambda: adapters.quicche.to_xarray(version),
     )
     if "index" in ds.variables:
         ds = ds.drop_vars("index")

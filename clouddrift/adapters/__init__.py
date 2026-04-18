@@ -9,7 +9,6 @@ in the future.
 """
 
 import clouddrift.adapters.andro as andro
-import clouddrift.adapters.cape_basin as cape_basin
 import clouddrift.adapters.gdp.gdp1h as gdp1h
 import clouddrift.adapters.gdp.gdp6h as gdp6h
 import clouddrift.adapters.gdp.gdpsource as gdp_source
@@ -17,19 +16,20 @@ import clouddrift.adapters.glad as glad
 import clouddrift.adapters.hurdat2 as hurdat2
 import clouddrift.adapters.ibtracs as ibtracs
 import clouddrift.adapters.mosaic as mosaic
+import clouddrift.adapters.quicche as quicche
 import clouddrift.adapters.subsurface_floats as subsurface_floats
 import clouddrift.adapters.utils as utils
 import clouddrift.adapters.yomaha as yomaha
 
 __all__ = [
     "andro",
-    "cape_basin",
     "gdp1h",
     "gdp6h",
     "glad",
     "hurdat2",
     "ibtracs",
     "mosaic",
+    "quicche",
     "subsurface_floats",
     "yomaha",
     "gdp_source",
