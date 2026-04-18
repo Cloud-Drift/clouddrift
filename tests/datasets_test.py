@@ -149,10 +149,11 @@ class datasets_tests(testutils.DisableProgressTestCase):
 
     def test_quicche_decode_times_false(self):
         """Test quicche respects decode_times parameter."""
-        ds_decoded = datasets.quicche(decode_times=True)
-        ds_not_decoded = datasets.quicche(decode_times=False)
-
-        # Decoded version should have datetime64
-        self.assertTrue(np.issubdtype(ds_decoded["time"].dtype, np.datetime64))
-        # Not decoded version can be various numeric types
-        self.assertFalse(np.issubdtype(ds_not_decoded["time"].dtype, np.datetime64))
+        with datasets.quicche(decode_times=True) as ds_decoded:
+            with datasets.quicche(decode_times=False) as ds_not_decoded:
+                # Decoded version should have datetime64
+                self.assertTrue(np.issubdtype(ds_decoded["time"].dtype, np.datetime64))
+                # Not decoded version can be various numeric types
+                self.assertFalse(
+                    np.issubdtype(ds_not_decoded["time"].dtype, np.datetime64)
+                )
