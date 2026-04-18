@@ -844,12 +844,14 @@ def cape_basin(
     Zenodo record 14902851: CARTHE surface drifter trajectories, Cape Basin, South Atlantic, March 2023.
     """
     filename = f"cape_basin_{version}.nc"
-    return _dataset_filecache(
+    ds = _dataset_filecache(
         filename,
         decode_times,
         lambda: adapters.cape_basin.to_xarray(version),
     )
-
+    if "index" in ds.variables:
+        ds = ds.drop_vars("index")
+    return ds
 
 
 def _dataset_filecache(

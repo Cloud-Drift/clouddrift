@@ -128,12 +128,14 @@ class datasets_tests(testutils.DisableProgressTestCase):
             self.assertIn("obs", ds.dims)
             self.assertIn("id", ds.coords)
             self.assertIn("time", ds.coords)
+            self.assertNotIn("index", ds.coords)
+            self.assertNotIn("index", ds.variables)
 
     def test_cape_basin_decode_times_false(self):
         """Test cape_basin respects decode_times parameter."""
         ds_decoded = datasets.cape_basin(decode_times=True)
         ds_not_decoded = datasets.cape_basin(decode_times=False)
-        
+
         # Decoded version should have datetime64
         self.assertTrue(np.issubdtype(ds_decoded["time"].dtype, np.datetime64))
         # Not decoded version can be various numeric types

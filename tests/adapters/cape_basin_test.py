@@ -1,7 +1,6 @@
 import os
 import tempfile
 import unittest
-from io import StringIO
 
 import numpy as np
 import pandas as pd
@@ -19,6 +18,7 @@ class cape_basin_tests(unittest.TestCase):
     def tearDown(self):
         """Clean up temporary files."""
         import shutil
+
         if os.path.exists(self.test_dir):
             shutil.rmtree(self.test_dir)
 
@@ -41,7 +41,9 @@ class cape_basin_tests(unittest.TestCase):
         df = cape_basin._parse_cape_basin_data(filepath)
 
         self.assertEqual(len(df), 2)
-        self.assertEqual(list(df.columns), ["drifter_id", "time", "latitude", "longitude"])
+        self.assertEqual(
+            list(df.columns), ["drifter_id", "time", "latitude", "longitude"]
+        )
         self.assertEqual(df.iloc[0]["drifter_id"], "Q1_0001")
         self.assertEqual(df.iloc[0]["latitude"], 25.73166)
         self.assertEqual(df.iloc[0]["longitude"], -80.1633)
@@ -78,12 +80,14 @@ class cape_basin_tests(unittest.TestCase):
 
     def test_dataframe_to_ragged_xarray_dimensions(self):
         """Test ragged array conversion produces correct dimensions."""
-        df = pd.DataFrame({
-            "drifter_id": ["Q1_0001", "Q1_0001", "Q1_0002", "Q1_0002", "Q1_0002"],
-            "time": pd.date_range("2023-03-15", periods=5, freq="5min"),
-            "latitude": [25.73, 25.74, 25.80, 25.81, 25.82],
-            "longitude": [-80.16, -80.17, -80.20, -80.21, -80.22],
-        })
+        df = pd.DataFrame(
+            {
+                "drifter_id": ["Q1_0001", "Q1_0001", "Q1_0002", "Q1_0002", "Q1_0002"],
+                "time": pd.date_range("2023-03-15", periods=5, freq="5min"),
+                "latitude": [25.73, 25.74, 25.80, 25.81, 25.82],
+                "longitude": [-80.16, -80.17, -80.20, -80.21, -80.22],
+            }
+        )
 
         ds = cape_basin._dataframe_to_ragged_xarray(df, "qc3")
 
@@ -91,22 +95,26 @@ class cape_basin_tests(unittest.TestCase):
         self.assertIn("traj", ds.dims)
         self.assertIn("obs", ds.dims)
         self.assertEqual(ds.dims["traj"], 2)  # Two drifters
-        self.assertEqual(ds.dims["obs"], 5)   # Five observations
+        self.assertEqual(ds.dims["obs"], 5)  # Five observations
 
     def test_dataframe_to_ragged_xarray_coordinates(self):
         """Test ragged array has correct coordinates and data variables."""
-        df = pd.DataFrame({
-            "drifter_id": ["Q1_0001", "Q1_0001", "Q1_0002"],
-            "time": pd.date_range("2023-03-15", periods=3, freq="5min"),
-            "latitude": [25.73, 25.74, 25.80],
-            "longitude": [-80.16, -80.17, -80.20],
-        })
+        df = pd.DataFrame(
+            {
+                "drifter_id": ["Q1_0001", "Q1_0001", "Q1_0002"],
+                "time": pd.date_range("2023-03-15", periods=3, freq="5min"),
+                "latitude": [25.73, 25.74, 25.80],
+                "longitude": [-80.16, -80.17, -80.20],
+            }
+        )
 
         ds = cape_basin._dataframe_to_ragged_xarray(df, "qc2")
 
         # Check coordinates
         self.assertIn("id", ds.coords)
         self.assertIn("time", ds.coords)
+        self.assertNotIn("index", ds.coords)
+        self.assertNotIn("index", ds.variables)
 
         # Check data variables
         self.assertIn("latitude", ds.data_vars)
@@ -115,12 +123,14 @@ class cape_basin_tests(unittest.TestCase):
 
     def test_dataframe_to_ragged_xarray_rowsize(self):
         """Test rowsize is computed correctly."""
-        df = pd.DataFrame({
-            "drifter_id": ["Q1_0001", "Q1_0001", "Q1_0002", "Q1_0002", "Q1_0002"],
-            "time": pd.date_range("2023-03-15", periods=5, freq="5min"),
-            "latitude": [25.73, 25.74, 25.80, 25.81, 25.82],
-            "longitude": [-80.16, -80.17, -80.20, -80.21, -80.22],
-        })
+        df = pd.DataFrame(
+            {
+                "drifter_id": ["Q1_0001", "Q1_0001", "Q1_0002", "Q1_0002", "Q1_0002"],
+                "time": pd.date_range("2023-03-15", periods=5, freq="5min"),
+                "latitude": [25.73, 25.74, 25.80, 25.81, 25.82],
+                "longitude": [-80.16, -80.17, -80.20, -80.21, -80.22],
+            }
+        )
 
         ds = cape_basin._dataframe_to_ragged_xarray(df, "qc3")
 
@@ -130,12 +140,14 @@ class cape_basin_tests(unittest.TestCase):
 
     def test_dataframe_to_ragged_xarray_dtypes(self):
         """Test data types are correctly cast to project conventions."""
-        df = pd.DataFrame({
-            "drifter_id": ["Q1_0001", "Q1_0001"],
-            "time": pd.date_range("2023-03-15", periods=2, freq="5min"),
-            "latitude": [25.73, 25.74],
-            "longitude": [-80.16, -80.17],
-        })
+        df = pd.DataFrame(
+            {
+                "drifter_id": ["Q1_0001", "Q1_0001"],
+                "time": pd.date_range("2023-03-15", periods=2, freq="5min"),
+                "latitude": [25.73, 25.74],
+                "longitude": [-80.16, -80.17],
+            }
+        )
 
         ds = cape_basin._dataframe_to_ragged_xarray(df, "qc3")
 
@@ -148,12 +160,14 @@ class cape_basin_tests(unittest.TestCase):
 
     def test_dataframe_to_ragged_xarray_global_attrs(self):
         """Test global attributes are set with correct version info."""
-        df = pd.DataFrame({
-            "drifter_id": ["Q1_0001"],
-            "time": pd.date_range("2023-03-15", periods=1, freq="5min"),
-            "latitude": [25.73],
-            "longitude": [-80.16],
-        })
+        df = pd.DataFrame(
+            {
+                "drifter_id": ["Q1_0001"],
+                "time": pd.date_range("2023-03-15", periods=1, freq="5min"),
+                "latitude": [25.73],
+                "longitude": [-80.16],
+            }
+        )
 
         ds_qc2 = cape_basin._dataframe_to_ragged_xarray(df, "qc2")
         ds_qc3 = cape_basin._dataframe_to_ragged_xarray(df, "qc3")
@@ -167,6 +181,4 @@ class cape_basin_tests(unittest.TestCase):
     def test_to_xarray_version_validation(self):
         """Test that invalid versions raise ValueError."""
         with self.assertRaises(ValueError):
-            # Create a mock file
-            filepath = self._create_test_data_file("dummy.dat", ["1	1	Q1	2023-03-15T10:00:00.000Z	1	25	-80	A	GOOD"])
             cape_basin.to_xarray(version="invalid", tmp_path=self.test_dir)

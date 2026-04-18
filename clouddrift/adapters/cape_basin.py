@@ -18,7 +18,6 @@ Zenodo record 14902851: CARTHE surface drifter trajectories, Cape Basin, South A
 
 import os
 import tempfile
-import warnings
 import zipfile
 from datetime import datetime
 from typing import Literal
@@ -31,7 +30,9 @@ from clouddrift.adapters.utils import download_with_progress
 
 # Zenodo record and URL
 CAPE_BASIN_ZENODO_RECORD = "14902851"
-CAPE_BASIN_URL = "https://zenodo.org/records/14902851/files/CARTHE_Drifters_NSF_QUICCHE.zip"
+CAPE_BASIN_URL = (
+    "https://zenodo.org/records/14902851/files/CARTHE_Drifters_NSF_QUICCHE.zip"
+)
 CAPE_BASIN_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "cape_basin")
 CAPE_BASIN_VERSION = "2026-04"
 
@@ -64,9 +65,7 @@ def to_xarray(
 
     # Validate version
     if version not in ("qc2", "qc3"):
-        raise ValueError(
-            f"Invalid version '{version}'. Must be 'qc2' or 'qc3'."
-        )
+        raise ValueError(f"Invalid version '{version}'. Must be 'qc2' or 'qc3'.")
 
     # Download and extract zip file
     local_zip = f"{tmp_path}/CARTHE_Drifters_NSF_QUICCHE.zip"
@@ -117,9 +116,7 @@ def _extract_qc_file(zip_path: str, target_filename: str, extract_path: str) -> 
             matching_files = [f for f in zf.namelist() if f.endswith(target_filename)]
 
             if not matching_files:
-                available_files = [
-                    f for f in zf.namelist() if f.endswith(".dat")
-                ]
+                available_files = [f for f in zf.namelist() if f.endswith(".dat")]
                 raise FileNotFoundError(
                     f"Could not find '{target_filename}' in zip archive. "
                     f"Available .dat files: {available_files}"
@@ -127,9 +124,7 @@ def _extract_qc_file(zip_path: str, target_filename: str, extract_path: str) -> 
 
             # Extract the first match
             file_in_zip = matching_files[0]
-            with zf.open(file_in_zip) as source, open(
-                extracted_file, "wb"
-            ) as target:
+            with zf.open(file_in_zip) as source, open(extracted_file, "wb") as target:
                 target.write(source.read())
 
     return extracted_file
@@ -237,15 +232,16 @@ def _dataframe_to_ragged_xarray(df: pd.DataFrame, version: str) -> xr.Dataset:
     # Replicate drifter_id for each observation row
     ds = xr.Dataset.from_dataframe(df)
 
-    # Rename index dimension to obs
+    # Rename the implicit dataframe index dimension to obs and drop the
+    # redundant coordinate variable that only mirrors the observation index.
     ds = ds.rename_dims({"index": "obs"})
 
     # Assign trajectory-level coordinates
     ds = ds.assign({"id": ("traj", unique_ids)})
     ds = ds.assign({"rowsize": ("traj", rowsize)})
 
-    # Drop the per-observation drifter_id column (keep only traj-level id)
-    ds = ds.drop_vars(["drifter_id"])
+    # Drop per-observation drifter_id and the redundant dataframe index coordinate.
+    ds = ds.drop_vars(["drifter_id", "index"])
 
     # Set coordinates
     ds = ds.set_coords(["id", "time"])
