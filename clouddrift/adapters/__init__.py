@@ -9,6 +9,7 @@ in the future.
 """
 
 import clouddrift.adapters.andro as andro
+import clouddrift.adapters.cape_basin as cape_basin
 import clouddrift.adapters.gdp.gdp1h as gdp1h
 import clouddrift.adapters.gdp.gdp6h as gdp6h
 import clouddrift.adapters.gdp.gdpsource as gdp_source
@@ -22,6 +23,7 @@ import clouddrift.adapters.yomaha as yomaha
 
 __all__ = [
     "andro",
+    "cape_basin",
     "gdp1h",
     "gdp6h",
     "glad",

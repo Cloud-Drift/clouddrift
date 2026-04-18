@@ -6,7 +6,9 @@ they will be downloaded from their upstream repositories and stored for later ac
 """
 
 import os
+import shutil
 from collections.abc import Callable
+from typing import Literal
 
 import xarray as xr
 
@@ -783,6 +785,73 @@ def andro(decode_times: bool = True) -> xr.Dataset:
     return _dataset_filecache("andro.nc", decode_times, adapters.andro.to_xarray)
 
 
+def cape_basin(
+    version: Literal["qc2", "qc3"] = "qc3",
+    decode_times: bool = True,
+) -> xr.Dataset:
+    """Returns the Cape Basin CARTHE surface drifter trajectories as a ragged array
+    Xarray dataset.
+
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access.
+
+    The upstream data is available at https://zenodo.org/records/14902851.
+
+    Parameters
+    ----------
+    version : Literal["qc2", "qc3"], optional
+        Specify the quality control level to retrieve. "qc2" = bad records removed;
+        "qc3" = QC2 interpolated on a regular 30 minute time grid. Default is "qc3".
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
+
+    Returns
+    -------
+    xarray.Dataset
+        Cape Basin CARTHE drifter trajectories as a ragged array
+
+    Examples
+    --------
+    >>> from clouddrift.datasets import cape_basin
+    >>> ds = cape_basin()
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:    (traj: ..., obs: ...)
+    Coordinates:
+        id         (traj) object ...
+        time       (obs) datetime64[ns] ...
+    Dimensions without coordinates: traj, obs
+    Data variables:
+        latitude   (obs) float32 ...
+        longitude  (obs) float32 ...
+        rowsize    (traj) int64 ...
+    Attributes:
+        title:           Cape Basin CARTHE Surface Drifter Trajectories (QC3)
+        summary:         CARTHE surface drifter trajectories from the Cape Basin...
+        date_created:    2026-04-17T...
+        publisher_name:  Zenodo
+        publisher_url:   https://zenodo.org/records/14902851
+
+    To retrieve QC2 data instead:
+
+    >>> ds = cape_basin(version="qc2")
+
+    Reference
+    ---------
+    Zenodo record 14902851: CARTHE surface drifter trajectories, Cape Basin, South Atlantic, March 2023.
+    """
+    filename = f"cape_basin_{version}.nc"
+    return _dataset_filecache(
+        filename,
+        decode_times,
+        lambda: adapters.cape_basin.to_xarray(version),
+    )
+
+
+
 def _dataset_filecache(
     filename: str,
     decode_times: bool,
@@ -798,17 +867,34 @@ def _dataset_filecache(
     fp = f"{clouddrift_path}/data/{filename}"
     os.makedirs(os.path.dirname(fp), exist_ok=True)
 
-    if not os.path.exists(fp) or force:
-        ds = get_ds()
-        if ext == ".nc":
-            ds.to_netcdf(fp)
-        elif ext == ".zarr":
-            ds.to_zarr(fp)
-        else:
-            ds.to_netcdf(fp)
-
     engine = None
     if ext == ".zarr":
         engine = "zarr"
+
+    def _remove_cache(path: str):
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        elif os.path.exists(path):
+            os.remove(path)
+
+    # Try existing cache first. If it is unreadable/invalid, rebuild it.
+    if os.path.exists(fp) and not force:
+        try:
+            ds = xr.open_dataset(fp, decode_times=decode_times, engine=engine)
+            if len(ds.variables) == 0:
+                ds.close()
+                _remove_cache(fp)
+            else:
+                return ds
+        except Exception:
+            _remove_cache(fp)
+
+    ds = get_ds()
+    if ext == ".nc":
+        ds.to_netcdf(fp)
+    elif ext == ".zarr":
+        ds.to_zarr(fp)
+    else:
+        ds.to_netcdf(fp)
 
     return xr.open_dataset(fp, decode_times=decode_times, engine=engine)

@@ -103,3 +103,38 @@ class datasets_tests(testutils.DisableProgressTestCase):
     def test_mosaic_opens(self):
         with datasets.mosaic() as ds:
             self.assertTrue(ds)
+
+    def test_cape_basin_opens(self):
+        with datasets.cape_basin() as ds:
+            self.assertTrue(ds is not None)
+            self.assertTrue(len(ds.variables) > 0)
+            self.assertTrue("latitude" in ds.variables)
+            self.assertTrue("longitude" in ds.variables)
+
+    def test_cape_basin_default_version(self):
+        """Test that cape_basin defaults to qc3."""
+        with datasets.cape_basin() as ds:
+            self.assertEqual(ds.attrs.get("qc_level"), "qc3")
+
+    def test_cape_basin_qc2_version(self):
+        """Test cape_basin with explicit qc2 version."""
+        with datasets.cape_basin(version="qc2") as ds:
+            self.assertEqual(ds.attrs.get("qc_level"), "qc2")
+
+    def test_cape_basin_dims_coords(self):
+        """Test cape_basin has expected ragged array structure."""
+        with datasets.cape_basin() as ds:
+            self.assertIn("traj", ds.dims)
+            self.assertIn("obs", ds.dims)
+            self.assertIn("id", ds.coords)
+            self.assertIn("time", ds.coords)
+
+    def test_cape_basin_decode_times_false(self):
+        """Test cape_basin respects decode_times parameter."""
+        ds_decoded = datasets.cape_basin(decode_times=True)
+        ds_not_decoded = datasets.cape_basin(decode_times=False)
+        
+        # Decoded version should have datetime64
+        self.assertTrue(np.issubdtype(ds_decoded["time"].dtype, np.datetime64))
+        # Not decoded version can be various numeric types
+        self.assertFalse(np.issubdtype(ds_not_decoded["time"].dtype, np.datetime64))

@@ -90,6 +90,26 @@ Andro Dataset
 processed from the upstream dataset hosted at the `SEANOE repository
 <https://www.seanoe.org/data/00360/47077/>`_.
 
+Cape Basin Dataset
+------------------
+
+:func:`clouddrift.datasets.cape_basin`: CARTHE surface drifter trajectories from the Cape Basin (South Atlantic) experiment in March 2023 as a ragged array xarray dataset.
+Processed from the upstream dataset hosted at `Zenodo record 14902851 <https://zenodo.org/records/14902851>`_.
+
+The dataset provides two quality-controlled versions:
+
+- **QC2**: Bad records removed
+- **QC3**: QC2 interpolated on a regular 30-minute time grid (default)
+
+Trajectories are defined by four columns from the raw data: drifter ID, time (ISO 8601), latitude (decimal degrees North), and longitude (decimal degrees East).
+Use the ``version`` parameter to select between QC2 and QC3:
+
+.. code-block:: python
+
+    from clouddrift.datasets import cape_basin
+    ds_qc3 = cape_basin()  # default, QC3
+    ds_qc2 = cape_basin(version="qc2")  # QC2
+
 Subsurface Floats Dataset
 -------------------------
 
