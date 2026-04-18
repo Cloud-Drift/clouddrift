@@ -841,9 +841,9 @@ def cape_basin(
 
     Reference
     ---------
-    Novelli, G., & Beal, L. (2025). POSITION - GEOGRAPHIC collected from 
+    Novelli, G., & Beal, L. (2025). POSITION - GEOGRAPHIC collected from
     CARTHE surface drifter in South Atlantic Ocean from 20230306 to 20230727
-    (NCEI Accession 0301712). (Version 1) [Data set]. National Centers for 
+    (NCEI Accession 0301712). (Version 1) [Data set]. National Centers for
     Environmental Information. https://doi.org/10.25921/9m27-m532
     """
     filename = f"cape_basin_{version}.nc"
