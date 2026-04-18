@@ -858,7 +858,9 @@ def quicche(
 
     # Backward compatibility: rebuild stale cache files created before
     # version-specific variables were added.
-    needs_battery = version in ("raw", "qc1", "qc2") and "battery_state" not in ds.data_vars
+    needs_battery = (
+        version in ("raw", "qc1", "qc2") and "battery_state" not in ds.data_vars
+    )
     needs_flag = version == "qc1" and "flag" not in ds.data_vars
     if needs_battery or needs_flag:
         ds.close()
