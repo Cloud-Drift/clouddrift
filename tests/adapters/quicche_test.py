@@ -30,37 +30,46 @@ class quicche_tests(unittest.TestCase):
                 f.write(line + "\n")
         return filepath
 
-    def test_parse_quicche_data_9_columns(self):
-        """Test parsing a data file with 9 columns (no predeployment flag)."""
+    def test_parse_quicche_data_qc2_contains_battery_state(self):
+        """QC2 parsing keeps battery_state and omits flag."""
         data_lines = [
             "1865211416	0-4435604	Q1_0001	2023-03-15T10:00:00.000Z	1679048400	25.73166	-80.1633	UNLIMITED-TRACK	GOOD",
             "1865211417	0-4435605	Q1_0002	2023-03-15T10:05:00.000Z	1679048700	25.73200	-80.1640	UNLIMITED-TRACK	GOOD",
         ]
         filepath = self._create_test_data_file("test_qc2.dat", data_lines)
 
-        df = quicche._parse_quicche_data(filepath)
+        df = quicche._parse_quicche_data(filepath, "qc2")
 
         self.assertEqual(len(df), 2)
         self.assertEqual(
-            list(df.columns), ["drifter_id", "time", "latitude", "longitude"]
+            list(df.columns),
+            ["drifter_id", "time", "latitude", "longitude", "battery_state"],
         )
         self.assertEqual(df.iloc[0]["drifter_id"], "Q1_0001")
         self.assertEqual(df.iloc[0]["latitude"], 25.73166)
         self.assertEqual(df.iloc[0]["longitude"], -80.1633)
+        self.assertEqual(df.iloc[0]["battery_state"], "GOOD")
         self.assertTrue(pd.notna(df.iloc[0]["time"]))
+        self.assertNotIn("flag", df.columns)
 
-    def test_parse_quicche_data_10_columns(self):
-        """Test parsing a data file with 10 columns (including predeployment flag)."""
+    def test_parse_quicche_data_qc1_contains_flag(self):
+        """QC1 parsing keeps battery_state and flag, with empty flag when missing."""
         data_lines = [
             "1865211416	0-4435604	Q1_0001	2023-03-15T10:00:00.000Z	1679048400	25.73166	-80.1633	UNLIMITED-TRACK	GOOD	PRE",
+            "1865211418	0-4435606	Q1_0002	2023-03-15T10:05:00.000Z	1679048700	25.73200	-80.1640	UNLIMITED-TRACK	LOW	BAD_POS",
             "1865211417	0-4435605	Q1_0002	2023-03-15T10:05:00.000Z	1679048700	25.73200	-80.1640	UNLIMITED-TRACK	GOOD",
         ]
         filepath = self._create_test_data_file("test_mixed.dat", data_lines)
 
-        df = quicche._parse_quicche_data(filepath)
+        df = quicche._parse_quicche_data(filepath, "qc1")
 
-        self.assertEqual(len(df), 2)
+        self.assertEqual(len(df), 3)
+        self.assertIn("battery_state", df.columns)
+        self.assertIn("flag", df.columns)
         self.assertEqual(df.iloc[0]["drifter_id"], "Q1_0001")
+        self.assertIn("PRE", set(df["flag"].values))
+        self.assertIn("BAD_POS", set(df["flag"].values))
+        self.assertIn("", set(df["flag"].values))
 
     def test_parse_sorted_by_drifter_id_and_time(self):
         """Test that parsed data is sorted by drifter_id and time."""
@@ -71,7 +80,7 @@ class quicche_tests(unittest.TestCase):
         ]
         filepath = self._create_test_data_file("test_unsorted.dat", data_lines)
 
-        df = quicche._parse_quicche_data(filepath)
+        df = quicche._parse_quicche_data(filepath, "qc2")
 
         # Check sort order: Q1_0001 entries first, then Q1_0002
         self.assertEqual(df.iloc[0]["drifter_id"], "Q1_0001")
@@ -120,6 +129,38 @@ class quicche_tests(unittest.TestCase):
         self.assertIn("latitude", ds.data_vars)
         self.assertIn("longitude", ds.data_vars)
         self.assertIn("rowsize", ds.data_vars)
+
+    def test_qc1_ragged_includes_flag_and_battery_state(self):
+        """QC1 ragged dataset exposes both battery_state and flag variables."""
+        df = pd.DataFrame(
+            {
+                "drifter_id": ["Q1_0001", "Q1_0001", "Q1_0002"],
+                "time": pd.date_range("2023-03-15", periods=3, freq="5min"),
+                "latitude": [25.73, 25.74, 25.80],
+                "longitude": [-80.16, -80.17, -80.20],
+                "battery_state": ["GOOD", "LOW", "GOOD"],
+                "flag": ["PRE", "", "BAD_POS"],
+            }
+        )
+
+        ds = quicche._dataframe_to_ragged_xarray(df, "qc1")
+        self.assertIn("battery_state", ds.data_vars)
+        self.assertIn("flag", ds.data_vars)
+
+    def test_qc3_ragged_excludes_flag_and_battery_state(self):
+        """QC3 ragged dataset should not include battery_state or flag variables."""
+        df = pd.DataFrame(
+            {
+                "drifter_id": ["Q1_0001", "Q1_0001"],
+                "time": pd.date_range("2023-03-15", periods=2, freq="5min"),
+                "latitude": [25.73, 25.74],
+                "longitude": [-80.16, -80.17],
+            }
+        )
+
+        ds = quicche._dataframe_to_ragged_xarray(df, "qc3")
+        self.assertNotIn("battery_state", ds.data_vars)
+        self.assertNotIn("flag", ds.data_vars)
 
     def test_dataframe_to_ragged_xarray_rowsize(self):
         """Test rowsize is computed correctly."""

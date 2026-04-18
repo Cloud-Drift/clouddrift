@@ -85,7 +85,7 @@ def to_xarray(
     extracted_file = _extract_qc_file(local_zip, target_filename, tmp_path)
 
     # Parse the data file
-    df = _parse_quicche_data(extracted_file)
+    df = _parse_quicche_data(extracted_file, version)
 
     # Convert to ragged array xarray Dataset
     ds = _dataframe_to_ragged_xarray(df, version)
@@ -139,7 +139,10 @@ def _extract_qc_file(zip_path: str, target_filename: str, extract_path: str) -> 
     return extracted_file
 
 
-def _parse_quicche_data(filepath: str) -> pd.DataFrame:
+def _parse_quicche_data(
+    filepath: str,
+    version: Literal["raw", "qc1", "qc2", "qc3"],
+) -> pd.DataFrame:
     """
     Parse a QUICCHE CARTHE data file into a pandas DataFrame.
 
@@ -163,10 +166,14 @@ def _parse_quicche_data(filepath: str) -> pd.DataFrame:
     filepath : str
         Path to the .dat file to parse.
 
+    version : Literal["raw", "qc1", "qc2", "qc3"]
+        QUICCHE processing level to parse.
+
     Returns
     -------
     pd.DataFrame
-        DataFrame with columns: drifter_id, time, latitude, longitude.
+        Parsed dataframe containing trajectory columns and version-specific
+        observation metadata columns.
     """
     col_names = [
         "manufacturer_message_id",
@@ -196,12 +203,17 @@ def _parse_quicche_data(filepath: str) -> pd.DataFrame:
         },
     )
 
-    # Ensure predeployment_flag exists (may be missing in some rows)
-    if "predeployment_flag" not in df.columns:
-        df["predeployment_flag"] = ""
+    # Normalize optional/string fields for robust NetCDF serialization.
+    df["battery_state"] = df["battery_state"].fillna("").astype(str)
+    df["predeployment_flag"] = df["predeployment_flag"].fillna("").astype(str)
 
-    # Extract only required columns for trajectory
-    df = df[["drifter_id", "time_iso8601", "latitude", "longitude"]].copy()
+    selected_columns = ["drifter_id", "time_iso8601", "latitude", "longitude"]
+    if version in ("raw", "qc1", "qc2"):
+        selected_columns.append("battery_state")
+    if version == "qc1":
+        selected_columns.append("predeployment_flag")
+
+    df = df[selected_columns].copy()
 
     # Parse time as UTC then drop timezone info so NetCDF serialization uses
     # plain datetime64[ns] instead of Python-object timestamps.
@@ -211,8 +223,16 @@ def _parse_quicche_data(filepath: str) -> pd.DataFrame:
     # Sort by drifter_id and time
     df = df.sort_values(["drifter_id", "time"]).reset_index(drop=True)
 
-    # Remove the ISO string column, keep the parsed time
-    df = df[["drifter_id", "time", "latitude", "longitude"]].copy()
+    # Remove the ISO string column, keep the parsed time and selected metadata.
+    ordered_columns = ["drifter_id", "time", "latitude", "longitude"]
+    if "battery_state" in df.columns:
+        ordered_columns.append("battery_state")
+    if "predeployment_flag" in df.columns:
+        ordered_columns.append("predeployment_flag")
+
+    df = df[ordered_columns].copy()
+    if "predeployment_flag" in df.columns:
+        df = df.rename(columns={"predeployment_flag": "flag"})
 
     return df
 
@@ -280,6 +300,16 @@ def _dataframe_to_ragged_xarray(df: pd.DataFrame, version: str) -> xr.Dataset:
         },
         "rowsize": {
             "long_name": "Number of observations per trajectory",
+            "units": "-",
+        },
+        "battery_state": {
+            "long_name": "Battery state reported by manufacturer",
+            "comment": "Values include GOOD and LOW",
+            "units": "-",
+        },
+        "flag": {
+            "long_name": "QC1 position/test flag",
+            "comment": "PRE: pre-deployment test; BAD_POS: visually evaluated bad position; empty string: no issue",
             "units": "-",
         },
     }

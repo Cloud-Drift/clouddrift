@@ -120,16 +120,22 @@ class datasets_tests(testutils.DisableProgressTestCase):
         """Test quicche with explicit raw version."""
         with datasets.quicche(version="raw") as ds:
             self.assertEqual(ds.attrs.get("qc_level"), "raw")
+            self.assertIn("battery_state", ds.data_vars)
+            self.assertNotIn("flag", ds.data_vars)
 
     def test_quicche_qc1_version(self):
         """Test quicche with explicit qc1 version."""
         with datasets.quicche(version="qc1") as ds:
             self.assertEqual(ds.attrs.get("qc_level"), "qc1")
+            self.assertIn("battery_state", ds.data_vars)
+            self.assertIn("flag", ds.data_vars)
 
     def test_quicche_qc2_version(self):
         """Test quicche with explicit qc2 version."""
         with datasets.quicche(version="qc2") as ds:
             self.assertEqual(ds.attrs.get("qc_level"), "qc2")
+            self.assertIn("battery_state", ds.data_vars)
+            self.assertNotIn("flag", ds.data_vars)
 
     def test_quicche_dims_coords(self):
         """Test quicche has expected ragged array structure."""
