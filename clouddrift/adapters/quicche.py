@@ -65,7 +65,7 @@ def to_xarray(
     """
     if tmp_path is None:
         tmp_path = QUICCHE_TMP_PATH
-        os.makedirs(tmp_path, exist_ok=True)
+    os.makedirs(tmp_path, exist_ok=True)
 
     # Validate version
     if version not in ("raw", "qc1", "qc2", "qc3"):
