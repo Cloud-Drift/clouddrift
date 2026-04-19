@@ -1,8 +1,13 @@
 import numpy as np
+from typing import get_args
 
 import tests.utils as testutils
 from clouddrift import adapters, datasets
+from clouddrift.adapters.carthe_glad import GLAD_VERSIONS
 from clouddrift.ragged import apply_ragged, subset
+
+
+GLAD_VERSION_VALUES: tuple[GLAD_VERSIONS, ...] = get_args(GLAD_VERSIONS)
 
 
 class datasets_tests(testutils.DisableProgressTestCase):
@@ -50,27 +55,32 @@ class datasets_tests(testutils.DisableProgressTestCase):
             )
         )
 
-    def test_glad(self):
-        with datasets.glad() as ds:
-            self.assertTrue(ds)
+    def test_cart_glad(self):
+        for version in GLAD_VERSION_VALUES:
+            with self.subTest(version=version):
+                with datasets.carthe_glad(version=version) as ds:
+                    self.assertTrue(ds)
 
-    def test_glad_dims_coords(self):
-        with datasets.glad() as ds:
-            self.assertTrue(len(ds.sizes) == 2)
-            self.assertTrue("obs" in ds.dims)
-            self.assertTrue("traj" in ds.dims)
-            self.assertTrue(len(ds.coords) == 2)
-            self.assertTrue("time" in ds.coords)
-            self.assertTrue("id" in ds.coords)
+    def test_cart_glad_dims_coords(self):
+        for version in GLAD_VERSION_VALUES:
+            with self.subTest(version=version):
+                with datasets.carthe_glad(version=version) as ds:
+                    self.assertTrue(len(ds.sizes) == 2)
+                    self.assertTrue("obs" in ds.dims)
+                    self.assertTrue("traj" in ds.dims)
+                    self.assertTrue(len(ds.coords) == 2)
+                    self.assertTrue("time" in ds.coords)
+                    self.assertTrue("id" in ds.coords)
 
-    def test_glad_subset_and_apply_ragged_work(self):
-        with datasets.glad() as ds:
-            ds_sub = subset(
-                ds,
-                {"id": ["CARTHE_001", "CARTHE_002"]},
-                id_var_name="id",
-                row_dim_name="traj",
-            )
+    def test_cart_glad_subset_and_apply_ragged_work(self):
+        for version in GLAD_VERSION_VALUES:
+            with datasets.carthe_glad(version=version) as ds:
+                ds_sub = subset(
+                    ds,
+                    {"id": ["CARTHE_001", "CARTHE_002"]},
+                    id_var_name="id",
+                    row_dim_name="traj",
+                )
             self.assertTrue(ds_sub)
             mean_lon = apply_ragged(np.mean, [ds_sub.longitude], ds_sub.rowsize)
             self.assertTrue(mean_lon.size == 2)
