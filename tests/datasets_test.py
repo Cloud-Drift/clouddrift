@@ -55,13 +55,17 @@ class datasets_tests(testutils.DisableProgressTestCase):
             )
         )
 
-    def test_cart_glad(self):
+    def test_carthe_glad(self):
         for version in GLAD_VERSION_VALUES:
             with self.subTest(version=version):
                 with datasets.carthe_glad(version=version) as ds:
                     self.assertTrue(ds)
 
-    def test_cart_glad_dims_coords(self):
+    def test_carthe_glad_wrong_version(self):
+        with self.assertRaises(ValueError):
+            datasets.carthe_glad(version="wrong_version")
+
+    def test_carthe_glad_dims_coords(self):
         for version in GLAD_VERSION_VALUES:
             with self.subTest(version=version):
                 with datasets.carthe_glad(version=version) as ds:
@@ -72,7 +76,7 @@ class datasets_tests(testutils.DisableProgressTestCase):
                     self.assertTrue("time" in ds.coords)
                     self.assertTrue("id" in ds.coords)
 
-    def test_cart_glad_subset_and_apply_ragged_work(self):
+    def test_carthe_glad_subset_and_apply_ragged_work(self):
         for version in GLAD_VERSION_VALUES:
             with datasets.carthe_glad(version=version) as ds:
                 ds_sub = subset(
