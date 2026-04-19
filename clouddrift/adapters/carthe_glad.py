@@ -30,6 +30,8 @@ URL_QC1 = "https://data.griidc.org/api/file/download/152756"
 URL_QC2 = "https://data.griidc.org/api/file/download/169841"
 
 _DATASET_VERSIONS = {
+    # GRIIDC server doesn't provide Content-Length header,
+    # so we'll hardcode the expected data length here.
     "raw": (URL_RAW, 296648132),
     "qc1": (URL_QC1, 534489318),
     "qc2": (URL_QC2, 155330876),
