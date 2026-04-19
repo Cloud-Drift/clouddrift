@@ -110,42 +110,71 @@ class datasets_tests(testutils.DisableProgressTestCase):
             self.assertTrue(len(ds.variables) > 0)
             self.assertTrue("latitude" in ds.variables)
             self.assertTrue("longitude" in ds.variables)
+            self.assertTrue("rowsize" in ds.variables)
+            self.assertTrue("traj" in ds.dims)
+            self.assertTrue("obs" in ds.dims)
+            self.assertTrue("time" in ds.coords)
+            self.assertTrue("id" in ds.coords)
+            self.assertTrue("index" not in ds.coords)
+            self.assertTrue("index" not in ds.variables)
+
+            # Core ragged-array invariants.
+            self.assertEqual(ds["latitude"].sizes["obs"], ds.sizes["obs"])
+            self.assertEqual(ds["longitude"].sizes["obs"], ds.sizes["obs"])
+            self.assertEqual(ds["time"].sizes["obs"], ds.sizes["obs"])
+            self.assertEqual(ds["rowsize"].sizes["traj"], ds.sizes["traj"])
+            self.assertEqual(ds["id"].sizes["traj"], ds.sizes["traj"])
+            self.assertEqual(int(ds["rowsize"].sum().item()), ds.sizes["obs"])
 
     def test_quicche_default_version(self):
         """Test that quicche defaults to qc3."""
         with datasets.quicche() as ds:
             self.assertEqual(ds.attrs.get("qc_level"), "qc3")
 
-    def test_quicche_raw_version(self):
-        """Test quicche with explicit raw version."""
-        with datasets.quicche(version="raw") as ds:
-            self.assertEqual(ds.attrs.get("qc_level"), "raw")
-            self.assertIn("battery_state", ds.data_vars)
-            self.assertNotIn("flag", ds.data_vars)
+    def test_quicche_qc_level_by_version(self):
+        """Test qc_level attribute for all supported versions."""
+        expected_qc = {
+            "raw": "raw",
+            "qc1": "qc1",
+            "qc2": "qc2",
+            "qc3": "qc3",
+        }
 
-    def test_quicche_qc1_version(self):
-        """Test quicche with explicit qc1 version."""
-        with datasets.quicche(version="qc1") as ds:
-            self.assertEqual(ds.attrs.get("qc_level"), "qc1")
-            self.assertIn("battery_state", ds.data_vars)
-            self.assertIn("flag", ds.data_vars)
+        for version, expected in expected_qc.items():
+            with self.subTest(version=version):
+                with datasets.quicche(version=version) as ds:
+                    self.assertEqual(ds.attrs.get("qc_level"), expected)
 
-    def test_quicche_qc2_version(self):
-        """Test quicche with explicit qc2 version."""
-        with datasets.quicche(version="qc2") as ds:
-            self.assertEqual(ds.attrs.get("qc_level"), "qc2")
-            self.assertIn("battery_state", ds.data_vars)
-            self.assertNotIn("flag", ds.data_vars)
+    def test_quicche_expected_variables_by_version(self):
+        """Validate version-specific observation variables and their lengths."""
+        expected = {
+            "raw": {
+                "present": {"latitude", "longitude", "battery_state"},
+                "absent": {"flag"},
+            },
+            "qc1": {
+                "present": {"latitude", "longitude", "battery_state", "flag"},
+                "absent": set(),
+            },
+            "qc2": {
+                "present": {"latitude", "longitude", "battery_state"},
+                "absent": {"flag"},
+            },
+            "qc3": {
+                "present": {"latitude", "longitude"},
+                "absent": {"battery_state", "flag"},
+            },
+        }
 
-    def test_quicche_dims_coords(self):
-        """Test quicche has expected ragged array structure."""
-        with datasets.quicche() as ds:
-            self.assertIn("traj", ds.dims)
-            self.assertIn("obs", ds.dims)
-            self.assertIn("id", ds.coords)
-            self.assertIn("time", ds.coords)
-            self.assertNotIn("index", ds.coords)
-            self.assertNotIn("index", ds.variables)
+        for version, vars_spec in expected.items():
+            with self.subTest(version=version):
+                with datasets.quicche(version=version) as ds:
+                    for var_name in vars_spec["present"]:
+                        self.assertIn(var_name, ds.data_vars)
+                        self.assertEqual(ds[var_name].sizes["obs"], ds.sizes["obs"])
+
+                    for var_name in vars_spec["absent"]:
+                        self.assertNotIn(var_name, ds.data_vars)
 
     def test_quicche_decode_times_false(self):
         """Test quicche respects decode_times parameter."""
