@@ -7,8 +7,8 @@ The dataset and its description are hosted at https://doi.org/10.7266/N7VD6WC8.
 
 Example
 -------
->>> from clouddrift.adapters import glad
->>> ds = glad.to_xarray()
+>>> from clouddrift.adapters import carthe_glad
+>>> ds = carthe_glad.to_xarray()
 
 Reference
 ---------

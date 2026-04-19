@@ -15,7 +15,7 @@ class pairs_chance_pairs_from_ragged_tests(unittest.TestCase):
         num_trajectories = 10
         ids = ["CARTHE_%3.3i" % (i + 1) for i in range(num_trajectories)]
         ds = ragged.subset(
-            datasets.glad(), {"id": ids}, id_var_name="id", row_dim_name="traj"
+            datasets.carthe_glad(), {"id": ids}, id_var_name="id", row_dim_name="traj"
         )
         self.lon = ds["longitude"]
         self.lat = ds["latitude"]
@@ -53,7 +53,7 @@ class pairs_chance_pairs_from_ragged_tests(unittest.TestCase):
 
 class pairs_chance_pair_tests(unittest.TestCase):
     def setUp(self) -> None:
-        ds = datasets.glad()
+        ds = datasets.carthe_glad()
         self.lon1 = ragged.unpack(ds["longitude"], ds["rowsize"], rows=0).pop()
         self.lat1 = ragged.unpack(ds["latitude"], ds["rowsize"], rows=0).pop()
         self.time1 = ragged.unpack(ds["time"], ds["rowsize"], rows=0).pop()

@@ -263,8 +263,8 @@ def carthe_glad(
 
     Examples
     --------
-    >>> from clouddrift.datasets import glad
-    >>> ds = glad()
+    >>> from clouddrift.datasets import carthe_glad
+    >>> ds = carthe_glad()
     >>> ds
     <xarray.Dataset>
     Dimensions:         (obs: 1602883, traj: 297)
