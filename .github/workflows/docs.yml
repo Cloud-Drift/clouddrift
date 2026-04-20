@@ -14,44 +14,38 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest"]
-        python-version: ["3.10"]
+        os: [ "ubuntu-latest" ]
+        python-version: [ "3.10" ]
     steps:
-    - uses: actions/checkout@v4
-    - uses: mamba-org/setup-micromamba@v1
-      with:
-        environment-file: environment.yml
-        environment-name: clouddrift
-    - name: Build docs
-      shell: bash -l {0}
-      run: |
-        python -m pip install build twine docutils
-        python -m build
-        pip install dist/*.whl
-        pushd docs
-        pip install clouddrift[docs]
-        make html
-    - name: Upload HTML artificat
-      uses: actions/upload-artifact@v4
-      with:
-        name: DocumentationHTML
-        path: docs/_build/html/
-    - name: Commit to gh-pages
-      run: |
-        git clone https://github.com/ammaraskar/sphinx-action-test.git --branch gh-pages --single-branch gh-pages
-        cp -r docs/_build/html/* gh-pages/
-        cd gh-pages
-        touch .nojekyll
-        echo clouddrift.org > CNAME
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
-        git commit -m "Update documentation" -a || true
-        # The above command will fail if no changes were present, so we ignore
-        # that.
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        branch: gh-pages
-        directory: gh-pages
-        force: true
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
+      - name: Install the project
+        run: uv sync --frozen
+      - name: Build docs
+        shell: bash -l {0}
+        run: uv run sphinx-build -M html docs docs/_build
+      - name: Upload HTML artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DocumentationHTML
+          path: docs/_build/html/
+      - name: Commit to gh-pages
+        run: |
+          git clone https://github.com/ammaraskar/sphinx-action-test.git --branch gh-pages --single-branch gh-pages
+          cp -r docs/_build/html/* gh-pages/
+          cd gh-pages
+          touch .nojekyll
+          echo clouddrift.org > CNAME
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Update documentation" -a || true
+          # The above command will fail if no changes were present, so we ignore
+          # that.
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: gh-pages
+          directory: gh-pages
+          force: true
