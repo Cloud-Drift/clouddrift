@@ -11,7 +11,7 @@ from collections.abc import Callable
 import xarray as xr
 
 from clouddrift import adapters
-from clouddrift.adapters.carthe_glad import GLAD_VERSIONS
+from clouddrift.adapters.glad import GLAD_VERSIONS
 from clouddrift.adapters.hurdat2 import _BasinOption
 from clouddrift.adapters.ibtracs import _Kind, _Version
 
@@ -235,9 +235,7 @@ def gdp_source(
     )
 
 
-def carthe_glad(
-    decode_times: bool = True, version: GLAD_VERSIONS = "qc2"
-) -> xr.Dataset:
+def glad(decode_times: bool = True, version: GLAD_VERSIONS = "qc2") -> xr.Dataset:
     """Returns the CARTHE Grand LAgrangian Deployment (GLAD) dataset as a ragged array
     Xarray dataset.
 
@@ -263,8 +261,8 @@ def carthe_glad(
 
     Examples
     --------
-    >>> from clouddrift.datasets import carthe_glad
-    >>> ds = carthe_glad()
+    >>> from clouddrift.datasets import glad
+    >>> ds = glad()
     >>> ds
     <xarray.Dataset>
     Dimensions:         (obs: 1602883, traj: 297)
@@ -291,9 +289,9 @@ def carthe_glad(
     Özgökmen, Tamay. 2013. GLAD experiment CODE-style drifter trajectories (low-pass filtered, 15 minute interval records), northern Gulf of Mexico near DeSoto Canyon, July-October 2012. Distributed by: Gulf of Mexico Research Initiative Information and Data Cooperative (GRIIDC), Harte Research Institute, Texas A&M University–Corpus Christi. doi:10.7266/N7VD6WC8
     """
     return _dataset_filecache(
-        f"carthe_glad_{version}.nc",
+        f"glad_{version}.nc",
         decode_times,
-        lambda: adapters.carthe_glad.to_xarray(version=version),
+        lambda: adapters.glad.to_xarray(version=version),
     )
 
 

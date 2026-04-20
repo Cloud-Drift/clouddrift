@@ -3,15 +3,24 @@ This module defines functions used to adapt the Grand LAgrangian Deployment
 (GLAD) CODE-style drifter trajectories dataset from the Consortium for Advanced Research
 on Transport of Hydrocarbon in the Environment (CARTHE) as a ragged-array Xarray Dataset.
 
-The dataset and its description are hosted at https://doi.org/10.7266/N7VD6WC8.
+The datasets and their respective description are hosted at:
+
+- raw trajectories https://doi.org/10.7266/N7086388
+- qc1: 5-min interpolation, no filtering https://doi.org/10.7266/N7416V0M
+- qc2: low-pass filtered, 15 minute interval records https://doi.org/10.7266/N7VD6WC8
 
 Example
 -------
->>> from clouddrift.adapters import carthe_glad
->>> ds = carthe_glad.to_xarray()
+>>> from clouddrift.adapters import glad
+>>> ds = glad.to_xarray()
 
-Reference
----------
+to retrieve the default `qc2` version of the dataset. To retrieve the `raw` or `qc1` versions, pass the
+version name as an argument to `to_xarray()`, e.g. `glad.to_xarray(version="raw")`.
+
+References
+----------
+Tamay Özgökmen. 2016. Grand Lagrangian Deployment GLAD experiment CODE-style and flat surface drifter trajectories (raw), northern Gulf of Mexico near DeSoto Canyon, July 2012 - January 2013. Distributed by: GRIIDC, Harte Research Institute, Texas A&M University–Corpus Christi. https://doi.org/10.7266/N7086388
+Huntley, H. S., Lipphardt, B. L., & Kirwan, A. D. (2019). Anisotropy and Inhomogeneity in Drifter Dispersion. Journal of Geophysical Research: Oceans, 124(12), 8667–8682. doi:10.1029/2019jc015179
 Özgökmen, Tamay. 2013. GLAD experiment CODE-style drifter trajectories (low-pass filtered, 15 minute interval records), northern Gulf of Mexico near DeSoto Canyon, July-October 2012. Distributed by: Gulf of Mexico Research Initiative Information and Data Cooperative (GRIIDC), Harte Research Institute, Texas A&M University–Corpus Christi. doi:10.7266/N7VD6WC8
 """
 

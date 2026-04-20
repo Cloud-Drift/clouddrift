@@ -50,16 +50,16 @@ class datasets_tests(testutils.DisableProgressTestCase):
             )
         )
 
-    def test_carthe_glad(self):
-        with datasets.carthe_glad() as ds:
+    def test_glad(self):
+        with datasets.glad() as ds:
             self.assertTrue(ds)
 
-    def test_carthe_glad_wrong_version(self):
+    def test_glad_wrong_version(self):
         with self.assertRaises(ValueError):
-            datasets.carthe_glad(version="wrong_version")
+            datasets.glad(version="wrong_version")
 
-    def test_carthe_glad_dims_coords(self):
-        with datasets.carthe_glad() as ds:
+    def test_glad_dims_coords(self):
+        with datasets.glad() as ds:
             self.assertTrue(len(ds.sizes) == 2)
             self.assertTrue("obs" in ds.dims)
             self.assertTrue("traj" in ds.dims)
@@ -67,8 +67,8 @@ class datasets_tests(testutils.DisableProgressTestCase):
             self.assertTrue("time" in ds.coords)
             self.assertTrue("id" in ds.coords)
 
-    def test_carthe_glad_subset_and_apply_ragged_work(self):
-        with datasets.carthe_glad() as ds:
+    def test_glad_subset_and_apply_ragged_work(self):
+        with datasets.glad() as ds:
             ds_sub = subset(
                 ds,
                 {"id": ["CARTHE_001", "CARTHE_002"]},

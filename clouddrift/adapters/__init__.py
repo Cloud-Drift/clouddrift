@@ -9,10 +9,10 @@ in the future.
 """
 
 import clouddrift.adapters.andro as andro
-import clouddrift.adapters.carthe_glad as carthe_glad
 import clouddrift.adapters.gdp.gdp1h as gdp1h
 import clouddrift.adapters.gdp.gdp6h as gdp6h
 import clouddrift.adapters.gdp.gdpsource as gdp_source
+import clouddrift.adapters.glad as glad
 import clouddrift.adapters.hurdat2 as hurdat2
 import clouddrift.adapters.ibtracs as ibtracs
 import clouddrift.adapters.mosaic as mosaic
@@ -22,9 +22,9 @@ import clouddrift.adapters.yomaha as yomaha
 
 __all__ = [
     "andro",
-    "carthe_glad",
     "gdp1h",
     "gdp6h",
+    "glad",
     "hurdat2",
     "ibtracs",
     "mosaic",
