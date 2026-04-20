@@ -15,12 +15,8 @@ from clouddrift.binning import (
 
 class binning_tests(unittest.TestCase):
     def setUp(self):
-        self.coords_1d = np.array(
-            [-0.2, 0.3, 0.6, 0.7, 1.2, 1.3, 1.8, 2.1, 2.7, 2.8, 3.1]
-        )
-        self.date_1d = np.datetime64("2020-01-01 00:00") + np.arange(
-            11
-        ) * np.timedelta64(1, "D")
+        self.coords_1d = np.array([-0.2, 0.3, 0.6, 0.7, 1.2, 1.3, 1.8, 2.1, 2.7, 2.8, 3.1])
+        self.date_1d = np.datetime64("2020-01-01 00:00") + np.arange(11) * np.timedelta64(1, "D")
 
         self.values_1d = np.array([1, 2, 3, 4, 5, 6, 9, 20, 20, 20, 20])
         self.bins_range_1d = (0, 3)
@@ -71,9 +67,7 @@ class binning_tests(unittest.TestCase):
         arr = np.array([np.datetime64("2020-01-01"), np.datetime64("2020-01-02")])
         self.assertTrue(_is_datetime_array(arr))
 
-        arr = np.array(
-            [np.datetime64("2020-01-01"), np.datetime64("2020-01-02")], dtype="O"
-        )
+        arr = np.array([np.datetime64("2020-01-01"), np.datetime64("2020-01-02")], dtype="O")
         self.assertTrue(_is_datetime_array(arr))
 
         arr = np.array([datetime.date(2020, 1, 1), datetime.date(2020, 1, 2)])
@@ -136,31 +130,23 @@ class binning_tests(unittest.TestCase):
         for i in range(1, 10):
             ds = binned_statistics(self.coords_1d, bins=i)
 
-            bins_coords = np.linspace(
-                np.min(self.coords_1d), np.max(self.coords_1d), i + 1
-            )
+            bins_coords = np.linspace(np.min(self.coords_1d), np.max(self.coords_1d), i + 1)
             bins_center = (bins_coords[:-1] + bins_coords[1:]) / 2
 
             self.assertIsNone(
-                np.testing.assert_allclose(
-                    ds[f"{DEFAULT_COORD_NAME}_0"].values, bins_center
-                )
+                np.testing.assert_allclose(ds[f"{DEFAULT_COORD_NAME}_0"].values, bins_center)
             )
 
     def test_1d_output(self):
         ds = binned_statistics(coords=self.coords_1d)
         self.assertEqual(len(ds[f"{DEFAULT_COORD_NAME}_0"]), DEFAULT_BINS_NUMBER)
-        self.assertEqual(
-            sum(ds[f"{DEFAULT_DATA_NAME}_count"].values), len(self.coords_1d)
-        )
+        self.assertEqual(sum(ds[f"{DEFAULT_DATA_NAME}_count"].values), len(self.coords_1d))
 
     def test_1d_output_bins(self):
         n_bins = 3
         ds = binned_statistics(coords=self.coords_1d, bins=n_bins)
         self.assertEqual(len(ds[f"{DEFAULT_COORD_NAME}_0"]), n_bins)
-        self.assertEqual(
-            sum(ds[f"{DEFAULT_DATA_NAME}_count"].values), len(self.coords_1d)
-        )
+        self.assertEqual(sum(ds[f"{DEFAULT_DATA_NAME}_count"].values), len(self.coords_1d))
         self.assertEqual(len(ds[f"{DEFAULT_DATA_NAME}_count"].shape), 1)
 
     def test_1d_output_variables_mean(self):
@@ -170,9 +156,7 @@ class binning_tests(unittest.TestCase):
             np.ones_like(self.coords_1d) * value_1,
             np.ones_like(self.coords_1d) * value_2,
         ]
-        ds = binned_statistics(
-            coords=self.coords_1d, data=variable, bins=2, statistics="mean"
-        )
+        ds = binned_statistics(coords=self.coords_1d, data=variable, bins=2, statistics="mean")
         self.assertEqual(len(ds.data_vars), 2)
         self.assertTrue(all(ds[f"{DEFAULT_DATA_NAME}_0_mean"] == value_1))
         self.assertTrue(all(ds[f"{DEFAULT_DATA_NAME}_1_mean"] == value_2))
@@ -206,9 +190,7 @@ class binning_tests(unittest.TestCase):
         n_bins = (3, None)
         ds = binned_statistics(coords=self.coords_2d, bins=n_bins)
         for i, v in enumerate(ds.sizes.values()):
-            self.assertEqual(
-                v, n_bins[i] if n_bins[i] is not None else DEFAULT_BINS_NUMBER
-            )
+            self.assertEqual(v, n_bins[i] if n_bins[i] is not None else DEFAULT_BINS_NUMBER)
         self.assertEqual(len(ds[f"{DEFAULT_DATA_NAME}_count"].shape), 2)
 
     def test_3d_output(self):
@@ -226,9 +208,7 @@ class binning_tests(unittest.TestCase):
         n_bins = (3, 4, None)
         ds = binned_statistics(coords=self.coords_3d, bins=n_bins)
         for i, v in enumerate(ds.sizes.values()):
-            self.assertEqual(
-                v, n_bins[i] if n_bins[i] is not None else DEFAULT_BINS_NUMBER
-            )
+            self.assertEqual(v, n_bins[i] if n_bins[i] is not None else DEFAULT_BINS_NUMBER)
         self.assertEqual(len(ds[f"{DEFAULT_DATA_NAME}_count"].shape), 3)
 
     def test_3d_output_mean_example(self):
@@ -259,9 +239,7 @@ class binning_tests(unittest.TestCase):
         )
 
     def test_hist_range(self):
-        ds = binned_statistics(
-            coords=self.coords_1d, bins=3, bins_range=self.bins_range_1d
-        )
+        ds = binned_statistics(coords=self.coords_1d, bins=3, bins_range=self.bins_range_1d)
         self.assertEqual(
             sum(ds[f"{DEFAULT_DATA_NAME}_count"].values),
             len(
@@ -275,9 +253,7 @@ class binning_tests(unittest.TestCase):
         )
 
     def test_hist_range_2d(self):
-        ds = binned_statistics(
-            coords=self.coords_2d, bins=(3, 3), bins_range=self.bins_range_2d
-        )
+        ds = binned_statistics(coords=self.coords_2d, bins=(3, 3), bins_range=self.bins_range_2d)
         self.assertEqual(
             sum(ds[f"{DEFAULT_DATA_NAME}_count"].values.flatten()),
             len(
@@ -291,9 +267,7 @@ class binning_tests(unittest.TestCase):
         )
 
     def test_hist_range_3d(self):
-        ds = binned_statistics(
-            coords=self.coords_3d, bins=(3, 3, 3), bins_range=self.bins_range_3d
-        )
+        ds = binned_statistics(coords=self.coords_3d, bins=(3, 3, 3), bins_range=self.bins_range_3d)
         self.assertEqual(
             sum(ds[f"{DEFAULT_DATA_NAME}_count"].values.flatten()),
             len(
@@ -616,17 +590,11 @@ class binning_tests(unittest.TestCase):
         self.assertTrue(np.iscomplexobj(ds[f"{DEFAULT_DATA_NAME}_0_mean"].values))
         self.assertTrue(np.iscomplexobj(ds[f"{DEFAULT_DATA_NAME}_0_sum"].values))
         self.assertFalse(np.iscomplexobj(ds[f"{DEFAULT_DATA_NAME}_0_std"].values))
-        self.assertTrue(
-            np.issubdtype(ds[f"{DEFAULT_DATA_NAME}_0_std"].dtype, np.floating)
-        )
+        self.assertTrue(np.issubdtype(ds[f"{DEFAULT_DATA_NAME}_0_std"].dtype, np.floating))
         # Count should be real and integer
-        self.assertTrue(
-            np.issubdtype(ds[f"{DEFAULT_DATA_NAME}_0_count"].dtype, np.integer)
-        )
+        self.assertTrue(np.issubdtype(ds[f"{DEFAULT_DATA_NAME}_0_count"].dtype, np.integer))
         # Check that the sum is the sum of values in each bin
-        self.assertAlmostEqual(
-            np.sum(ds[f"{DEFAULT_DATA_NAME}_0_sum"].values), np.sum(values)
-        )
+        self.assertAlmostEqual(np.sum(ds[f"{DEFAULT_DATA_NAME}_0_sum"].values), np.sum(values))
         # Check that the mean is the mean of values in each bin
         mask0 = (coords >= -0.2) & (coords < 0.9)
         mask1 = (coords >= 0.9) & (coords < 2.0)
@@ -636,9 +604,7 @@ class binning_tests(unittest.TestCase):
             np.mean(values[mask1]) if np.any(mask1) else 0,
             np.mean(values[mask2]) if np.any(mask2) else 0,
         ]
-        np.testing.assert_allclose(
-            ds[f"{DEFAULT_DATA_NAME}_0_mean"].values, means, rtol=1e-12
-        )
+        np.testing.assert_allclose(ds[f"{DEFAULT_DATA_NAME}_0_mean"].values, means, rtol=1e-12)
 
     def test_statistics_complex_min_max_median_raises(self):
         coords = self.coords_1d

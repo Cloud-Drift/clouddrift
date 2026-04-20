@@ -564,9 +564,7 @@ class TransferFunctionValues(unittest.TestCase):
             ]
         )
         Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
-        self.assertTrue(
-            np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True)
-        )
+        self.assertTrue(np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True))
 
     def test_values_finite_bld_mu_is_zero(self):
         idx = np.abs(self.omega).argmin()
@@ -597,9 +595,7 @@ class TransferFunctionValues(unittest.TestCase):
         )
         Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
         print(Gp[:, idx])
-        self.assertTrue(
-            np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True)
-        )
+        self.assertTrue(np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True))
 
     def test_values_finite_bld_delta_is_zero(self):
         idx = np.abs(self.omega).argmin()
@@ -629,9 +625,7 @@ class TransferFunctionValues(unittest.TestCase):
             ]
         )
         Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
-        self.assertTrue(
-            np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True)
-        )
+        self.assertTrue(np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True))
 
     def test_values_free_slip(self):
         idx = np.abs(self.omega).argmin()
@@ -661,9 +655,7 @@ class TransferFunctionValues(unittest.TestCase):
             ]
         )
         Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
-        self.assertTrue(
-            np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True)
-        )
+        self.assertTrue(np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True))
 
     def test_values_free_slip_mu_is_zero(self):
         idx = np.abs(self.omega).argmin()
@@ -693,9 +685,7 @@ class TransferFunctionValues(unittest.TestCase):
             ]
         )
         Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
-        self.assertTrue(
-            np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True)
-        )
+        self.assertTrue(np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True))
 
     # def test_values_free_slip_delta_is_zero(self):
     #     idx = np.abs(self.omega).argmin()
@@ -745,18 +735,10 @@ class TransferFunctionTestGradient(unittest.TestCase):
         delta_bld = 1e-6
         # initialize transfer functions and gradients
         wind_transfer_init = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
-        wind_transfer_ddelta_plus = np.zeros(
-            (len(self.delta), len(self.bld)), dtype=complex
-        )
-        wind_transfer_ddelta_minus = np.zeros(
-            (len(self.delta), len(self.bld)), dtype=complex
-        )
-        wind_transfer_dbld_plus = np.zeros(
-            (len(self.delta), len(self.bld)), dtype=complex
-        )
-        wind_transfer_dbld_minus = np.zeros(
-            (len(self.delta), len(self.bld)), dtype=complex
-        )
+        wind_transfer_ddelta_plus = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
+        wind_transfer_ddelta_minus = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
+        wind_transfer_dbld_plus = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
+        wind_transfer_dbld_minus = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
         dG_ddelta = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
         dG_dbld = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
 
@@ -771,19 +753,13 @@ class TransferFunctionTestGradient(unittest.TestCase):
                     bld=self.bld[j],
                 )
                 wind_transfer_init[i, j] = (
-                    results[0].item()
-                    if isinstance(results[0], np.ndarray)
-                    else results[0]
+                    results[0].item() if isinstance(results[0], np.ndarray) else results[0]
                 )
                 dG_ddelta[i, j] = (
-                    results[1].item()
-                    if isinstance(results[1], np.ndarray)
-                    else results[1]
+                    results[1].item() if isinstance(results[1], np.ndarray) else results[1]
                 )
                 dG_dbld[i, j] = (
-                    results[2].item()
-                    if isinstance(results[2], np.ndarray)
-                    else results[2]
+                    results[2].item() if isinstance(results[2], np.ndarray) else results[2]
                 )
                 # wind_transfer_init[i, j], dG_ddelta[i, j], dG_dbld[i, j] = (
                 #     wind_transfer(
@@ -804,9 +780,7 @@ class TransferFunctionTestGradient(unittest.TestCase):
                     bld=self.bld[j],
                 )
                 wind_transfer_ddelta_plus[i, j] = (
-                    results[0].item()
-                    if isinstance(results[0], np.ndarray)
-                    else results[0]
+                    results[0].item() if isinstance(results[0], np.ndarray) else results[0]
                 )
                 results = wind_transfer(
                     omega=omega,
@@ -817,9 +791,7 @@ class TransferFunctionTestGradient(unittest.TestCase):
                     bld=self.bld[j],
                 )
                 wind_transfer_ddelta_minus[i, j] = (
-                    results[0].item()
-                    if isinstance(results[0], np.ndarray)
-                    else results[0]
+                    results[0].item() if isinstance(results[0], np.ndarray) else results[0]
                 )
                 results = wind_transfer(
                     omega=omega,
@@ -830,9 +802,7 @@ class TransferFunctionTestGradient(unittest.TestCase):
                     bld=self.bld[j] + delta_bld / 2,
                 )
                 wind_transfer_dbld_plus[i, j] = (
-                    results[0].item()
-                    if isinstance(results[0], np.ndarray)
-                    else results[0]
+                    results[0].item() if isinstance(results[0], np.ndarray) else results[0]
                 )
                 results = wind_transfer(
                     omega=omega,
@@ -843,14 +813,10 @@ class TransferFunctionTestGradient(unittest.TestCase):
                     bld=self.bld[j] - delta_bld / 2,
                 )
                 wind_transfer_dbld_minus[i, j] = (
-                    results[0].item()
-                    if isinstance(results[0], np.ndarray)
-                    else results[0]
+                    results[0].item() if isinstance(results[0], np.ndarray) else results[0]
                 )
 
-        dG_ddelta_fd = (
-            wind_transfer_ddelta_plus - wind_transfer_ddelta_minus
-        ) / delta_delta
+        dG_ddelta_fd = (wind_transfer_ddelta_plus - wind_transfer_ddelta_minus) / delta_delta
         dG_dbld_fd = (wind_transfer_dbld_plus - wind_transfer_dbld_minus) / delta_bld
 
         bool_indices = dG_ddelta_fd != 0
@@ -859,8 +825,7 @@ class TransferFunctionTestGradient(unittest.TestCase):
             (
                 np.abs(dG_ddelta_fd[bool_indices] - dG_ddelta[bool_indices])
                 / sqrt(
-                    np.abs(dG_ddelta_fd[bool_indices]) ** 2
-                    + np.abs(dG_ddelta[bool_indices]) ** 2
+                    np.abs(dG_ddelta_fd[bool_indices]) ** 2 + np.abs(dG_ddelta[bool_indices]) ** 2
                 )
             )
         )
@@ -870,10 +835,7 @@ class TransferFunctionTestGradient(unittest.TestCase):
         eps2 = np.max(
             (
                 np.abs(dG_dbld_fd[bool_indices] - dG_dbld[bool_indices])
-                / sqrt(
-                    np.abs(dG_dbld_fd[bool_indices]) ** 2
-                    + np.abs(dG_dbld[bool_indices]) ** 2
-                )
+                / sqrt(np.abs(dG_dbld_fd[bool_indices]) ** 2 + np.abs(dG_dbld[bool_indices]) ** 2)
             )
         )
         self.assertTrue(
@@ -998,9 +960,7 @@ class TestKvTilde(unittest.TestCase):
 
             with self.subTest(test_name=test_name):
                 self.assertTrue(
-                    np.allclose(
-                        np.abs((np.hstack([bk0, bk1]) - bk) / bk), 0, atol=1e-15
-                    ),
+                    np.allclose(np.abs((np.hstack([bk0, bk1]) - bk) / bk), 0, atol=1e-15),
                     msg=f"Failed: {test_name}",
                 )
 
@@ -1052,9 +1012,7 @@ class TestIvTilde(unittest.TestCase):
 
             with self.subTest(test_name=test_name):
                 self.assertTrue(
-                    np.allclose(
-                        np.abs((np.hstack([bi0, bi1]) - bi) / bi), 0, atol=1e-15
-                    ),
+                    np.allclose(np.abs((np.hstack([bi0, bi1]) - bi) / bi), 0, atol=1e-15),
                     msg=f"Failed: {test_name}",
                 )
 
@@ -1227,9 +1185,7 @@ class TestApplyTransferFunction(unittest.TestCase):
             warnings.simplefilter("always")
             y = apply_transfer_function(x, transfer_func, dt=1.0)
             self.assertEqual(y.shape, x.shape)
-            self.assertTrue(
-                any("`dt` argument is ignored" in str(warn.message) for warn in w)
-            )
+            self.assertTrue(any("`dt` argument is ignored" in str(warn.message) for warn in w))
 
     def test_transfer_func_array_shape_mismatch(self):
         # Should raise ValueError if transfer_func array shape does not match
@@ -1285,9 +1241,7 @@ class TestApplyTransferFunction(unittest.TestCase):
             boundary_condition="no-slip",
         )[0].squeeze()
         y = apply_transfer_function(x, transfer_func, dt)
-        self.assertTrue(
-            np.allclose(np.unwrap(np.angle(x) - np.angle(y)), np.pi / 4, atol=1e-2)
-        )
+        self.assertTrue(np.allclose(np.unwrap(np.angle(x) - np.angle(y)), np.pi / 4, atol=1e-2))
 
 
 class TestEpanechnikovKernel(unittest.TestCase):
@@ -1323,9 +1277,7 @@ class TestApplySlidingTransferFunction(unittest.TestCase):
         dt = 1.0
         cutoff = 0.1
         transfer_func = lambda omega: 1 / (1 + (omega / (2 * np.pi * cutoff)) ** 2)
-        results, avg = apply_sliding_transfer_function(
-            x, transfer_func, window_size, step, dt
-        )
+        results, avg = apply_sliding_transfer_function(x, transfer_func, window_size, step, dt)
         # Number of windows: (n + before + after - window_size) // step + 1
         n = len(x)
         before = window_size // 2
@@ -1345,9 +1297,7 @@ class TestApplySlidingTransferFunction(unittest.TestCase):
         dt = 1.0
         cutoff = 0.1
         transfer_func = lambda omega: 1 / (1 + (omega / (2 * np.pi * cutoff)) ** 2)
-        results, avg = apply_sliding_transfer_function(
-            x, transfer_func, window_size, step, dt
-        )
+        results, avg = apply_sliding_transfer_function(x, transfer_func, window_size, step, dt)
         n = len(x)
         before = window_size // 2
         after = window_size - before
@@ -1364,9 +1314,7 @@ class TestApplySlidingTransferFunction(unittest.TestCase):
         window_size = 5
         step = 1
         transfer_func = np.ones(window_size) / window_size
-        results, avg = apply_sliding_transfer_function(
-            x, transfer_func, window_size, step
-        )
+        results, avg = apply_sliding_transfer_function(x, transfer_func, window_size, step)
         n = len(x)
         before = window_size // 2
         after = window_size - before
@@ -1451,17 +1399,13 @@ class TestApplySlidingTransferFunction(unittest.TestCase):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             apply_sliding_transfer_function(x, transfer_func, window_size=5, dt=1.0)
-            self.assertTrue(
-                any("`dt` argument is ignored" in str(warn.message) for warn in w)
-            )
+            self.assertTrue(any("`dt` argument is ignored" in str(warn.message) for warn in w))
 
     def test_invalid_kernel(self):
         x = np.random.randn(10)
         transfer_func = np.ones(5)
         with self.assertRaises(ValueError):
-            apply_sliding_transfer_function(
-                x, transfer_func, window_size=5, kernel="invalid"
-            )
+            apply_sliding_transfer_function(x, transfer_func, window_size=5, kernel="invalid")
 
     def test_output_matches_allpass(self):
         # If transfer_func is all ones, output should match input (except for edge effects)
@@ -1487,12 +1431,8 @@ class TestApplySlidingTransferFunction(unittest.TestCase):
             bld=np.inf,
             boundary_condition="no-slip",
         )[0].squeeze()
-        _, avg = apply_sliding_transfer_function(
-            x, transfer_func, window_size=10, step=1, dt=dt
-        )
-        self.assertTrue(
-            np.allclose(np.unwrap(np.angle(x) - np.angle(avg)), np.pi / 4, atol=1e-2)
-        )
+        _, avg = apply_sliding_transfer_function(x, transfer_func, window_size=10, step=1, dt=dt)
+        self.assertTrue(np.allclose(np.unwrap(np.angle(x) - np.angle(avg)), np.pi / 4, atol=1e-2))
 
     def test_output_45_degrees_southern_hemisphere(self):
         # Test that the output is at 45 degrees for a specific transfer function
@@ -1508,9 +1448,5 @@ class TestApplySlidingTransferFunction(unittest.TestCase):
             bld=np.inf,
             boundary_condition="no-slip",
         )[0].squeeze()
-        _, avg = apply_sliding_transfer_function(
-            x, transfer_func, window_size=10, step=1, dt=dt
-        )
-        self.assertTrue(
-            np.allclose(np.unwrap(np.angle(x) - np.angle(avg)), -np.pi / 4, atol=1e-2)
-        )
+        _, avg = apply_sliding_transfer_function(x, transfer_func, window_size=10, step=1, dt=dt)
+        self.assertTrue(np.allclose(np.unwrap(np.angle(x) - np.angle(avg)), -np.pi / 4, atol=1e-2))

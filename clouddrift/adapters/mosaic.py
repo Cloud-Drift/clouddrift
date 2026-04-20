@@ -39,25 +39,17 @@ def get_dataframes() -> tuple[pd.DataFrame, pd.DataFrame]:
     xml = get_repository_metadata()
     filenames, urls = get_file_urls(xml)
     exclude_patterns = ["site_buoy_summary", "buoy_list"]
-    data_filenames = [
-        f for f in filenames if not any([s in f for s in exclude_patterns])
-    ]
+    data_filenames = [f for f in filenames if not any([s in f for s in exclude_patterns])]
     data_urls = [
-        f
-        for n, f in enumerate(urls)
-        if not any([s in filenames[n] for s in exclude_patterns])
+        f for n, f in enumerate(urls) if not any([s in filenames[n] for s in exclude_patterns])
     ]
     sensor_ids = [f.split("_")[-1].rstrip(".csv") for f in data_filenames]
-    sensor_list_url = urls[
-        filenames.index([f for f in filenames if "buoy_list" in f].pop())
-    ]
+    sensor_list_url = urls[filenames.index([f for f in filenames if "buoy_list" in f].pop())]
     sensors = pd.read_csv(sensor_list_url)
 
     # Sort the urls by the order of sensor IDs in the sensor list
     order_index = {id: n for n, id in enumerate(sensors["Sensor ID"])}
-    sorted_indices = sorted(
-        range(len(sensor_ids)), key=lambda k: order_index[sensor_ids[k]]
-    )
+    sorted_indices = sorted(range(len(sensor_ids)), key=lambda k: order_index[sensor_ids[k]])
     sorted_data_urls = [data_urls[i] for i in sorted_indices]
     buffers = [BytesIO() for _ in range(len(sorted_data_urls))]
     requests = [(url, buffer) for url, buffer in zip(sorted_data_urls, buffers)]

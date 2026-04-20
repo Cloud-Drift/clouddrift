@@ -30,8 +30,7 @@ if __name__ == "__main__":
 class cumulative_distance_tests(unittest.TestCase):
     def test_output_shape(self):
         self.assertTrue(
-            cumulative_distance(np.array([0, 1, 2]), np.array([0, 1, 2])).shape
-            == np.zeros(3).shape
+            cumulative_distance(np.array([0, 1, 2]), np.array([0, 1, 2])).shape == np.zeros(3).shape
         )
 
     def test_values_cumulative_distance(self):
@@ -46,9 +45,7 @@ class cumulative_distance_tests(unittest.TestCase):
         self.assertTrue(
             np.allclose(
                 cumulative_distance([0, 1, 2], [0, 1, 2]),
-                cumulative_distance(
-                    xr.DataArray(data=[0, 1, 2]), xr.DataArray(data=[0, 1, 2])
-                ),
+                cumulative_distance(xr.DataArray(data=[0, 1, 2]), xr.DataArray(data=[0, 1, 2])),
             )
         )
 
@@ -75,38 +72,26 @@ class recast_longitude_tests(unittest.TestCase):
             np.testing.assert_allclose(recast_lon360(np.array([200])), np.array([200]))
         )
         self.assertIsNone(
-            np.testing.assert_allclose(
-                recast_lon(np.array([200]), 220), np.array([560])
-            )
+            np.testing.assert_allclose(recast_lon(np.array([200]), 220), np.array([560]))
         )
         self.assertIsNone(
-            np.testing.assert_allclose(
-                recast_lon(np.array([200]), -200), np.array([-160])
-            )
+            np.testing.assert_allclose(recast_lon(np.array([200]), -200), np.array([-160]))
         )
         self.assertIsNone(
-            np.testing.assert_allclose(
-                recast_lon(np.array([200]), -200), np.array([-160])
-            )
+            np.testing.assert_allclose(recast_lon(np.array([200]), -200), np.array([-160]))
         )
         self.assertIsNone(
-            np.testing.assert_allclose(
-                recast_lon(np.array([180]), -180), np.array([-180])
-            )
+            np.testing.assert_allclose(recast_lon(np.array([180]), -180), np.array([-180]))
         )
 
     def test_range_close(self):
         self.assertIsNone(
             np.testing.assert_allclose(recast_lon(np.array([-180])), np.array([-180]))
         )
-        self.assertIsNone(
-            np.testing.assert_allclose(recast_lon(np.array([0]), 0), np.array([0]))
-        )
+        self.assertIsNone(np.testing.assert_allclose(recast_lon(np.array([0]), 0), np.array([0])))
 
         self.assertIsNone(
-            np.testing.assert_allclose(
-                recast_lon(np.array([-20]), -20), np.array([-20])
-            )
+            np.testing.assert_allclose(recast_lon(np.array([-20]), -20), np.array([-20]))
         )
 
     def test_multiple_values(self):
@@ -119,9 +104,7 @@ class recast_longitude_tests(unittest.TestCase):
 
     def test_more_than_360(self):
         self.assertIsNone(
-            np.testing.assert_allclose(
-                recast_lon(np.array([400, -400])), np.array([40, -40])
-            )
+            np.testing.assert_allclose(recast_lon(np.array([400, -400])), np.array([40, -40]))
         )
 
     def test_decimals(self):
@@ -168,9 +151,7 @@ class position_from_distance_and_bearing_tests(unittest.TestCase):
     def test_position_from_distance_and_bearing_one_degree(self):
         self.assertTrue(
             np.allclose(
-                position_from_distance_and_bearing(
-                    0, 0, np.deg2rad(EARTH_RADIUS_METERS), 0
-                ),
+                position_from_distance_and_bearing(0, 0, np.deg2rad(EARTH_RADIUS_METERS), 0),
                 (1, 0),
             )
         )
@@ -184,9 +165,7 @@ class position_from_distance_and_bearing_tests(unittest.TestCase):
         )
         self.assertTrue(
             np.allclose(
-                position_from_distance_and_bearing(
-                    0, 0, np.deg2rad(EARTH_RADIUS_METERS), np.pi
-                ),
+                position_from_distance_and_bearing(0, 0, np.deg2rad(EARTH_RADIUS_METERS), np.pi),
                 (-1, 0),
             )
         )
@@ -202,9 +181,7 @@ class position_from_distance_and_bearing_tests(unittest.TestCase):
     def test_position_from_distance_and_bearing_antimeridian(self):
         self.assertTrue(
             np.allclose(
-                position_from_distance_and_bearing(
-                    179.5, 0, np.deg2rad(EARTH_RADIUS_METERS), 0
-                ),
+                position_from_distance_and_bearing(179.5, 0, np.deg2rad(EARTH_RADIUS_METERS), 0),
                 (180.5, 0),
             )
         )
@@ -222,15 +199,11 @@ class position_from_distance_and_bearing_tests(unittest.TestCase):
 
 class plane_to_sphere_tests(unittest.TestCase):
     def test_simple(self):
-        lon, lat = plane_to_sphere(
-            np.array([0.0, ONE_DEGREE_METERS]), np.array([0.0, 0.0])
-        )
+        lon, lat = plane_to_sphere(np.array([0.0, ONE_DEGREE_METERS]), np.array([0.0, 0.0]))
         self.assertTrue(np.allclose(lon, np.array([0.0, 1.0])))
         self.assertTrue(np.allclose(lat, np.array([0.0, 0.0])))
 
-        lon, lat = plane_to_sphere(
-            np.array([0.0, 0.0]), np.array([0.0, ONE_DEGREE_METERS])
-        )
+        lon, lat = plane_to_sphere(np.array([0.0, 0.0]), np.array([0.0, ONE_DEGREE_METERS]))
         self.assertTrue(np.allclose(lon, np.array([0.0, 0.0])))
         self.assertTrue(np.allclose(lat, np.array([0.0, 1.0])))
 
@@ -267,24 +240,18 @@ class plane_to_sphere_tests(unittest.TestCase):
 class sphere_to_plane_tests(unittest.TestCase):
     def test_simple(self):
         x, y = sphere_to_plane(np.array([0.0, 1.0]), np.array([0.0, 0.0]))
-        self.assertTrue(
-            np.allclose(x, np.array([0.0, np.deg2rad(EARTH_RADIUS_METERS)]))
-        )
+        self.assertTrue(np.allclose(x, np.array([0.0, np.deg2rad(EARTH_RADIUS_METERS)])))
         self.assertTrue(np.allclose(y, np.zeros(2)))
 
         x, y = sphere_to_plane(np.array([0.0, 0.0]), np.array([0.0, 1.0]))
-        self.assertTrue(
-            np.allclose(y, np.array([0.0, np.deg2rad(EARTH_RADIUS_METERS)]))
-        )
+        self.assertTrue(np.allclose(y, np.array([0.0, np.deg2rad(EARTH_RADIUS_METERS)])))
         self.assertTrue(np.allclose(x, np.zeros(2)))
 
     def test_with_origin(self):
         lon_origin = 5
         lat_origin = 0
 
-        x, y = sphere_to_plane(
-            np.array([0.0, 1.0]), np.array([0.0, 0.0]), lon_origin, lat_origin
-        )
+        x, y = sphere_to_plane(np.array([0.0, 1.0]), np.array([0.0, 0.0]), lon_origin, lat_origin)
         self.assertTrue(
             np.allclose(
                 x,
@@ -299,18 +266,14 @@ class sphere_to_plane_tests(unittest.TestCase):
         self.assertTrue(
             np.allclose(
                 y,
-                np.array(
-                    [-lat_origin * ONE_DEGREE_METERS, -lat_origin * ONE_DEGREE_METERS]
-                ),
+                np.array([-lat_origin * ONE_DEGREE_METERS, -lat_origin * ONE_DEGREE_METERS]),
             )
         )
 
         lon_origin = 0
         lat_origin = 5
 
-        x, y = sphere_to_plane(
-            np.array([0.0, 0.0]), np.array([0.0, 1.0]), lon_origin, lat_origin
-        )
+        x, y = sphere_to_plane(np.array([0.0, 0.0]), np.array([0.0, 1.0]), lon_origin, lat_origin)
         self.assertTrue(
             np.allclose(
                 y,
@@ -325,9 +288,7 @@ class sphere_to_plane_tests(unittest.TestCase):
         self.assertTrue(
             np.allclose(
                 x,
-                np.array(
-                    [-lon_origin * ONE_DEGREE_METERS, -lon_origin * ONE_DEGREE_METERS]
-                ),
+                np.array([-lon_origin * ONE_DEGREE_METERS, -lon_origin * ONE_DEGREE_METERS]),
             )
         )
 

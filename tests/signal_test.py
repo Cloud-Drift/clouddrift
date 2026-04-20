@@ -157,14 +157,10 @@ class ellipse_parameters_tests(unittest.TestCase):
         self.assertTrue(np.allclose(np.abs(self.xa), np.abs(xa), atol=1e-2))
         self.assertTrue(np.allclose(np.abs(self.ya), np.abs(ya), atol=1e-2))
         self.assertTrue(
-            np.allclose(
-                np.mod(np.angle(self.xa), np.pi), np.mod(np.angle(xa), np.pi), atol=1e-2
-            )
+            np.allclose(np.mod(np.angle(self.xa), np.pi), np.mod(np.angle(xa), np.pi), atol=1e-2)
         )
         self.assertTrue(
-            np.allclose(
-                np.mod(np.angle(self.ya), np.pi), np.mod(np.angle(ya), np.pi), atol=1e-2
-            )
+            np.allclose(np.mod(np.angle(self.ya), np.pi), np.mod(np.angle(ya), np.pi), atol=1e-2)
         )
 
 
@@ -242,12 +238,8 @@ class rotary_to_cartesian_tests(unittest.TestCase):
         self.assertTrue(np.allclose(np.real(ua) + 1j * np.real(va), wp + np.conj(wn)))
 
     def test_xarray(self):
-        wp = xr.DataArray(data=np.random.rand(99)) + 1j * xr.DataArray(
-            data=np.random.rand(99)
-        )
-        wn = xr.DataArray(data=np.random.rand(99)) + 1j * xr.DataArray(
-            data=np.random.rand(99)
-        )
+        wp = xr.DataArray(data=np.random.rand(99)) + 1j * xr.DataArray(data=np.random.rand(99))
+        wn = xr.DataArray(data=np.random.rand(99)) + 1j * xr.DataArray(data=np.random.rand(99))
         ua, va = rotary_to_cartesian(wp, wn)
         self.assertTrue(np.allclose(np.real(ua) + 1j * np.real(va), wp + np.conj(wn)))
 

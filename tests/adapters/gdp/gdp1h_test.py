@@ -84,9 +84,7 @@ class gdp1h_tests(unittest.TestCase):
             ]
         ) as mocks:
             drifter_ids = [0, 1, 2]
-            ret_drifter_ids = gdp1h.download(
-                "some-url.com", "../some/path", drifter_ids, None
-            )
+            ret_drifter_ids = gdp1h.download("some-url.com", "../some/path", drifter_ids, None)
             assert len(ret_drifter_ids) == 3
             mocks[1].assert_called_with(
                 [

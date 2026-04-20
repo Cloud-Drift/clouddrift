@@ -103,9 +103,7 @@ def chance_pair(
         If ``time1`` and ``time2`` are not both provided or both omitted.
     """
     if (time1 is None and time2 is not None) or (time1 is not None and time2 is None):
-        raise ValueError(
-            "Both time1 and time2 must be provided or both must be omitted."
-        )
+        raise ValueError("Both time1 and time2 must be provided or both must be omitted.")
 
     time_present = time1 is not None and time2 is not None
 

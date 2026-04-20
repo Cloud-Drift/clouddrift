@@ -88,9 +88,7 @@ def to_raggedarray(
         rowsize_func=_rowsize,
         preprocess_func=_preprocess,
         attrs_global=ds.attrs,
-        attrs_variables={
-            var_name: ds[var_name].attrs for var_name in data_vars + md_vars
-        },
+        attrs_variables={var_name: ds[var_name].attrs for var_name in data_vars + md_vars},
         dataset=ds,
         data_vars=data_vars,
         md_vars=md_vars,
@@ -152,6 +150,4 @@ def _kind_map(kind: _Kind):
 
 
 def _get_source_url(version: _Version, kind: _Kind):
-    return _SOURCE_URL_FMT.format(
-        base_uri=_SOURCE_BASE_URI, version=version, kind=_kind_map(kind)
-    )
+    return _SOURCE_URL_FMT.format(base_uri=_SOURCE_BASE_URI, version=version, kind=_kind_map(kind))
