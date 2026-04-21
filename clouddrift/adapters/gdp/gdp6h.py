@@ -386,16 +386,16 @@ def _resolve_drifter_path(index: int, **kwargs) -> str:
 def _rowsize(index: int, **kwargs) -> int:
     file_path = _resolve_drifter_path(index, **kwargs)
     try:
-        return xr.open_dataset(
+        with xr.open_dataset(
             file_path,
             decode_cf=False,
             decode_times=False,
             concat_characters=False,
             decode_coords=False,
-        ).sizes["obs"]
+        ) as ds:
+            return ds.sizes["obs"]
     except Exception as e:
-        print(f"Error processing {file_path}")
-        print(str(e))
+        warnings.warn(f"Error processing {file_path}: {e}")
         return 0
 
 
