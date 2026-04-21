@@ -6,13 +6,15 @@ and six-hourly (``clouddrift.adapters.gdp6h``) GDP modules.
 """
 
 import os
+import re
 import tempfile
+import urllib.request
 
 import numpy as np
 import pandas as pd
 import xarray as xr
 
-from clouddrift.adapters.utils import download_with_progress
+from clouddrift.adapters.utils import download_with_progress, standard_retry_protocol
 from clouddrift.raggedarray import DimNames
 
 GDP_DIMS: dict[str, DimNames] = {"traj": "rows", "obs": "obs"}
@@ -150,24 +152,34 @@ def get_gdp_metadata(tmp_path: str = GDP_TMP_PATH) -> pd.DataFrame:
     df : pd.DataFrame
         Sorted list of drifters as a pandas DataFrame.
     """
-    directory_file_pattern = "dirfl_{low}_{high}.dat"
+    directory_files = _list_gdp_directory_files()
 
-    dfs = []
-    start = 1
-    while True:
-        name = directory_file_pattern.format(low=start, high=start + 4999)
-        try:
-            dfs.append(parse_directory_file(name, tmp_path))
-            start += 5000
-        except Exception:
-            break
+    if not directory_files:
+        raise RuntimeError("Could not discover GDP metadata directory files.")
 
-    name = directory_file_pattern.format(low=start, high="current")
-    dfs.append(parse_directory_file(name, tmp_path))
+    dfs = [parse_directory_file(name, tmp_path) for name in directory_files]
 
     df = pd.concat(dfs)
     df.sort_values(["Start_date"], inplace=True, ignore_index=True)
     return df
+
+
+def _list_gdp_directory_files() -> list[str]:
+    gdp_dir_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata"
+    pattern = re.compile(r"dirfl_(\d+)_(\d+|current)\.dat")
+
+    payload = standard_retry_protocol(lambda: urllib.request.urlopen(gdp_dir_url).read())()
+    listing = payload.decode("utf-8")
+
+    matches = set(pattern.findall(listing))
+    files = [f"dirfl_{low}_{high}.dat" for low, high in matches]
+
+    def _sort_key(name: str) -> tuple[int, int]:
+        low, high = pattern.fullmatch(name).groups()  # type: ignore[arg-type]
+        high_val = int(high) if high != "current" else np.iinfo(int).max
+        return int(low), high_val
+
+    return sorted(files, key=_sort_key)
 
 
 def order_by_date(df: pd.DataFrame, idx: list[int]) -> list[int]:  # noqa: F821
