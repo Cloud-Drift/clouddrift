@@ -54,6 +54,10 @@ class datasets_tests(testutils.DisableProgressTestCase):
         with datasets.glad() as ds:
             self.assertTrue(ds)
 
+    def test_glad_wrong_version(self):
+        with self.assertRaises(ValueError):
+            datasets.glad(version="wrong_version")
+
     def test_glad_dims_coords(self):
         with datasets.glad() as ds:
             self.assertTrue(len(ds.sizes) == 2)

@@ -30,8 +30,8 @@ You can find examples of how to use the GDP datasets in the `GDP Get-Started Not
 GLAD Dataset
 ------------
 
-:func:`clouddrift.datasets.glad`: 15-minute Grand LAgrangian Deployment (GLAD)
-data produced by the Consortium for Advanced Research on Transport of
+:func:`clouddrift.datasets.glad`: Grand LAgrangian Deployment (GLAD)
+dataset (raw, qc1, qc2) produced by the Consortium for Advanced Research on Transport of
 Hydrocarbon in the Environment (CARTHE) and hosted upstream at the `Gulf of
 Mexico Research Initiative Information and Data Cooperative (GRIIDC)
 <https://doi.org/10.7266/N7VD6WC8>`_.
