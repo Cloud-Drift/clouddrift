@@ -78,7 +78,7 @@ class gdp6h_tests(unittest.TestCase):
         with MultiPatcher(
             [
                 patch(
-                    "clouddrift.adapters.gdp1h.urllib.request.urlopen",
+                    "clouddrift.adapters.gdp6h.urllib.request.urlopen",
                     Mock(return_value=self.response_mock),
                 ),
                 patch("clouddrift.adapters.gdp6h.download_with_progress", Mock()),

@@ -1,5 +1,6 @@
 import os
 import shutil
+import unittest
 
 import numpy as np
 
@@ -8,6 +9,10 @@ from clouddrift.adapters import gdp6h
 
 
 class gdp6h_integration_tests(testutils.DisableProgressTestCase):
+    @unittest.skipUnless(
+        os.getenv("CLOUDDRIFT_RUN_NETWORK_TESTS") == "1",
+        "Set CLOUDDRIFT_RUN_NETWORK_TESTS=1 to run network integration tests.",
+    )
     def test_load_subset_and_create_aggregate(self):
         ra = gdp6h.to_raggedarray(n_random_id=5, tmp_path=gdp6h.GDP_TMP_PATH)
         assert "rowsize" in ra.metadata
@@ -24,4 +29,5 @@ class gdp6h_integration_tests(testutils.DisableProgressTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        [shutil.rmtree(dir) for dir in [gdp6h.GDP_TMP_PATH]]
+        if os.path.exists(gdp6h.GDP_TMP_PATH):
+            shutil.rmtree(gdp6h.GDP_TMP_PATH)
