@@ -179,7 +179,10 @@ def _list_gdp_directory_files() -> list[str]:
     files = [f"dirfl_{low}_{high}.dat" for low, high in matches]
 
     def _sort_key(name: str) -> tuple[int, int]:
-        low, high = pattern.fullmatch(name).groups()  # type: ignore[arg-type]
+        parsed = pattern.fullmatch(name)
+        if parsed is None:
+            raise ValueError(f"Unexpected GDP metadata filename: {name}")
+        low, high = parsed.groups()
         high_val = int(high) if high != "current" else np.iinfo(int).max
         return int(low), high_val
 
