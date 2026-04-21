@@ -175,7 +175,11 @@ def get_gdp_metadata(
             if match is None:
                 continue
             low = int(match.group(1))
-            high = int(match.group(2)) if match.group(2) != "current" else np.iinfo(int).max
+            high = (
+                int(match.group(2))
+                if match.group(2) != "current"
+                else np.iinfo(int).max
+            )
             metadata_files.append((low, high, filename))
 
         if not metadata_files:
