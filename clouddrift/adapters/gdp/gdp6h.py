@@ -254,13 +254,6 @@ def _get_local_drifter_ids(
         selected_ids = sorted(_subsample(selected_ids, n_random_id))
 
     local_metadata = gdp.get_gdp_metadata(tmp_path, local_only=True)
-    if local_metadata is None:
-        warnings.warn(
-            "No local GDP metadata files (dirfl_*.dat) found. Returning IDs "
-            + "without start-date ordering."
-        )
-        return selected_ids
-
     ordered_ids = [int(i) for i in gdp.order_by_date(local_metadata, selected_ids)]
     ordered_id_set = set(ordered_ids)
     missing_ids = [did for did in selected_ids if did not in ordered_id_set]

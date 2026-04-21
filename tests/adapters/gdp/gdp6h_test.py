@@ -114,6 +114,7 @@ class gdp6h_tests(unittest.TestCase):
                 ),
                 patch("clouddrift.adapters.gdp6h.download_with_progress", Mock()),
                 patch("clouddrift.adapters.gdp6h.urllib.request.urlopen", Mock()),
+                patch("clouddrift.adapters.gdp6h.gdp", self.gdp_mock),
             ]
         ) as mocks:
             ret_drifter_ids = gdp6h.download(
@@ -132,6 +133,7 @@ class gdp6h_tests(unittest.TestCase):
                     Mock(return_value=[("../some/path", [], self.drifter_files)]),
                 ),
                 patch("clouddrift.adapters.gdp6h.print", Mock()),
+                patch("clouddrift.adapters.gdp6h.gdp", self.gdp_mock),
             ]
         ) as mocks:
             gdp6h.download(
@@ -157,19 +159,24 @@ class gdp6h_tests(unittest.TestCase):
                 )
 
     def test_skip_download_uses_nested_directories(self):
-        with patch(
-            "clouddrift.adapters.gdp6h.os.walk",
-            Mock(
-                return_value=[
-                    ("../some/path", ["netcdf_1_5000", "netcdf_5001_10000"], []),
-                    (
-                        "../some/path/netcdf_1_5000",
-                        [],
-                        ["drifter_6h_0.nc", "drifter_6h_1.nc"],
+        with MultiPatcher(
+            [
+                patch(
+                    "clouddrift.adapters.gdp6h.os.walk",
+                    Mock(
+                        return_value=[
+                            ("../some/path", ["netcdf_1_5000", "netcdf_5001_10000"], []),
+                            (
+                                "../some/path/netcdf_1_5000",
+                                [],
+                                ["drifter_6h_0.nc", "drifter_6h_1.nc"],
+                            ),
+                            ("../some/path/netcdf_5001_10000", [], ["drifter_6h_5001.nc"]),
+                        ]
                     ),
-                    ("../some/path/netcdf_5001_10000", [], ["drifter_6h_5001.nc"]),
-                ]
-            ),
+                ),
+                patch("clouddrift.adapters.gdp6h.gdp", self.gdp_mock),
+            ]
         ):
             ret_drifter_ids = gdp6h.download(
                 "some-url.com", "../some/path", None, None, skip_download=True

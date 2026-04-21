@@ -149,7 +149,7 @@ def parse_directory_file(filename: str, tmp_path: str) -> pd.DataFrame:
 def get_gdp_metadata(
     tmp_path: str = GDP_TMP_PATH,
     local_only: bool = False,
-) -> pd.DataFrame | None:
+) -> pd.DataFrame:
     """Download (or read locally cached) GDP metadata and return it as a Pandas DataFrame.
 
     Parameters
@@ -158,14 +158,13 @@ def get_gdp_metadata(
         Directory where ``dirfl_*.dat`` metadata files are stored.
     local_only : bool, optional
         If True, scan ``tmp_path`` for cached metadata files instead of
-        fetching the file list from the network. Returns ``None`` if no
-        local files are found.
+        fetching the file list from the network. Raises ``FileNotFoundError``
+        if no local files are found.
 
     Returns
     -------
-    df : pd.DataFrame or None
-        Sorted list of drifters, or ``None`` when ``local_only=True`` and no
-        cached files exist.
+    df : pd.DataFrame
+        Sorted list of drifters as a pandas DataFrame.
     """
     if local_only:
         metadata_pattern = re.compile(r"dirfl_(\d+)_(\d+|current)\.dat$")
@@ -183,7 +182,9 @@ def get_gdp_metadata(
             metadata_files.append((low, high, filename))
 
         if not metadata_files:
-            return None
+            raise RuntimeError(
+                f"No GDP metadata files (dirfl_*.dat) found in {tmp_path}."
+            )
 
         dfs = []
         for _, _, filename in sorted(metadata_files, key=lambda x: (x[0], x[1])):
@@ -194,7 +195,9 @@ def get_gdp_metadata(
                     f"Could not parse local GDP metadata file {filename}; skipping it. Error: {exc}"
                 )
         if not dfs:
-            return None
+            raise RuntimeError(
+                f"Found GDP metadata files in {tmp_path} but could not parse any of them."
+            )
     else:
         directory_files = _list_gdp_directory_files()
         if not directory_files:
