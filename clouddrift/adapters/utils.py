@@ -147,6 +147,7 @@ def _download_with_progress(
     if isinstance(output, str) and os.path.exists(output):
         _logger.debug(f"File exists {output} checking for updates...")
         local_last_modified = os.path.getmtime(output)
+        res: requests.Response | None = None
 
         # Get last modified time of the remote file
         try:

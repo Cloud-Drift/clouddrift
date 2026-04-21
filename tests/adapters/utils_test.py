@@ -161,6 +161,30 @@ class utils_tests(unittest.TestCase):
                 [call(b"a"), call(b"b"), call(b"c"), call(b"d")]
             )
 
+    def test_head_failure_does_not_raise_unboundlocal_and_still_downloads(self):
+        with MultiPatcher(
+            [
+                patch(
+                    "clouddrift.adapters.utils.os.path.exists", Mock(return_value=True)
+                ),
+                patch(
+                    "clouddrift.adapters.utils.os.path.getmtime", Mock(return_value=0)
+                ),
+                patch(
+                    "clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)
+                ),
+                patch("clouddrift.adapters.utils.os.remove", Mock()),
+                patch("clouddrift.adapters.utils.os.rename", Mock()),
+            ]
+        ):
+            self.requests_mock.head.side_effect = RequestException("head failure")
+
+            output_file = "output.file"
+            with self.assertRaises(RequestException):
+                utils._download_with_progress("some.url.com", output_file, 0, False)
+
+            self.requests_mock.get.assert_not_called()
+
     def test_progress_mechanism_disabled_files(self):
         """
         Ensure we don't show progress for the list of files when number of files is less than 20 and user
