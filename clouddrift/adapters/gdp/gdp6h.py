@@ -167,7 +167,10 @@ def download(
         List of retrieved drifters
     """
 
-    print(f"Downloading GDP 6-hourly data to {tmp_path}...")
+    if skip_download:
+        print(f"Using local GDP 6-hourly files from {tmp_path}...")
+    else:
+        print(f"Downloading GDP 6-hourly data to {tmp_path}...")
 
     # Create a temporary directory if doesn't already exists.
     os.makedirs(tmp_path, exist_ok=True)

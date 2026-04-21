@@ -124,6 +124,22 @@ class gdp6h_tests(unittest.TestCase):
             mocks[1].assert_not_called()
             mocks[2].assert_not_called()
 
+    def test_skip_download_prints_local_mode_message(self):
+        with MultiPatcher(
+            [
+                patch(
+                    "clouddrift.adapters.gdp6h.os.walk",
+                    Mock(return_value=[("../some/path", [], self.drifter_files)]),
+                ),
+                patch("clouddrift.adapters.gdp6h.print", Mock()),
+            ]
+        ) as mocks:
+            gdp6h.download("some-url.com", "../some/path", None, None, skip_download=True)
+
+            mocks[1].assert_called_once_with(
+                "Using local GDP 6-hourly files from ../some/path..."
+            )
+
     def test_skip_download_requires_requested_local_files(self):
         with patch(
             "clouddrift.adapters.gdp6h.os.walk",
