@@ -168,7 +168,9 @@ def _list_gdp_directory_files() -> list[str]:
     gdp_dir_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata"
     pattern = re.compile(r"dirfl_(\d+)_(\d+|current)\.dat")
 
-    payload = standard_retry_protocol(lambda: urllib.request.urlopen(gdp_dir_url).read())()
+    payload = standard_retry_protocol(
+        lambda: urllib.request.urlopen(gdp_dir_url).read()
+    )()
     listing = payload.decode("utf-8")
 
     matches = set(pattern.findall(listing))

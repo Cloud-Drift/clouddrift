@@ -33,18 +33,25 @@ class gdp_common_tests(unittest.TestCase):
         ]
 
     def test_get_gdp_metadata_uses_discovered_files(self):
-        with patch(
-            "clouddrift.adapters.gdp._list_gdp_directory_files",
-            Mock(return_value=["dirfl_1_5000.dat", "dirfl_15001_current.dat"]),
-        ), patch(
-            "clouddrift.adapters.gdp.parse_directory_file",
-            Mock(
-                side_effect=[
-                    pd.DataFrame({"ID": [1], "Start_date": [pd.Timestamp("2020-01-02")]}),
-                    pd.DataFrame({"ID": [2], "Start_date": [pd.Timestamp("2020-01-01")]}),
-                ]
+        with (
+            patch(
+                "clouddrift.adapters.gdp._list_gdp_directory_files",
+                Mock(return_value=["dirfl_1_5000.dat", "dirfl_15001_current.dat"]),
             ),
-        ) as parse_mock:
+            patch(
+                "clouddrift.adapters.gdp.parse_directory_file",
+                Mock(
+                    side_effect=[
+                        pd.DataFrame(
+                            {"ID": [1], "Start_date": [pd.Timestamp("2020-01-02")]}
+                        ),
+                        pd.DataFrame(
+                            {"ID": [2], "Start_date": [pd.Timestamp("2020-01-01")]}
+                        ),
+                    ]
+                ),
+            ) as parse_mock,
+        ):
             df = gdp.get_gdp_metadata(tmp_path="/tmp/some-path")
 
         assert parse_mock.call_count == 2
