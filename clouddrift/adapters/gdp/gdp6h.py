@@ -12,7 +12,6 @@ import urllib.request
 import warnings
 
 import numpy as np
-import pandas as pd
 import xarray as xr
 
 import clouddrift.adapters.gdp as gdp
@@ -105,6 +104,7 @@ def to_raggedarray(
         drifter_ids,
         n_random_id,
         skip_download=skip_download,
+        file_map=file_map,
     )
 
     # Add ManufactureYear to metadata
@@ -142,6 +142,7 @@ def download(
     drifter_ids: list[int] | None = None,
     n_random_id: int | None = None,
     skip_download: bool = False,
+    file_map: dict[int, str] | None = None,
 ):
     """Download individual NetCDF files from the AOML server.
 
@@ -159,26 +160,26 @@ def download(
     skip_download : bool, optional
         If True, skip network access and return IDs from local files in
         ``tmp_path``.
-
+    file_map : dict, optional
+        Pre-built map of drifter ID to local file path. When provided with
+        ``skip_download=True``, avoids a redundant directory scan.
 
     Returns
     -------
     out : list
         List of retrieved drifters
     """
-
-    if skip_download:
-        print(f"Using local GDP 6-hourly files from {tmp_path}...")
-    else:
-        print(f"Downloading GDP 6-hourly data to {tmp_path}...")
-
-    # Create a temporary directory if doesn't already exists.
     os.makedirs(tmp_path, exist_ok=True)
 
     if skip_download:
-        return _get_local_drifter_ids(tmp_path, drifter_ids, n_random_id)
+        print(f"Using local GDP 6-hourly files from {tmp_path}...")
+        if file_map is None:
+            file_map = _get_local_file_map(tmp_path)
+        return _get_local_drifter_ids(file_map, tmp_path, drifter_ids, n_random_id)
 
-    pattern = "drifter_6h_[0-9]*.nc"
+    print(f"Downloading GDP 6-hourly data to {tmp_path}...")
+
+    nc_pattern = re.compile(r"drifter_6h_[0-9]+\.nc")
     directory_list = [
         "netcdf_1_5000",
         "netcdf_5001_10000",
@@ -188,47 +189,48 @@ def download(
 
     drifter_urls: list[str] = []
     added = set()
-    for dir in directory_list:
+    for subdir in directory_list:
         dirdata = standard_retry_protocol(
-            lambda: urllib.request.urlopen(f"{url}/{dir}").read()
+            lambda d=subdir: urllib.request.urlopen(f"{url}/{d}").read()
         )()
-        string = dirdata.decode("utf-8")
-        filelist = list(set(re.compile(pattern).findall(string)))
-        for f in filelist:
+        for f in set(nc_pattern.findall(dirdata.decode("utf-8"))):
             did = int(f.split("_")[2].removesuffix(".nc"))
             if (drifter_ids is None or did in drifter_ids) and did not in added:
-                drifter_urls.append(f"{url}/{dir}/{f}")
+                drifter_urls.append(f"{url}/{subdir}/{f}")
                 added.add(did)
 
-    # retrieve only a subset of n_random_id trajectories
     if n_random_id:
-        if n_random_id > len(drifter_urls):
-            warnings.warn(
-                f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(drifter_urls)} listed trajectories."
-            )
-        else:
-            rng = np.random.Generator(np.random.MT19937(42))
-            drifter_urls = list(rng.choice(drifter_urls, n_random_id, replace=False))
+        drifter_urls = _subsample(drifter_urls, n_random_id)
 
     download_with_progress(
-        [(url, os.path.join(tmp_path, os.path.basename(url))) for url in drifter_urls]
+        [(u, os.path.join(tmp_path, os.path.basename(u))) for u in drifter_urls]
     )
 
-    # Download the metadata so we can order the drifter IDs by end date.
     gdp_metadata = gdp.get_gdp_metadata(tmp_path)
-    drifter_ids = [
+    downloaded_ids = [
         int(os.path.basename(f).split("_")[2].split(".")[0]) for f in drifter_urls
     ]
 
-    return gdp.order_by_date(gdp_metadata, drifter_ids)
+    return gdp.order_by_date(gdp_metadata, downloaded_ids)
+
+
+def _subsample(items: list, n: int) -> list:
+    if n >= len(items):
+        warnings.warn(
+            f"Retrieving all listed trajectories because {n} is larger than the {len(items)} listed trajectories."
+        )
+        return items
+    rng = np.random.Generator(np.random.MT19937(42))
+    return list(rng.choice(items, n, replace=False))
 
 
 def _get_local_drifter_ids(
+    file_map: dict[int, str],
     tmp_path: str,
     drifter_ids: list[int] | None = None,
     n_random_id: int | None = None,
 ) -> list[int]:
-    available_ids = sorted(_get_local_file_map(tmp_path))
+    available_ids = sorted(file_map)
 
     if not available_ids:
         raise FileNotFoundError(
@@ -249,31 +251,19 @@ def _get_local_drifter_ids(
         selected_ids = available_ids
 
     if n_random_id:
-        if n_random_id > len(selected_ids):
-            warnings.warn(
-                f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(selected_ids)} listed trajectories."
-            )
-        else:
-            rng = np.random.Generator(np.random.MT19937(42))
-            selected_ids = sorted(rng.choice(selected_ids, n_random_id, replace=False))
+        selected_ids = sorted(_subsample(selected_ids, n_random_id))
 
-    return _order_ids_by_local_start_date(tmp_path, selected_ids)
-
-
-def _order_ids_by_local_start_date(tmp_path: str, ids: list[int]) -> list[int]:
-    local_metadata = _get_local_gdp_metadata(tmp_path)
-
+    local_metadata = gdp.get_gdp_metadata(tmp_path, local_only=True)
     if local_metadata is None:
         warnings.warn(
             "No local GDP metadata files (dirfl_*.dat) found. Returning IDs "
             + "without start-date ordering."
         )
-        return ids
+        return selected_ids
 
-    ordered_ids = [int(i) for i in gdp.order_by_date(local_metadata, ids)]
+    ordered_ids = [int(i) for i in gdp.order_by_date(local_metadata, selected_ids)]
     ordered_id_set = set(ordered_ids)
-    missing_ids = [did for did in ids if did not in ordered_id_set]
-
+    missing_ids = [did for did in selected_ids if did not in ordered_id_set]
     if missing_ids:
         warnings.warn(
             "Some selected drifter IDs are missing from local metadata; "
@@ -282,71 +272,6 @@ def _order_ids_by_local_start_date(tmp_path: str, ids: list[int]) -> list[int]:
         ordered_ids.extend(missing_ids)
 
     return ordered_ids
-
-
-def _parse_local_directory_file(path: str) -> pd.DataFrame:
-    df = pd.read_csv(path, delimiter=r"\s+", header=None)
-
-    # Combine date and time columns to parse timestamps.
-    df[4] += " " + df[5]
-    df[8] += " " + df[9]
-    df[12] += " " + df[13]
-    df = df.drop(columns=[5, 9, 13])
-    df.columns = pd.Index(
-        [
-            "ID",
-            "WMO_number",
-            "program_number",
-            "buoys_type",
-            "Start_date",
-            "Start_lat",
-            "Start_lon",
-            "End_date",
-            "End_lat",
-            "End_lon",
-            "Drogue_off_date",
-            "death_code",
-        ],
-        dtype="str",
-    )
-    for t in ["Start_date", "End_date", "Drogue_off_date"]:
-        df[t] = pd.to_datetime(df[t], format="%Y/%m/%d %H:%M", errors="coerce")
-
-    return df
-
-
-def _get_local_gdp_metadata(tmp_path: str) -> pd.DataFrame | None:
-    metadata_pattern = re.compile(r"dirfl_(\d+)_(\d+|current)\.dat$")
-    metadata_files: list[tuple[int, int, str]] = []
-
-    for filename in os.listdir(tmp_path):
-        match = metadata_pattern.fullmatch(filename)
-        if match is None:
-            continue
-
-        low = int(match.group(1))
-        high = int(match.group(2)) if match.group(2) != "current" else np.iinfo(int).max
-        metadata_files.append((low, high, os.path.join(tmp_path, filename)))
-
-    if not metadata_files:
-        return None
-
-    dfs = []
-    for _, _, path in sorted(metadata_files, key=lambda x: (x[0], x[1])):
-        try:
-            dfs.append(_parse_local_directory_file(path))
-        except Exception as exc:
-            warnings.warn(
-                "Could not parse local GDP metadata file "
-                + f"{path}; skipping it. Error: {exc}"
-            )
-
-    if not dfs:
-        return None
-
-    df = pd.concat(dfs)
-    df.sort_values(["Start_date"], inplace=True, ignore_index=True)
-    return df
 
 
 def _get_local_file_map(tmp_path: str) -> dict[int, str]:

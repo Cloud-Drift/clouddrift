@@ -208,7 +208,7 @@ class gdp6h_tests(unittest.TestCase):
                     Mock(return_value=[("../some/path", [], self.drifter_files[:3])]),
                 ),
                 patch(
-                    "clouddrift.adapters.gdp6h._get_local_gdp_metadata",
+                    "clouddrift.adapters.gdp.get_gdp_metadata",
                     Mock(return_value=metadata_df),
                 ),
             ]
