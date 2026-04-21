@@ -134,7 +134,9 @@ class gdp6h_tests(unittest.TestCase):
                 patch("clouddrift.adapters.gdp6h.print", Mock()),
             ]
         ) as mocks:
-            gdp6h.download("some-url.com", "../some/path", None, None, skip_download=True)
+            gdp6h.download(
+                "some-url.com", "../some/path", None, None, skip_download=True
+            )
 
             mocks[1].assert_called_once_with(
                 "Using local GDP 6-hourly files from ../some/path..."
