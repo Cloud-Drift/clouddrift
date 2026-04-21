@@ -165,13 +165,21 @@ class gdp6h_tests(unittest.TestCase):
                     "clouddrift.adapters.gdp6h.os.walk",
                     Mock(
                         return_value=[
-                            ("../some/path", ["netcdf_1_5000", "netcdf_5001_10000"], []),
+                            (
+                                "../some/path",
+                                ["netcdf_1_5000", "netcdf_5001_10000"],
+                                [],
+                            ),
                             (
                                 "../some/path/netcdf_1_5000",
                                 [],
                                 ["drifter_6h_0.nc", "drifter_6h_1.nc"],
                             ),
-                            ("../some/path/netcdf_5001_10000", [], ["drifter_6h_5001.nc"]),
+                            (
+                                "../some/path/netcdf_5001_10000",
+                                [],
+                                ["drifter_6h_5001.nc"],
+                            ),
                         ]
                     ),
                 ),
