@@ -23,7 +23,6 @@ import zipfile
 from datetime import datetime
 from typing import Literal
 
-import numpy as np
 import pandas as pd
 import xarray as xr
 
@@ -35,7 +34,6 @@ QUICCHE_URL = (
     "https://zenodo.org/records/14902851/files/CARTHE_Drifters_NSF_QUICCHE.zip"
 )
 QUICCHE_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "quicche")
-QUICCHE_VERSION = "2026-04"
 
 
 def to_xarray(
@@ -253,11 +251,10 @@ def _dataframe_to_ragged_xarray(df: pd.DataFrame, version: str) -> xr.Dataset:
     xr.Dataset
         Ragged array dataset with dimensions (traj, obs).
     """
-    # Get unique drifter IDs as fixed-width unicode (avoid object dtype in NetCDF)
-    drifter_ids = df["drifter_id"].astype(str).to_numpy()
-    unique_ids, rowsize = np.unique(drifter_ids, return_counts=True)
-
-    # Create the ragged array dataset
+    # Compute rowsize and unique IDs
+    rowsize_series = df.groupby("drifter_id", sort=True).size()
+    unique_ids = rowsize_series.index.to_numpy()
+    rowsize = rowsize_series.to_numpy(dtype="int64")
     # Replicate drifter_id for each observation row
     ds = xr.Dataset.from_dataframe(df)
 
