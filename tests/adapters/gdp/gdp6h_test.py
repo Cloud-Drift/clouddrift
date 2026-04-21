@@ -233,7 +233,9 @@ class gdp6h_tests(unittest.TestCase):
             with self.assertWarns(UserWarning):
                 file_map = gdp6h._get_local_file_map("../some/path")
 
-            assert file_map[0] == "../some/path/a/drifter_6h_0.nc"
+            assert os.path.normpath(file_map[0]) == os.path.normpath(
+                os.path.join("../some/path", "a", "drifter_6h_0.nc")
+            )
 
     def test_skip_download_orders_by_real_local_metadata_file(self):
         with tempfile.TemporaryDirectory() as tmp_path:

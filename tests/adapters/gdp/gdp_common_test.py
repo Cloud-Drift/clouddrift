@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import pandas as pd
 
@@ -16,8 +16,10 @@ class gdp_common_tests(unittest.TestCase):
                 '<a href="dirfl_15001_current.dat">dirfl_15001_current.dat</a>',
             ]
         )
-        response = Mock()
+        response = MagicMock()
         response.read = Mock(return_value=html.encode("utf-8"))
+        response.__enter__.return_value = response
+        response.__exit__.return_value = None
 
         with patch(
             "clouddrift.adapters.gdp.urllib.request.urlopen",
