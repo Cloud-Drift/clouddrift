@@ -14,9 +14,7 @@ class gdp1h_integration_tests(testutils.DisableProgressTestCase):
         ]
 
         for path, url in test_tasks:
-            with self.subTest(
-                f"test downloading and creating ragged array for: ({url})"
-            ):
+            with self.subTest(f"test downloading and creating ragged array for: ({url})"):
                 ra = gdp1h.to_raggedarray(
                     drifter_ids=[
                         63123,

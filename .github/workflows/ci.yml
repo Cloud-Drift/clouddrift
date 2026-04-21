@@ -11,39 +11,28 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+    # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   unittest:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
-        python-version: ["3.10", "3.11", "3.12"]
+        os: [ "ubuntu-latest", "macos-latest", "windows-latest" ]
+        python-version: [ "3.10", "3.11", "3.12" ]
     steps:
       - uses: actions/checkout@v4
-      - uses: mamba-org/setup-micromamba@v1
-        with:
-          environment-file: environment.yml
-          environment-name: clouddrift
-          create-args: >-
-            python=${{ matrix.python-version }}
-            pytest
-            coverage
-            matplotlib
-            cartopy
-      - name: Run unit tests
-        shell: bash -l {0}
-        run: coverage run -m pytest -c pyproject.toml
-      - name: Display report
-        if: always() && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
-        shell: bash -l {0}
-        run: coverage report -i
-      - name: Create coverage report
-        if: always() && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
+      - name: Install the project with plotting extra
+        run: uv sync --frozen --extra plotting --python ${{ matrix.python-version }}
+      - name: Run unit tests with coverage
         shell: bash -l {0}
         run: |
-              coverage xml -i
+          uv run pytest -c pyproject.toml \
+            --cov=clouddrift \
+            --cov-report=term-missing:skip-covered \
+            --cov-report=xml:coverage.xml
       - name: Upload coverage report to Codecov
         if: always() && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
         uses: codecov/codecov-action@v4
@@ -54,17 +43,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest"]
-        python-version: ["3.10"]
+        os: [ "ubuntu-latest" ]
+        python-version: [ "3.10" ]
     steps:
       - uses: actions/checkout@v4
-      - uses: mamba-org/setup-micromamba@v1
-        with:
-          environment-file: environment.yml
-          environment-name: clouddrift
-          create-args: >-
-            python=${{ matrix.python-version }}
-            pytest
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
+      - name: Install the project
+        run: uv sync --frozen --python ${{ matrix.python-version }}
       - name: Run doc tests
         shell: bash -l {0}
-        run: pytest --doctest-modules clouddrift/ragged.py
+        run: uv run pytest --doctest-modules clouddrift/ragged.py

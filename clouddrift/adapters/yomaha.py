@@ -45,9 +45,7 @@ YOMAHA_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "yomaha")
 
 
 def download(tmp_path: str):
-    download_requests = [
-        (url, f"{tmp_path}/{url.split('/')[-1]}") for url in YOMAHA_URLS[:-1]
-    ]
+    download_requests = [(url, f"{tmp_path}/{url.split('/')[-1]}") for url in YOMAHA_URLS[:-1]]
     download_with_progress(download_requests)
 
     filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
@@ -150,9 +148,7 @@ def to_xarray(tmp_path: str | None = None):
     # open with pandas
     filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
     filename = filename_gz.removesuffix(".gz")
-    df = pd.read_csv(
-        filename, names=col_names, sep=r"\s+", header=None, na_values=na_col
-    )
+    df = pd.read_csv(filename, names=col_names, sep=r"\s+", header=None, na_values=na_col)
 
     # convert to an Xarray Dataset
     ds = xr.Dataset.from_dataframe(df)

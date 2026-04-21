@@ -153,9 +153,7 @@ def plot_ragged(
             from cartopy.mpl.geoaxes import GeoAxes
 
             if isinstance(ax, GeoAxes) and not kwargs.get("transform"):
-                raise ValueError(
-                    "For GeoAxes, the transform keyword argument must be provided."
-                )
+                raise ValueError("For GeoAxes, the transform keyword argument must be provided.")
         except ImportError:
             raise ImportError("missing optional dependency 'cartopy'")
     elif not isinstance(ax, plt.Axes):
@@ -178,9 +176,7 @@ def plot_ragged(
 
     # define a normalization obtain uniform colors
     # for the sequence of lines or LineCollection
-    norm = kwargs.pop(
-        "norm", mcolors.Normalize(vmin=np.nanmin(colors), vmax=np.nanmax(colors))
-    )
+    norm = kwargs.pop("norm", mcolors.Normalize(vmin=np.nanmin(colors), vmax=np.nanmax(colors)))
 
     # create Mappable for colorbar
     cb = plt.cm.ScalarMappable(norm=norm, cmap=cmap)

@@ -28,9 +28,7 @@ SUBSURFACE_FLOATS_DATA_URL = (
     "https://www.aoml.noaa.gov/phod/float_traj/files/allFloats_12122017.mat"
 )
 SUBSURFACE_FLOATS_VERSION = "December 2017 (version 2)"
-SUBSURFACE_FLOATS_TMP_PATH = os.path.join(
-    tempfile.gettempdir(), "clouddrift", "subsurface_floats"
-)
+SUBSURFACE_FLOATS_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "subsurface_floats")
 
 
 def download(file: str):

@@ -67,9 +67,7 @@ def sample_ragged_array() -> RaggedArray:
                 {"long_name": f"variable {var}", "units": "-"},
             )
 
-        list_ds.append(
-            xr.Dataset(coords=xr_coords, data_vars=xr_data, attrs=attrs_global)
-        )
+        list_ds.append(xr.Dataset(coords=xr_coords, data_vars=xr_data, attrs=attrs_global))
 
     ra = RaggedArray.from_files(
         [0, 1, 2],
@@ -89,9 +87,7 @@ class kinetic_energy_tests(unittest.TestCase):
 
     def test_1d_velocity_kwarg(self):
         u = np.random.random(100)
-        self.assertTrue(
-            np.all(kinetic_energy(u) == kinetic_energy(u, np.zeros_like(u)))
-        )
+        self.assertTrue(np.all(kinetic_energy(u) == kinetic_energy(u, np.zeros_like(u))))
 
     def test_values_2d_velocity(self):
         u = np.random.random(100)
@@ -108,9 +104,7 @@ class inertial_oscillation_from_position_tests(unittest.TestCase):
         # time_step is default 3600, relative_bandwidth is required
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            x, y = inertial_oscillation_from_position(
-                longitude, latitude, relative_bandwidth=0.1
-            )
+            x, y = inertial_oscillation_from_position(longitude, latitude, relative_bandwidth=0.1)
             # Check that a UserWarning was raised
             self.assertTrue(any(issubclass(warn.category, UserWarning) for warn in w))
             # Check that all outputs are NaN
@@ -121,9 +115,7 @@ class inertial_oscillation_from_position_tests(unittest.TestCase):
         longitude = np.linspace(0, 10, 10)
         latitude = np.linspace(0, 10, 9)  # Different shape
         with self.assertRaises(ValueError):
-            inertial_oscillation_from_position(
-                longitude, latitude, relative_bandwidth=0.1
-            )
+            inertial_oscillation_from_position(longitude, latitude, relative_bandwidth=0.1)
 
     def test_raises_valueerror_relative_vorticity_shape(self):
         longitude = np.linspace(0, 10, 10)
@@ -155,21 +147,15 @@ class inertial_oscillation_from_position_tests(unittest.TestCase):
         longitude = np.linspace(0, 10, 10)
         latitude = np.linspace(0, 10, 10)
         with self.assertRaises(ValueError):
-            inertial_oscillation_from_position(
-                longitude, latitude, relative_bandwidth=1.5
-            )
+            inertial_oscillation_from_position(longitude, latitude, relative_bandwidth=1.5)
         with self.assertRaises(ValueError):
-            inertial_oscillation_from_position(
-                longitude, latitude, relative_bandwidth=0.0
-            )
+            inertial_oscillation_from_position(longitude, latitude, relative_bandwidth=0.0)
 
     def test_raises_valueerror_wavelet_duration_too_small(self):
         longitude = np.linspace(0, 10, 10)
         latitude = np.linspace(0, 10, 10)
         with self.assertRaises(ValueError):
-            inertial_oscillation_from_position(
-                longitude, latitude, wavelet_duration=0.5
-            )
+            inertial_oscillation_from_position(longitude, latitude, wavelet_duration=0.5)
 
     def setUp(self):
         self.INPUT_SIZE = 1440
@@ -244,34 +230,22 @@ class inertial_oscillation_from_position_tests(unittest.TestCase):
         xhat2 = xhat2 - np.mean(xhat2)
         yhat2 = yhat2 - np.mean(yhat2)
         m = 10
-        self.assertTrue(
-            np.allclose(xhat2[m * 24 : -m * 24], x_expected[m * 24 : -m * 24], atol=20)
-        )
-        self.assertTrue(
-            np.allclose(yhat2[m * 24 : -m * 24], y_expected[m * 24 : -m * 24], atol=20)
-        )
-        self.assertTrue(
-            np.allclose(xhat2[m * 24 : -m * 24], xhat1[m * 24 : -m * 24], atol=20)
-        )
-        self.assertTrue(
-            np.allclose(yhat2[m * 24 : -m * 24], yhat1[m * 24 : -m * 24], atol=20)
-        )
+        self.assertTrue(np.allclose(xhat2[m * 24 : -m * 24], x_expected[m * 24 : -m * 24], atol=20))
+        self.assertTrue(np.allclose(yhat2[m * 24 : -m * 24], y_expected[m * 24 : -m * 24], atol=20))
+        self.assertTrue(np.allclose(xhat2[m * 24 : -m * 24], xhat1[m * 24 : -m * 24], atol=20))
+        self.assertTrue(np.allclose(yhat2[m * 24 : -m * 24], yhat1[m * 24 : -m * 24], atol=20))
 
 
 class residual_position_from_displacement_tests(unittest.TestCase):
     def setUp(self):
         self.INPUT_SIZE = 100
-        self.lon = np.rad2deg(
-            np.linspace(-np.pi, np.pi, self.INPUT_SIZE, endpoint=False)
-        )
+        self.lon = np.rad2deg(np.linspace(-np.pi, np.pi, self.INPUT_SIZE, endpoint=False))
         self.lat = np.linspace(0, 45, self.INPUT_SIZE)
         self.x = np.random.rand(self.INPUT_SIZE)
         self.y = np.random.rand(self.INPUT_SIZE)
 
     def test_result_has_same_size_as_input(self):
-        lon, lat = residual_position_from_displacement(
-            self.lon, self.lat, self.x, self.y
-        )
+        lon, lat = residual_position_from_displacement(self.lon, self.lat, self.x, self.y)
         self.assertTrue(np.all(self.lon.shape == lon.shape))
         self.assertTrue(np.all(self.lon.shape == lat.shape))
 
@@ -285,9 +259,7 @@ class residual_position_from_displacement_tests(unittest.TestCase):
 class position_from_velocity_tests(unittest.TestCase):
     def setUp(self):
         self.INPUT_SIZE = 100
-        self.lon = np.rad2deg(
-            np.linspace(-np.pi, np.pi, self.INPUT_SIZE, endpoint=False)
-        )
+        self.lon = np.rad2deg(np.linspace(-np.pi, np.pi, self.INPUT_SIZE, endpoint=False))
         self.lat = np.linspace(0, 45, self.INPUT_SIZE)
         self.time = np.linspace(0, 1e7, self.INPUT_SIZE)
         self.uf, self.vf = velocity_from_position(
@@ -445,12 +417,8 @@ class position_from_velocity_tests(unittest.TestCase):
             # Swap axes back to compare with the expected result.
             self.assertTrue(np.allclose(np.swapaxes(lon, time_axis, -1), expected_lon))
             self.assertTrue(np.allclose(np.swapaxes(lat, time_axis, -1), expected_lat))
-            self.assertTrue(
-                np.all(np.swapaxes(lon, time_axis, -1).shape == expected_lon.shape)
-            )
-            self.assertTrue(
-                np.all(np.swapaxes(lat, time_axis, -1).shape == expected_lat.shape)
-            )
+            self.assertTrue(np.all(np.swapaxes(lon, time_axis, -1).shape == expected_lon.shape))
+            self.assertTrue(np.all(np.swapaxes(lat, time_axis, -1).shape == expected_lat.shape))
 
 
 class velocity_from_position_tests(unittest.TestCase):
@@ -474,9 +442,7 @@ class velocity_from_position_tests(unittest.TestCase):
 
     def test_schemes_are_self_consistent(self):
         self.assertTrue(np.all(self.uf[:-1] == self.ub[1:]))
-        self.assertTrue(
-            np.all(np.isclose((self.uf[1:-1] + self.ub[1:-1]) / 2, self.uc[1:-1]))
-        )
+        self.assertTrue(np.all(np.isclose((self.uf[1:-1] + self.ub[1:-1]) / 2, self.uc[1:-1])))
         self.assertTrue(self.uc[0] == self.uf[0])
         self.assertTrue(self.uc[-1] == self.ub[-1])
 
@@ -565,12 +531,8 @@ class velocity_from_position_tests(unittest.TestCase):
             # Swap axes back to compare with the expected result.
             self.assertTrue(np.all(np.swapaxes(uf, time_axis, -1) == expected_uf))
             self.assertTrue(np.all(np.swapaxes(vf, time_axis, -1) == expected_vf))
-            self.assertTrue(
-                np.all(np.swapaxes(uf, time_axis, -1).shape == expected_uf.shape)
-            )
-            self.assertTrue(
-                np.all(np.swapaxes(vf, time_axis, -1).shape == expected_uf.shape)
-            )
+            self.assertTrue(np.all(np.swapaxes(uf, time_axis, -1).shape == expected_uf.shape))
+            self.assertTrue(np.all(np.swapaxes(vf, time_axis, -1).shape == expected_uf.shape))
 
 
 class spin_tests(unittest.TestCase):

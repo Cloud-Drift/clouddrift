@@ -111,8 +111,7 @@ def binned_statistics(
         if isinstance(bins_range, tuple):
             bins_range = [bins_range] * len(coords)
         bins_range = [
-            r if r is not None else (np.nanmin(c), np.nanmax(c))
-            for r, c in zip(bins_range, coords)
+            r if r is not None else (np.nanmin(c), np.nanmax(c)) for r, c in zip(bins_range, coords)
         ]
 
     # validate statistics parameter
@@ -127,9 +126,7 @@ def binned_statistics(
     if invalid := [
         stat
         for stat in statistics
-        if (stat not in ordered_statistics)
-        and not callable(stat)
-        and not isinstance(stat, tuple)
+        if (stat not in ordered_statistics) and not callable(stat) and not isinstance(stat, tuple)
     ]:
         raise ValueError(
             f"Unsupported statistic(s): {', '.join(map(str, invalid))}. "
@@ -141,9 +138,7 @@ def binned_statistics(
         if isinstance(statistic, tuple):
             output_name, statistic = statistic
             if not isinstance(output_name, str):
-                raise ValueError(
-                    f"Invalid output name '{output_name}', must be a string."
-                )
+                raise ValueError(f"Invalid output name '{output_name}', must be a string.")
             if not callable(statistic):
                 raise ValueError(
                     "Multivariable `statistics` function is not Callable, must provide as a tuple(output_name, Callable)."
@@ -214,9 +209,7 @@ def binned_statistics(
     for i, e in enumerate(edges_with_tol):
         e[-1] += np.finfo(float).eps if i not in coords_datetime_index else 1
     indices = [np.digitize(c, edges_with_tol[j]) - 1 for j, c in enumerate(coords)]
-    valid = np.all(
-        [(j >= 0) & (j < edges_sz[i]) for i, j in enumerate(indices)], axis=0
-    )
+    valid = np.all([(j >= 0) & (j < edges_sz[i]) for i, j in enumerate(indices)], axis=0)
     indices = [i[valid] for i in indices]
 
     # create an iterable of statistics to compute
@@ -281,9 +274,7 @@ def binned_statistics(
             )
         elif statistic == "median":
             if np.iscomplexobj(var_finite):
-                raise ValueError(
-                    "Complex values are not supported for 'median' statistic."
-                )
+                raise ValueError("Complex values are not supported for 'median' statistic.")
             binned_stats = _binned_apply_func(
                 flat_idx,
                 n_bins,
@@ -453,8 +444,7 @@ def _datetime64_to_float(time_dt: np.ndarray) -> np.ndarray:
     """
     reference_date = np.datetime64("1970-01-01T00:00:00")
     return np.array(
-        (pd.to_datetime(time_dt) - pd.to_datetime(reference_date))
-        / pd.to_timedelta(1, "s")
+        (pd.to_datetime(time_dt) - pd.to_datetime(reference_date)) / pd.to_timedelta(1, "s")
     )
 
 

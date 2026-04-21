@@ -24,9 +24,7 @@ GDP_VERSION = "2.01.1"
 
 
 GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01"
-GDP_DATA_URL_EXPERIMENTAL = (
-    "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental"
-)
+GDP_DATA_URL_EXPERIMENTAL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental"
 
 
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
@@ -208,9 +206,7 @@ def download(
             rng = np.random.Generator(np.random.MT19937(42))
             filelist = sorted(rng.choice(filelist, n_random_id, replace=False))
 
-    download_with_progress(
-        [(f"{url}/{f}", os.path.join(tmp_path, f)) for f in filelist]
-    )
+    download_with_progress([(f"{url}/{f}", os.path.join(tmp_path, f)) for f in filelist])
     # Download the metadata so we can order the drifter IDs by end date.
     gdp_metadata = gdp.get_gdp_metadata(tmp_path)
 
@@ -247,9 +243,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     # parse the date with custom function
     ds["deploy_date"].data = gdp.decode_date(np.array([ds.deploy_date.data[0]]))
     ds["end_date"].data = gdp.decode_date(np.array([ds.end_date.data[0]]))
-    ds["drogue_lost_date"].data = gdp.decode_date(
-        np.array([ds.drogue_lost_date.data[0]])
-    )
+    ds["drogue_lost_date"].data = gdp.decode_date(np.array([ds.drogue_lost_date.data[0]]))
     ds["time"].data = gdp.decode_date(np.array([ds.time.data[0]]))
 
     # convert fill values to nan
@@ -332,9 +326,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     )
     ds["CurrentProgram"] = (
         ("traj"),
-        np.array(
-            [gdp.str_to_float(ds.attrs.get("CurrentProgram", ""), -1)], dtype=np.int32
-        ),
+        np.array([gdp.str_to_float(ds.attrs.get("CurrentProgram", ""), -1)], dtype=np.int32),
     )
     ds["PurchaserFunding"] = (
         ("traj"),
@@ -352,9 +344,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     )
     ds["ManufactureMonth"] = (
         ("traj"),
-        np.array(
-            [gdp.str_to_float(ds.attrs.get("ManufactureMonth", ""), -1)], dtype=np.int16
-        ),
+        np.array([gdp.str_to_float(ds.attrs.get("ManufactureMonth", ""), -1)], dtype=np.int16),
     )
     ds["ManufactureSensorType"] = (
         ("traj"),
@@ -373,9 +363,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     )  # e.g. 35.5 cm
     ds["SubsfcFloatPresence"] = (
         ("traj"),
-        np.array(
-            [gdp.str_to_float(ds.attrs.get("SubsfcFloatPresence", ""))], dtype="bool"
-        ),
+        np.array([gdp.str_to_float(ds.attrs.get("SubsfcFloatPresence", ""))], dtype="bool"),
     )
     ds["DrogueType"] = (("traj"), gdp.cut_str(ds.attrs.get("DrogueType", ""), 7))
     ds["DrogueLength"] = (

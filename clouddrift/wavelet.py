@@ -162,8 +162,7 @@ def morse_wavelet_transform(
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(x.shape) - 1:
         raise ValueError(
-            f"time_axis ({time_axis}) is outside of the valid range ([-1,"
-            f" {len(x.shape) - 1}])."
+            f"time_axis ({time_axis}) is outside of the valid range ([-1, {len(x.shape) - 1}])."
         )
     # generate the wavelet
     wavelet, _ = morse_wavelet(
@@ -179,9 +178,7 @@ def morse_wavelet_transform(
     if complex:
         # imaginary case, divide by 2 the wavelet and return analytic and conjugate analytic
         if normalization == "bandpass":
-            wtx_p = wavelet_transform(
-                0.5 * x, wavelet, boundary=boundary, time_axis=time_axis
-            )
+            wtx_p = wavelet_transform(0.5 * x, wavelet, boundary=boundary, time_axis=time_axis)
             wtx_n = wavelet_transform(
                 np.conj(0.5 * x), wavelet, boundary=boundary, time_axis=time_axis
             )
@@ -199,9 +196,7 @@ def morse_wavelet_transform(
         wtx = wavelet_transform(x, wavelet, boundary=boundary, time_axis=time_axis)
 
     else:
-        raise ValueError(
-            "`complex` optional argument must be boolean 'True' or 'False'"
-        )
+        raise ValueError("`complex` optional argument must be boolean 'True' or 'False'")
 
     return wtx
 
@@ -275,8 +270,7 @@ def wavelet_transform(
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(x.shape) - 1:
         raise ValueError(
-            f"time_axis ({time_axis}) is outside of the valid range ([-1,"
-            f" {len(x.shape) - 1}])."
+            f"time_axis ({time_axis}) is outside of the valid range ([-1, {len(x.shape) - 1}])."
         )
     # Positions and time arrays must have the same shape.
     if x.shape[time_axis] != wavelet.shape[-1]:
@@ -321,9 +315,7 @@ def wavelet_transform(
     om = 2 * np.pi * np.linspace(0, 1 - 1 / time_length_, time_length_)
     if time_length_ % 2 == 0:
         _wavelet_fft = (
-            _wavelet_fft
-            * np.exp(1j * -om * (time_length_ + 1) / 2)
-            * np.sign(np.pi - om)
+            _wavelet_fft * np.exp(1j * -om * (time_length_ + 1) / 2) * np.sign(np.pi - om)
         )
     else:
         _wavelet_fft = _wavelet_fft * np.exp(1j * -om * (time_length_ + 1) / 2)
@@ -430,9 +422,7 @@ def morse_wavelet(
         # wavelet frequencies
         fact = np.abs(radian_frequency[i]) / fo
         # norm_radian_frequency first dim is n points
-        norm_radian_frequency = (
-            2 * np.pi * np.linspace(0, 1 - 1 / length, length) / fact
-        )
+        norm_radian_frequency = 2 * np.pi * np.linspace(0, 1 - 1 / length, length) / fact
         if normalization == "energy":
             with np.errstate(divide="ignore"):
                 waveletzero = np.exp(
@@ -450,9 +440,7 @@ def morse_wavelet(
                         - norm_radian_frequency**gamma
                     )
         else:
-            raise ValueError(
-                "Normalization option (norm) must be one of 'energy' or 'bandpass'."
-            )
+            raise ValueError("Normalization option (norm) must be one of 'energy' or 'bandpass'.")
         waveletzero[0] = 0.5 * waveletzero[0]
         # Replace NaN with zeros in waveletzero
         waveletzero = np.nan_to_num(waveletzero, copy=False, nan=0.0)
@@ -469,9 +457,7 @@ def morse_wavelet(
         waveletfft_tmp = np.nan_to_num(waveletfft_tmp, posinf=0, neginf=0)
         # shape of waveletfft_tmp is points, order
         # center wavelet
-        norm_radian_frequency_mat = np.tile(
-            np.expand_dims(norm_radian_frequency, -1), (order)
-        )
+        norm_radian_frequency_mat = np.tile(np.expand_dims(norm_radian_frequency, -1), (order))
         waveletfft_tmp = waveletfft_tmp * np.exp(
             1j * norm_radian_frequency_mat * (length + 1) / 2 * fact
         )
@@ -520,9 +506,7 @@ def _morse_wavelet_first_family(
             else:
                 coeff = 1
 
-        index = slice(
-            0, int(np.round(np.shape(wavezero)[0] / 2))
-        )  # how to define indices?
+        index = slice(0, int(np.round(np.shape(wavezero)[0] / 2)))  # how to define indices?
         L[index] = _laguerre(2 * norm_radian_frequency[index] ** gamma, i, c)
         wavefft1[:, i] = coeff * wavezero * L
 
@@ -596,12 +580,7 @@ def morse_freq(
             np.exp((1 / gamma) * (np.log(beta) - np.log(gamma))),
         )
 
-    fe = (
-        1
-        / (2 ** (1 / gamma))
-        * _gamma((2 * beta + 2) / gamma)
-        / _gamma((2 * beta + 1) / gamma)
-    )
+    fe = 1 / (2 ** (1 / gamma)) * _gamma((2 * beta + 2) / gamma) / _gamma((2 * beta + 1) / gamma)
 
     fi = _gamma((beta + 2) / gamma) / _gamma((beta + 1) / gamma)
 
@@ -805,9 +784,7 @@ def morse_amplitude(
     # add test for type and shape in case of ndarray
     if normalization == "energy":
         r = (2 * beta + 1) / gamma
-        amp = (
-            2 * np.pi * gamma * (2**r) * np.exp(_lgamma(order) - _lgamma(order + r - 1))
-        ) ** 0.5
+        amp = (2 * np.pi * gamma * (2**r) * np.exp(_lgamma(order) - _lgamma(order + r - 1))) ** 0.5
     elif normalization == "bandpass":
         fm, _, _ = morse_freq(gamma, beta)
         amp = np.where(beta == 0, 2, 2 / (np.exp(beta * np.log(fm) - fm**gamma)))

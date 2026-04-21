@@ -306,9 +306,7 @@ def to_raggedarray(
     )
 
     # Sort the drifters by their start date.
-    deploy_date_id_map = {
-        ds["id"].data[0]: ds["start_date"].data[0] for ds in drifter_datasets
-    }
+    deploy_date_id_map = {ds["id"].data[0]: ds["start_date"].data[0] for ds in drifter_datasets}
     deploy_date_sort_key = np.argsort(list(deploy_date_id_map.values()))
     sorted_drifter_datasets = [drifter_datasets[idx] for idx in deploy_date_sort_key]
 
@@ -352,9 +350,7 @@ def _rowsize(id_, **kwargs) -> int:
     df: pd.DataFrame | None = kwargs.get("data_df")
 
     if df is None:
-        raise KeyError(
-            "Missing `data_df`, please pass them into the `from_files` method"
-        )
+        raise KeyError("Missing `data_df`, please pass them into the `from_files` method")
 
     traj_data_df = df[df["id"] == id_]
     return len(traj_data_df)
@@ -366,9 +362,7 @@ def _preprocess(id_, **kwargs) -> xr.Dataset:
     use_fill_values: bool = kwargs.get("use_fill_values", False)
 
     if md_df is None or data_df is None:
-        raise KeyError(
-            "Missing `md_df` or `data_df`, pass them into the `from_files` method"
-        )
+        raise KeyError("Missing `md_df` or `data_df`, pass them into the `from_files` method")
 
     traj_md_df = md_df[md_df["ID"] == id_]
     traj_data_df = data_df[data_df["id"] == id_]
@@ -385,9 +379,7 @@ def _preprocess(id_, **kwargs) -> xr.Dataset:
 
             fill_val = _VARS_FILL_MAP.get(md_var)
             if fill_val is None:
-                raise ValueError(
-                    f"Fill value missing for metadata variable: `{md_var}`"
-                )
+                raise ValueError(f"Fill value missing for metadata variable: `{md_var}`")
 
             md_variables.update({md_var: np.array([fill_val])})
     else:
@@ -416,9 +408,7 @@ def _preprocess(id_, **kwargs) -> xr.Dataset:
         md_variables.update({md_var: var.astype(_VAR_DTYPES.get(md_var))})
 
     variables = {k: (["traj"], md_variables[k]) for k in md_variables}
-    data_vars = {
-        var: (["obs"], traj_data_df[[var]].values.flatten()) for var in _DATA_VARS
-    }
+    data_vars = {var: (["obs"], traj_data_df[[var]].values.flatten()) for var in _DATA_VARS}
 
     coords = {
         "id": (["traj"], np.array([id_]).astype(np.int64)),
@@ -494,14 +484,8 @@ def _process_chunk(
         preremove_df_chunk,
         filters=[
             # Filter out year values that are in the future or predating the GDP program
-            lambda df: (
-                (df["posObsYear"] > datetime.datetime.now().year)
-                | (df["posObsYear"] < 0)
-            ),
-            lambda df: (
-                (df["senObsYear"] > datetime.datetime.now().year)
-                | (df["senObsYear"] < 0)
-            ),
+            lambda df: (df["posObsYear"] > datetime.datetime.now().year) | (df["posObsYear"] < 0),
+            lambda df: (df["senObsYear"] > datetime.datetime.now().year) | (df["senObsYear"] < 0),
             # Filter out month values that contain non-numeric characters
             lambda df: df["senObsMonth"].astype(np.str_).str.contains(r"[\D]"),
             lambda df: df["posObsMonth"].astype(np.str_).str.contains(r"[\D]"),
@@ -517,9 +501,7 @@ def _process_chunk(
     postremove_len = len(df_chunk)
 
     if preremove_len != postremove_len:
-        warnings.warn(
-            f"Filters removed {preremove_len - postremove_len} rows from chunk"
-        )
+        warnings.warn(f"Filters removed {preremove_len - postremove_len} rows from chunk")
 
     if postremove_len == 0:
         return drifter_ds_map
@@ -545,8 +527,7 @@ def _process_chunk(
 
     if len(ids_with_md) < len(ids_in_data):
         warnings.warn(
-            "Chunk has drifter ids not found in the metadata table. "
-            + "Using fill values"
+            "Chunk has drifter ids not found in the metadata table. " + "Using fill values"
             if use_fill_values
             else "Ignoring data observations"
             + f" for missing metadata ids: {np.setdiff1d(ids_in_data, ids_with_md)}."

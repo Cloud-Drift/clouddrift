@@ -164,9 +164,7 @@ def download(
     drifter_urls: list[str] = []
     added = set()
     for dir in directory_list:
-        dirdata = standard_retry_protocol(
-            lambda: urllib.request.urlopen(f"{url}/{dir}").read()
-        )()
+        dirdata = standard_retry_protocol(lambda: urllib.request.urlopen(f"{url}/{dir}").read())()
         string = dirdata.decode("utf-8")
         filelist = list(set(re.compile(pattern).findall(string)))
         for f in filelist:
@@ -191,9 +189,7 @@ def download(
 
     # Download the metadata so we can order the drifter IDs by end date.
     gdp_metadata = gdp.get_gdp_metadata(tmp_path)
-    drifter_ids = [
-        int(os.path.basename(f).split("_")[2].split(".")[0]) for f in drifter_urls
-    ]
+    drifter_ids = [int(os.path.basename(f).split("_")[2].split(".")[0]) for f in drifter_urls]
 
     return gdp.order_by_date(gdp_metadata, drifter_ids)
 
@@ -225,9 +221,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
             message=".*multiple fill values.*",
         )
         ds = xr.load_dataset(
-            os.path.join(
-                kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)
-            ),
+            os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)),
             decode_times=False,
             decode_coords=False,
         )
@@ -235,9 +229,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     # parse the date with custom function
     ds["deploy_date"].data = gdp.decode_date(np.array([ds.deploy_date.data[0]]))
     ds["end_date"].data = gdp.decode_date(np.array([ds.end_date.data[0]]))
-    ds["drogue_lost_date"].data = gdp.decode_date(
-        np.array([ds.drogue_lost_date.data[0]])
-    )
+    ds["drogue_lost_date"].data = gdp.decode_date(np.array([ds.drogue_lost_date.data[0]]))
     ds["time"].data = gdp.decode_date(np.array([ds.time.data[0]]))
 
     # convert fill values to nan
@@ -324,9 +316,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds["DeploymentComments"] = (
         ("traj"),
         gdp.cut_str(
-            ds.attrs.get("DeploymentComments", "")
-            .encode("ascii", "ignore")
-            .decode("ascii"),
+            ds.attrs.get("DeploymentComments", "").encode("ascii", "ignore").decode("ascii"),
             20,
         ),
     )  # remove non ascii char
@@ -352,9 +342,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     )  # e.g. 35.5 cm
     ds["SubsfcFloatPresence"] = (
         ("traj"),
-        np.array(
-            [gdp.str_to_float(ds.attrs.get("SubsfcFloatPresence", ""))], dtype="bool"
-        ),
+        np.array([gdp.str_to_float(ds.attrs.get("SubsfcFloatPresence", ""))], dtype="bool"),
     )
     ds["DrogueType"] = (("traj"), gdp.cut_str(ds.attrs.get("DrogueType", ""), 7))
     ds["DrogueLength"] = (
