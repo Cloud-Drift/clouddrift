@@ -120,7 +120,9 @@ def parse_directory_file(
     """
     path = os.path.join(tmp_path, filename)
     gdp_dir_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata"
-    download_with_progress([(f"{gdp_dir_url}/{filename}", path)], skip_download=skip_download)
+    download_with_progress(
+        [(f"{gdp_dir_url}/{filename}", path)], skip_download=skip_download
+    )
     df = pd.read_csv(path, delimiter=r"\s+", header=None)
     df[4] += " " + df[5]
     df[8] += " " + df[9]
@@ -206,7 +208,10 @@ def get_gdp_metadata(
         directory_files = _list_gdp_directory_files()
         if not directory_files:
             raise RuntimeError("Could not discover GDP metadata directory files.")
-        dfs = [parse_directory_file(name, tmp_path, skip_download=False) for name in directory_files]
+        dfs = [
+            parse_directory_file(name, tmp_path, skip_download=False)
+            for name in directory_files
+        ]
 
     df = pd.concat(dfs)
     df.sort_values(["Start_date"], inplace=True, ignore_index=True)
