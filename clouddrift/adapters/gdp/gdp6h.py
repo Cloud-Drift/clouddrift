@@ -185,6 +185,7 @@ def download(
                 drifter_urls.append(f"{url}/{subdir}/{f}")
                 added.add(did)
 
+    # retrieve only a subset of n_random_id trajectories
     if n_random_id:
         drifter_urls = _subsample(drifter_urls, n_random_id)
 
@@ -202,7 +203,7 @@ def download(
 
 
 def _subsample(items: list, n: int) -> list:
-    if n >= len(items):
+    if n > len(items):
         warnings.warn(
             f"Retrieving all listed trajectories because {n} is larger than the {len(items)} listed trajectories."
         )

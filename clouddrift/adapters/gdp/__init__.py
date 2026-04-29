@@ -99,6 +99,18 @@ def cast_float64_variables_to_float32(
 
 
 def _parse_directory_file_from_path(path: str) -> pd.DataFrame:
+    """Read a GDP directory file that contains metadata of drifter releases.
+
+    Parameters
+    ----------
+    filename : str
+        Name of the directory file to parse.
+
+    Returns
+    -------
+    df : pd.DataFrame
+        List of drifters from a single directory file as a pandas DataFrame.
+    """
     df = pd.read_csv(path, delimiter=r"\s+", header=None)
     df[4] += " " + df[5]
     df[8] += " " + df[9]
@@ -211,6 +223,13 @@ def get_gdp_metadata(
 
 
 def _list_gdp_directory_files() -> list[str]:
+    """Fetch the list of GDP metadata directory filenames from the AOML FTP server.
+
+    Returns
+    -------
+    files : list[str]
+        Sorted list of ``dirfl_*.dat`` filenames available on the server.
+    """
     gdp_dir_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata"
     pattern = re.compile(r"dirfl_(\d+)_(\d+|current)\.dat")
 
