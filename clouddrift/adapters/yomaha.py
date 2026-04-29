@@ -52,21 +52,37 @@ def download(tmp_path: str, skip_download: bool = False):
 
     filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
     filename = filename_gz.removesuffix(".gz")
-
-    buffer = BytesIO()
-    download_with_progress([(YOMAHA_URLS[-1], buffer)])
-
-    buffer.seek(0)
-
     decompressed_fp = os.path.join(tmp_path, filename)
-    with (
-        open(decompressed_fp, "wb") as file,
-        gzip.open(buffer, "rb") as compressed_file,
-    ):
-        shutil.copyfileobj(compressed_file, file)
+
+    if not (skip_download and os.path.exists(decompressed_fp)):
+        buffer = BytesIO()
+        download_with_progress([(YOMAHA_URLS[-1], buffer)])
+        buffer.seek(0)
+        with (
+            open(decompressed_fp, "wb") as file,
+            gzip.open(buffer, "rb") as compressed_file,
+        ):
+            shutil.copyfileobj(compressed_file, file)
 
 
 def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
+    """Convert the YoMaHa'07 dataset to an xarray Dataset.
+
+    Parameters
+    ----------
+    tmp_path : str, optional
+        Path where the dataset files are cached. Defaults to a platform-specific
+        temporary directory.
+    skip_download : bool, optional
+        If True, skip re-downloading files that already exist in ``tmp_path``.
+        The main data file (``yomaha07.dat.gz``) is skipped when its
+        decompressed version already exists locally. Default is False.
+
+    Returns
+    -------
+    xarray.Dataset
+        YoMaHa'07 dataset as an xarray Dataset.
+    """
     if tmp_path is None:
         tmp_path = YOMAHA_TMP_PATH
         os.makedirs(tmp_path, exist_ok=True)

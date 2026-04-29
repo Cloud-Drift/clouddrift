@@ -98,19 +98,29 @@ def cast_float64_variables_to_float32(
     return ds
 
 
-def _parse_directory_file_from_path(path: str) -> pd.DataFrame:
+def parse_directory_file(
+    filename: str, tmp_path: str, skip_download: bool = False
+) -> pd.DataFrame:
     """Read a GDP directory file that contains metadata of drifter releases.
 
     Parameters
     ----------
     filename : str
         Name of the directory file to parse.
+    tmp_path : str
+        Directory where the file is cached locally.
+    skip_download : bool, optional
+        If True, skip re-downloading the file if it already exists in
+        ``tmp_path``. Default is False.
 
     Returns
     -------
     df : pd.DataFrame
         List of drifters from a single directory file as a pandas DataFrame.
     """
+    path = os.path.join(tmp_path, filename)
+    gdp_dir_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata"
+    download_with_progress([(f"{gdp_dir_url}/{filename}", path)], skip_download=skip_download)
     df = pd.read_csv(path, delimiter=r"\s+", header=None)
     df[4] += " " + df[5]
     df[8] += " " + df[9]
@@ -138,26 +148,6 @@ def _parse_directory_file_from_path(path: str) -> pd.DataFrame:
     return df
 
 
-def parse_directory_file(filename: str, tmp_path: str) -> pd.DataFrame:
-    """Read a GDP directory file that contains metadata of drifter releases.
-
-    Parameters
-    ----------
-    filename : str
-        Name of the directory file to parse.
-
-    Returns
-    -------
-    df : pd.DataFrame
-        List of drifters from a single directory file as a pandas DataFrame.
-    """
-    path = os.path.join(tmp_path, filename)
-    if not os.path.exists(path):
-        gdp_dir_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata"
-        download_with_progress([(f"{gdp_dir_url}/{filename}", path)])
-    return _parse_directory_file_from_path(path)
-
-
 def get_gdp_metadata(
     tmp_path: str = GDP_TMP_PATH,
     skip_download: bool = False,
@@ -170,9 +160,10 @@ def get_gdp_metadata(
         Directory where ``dirfl_*.dat`` metadata files are stored.
     skip_download : bool, optional
         If True, scan ``tmp_path`` for cached ``dirfl_*.dat`` files instead of
-        fetching the file list from the network. Use this when the drifter data
-        files have also been downloaded with ``skip_download=True`` to ensure
-        the metadata is consistent with the local files.
+        fetching the file list from the network, and skip re-downloading any
+        ``dirfl_*.dat`` files that already exist locally. Use this when the
+        drifter data files have also been downloaded with ``skip_download=True``
+        to ensure the metadata is consistent with the local files.
 
     Returns
     -------
@@ -202,7 +193,7 @@ def get_gdp_metadata(
         dfs = []
         for _, _, filename in sorted(metadata_files, key=lambda x: (x[0], x[1])):
             try:
-                dfs.append(parse_directory_file(filename, tmp_path))
+                dfs.append(parse_directory_file(filename, tmp_path, skip_download=True))
             except Exception as exc:
                 warnings.warn(
                     f"Could not parse local GDP metadata file {filename}; skipping it. Error: {exc}"
@@ -215,7 +206,7 @@ def get_gdp_metadata(
         directory_files = _list_gdp_directory_files()
         if not directory_files:
             raise RuntimeError("Could not discover GDP metadata directory files.")
-        dfs = [parse_directory_file(name, tmp_path) for name in directory_files]
+        dfs = [parse_directory_file(name, tmp_path, skip_download=False) for name in directory_files]
 
     df = pd.concat(dfs)
     df.sort_values(["Start_date"], inplace=True, ignore_index=True)

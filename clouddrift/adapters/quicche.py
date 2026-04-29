@@ -55,6 +55,9 @@ def to_xarray(
     tmp_path : str, optional
         Temporary path where intermediary files are stored. If None, uses the default
         temp path defined in this module.
+    skip_download : bool, optional
+        If True, skip re-downloading the ZIP file if it already exists in
+        ``tmp_path``. Default is False.
 
     Returns
     -------

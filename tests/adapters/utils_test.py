@@ -189,7 +189,7 @@ class utils_tests(unittest.TestCase):
 
             self.requests_mock.get.assert_called_once()
 
-    def test_head_failure_does_not_raise_unboundlocal_and_still_downloads(self):
+    def test_head_failure_raises_exception_without_downloading(self):
         with MultiPatcher(
             [
                 patch(

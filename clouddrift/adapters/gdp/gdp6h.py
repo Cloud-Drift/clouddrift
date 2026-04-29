@@ -54,8 +54,9 @@ def to_raggedarray(
         Path to the directory where the individual NetCDF files are stored
         (default varies depending on operating system; /tmp/clouddrift/gdp6h on Linux)
     skip_download : bool, optional
-        If True, skip network access and read existing ``drifter_6h_<id>.nc``
-        files from ``tmp_path``.
+        If True, make no network requests: discover drifter IDs by scanning
+        ``tmp_path`` for existing ``drifter_6h_*.nc`` files and use locally
+        cached ``dirfl_*.dat`` metadata files. Default is False.
 
     Returns
     -------
@@ -153,8 +154,9 @@ def download(
     n_random_id : int
         Randomly select n_random_id drifter IDs to download (Default: None)
     skip_download : bool, optional
-        If True, skip re-downloading files that already exist in ``tmp_path``
-        (passes through to :func:`download_with_progress`).
+        If True, make no network requests: discover drifter IDs by scanning
+        ``tmp_path`` for existing ``drifter_6h_*.nc`` files and use locally
+        cached ``dirfl_*.dat`` metadata files. Default is False.
 
     Returns
     -------
@@ -165,27 +167,32 @@ def download(
 
     print(f"Downloading GDP 6-hourly data to {tmp_path}...")
 
-    nc_pattern = re.compile(r"drifter_6h_[0-9]+\.nc")
-    directory_list = [
-        "netcdf_1_5000",
-        "netcdf_5001_10000",
-        "netcdf_10001_15000",
-        "netcdf_15001_current",
-    ]
+    nc_pattern = re.compile(r"drifter_6h_([0-9]+)\.nc")
+    url_map: dict[str, str] = {}  # filename → url, first occurrence wins
 
-    drifter_urls: list[str] = []
-    added = set()
-    for subdir in directory_list:
-        dirdata = standard_retry_protocol(
-            lambda d=subdir: urllib.request.urlopen(f"{url}/{d}").read()
-        )()
-        for f in set(nc_pattern.findall(dirdata.decode("utf-8"))):
-            did = int(f.split("_")[2].removesuffix(".nc"))
-            if (drifter_ids is None or did in drifter_ids) and did not in added:
-                drifter_urls.append(f"{url}/{subdir}/{f}")
-                added.add(did)
+    if skip_download:
+        for f in os.listdir(tmp_path):
+            m = nc_pattern.fullmatch(f)
+            if m and (drifter_ids is None or int(m.group(1)) in drifter_ids):
+                url_map[f] = os.path.join(tmp_path, f)
+    else:
+        for subdir in [
+            "netcdf_1_5000",
+            "netcdf_5001_10000",
+            "netcdf_10001_15000",
+            "netcdf_15001_current",
+        ]:
+            dirdata = standard_retry_protocol(
+                lambda d=subdir: urllib.request.urlopen(f"{url}/{d}").read()
+            )()
+            for did_str in set(nc_pattern.findall(dirdata.decode("utf-8"))):
+                did = int(did_str)
+                if drifter_ids is None or did in drifter_ids:
+                    fname = f"drifter_6h_{did}.nc"
+                    url_map.setdefault(fname, f"{url}/{subdir}/{fname}")
 
-    # retrieve only a subset of n_random_id trajectories
+    drifter_urls = list(url_map.values())
+
     if n_random_id:
         drifter_urls = _subsample(drifter_urls, n_random_id)
 
@@ -196,9 +203,8 @@ def download(
 
     gdp_metadata = gdp.get_gdp_metadata(tmp_path, skip_download=skip_download)
     downloaded_ids = [
-        int(os.path.basename(f).split("_")[2].split(".")[0]) for f in drifter_urls
+        int(os.path.basename(u).split("_")[2].split(".")[0]) for u in drifter_urls
     ]
-
     return gdp.order_by_date(gdp_metadata, downloaded_ids)
 
 

@@ -35,6 +35,22 @@ ANDRO_VERSION = "2026-04"
 
 
 def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
+    """Convert the ANDRO dataset to an xarray Dataset.
+
+    Parameters
+    ----------
+    tmp_path : str, optional
+        Path where the dataset file is cached. Defaults to a platform-specific
+        temporary directory.
+    skip_download : bool, optional
+        If True, skip re-downloading the dataset file if it already exists in
+        ``tmp_path``. Default is False.
+
+    Returns
+    -------
+    xarray.Dataset
+        ANDRO dataset as a ragged array.
+    """
     if tmp_path is None:
         tmp_path = ANDRO_TMP_PATH
         os.makedirs(tmp_path, exist_ok=True)

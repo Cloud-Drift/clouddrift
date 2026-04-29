@@ -50,6 +50,9 @@ def to_raggedarray(
         and operations. Default is "LAST_3_YEARS".
     tmp_path: str, default adapter temp path (default)
         Temporary path where intermediary files are stored. Default is ${osSpecificTempFileLocation}/clouddrift/ibtracs/.
+    skip_download : bool, optional
+        If True, skip re-downloading the dataset file if it already exists in
+        ``tmp_path``. Default is False.
 
     Returns
     -------

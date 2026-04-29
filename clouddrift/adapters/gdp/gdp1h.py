@@ -10,7 +10,6 @@ import re
 import tempfile
 import urllib.request
 import warnings
-from collections.abc import Sequence
 from datetime import datetime, timedelta
 
 import numpy as np
@@ -79,8 +78,10 @@ def to_raggedarray(
         Path to the directory where the individual NetCDF files are stored
         (default varies depending on operating system; /tmp/clouddrift/gdp on Linux)
     skip_download : bool, optional
-        If True, skip re-downloading files that already exist in ``tmp_path``
-        and read metadata from locally cached ``dirfl_*.dat`` files.
+        If True, make no network requests: discover drifter IDs by scanning
+        ``tmp_path`` for existing ``drifter_hourly_*.nc`` files (when
+        ``drifter_ids`` is ``None``) and use locally cached ``dirfl_*.dat``
+        metadata files. Default is False.
 
     Returns
     -------
@@ -182,8 +183,10 @@ def download(
     n_random_id : int, optional
         Randomly select n_random_id drifter IDs to download (Default: None)
     skip_download : bool, optional
-        If True, skip re-downloading files that already exist in ``tmp_path``
-        and read metadata from locally cached ``dirfl_*.dat`` files.
+        If True, make no network requests: discover drifter IDs by scanning
+        ``tmp_path`` for existing ``drifter_hourly_*.nc`` files (when
+        ``drifter_ids`` is ``None``) and use locally cached ``dirfl_*.dat``
+        metadata files. Default is False.
     Returns
     -------
     out : list
@@ -193,14 +196,18 @@ def download(
 
     # Create a temporary directory if doesn't already exists.
     os.makedirs(tmp_path, exist_ok=True)
-    pattern = "drifter_hourly_[0-9]*.nc"
+    nc_pattern = re.compile(r"drifter_hourly_([0-9]+)\.nc")
     filename_pattern = "drifter_hourly_{id}.nc"
 
     # retrieve all drifter ID numbers
     if drifter_ids is None:
-        urlpath = standard_retry_protocol(lambda: urllib.request.urlopen(url))()
-        string = urlpath.read().decode("utf-8")
-        filelist: Sequence[str] = re.compile(pattern).findall(string)  # noqa: F821
+        if skip_download:
+            filelist = [f for f in os.listdir(tmp_path) if nc_pattern.fullmatch(f)]
+        else:
+            urlpath = standard_retry_protocol(lambda: urllib.request.urlopen(url))()
+            string = urlpath.read().decode("utf-8")
+            filelist = nc_pattern.findall(string)
+            filelist = [filename_pattern.format(id=did) for did in filelist]
     else:
         filelist = [filename_pattern.format(id=did) for did in drifter_ids]
     filelist = list(np.unique(filelist))
