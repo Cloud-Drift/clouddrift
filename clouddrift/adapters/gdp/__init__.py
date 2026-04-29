@@ -6,13 +6,16 @@ and six-hourly (``clouddrift.adapters.gdp6h``) GDP modules.
 """
 
 import os
+import re
 import tempfile
+import urllib.request
+import warnings
 
 import numpy as np
 import pandas as pd
 import xarray as xr
 
-from clouddrift.adapters.utils import download_with_progress
+from clouddrift.adapters.utils import download_with_progress, standard_retry_protocol
 from clouddrift.raggedarray import DimNames
 
 GDP_DIMS: dict[str, DimNames] = {"traj": "rows", "obs": "obs"}
@@ -95,26 +98,32 @@ def cast_float64_variables_to_float32(
     return ds
 
 
-def parse_directory_file(filename: str, tmp_path: str) -> pd.DataFrame:
+def parse_directory_file(
+    filename: str, tmp_path: str, skip_download: bool = False
+) -> pd.DataFrame:
     """Read a GDP directory file that contains metadata of drifter releases.
 
     Parameters
     ----------
     filename : str
         Name of the directory file to parse.
+    tmp_path : str
+        Directory where the file is cached locally.
+    skip_download : bool, optional
+        If True, skip re-downloading the file if it already exists in
+        ``tmp_path``. Default is False.
 
     Returns
     -------
     df : pd.DataFrame
         List of drifters from a single directory file as a pandas DataFrame.
     """
-    gdp_dir_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata"
-    url = f"{gdp_dir_url}/{filename}"
     path = os.path.join(tmp_path, filename)
-    download_with_progress([(url, path)])
+    gdp_dir_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata"
+    download_with_progress(
+        [(f"{gdp_dir_url}/{filename}", path)], skip_download=skip_download
+    )
     df = pd.read_csv(path, delimiter=r"\s+", header=None)
-
-    # Combine the date and time columns to easily parse dates below.
     df[4] += " " + df[5]
     df[8] += " " + df[9]
     df[12] += " " + df[13]
@@ -138,36 +147,107 @@ def parse_directory_file(filename: str, tmp_path: str) -> pd.DataFrame:
     )
     for t in ["Start_date", "End_date", "Drogue_off_date"]:
         df[t] = pd.to_datetime(df[t], format="%Y/%m/%d %H:%M", errors="coerce")
-
     return df
 
 
-def get_gdp_metadata(tmp_path: str = GDP_TMP_PATH) -> pd.DataFrame:
-    """Download and parse GDP metadata and return it as a Pandas DataFrame.
+def get_gdp_metadata(
+    tmp_path: str = GDP_TMP_PATH,
+    skip_download: bool = False,
+) -> pd.DataFrame:
+    """Download (or read locally cached) GDP metadata and return it as a Pandas DataFrame.
+
+    Parameters
+    ----------
+    tmp_path : str
+        Directory where ``dirfl_*.dat`` metadata files are stored.
+    skip_download : bool, optional
+        If True, scan ``tmp_path`` for cached ``dirfl_*.dat`` files instead of
+        fetching the file list from the network, and skip re-downloading any
+        ``dirfl_*.dat`` files that already exist locally. Use this when the
+        drifter data files have also been downloaded with ``skip_download=True``
+        to ensure the metadata is consistent with the local files.
 
     Returns
     -------
     df : pd.DataFrame
         Sorted list of drifters as a pandas DataFrame.
     """
-    directory_file_pattern = "dirfl_{low}_{high}.dat"
+    if skip_download:
+        metadata_pattern = re.compile(r"dirfl_(\d+)_(\d+|current)\.dat$")
+        metadata_files: list[tuple[int, int, str]] = []
+        for filename in os.listdir(tmp_path):
+            match = metadata_pattern.fullmatch(filename)
+            if match is None:
+                continue
+            low = int(match.group(1))
+            high = (
+                int(match.group(2))
+                if match.group(2) != "current"
+                else np.iinfo(int).max
+            )
+            metadata_files.append((low, high, filename))
 
-    dfs = []
-    start = 1
-    while True:
-        name = directory_file_pattern.format(low=start, high=start + 4999)
-        try:
-            dfs.append(parse_directory_file(name, tmp_path))
-            start += 5000
-        except Exception:
-            break
+        if not metadata_files:
+            raise RuntimeError(
+                f"No GDP metadata files (dirfl_*.dat) found in {tmp_path}."
+            )
 
-    name = directory_file_pattern.format(low=start, high="current")
-    dfs.append(parse_directory_file(name, tmp_path))
+        dfs = []
+        for _, _, filename in sorted(metadata_files, key=lambda x: (x[0], x[1])):
+            try:
+                dfs.append(parse_directory_file(filename, tmp_path, skip_download=True))
+            except Exception as exc:
+                warnings.warn(
+                    f"Could not parse local GDP metadata file {filename}; skipping it. Error: {exc}"
+                )
+        if not dfs:
+            raise RuntimeError(
+                f"Found GDP metadata files in {tmp_path} but could not parse any of them."
+            )
+    else:
+        directory_files = _list_gdp_directory_files()
+        if not directory_files:
+            raise RuntimeError("Could not discover GDP metadata directory files.")
+        dfs = [
+            parse_directory_file(name, tmp_path, skip_download=False)
+            for name in directory_files
+        ]
 
     df = pd.concat(dfs)
     df.sort_values(["Start_date"], inplace=True, ignore_index=True)
     return df
+
+
+def _list_gdp_directory_files() -> list[str]:
+    """Fetch the list of GDP metadata directory filenames from the AOML FTP server.
+
+    Returns
+    -------
+    files : list[str]
+        Sorted list of ``dirfl_*.dat`` filenames available on the server.
+    """
+    gdp_dir_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata"
+    pattern = re.compile(r"dirfl_(\d+)_(\d+|current)\.dat")
+
+    def _fetch_directory_listing() -> bytes:
+        with urllib.request.urlopen(gdp_dir_url) as response:
+            return response.read()
+
+    payload = standard_retry_protocol(_fetch_directory_listing)()
+    listing = payload.decode("utf-8")
+
+    matches = set(pattern.findall(listing))
+    files = [f"dirfl_{low}_{high}.dat" for low, high in matches]
+
+    def _sort_key(name: str) -> tuple[int, int]:
+        parsed = pattern.fullmatch(name)
+        if parsed is None:
+            raise ValueError(f"Unexpected GDP metadata filename: {name}")
+        low, high = parsed.groups()
+        high_val = int(high) if high != "current" else np.iinfo(int).max
+        return int(low), high_val
+
+    return sorted(files, key=_sort_key)
 
 
 def order_by_date(df: pd.DataFrame, idx: list[int]) -> list[int]:  # noqa: F821

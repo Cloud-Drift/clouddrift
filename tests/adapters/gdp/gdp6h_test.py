@@ -75,7 +75,7 @@ class gdp6h_tests(unittest.TestCase):
         with MultiPatcher(
             [
                 patch(
-                    "clouddrift.adapters.gdp1h.urllib.request.urlopen",
+                    "clouddrift.adapters.gdp6h.urllib.request.urlopen",
                     Mock(return_value=self.response_mock),
                 ),
                 patch("clouddrift.adapters.gdp6h.download_with_progress", Mock()),
@@ -95,5 +95,16 @@ class gdp6h_tests(unittest.TestCase):
                         os.path.join("../some/path", f"drifter_6h_{did}.nc"),
                     )
                     for did in ret_drifter_ids
-                ]
+                ],
+                skip_download=False,
             )
+
+    def test_rowsize_returns_zero_when_dataset_open_fails(self):
+        with patch("clouddrift.adapters.gdp6h.xr.open_dataset", side_effect=OSError):
+            rowsize = gdp6h._rowsize(
+                1,
+                tmp_path="../some/path",
+                filename_pattern="drifter_6h_{id}.nc",
+            )
+
+            assert rowsize == 0

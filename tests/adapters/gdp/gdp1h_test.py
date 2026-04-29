@@ -95,5 +95,6 @@ class gdp1h_tests(unittest.TestCase):
                         os.path.join("../some/path", f"drifter_hourly_{did}.nc"),
                     )
                     for did in drifter_ids
-                ]
+                ],
+                skip_download=False,
             )

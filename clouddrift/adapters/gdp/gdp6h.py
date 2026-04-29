@@ -18,7 +18,7 @@ import clouddrift.adapters.gdp as gdp
 from clouddrift.adapters.utils import download_with_progress, standard_retry_protocol
 from clouddrift.raggedarray import RaggedArray
 
-GDP_VERSION = "December 2024"
+GDP_VERSION = "May 2025"
 
 GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/6h"
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp6h")
@@ -39,6 +39,7 @@ def to_raggedarray(
     drifter_ids: list[int] | None = None,
     n_random_id: int | None = None,
     tmp_path: str = GDP_TMP_PATH,
+    skip_download: bool = False,
 ) -> RaggedArray:
     """Download and process individual GDP 6-hourly files and return a
     RaggedArray instance with the data.
@@ -52,11 +53,15 @@ def to_raggedarray(
     tmp_path : str, optional
         Path to the directory where the individual NetCDF files are stored
         (default varies depending on operating system; /tmp/clouddrift/gdp6h on Linux)
+    skip_download : bool, optional
+        If True, make no network requests: discover drifter IDs by scanning
+        ``tmp_path`` for existing ``drifter_6h_*.nc`` files and use locally
+        cached ``dirfl_*.dat`` metadata files. Default is False.
 
     Returns
     -------
     out : RaggedArray
-        A RaggedArray instance of the requested dataset
+        A RaggedArray instance of the requested dataset.
 
     Examples
     --------
@@ -76,22 +81,29 @@ def to_raggedarray(
 
     >>> ra = to_raggedarray(drifter_ids=[54375, 114956, 126934])
 
-    Finally, `to_raggedarray` returns a `RaggedArray` instance which provides
-    a convenience method to emit a `xarray.Dataset` instance:
+    The function `to_raggedarray` returns a `RaggedArray` instance which provides
+    a convenience method to produce a `xarray.Dataset` instance for analysis:
 
     >>> ds = ra.to_xarray()
 
-    To write the ragged array dataset to a NetCDF file on disk, do
+    To write the ragged array dataset to a NetCDF file or a Zarr file on disk, you can use the
+    `to_netcdf` or `to_zarr` method of the `xarray.Dataset` instance:
 
-    >>> ds.to_netcdf("gdp6h.nc", format="NETCDF4")
+    >>> ds.to_netcdf("gdp6h.nc")
+    >>> ds.to_zarr("gdp6h.zarr", mode="w")
 
-    Alternatively, to write the ragged array to a Parquet file, first create
-    it as an Awkward Array:
+    To write the ragged array dataset to a Parquet file, you can directly use
+    the `to_parquet` method of the `RaggedArray` instance:
 
-    >>> arr = ra.to_awkward()
-    >>> arr.to_parquet("gdp6h.parquet")
+    >>> ra.to_parquet("gdp6h.parquet")
     """
-    ids = download(GDP_DATA_URL, tmp_path, drifter_ids, n_random_id)
+    ids = download(
+        GDP_DATA_URL,
+        tmp_path,
+        drifter_ids,
+        n_random_id,
+        skip_download=skip_download,
+    )
 
     # Add ManufactureYear to metadata
     gdp_metadata = gdp.GDP_METADATA.copy()
@@ -105,7 +117,7 @@ def to_raggedarray(
         name_meta=gdp_metadata,
         name_data=GDP_DATA,
         name_dims=gdp.GDP_DIMS,
-        rowsize_func=gdp.rowsize,
+        rowsize_func=_rowsize,
         filename_pattern="drifter_6h_{id}.nc",
         tmp_path=tmp_path,
     )
@@ -126,6 +138,7 @@ def download(
     tmp_path: str = GDP_TMP_PATH,
     drifter_ids: list[int] | None = None,
     n_random_id: int | None = None,
+    skip_download: bool = False,
 ):
     """Download individual NetCDF files from the AOML server.
 
@@ -140,62 +153,89 @@ def download(
         List of drifter to retrieve (Default: all)
     n_random_id : int
         Randomly select n_random_id drifter IDs to download (Default: None)
-
+    skip_download : bool, optional
+        If True, make no network requests: discover drifter IDs by scanning
+        ``tmp_path`` for existing ``drifter_6h_*.nc`` files and use locally
+        cached ``dirfl_*.dat`` metadata files. Default is False.
 
     Returns
     -------
     out : list
         List of retrieved drifters
     """
+    os.makedirs(tmp_path, exist_ok=True)
 
     print(f"Downloading GDP 6-hourly data to {tmp_path}...")
 
-    # Create a temporary directory if doesn't already exists.
-    os.makedirs(tmp_path, exist_ok=True)
+    nc_pattern = re.compile(r"drifter_6h_([0-9]+)\.nc")
+    url_map: dict[str, str] = {}  # filename → url, first occurrence wins
 
-    pattern = "drifter_6h_[0-9]*.nc"
-    directory_list = [
-        "netcdf_1_5000",
-        "netcdf_5001_10000",
-        "netcdf_10001_15000",
-        "netcdf_15001_current",
-    ]
+    if skip_download:
+        for f in os.listdir(tmp_path):
+            m = nc_pattern.fullmatch(f)
+            if m and (drifter_ids is None or int(m.group(1)) in drifter_ids):
+                url_map[f] = os.path.join(tmp_path, f)
+    else:
+        for subdir in [
+            "netcdf_1_5000",
+            "netcdf_5001_10000",
+            "netcdf_10001_15000",
+            "netcdf_15001_current",
+        ]:
+            dirdata = standard_retry_protocol(
+                lambda d=subdir: urllib.request.urlopen(f"{url}/{d}").read()
+            )()
+            for did_str in set(nc_pattern.findall(dirdata.decode("utf-8"))):
+                did = int(did_str)
+                if drifter_ids is None or did in drifter_ids:
+                    fname = f"drifter_6h_{did}.nc"
+                    url_map.setdefault(fname, f"{url}/{subdir}/{fname}")
 
-    drifter_urls: list[str] = []
-    added = set()
-    for dir in directory_list:
-        dirdata = standard_retry_protocol(
-            lambda: urllib.request.urlopen(f"{url}/{dir}").read()
-        )()
-        string = dirdata.decode("utf-8")
-        filelist = list(set(re.compile(pattern).findall(string)))
-        for f in filelist:
-            did = int(f.split("_")[2].removesuffix(".nc"))
-            if (drifter_ids is None or did in drifter_ids) and did not in added:
-                drifter_urls.append(f"{url}/{dir}/{f}")
-                added.add(did)
+    drifter_urls = list(url_map.values())
 
-    # retrieve only a subset of n_random_id trajectories
     if n_random_id:
-        if n_random_id > len(drifter_urls):
-            warnings.warn(
-                f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(drifter_urls)} listed trajectories."
-            )
-        else:
-            rng = np.random.Generator(np.random.MT19937(42))
-            drifter_urls = list(rng.choice(drifter_urls, n_random_id, replace=False))
+        drifter_urls = _subsample(drifter_urls, n_random_id)
 
     download_with_progress(
-        [(url, os.path.join(tmp_path, os.path.basename(url))) for url in drifter_urls]
+        [(u, os.path.join(tmp_path, os.path.basename(u))) for u in drifter_urls],
+        skip_download=skip_download,
     )
 
-    # Download the metadata so we can order the drifter IDs by end date.
-    gdp_metadata = gdp.get_gdp_metadata(tmp_path)
-    drifter_ids = [
-        int(os.path.basename(f).split("_")[2].split(".")[0]) for f in drifter_urls
+    gdp_metadata = gdp.get_gdp_metadata(tmp_path, skip_download=skip_download)
+    downloaded_ids = [
+        int(os.path.basename(u).split("_")[2].split(".")[0]) for u in drifter_urls
     ]
+    return gdp.order_by_date(gdp_metadata, downloaded_ids)
 
-    return gdp.order_by_date(gdp_metadata, drifter_ids)
+
+def _subsample(items: list, n: int) -> list:
+    if n > len(items):
+        warnings.warn(
+            f"Retrieving all listed trajectories because {n} is larger than the {len(items)} listed trajectories."
+        )
+        return items
+    rng = np.random.Generator(np.random.MT19937(42))
+    return list(rng.choice(items, n, replace=False))
+
+
+def _resolve_drifter_path(index: int, **kwargs) -> str:
+    return os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index))
+
+
+def _rowsize(index: int, **kwargs) -> int:
+    file_path = _resolve_drifter_path(index, **kwargs)
+    try:
+        with xr.open_dataset(
+            file_path,
+            decode_cf=False,
+            decode_times=False,
+            concat_characters=False,
+            decode_coords=False,
+        ) as ds:
+            return ds.sizes["obs"]
+    except Exception as e:
+        warnings.warn(f"Error processing {file_path}: {e}")
+        return 0
 
 
 def preprocess(index: int, **kwargs) -> xr.Dataset:
@@ -225,9 +265,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
             message=".*multiple fill values.*",
         )
         ds = xr.load_dataset(
-            os.path.join(
-                kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index)
-            ),
+            _resolve_drifter_path(index, **kwargs),
             decode_times=False,
             decode_coords=False,
         )
