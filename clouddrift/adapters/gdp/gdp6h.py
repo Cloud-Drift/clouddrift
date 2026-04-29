@@ -96,15 +96,12 @@ def to_raggedarray(
 
     >>> ra.to_parquet("gdp6h.parquet")
     """
-    file_map = _get_local_file_map(tmp_path) if skip_download else None
-
     ids = download(
         GDP_DATA_URL,
         tmp_path,
         drifter_ids,
         n_random_id,
         skip_download=skip_download,
-        file_map=file_map,
     )
 
     # Add ManufactureYear to metadata
@@ -122,7 +119,6 @@ def to_raggedarray(
         rowsize_func=_rowsize,
         filename_pattern="drifter_6h_{id}.nc",
         tmp_path=tmp_path,
-        local_file_map=file_map,
     )
 
     # update dynamic global attributes
@@ -142,7 +138,6 @@ def download(
     drifter_ids: list[int] | None = None,
     n_random_id: int | None = None,
     skip_download: bool = False,
-    file_map: dict[int, str] | None = None,
 ):
     """Download individual NetCDF files from the AOML server.
 
@@ -158,11 +153,8 @@ def download(
     n_random_id : int
         Randomly select n_random_id drifter IDs to download (Default: None)
     skip_download : bool, optional
-        If True, skip network access and return IDs from local files in
-        ``tmp_path``.
-    file_map : dict, optional
-        Pre-built map of drifter ID to local file path. When provided with
-        ``skip_download=True``, avoids a redundant directory scan.
+        If True, skip re-downloading files that already exist in ``tmp_path``
+        (passes through to :func:`download_with_progress`).
 
     Returns
     -------
@@ -170,12 +162,6 @@ def download(
         List of retrieved drifters
     """
     os.makedirs(tmp_path, exist_ok=True)
-
-    if skip_download:
-        print(f"Using local GDP 6-hourly files from {tmp_path}...")
-        if file_map is None:
-            file_map = _get_local_file_map(tmp_path)
-        return _get_local_drifter_ids(file_map, tmp_path, drifter_ids, n_random_id)
 
     print(f"Downloading GDP 6-hourly data to {tmp_path}...")
 
@@ -203,10 +189,11 @@ def download(
         drifter_urls = _subsample(drifter_urls, n_random_id)
 
     download_with_progress(
-        [(u, os.path.join(tmp_path, os.path.basename(u))) for u in drifter_urls]
+        [(u, os.path.join(tmp_path, os.path.basename(u))) for u in drifter_urls],
+        skip_download=skip_download,
     )
 
-    gdp_metadata = gdp.get_gdp_metadata(tmp_path)
+    gdp_metadata = gdp.get_gdp_metadata(tmp_path, skip_download=skip_download)
     downloaded_ids = [
         int(os.path.basename(f).split("_")[2].split(".")[0]) for f in drifter_urls
     ]
@@ -224,92 +211,7 @@ def _subsample(items: list, n: int) -> list:
     return list(rng.choice(items, n, replace=False))
 
 
-def _get_local_drifter_ids(
-    file_map: dict[int, str],
-    tmp_path: str,
-    drifter_ids: list[int] | None = None,
-    n_random_id: int | None = None,
-) -> list[int]:
-    available_ids = sorted(file_map)
-
-    if not available_ids:
-        raise FileNotFoundError(
-            f"No local GDP 6-hourly NetCDF files found in {tmp_path}. "
-            + "Expected files named drifter_6h_<id>.nc."
-        )
-
-    if drifter_ids is not None:
-        available_id_set = set(available_ids)
-        missing_ids = [did for did in drifter_ids if did not in available_id_set]
-        if missing_ids:
-            raise FileNotFoundError(
-                "The following requested GDP 6-hourly files were not found in "
-                + f"{tmp_path}: {missing_ids}"
-            )
-        selected_ids = drifter_ids.copy()
-    else:
-        selected_ids = available_ids
-
-    if n_random_id:
-        selected_ids = sorted(_subsample(selected_ids, n_random_id))
-
-    try:
-        local_metadata = gdp.get_gdp_metadata(tmp_path, local_only=True)
-    except RuntimeError as exc:
-        if "local metadata" not in str(exc).lower():
-            raise
-        warnings.warn(
-            "No local GDP metadata files were found; falling back to "
-            + "deterministic local file ordering."
-        )
-        return selected_ids
-    ordered_ids = [int(i) for i in gdp.order_by_date(local_metadata, selected_ids)]
-    ordered_id_set = set(ordered_ids)
-    missing_ids = [did for did in selected_ids if did not in ordered_id_set]
-    if missing_ids:
-        warnings.warn(
-            "Some selected drifter IDs are missing from local metadata; "
-            + f"appending them in input order: {missing_ids}"
-        )
-        ordered_ids.extend(missing_ids)
-
-    return ordered_ids
-
-
-def _get_local_file_map(tmp_path: str) -> dict[int, str]:
-    pattern = re.compile(r"drifter_6h_(\d+)\.nc$")
-    file_map: dict[int, str] = {}
-
-    for root, subdirs, filenames in os.walk(tmp_path):
-        subdirs.sort()
-        for filename in sorted(filenames):
-            match = pattern.fullmatch(filename)
-            if match is None:
-                continue
-
-            drifter_id = int(match.group(1))
-            full_path = os.path.join(root, filename)
-            if drifter_id in file_map:
-                warnings.warn(
-                    f"Duplicate local GDP 6-hourly file for drifter {drifter_id}: "
-                    + f"keeping {file_map[drifter_id]}, ignoring {full_path}"
-                )
-                continue
-            file_map[drifter_id] = full_path
-
-    return file_map
-
-
 def _resolve_drifter_path(index: int, **kwargs) -> str:
-    local_file_map = kwargs.get("local_file_map")
-    if local_file_map is not None:
-        try:
-            return local_file_map[index]
-        except KeyError as exc:
-            raise FileNotFoundError(
-                f"Could not find local GDP 6-hourly file for drifter {index}."
-            ) from exc
-
     return os.path.join(kwargs["tmp_path"], kwargs["filename_pattern"].format(id=index))
 
 

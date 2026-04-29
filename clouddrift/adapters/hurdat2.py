@@ -358,12 +358,13 @@ def to_raggedarray(
     basin: _BasinOption = "both",
     tmp_path: str = _DEFAULT_FILE_PATH,
     convert: bool = True,
+    skip_download: bool = False,
 ) -> RaggedArray:
     os.makedirs(
         tmp_path, exist_ok=True
     )  # generate temp directory for hurdat related intermerdiary data
     download_requests = _get_download_requests(basin, tmp_path)
-    download_with_progress(download_requests)
+    download_with_progress(download_requests, skip_download=skip_download)
     track_data = list()
 
     for _, fp, _ in download_requests:

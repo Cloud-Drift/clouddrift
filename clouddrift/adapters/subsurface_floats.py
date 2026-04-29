@@ -33,19 +33,22 @@ SUBSURFACE_FLOATS_TMP_PATH = os.path.join(
 )
 
 
-def download(file: str):
-    download_with_progress([(SUBSURFACE_FLOATS_DATA_URL, file)])
+def download(file: str, skip_download: bool = False):
+    download_with_progress(
+        [(SUBSURFACE_FLOATS_DATA_URL, file)], skip_download=skip_download
+    )
 
 
 def to_xarray(
     tmp_path: str | None = None,
+    skip_download: bool = False,
 ):
     if tmp_path is None:
         tmp_path = SUBSURFACE_FLOATS_TMP_PATH
         os.makedirs(tmp_path, exist_ok=True)
 
     local_file = f"{tmp_path}/{SUBSURFACE_FLOATS_DATA_URL.split('/')[-1]}"
-    download(local_file)
+    download(local_file, skip_download=skip_download)
     source_data = scipy.io.loadmat(local_file)
 
     # metadata

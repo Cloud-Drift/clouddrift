@@ -34,14 +34,14 @@ ANDRO_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "andro")
 ANDRO_VERSION = "2026-04"
 
 
-def to_xarray(tmp_path: str | None = None):
+def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
     if tmp_path is None:
         tmp_path = ANDRO_TMP_PATH
         os.makedirs(tmp_path, exist_ok=True)
 
     # get or update dataset
     local_file = f"{tmp_path}/{ANDRO_URL.split('/')[-1]}"
-    download_with_progress([(ANDRO_URL, local_file)])
+    download_with_progress([(ANDRO_URL, local_file)], skip_download=skip_download)
 
     # parse with panda
     col_names = [

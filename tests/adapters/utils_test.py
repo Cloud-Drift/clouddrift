@@ -161,6 +161,34 @@ class utils_tests(unittest.TestCase):
                 [call(b"a"), call(b"b"), call(b"c"), call(b"d")]
             )
 
+    def test_skip_download_skips_existing_file(self):
+        with patch("clouddrift.adapters.utils.os.path.exists", Mock(return_value=True)):
+            utils._download_with_progress(
+                "some.url.com", "output.file", 0, False, skip_download=True
+            )
+
+            self.requests_mock.head.assert_not_called()
+            self.requests_mock.get.assert_not_called()
+
+    def test_skip_download_downloads_missing_file(self):
+        with MultiPatcher(
+            [
+                patch(
+                    "clouddrift.adapters.utils.os.path.exists", Mock(return_value=False)
+                ),
+                patch(
+                    "clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)
+                ),
+                patch("clouddrift.adapters.utils.os.remove", Mock()),
+                patch("clouddrift.adapters.utils.os.rename", Mock()),
+            ]
+        ):
+            utils._download_with_progress(
+                "some.url.com", "output.file", 0, False, skip_download=True
+            )
+
+            self.requests_mock.get.assert_called_once()
+
     def test_head_failure_does_not_raise_unboundlocal_and_still_downloads(self):
         with MultiPatcher(
             [

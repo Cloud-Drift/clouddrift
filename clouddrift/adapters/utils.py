@@ -68,6 +68,7 @@ def download_with_progress(
     show_list_progress: bool | None = None,
     desc: str = "Downloading files",
     custom_retry_protocol: Callable[[WrappedFn], WrappedFn] | None = None,
+    skip_download: bool = False,
 ):
     if show_list_progress is None:
         show_list_progress = len(download_map) > 20
@@ -97,6 +98,7 @@ def download_with_progress(
                 dst,
                 exp_size,
                 not show_list_progress,
+                skip_download,
             )
         ] = (src, dst)
 
@@ -143,7 +145,12 @@ def _download_with_progress(
     output: str | BufferedIOBase,
     expected_size: float | None,
     show_progress: bool,
+    skip_download: bool = False,
 ):
+    if skip_download and isinstance(output, str) and os.path.exists(output):
+        _logger.debug(f"skip_download=True: {output} assumed up to date; skipping.")
+        return
+
     if isinstance(output, str) and os.path.exists(output):
         _logger.debug(f"File exists {output} checking for updates...")
         local_last_modified = os.path.getmtime(output)

@@ -62,3 +62,35 @@ class gdp_common_tests(unittest.TestCase):
             "dirfl_15001_current.dat",
         ]
         assert df.ID.tolist() == [2, 1]
+
+    def test_get_gdp_metadata_skip_download_uses_local_files(self):
+        import os
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp_path:
+            for name in ["dirfl_1_5000.dat", "dirfl_5001_current.dat"]:
+                open(os.path.join(tmp_path, name), "w").close()
+
+            with (
+                patch(
+                    "clouddrift.adapters.gdp._list_gdp_directory_files",
+                ) as list_mock,
+                patch(
+                    "clouddrift.adapters.gdp.parse_directory_file",
+                    Mock(
+                        side_effect=[
+                            pd.DataFrame(
+                                {"ID": [1], "Start_date": [pd.Timestamp("2020-01-02")]}
+                            ),
+                            pd.DataFrame(
+                                {"ID": [2], "Start_date": [pd.Timestamp("2020-01-01")]}
+                            ),
+                        ]
+                    ),
+                ) as parse_mock,
+            ):
+                df = gdp.get_gdp_metadata(tmp_path=tmp_path, skip_download=True)
+
+        list_mock.assert_not_called()
+        assert parse_mock.call_count == 2
+        assert df.ID.tolist() == [2, 1]

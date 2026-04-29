@@ -44,11 +44,11 @@ YOMAHA_URLS = [
 YOMAHA_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "yomaha")
 
 
-def download(tmp_path: str):
+def download(tmp_path: str, skip_download: bool = False):
     download_requests = [
         (url, f"{tmp_path}/{url.split('/')[-1]}") for url in YOMAHA_URLS[:-1]
     ]
-    download_with_progress(download_requests)
+    download_with_progress(download_requests, skip_download=skip_download)
 
     filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
     filename = filename_gz.removesuffix(".gz")
@@ -66,13 +66,13 @@ def download(tmp_path: str):
         shutil.copyfileobj(compressed_file, file)
 
 
-def to_xarray(tmp_path: str | None = None):
+def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
     if tmp_path is None:
         tmp_path = YOMAHA_TMP_PATH
         os.makedirs(tmp_path, exist_ok=True)
 
     # get or update required files
-    download(tmp_path)
+    download(tmp_path, skip_download=skip_download)
 
     # database last update
     with open(f"{tmp_path}/{YOMAHA_URLS[2].split('/')[-1]}") as f:
