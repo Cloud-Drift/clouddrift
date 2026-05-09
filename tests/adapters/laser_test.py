@@ -42,16 +42,19 @@ class laser_tests(TestCase):
         ):
             df = laser.get_dataframe()
 
-        self.assertEqual(list(df.columns), [
-            "id",
-            "latitude",
-            "longitude",
-            "position_error",
-            "u",
-            "v",
-            "velocity_error",
-            "obs",
-        ])
+        self.assertEqual(
+            list(df.columns),
+            [
+                "id",
+                "latitude",
+                "longitude",
+                "position_error",
+                "u",
+                "v",
+                "velocity_error",
+                "obs",
+            ],
+        )
         self.assertEqual(df["id"].tolist(), ["L_0001", "L_0001", "L_0002"])
         self.assertEqual(df["obs"].dt.year.tolist(), [2016, 2016, 2016])
 

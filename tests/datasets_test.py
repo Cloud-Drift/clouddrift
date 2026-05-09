@@ -82,7 +82,9 @@ class datasets_tests(testutils.DisableProgressTestCase):
             self.assertTrue(mean_lon.size == 2)
 
     def test_laser_uses_expected_cache_file(self):
-        expected = xr.Dataset({"rowsize": ("traj", np.array([1]))}, coords={"id": ["L_0004"]})
+        expected = xr.Dataset(
+            {"rowsize": ("traj", np.array([1]))}, coords={"id": ["L_0004"]}
+        )
         filecache = Mock(return_value=expected)
 
         with patch("clouddrift.datasets._dataset_filecache", filecache):
