@@ -161,6 +161,58 @@ class utils_tests(unittest.TestCase):
                 [call(b"a"), call(b"b"), call(b"c"), call(b"d")]
             )
 
+    def test_skip_download_skips_existing_file(self):
+        with patch("clouddrift.adapters.utils.os.path.exists", Mock(return_value=True)):
+            utils._download_with_progress(
+                "some.url.com", "output.file", 0, False, skip_download=True
+            )
+
+            self.requests_mock.head.assert_not_called()
+            self.requests_mock.get.assert_not_called()
+
+    def test_skip_download_downloads_missing_file(self):
+        with MultiPatcher(
+            [
+                patch(
+                    "clouddrift.adapters.utils.os.path.exists", Mock(return_value=False)
+                ),
+                patch(
+                    "clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)
+                ),
+                patch("clouddrift.adapters.utils.os.remove", Mock()),
+                patch("clouddrift.adapters.utils.os.rename", Mock()),
+            ]
+        ):
+            utils._download_with_progress(
+                "some.url.com", "output.file", 0, False, skip_download=True
+            )
+
+            self.requests_mock.get.assert_called_once()
+
+    def test_head_failure_raises_exception_without_downloading(self):
+        with MultiPatcher(
+            [
+                patch(
+                    "clouddrift.adapters.utils.os.path.exists", Mock(return_value=True)
+                ),
+                patch(
+                    "clouddrift.adapters.utils.os.path.getmtime", Mock(return_value=0)
+                ),
+                patch(
+                    "clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)
+                ),
+                patch("clouddrift.adapters.utils.os.remove", Mock()),
+                patch("clouddrift.adapters.utils.os.rename", Mock()),
+            ]
+        ):
+            self.requests_mock.head.side_effect = RequestException("head failure")
+
+            output_file = "output.file"
+            with self.assertRaises(RequestException):
+                utils._download_with_progress("some.url.com", output_file, 0, False)
+
+            self.requests_mock.get.assert_not_called()
+
     def test_progress_mechanism_disabled_files(self):
         """
         Ensure we don't show progress for the list of files when number of files is less than 20 and user

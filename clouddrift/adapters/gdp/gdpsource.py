@@ -288,8 +288,7 @@ def to_raggedarray(
         requests = [requests[max]]
 
     # Download necessary data and metadata files.
-    if not skip_download:
-        download_with_progress(requests)
+    download_with_progress(requests, skip_download=skip_download)
 
     gdp_metadata_df = get_gdp_metadata(tmp_path)
 

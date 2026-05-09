@@ -32,7 +32,10 @@ _Kind: TypeAlias = (
 
 
 def to_raggedarray(
-    version: _Version, kind: _Kind, tmp_path: str = _DEFAULT_FILE_PATH
+    version: _Version,
+    kind: _Kind,
+    tmp_path: str = _DEFAULT_FILE_PATH,
+    skip_download: bool = False,
 ) -> xr.Dataset:
     """Returns International Best Track Archive for Climate Stewardship (IBTrACS) as a ragged array xarray dataset.
 
@@ -47,13 +50,16 @@ def to_raggedarray(
         and operations. Default is "LAST_3_YEARS".
     tmp_path: str, default adapter temp path (default)
         Temporary path where intermediary files are stored. Default is ${osSpecificTempFileLocation}/clouddrift/ibtracs/.
+    skip_download : bool, optional
+        If True, skip re-downloading the dataset file if it already exists in
+        ``tmp_path``. Default is False.
 
     Returns
     -------
     xarray.Dataset
         IBTRACS dataset as a ragged array.
     """
-    ds = _get_original_dataset(version, kind, tmp_path)
+    ds = _get_original_dataset(version, kind, tmp_path, skip_download=skip_download)
     ds = ds.rename_dims({"date_time": "obs"})
 
     vars = list[Hashable]()
@@ -99,14 +105,17 @@ def to_raggedarray(
 
 
 def _get_original_dataset(
-    version: _Version, kind: _Kind, tmp_path: str = _DEFAULT_FILE_PATH
+    version: _Version,
+    kind: _Kind,
+    tmp_path: str = _DEFAULT_FILE_PATH,
+    skip_download: bool = False,
 ) -> xr.Dataset:
     os.makedirs(tmp_path, exist_ok=True)
     src_url = _get_source_url(version, kind)
 
     filename = src_url.split("/")[-1]
     dst_path = os.path.join(tmp_path, filename)
-    download_with_progress([(src_url, dst_path)])
+    download_with_progress([(src_url, dst_path)], skip_download=skip_download)
 
     return xr.open_dataset(dst_path, engine="netcdf4")
 
