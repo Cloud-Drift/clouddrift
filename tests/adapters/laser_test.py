@@ -1,3 +1,5 @@
+import os
+import tempfile
 from io import BytesIO
 from unittest import TestCase
 from unittest.mock import patch
@@ -31,16 +33,22 @@ def _build_test_archive() -> bytes:
 
 
 class laser_tests(TestCase):
-    def _mock_download(self, download_map):
-        _, buffer = download_map[0]
-        buffer.write(_build_test_archive())
+    def _mock_download(self, download_map, **_kwargs):
+        _, output = download_map[0]
+        if isinstance(output, str):
+            os.makedirs(os.path.dirname(output), exist_ok=True)
+            with open(output, "wb") as f:
+                f.write(_build_test_archive())
+        else:
+            output.write(_build_test_archive())
 
     def test_get_dataframe_parses_archive_and_sorts_rows(self):
+        tmp_path = tempfile.mkdtemp()
         with patch(
             "clouddrift.adapters.laser.download_with_progress",
             side_effect=self._mock_download,
         ):
-            df = laser.get_dataframe()
+            df = laser.get_dataframe(tmp_path=tmp_path)
 
         self.assertEqual(
             list(df.columns),
@@ -59,11 +67,12 @@ class laser_tests(TestCase):
         self.assertEqual(df["obs"].dt.year.tolist(), [2016, 2016, 2016])
 
     def test_to_xarray_returns_ragged_dataset(self):
+        tmp_path = tempfile.mkdtemp()
         with patch(
             "clouddrift.adapters.laser.download_with_progress",
             side_effect=self._mock_download,
         ):
-            ds = laser.to_xarray()
+            ds = laser.to_xarray(tmp_path=tmp_path)
 
         self.assertEqual(ds.sizes["traj"], 2)
         self.assertEqual(ds.sizes["obs"], 3)
@@ -73,3 +82,14 @@ class laser_tests(TestCase):
         self.assertEqual(ds["latitude"].dtype, np.float32)
         self.assertEqual(ds["longitude"].dtype, np.float32)
         self.assertEqual(ds.attrs["title"], laser._DATASET_TITLE)
+
+    def test_get_dataframe_forwards_skip_download(self):
+        tmp_path = tempfile.mkdtemp()
+
+        with patch(
+            "clouddrift.adapters.laser.download_with_progress",
+            side_effect=self._mock_download,
+        ) as download_mock:
+            laser.get_dataframe(tmp_path=tmp_path, skip_download=True)
+
+        self.assertTrue(download_mock.call_args.kwargs["skip_download"])

@@ -18,7 +18,8 @@ Harte Research Institute, Texas A&M University-Corpus Christi.
 https://doi.org/10.7266/N7W0940J
 """
 
-from io import BytesIO
+import os
+import tempfile
 from zipfile import ZipFile
 
 import numpy as np
@@ -34,6 +35,8 @@ _DATASET_TITLE = (
 _DATASET_PAGE = "https://data.griidc.org/data/R4.x265.237:0001"
 _DOWNLOAD_URL = "https://data.griidc.org/api/datasets/zip/2101"
 _DATA_FILENAME = "laser_spot_drifters_clean_v15.dat"
+LASER_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "laser")
+_LOCAL_ARCHIVE_NAME = "laser_surface_drifters.zip"
 
 
 def _open_datafile(archive: ZipFile):
@@ -46,11 +49,27 @@ def _open_datafile(archive: ZipFile):
     )
 
 
-def get_dataframe() -> pd.DataFrame:
-    """Get the LASER dataset as a pandas DataFrame."""
-    buf = BytesIO(b"")
-    download_with_progress([(_DOWNLOAD_URL, buf)])
-    buf.seek(0)
+def get_dataframe(
+    tmp_path: str | None = None,
+    skip_download: bool = False,
+) -> pd.DataFrame:
+    """Get the LASER dataset as a pandas DataFrame.
+
+    Parameters
+    ----------
+    tmp_path : str, optional
+        Temporary path where intermediary files are stored. If None, uses the
+        default LASER adapter temp path.
+    skip_download : bool, optional
+        If True, skip re-downloading the archive if it already exists in
+        ``tmp_path``. Default is False.
+    """
+    if tmp_path is None:
+        tmp_path = LASER_TMP_PATH
+    os.makedirs(tmp_path, exist_ok=True)
+
+    local_zip = os.path.join(tmp_path, _LOCAL_ARCHIVE_NAME)
+    download_with_progress([(_DOWNLOAD_URL, local_zip)], skip_download=skip_download)
 
     column_names = [
         "id",
@@ -64,7 +83,7 @@ def get_dataframe() -> pd.DataFrame:
         "velocity_error",
     ]
 
-    with ZipFile(buf) as archive:
+    with ZipFile(local_zip) as archive:
         with _open_datafile(archive) as data_file:
             df = pd.read_csv(
                 data_file,
@@ -78,9 +97,22 @@ def get_dataframe() -> pd.DataFrame:
     return df.sort_values(["id", "obs"], kind="stable").reset_index(drop=True)
 
 
-def to_xarray() -> xr.Dataset:
-    """Return the LASER dataset as a ragged-array Xarray Dataset."""
-    df = get_dataframe()
+def to_xarray(
+    tmp_path: str | None = None,
+    skip_download: bool = False,
+) -> xr.Dataset:
+    """Return the LASER dataset as a ragged-array Xarray Dataset.
+
+    Parameters
+    ----------
+    tmp_path : str, optional
+        Temporary path where intermediary files are stored. If None, uses the
+        default LASER adapter temp path.
+    skip_download : bool, optional
+        If True, skip re-downloading the archive if it already exists in
+        ``tmp_path``. Default is False.
+    """
+    df = get_dataframe(tmp_path=tmp_path, skip_download=skip_download)
     ds = df.to_xarray()
 
     traj, rowsize = np.unique(ds.id, return_counts=True)
