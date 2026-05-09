@@ -1,6 +1,7 @@
+from unittest.mock import Mock, patch
+
 import numpy as np
 import xarray as xr
-from unittest.mock import Mock, patch
 
 import tests.utils as testutils
 from clouddrift import adapters, datasets
