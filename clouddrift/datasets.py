@@ -297,6 +297,43 @@ def glad(decode_times: bool = True, version: GLAD_VERSIONS = "qc2") -> xr.Datase
     )
 
 
+def laser(decode_times: bool = True) -> xr.Dataset:
+    """Returns the LASER surface drifter dataset as a ragged array Xarray dataset.
+
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access.
+
+    The upstream data is available at https://doi.org/10.7266/N7W0940J.
+
+    Parameters
+    ----------
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
+
+    Returns
+    -------
+    xarray.Dataset
+        LASER dataset as a ragged array
+
+    Examples
+    --------
+    >>> from clouddrift.datasets import laser
+    >>> ds = laser()
+
+    Reference
+    ---------
+    Eric D'Asaro, Cedric Guigand, Angelique Haza, Helga Huntley, Guillaume Novelli,
+    Tamay Ozgokmen, Ed Ryan. 2017. Lagrangian Submesoscale Experiment (LASER)
+    surface drifters, interpolated to 15-minute intervals. Distributed by: GRIIDC,
+    Harte Research Institute, Texas A&M University-Corpus Christi.
+    https://doi.org/10.7266/N7W0940J
+    """
+    return _dataset_filecache("laser.nc", decode_times, adapters.laser.to_xarray)
+
+
 def hurdat2(
     basin: _BasinOption = "both",
     decode_times: bool = True,
