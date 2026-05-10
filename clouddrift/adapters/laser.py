@@ -112,6 +112,12 @@ def _dataframe_to_raggedarray(df: pd.DataFrame) -> RaggedArray:
     attrs_variables = {
         "id": {
             "long_name": "trajectory identifier",
+            "comment": (
+                "String ID encoding drogue status and continuity. "
+                "Prefix 'L'/'M': drogued (original/cut continuation); "
+                "prefix 'U'/'V': undrogued (original/cut continuation). "
+                "Trajectories sharing the same integer number are from the same drifter."
+            ),
         },
         "time": {
             "long_name": "time",
