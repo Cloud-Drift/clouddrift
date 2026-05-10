@@ -331,7 +331,11 @@ def laser(decode_times: bool = True) -> xr.Dataset:
     Harte Research Institute, Texas A&M University-Corpus Christi.
     https://doi.org/10.7266/N7W0940J
     """
-    return _dataset_filecache("laser.nc", decode_times, adapters.laser.to_xarray)
+    return _dataset_filecache(
+        "laser.nc",
+        decode_times,
+        lambda: adapters.laser.to_raggedarray().to_xarray(),
+    )
 
 
 def hurdat2(

@@ -8,6 +8,7 @@ from zipfile import ZipFile
 import numpy as np
 
 from clouddrift.adapters import laser
+from clouddrift.raggedarray import RaggedArray
 
 
 def _build_test_archive() -> bytes:
@@ -66,13 +67,14 @@ class laser_tests(TestCase):
         self.assertEqual(df["id"].tolist(), ["L_0001", "L_0001", "L_0002"])
         self.assertEqual(df["obs"].dt.year.tolist(), [2016, 2016, 2016])
 
-    def test_to_xarray_returns_ragged_dataset(self):
+    def test_to_raggedarray_to_xarray_returns_ragged_dataset(self):
         tmp_path = tempfile.mkdtemp()
         with patch(
             "clouddrift.adapters.laser.download_with_progress",
             side_effect=self._mock_download,
         ):
-            ds = laser.to_xarray(tmp_path=tmp_path)
+            ra = laser.to_raggedarray(tmp_path=tmp_path)
+            ds = ra.to_xarray()
 
         self.assertEqual(ds.sizes["traj"], 2)
         self.assertEqual(ds.sizes["obs"], 3)
@@ -93,3 +95,16 @@ class laser_tests(TestCase):
             laser.get_dataframe(tmp_path=tmp_path, skip_download=True)
 
         self.assertTrue(download_mock.call_args.kwargs["skip_download"])
+
+    def test_to_raggedarray_returns_raggedarray(self):
+        tmp_path = tempfile.mkdtemp()
+        with patch(
+            "clouddrift.adapters.laser.download_with_progress",
+            side_effect=self._mock_download,
+        ):
+            ra = laser.to_raggedarray(tmp_path=tmp_path)
+
+        self.assertIsInstance(ra, RaggedArray)
+        self.assertEqual(ra.coords["id"].size, 2)
+        self.assertEqual(ra.coords["time"].size, 3)
+        self.assertTrue(np.array_equal(ra.metadata["rowsize"], np.array([2, 1])))

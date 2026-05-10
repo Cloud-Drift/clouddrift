@@ -94,7 +94,7 @@ class datasets_tests(testutils.DisableProgressTestCase):
         self.assertIs(ds, expected)
         self.assertEqual(filecache.call_args.args[0], "laser.nc")
         self.assertFalse(filecache.call_args.args[1])
-        self.assertIs(filecache.call_args.args[2], adapters.laser.to_xarray)
+        self.assertTrue(callable(filecache.call_args.args[2]))
 
     def test_spotters_opens(self):
         with datasets.spotters() as ds:
