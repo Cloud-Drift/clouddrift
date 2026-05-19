@@ -99,7 +99,8 @@ def get_dataframe(
 
 
 def _dataframe_to_raggedarray(df: pd.DataFrame) -> RaggedArray:
-    traj, rowsize = np.unique(df["id"].values, return_counts=True)
+    ids = df["id"].to_numpy()
+    traj, rowsize = np.unique(ids, return_counts=True)
 
     attrs_global = {
         "title": _DATASET_TITLE,
