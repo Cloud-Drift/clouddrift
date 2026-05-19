@@ -1,4 +1,3 @@
-
 """
 This module defines functions used to adapt the ANDRO: An Argo-based
 deep displacement dataset as a ragged-arrays dataset.
@@ -26,7 +25,6 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
-
 from clouddrift.adapters.utils import download_with_progress
 from clouddrift.raggedarray import RaggedArray
 
@@ -36,8 +34,9 @@ ANDRO_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "andro")
 ANDRO_VERSION = "2026-04"
 
 
-
-def to_raggedarray(tmp_path: str | None = None, skip_download: bool = False) -> RaggedArray:
+def to_raggedarray(
+    tmp_path: str | None = None, skip_download: bool = False
+) -> RaggedArray:
     """Return the ANDRO dataset as a RaggedArray instance.
 
     Parameters
