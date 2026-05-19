@@ -326,9 +326,17 @@ def to_raggedarray(tmp_path: str | None = None, skip_download: bool = False) -> 
     # Only keep columns that are in the DataFrame
     data_vars = {k: df[k].to_numpy() for k in df.columns if k != "id"}
 
+    # Extract time coordinates from data_vars
+    time_coords = {}
+    time_coord_names = ["time_d", "time_s", "time_lp", "time_lc", "time_fc"]
+    for name in time_coord_names:
+        if name in data_vars:
+            time_coords[name] = data_vars.pop(name)
+
     return RaggedArray(
         coords={
             "id": traj,
+            **time_coords,
         },
         metadata={
             "rowsize": rowsize.astype("int64"),
@@ -337,7 +345,10 @@ def to_raggedarray(tmp_path: str | None = None, skip_download: bool = False) -> 
         attrs_global=attrs_global,
         attrs_variables=attrs_variables,
         name_dims={"traj": "rows", "obs": "obs"},
-        coord_dims={"id": "traj"},
+        coord_dims={
+            "id": "traj",
+            **{name: "obs" for name in time_coords.keys()},
+        },
         var_dims={
             "rowsize": ["traj"],
             **{k: ["obs"] for k in data_vars.keys()},
