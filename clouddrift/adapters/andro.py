@@ -1,3 +1,4 @@
+
 """
 This module defines functions used to adapt the ANDRO: An Argo-based
 deep displacement dataset as a ragged-arrays dataset.
@@ -8,7 +9,8 @@ is available at https://archimer.ifremer.fr/doc/00360/47126/.
 Example
 -------
 >>> from clouddrift.adapters import andro
->>> ds = andro.to_xarray()
+>>> ra = andro.to_raggedarray()
+>>> ds = ra.to_xarray()
 
 Reference
 ---------
@@ -19,14 +21,14 @@ SEANOE. https://doi.org/10.17882/47077
 
 import os
 import tempfile
-import warnings
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
-import xarray as xr
+
 
 from clouddrift.adapters.utils import download_with_progress
+from clouddrift.raggedarray import RaggedArray
 
 # order of the URLs is important
 ANDRO_URL = "https://www.seanoe.org/data/00360/47077/data/127690.zip"
@@ -34,22 +36,16 @@ ANDRO_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "andro")
 ANDRO_VERSION = "2026-04"
 
 
-def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
-    """Convert the ANDRO dataset to an xarray Dataset.
+
+def to_raggedarray(tmp_path: str | None = None, skip_download: bool = False) -> RaggedArray:
+    """Return the ANDRO dataset as a RaggedArray instance.
 
     Parameters
     ----------
     tmp_path : str, optional
-        Path where the dataset file is cached. Defaults to a platform-specific
-        temporary directory.
+        Path where the dataset file is cached. Defaults to a platform-specific temporary directory.
     skip_download : bool, optional
-        If True, skip re-downloading the dataset file if it already exists in
-        ``tmp_path``. Default is False.
-
-    Returns
-    -------
-    xarray.Dataset
-        ANDRO dataset as a ragged array.
+        If True, skip re-downloading the dataset file if it already exists in ``tmp_path``. Default is False.
     """
     if tmp_path is None:
         tmp_path = ANDRO_TMP_PATH
@@ -59,7 +55,7 @@ def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
     local_file = f"{tmp_path}/{ANDRO_URL.split('/')[-1]}"
     download_with_progress([(ANDRO_URL, local_file)], skip_download=skip_download)
 
-    # parse with panda
+    # parse with pandas
     col_names = [
         # depth
         "lon_d",
@@ -155,40 +151,24 @@ def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
         na_values=na_col,  # type: ignore
     )
 
-    # convert to an Xarray Dataset
-    ds = xr.Dataset.from_dataframe(df)
+    ids = df["id"].to_numpy()
+    traj, rowsize = np.unique(ids, return_counts=True)
 
-    unique_id, rowsize = np.unique(ds["id"], return_counts=True)
+    attrs_global = {
+        "title": "ANDRO: An Argo-based deep displacement dataset (Quality controlled data)",
+        "history": f"Dataset updated on {ANDRO_VERSION}",
+        "date_created": datetime.now().isoformat(),
+        "publisher_name": "SEANOE (SEA scieNtific Open data Edition)",
+        "publisher_url": "https://www.seanoe.org/data/00360/47077/",
+        "license": "Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0/)",
+    }
 
-    ds = (
-        ds.rename_dims({"index": "obs"})
-        .assign({"id": ("traj", unique_id)})
-        .assign({"rowsize": ("traj", rowsize)})
-        .set_coords(["id", "time_d", "time_s", "time_lp", "time_lc", "time_lp"])
-        .drop_vars(["index"])
-    )
-
-    # Cast double floats to singles
-    double_vars = [
-        "lat_d",
-        "lon_d",
-        "lat_s",
-        "lon_s",
-        "lat_ls",
-        "lon_ls",
-        "lat_lp",
-        "lon_lp",
-        "lat_fc",
-        "lon_fc",
-        "lat_lc",
-        "lon_lc",
-    ]
-    for var in [v for v in ds.variables if v not in double_vars]:
-        if ds[var].dtype == "float64":
-            ds[var] = ds[var].astype("float32")
-
-    # define attributes
     vars_attrs = {
+        "rowsize": {
+            "long_name": "Number of observations for each trajectory",
+            "sample_dimension": "obs",
+            "units": "-",
+        },
         "lon_d": {
             "long_name": "Longitude of the location where the deep velocity is calculated",
             "units": "degrees_east",
@@ -339,22 +319,27 @@ def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
         },
     }
 
-    # global attributes
-    attrs = {
-        "title": "ANDRO: An Argo-based deep displacement dataset (Quality controlled data)",
-        "history": f"Dataset updated on {ANDRO_VERSION}",
-        "date_created": datetime.now().isoformat(),
-        "publisher_name": "SEANOE (SEA scieNtific Open data Edition)",
-        "publisher_url": "https://www.seanoe.org/data/00360/47077/",
-        "license": "Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0/)",
+    attrs_variables = {
+        k: v for k, v in vars_attrs.items() if k in df.columns or k in ["id", "rowsize"]
     }
 
-    # set attributes
-    for var in vars_attrs.keys():
-        if var in ds.keys():
-            ds[var].attrs = vars_attrs[var]
-        else:
-            warnings.warn(f"Variable {var} not found in upstream data; skipping.")
-    ds.attrs = attrs
+    # Only keep columns that are in the DataFrame
+    data_vars = {k: df[k].to_numpy() for k in df.columns if k != "id"}
 
-    return ds
+    return RaggedArray(
+        coords={
+            "id": traj,
+        },
+        metadata={
+            "rowsize": rowsize.astype("int64"),
+        },
+        data=data_vars,
+        attrs_global=attrs_global,
+        attrs_variables=attrs_variables,
+        name_dims={"traj": "rows", "obs": "obs"},
+        coord_dims={"id": "traj"},
+        var_dims={
+            "rowsize": ["traj"],
+            **{k: ["obs"] for k in data_vars.keys()},
+        },
+    )
