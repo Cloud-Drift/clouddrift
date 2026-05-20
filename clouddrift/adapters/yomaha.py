@@ -55,6 +55,9 @@ def download(tmp_path: str):
     download_with_progress([(YOMAHA_URLS[-1], buffer)])
 
     buffer.seek(0)
+    if not buffer.read(1):
+        raise ConnectionError(f"Got empty response from Yomaha data server (url={YOMAHA_URLS[-1]})")
+    buffer.seek(0)
 
     decompressed_fp = os.path.join(tmp_path, filename)
     with (
