@@ -2,6 +2,7 @@ import unittest
 import warnings
 
 import numpy as np
+import pytest
 from numpy.lib.scimath import sqrt
 from scipy.special import iv, kv  # type: ignore
 
@@ -725,6 +726,7 @@ class TransferFunctionTestGradient(unittest.TestCase):
     bld = 10 ** np.arange(np.log10(15.15), 5, 0.05)
     [delta_grid, bld_grid] = np.meshgrid(delta, bld)
 
+    @pytest.mark.filterwarnings("ignore:overflow encountered in tanh:RuntimeWarning")
     def test_gradient_ekman_case(self):
         # Test the gradient of the transfer function, no-slip
         omega = np.array([1e-4])
