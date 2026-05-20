@@ -103,8 +103,8 @@ class quicche_tests(unittest.TestCase):
         # Check dimensions
         self.assertIn("traj", ds.dims)
         self.assertIn("obs", ds.dims)
-        self.assertEqual(ds.dims["traj"], 2)  # Two drifters
-        self.assertEqual(ds.dims["obs"], 5)  # Five observations
+        self.assertEqual(ds.sizes["traj"], 2)  # Two drifters
+        self.assertEqual(ds.sizes["obs"], 5)  # Five observations
 
     def test_dataframe_to_ragged_xarray_coordinates(self):
         """Test ragged array has correct coordinates and data variables."""

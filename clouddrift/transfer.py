@@ -89,9 +89,7 @@ def apply_transfer_function(
 
     if callable(transfer_func):
         if dt is None:
-            raise ValueError(
-                "The `dt` argument must be provided when `transfer_func` is callable."
-            )
+            raise ValueError("The `dt` argument must be provided when `transfer_func` is callable.")
         omega = 2 * np.pi * np.fft.fftfreq(n, dt)
         G = transfer_func(omega)
     else:
@@ -103,9 +101,7 @@ def apply_transfer_function(
             )
         G = np.asarray(transfer_func)
         if G.shape != Xf.shape:
-            raise ValueError(
-                "Transfer function array must match the shape of input `x`."
-            )
+            raise ValueError("Transfer function array must match the shape of input `x`.")
 
     Yf = G * Xf
     y = np.fft.ifft(Yf)
@@ -115,9 +111,7 @@ def apply_transfer_function(
 
 def _epanechnikov_kernel(window_size):
     # Epanechnikov kernel: k(x) = 0.75 * (1 - x^2) for |x| <= 1
-    x = np.linspace(-1, 1, window_size + 2)[
-        1:-1
-    ]  # Exclude endpoints to avoid null weights
+    x = np.linspace(-1, 1, window_size + 2)[1:-1]  # Exclude endpoints to avoid null weights
     kernel = 0.75 * (1 - x**2)
     return kernel
 
@@ -223,9 +217,7 @@ def apply_sliding_transfer_function(
 
     if callable(transfer_func):
         if window_size is None:
-            raise ValueError(
-                "`window_size` must be provided when transfer_func is callable."
-            )
+            raise ValueError("`window_size` must be provided when transfer_func is callable.")
         if not isinstance(window_size, int) or window_size <= 0 or window_size > n:
             raise ValueError(
                 "`window_size` must be a positive integer no greater than the length of `x`."
@@ -264,22 +256,16 @@ def apply_sliding_transfer_function(
     elif kernel_str.startswith("u") or kernel_str == "":
         kernel_arr = np.ones(window_size)
     else:
-        raise ValueError(
-            "kernel must be 'uniform', 'epanechnikov', or their first letter."
-        )
+        raise ValueError("kernel must be 'uniform', 'epanechnikov', or their first letter.")
 
     # Extend x by half window_size at the beginning and end using mirror boundary condition
     before_window = window_size // 2
     after_window = window_size - before_window
-    before_mirror = (
-        x[1 : before_window + 1][::-1] if before_window > 0 else np.array([])
-    )
+    before_mirror = x[1 : before_window + 1][::-1] if before_window > 0 else np.array([])
     after_mirror = x[-after_window - 1 : -1][::-1] if after_window > 0 else np.array([])
     x_ = np.concatenate([before_mirror, x, after_mirror])
 
-    n_ = (
-        x_.size
-    )  # length of extended array is n + before_window + after_window = n + window_size
+    n_ = x_.size  # length of extended array is n + before_window + after_window = n + window_size
 
     # initialize arrays for results
     result_sum = np.zeros(n_, dtype=np.complex128)
@@ -301,9 +287,7 @@ def apply_sliding_transfer_function(
                 result_tmp = apply_transfer_function(x_tmp, transfer_func)
                 result[start // step, :] = result_tmp
             else:
-                raise ValueError(
-                    "`transfer_func` must be callable or a 1D numpy array."
-                )
+                raise ValueError("`transfer_func` must be callable or a 1D numpy array.")
         weighted_result_tmp = result_tmp * kernel_arr
         result_sum[start : start + window_size] += weighted_result_tmp
         result_weight[start : start + window_size] += kernel_arr
@@ -539,16 +523,10 @@ def wind_transfer(
     if boundary_condition == "no-slip" and method == "lilly" and mu == 0:
         with np.errstate(divide="ignore", invalid="ignore"):
             s = np.sign(cor_freq_) * np.sign(1 + omega_grid / cor_freq_)
-            Gamma = (
-                sqrt(2) * _rot(s * np.pi / 4) * sqrt(np.abs(1 + omega_grid / cor_freq_))
-            )
-            ddelta1 = (
-                (Gamma * (bld / delta) * np.tanh(Gamma * (bld / delta)) - 1) * G / delta
-            )
+            Gamma = sqrt(2) * _rot(s * np.pi / 4) * sqrt(np.abs(1 + omega_grid / cor_freq_))
+            ddelta1 = (Gamma * (bld / delta) * np.tanh(Gamma * (bld / delta)) - 1) * G / delta
 
-            numer = np.exp(Gamma * (-z_grid / delta)) + np.exp(
-                -Gamma * (2 * bld - z_grid) / delta
-            )
+            numer = np.exp(Gamma * (-z_grid / delta)) + np.exp(-Gamma * (2 * bld - z_grid) / delta)
             denom = 1 + np.exp(-Gamma * (2 * bld / delta))
             ddelta2 = (
                 -2
@@ -658,8 +636,7 @@ def _wind_transfer_no_slip(
                 # solution at inertial frequency
                 bool_idx = omega_grid == -coriolis_frequency
                 G[bool_idx] = 2 / (
-                    (density * np.abs(coriolis_frequency) * delta**2)
-                    * (bld - z_grid[bool_idx])
+                    (density * np.abs(coriolis_frequency) * delta**2) * (bld - z_grid[bool_idx])
                 )
 
             elif delta == 0:
@@ -736,9 +713,7 @@ def _wind_transfer_general_no_slip(
         )
 
     # inertial limit
-    G = _wind_transfer_inertiallimit(
-        G, omega, z, coriolis_frequency, delta, mu, bld, density
-    )
+    G = _wind_transfer_inertiallimit(G, omega, z, coriolis_frequency, delta, mu, bld, density)
 
     return G
 
@@ -813,9 +788,7 @@ def _wind_transfer_inertiallimit(
                 (1 + bld / zo) / (1 + z[bool_idx] / zo)
             )
         elif not np.isinf(bld) and np.isinf(zo):
-            G[bool_idx] = (2 / (density * np.abs(coriolis_freq) * delta**2)) * (
-                bld - z[bool_idx]
-            )
+            G[bool_idx] = (2 / (density * np.abs(coriolis_freq) * delta**2)) * (bld - z[bool_idx])
         else:
             G[bool_idx] = np.inf
 
@@ -1112,9 +1085,7 @@ def kvtilde(
     Compute the n-term expansion about the large-argument exponential behavior of the modified Bessel
     function of the second kind of real order (kv).
     """
-    z = np.asarray(
-        z, dtype=np.complex128
-    )  # Ensure z is an array for vectorized operations
+    z = np.asarray(z, dtype=np.complex128)  # Ensure z is an array for vectorized operations
     sizez = z.shape
     z = z.ravel()
 
@@ -1149,9 +1120,7 @@ def ivtilde(
     Compute the n-term expansion about the large-argument exponential behavior of the
     Modified Bessel function of the first kind of real order (iv).
     """
-    z = np.asarray(
-        z, dtype=np.complex128
-    )  # Ensure z is an array for vectorized operations
+    z = np.asarray(z, dtype=np.complex128)  # Ensure z is an array for vectorized operations
     sizez = z.shape
     z = z.ravel()
 
