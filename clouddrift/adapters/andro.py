@@ -48,7 +48,7 @@ def to_raggedarray(
     """
     if tmp_path is None:
         tmp_path = ANDRO_TMP_PATH
-        os.makedirs(tmp_path, exist_ok=True)
+    os.makedirs(tmp_path, exist_ok=True)
 
     # get or update dataset
     local_file = f"{tmp_path}/{ANDRO_URL.split('/')[-1]}"
@@ -322,8 +322,30 @@ def to_raggedarray(
         k: v for k, v in vars_attrs.items() if k in df.columns or k in ["id", "rowsize"]
     }
 
+    # Preserve historical dtype behavior: keep lon/lat in float64 and downcast
+    # other float64 variables to float32 to limit memory usage.
+    double_vars = {
+        "lat_d",
+        "lon_d",
+        "lat_s",
+        "lon_s",
+        "lat_ls",
+        "lon_ls",
+        "lat_lp",
+        "lon_lp",
+        "lat_fc",
+        "lon_fc",
+        "lat_lc",
+        "lon_lc",
+    }
+
     # Only keep columns that are in the DataFrame
-    data_vars = {k: df[k].to_numpy() for k in df.columns if k != "id"}
+    data_vars = {}
+    for k in [name for name in df.columns if name != "id"]:
+        values = df[k].to_numpy()
+        if values.dtype == np.float64 and k not in double_vars:
+            values = values.astype(np.float32)
+        data_vars[k] = values
 
     # Extract time coordinates from data_vars
     time_coords = {}
