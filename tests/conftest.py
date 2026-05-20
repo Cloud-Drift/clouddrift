@@ -9,6 +9,7 @@ _NETWORK_FAILURE_SIGNATURES = (
     "EOF occurred in violation of protocol",
     "ConnectTimeout",
     "ConnectionError",
+    "ClientResponseError",
     "EmptyDataError",
     "ParserError",
     "Name contains illegal characters",
