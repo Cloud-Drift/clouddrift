@@ -30,6 +30,6 @@ def pytest_runtest_makereport(item, call):
             rep.outcome = "skipped"
             rep.longrepr = (
                 str(item.fspath),
-                item.lineno,
+                getattr(item, "lineno", None) or 0,
                 f"Skipped: remote data source unavailable ({call.excinfo.value!r})",
             )
