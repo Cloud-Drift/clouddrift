@@ -55,10 +55,9 @@ def download(tmp_path: str, skip_download: bool = False):
     if not (skip_download and os.path.exists(decompressed_fp)):
         buffer = BytesIO()
         download_with_progress([(YOMAHA_URLS[-1], buffer)])
-        buffer.seek(0)
-        if not buffer.read(1):
+        if len(buffer.getvalue()) == 0:
             raise ConnectionError(
-                f"Got empty response from Yomaha data server (url={YOMAHA_URLS[-1]})"
+                f"Downloaded invalid data from Yomaha data server (url={YOMAHA_URLS[-1]})"
             )
         buffer.seek(0)
         with (

@@ -11,6 +11,7 @@ _NETWORK_FAILURE_SIGNATURES = (
     "ConnectionError",
     "ClientResponseError",
     "EmptyDataError",
+    "MatReadError",
     "ParserError",
     "Name contains illegal characters",
     "<?xml version=",

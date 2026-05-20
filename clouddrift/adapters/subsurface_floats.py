@@ -61,6 +61,10 @@ def to_xarray(
 
     local_file = f"{tmp_path}/{SUBSURFACE_FLOATS_DATA_URL.split('/')[-1]}"
     download(local_file, skip_download=skip_download)
+    if os.path.getsize(local_file) == 0:
+        raise ConnectionError(
+            f"Got empty response from subsurface floats server (url={SUBSURFACE_FLOATS_DATA_URL})"
+        )
     source_data = scipy.io.loadmat(local_file)
 
     # metadata
