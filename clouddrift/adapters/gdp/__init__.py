@@ -98,9 +98,7 @@ def cast_float64_variables_to_float32(
     return ds
 
 
-def parse_directory_file(
-    filename: str, tmp_path: str, skip_download: bool = False
-) -> pd.DataFrame:
+def parse_directory_file(filename: str, tmp_path: str, skip_download: bool = False) -> pd.DataFrame:
     """Read a GDP directory file that contains metadata of drifter releases.
 
     Parameters
@@ -120,9 +118,7 @@ def parse_directory_file(
     """
     path = os.path.join(tmp_path, filename)
     gdp_dir_url = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata"
-    download_with_progress(
-        [(f"{gdp_dir_url}/{filename}", path)], skip_download=skip_download
-    )
+    download_with_progress([(f"{gdp_dir_url}/{filename}", path)], skip_download=skip_download)
     df = pd.read_csv(path, delimiter=r"\s+", header=None)
     df[4] += " " + df[5]
     df[8] += " " + df[9]
@@ -180,17 +176,11 @@ def get_gdp_metadata(
             if match is None:
                 continue
             low = int(match.group(1))
-            high = (
-                int(match.group(2))
-                if match.group(2) != "current"
-                else np.iinfo(int).max
-            )
+            high = int(match.group(2)) if match.group(2) != "current" else np.iinfo(int).max
             metadata_files.append((low, high, filename))
 
         if not metadata_files:
-            raise RuntimeError(
-                f"No GDP metadata files (dirfl_*.dat) found in {tmp_path}."
-            )
+            raise RuntimeError(f"No GDP metadata files (dirfl_*.dat) found in {tmp_path}.")
 
         dfs = []
         for _, _, filename in sorted(metadata_files, key=lambda x: (x[0], x[1])):
@@ -209,8 +199,7 @@ def get_gdp_metadata(
         if not directory_files:
             raise RuntimeError("Could not discover GDP metadata directory files.")
         dfs = [
-            parse_directory_file(name, tmp_path, skip_download=False)
-            for name in directory_files
+            parse_directory_file(name, tmp_path, skip_download=False) for name in directory_files
         ]
 
     df = pd.concat(dfs)

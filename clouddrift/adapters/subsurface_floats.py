@@ -32,9 +32,7 @@ SUBSURFACE_FLOATS_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "
 
 
 def download(file: str, skip_download: bool = False):
-    download_with_progress(
-        [(SUBSURFACE_FLOATS_DATA_URL, file)], skip_download=skip_download
-    )
+    download_with_progress([(SUBSURFACE_FLOATS_DATA_URL, file)], skip_download=skip_download)
 
 
 def to_xarray(

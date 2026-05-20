@@ -155,12 +155,8 @@ class utils_tests(unittest.TestCase):
     def test_skip_download_downloads_missing_file(self):
         with MultiPatcher(
             [
-                patch(
-                    "clouddrift.adapters.utils.os.path.exists", Mock(return_value=False)
-                ),
-                patch(
-                    "clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)
-                ),
+                patch("clouddrift.adapters.utils.os.path.exists", Mock(return_value=False)),
+                patch("clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)),
                 patch("clouddrift.adapters.utils.os.remove", Mock()),
                 patch("clouddrift.adapters.utils.os.rename", Mock()),
             ]
@@ -174,15 +170,9 @@ class utils_tests(unittest.TestCase):
     def test_head_failure_raises_exception_without_downloading(self):
         with MultiPatcher(
             [
-                patch(
-                    "clouddrift.adapters.utils.os.path.exists", Mock(return_value=True)
-                ),
-                patch(
-                    "clouddrift.adapters.utils.os.path.getmtime", Mock(return_value=0)
-                ),
-                patch(
-                    "clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)
-                ),
+                patch("clouddrift.adapters.utils.os.path.exists", Mock(return_value=True)),
+                patch("clouddrift.adapters.utils.os.path.getmtime", Mock(return_value=0)),
+                patch("clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)),
                 patch("clouddrift.adapters.utils.os.remove", Mock()),
                 patch("clouddrift.adapters.utils.os.rename", Mock()),
             ]

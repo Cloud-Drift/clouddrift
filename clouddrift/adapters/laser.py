@@ -45,9 +45,7 @@ def _open_datafile(archive: ZipFile):
         if member == _DATA_FILENAME or member.endswith(f"/{_DATA_FILENAME}"):
             return archive.open(member)
 
-    raise FileNotFoundError(
-        f"Could not find '{_DATA_FILENAME}' in LASER dataset archive."
-    )
+    raise FileNotFoundError(f"Could not find '{_DATA_FILENAME}' in LASER dataset archive.")
 
 
 def get_dataframe(
