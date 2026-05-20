@@ -37,6 +37,7 @@ QUICCHE_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "quicche")
 def to_xarray(
     version: Literal["raw", "qc1", "qc2", "qc3"] = "qc3",
     tmp_path: str | None = None,
+    skip_download: bool = False,
 ) -> xr.Dataset:
     """
     Parse and convert QUICCHE CARTHE drifter data to an xarray Dataset.
@@ -52,6 +53,9 @@ def to_xarray(
     tmp_path : str, optional
         Temporary path where intermediary files are stored. If None, uses the default
         temp path defined in this module.
+    skip_download : bool, optional
+        If True, skip re-downloading the ZIP file if it already exists in
+        ``tmp_path``. Default is False.
 
     Returns
     -------
@@ -69,7 +73,7 @@ def to_xarray(
 
     # Download and extract zip file
     local_zip = f"{tmp_path}/CARTHE_Drifters_NSF_QUICCHE.zip"
-    download_with_progress([(QUICCHE_URL, local_zip)])
+    download_with_progress([(QUICCHE_URL, local_zip)], skip_download=skip_download)
 
     # Extract the requested QC file
     if version == "raw":

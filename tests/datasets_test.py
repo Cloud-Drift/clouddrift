@@ -1,4 +1,7 @@
+from unittest.mock import Mock, patch
+
 import numpy as np
+import xarray as xr
 
 import tests.utils as testutils
 from clouddrift import adapters, datasets
@@ -78,6 +81,20 @@ class datasets_tests(testutils.DisableProgressTestCase):
             self.assertTrue(ds_sub)
             mean_lon = apply_ragged(np.mean, [ds_sub.longitude], ds_sub.rowsize)
             self.assertTrue(mean_lon.size == 2)
+
+    def test_laser_uses_expected_cache_file(self):
+        expected = xr.Dataset(
+            {"rowsize": ("traj", np.array([1]))}, coords={"id": ["L_0004"]}
+        )
+        filecache = Mock(return_value=expected)
+
+        with patch("clouddrift.datasets._dataset_filecache", filecache):
+            ds = datasets.laser(decode_times=False)
+
+        self.assertIs(ds, expected)
+        self.assertEqual(filecache.call_args.args[0], "laser.nc")
+        self.assertFalse(filecache.call_args.args[1])
+        self.assertTrue(callable(filecache.call_args.args[2]))
 
     def test_spotters_opens(self):
         with datasets.spotters() as ds:
