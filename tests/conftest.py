@@ -1,7 +1,6 @@
 import pytest
 
 # Exception message fragments that indicate a transient remote-data failure
-# rather than a code bug. Keep in sync with datasets_test._is_transient_remote_failure.
 _NETWORK_FAILURE_SIGNATURES = (
     "SSLEOFError",
     "Max retries exceeded",

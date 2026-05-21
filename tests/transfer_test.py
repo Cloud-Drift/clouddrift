@@ -595,7 +595,6 @@ class TransferFunctionValues(unittest.TestCase):
             ]
         )
         Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
-        print(Gp[:, idx])
         self.assertTrue(np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True))
 
     def test_values_finite_bld_delta_is_zero(self):
