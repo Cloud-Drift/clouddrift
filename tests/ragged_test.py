@@ -74,9 +74,7 @@ def sample_ragged_array() -> RaggedArray:
                 {"long_name": f"variable {var}", "units": "-"},
             )
 
-        list_ds.append(
-            xr.Dataset(coords=xr_coords, data_vars=xr_data, attrs=attrs_global)
-        )
+        list_ds.append(xr.Dataset(coords=xr_coords, data_vars=xr_data, attrs=attrs_global))
 
     ra = RaggedArray.from_files(
         [0, 1, 2],
@@ -106,8 +104,7 @@ class chunk_tests(unittest.TestCase):
         # Simple chunk with trimming skipping the first point
         self.assertTrue(
             np.all(
-                chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, align="end")
-                == np.array([[3, 4, 5], [6, 7, 8]])
+                chunk([1, 2, 3, 4, 5, 6, 7, 8], 3, align="end") == np.array([[3, 4, 5], [6, 7, 8]])
             )
         )
 
@@ -130,8 +127,7 @@ class chunk_tests(unittest.TestCase):
         # Simple chunk with trimming skipping the first point with overlap
         self.assertTrue(
             np.all(
-                chunk(np.arange(1, 12), 4, align="middle")
-                == np.array([[2, 3, 4, 5], [6, 7, 8, 9]])
+                chunk(np.arange(1, 12), 4, align="middle") == np.array([[2, 3, 4, 5], [6, 7, 8, 9]])
             )
         )
 
@@ -156,10 +152,7 @@ class chunk_tests(unittest.TestCase):
     def test_chunk_overlap(self):
         # Simple chunk with overlap
         self.assertTrue(
-            np.all(
-                chunk([1, 2, 3, 4, 5], 2, 1)
-                == np.array([[1, 2], [2, 3], [3, 4], [4, 5]])
-            )
+            np.all(chunk([1, 2, 3, 4, 5], 2, 1) == np.array([[1, 2], [2, 3], [3, 4], [4, 5]]))
         )
 
         # Overlap larger than length raises ValueError
@@ -167,9 +160,7 @@ class chunk_tests(unittest.TestCase):
             chunk([1, 2, 3, 4, 5], 2, 3)
 
         # Negative overlap offsets chunks
-        self.assertTrue(
-            np.all(chunk([1, 2, 3, 4, 5], 2, -1) == np.array([[1, 2], [4, 5]]))
-        )
+        self.assertTrue(np.all(chunk([1, 2, 3, 4, 5], 2, -1) == np.array([[1, 2], [4, 5]])))
 
     def test_chunk_rowsize(self):
         # Simple chunk with rowsize
@@ -183,22 +174,16 @@ class chunk_tests(unittest.TestCase):
         # rowsize with overlap
         self.assertTrue(
             np.all(
-                apply_ragged(
-                    chunk, np.array([1, 2, 3, 4, 5, 6]), [2, 3, 1], 2, overlap=1
-                )
+                apply_ragged(chunk, np.array([1, 2, 3, 4, 5, 6]), [2, 3, 1], 2, overlap=1)
                 == np.array([[1, 2], [3, 4], [4, 5]])
             )
         )
 
     def test_chunk_array_like(self):
         # chunk works with array-like objects
+        self.assertTrue(np.all(chunk(np.array([1, 2, 3, 4]), 2) == np.array([[1, 2], [3, 4]])))
         self.assertTrue(
-            np.all(chunk(np.array([1, 2, 3, 4]), 2) == np.array([[1, 2], [3, 4]]))
-        )
-        self.assertTrue(
-            np.all(
-                chunk(xr.DataArray(data=[1, 2, 3, 4]), 2) == np.array([[1, 2], [3, 4]])
-            )
+            np.all(chunk(xr.DataArray(data=[1, 2, 3, 4]), 2) == np.array([[1, 2], [3, 4]]))
         )
         self.assertTrue(
             np.all(chunk(pd.Series(data=[1, 2, 3, 4]), 2) == np.array([[1, 2], [3, 4]]))
@@ -297,16 +282,12 @@ class segment_tests(unittest.TestCase):
         self.assertTrue(isinstance(segment(x, tol), np.ndarray))
         self.assertTrue(np.all(segment(x, tol) == np.array([1, 3, 2, 4, 1])))
         self.assertTrue(np.all(segment(np.array(x), tol) == np.array([1, 3, 2, 4, 1])))
-        self.assertTrue(
-            np.all(segment(xr.DataArray(data=x), tol) == np.array([1, 3, 2, 4, 1]))
-        )
+        self.assertTrue(np.all(segment(xr.DataArray(data=x), tol) == np.array([1, 3, 2, 4, 1])))
 
     def test_segment_zero_tolerance(self):
         x = [1, 2, 2, 3, 3, 3, 4, 4, 4, 4]
         tol = 0
-        self.assertIsNone(
-            np.testing.assert_equal(segment(x, tol), np.array([1, 2, 3, 4]))
-        )
+        self.assertIsNone(np.testing.assert_equal(segment(x, tol), np.array([1, 2, 3, 4])))
 
     def test_segment_negative_tolerance(self):
         x = [0, 1, 1, 1, 2, 0, 3, 3, 3, 4]
@@ -342,9 +323,7 @@ class segment_tests(unittest.TestCase):
             datetime(2023, 2, 2),
         ]
         for tol in [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]:
-            self.assertIsNone(
-                np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
-            )
+            self.assertIsNone(np.testing.assert_equal(segment(x, tol), np.array([3, 2])))
 
     def test_segments_numpy(self):
         x = np.array(
@@ -357,16 +336,12 @@ class segment_tests(unittest.TestCase):
             ]
         )
         for tol in [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]:
-            self.assertIsNone(
-                np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
-            )
+            self.assertIsNone(np.testing.assert_equal(segment(x, tol), np.array([3, 2])))
 
     def test_segments_pandas(self):
         x = pd.to_datetime(["1/1/2023", "1/2/2023", "1/3/2023", "2/1/2023", "2/2/2023"])
         for tol in [pd.Timedelta("1 day"), timedelta(days=1), np.timedelta64(1, "D")]:
-            self.assertIsNone(
-                np.testing.assert_equal(segment(x, tol), np.array([3, 2]))
-            )
+            self.assertIsNone(np.testing.assert_equal(segment(x, tol), np.array([3, 2])))
 
 
 class ragged_to_regular_tests(unittest.TestCase):
@@ -377,23 +352,15 @@ class ragged_to_regular_tests(unittest.TestCase):
 
         result = ragged_to_regular(ragged, rowsize)
         self.assertTrue(np.all(np.isnan(result) == np.isnan(expected)))
-        self.assertTrue(
-            np.all(result[~np.isnan(result)] == expected[~np.isnan(expected)])
-        )
+        self.assertTrue(np.all(result[~np.isnan(result)] == expected[~np.isnan(expected)]))
 
-        result = ragged_to_regular(
-            xr.DataArray(data=ragged), xr.DataArray(data=rowsize)
-        )
+        result = ragged_to_regular(xr.DataArray(data=ragged), xr.DataArray(data=rowsize))
         self.assertTrue(np.all(np.isnan(result) == np.isnan(expected)))
-        self.assertTrue(
-            np.all(result[~np.isnan(result)] == expected[~np.isnan(expected)])
-        )
+        self.assertTrue(np.all(result[~np.isnan(result)] == expected[~np.isnan(expected)]))
 
         result = ragged_to_regular(pd.Series(data=ragged), pd.Series(data=rowsize))
         self.assertTrue(np.all(np.isnan(result) == np.isnan(expected)))
-        self.assertTrue(
-            np.all(result[~np.isnan(result)] == expected[~np.isnan(expected)])
-        )
+        self.assertTrue(np.all(result[~np.isnan(result)] == expected[~np.isnan(expected)]))
 
     def test_ragged_to_regular_fill_value(self):
         ragged = np.array([1, 2, 3, 4, 5])
@@ -532,14 +499,10 @@ class apply_ragged_tests(unittest.TestCase):
                 executor=executor,
             )
             self.assertIsNone(
-                np.testing.assert_allclose(
-                    u, [1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0]
-                )
+                np.testing.assert_allclose(u, [1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0])
             )
             self.assertIsNone(
-                np.testing.assert_allclose(
-                    v, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-                )
+                np.testing.assert_allclose(v, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
             )
 
     def test_velocity_dataarray(self):
@@ -556,14 +519,10 @@ class apply_ragged_tests(unittest.TestCase):
                 executor=executor,
             )
             self.assertIsNone(
-                np.testing.assert_allclose(
-                    u, [1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0]
-                )
+                np.testing.assert_allclose(u, [1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0])
             )
             self.assertIsNone(
-                np.testing.assert_allclose(
-                    v, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-                )
+                np.testing.assert_allclose(v, [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
             )
 
     def test_bad_rowsize_raises(self):
@@ -599,15 +558,11 @@ class subset_tests(unittest.TestCase):
         # positive
         ds_sub = subset(self.ds, {"lon": (0, 180)})
         traj_idx = np.insert(np.cumsum(ds_sub["rowsize"].values), 0, 0)
-        self.assertTrue(
-            all(ds_sub.lon[slice(traj_idx[0], traj_idx[1])] == [51, 61, 71])
-        )
+        self.assertTrue(all(ds_sub.lon[slice(traj_idx[0], traj_idx[1])] == [51, 61, 71]))
 
         self.assertTrue(all(ds_sub.lon[slice(traj_idx[1], traj_idx[2])] == [103, 113]))
 
-        self.assertTrue(
-            all(ds_sub.lon[slice(traj_idx[2], traj_idx[3])] == [12, 22, 32, 42])
-        )
+        self.assertTrue(all(ds_sub.lon[slice(traj_idx[2], traj_idx[3])] == [12, 22, 32, 42]))
 
         # negative range
         ds_sub = subset(self.ds, {"lon": (-180, 0)})
@@ -624,9 +579,7 @@ class subset_tests(unittest.TestCase):
         self.assertTrue(all(ds_sub.lon[slice(traj_idx[0], traj_idx[1])] == ([12, 22])))
 
     def test_combine(self):
-        ds_sub = subset(
-            self.ds, {"id": [1, 2], "lat": (-90, 20), "lon": (-180, 25), "test": True}
-        )
+        ds_sub = subset(self.ds, {"id": [1, 2], "lat": (-90, 20), "lon": (-180, 25), "test": True})
         self.assertTrue(all(ds_sub.id == [1, 2]))
         self.assertTrue(all(ds_sub.lon == [-121, -111, 12]))
         self.assertTrue(all(ds_sub.lat == [-90, -45, 10]))
@@ -673,25 +626,19 @@ class subset_tests(unittest.TestCase):
         self.assertTrue(ds_sub["id"].size == 2)
 
     def test_full_rows(self):
-        ds_id_rowsize = {
-            i: j for i, j in zip(self.ds.id.values, self.ds.rowsize.values)
-        }
+        ds_id_rowsize = {i: j for i, j in zip(self.ds.id.values, self.ds.rowsize.values)}
 
         ds_sub = subset(self.ds, {"lon": (-125, -111)}, full_rows=True)
         self.assertTrue(all(ds_sub.lon == [-121, -111, 51, 61, 71]))
 
-        ds_sub_id_rowsize = {
-            i: j for i, j in zip(ds_sub.id.values, ds_sub.rowsize.values)
-        }
+        ds_sub_id_rowsize = {i: j for i, j in zip(ds_sub.id.values, ds_sub.rowsize.values)}
         for k, v in ds_sub_id_rowsize.items():
             self.assertTrue(ds_id_rowsize[k] == v)
 
         ds_sub = subset(self.ds, {"lat": (30, 40)}, full_rows=True)
         self.assertTrue(all(ds_sub.lat == [10, 20, 30, 40]))
 
-        ds_sub_id_rowsize = {
-            i: j for i, j in zip(ds_sub.id.values, ds_sub.rowsize.values)
-        }
+        ds_sub_id_rowsize = {i: j for i, j in zip(ds_sub.id.values, ds_sub.rowsize.values)}
         for k, v in ds_sub_id_rowsize.items():
             self.assertTrue(ds_id_rowsize[k] == v)
 
@@ -705,9 +652,7 @@ class subset_tests(unittest.TestCase):
         self.assertTrue(all(ds_sub["rowsize"] == [5, 4]))
 
     def test_subset_callable(self):
-        func = lambda arr: (
-            ((arr - arr[0]) % 2) == 0
-        )  # test keeping obs every two time intervals
+        func = lambda arr: ((arr - arr[0]) % 2) == 0  # test keeping obs every two time intervals
         ds_sub = subset(self.ds, {"time": func})
         self.assertTrue(all(ds_sub["id"] == [1, 3, 2]))
         self.assertTrue(all(ds_sub["rowsize"] == [3, 1, 2]))
@@ -764,18 +709,14 @@ class unpack_tests(unittest.TestCase):
 
         self.assertTrue(isinstance(lon, list))
         self.assertTrue(np.all([isinstance(a, xr.DataArray) for a in lon]))
-        self.assertTrue(
-            np.all([lon[n].size == ds["rowsize"][n] for n in range(len(lon))])
-        )
+        self.assertTrue(np.all([lon[n].size == ds["rowsize"][n] for n in range(len(lon))]))
 
         # Test unpacking into np.ndarrays
         lon = unpack(ds.lon.values, ds["rowsize"])
 
         self.assertTrue(isinstance(lon, list))
         self.assertTrue(np.all([isinstance(a, np.ndarray) for a in lon]))
-        self.assertTrue(
-            np.all([lon[n].size == ds["rowsize"][n] for n in range(len(lon))])
-        )
+        self.assertTrue(np.all([lon[n].size == ds["rowsize"][n] for n in range(len(lon))]))
 
     def test_unpack_rows(self):
         ds = sample_ragged_array().to_xarray()
@@ -783,16 +724,10 @@ class unpack_tests(unittest.TestCase):
         rowsize = ds.rowsize.values
 
         self.assertTrue(
-            all(
-                np.array_equal(a, b)
-                for a, b in zip(unpack(x, rowsize, None), unpack(x, rowsize))
-            )
+            all(np.array_equal(a, b) for a, b in zip(unpack(x, rowsize, None), unpack(x, rowsize)))
         )
         self.assertTrue(
-            all(
-                np.array_equal(a, b)
-                for a, b in zip(unpack(x, rowsize, 0), unpack(x, rowsize)[:1])
-            )
+            all(np.array_equal(a, b) for a, b in zip(unpack(x, rowsize, 0), unpack(x, rowsize)[:1]))
         )
         self.assertTrue(
             all(

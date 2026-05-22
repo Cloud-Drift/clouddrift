@@ -44,12 +44,8 @@ class gdp_common_tests(unittest.TestCase):
                 "clouddrift.adapters.gdp.parse_directory_file",
                 Mock(
                     side_effect=[
-                        pd.DataFrame(
-                            {"ID": [1], "Start_date": [pd.Timestamp("2020-01-02")]}
-                        ),
-                        pd.DataFrame(
-                            {"ID": [2], "Start_date": [pd.Timestamp("2020-01-01")]}
-                        ),
+                        pd.DataFrame({"ID": [1], "Start_date": [pd.Timestamp("2020-01-02")]}),
+                        pd.DataFrame({"ID": [2], "Start_date": [pd.Timestamp("2020-01-01")]}),
                     ]
                 ),
             ) as parse_mock,
@@ -79,12 +75,8 @@ class gdp_common_tests(unittest.TestCase):
                     "clouddrift.adapters.gdp.parse_directory_file",
                     Mock(
                         side_effect=[
-                            pd.DataFrame(
-                                {"ID": [1], "Start_date": [pd.Timestamp("2020-01-02")]}
-                            ),
-                            pd.DataFrame(
-                                {"ID": [2], "Start_date": [pd.Timestamp("2020-01-01")]}
-                            ),
+                            pd.DataFrame({"ID": [1], "Start_date": [pd.Timestamp("2020-01-02")]}),
+                            pd.DataFrame({"ID": [2], "Start_date": [pd.Timestamp("2020-01-01")]}),
                         ]
                     ),
                 ) as parse_mock,

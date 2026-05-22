@@ -188,13 +188,9 @@ def inertial_oscillation_from_position(
         raise ValueError("longitude and latitude arrays must have the same shape.")
 
     if relative_bandwidth is not None and wavelet_duration is not None:
-        raise ValueError(
-            "Only one of 'relative_bandwidth' and 'wavelet_duration' can be specified"
-        )
+        raise ValueError("Only one of 'relative_bandwidth' and 'wavelet_duration' can be specified")
     elif relative_bandwidth is None and wavelet_duration is None:
-        raise ValueError(
-            "One of 'relative_bandwidth' and 'wavelet_duration' must be specified"
-        )
+        raise ValueError("One of 'relative_bandwidth' and 'wavelet_duration' must be specified")
 
     # length of data sequence
     data_length = longitude.shape[0]
@@ -228,9 +224,7 @@ def inertial_oscillation_from_position(
         longitude = longitude.to_numpy()
 
     # Instantaneous absolute frequency of oscillations along trajectory in radian per second
-    cor_freq = np.abs(
-        coriolis_frequency(latitude) + relative_vorticity * np.sign(latitude)
-    )
+    cor_freq = np.abs(coriolis_frequency(latitude) + relative_vorticity * np.sign(latitude))
 
     # test if the length of the data is sufficient to capture 95% of the inertial frequency,
     # as implied by the time step and range of latitudes of the data; if not,
@@ -252,9 +246,7 @@ def inertial_oscillation_from_position(
     # inertial frequency and the Rayleigh frequency implied by the time step and
     # data length.
     cor_freq_max = np.max(cor_freq * 1.05)
-    cor_freq_min = np.max(
-        [np.min(cor_freq * 0.95), 2 * np.pi / (time_step * data_length)]
-    )
+    cor_freq_min = np.max([np.min(cor_freq * 0.95), 2 * np.pi / (time_step * data_length)])
 
     # logarithmically distributed frequencies for wavelet analysis
     radian_frequency = morse_logspace_freq(
@@ -292,8 +284,7 @@ def inertial_oscillation_from_position(
 
     # find the values of radian_frequency/dt that most closely match cor_freq
     frequency_bins = [
-        np.argmin(np.abs(cor_freq[i] - radian_frequency / time_step))
-        for i in range(data_length)
+        np.argmin(np.abs(cor_freq[i] - radian_frequency / time_step)) for i in range(data_length)
     ]
 
     # get the transform at the inertial and "anti-inertial" frequencies
@@ -371,9 +362,7 @@ def residual_position_from_displacement(
         latitude = latitude.to_numpy()
 
     latitudehat = 180 / np.pi * y / EARTH_RADIUS_METERS
-    longitudehat = (
-        180 / np.pi * x / (EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
-    )
+    longitudehat = 180 / np.pi * x / (EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
 
     residual_latitude = latitude - latitudehat
     residual_longitude = recast_lon360(
@@ -530,15 +519,13 @@ def position_from_velocity(
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(u.shape) - 1:
         raise ValueError(
-            f"time_axis ({time_axis}) is outside of the valid range ([-1,"
-            f" {len(u.shape) - 1}])."
+            f"time_axis ({time_axis}) is outside of the valid range ([-1, {len(u.shape) - 1}])."
         )
 
     # Input arrays must have the same length along the time axis.
     if not u.shape[time_axis] == v.shape[time_axis] == time.shape[time_axis]:
         raise ValueError(
-            f"u, v, and time must have the same length along the time axis "
-            f"({time_axis})."
+            f"u, v, and time must have the same length along the time axis ({time_axis})."
         )
 
     # Swap axes so that we can differentiate along the last axis.
@@ -566,9 +553,7 @@ def position_from_velocity(
         x[..., 1:] = np.cumsum(0.5 * (u_[..., :-1] + u_[..., 1:]) * dt, axis=-1)
         y[..., 1:] = np.cumsum(0.5 * (v_[..., :-1] + v_[..., 1:]) * dt, axis=-1)
     else:
-        raise ValueError(
-            'integration_scheme must be "forward", "backward", or "centered".'
-        )
+        raise ValueError('integration_scheme must be "forward", "backward", or "centered".')
 
     if coord_system.lower() == "cartesian":
         x += x_origin
@@ -703,15 +688,13 @@ def velocity_from_position(
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(x.shape) - 1:
         raise ValueError(
-            f"time_axis ({time_axis}) is outside of the valid range ([-1,"
-            f" {len(x.shape) - 1}])."
+            f"time_axis ({time_axis}) is outside of the valid range ([-1, {len(x.shape) - 1}])."
         )
 
     # Input arrays must have the same length along the time axis.
     if not x.shape[time_axis] == y.shape[time_axis] == time.shape[time_axis]:
         raise ValueError(
-            f"x, y, and time must have the same length along the time axis "
-            f"({time_axis})."
+            f"x, y, and time must have the same length along the time axis ({time_axis})."
         )
 
     # Swap axes so that we can differentiate along the last axis.
@@ -836,9 +819,7 @@ def velocity_from_position(
             raise ValueError('coord_system must be "spherical" or "cartesian".')
 
     else:
-        raise ValueError(
-            'difference_scheme must be "forward", "backward", or "centered".'
-        )
+        raise ValueError('difference_scheme must be "forward", "backward", or "centered".')
 
     # This should avoid an array copy when returning the result
     dx /= dt
@@ -948,8 +929,7 @@ def spin(
     # axis must be in valid range
     if time_axis < -1 or time_axis > len(u.shape) - 1:
         raise ValueError(
-            f"axis ({time_axis}) is outside of the valid range ([-1,"
-            f" {len(u.shape) - 1}])."
+            f"axis ({time_axis}) is outside of the valid range ([-1, {len(u.shape) - 1}])."
         )
 
     # Swap axes so that we can differentiate along the last axis.
@@ -993,9 +973,7 @@ def spin(
         dt[..., 0] = time[..., 1] - time[..., 0]
         dt[..., -1] = time[..., -1] - time[..., -2]
     else:
-        raise ValueError(
-            'difference_scheme must be "forward", "backward", or "centered".'
-        )
+        raise ValueError('difference_scheme must be "forward", "backward", or "centered".')
 
     # Compute spin
     s = (u * dv - v * du) / (2 * dt * kinetic_energy(u, v))

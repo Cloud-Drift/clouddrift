@@ -89,8 +89,7 @@ def analytic_signal(
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(x.shape) - 1:
         raise ValueError(
-            f"time_axis ({time_axis}) is outside of the valid range ([-1,"
-            f" {len(x.shape) - 1}])."
+            f"time_axis ({time_axis}) is outside of the valid range ([-1, {len(x.shape) - 1}])."
         )
 
     # Swap the axis to make the time axis last (fast-varying).
@@ -223,8 +222,7 @@ def cartesian_to_rotary(
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(ua.shape) - 1:
         raise ValueError(
-            f"time_axis ({time_axis}) is outside of the valid range ([-1,"
-            f" {len(ua.shape) - 1}])."
+            f"time_axis ({time_axis}) is outside of the valid range ([-1, {len(ua.shape) - 1}])."
         )
 
     wp = 0.5 * (ua + 1j * va)
@@ -296,12 +294,10 @@ def ellipse_parameters(
     N = 0.5 * np.sqrt(X**2 + Y**2 - 2 * X * Y * np.cos(2 * phid))
 
     phip = np.unwrap(
-        phia
-        + np.unwrap(np.imag(np.log(X * np.exp(1j * phid) + Y * np.exp(-1j * phid))))
+        phia + np.unwrap(np.imag(np.log(X * np.exp(1j * phid) + Y * np.exp(-1j * phid))))
     )
     phin = np.unwrap(
-        phia
-        + np.unwrap(np.imag(np.log(X * np.exp(1j * phid) - Y * np.exp(-1j * phid))))
+        phia + np.unwrap(np.imag(np.log(X * np.exp(1j * phid) - Y * np.exp(-1j * phid))))
     )
 
     kappa = np.sqrt(P**2 + N**2)
@@ -453,8 +449,7 @@ def rotary_to_cartesian(
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(wp.shape) - 1:
         raise ValueError(
-            f"time_axis ({time_axis}) is outside of the valid range ([-1,"
-            f" {len(wp.shape) - 1}])."
+            f"time_axis ({time_axis}) is outside of the valid range ([-1, {len(wp.shape) - 1}])."
         )
 
     # I think this may return xarray dataarrays if that's the input

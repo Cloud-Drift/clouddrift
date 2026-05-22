@@ -30,9 +30,7 @@ from clouddrift.adapters.utils import download_with_progress
 
 # Zenodo record and URL
 QUICCHE_ZENODO_RECORD = "14902851"
-QUICCHE_URL = (
-    "https://zenodo.org/records/14902851/files/CARTHE_Drifters_NSF_QUICCHE.zip"
-)
+QUICCHE_URL = "https://zenodo.org/records/14902851/files/CARTHE_Drifters_NSF_QUICCHE.zip"
 QUICCHE_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "quicche")
 
 
@@ -71,9 +69,7 @@ def to_xarray(
 
     # Validate version
     if version not in ("raw", "qc1", "qc2", "qc3"):
-        raise ValueError(
-            f"Invalid version '{version}'. Must be one of: raw, qc1, qc2, qc3."
-        )
+        raise ValueError(f"Invalid version '{version}'. Must be one of: raw, qc1, qc2, qc3.")
 
     # Download and extract zip file
     local_zip = f"{tmp_path}/CARTHE_Drifters_NSF_QUICCHE.zip"

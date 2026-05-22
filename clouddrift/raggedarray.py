@@ -225,9 +225,7 @@ class RaggedArray:
         )
 
     @classmethod
-    def from_xarray(
-        cls, ds: xr.Dataset, rows_dim_name: str = "rows", obs_dim_name: str = "obs"
-    ):
+    def from_xarray(cls, ds: xr.Dataset, rows_dim_name: str = "rows", obs_dim_name: str = "obs"):
         """Populate a RaggedArray instance from an xarray Dataset instance.
 
         Parameters
@@ -479,27 +477,19 @@ class RaggedArray:
                     try:
                         metadata[var][i] = ds[var][0].data
                     except KeyError:
-                        warnings.warn(
-                            f"Variable {var} requested but not found; skipping."
-                        )
+                        warnings.warn(f"Variable {var} requested but not found; skipping.")
 
                 for var in name_data:
                     if var in ds.keys():
                         data[var][oid : oid + size] = ds[var].data
                     else:
-                        warnings.warn(
-                            f"Variable {var} requested but not found; skipping."
-                        )
+                        warnings.warn(f"Variable {var} requested but not found; skipping.")
 
         return coords, metadata, data, coord_dims, var_dims
 
     def validate_attributes(self):
         """Validate that each variable has an assigned attribute tag."""
-        for key in (
-            list(self.coords.keys())
-            + list(self.metadata.keys())
-            + list(self.data.keys())
-        ):
+        for key in list(self.coords.keys()) + list(self.metadata.keys()) + list(self.data.keys()):
             if key not in self.attrs_variables:
                 self.attrs_variables[key] = {}
 

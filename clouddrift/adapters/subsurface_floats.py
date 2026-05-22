@@ -28,15 +28,11 @@ SUBSURFACE_FLOATS_DATA_URL = (
     "https://www.aoml.noaa.gov/phod/float_traj/files/allFloats_12122017.mat"
 )
 SUBSURFACE_FLOATS_VERSION = "December 2017 (version 2)"
-SUBSURFACE_FLOATS_TMP_PATH = os.path.join(
-    tempfile.gettempdir(), "clouddrift", "subsurface_floats"
-)
+SUBSURFACE_FLOATS_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "subsurface_floats")
 
 
 def download(file: str, skip_download: bool = False):
-    download_with_progress(
-        [(SUBSURFACE_FLOATS_DATA_URL, file)], skip_download=skip_download
-    )
+    download_with_progress([(SUBSURFACE_FLOATS_DATA_URL, file)], skip_download=skip_download)
 
 
 def to_xarray(
@@ -65,6 +61,10 @@ def to_xarray(
 
     local_file = f"{tmp_path}/{SUBSURFACE_FLOATS_DATA_URL.split('/')[-1]}"
     download(local_file, skip_download=skip_download)
+    if os.path.getsize(local_file) == 0:
+        raise ConnectionError(
+            f"Got empty response from subsurface floats server (url={SUBSURFACE_FLOATS_DATA_URL})"
+        )
     source_data = scipy.io.loadmat(local_file)
 
     # metadata

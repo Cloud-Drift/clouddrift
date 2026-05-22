@@ -2,6 +2,8 @@ import os
 import unittest
 from unittest.mock import Mock, patch
 
+import pytest
+
 from clouddrift.adapters import gdp6h
 from tests.adapters.utils import MultiPatcher
 
@@ -85,9 +87,7 @@ class gdp6h_tests(unittest.TestCase):
             ]
         ) as mocks:
             drifter_ids = [0, 1, 2]
-            ret_drifter_ids = gdp6h.download(
-                "some-url.com", "../some/path", drifter_ids, None
-            )
+            ret_drifter_ids = gdp6h.download("some-url.com", "../some/path", drifter_ids, None)
             assert len(ret_drifter_ids) == 3
             mocks[1].assert_called_with(
                 [
@@ -100,6 +100,7 @@ class gdp6h_tests(unittest.TestCase):
                 skip_download=False,
             )
 
+    @pytest.mark.filterwarnings("ignore:Error processing:UserWarning")
     def test_rowsize_returns_zero_when_dataset_open_fails(self):
         with patch("clouddrift.adapters.gdp6h.xr.open_dataset", side_effect=OSError):
             rowsize = gdp6h._rowsize(
