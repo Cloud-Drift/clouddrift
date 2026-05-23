@@ -830,7 +830,9 @@ def andro(decode_times: bool = True) -> xr.Dataset:
     Kolodziejczyk Nicolas (2022). ANDRO: An Argo-based deep displacement dataset.
     SEANOE. https://doi.org/10.17882/47077
     """
-    return _dataset_filecache("andro.nc", decode_times, adapters.andro.to_xarray)
+    return _dataset_filecache(
+        "andro.nc", decode_times, lambda: adapters.andro.to_raggedarray().to_xarray()
+    )
 
 
 def quicche(
