@@ -34,9 +34,7 @@ ANDRO_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "andro")
 ANDRO_VERSION = "2026-04"
 
 
-def to_raggedarray(
-    tmp_path: str | None = None, skip_download: bool = False
-) -> RaggedArray:
+def to_raggedarray(tmp_path: str | None = None, skip_download: bool = False) -> RaggedArray:
     """Return the ANDRO dataset as a RaggedArray instance.
 
     Parameters
