@@ -79,6 +79,12 @@ Its strongly recommended to download and use the `vscode-taskexplorer` [extensio
 
 ### Preparing your environment
 
+> **Prerequisites:** These instructions use [`uv`](https://docs.astral.sh/uv/). Install it with:
+> ```
+> curl -LsSf https://astral.sh/uv/install.sh | sh
+> ```
+> See the [uv installation docs](https://docs.astral.sh/uv/getting-started/installation/) for other platforms and methods.
+
 1. Get the code
 
 ```
@@ -88,15 +94,13 @@ cd clouddrift/
 
 2. Install library dependencies
 
-with pip:
+with uv:
 
 ```
-python3 -m venv .venv
-source .venv/bin/activate
-pip install .
+uv sync
 ```
 
-with conda (recommended):
+with conda:
 
 ```
 conda env create -f environment.yml
@@ -109,10 +113,10 @@ conda activate clouddrift
 
 2. Install testing dependencies
 
-with pip:
+with uv (dev dependencies including plotting are installed automatically):
 
 ```
-pip install clouddrift[dev,plotting]
+uv sync
 ```
 
 with conda:
@@ -151,9 +155,9 @@ experimental versions of the library from a users perspective.
 
 2. Build the distribution package and install it
 
-with pip:
+with uv:
 ```
-pip install .
+uv sync
 ```
 
 ### Automatic formatting and linting
@@ -162,11 +166,13 @@ The Clouddrift project uses the [`ruff`](https://github.com/astral-sh/ruff) tool
 
 1. Install development dependencies
 
-with pip:
+with uv:
 
 ```
-pip install clouddrift[dev]
+uv sync
 ```
+
+since the dev dependencies are installed by default with `uv sync` (unless `--no-group dev` is specified).
 
 with conda:
 
@@ -183,7 +189,7 @@ mypy --install-types
 * To format your code:
 
 ```
-ruff format clouddrift tests
+uv run ruff format clouddrift tests
 ```
 
 * To Lint your code:
@@ -216,7 +222,7 @@ cd docs
 
 2. Install the Sphinx documentation generation dependencies:
 ```
-pip install clouddrift[docs]
+uv sync
 ```
 
 3. Generate the new documentation:

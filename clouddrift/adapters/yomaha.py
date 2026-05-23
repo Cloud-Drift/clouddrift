@@ -45,9 +45,7 @@ YOMAHA_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "yomaha")
 
 
 def download(tmp_path: str, skip_download: bool = False):
-    download_requests = [
-        (url, f"{tmp_path}/{url.split('/')[-1]}") for url in YOMAHA_URLS[:-1]
-    ]
+    download_requests = [(url, f"{tmp_path}/{url.split('/')[-1]}") for url in YOMAHA_URLS[:-1]]
     download_with_progress(download_requests, skip_download=skip_download)
 
     filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
@@ -57,6 +55,10 @@ def download(tmp_path: str, skip_download: bool = False):
     if not (skip_download and os.path.exists(decompressed_fp)):
         buffer = BytesIO()
         download_with_progress([(YOMAHA_URLS[-1], buffer)])
+        if len(buffer.getvalue()) == 0:
+            raise ConnectionError(
+                f"Downloaded invalid data from Yomaha data server (url={YOMAHA_URLS[-1]})"
+            )
         buffer.seek(0)
         with (
             open(decompressed_fp, "wb") as file,
@@ -166,9 +168,7 @@ def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
     # open with pandas
     filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
     filename = filename_gz.removesuffix(".gz")
-    df = pd.read_csv(
-        filename, names=col_names, sep=r"\s+", header=None, na_values=na_col
-    )
+    df = pd.read_csv(filename, names=col_names, sep=r"\s+", header=None, na_values=na_col)
 
     # convert to an Xarray Dataset
     ds = xr.Dataset.from_dataframe(df)

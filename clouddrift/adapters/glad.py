@@ -50,13 +50,17 @@ _DATASET_VERSIONS = {
 def get_dataframe(version: GLAD_VERSIONS = "qc2") -> pd.DataFrame:
     """Get a GLAD dataset version as a pandas DataFrame."""
     if version not in _DATASET_VERSIONS:
-        raise ValueError(
-            f"Unknown GLAD version '{version}'. Expected one of: raw, qc1, qc2"
-        )
+        raise ValueError(f"Unknown GLAD version '{version}'. Expected one of: raw, qc1, qc2")
 
     url, file_size = _DATASET_VERSIONS[version]
     buf = BytesIO(b"")
     download_with_progress([(url, buf, file_size)])
+    actual_size = len(buf.getbuffer())
+    if actual_size < file_size // 2:
+        raise ConnectionError(
+            f"Downloaded only {actual_size:,} bytes from GLAD data server"
+            f" (expected ~{file_size:,}), url={url}"
+        )
     buf.seek(0)
     column_names = [
         "id",

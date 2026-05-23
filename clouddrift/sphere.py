@@ -123,10 +123,7 @@ def distance(
     dlat = lat2_rad - lat1_rad
     dlon = lon2_rad - lon1_rad
 
-    h = (
-        np.sin(0.5 * dlat) ** 2
-        + np.cos(lat1_rad) * np.cos(lat2_rad) * np.sin(0.5 * dlon) ** 2
-    )
+    h = np.sin(0.5 * dlat) ** 2 + np.cos(lat1_rad) * np.cos(lat2_rad) * np.sin(0.5 * dlon) ** 2
 
     return 2 * np.arcsin(np.sqrt(h)) * EARTH_RADIUS_METERS
 
@@ -198,8 +195,7 @@ def bearing(
     dlon = lon2_rad - lon1_rad
 
     theta = np.arctan2(
-        np.cos(lat1_rad) * np.sin(lat2_rad)
-        - np.sin(lat1_rad) * np.cos(lat2_rad) * np.cos(dlon),
+        np.cos(lat1_rad) * np.sin(lat2_rad) - np.sin(lat1_rad) * np.cos(lat2_rad) * np.cos(dlon),
         np.sin(dlon) * np.cos(lat2_rad),
     )
 
@@ -717,9 +713,7 @@ def cartesian_to_tangentplane(
     theta = np.radians(longitude)
     u_projected = v * np.cos(theta) - u * np.sin(theta)
     v_projected = (
-        w * np.cos(phi)
-        - u * np.cos(theta) * np.sin(phi)
-        - v * np.sin(theta) * np.sin(phi)
+        w * np.cos(phi) - u * np.cos(theta) * np.sin(phi) - v * np.sin(theta) * np.sin(phi)
     )
     # JML says vh = w.*cos(phi)-u.*cos(theta).*sin(phi)-v.*sin(theta).*sin(phi) but vh=w./cos(phi) is the same
     return u_projected, v_projected

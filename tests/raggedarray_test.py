@@ -59,9 +59,7 @@ class raggedarray_tests(TestCase):
                 {"long_name": "variable temp", "units": "-"},
             )
 
-            list_ds.append(
-                xr.Dataset(coords=xr_coords, data_vars=xr_data, attrs=self.attrs_global)
-            )
+            list_ds.append(xr.Dataset(coords=xr_coords, data_vars=xr_data, attrs=self.attrs_global))
 
         # create test ragged array
         self.name_coords = ["id", "time"]
@@ -157,26 +155,17 @@ class raggedarray_tests(TestCase):
                     np.allclose(self.ra.coords[var], ak.flatten(ds.obs[var]).to_numpy())
                 )
             else:
-                self.assertTrue(
-                    np.allclose(self.ra.coords[var], ds.obs[var].to_numpy())
-                )
-            self.assertTrue(
-                self.ra.attrs_variables[var] == ds.obs[var].layout.parameters["attrs"]
-            )
+                self.assertTrue(np.allclose(self.ra.coords[var], ds.obs[var].to_numpy()))
+            self.assertTrue(self.ra.attrs_variables[var] == ds.obs[var].layout.parameters["attrs"])
 
         # metadata
+        self.assertTrue(np.allclose(self.ra.metadata["rowsize"], ds["rowsize"].to_numpy()))
         self.assertTrue(
-            np.allclose(self.ra.metadata["rowsize"], ds["rowsize"].to_numpy())
-        )
-        self.assertTrue(
-            self.ra.attrs_variables["rowsize"]
-            == ds["rowsize"].layout.parameters["attrs"]
+            self.ra.attrs_variables["rowsize"] == ds["rowsize"].layout.parameters["attrs"]
         )
 
         # data
-        self.assertTrue(
-            np.allclose(self.ra.data["temp"], ak.flatten(ds.obs["temp"]).to_numpy())
-        )
+        self.assertTrue(np.allclose(self.ra.data["temp"], ak.flatten(ds.obs["temp"]).to_numpy()))
         self.assertTrue(
             self.ra.attrs_variables["temp"] == ds.obs["temp"].layout.parameters["attrs"]
         )

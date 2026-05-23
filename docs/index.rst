@@ -11,7 +11,7 @@ As such, for both originators and users, Lagrangian data present challenges that
 Scope and Key Features
 ----------------------
 
-The scope of the Clouddrift library includes: 
+The scope of the Clouddrift library includes:
 
 1. **Working with contiguous ragged array representations of data, wether they originate from geosciences or any other field**. Ragged array representations are typically useful when the data lengths of the instances of a feature (variable) are not all equal. With such representations the data for each features are stored contiguously in memory, and the number of elements that each feature has is contained in a count variable which Clouddrift calls *rowsize*. 
 

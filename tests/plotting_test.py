@@ -2,6 +2,9 @@ import sys
 import unittest
 from unittest.mock import patch
 
+import matplotlib
+
+matplotlib.use("Agg")
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import numpy as np
@@ -39,17 +42,13 @@ class plotting_tests(unittest.TestCase):
     def test_plot_colored_trajectory(self):
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
-        l = plot_ragged(
-            ax, self.lon, self.lat, self.rowsize, colors=np.arange(len(self.rowsize))
-        )
+        l = plot_ragged(ax, self.lon, self.lat, self.rowsize, colors=np.arange(len(self.rowsize)))
         self.assertIsInstance(l, plt.cm.ScalarMappable)
 
     def test_plot_colored_datapoints(self):
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
-        l = plot_ragged(
-            ax, self.lon, self.lat, self.rowsize, colors=np.arange(len(self.lat))
-        )
+        l = plot_ragged(ax, self.lon, self.lat, self.rowsize, colors=np.arange(len(self.lat)))
         self.assertIsInstance(l, plt.cm.ScalarMappable)
 
     def test_plot_color_wrong_dimension(self):
