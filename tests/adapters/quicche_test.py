@@ -98,7 +98,7 @@ class quicche_tests(unittest.TestCase):
             }
         )
 
-        ds = quicche._dataframe_to_ragged_xarray(df, "qc3")
+        ds = quicche._dataframe_to_raggedarray(df, "qc3").to_xarray()
 
         # Check dimensions
         self.assertIn("traj", ds.dims)
@@ -117,7 +117,7 @@ class quicche_tests(unittest.TestCase):
             }
         )
 
-        ds = quicche._dataframe_to_ragged_xarray(df, "qc2")
+        ds = quicche._dataframe_to_raggedarray(df, "qc2").to_xarray()
 
         # Check coordinates
         self.assertIn("id", ds.coords)
@@ -143,7 +143,7 @@ class quicche_tests(unittest.TestCase):
             }
         )
 
-        ds = quicche._dataframe_to_ragged_xarray(df, "qc1")
+        ds = quicche._dataframe_to_raggedarray(df, "qc1").to_xarray()
         self.assertIn("battery_state", ds.data_vars)
         self.assertIn("flag", ds.data_vars)
 
@@ -158,7 +158,7 @@ class quicche_tests(unittest.TestCase):
             }
         )
 
-        ds = quicche._dataframe_to_ragged_xarray(df, "qc3")
+        ds = quicche._dataframe_to_raggedarray(df, "qc3").to_xarray()
         self.assertNotIn("battery_state", ds.data_vars)
         self.assertNotIn("flag", ds.data_vars)
 
@@ -173,7 +173,7 @@ class quicche_tests(unittest.TestCase):
             }
         )
 
-        ds = quicche._dataframe_to_ragged_xarray(df, "qc3")
+        ds = quicche._dataframe_to_raggedarray(df, "qc3").to_xarray()
 
         rowsize = ds["rowsize"].values
         # Q1_0001 has 2 observations, Q1_0002 has 3
@@ -190,7 +190,7 @@ class quicche_tests(unittest.TestCase):
             }
         )
 
-        ds = quicche._dataframe_to_ragged_xarray(df, "qc3")
+        ds = quicche._dataframe_to_raggedarray(df, "qc3").to_xarray()
 
         # Check float32 for lat/lon
         self.assertEqual(ds["latitude"].dtype, np.float32)
@@ -210,10 +210,10 @@ class quicche_tests(unittest.TestCase):
             }
         )
 
-        ds_raw = quicche._dataframe_to_ragged_xarray(df, "raw")
-        ds_qc1 = quicche._dataframe_to_ragged_xarray(df, "qc1")
-        ds_qc2 = quicche._dataframe_to_ragged_xarray(df, "qc2")
-        ds_qc3 = quicche._dataframe_to_ragged_xarray(df, "qc3")
+        ds_raw = quicche._dataframe_to_raggedarray(df, "raw").to_xarray()
+        ds_qc1 = quicche._dataframe_to_raggedarray(df, "qc1").to_xarray()
+        ds_qc2 = quicche._dataframe_to_raggedarray(df, "qc2").to_xarray()
+        ds_qc3 = quicche._dataframe_to_raggedarray(df, "qc3").to_xarray()
 
         # Check version is in title and attributes
         self.assertIn("RAW", ds_raw.attrs["title"])
@@ -228,4 +228,4 @@ class quicche_tests(unittest.TestCase):
     def test_to_xarray_version_validation(self):
         """Test that invalid versions raise ValueError."""
         with self.assertRaises(ValueError):
-            quicche.to_xarray(version="invalid", tmp_path=self.test_dir)
+            quicche.to_raggedarray(version="invalid", tmp_path=self.test_dir)
