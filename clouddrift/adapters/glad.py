@@ -15,7 +15,7 @@ Example
 >>> ra = glad.to_raggedarray()
 
 to retrieve the default `qc2` version of the dataset. To retrieve the `raw` or `qc1` versions, pass the
-version name as an argument to `to_xarray()`, e.g. `glad.to_xarray(version="raw")`.
+version name as an argument to `to_raggedarray()`, e.g. `glad.to_raggedarray(version="raw")`.
 
 References
 ----------
@@ -93,7 +93,7 @@ def to_raggedarray(version: GLAD_VERSIONS = "qc2") -> RaggedArray:
     RaggedArray
         GLAD dataset as a ragged array.
     """
-    df = get_dataframe(version=version)
+    df = get_dataframe(version=version).sort_values(["id", "obs"])
 
     ids = df["id"].to_numpy()
     traj, rowsize = np.unique(ids, return_counts=True)

@@ -202,11 +202,14 @@ def to_raggedarray(tmp_path: str | None = None, skip_download: bool = False) -> 
     df_wmo["dac_id"] = df_wmo["dac_id"].astype("int64")
     df_dac["dac_id"] = df_dac["dac_id"].astype("int64")
 
-    # combine metadata
+    # combine metadata, aligned to the sorted unique_id order
     df_metadata = (
         pd.merge(df_wmo, df_dac, on="dac_id", how="left")
         .merge(df_float, on="float_type_id", how="left")
         .loc[lambda x: np.isin(x["id"], unique_id)]
+        .set_index("id")
+        .reindex(unique_id)
+        .reset_index()
     )
 
     # float64 variables to keep as float64
@@ -217,6 +220,8 @@ def to_raggedarray(tmp_path: str | None = None, skip_download: bool = False) -> 
         "lon_s",
         "lat_lp",
         "lon_lp",
+        "lat_fc",
+        "lon_fc",
         "lat_lc",
         "lon_lc",
     }

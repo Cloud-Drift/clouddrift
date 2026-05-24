@@ -565,7 +565,9 @@ def mosaic(decode_times: bool = True) -> xr.Dataset:
         rowsize                     (traj) int64 ...
     """
     return _dataset_filecache(
-        "mosaic.nc", decode_times, lambda: adapters.mosaic.to_raggedarray().to_xarray()
+        "mosaic.nc",
+        decode_times,
+        lambda: adapters.mosaic.to_raggedarray().to_xarray(),
     )
 
 

@@ -116,7 +116,18 @@ class yomaha_tests(unittest.TestCase):
     def test_to_raggedarray_dtypes(self):
         """to_raggedarray keeps lat/lon pairs as float64 and casts others to float32."""
         ds = self._run_to_raggedarray().to_xarray()
-        for var in ["lat_d", "lon_d", "lat_s", "lon_s", "lat_lp", "lon_lp", "lat_lc", "lon_lc"]:
+        for var in [
+            "lat_d",
+            "lon_d",
+            "lat_s",
+            "lon_s",
+            "lat_lp",
+            "lon_lp",
+            "lat_fc",
+            "lon_fc",
+            "lat_lc",
+            "lon_lc",
+        ]:
             self.assertEqual(ds[var].dtype, np.float64, msg=f"{var} should be float64")
         for var in ["ve_d", "vn_d", "pres_d"]:
             self.assertEqual(ds[var].dtype, np.float32, msg=f"{var} should be float32")
