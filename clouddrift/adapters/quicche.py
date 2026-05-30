@@ -8,9 +8,9 @@ The dataset contains CARTHE surface drifter trajectories from the Cape Basin
 Example
 -------
 >>> from clouddrift.adapters import quicche
->>> ds = quicche.to_xarray()
->>> ds = quicche.to_xarray(version="qc1")
->>> ds = quicche.to_xarray(version="raw")
+>>> ra = quicche.to_raggedarray()
+>>> ra = quicche.to_raggedarray(version="qc1")
+>>> ra = quicche.to_raggedarray(version="raw")
 
 Reference
 ---------
@@ -24,9 +24,9 @@ from datetime import datetime
 from typing import Literal
 
 import pandas as pd
-import xarray as xr
 
 from clouddrift.adapters.utils import download_with_progress
+from clouddrift.raggedarray import RaggedArray
 
 # Zenodo record and URL
 QUICCHE_ZENODO_RECORD = "14902851"
@@ -34,13 +34,13 @@ QUICCHE_URL = "https://zenodo.org/records/14902851/files/CARTHE_Drifters_NSF_QUI
 QUICCHE_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "quicche")
 
 
-def to_xarray(
+def to_raggedarray(
     version: Literal["raw", "qc1", "qc2", "qc3"] = "qc3",
     tmp_path: str | None = None,
     skip_download: bool = False,
-) -> xr.Dataset:
+) -> RaggedArray:
     """
-    Parse and convert QUICCHE CARTHE drifter data to an xarray Dataset.
+    Parse and convert QUICCHE CARTHE drifter data to a RaggedArray instance.
 
     Parameters
     ----------
@@ -59,7 +59,7 @@ def to_xarray(
 
     Returns
     -------
-    xarray.Dataset
+    RaggedArray
         QUICCHE CARTHE drifter trajectories as a ragged array with dimensions
         (traj, obs) and coordinates (id, time).
     """
@@ -85,10 +85,10 @@ def to_xarray(
     # Parse the data file
     df = _parse_quicche_data(extracted_file, version)
 
-    # Convert to ragged array xarray Dataset
-    ds = _dataframe_to_ragged_xarray(df, version)
+    # Convert to ragged array
+    ra = _dataframe_to_raggedarray(df, version)
 
-    return ds
+    return ra
 
 
 def _extract_qc_file(zip_path: str, target_filename: str, extract_path: str) -> str:
@@ -235,9 +235,9 @@ def _parse_quicche_data(
     return df
 
 
-def _dataframe_to_ragged_xarray(df: pd.DataFrame, version: str) -> xr.Dataset:
+def _dataframe_to_raggedarray(df: pd.DataFrame, version: str) -> RaggedArray:
     """
-    Convert a trajectory DataFrame to a ragged array xarray Dataset.
+    Convert a trajectory DataFrame to a RaggedArray instance.
 
     Parameters
     ----------
@@ -248,75 +248,14 @@ def _dataframe_to_ragged_xarray(df: pd.DataFrame, version: str) -> xr.Dataset:
 
     Returns
     -------
-    xr.Dataset
-        Ragged array dataset with dimensions (traj, obs).
+    RaggedArray
+        Ragged array with dimensions (traj, obs).
     """
     # Compute rowsize and unique IDs
     rowsize_series = df.groupby("drifter_id", sort=True).size()
     unique_ids = rowsize_series.index.to_numpy()
     rowsize = rowsize_series.to_numpy(dtype="int64")
-    # Replicate drifter_id for each observation row
-    ds = xr.Dataset.from_dataframe(df)
 
-    # Rename the implicit dataframe index dimension to obs and drop the
-    # redundant coordinate variable that only mirrors the observation index.
-    ds = ds.rename_dims({"index": "obs"})
-
-    # Assign trajectory-level coordinates
-    ds = ds.assign({"id": ("traj", unique_ids)})
-    ds = ds.assign({"rowsize": ("traj", rowsize)})
-
-    # Drop per-observation drifter_id and the redundant dataframe index coordinate.
-    ds = ds.drop_vars(["drifter_id", "index"])
-
-    # Set coordinates
-    ds = ds.set_coords(["id", "time"])
-
-    # Cast dtypes to project conventions
-    ds["latitude"] = ds["latitude"].astype("float32")
-    ds["longitude"] = ds["longitude"].astype("float32")
-    ds["rowsize"] = ds["rowsize"].astype("int64")
-
-    # Define variable attributes
-    var_attrs = {
-        "latitude": {
-            "long_name": "Latitude of drifter position",
-            "units": "degrees_north",
-        },
-        "longitude": {
-            "long_name": "Longitude of drifter position",
-            "units": "degrees_east",
-        },
-        "time": {
-            "long_name": "Time of observation",
-            "comment": "UTC timestamps parsed from source ISO 8601 strings ending with 'Z'",
-        },
-        "id": {
-            "long_name": "Drifter ID",
-            "units": "-",
-        },
-        "rowsize": {
-            "long_name": "Number of observations per trajectory",
-            "units": "-",
-        },
-        "battery_state": {
-            "long_name": "Battery state reported by manufacturer",
-            "comment": "Values include GOOD and LOW",
-            "units": "-",
-        },
-        "flag": {
-            "long_name": "QC1 position/test flag",
-            "comment": "PRE: pre-deployment test; BAD_POS: visually evaluated bad position; empty string: no issue",
-            "units": "-",
-        },
-    }
-
-    # Apply variable attributes
-    for var, attrs in var_attrs.items():
-        if var in ds.variables:
-            ds[var].attrs = attrs
-
-    # Define global attributes
     qc_description = {
         "raw": "raw data",
         "qc1": "raw data with pre-deployment GPS tests flagged",
@@ -324,7 +263,7 @@ def _dataframe_to_ragged_xarray(df: pd.DataFrame, version: str) -> xr.Dataset:
         "qc3": "QC2 interpolated on a regular 30 minute time grid",
     }
 
-    global_attrs = {
+    attrs_global = {
         "title": f"QUICCHE CARTHE Surface Drifter Trajectories ({version.upper()})",
         "summary": f"CARTHE surface drifter trajectories from the Cape Basin (South Atlantic), March 2023. QC level {version.upper()}: {qc_description[version]}",
         "source": "CARTHE surface drifters",
@@ -338,6 +277,57 @@ def _dataframe_to_ragged_xarray(df: pd.DataFrame, version: str) -> xr.Dataset:
         "qc_level": version,
     }
 
-    ds.attrs = global_attrs
+    attrs_variables = {
+        "id": {"long_name": "Drifter ID", "units": "-"},
+        "time": {
+            "long_name": "Time of observation",
+            "comment": "UTC timestamps parsed from source ISO 8601 strings ending with 'Z'",
+        },
+        "rowsize": {"long_name": "Number of observations per trajectory", "units": "-"},
+        "latitude": {"long_name": "Latitude of drifter position", "units": "degrees_north"},
+        "longitude": {"long_name": "Longitude of drifter position", "units": "degrees_east"},
+        "battery_state": {
+            "long_name": "Battery state reported by manufacturer",
+            "comment": "Values include GOOD and LOW",
+            "units": "-",
+        },
+        "flag": {
+            "long_name": "QC1 position/test flag",
+            "comment": "PRE: pre-deployment test; BAD_POS: visually evaluated bad position; empty string: no issue",
+            "units": "-",
+        },
+    }
 
-    return ds
+    data: dict = {
+        "latitude": df["latitude"].to_numpy(dtype="float32"),
+        "longitude": df["longitude"].to_numpy(dtype="float32"),
+    }
+    var_dims: dict = {
+        "rowsize": ["traj"],
+        "latitude": ["obs"],
+        "longitude": ["obs"],
+    }
+
+    if "battery_state" in df.columns:
+        data["battery_state"] = df["battery_state"].to_numpy()
+        var_dims["battery_state"] = ["obs"]
+
+    if "flag" in df.columns:
+        data["flag"] = df["flag"].to_numpy()
+        var_dims["flag"] = ["obs"]
+
+    return RaggedArray(
+        coords={
+            "id": unique_ids,
+            "time": df["time"].to_numpy(dtype="datetime64[ns]"),
+        },
+        metadata={
+            "rowsize": rowsize,
+        },
+        data=data,
+        attrs_global=attrs_global,
+        attrs_variables=attrs_variables,
+        name_dims={"traj": "rows", "obs": "obs"},
+        coord_dims={"id": "traj", "time": "obs"},
+        var_dims=var_dims,
+    )

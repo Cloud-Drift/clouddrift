@@ -293,7 +293,7 @@ def glad(decode_times: bool = True, version: GLAD_VERSIONS = "qc2") -> xr.Datase
     return _dataset_filecache(
         f"glad_{version}.nc",
         decode_times,
-        lambda: adapters.glad.to_xarray(version=version),
+        lambda: adapters.glad.to_raggedarray(version=version).to_xarray(),
     )
 
 
@@ -564,7 +564,11 @@ def mosaic(decode_times: bool = True) -> xr.Dataset:
         Data Authors                (traj) object ...
         rowsize                     (traj) int64 ...
     """
-    return _dataset_filecache("mosaic.nc", decode_times, adapters.mosaic.to_xarray)
+    return _dataset_filecache(
+        "mosaic.nc",
+        decode_times,
+        lambda: adapters.mosaic.to_raggedarray().to_xarray(),
+    )
 
 
 def spotters(decode_times: bool = True) -> xr.Dataset:
@@ -699,7 +703,9 @@ def subsurface_floats(decode_times: bool = True) -> xr.Dataset:
     WOCE Subsurface Float Data Assembly Center (WFDAC) https://www.aoml.noaa.gov/phod/float_traj/index.php
     """
     return _dataset_filecache(
-        "subsurface_floats.nc", decode_times, adapters.subsurface_floats.to_xarray
+        "subsurface_floats.nc",
+        decode_times,
+        lambda: adapters.subsurface_floats.to_raggedarray().to_xarray(),
     )
 
 
@@ -766,7 +772,9 @@ def yomaha(decode_times: bool = True) -> xr.Dataset:
     assessed  from trajectories of Argo floats at parking level and at the sea
     surface. IPRC Technical Note, 4(2), 1-16.
     """
-    return _dataset_filecache("yomaha.nc", decode_times, adapters.yomaha.to_xarray)
+    return _dataset_filecache(
+        "yomaha.nc", decode_times, lambda: adapters.yomaha.to_raggedarray().to_xarray()
+    )
 
 
 def andro(decode_times: bool = True) -> xr.Dataset:
@@ -903,7 +911,7 @@ def quicche(
     ds = _dataset_filecache(
         filename,
         decode_times,
-        lambda: adapters.quicche.to_xarray(version),
+        lambda: adapters.quicche.to_raggedarray(version).to_xarray(),
     )
 
     # Backward compatibility: rebuild stale cache files created before
@@ -915,7 +923,7 @@ def quicche(
         ds = _dataset_filecache(
             filename,
             decode_times,
-            lambda: adapters.quicche.to_xarray(version),
+            lambda: adapters.quicche.to_raggedarray(version).to_xarray(),
             force=True,
         )
 

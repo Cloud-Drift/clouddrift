@@ -16,7 +16,7 @@ doi:10.18739/A2KP7TS83.
 Example
 -------
 >>> from clouddrift.adapters import mosaic
->>> ds = mosaic.to_xarray()
+>>> ra = mosaic.to_raggedarray()
 """
 
 import xml.etree.ElementTree as ET
@@ -26,9 +26,9 @@ from io import BytesIO
 import numpy as np
 import pandas as pd
 import requests
-import xarray as xr
 
 from clouddrift.adapters.utils import download_with_progress, standard_retry_protocol
+from clouddrift.raggedarray import RaggedArray
 
 MOSAIC_VERSION = "2022"
 
@@ -97,9 +97,14 @@ def get_repository_metadata() -> bytes:
     return r.content
 
 
-def to_xarray():
-    """Return the MOSAiC data as an ragged-array Xarray Dataset."""
+def to_raggedarray() -> RaggedArray:
+    """Return the MOSAiC data as a RaggedArray instance.
 
+    Returns
+    -------
+    RaggedArray
+        MOSAiC sea-ice drift trajectories as a ragged array.
+    """
     # Download the data and metadata as pandas DataFrames.
     obs_df, traj_df = get_dataframes()
 
@@ -112,30 +117,14 @@ def to_xarray():
         "First Data Datetime",
         "Last Data Datetime",
     ]:
-        traj_df[col] = pd.to_datetime(traj_df[col])
+        if col in traj_df.columns:
+            traj_df[col] = pd.to_datetime(traj_df[col])
 
-    # Merge into an Xarray Dataset and rename the dimensions and variables to
-    # follow the CloudDrift convention.
-    ds = xr.merge([obs_df.to_xarray(), traj_df.to_xarray()])
-    ds = ds.rename_dims({"datetime": "obs", "Sensor ID": "traj"}).rename_vars(
-        {"datetime": "time", "Sensor ID": "id"}
-    )
+    traj_ids = traj_df.index.to_numpy()
+    rowsize = traj_df["rowsize"].to_numpy(dtype="int64")
+    time = obs_df.index.to_numpy().astype("datetime64[ns]")
 
-    # Set variable attributes
-    ds["longitude"].attrs = {
-        "long_name": "longitude",
-        "standard_name": "longitude",
-        "units": "degrees_east",
-    }
-
-    ds["latitude"].attrs = {
-        "long_name": "latitude",
-        "standard_name": "latitude",
-        "units": "degrees_north",
-    }
-
-    # global attributes
-    ds.attrs = {
+    attrs_global = {
         "title": "Multidisciplinary drifting Observatory for the Study of Arctic Climate (MOSAiC) expedition 2019 - 2021",
         "history": f"Dataset updated in {MOSAIC_VERSION}",
         "date_created": datetime.now().isoformat(),
@@ -144,4 +133,59 @@ def to_xarray():
         "license": "Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0/)",
     }
 
-    return ds
+    attrs_variables = {
+        "id": {"long_name": "sensor identifier"},
+        "time": {"long_name": "time"},
+        "rowsize": {
+            "long_name": "number of observations per trajectory",
+            "sample_dimension": "obs",
+            "units": "-",
+        },
+        "latitude": {
+            "long_name": "latitude",
+            "standard_name": "latitude",
+            "units": "degrees_north",
+        },
+        "longitude": {
+            "long_name": "longitude",
+            "standard_name": "longitude",
+            "units": "degrees_east",
+        },
+    }
+
+    # Build traj-level metadata from all traj_df columns (rowsize handled separately)
+    traj_meta: dict = {}
+    traj_var_dims: dict = {}
+    for col in traj_df.columns:
+        if col == "rowsize":
+            continue
+        traj_meta[col] = traj_df[col].to_numpy()
+        traj_var_dims[col] = ["traj"]
+
+    # Build obs-level data from all obs_df columns
+    obs_data: dict = {}
+    obs_var_dims: dict = {}
+    for col in obs_df.columns:
+        obs_data[col] = obs_df[col].to_numpy()
+        obs_var_dims[col] = ["obs"]
+
+    return RaggedArray(
+        coords={
+            "id": traj_ids,
+            "time": time,
+        },
+        metadata={
+            "rowsize": rowsize,
+            **traj_meta,
+        },
+        data=obs_data,
+        attrs_global=attrs_global,
+        attrs_variables=attrs_variables,
+        name_dims={"traj": "rows", "obs": "obs"},
+        coord_dims={"id": "traj", "time": "obs"},
+        var_dims={
+            "rowsize": ["traj"],
+            **traj_var_dims,
+            **obs_var_dims,
+        },
+    )

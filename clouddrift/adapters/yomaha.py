@@ -9,7 +9,7 @@ is available at http://apdrc.soest.hawaii.edu/projects/yomaha/yomaha07/YoMaHa070
 Example
 -------
 >>> from clouddrift.adapters import yomaha
->>> ds = yomaha.to_xarray()
+>>> ra = yomaha.to_raggedarray()
 
 Reference
 ---------
@@ -21,15 +21,14 @@ import logging
 import os
 import shutil
 import tempfile
-import warnings
 from datetime import datetime
 from io import BytesIO
 
 import numpy as np
 import pandas as pd
-import xarray as xr
 
 from clouddrift.adapters.utils import download_with_progress
+from clouddrift.raggedarray import RaggedArray
 
 _logger = logging.getLogger(__name__)
 YOMAHA_URLS = [
@@ -67,8 +66,8 @@ def download(tmp_path: str, skip_download: bool = False):
             shutil.copyfileobj(compressed_file, file)
 
 
-def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
-    """Convert the YoMaHa'07 dataset to an xarray Dataset.
+def to_raggedarray(tmp_path: str | None = None, skip_download: bool = False) -> RaggedArray:
+    """Convert the YoMaHa'07 dataset to a RaggedArray instance.
 
     Parameters
     ----------
@@ -82,12 +81,12 @@ def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
 
     Returns
     -------
-    xarray.Dataset
-        YoMaHa'07 dataset as an xarray Dataset.
+    RaggedArray
+        YoMaHa'07 dataset as a ragged array.
     """
     if tmp_path is None:
         tmp_path = YOMAHA_TMP_PATH
-        os.makedirs(tmp_path, exist_ok=True)
+    os.makedirs(tmp_path, exist_ok=True)
 
     # get or update required files
     download(tmp_path, skip_download=skip_download)
@@ -97,7 +96,7 @@ def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
         YOMAHA_VERSION = f.read().strip()
         print(f"Last database update was: {YOMAHA_VERSION}")
 
-    # parse with panda
+    # parse with pandas
     col_names = [
         "lon_d",
         "lat_d",
@@ -165,17 +164,13 @@ def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
         )
     )
 
-    # open with pandas
     filename_gz = f"{tmp_path}/{YOMAHA_URLS[-1].split('/')[-1]}"
     filename = filename_gz.removesuffix(".gz")
     df = pd.read_csv(filename, names=col_names, sep=r"\s+", header=None, na_values=na_col)
 
-    # convert to an Xarray Dataset
-    ds = xr.Dataset.from_dataframe(df)
+    unique_id, rowsize = np.unique(df["id"], return_counts=True)
 
-    unique_id, rowsize = np.unique(ds["id"], return_counts=True)
-
-    # mapping of yomaha float id, wmo float id, daq id and float type
+    # mapping of yomaha float id, wmo float id, dac id and float type
     df_wmo = pd.read_csv(
         f"{tmp_path}/{YOMAHA_URLS[3].split('/')[-1]}",
         sep=r"\s+",
@@ -202,49 +197,57 @@ def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
         names=["float_type_id", "float_type"],
         engine="python",
     )
-    # there is a note on METOCEAN * in float_types.txt but the
-    # float id, wmo id, and float type do not match (?)
-    # so we remove the * from the type
     df_float.loc[df_float["float_type_id"] == 0, "float_type"] = "METOCEAN"
 
     df_wmo["dac_id"] = df_wmo["dac_id"].astype("int64")
     df_dac["dac_id"] = df_dac["dac_id"].astype("int64")
 
-    # combine metadata
+    # combine metadata, aligned to the sorted unique_id order
     df_metadata = (
         pd.merge(df_wmo, df_dac, on="dac_id", how="left")
         .merge(df_float, on="float_type_id", how="left")
         .loc[lambda x: np.isin(x["id"], unique_id)]
+        .set_index("id")
+        .reindex(unique_id)
+        .reset_index()
     )
 
-    ds = (
-        ds.rename_dims({"index": "obs"})
-        .assign({"id": ("traj", unique_id)})
-        .assign({"rowsize": ("traj", rowsize)})
-        .assign({"wmo_id": ("traj", df_metadata["wmo_id"])})
-        .assign({"dac_id": ("traj", df_metadata["dac_id"])})
-        .assign({"float_type": ("traj", df_metadata["float_type_id"])})
-        .set_coords(["id", "time_d", "time_s", "time_lp", "time_lc", "time_lp"])
-        .drop_vars(["index"])
-    )
-
-    # Cast double floats to singles
-    double_vars = [
+    # float64 variables to keep as float64
+    double_vars = {
         "lat_d",
         "lon_d",
         "lat_s",
         "lon_s",
         "lat_lp",
         "lon_lp",
+        "lat_fc",
+        "lon_fc",
         "lat_lc",
         "lon_lc",
-    ]
-    for var in [v for v in ds.variables if v not in double_vars]:
-        if ds[var].dtype == "float64":
-            ds[var] = ds[var].astype("float32")
+    }
 
-    # define attributes
-    vars_attrs = {
+    # time coordinate columns (stored as float, decoded by xarray via units attr)
+    time_coord_names = ["time_d", "time_s", "time_lp", "time_fc", "time_lc"]
+
+    # obs-level data columns (all except id and time coords)
+    obs_data_names = [c for c in col_names if c not in ("id",) + tuple(time_coord_names)]
+
+    def _cast(arr, name):
+        if name in double_vars:
+            return arr.to_numpy(dtype="float64")
+        if arr.dtype == "float64":
+            return arr.to_numpy(dtype="float32")
+        return arr.to_numpy()
+
+    coords = {
+        "id": unique_id,
+    }
+    for tc in time_coord_names:
+        coords[tc] = _cast(df[tc], tc)
+
+    data = {c: _cast(df[c], c) for c in obs_data_names}
+
+    attrs_variables = {
         "lon_d": {
             "long_name": "Longitude of the location where the deep velocity is calculated",
             "units": "degrees_east",
@@ -372,10 +375,14 @@ def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
             "description": "1: APEX, 2: SOLO, 3: PROVOR, 4: R1, 5: MARTEC, 6: PALACE, 7: NINJA, 8: NEMO, 9: ALACE, 0: METOCEAN",
             "units": "-",
         },
+        "rowsize": {
+            "long_name": "number of observations per trajectory",
+            "sample_dimension": "obs",
+            "units": "-",
+        },
     }
 
-    # global attributes
-    attrs = {
+    attrs_global = {
         "title": "YoMaHa'07: Velocity data assessed from trajectories of Argo floats at parking level and at the sea surface",
         "history": f"Dataset updated on {YOMAHA_VERSION}",
         "date_created": datetime.now().isoformat(),
@@ -384,12 +391,31 @@ def to_xarray(tmp_path: str | None = None, skip_download: bool = False):
         "license": "freely available",
     }
 
-    # set attributes
-    for var in vars_attrs.keys():
-        if var in ds.keys():
-            ds[var].attrs = vars_attrs[var]
-        else:
-            warnings.warn(f"Variable {var} not found in upstream data; skipping.")
-    ds.attrs = attrs
+    coord_dims = {"id": "traj"}
+    for tc in time_coord_names:
+        coord_dims[tc] = "obs"
 
-    return ds
+    var_dims = {
+        "rowsize": ["traj"],
+        "wmo_id": ["traj"],
+        "dac_id": ["traj"],
+        "float_type": ["traj"],
+    }
+    for c in obs_data_names:
+        var_dims[c] = ["obs"]
+
+    return RaggedArray(
+        coords=coords,
+        metadata={
+            "rowsize": rowsize.astype("int64"),
+            "wmo_id": df_metadata["wmo_id"].to_numpy(),
+            "dac_id": df_metadata["dac_id"].to_numpy(),
+            "float_type": df_metadata["float_type_id"].to_numpy(),
+        },
+        data=data,
+        attrs_global=attrs_global,
+        attrs_variables=attrs_variables,
+        name_dims={"traj": "rows", "obs": "obs"},
+        coord_dims=coord_dims,
+        var_dims=var_dims,
+    )
