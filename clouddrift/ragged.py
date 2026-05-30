@@ -374,6 +374,8 @@ def ragged_to_regular(
     --------
     :func:`regular_to_ragged`
     """
+    ragged = np.asarray(ragged)
+    rowsize = np.asarray(rowsize)
     res = fill_value * np.ones((len(rowsize), int(max(rowsize))), dtype=ragged.dtype)
     unpacked = unpack(ragged, rowsize)
     for n in range(len(rowsize)):
@@ -715,12 +717,8 @@ def subset(
     --------
     :func:`apply_ragged`
     """
-    mask_row = xr.DataArray(
-        data=np.ones(ds.sizes[row_dim_name], dtype="bool"), dims=[row_dim_name]
-    )
-    mask_obs = xr.DataArray(
-        data=np.ones(ds.sizes[obs_dim_name], dtype="bool"), dims=[obs_dim_name]
-    )
+    mask_row = xr.DataArray(data=np.ones(ds.sizes[row_dim_name], dtype="bool"), dims=[row_dim_name])
+    mask_obs = xr.DataArray(data=np.ones(ds.sizes[obs_dim_name], dtype="bool"), dims=[obs_dim_name])
 
     for key in criteria.keys():
         if np.all(np.isin(key, ds.variables) | np.isin(key, ds.dims)):
@@ -738,16 +736,12 @@ def subset(
             if row_dim_name in criterion_dims:
                 mask_row = np.logical_and(
                     mask_row,
-                    _mask_var(
-                        criterion, criteria[key], ds[rowsize_var_name], row_dim_name
-                    ),
+                    _mask_var(criterion, criteria[key], ds[rowsize_var_name], row_dim_name),
                 )
             elif obs_dim_name in criterion_dims:
                 mask_obs = np.logical_and(
                     mask_obs,
-                    _mask_var(
-                        criterion, criteria[key], ds[rowsize_var_name], obs_dim_name
-                    ),
+                    _mask_var(criterion, criteria[key], ds[rowsize_var_name], obs_dim_name),
                 )
         else:
             raise ValueError(f"Unknown variable '{key}'.")
@@ -758,20 +752,14 @@ def subset(
         mask_obs[slice(traj_idx[i], traj_idx[i + 1])] = False
 
     # remove rows completely filtered in mask_obs
-    ids_with_mask_obs = np.repeat(ds[id_var_name].values, ds[rowsize_var_name].values)[
-        mask_obs
-    ]
-    mask_row = np.logical_and(
-        mask_row, np.in1d(ds[id_var_name], np.unique(ids_with_mask_obs))
-    )
+    ids_with_mask_obs = np.repeat(ds[id_var_name].values, ds[rowsize_var_name].values)[mask_obs]
+    mask_row = np.logical_and(mask_row, np.isin(ds[id_var_name], np.unique(ids_with_mask_obs)))
 
     # reset mask_obs to True if we want to keep complete rows
     if full_rows:
         for i in np.where(mask_row)[0]:
             mask_obs[slice(traj_idx[i], traj_idx[i + 1])] = True
-        ids_with_mask_obs = np.repeat(
-            ds[id_var_name].values, ds[rowsize_var_name].values
-        )[mask_obs]
+        ids_with_mask_obs = np.repeat(ds[id_var_name].values, ds[rowsize_var_name].values)[mask_obs]
 
     if not any(mask_row):
         warnings.warn("No data matches the criteria; returning an empty dataset.")

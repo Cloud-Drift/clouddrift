@@ -10,7 +10,6 @@ import re
 import tempfile
 import urllib.request
 import warnings
-from collections.abc import Sequence
 from datetime import datetime, timedelta
 
 import numpy as np
@@ -24,9 +23,7 @@ GDP_VERSION = "2.01.1"
 
 
 GDP_DATA_URL = "https://www.aoml.noaa.gov/ftp/pub/phod/buoydata/hourly_product/v2.01"
-GDP_DATA_URL_EXPERIMENTAL = (
-    "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental"
-)
+GDP_DATA_URL_EXPERIMENTAL = "https://www.aoml.noaa.gov/ftp/pub/phod/lumpkin/hourly/experimental"
 
 
 GDP_TMP_PATH = os.path.join(tempfile.gettempdir(), "clouddrift", "gdp")
@@ -56,11 +53,125 @@ GDP_DATA = [
 _logger = logging.getLogger(__name__)
 
 
+def to_raggedarray(
+    drifter_ids: list[int] | None = None,
+    n_random_id: int | None = None,
+    url: str = GDP_DATA_URL,
+    tmp_path: str | None = None,
+    skip_download: bool = False,
+) -> RaggedArray:
+    """Download and process individual GDP hourly files and return a RaggedArray
+    instance with the data.
+
+    Parameters
+    ----------
+    drifter_ids : list[int], optional
+        List of drifters to retrieve (Default: all)
+    n_random_id : list[int], optional
+        Randomly select n_random_id drifter NetCDF files
+    url : str
+        URL from which to download the data (Default: GDP_DATA_URL)
+        Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL
+    tmp_path : str, optional
+        Path to the directory where the individual NetCDF files are stored
+        (default varies depending on operating system; /tmp/clouddrift/gdp on Linux)
+    skip_download : bool, optional
+        If True, make no network requests: discover drifter IDs by scanning
+        ``tmp_path`` for existing ``drifter_hourly_*.nc`` files (when
+        ``drifter_ids`` is ``None``) and use locally cached ``dirfl_*.dat``
+        metadata files. Default is False.
+
+    Returns
+    -------
+    out : RaggedArray
+        A RaggedArray instance of the requested dataset
+
+    Raises
+    ------
+    ValueError
+        If no matching drifter files are found for the requested selection.
+
+    Examples
+    --------
+
+    Invoke `to_raggedarray` without any arguments to download all drifter data
+    from the 2.01 GDP feed:
+
+    >>> from clouddrift.adapters.gdp.gdp1h import to_raggedarray
+    >>> ra = to_raggedarray()
+
+    To download a random sample of 100 drifters, for example for development
+    or testing, use the `n_random_id` argument:
+
+    >>> ra = to_raggedarray(n_random_id=100)
+
+    To download a specific list of drifters, use the `drifter_ids` argument:
+
+    >>> ra = to_raggedarray(drifter_ids=[44136, 54680, 83463])
+
+    To download the experimental 3.00 GDP data, use the `url` argument to
+    specify the experimental feed URL:
+    >>> from clouddrift.adapters.gdp.gdp1h import GDP_DATA_URL_EXPERIMENTAL, to_raggedarray
+    >>> ra = to_raggedarray(url=GDP_DATA_URL_EXPERIMENTAL)
+
+    Finally, `to_raggedarray` returns a `RaggedArray` instance which provides
+    a convenience method to emit a `xarray.Dataset` instance:
+
+    >>> ds = ra.to_xarray()
+
+    To write the ragged array dataset to a NetCDF file on disk, do
+
+    >>> ds.to_netcdf("gdp1h.nc", format="NETCDF4")
+
+    Alternatively, to write the ragged array to a Parquet file, first create
+    it as an Awkward Array:
+
+    >>> arr = ra.to_awkward()
+    >>> arr.to_parquet("gdp1h.parquet")
+    """
+
+    # adjust the tmp_path if using the experimental source
+    if tmp_path is None:
+        tmp_path = GDP_TMP_PATH if url == GDP_DATA_URL else GDP_TMP_PATH_EXPERIMENTAL
+
+    ids = download(url, tmp_path, drifter_ids, n_random_id, skip_download=skip_download)
+    filename_pattern = "drifter_hourly_{id}.nc"
+
+    # Add location_type to metadata
+    gdp_metadata = gdp.GDP_METADATA.copy()
+    if "location_type" not in gdp_metadata:
+        gdp_metadata.append("location_type")
+
+    ra = RaggedArray.from_files(
+        indices=ids,
+        preprocess_func=preprocess,
+        name_coords=gdp.GDP_COORDS,
+        name_meta=gdp_metadata,
+        name_data=GDP_DATA,
+        name_dims=gdp.GDP_DIMS,
+        rowsize_func=gdp.rowsize,
+        filename_pattern=filename_pattern,
+        tmp_path=tmp_path,
+    )
+
+    # set dynamic global attributes
+    if ra.attrs_global:
+        ra.attrs_global["time_coverage_start"] = (
+            f"{datetime(1970, 1, 1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+        )
+        ra.attrs_global["time_coverage_end"] = (
+            f"{datetime(1970, 1, 1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
+        )
+
+    return ra
+
+
 def download(
     url: str = GDP_DATA_URL,
     tmp_path: str = GDP_TMP_PATH,
     drifter_ids: list[int] | None = None,
     n_random_id: int | None = None,
+    skip_download: bool = False,
 ):
     """Download individual NetCDF files from the AOML server.
 
@@ -70,47 +181,64 @@ def download(
         URL from which to download the data.
     tmp_path : str
         Path to the directory where the individual NetCDF files are stored.
-
     drifter_ids : list, optional
         List of drifter to retrieve (Default: all)
     n_random_id : int, optional
         Randomly select n_random_id drifter IDs to download (Default: None)
+    skip_download : bool, optional
+        If True, make no network requests: discover drifter IDs by scanning
+        ``tmp_path`` for existing ``drifter_hourly_*.nc`` files (when
+        ``drifter_ids`` is ``None``) and use locally cached ``dirfl_*.dat``
+        metadata files. Default is False.
     Returns
     -------
     out : list
         List of retrieved drifters
+
+    Raises
+    ------
+    ValueError
+        If no matching drifter files are found for the requested selection.
     """
     print(f"Downloading GDP hourly data from ({url}) to ({tmp_path})")
 
     # Create a temporary directory if doesn't already exists.
     os.makedirs(tmp_path, exist_ok=True)
-    pattern = "drifter_hourly_[0-9]*.nc"
+    nc_pattern = re.compile(r"drifter_hourly_([0-9]+)\.nc")
     filename_pattern = "drifter_hourly_{id}.nc"
 
     # retrieve all drifter ID numbers
     if drifter_ids is None:
-        urlpath = standard_retry_protocol(lambda: urllib.request.urlopen(url))()
-        string = urlpath.read().decode("utf-8")
-        filelist: Sequence[str] = re.compile(pattern).findall(string)  # noqa: F821
+        if skip_download:
+            filelist = [f for f in os.listdir(tmp_path) if nc_pattern.fullmatch(f)]
+        else:
+            urlpath = standard_retry_protocol(lambda: urllib.request.urlopen(url))()
+            string = urlpath.read().decode("utf-8")
+            filelist = nc_pattern.findall(string)
+            filelist = [filename_pattern.format(id=did) for did in filelist]
     else:
         filelist = [filename_pattern.format(id=did) for did in drifter_ids]
     filelist = list(np.unique(filelist))
 
-    # retrieve only a subset of n_random_id trajectories
+    if drifter_ids is not None and len(filelist) != len(drifter_ids):
+        warnings.warn(
+            f"Requested {len(drifter_ids)} drifter IDs but found {len(filelist)} matching files."
+        )
+
+    if len(filelist) == 0:
+        raise ValueError(
+            "No drifter files found for the provided selection. Check `drifter_ids`, `tmp_path`, and `skip_download` settings."
+        )
+
     if n_random_id:
-        if n_random_id > len(filelist):
-            _logger.warn(
-                f"Retrieving all listed trajectories because {n_random_id} is larger than the {len(filelist)} listed trajectories."
-            )
-        else:
-            rng = np.random.Generator(np.random.MT19937(42))
-            filelist = sorted(rng.choice(filelist, n_random_id, replace=False))
+        filelist = gdp._subsample(filelist, n_random_id)
 
     download_with_progress(
-        [(f"{url}/{f}", os.path.join(tmp_path, f)) for f in filelist]
+        [(f"{url}/{f}", os.path.join(tmp_path, f)) for f in filelist],
+        skip_download=skip_download,
     )
     # Download the metadata so we can order the drifter IDs by end date.
-    gdp_metadata = gdp.get_gdp_metadata(tmp_path)
+    gdp_metadata = gdp.get_gdp_metadata(tmp_path, skip_download=skip_download)
 
     return gdp.order_by_date(
         gdp_metadata, [int(f.split("_")[-1].removesuffix(".nc")) for f in filelist]
@@ -145,9 +273,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     # parse the date with custom function
     ds["deploy_date"].data = gdp.decode_date(np.array([ds.deploy_date.data[0]]))
     ds["end_date"].data = gdp.decode_date(np.array([ds.end_date.data[0]]))
-    ds["drogue_lost_date"].data = gdp.decode_date(
-        np.array([ds.drogue_lost_date.data[0]])
-    )
+    ds["drogue_lost_date"].data = gdp.decode_date(np.array([ds.drogue_lost_date.data[0]]))
     ds["time"].data = gdp.decode_date(np.array([ds.time.data[0]]))
 
     # convert fill values to nan
@@ -230,9 +356,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     )
     ds["CurrentProgram"] = (
         ("traj"),
-        np.array(
-            [gdp.str_to_float(ds.attrs.get("CurrentProgram", ""), -1)], dtype=np.int32
-        ),
+        np.array([gdp.str_to_float(ds.attrs.get("CurrentProgram", ""), -1)], dtype=np.int32),
     )
     ds["PurchaserFunding"] = (
         ("traj"),
@@ -246,15 +370,11 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     )
     ds["DeploymentComments"] = (
         ("traj"),
-        np.array(
-            [gdp.str_to_float(ds.attrs.get("ManufactureYear", ""), -1)], dtype=np.int16
-        ),
+        gdp.cut_str(ds.attrs.get("DeploymentComments", ""), 20),
     )
     ds["ManufactureMonth"] = (
         ("traj"),
-        np.array(
-            [gdp.str_to_float(ds.attrs.get("ManufactureMonth", ""), -1)], dtype=np.int16
-        ),
+        np.array([gdp.str_to_float(ds.attrs.get("ManufactureMonth", ""), -1)], dtype=np.int16),
     )
     ds["ManufactureSensorType"] = (
         ("traj"),
@@ -273,9 +393,7 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     )  # e.g. 35.5 cm
     ds["SubsfcFloatPresence"] = (
         ("traj"),
-        np.array(
-            [gdp.str_to_float(ds.attrs.get("SubsfcFloatPresence", ""))], dtype="bool"
-        ),
+        np.array([gdp.str_to_float(ds.attrs.get("SubsfcFloatPresence", ""))], dtype="bool"),
     )
     ds["DrogueType"] = (("traj"), gdp.cut_str(ds.attrs.get("DrogueType", ""), 7))
     ds["DrogueLength"] = (
@@ -385,11 +503,6 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
         "Transmissions": {"long_name": "Transmissions", "units": "-"},
         "DeployingCountry": {"long_name": "Deploying country", "units": "-"},
         "DeploymentComments": {"long_name": "Deployment comments", "units": "-"},
-        "ManufactureYear": {
-            "long_name": "Manufacture year",
-            "units": "-",
-            "_FillValue": "-1",
-        },
         "ManufactureMonth": {
             "long_name": "Manufacture month",
             "units": "-",
@@ -532,100 +645,3 @@ def preprocess(index: int, **kwargs) -> xr.Dataset:
     ds = gdp.cast_float64_variables_to_float32(ds)
 
     return ds
-
-
-def to_raggedarray(
-    drifter_ids: list[int] | None = None,
-    n_random_id: int | None = None,
-    url: str = GDP_DATA_URL,
-    tmp_path: str | None = None,
-) -> RaggedArray:
-    """Download and process individual GDP hourly files and return a RaggedArray
-    instance with the data.
-
-    Parameters
-    ----------
-    drifter_ids : list[int], optional
-        List of drifters to retrieve (Default: all)
-    n_random_id : list[int], optional
-        Randomly select n_random_id drifter NetCDF files
-    url : str
-        URL from which to download the data (Default: GDP_DATA_URL)
-        Alternatively, it can be GDP_DATA_URL_EXPERIMENTAL
-    tmp_path : str, optional
-        Path to the directory where the individual NetCDF files are stored
-        (default varies depending on operating system; /tmp/clouddrift/gdp on Linux)
-
-    Returns
-    -------
-    out : RaggedArray
-        A RaggedArray instance of the requested dataset
-
-    Examples
-    --------
-
-    Invoke `to_raggedarray` without any arguments to download all drifter data
-    from the 2.01 GDP feed:
-
-    >>> from clouddrift.adapters.gdp.gdp1h import to_raggedarray
-    >>> ra = to_raggedarray()
-
-    To download a random sample of 100 drifters, for example for development
-    or testing, use the `n_random_id` argument:
-
-    >>> ra = to_raggedarray(n_random_id=100)
-
-    To download a specific list of drifters, use the `drifter_ids` argument:
-
-    >>> ra = to_raggedarray(drifter_ids=[44136, 54680, 83463])
-
-    To download the experimental 3.00 GDP data, use the `url` argument to
-    specify the experimental feed URL:
-    >>> from clouddrift.adapters.gdp.gdp1h import GDP_DATA_URL_EXPERIMENTAL, to_raggedarray
-    >>> ra = to_raggedarray(url=GDP_DATA_URL_EXPERIMENTAL)
-
-    Finally, `to_raggedarray` returns a `RaggedArray` instance which provides
-    a convenience method to emit a `xarray.Dataset` instance:
-
-    >>> ds = ra.to_xarray()
-
-    To write the ragged array dataset to a NetCDF file on disk, do
-
-    >>> ds.to_netcdf("gdp1h.nc", format="NETCDF4")
-
-    Alternatively, to write the ragged array to a Parquet file, first create
-    it as an Awkward Array:
-
-    >>> arr = ra.to_awkward()
-    >>> arr.to_parquet("gdp1h.parquet")
-    """
-
-    # adjust the tmp_path if using the experimental source
-    if tmp_path is None:
-        tmp_path = GDP_TMP_PATH if url == GDP_DATA_URL else GDP_TMP_PATH_EXPERIMENTAL
-
-    ids = download(url, tmp_path, drifter_ids, n_random_id)
-    filename_pattern = "drifter_hourly_{id}.nc"
-
-    ra = RaggedArray.from_files(
-        indices=ids,
-        preprocess_func=preprocess,
-        name_coords=gdp.GDP_COORDS,
-        name_meta=gdp.GDP_METADATA,
-        name_data=GDP_DATA,
-        name_dims=gdp.GDP_DIMS,
-        rowsize_func=gdp.rowsize,
-        filename_pattern=filename_pattern,
-        tmp_path=tmp_path,
-    )
-
-    # set dynamic global attributes
-    if ra.attrs_global:
-        ra.attrs_global["time_coverage_start"] = (
-            f"{datetime(1970, 1, 1) + timedelta(seconds=int(np.min(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
-        )
-        ra.attrs_global["time_coverage_end"] = (
-            f"{datetime(1970, 1, 1) + timedelta(seconds=int(np.max(ra.coords['time']))):%Y-%m-%d:%H:%M:%SZ}"
-        )
-
-    return ra

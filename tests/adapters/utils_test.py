@@ -29,9 +29,7 @@ class utils_tests(unittest.TestCase):
 
         self.get_response_mock = Mock()
         self.get_response_mock.headers = {"Content-Length": "4"}
-        self.get_response_mock.iter_content = Mock(
-            return_value=[b"a", b"b", b"c", b"d"]
-        )
+        self.get_response_mock.iter_content = Mock(return_value=[b"a", b"b", b"c", b"d"])
         self.get_response_mock.__enter__ = Mock(return_value=self.get_response_mock)
         self.get_response_mock.__exit__ = Mock()
 
@@ -49,9 +47,7 @@ class utils_tests(unittest.TestCase):
         self.bar_mock.update = Mock()
 
         # Patch 'requests' in 'clouddrift.adapters.utils' with 'self.requests_mock'
-        self.requests_patcher = patch(
-            "clouddrift.adapters.utils.requests", self.requests_mock
-        )
+        self.requests_patcher = patch("clouddrift.adapters.utils.requests", self.requests_mock)
         self.requests_patcher.start()
 
         # Patch 'open' in 'clouddrift.adapters.utils' with 'self.open_mock'
@@ -80,14 +76,10 @@ class utils_tests(unittest.TestCase):
                 ),
                 patch("clouddrift.adapters.utils.requests", self.requests_mock),
                 patch("clouddrift.adapters.utils.open", self.open_mock),
-                patch(
-                    "clouddrift.adapters.utils.os.path.exists", Mock(return_value=True)
-                ),
+                patch("clouddrift.adapters.utils.os.path.exists", Mock(return_value=True)),
             ]
         ) as _:
-            utils._download_with_progress(
-                "some.url.com", "./some/path/existing-file.nc", 0, False
-            )
+            utils._download_with_progress("some.url.com", "./some/path/existing-file.nc", 0, False)
             self.requests_mock.get.assert_not_called()
 
     def test_download_new_update_buffer(self):
@@ -101,9 +93,7 @@ class utils_tests(unittest.TestCase):
         with MultiPatcher(
             [
                 patch("clouddrift.adapters.utils.datetime", datetime_mock),
-                patch(
-                    "clouddrift.adapters.utils.os.path.exists", Mock(return_value=True)
-                ),
+                patch("clouddrift.adapters.utils.os.path.exists", Mock(return_value=True)),
                 patch(
                     "clouddrift.adapters.utils.os.path.getmtime",
                     Mock(return_value=(now - timedelta(days=1)).timestamp()),
@@ -117,11 +107,9 @@ class utils_tests(unittest.TestCase):
 
             # Assertions to verify the behavior
             self.requests_mock.get.assert_called_with(
-                "some.url.com", timeout=10, stream=True
+                "some.url.com", headers=utils._BROWSER_HEADERS, timeout=60, stream=True
             )
-            buffer.write.assert_has_calls(
-                [call(b"a"), call(b"b"), call(b"c"), call(b"d")]
-            )
+            buffer.write.assert_has_calls([call(b"a"), call(b"b"), call(b"c"), call(b"d")])
 
     def test_download_new_update_file(self):
         """
@@ -134,16 +122,12 @@ class utils_tests(unittest.TestCase):
         with MultiPatcher(
             [
                 patch("clouddrift.adapters.utils.datetime", datetime_mock),
-                patch(
-                    "clouddrift.adapters.utils.os.path.exists", Mock(return_value=True)
-                ),
+                patch("clouddrift.adapters.utils.os.path.exists", Mock(return_value=True)),
                 patch(
                     "clouddrift.adapters.utils.os.path.getmtime",
                     Mock(return_value=(now - timedelta(days=1)).timestamp()),
                 ),
-                patch(
-                    "clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)
-                ),
+                patch("clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)),
                 patch("clouddrift.adapters.utils.os.remove", Mock()),
                 patch("clouddrift.adapters.utils.os.rename", Mock()),
             ]
@@ -153,13 +137,53 @@ class utils_tests(unittest.TestCase):
 
             # Assertions to verify the behavior
             self.requests_mock.get.assert_called_with(
-                "some.url.com", timeout=10, stream=True
+                "some.url.com", headers=utils._BROWSER_HEADERS, timeout=60, stream=True
             )
             self.open_mock.assert_called_with(output_file + ".part", "wb")
             handle = self.open_mock()
-            handle.write.assert_has_calls(
-                [call(b"a"), call(b"b"), call(b"c"), call(b"d")]
+            handle.write.assert_has_calls([call(b"a"), call(b"b"), call(b"c"), call(b"d")])
+
+    def test_skip_download_skips_existing_file(self):
+        with patch("clouddrift.adapters.utils.os.path.exists", Mock(return_value=True)):
+            utils._download_with_progress(
+                "some.url.com", "output.file", 0, False, skip_download=True
             )
+
+            self.requests_mock.head.assert_not_called()
+            self.requests_mock.get.assert_not_called()
+
+    def test_skip_download_downloads_missing_file(self):
+        with MultiPatcher(
+            [
+                patch("clouddrift.adapters.utils.os.path.exists", Mock(return_value=False)),
+                patch("clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)),
+                patch("clouddrift.adapters.utils.os.remove", Mock()),
+                patch("clouddrift.adapters.utils.os.rename", Mock()),
+            ]
+        ):
+            utils._download_with_progress(
+                "some.url.com", "output.file", 0, False, skip_download=True
+            )
+
+            self.requests_mock.get.assert_called_once()
+
+    def test_head_failure_raises_exception_without_downloading(self):
+        with MultiPatcher(
+            [
+                patch("clouddrift.adapters.utils.os.path.exists", Mock(return_value=True)),
+                patch("clouddrift.adapters.utils.os.path.getmtime", Mock(return_value=0)),
+                patch("clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)),
+                patch("clouddrift.adapters.utils.os.remove", Mock()),
+                patch("clouddrift.adapters.utils.os.rename", Mock()),
+            ]
+        ):
+            self.requests_mock.head.side_effect = RequestException("head failure")
+
+            output_file = "output.file"
+            with self.assertRaises(RequestException):
+                utils._download_with_progress("some.url.com", output_file, 0, False)
+
+            self.requests_mock.get.assert_not_called()
 
     def test_progress_mechanism_disabled_files(self):
         """
@@ -185,9 +209,7 @@ class utils_tests(unittest.TestCase):
 
         with MultiPatcher(
             [
-                patch(
-                    "clouddrift.adapters.utils.tqdm", Mock(return_value=self.bar_mock)
-                ),
+                patch("clouddrift.adapters.utils.tqdm", Mock(return_value=self.bar_mock)),
                 patch("clouddrift.adapters.utils.concurrent.futures", futures_mock),
                 patch("clouddrift.adapters.utils.os.remove", Mock()),
                 patch("clouddrift.adapters.utils.os.rename", Mock()),
@@ -217,9 +239,7 @@ class utils_tests(unittest.TestCase):
 
         with MultiPatcher(
             [
-                patch(
-                    "clouddrift.adapters.utils.tqdm", Mock(return_value=self.bar_mock)
-                ),
+                patch("clouddrift.adapters.utils.tqdm", Mock(return_value=self.bar_mock)),
                 patch("clouddrift.adapters.utils.concurrent.futures", futures_mock),
                 patch("clouddrift.adapters.utils.os.remove", Mock()),
                 patch("clouddrift.adapters.utils.os.rename", Mock()),
@@ -238,12 +258,8 @@ class utils_tests(unittest.TestCase):
         with MultiPatcher(
             [
                 patch("clouddrift.adapters.utils.tqdm", tqdm_mock),
-                patch(
-                    "clouddrift.adapters.utils.os.path.exists", Mock(return_value=False)
-                ),
-                patch(
-                    "clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)
-                ),
+                patch("clouddrift.adapters.utils.os.path.exists", Mock(return_value=False)),
+                patch("clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)),
                 patch("clouddrift.adapters.utils.os.remove", Mock()),
                 patch("clouddrift.adapters.utils.os.rename", Mock()),
             ]
@@ -255,7 +271,7 @@ class utils_tests(unittest.TestCase):
             tqdm_mock.assert_called_once()
             self.bar_mock.update.assert_has_calls([call(1), call(1), call(1), call(1)])
             self.requests_mock.get.assert_called_with(
-                "some.url.com", timeout=10, stream=True
+                "some.url.com", headers=utils._BROWSER_HEADERS, timeout=60, stream=True
             )
             self.open_mock.assert_called_with(output_file + ".part", "wb")
 
@@ -268,12 +284,8 @@ class utils_tests(unittest.TestCase):
         with MultiPatcher(
             [
                 patch("clouddrift.adapters.utils.tqdm", tqdm_mock),
-                patch(
-                    "clouddrift.adapters.utils.os.path.exists", Mock(return_value=False)
-                ),
-                patch(
-                    "clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)
-                ),
+                patch("clouddrift.adapters.utils.os.path.exists", Mock(return_value=False)),
+                patch("clouddrift.adapters.utils.os.path.getsize", Mock(return_value=4)),
                 patch("clouddrift.adapters.utils.os.remove", Mock()),
                 patch("clouddrift.adapters.utils.os.rename", Mock()),
             ]
@@ -285,7 +297,7 @@ class utils_tests(unittest.TestCase):
             tqdm_mock.assert_not_called()
             self.bar_mock.update.assert_not_called()
             self.requests_mock.get.assert_called_with(
-                "some.url.com", timeout=10, stream=True
+                "some.url.com", headers=utils._BROWSER_HEADERS, timeout=60, stream=True
             )
             self.open_mock.assert_called_with(output_file + ".part", "wb")
 
@@ -316,9 +328,7 @@ class utils_tests(unittest.TestCase):
 
         with MultiPatcher(
             [
-                patch(
-                    "clouddrift.adapters.utils.tqdm", Mock(return_value=self.bar_mock)
-                ),
+                patch("clouddrift.adapters.utils.tqdm", Mock(return_value=self.bar_mock)),
                 patch("clouddrift.adapters.utils.concurrent.futures", futures_mock),
                 patch("clouddrift.adapters.utils.os", os_mock),
             ]

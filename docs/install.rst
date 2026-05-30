@@ -24,7 +24,7 @@ CloudDrift requires the following dependencies:
 - `zarr <https://github.com/zarr-developers/zarr-python>`_ (2.14.2 or later)
 - `tenacity <https://github.com/jd/tenacity>`_ (8.2.3 or later)
 
-if you install CloudDrift using pip or Conda, these dependencies will be installed automatically.
+if you install CloudDrift using uv, pip or Conda, these dependencies will be installed automatically. See :ref:`installation-instructions` for details.
 
 Optional dependencies
 ---------------------
@@ -52,19 +52,54 @@ For building the documentation
 - `sphinx-book-theme <https://github.com/executablebooks/sphinx-book-theme>`_
 - `sphinx-copybutton <https://github.com/executablebooks/sphinx-copybutton>`_
 
-Note: If you are using pip to install xarray, optional dependencies can be installed by specifying extras, such as:
+Note: Optional plotting dependencies can be installed by specifying extras:
 
-.. code-block:: text
+- with uv: ``uv add 'clouddrift[plotting]'``
+- with pip: ``pip install 'clouddrift[plotting]'``
 
-  pip install clouddrift[plotting] clouddrift[dev] clouddrift[docs]
+There is also ``clouddrift[all]`` to install all optional dependencies.
 
-There is also `clouddrift[all]` to install automatically all optional dependencies.
+.. _installation-instructions:
 
 Installation instructions
 -------------------------
 
-You can install the latest release of CloudDrift using pip or Conda.
+You can install the latest release of CloudDrift using uv, pip, or Conda.
 You can also install the latest development (unreleased) version from GitHub.
+
+.. note::
+
+   The ``uv`` instructions below require `uv <https://docs.astral.sh/uv/>`_ to be
+   installed. To install it, run:
+
+   .. code-block:: text
+
+     curl -LsSf https://astral.sh/uv/install.sh | sh
+
+   See the `uv installation docs <https://docs.astral.sh/uv/getting-started/installation/>`_
+   for other platforms and methods.
+
+uv
+^^
+
+In your project, type:
+
+.. code-block:: text
+
+  uv add clouddrift
+
+To install optional dependencies needed by the ``clouddrift.plotting`` module,
+type:
+
+.. code-block:: text
+
+  uv add 'clouddrift[plotting]'
+
+For local development, clone the repository and run:
+
+.. code-block:: text
+
+  uv sync
 
 pip
 ^^^
@@ -80,7 +115,7 @@ type:
 
 .. code-block:: text
 
-  pip install clouddrift[plotting]
+  pip install 'clouddrift[plotting]'
 
 Conda
 ^^^^^
@@ -108,7 +143,15 @@ type:
 Developers
 ^^^^^^^^^^
 
-If you need the latest development version, get it from GitHub using pip:
+If you need the latest development version, clone the repository and use uv:
+
+.. code-block:: text
+
+  git clone https://github.com/Cloud-Drift/clouddrift
+  cd clouddrift
+  uv sync
+
+Alternatively, install directly from GitHub using pip:
 
 .. code-block:: text
 
@@ -117,22 +160,18 @@ If you need the latest development version, get it from GitHub using pip:
 Running tests
 =============
 
-To run the tests, you need to first download the CloudDrift source code from
-GitHub and install it in your virtual environment:
-
+To run the tests, first clone the repository and install dependencies with uv:
 
 .. code-block:: text
 
   git clone https://github.com/cloud-drift/clouddrift
   cd clouddrift
-  python3 -m venv venv
-  source venv/bin/activate
-  pip install .
+  uv sync
 
 Then, run the tests like this:
 
 .. code-block:: text
 
-  python -m unittest tests/*.py
+  uv run pytest
 
 A quick how-to guide is provided on the `Usage <https://cloud-drift.github.io/clouddrift/usage.html>`_ page.

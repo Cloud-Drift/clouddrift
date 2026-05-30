@@ -1,13 +1,18 @@
 import unittest
+import warnings
 
 import numpy as np
+import pytest
 from numpy.lib.scimath import sqrt
 from scipy.special import iv, kv  # type: ignore
 
 from clouddrift.sphere import EARTH_DAY_SECONDS
 from clouddrift.transfer import (
+    _epanechnikov_kernel,
     _rot,
     _xis,
+    apply_sliding_transfer_function,
+    apply_transfer_function,
     ivtilde,
     kvtilde,
     wind_transfer,
@@ -29,7 +34,7 @@ class TransferFunctionTestShapes(unittest.TestCase):
         self.bld = 50  # Boundary layer depth in meters
         self.density = 1025  # Seawater density in kg/m^3
 
-    def test_output_size_wind_transfer_no_slip_mu_is_0(self):
+    def test_output_size_wind_lilly_transfer_no_slip_mu_is_0(self):
         G, dG1, dG2 = wind_transfer(
             self.omega,
             self.z,
@@ -44,7 +49,23 @@ class TransferFunctionTestShapes(unittest.TestCase):
         self.assertEqual(dG1.shape, (len(self.z), len(self.omega)))
         self.assertEqual(dG2.shape, (len(self.z), len(self.omega)))
 
-    def test_output_size_wind_transfer_no_slip_mu_not_0(self):
+    def test_output_size_wind_elipot_transfer_no_slip_mu_is_0(self):
+        G, dG1, dG2 = wind_transfer(
+            self.omega,
+            self.z,
+            self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="no-slip",
+            density=self.density,
+            method="elipot",
+        )
+        self.assertEqual(G.shape, (len(self.z), len(self.omega)))
+        self.assertEqual(dG1.shape, (0,))
+        self.assertEqual(dG2.shape, (0,))
+
+    def test_output_size_wind_lilly_transfer_no_slip_mu_not_0(self):
         G, dG1, dG2 = wind_transfer(
             self.omega,
             self.z,
@@ -59,6 +80,7 @@ class TransferFunctionTestShapes(unittest.TestCase):
         self.assertEqual(dG1.shape, (0,))
         self.assertEqual(dG2.shape, (0,))
 
+    def test_output_size_wind_elipot_transfer_no_slip_mu_not_0(self):
         G, dG1, dG2 = wind_transfer(
             self.omega,
             self.z,
@@ -74,7 +96,38 @@ class TransferFunctionTestShapes(unittest.TestCase):
         self.assertEqual(dG1.shape, (0,))
         self.assertEqual(dG2.shape, (0,))
 
-    def test_output_size_wind_transfer_free_slip(self):
+    def test_output_size_wind_lilly_transfer_free_slip_mu_is_0(self):
+        G, dG1, dG2 = wind_transfer(
+            self.omega,
+            self.z,
+            self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+        )
+        self.assertEqual(G.shape, (len(self.z), len(self.omega)))
+        self.assertEqual(dG1.shape, (0,))
+        self.assertEqual(dG2.shape, (0,))
+
+    def test_output_size_wind_elipot_transfer_free_slip_mu_is_0(self):
+        G, dG1, dG2 = wind_transfer(
+            self.omega,
+            self.z,
+            self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+            method="elipot",
+        )
+        self.assertEqual(G.shape, (len(self.z), len(self.omega)))
+        self.assertEqual(dG1.shape, (0,))
+        self.assertEqual(dG2.shape, (0,))
+
+    def test_output_size_wind_lilly_transfer_free_slip_mu_not_0(self):
         G, dG1, dG2 = wind_transfer(
             self.omega,
             self.z,
@@ -84,6 +137,22 @@ class TransferFunctionTestShapes(unittest.TestCase):
             self.bld,
             boundary_condition="free-slip",
             density=self.density,
+        )
+        self.assertEqual(G.shape, (len(self.z), len(self.omega)))
+        self.assertEqual(dG1.shape, (0,))
+        self.assertEqual(dG2.shape, (0,))
+
+    def test_output_size_wind_elipot_transfer_free_slip_mu_not_0(self):
+        G, dG1, dG2 = wind_transfer(
+            self.omega,
+            self.z,
+            self.cor_freq,
+            self.delta,
+            5,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+            method="elipot",
         )
         self.assertEqual(G.shape, (len(self.z), len(self.omega)))
         self.assertEqual(dG1.shape, (0,))
@@ -199,7 +268,7 @@ class TransferFunctionSurfaceValues(unittest.TestCase):
         self.bld = 50  # Boundary layer depth in meters
         self.density = 1025  # Seawater density in kg/m^3
 
-    def test_surface_angle_wind_transfer_no_slip_lilly_nh(self):
+    def test_surface_angle_wind_lilly_transfer_no_slip_nh(self):
         G, _, _ = wind_transfer(
             self.omega,
             self.z[0],
@@ -218,7 +287,7 @@ class TransferFunctionSurfaceValues(unittest.TestCase):
             )
         )
 
-    def test_surface_angle_wind_transfer_no_slip_elipot_nh(self):
+    def test_surface_angle_wind_elipot_transfer_no_slip_nh(self):
         G, _, _ = wind_transfer(
             self.omega,
             self.z[0],
@@ -233,13 +302,14 @@ class TransferFunctionSurfaceValues(unittest.TestCase):
         # except at inertial frequency which is not defined for elipot case
         self.assertTrue(
             np.allclose(
-                np.angle(np.delete(G, 1)),
-                np.pi / 4 * np.array([1, -1, -1, -1, -1, -1, -1]),
+                np.angle(G),
+                np.pi / 4 * np.array([1, np.nan, -1, -1, -1, -1, -1, -1]),
                 atol=1e-1,
+                equal_nan=True,
             )
         )
 
-    def test_surface_angle_wind_transfer_no_slip_lilly_sh(self):
+    def test_surface_angle_wind_lilly_transfer_no_slip_sh(self):
         G, _, _ = wind_transfer(
             self.omega,
             self.z[0],
@@ -258,7 +328,7 @@ class TransferFunctionSurfaceValues(unittest.TestCase):
             )
         )
 
-    def test_surface_angle_wind_transfer_no_slip_elipot_sh(self):
+    def test_surface_angle_wind_elipot_transfer_no_slip_sh(self):
         G, _, _ = wind_transfer(
             self.omega,
             self.z[0],
@@ -273,9 +343,94 @@ class TransferFunctionSurfaceValues(unittest.TestCase):
         # except at inertial frequency which is not defined for elipot case
         self.assertTrue(
             np.allclose(
-                np.angle(np.delete(G, 6)),
-                np.pi / 4 * np.array([1, 1, 1, 1, 1, 1, -1]),
+                np.angle(G),
+                np.pi / 4 * np.array([1, 1, 1, 1, 1, 1, np.nan, -1]),
                 atol=1e-1,
+                equal_nan=True,
+            )
+        )
+
+    def test_surface_angle_wind_lilly_transfer_free_slip_nh(self):
+        G, _, _ = wind_transfer(
+            self.omega,
+            self.z[0],
+            self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+        )
+        self.assertTrue(
+            np.allclose(
+                np.angle(G),
+                np.pi / 4 * np.array([1, np.nan, -1, -1, -1, -1, -1, -1]),
+                atol=1e-1,
+                equal_nan=True,
+            )
+        )
+
+    def test_surface_angle_wind_elipot_transfer_free_slip_nh(self):
+        G, _, _ = wind_transfer(
+            self.omega,
+            self.z[0],
+            self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+            method="elipot",
+        )
+        # except at inertial frequency which is not defined for elipot case
+        self.assertTrue(
+            np.allclose(
+                np.angle(G),
+                np.pi / 4 * np.array([1, np.nan, -1, -1, -1, -1, -1, -1]),
+                atol=1e-1,
+                equal_nan=True,
+            )
+        )
+
+    def test_surface_angle_wind_lilly_transfer_free_slip_sh(self):
+        G, _, _ = wind_transfer(
+            self.omega,
+            self.z[0],
+            -self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+        )
+        self.assertTrue(
+            np.allclose(
+                np.angle(G),
+                np.pi / 4 * np.array([1, 1, 1, 1, 1, 1, np.nan, -1]),
+                atol=1e-1,
+                equal_nan=True,
+            )
+        )
+
+    def test_surface_angle_wind_elipot_transfer_free_slip_sh(self):
+        G, _, _ = wind_transfer(
+            self.omega,
+            self.z[0],
+            -self.cor_freq,
+            self.delta,
+            self.mu,
+            self.bld,
+            boundary_condition="free-slip",
+            density=self.density,
+            method="elipot",
+        )
+        # except at inertial frequency which is not defined for elipot case
+        self.assertTrue(
+            np.allclose(
+                np.angle(G),
+                np.pi / 4 * np.array([1, 1, 1, 1, 1, 1, np.nan, -1]),
+                atol=1e-1,
+                equal_nan=True,
             )
         )
 
@@ -410,9 +565,7 @@ class TransferFunctionValues(unittest.TestCase):
             ]
         )
         Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
-        self.assertTrue(
-            np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True)
-        )
+        self.assertTrue(np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True))
 
     def test_values_finite_bld_mu_is_zero(self):
         idx = np.abs(self.omega).argmin()
@@ -442,10 +595,7 @@ class TransferFunctionValues(unittest.TestCase):
             ]
         )
         Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
-        print(Gp[:, idx])
-        self.assertTrue(
-            np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True)
-        )
+        self.assertTrue(np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True))
 
     def test_values_finite_bld_delta_is_zero(self):
         idx = np.abs(self.omega).argmin()
@@ -475,9 +625,7 @@ class TransferFunctionValues(unittest.TestCase):
             ]
         )
         Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
-        self.assertTrue(
-            np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True)
-        )
+        self.assertTrue(np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True))
 
     def test_values_free_slip(self):
         idx = np.abs(self.omega).argmin()
@@ -507,9 +655,7 @@ class TransferFunctionValues(unittest.TestCase):
             ]
         )
         Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
-        self.assertTrue(
-            np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True)
-        )
+        self.assertTrue(np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True))
 
     def test_values_free_slip_mu_is_zero(self):
         idx = np.abs(self.omega).argmin()
@@ -539,9 +685,7 @@ class TransferFunctionValues(unittest.TestCase):
             ]
         )
         Gp = G * np.abs(self.cor_freq / EARTH_DAY_SECONDS) * self.density
-        self.assertTrue(
-            np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True)
-        )
+        self.assertTrue(np.allclose(Gp[:, idx], expected_values, atol=1e-8, equal_nan=True))
 
     # def test_values_free_slip_delta_is_zero(self):
     #     idx = np.abs(self.omega).argmin()
@@ -581,6 +725,7 @@ class TransferFunctionTestGradient(unittest.TestCase):
     bld = 10 ** np.arange(np.log10(15.15), 5, 0.05)
     [delta_grid, bld_grid] = np.meshgrid(delta, bld)
 
+    @pytest.mark.filterwarnings("ignore:overflow encountered in tanh:RuntimeWarning")
     def test_gradient_ekman_case(self):
         # Test the gradient of the transfer function, no-slip
         omega = np.array([1e-4])
@@ -591,34 +736,43 @@ class TransferFunctionTestGradient(unittest.TestCase):
         delta_bld = 1e-6
         # initialize transfer functions and gradients
         wind_transfer_init = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
-        wind_transfer_ddelta_plus = np.zeros(
-            (len(self.delta), len(self.bld)), dtype=complex
-        )
-        wind_transfer_ddelta_minus = np.zeros(
-            (len(self.delta), len(self.bld)), dtype=complex
-        )
-        wind_transfer_dbld_plus = np.zeros(
-            (len(self.delta), len(self.bld)), dtype=complex
-        )
-        wind_transfer_dbld_minus = np.zeros(
-            (len(self.delta), len(self.bld)), dtype=complex
-        )
+        wind_transfer_ddelta_plus = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
+        wind_transfer_ddelta_minus = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
+        wind_transfer_dbld_plus = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
+        wind_transfer_dbld_minus = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
         dG_ddelta = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
         dG_dbld = np.zeros((len(self.delta), len(self.bld)), dtype=complex)
 
         for i in range(len(self.delta)):
             for j in range(len(self.bld)):
-                wind_transfer_init[i, j], dG_ddelta[i, j], dG_dbld[i, j] = (
-                    wind_transfer(
-                        omega=omega,
-                        z=z,
-                        cor_freq=cor_freq,
-                        delta=self.delta[i],
-                        mu=mu,
-                        bld=self.bld[j],
-                    )
+                results = wind_transfer(
+                    omega=omega,
+                    z=z,
+                    cor_freq=cor_freq,
+                    delta=self.delta[i],
+                    mu=mu,
+                    bld=self.bld[j],
                 )
-                wind_transfer_ddelta_plus[i, j], _, _ = wind_transfer(
+                wind_transfer_init[i, j] = (
+                    results[0].item() if isinstance(results[0], np.ndarray) else results[0]
+                )
+                dG_ddelta[i, j] = (
+                    results[1].item() if isinstance(results[1], np.ndarray) else results[1]
+                )
+                dG_dbld[i, j] = (
+                    results[2].item() if isinstance(results[2], np.ndarray) else results[2]
+                )
+                # wind_transfer_init[i, j], dG_ddelta[i, j], dG_dbld[i, j] = (
+                #     wind_transfer(
+                #         omega=omega,
+                #         z=z,
+                #         cor_freq=cor_freq,
+                #         delta=self.delta[i],
+                #         mu=mu,
+                #         bld=self.bld[j],
+                #     )
+                # )
+                results = wind_transfer(
                     omega=omega,
                     z=z,
                     cor_freq=cor_freq,
@@ -626,7 +780,10 @@ class TransferFunctionTestGradient(unittest.TestCase):
                     mu=mu,
                     bld=self.bld[j],
                 )
-                wind_transfer_ddelta_minus[i, j], _, _ = wind_transfer(
+                wind_transfer_ddelta_plus[i, j] = (
+                    results[0].item() if isinstance(results[0], np.ndarray) else results[0]
+                )
+                results = wind_transfer(
                     omega=omega,
                     z=z,
                     cor_freq=cor_freq,
@@ -634,7 +791,10 @@ class TransferFunctionTestGradient(unittest.TestCase):
                     mu=mu,
                     bld=self.bld[j],
                 )
-                wind_transfer_dbld_plus[i, j], _, _ = wind_transfer(
+                wind_transfer_ddelta_minus[i, j] = (
+                    results[0].item() if isinstance(results[0], np.ndarray) else results[0]
+                )
+                results = wind_transfer(
                     omega=omega,
                     z=z,
                     cor_freq=cor_freq,
@@ -642,7 +802,10 @@ class TransferFunctionTestGradient(unittest.TestCase):
                     mu=mu,
                     bld=self.bld[j] + delta_bld / 2,
                 )
-                wind_transfer_dbld_minus[i, j], _, _ = wind_transfer(
+                wind_transfer_dbld_plus[i, j] = (
+                    results[0].item() if isinstance(results[0], np.ndarray) else results[0]
+                )
+                results = wind_transfer(
                     omega=omega,
                     z=z,
                     cor_freq=cor_freq,
@@ -650,10 +813,11 @@ class TransferFunctionTestGradient(unittest.TestCase):
                     mu=mu,
                     bld=self.bld[j] - delta_bld / 2,
                 )
+                wind_transfer_dbld_minus[i, j] = (
+                    results[0].item() if isinstance(results[0], np.ndarray) else results[0]
+                )
 
-        dG_ddelta_fd = (
-            wind_transfer_ddelta_plus - wind_transfer_ddelta_minus
-        ) / delta_delta
+        dG_ddelta_fd = (wind_transfer_ddelta_plus - wind_transfer_ddelta_minus) / delta_delta
         dG_dbld_fd = (wind_transfer_dbld_plus - wind_transfer_dbld_minus) / delta_bld
 
         bool_indices = dG_ddelta_fd != 0
@@ -662,8 +826,7 @@ class TransferFunctionTestGradient(unittest.TestCase):
             (
                 np.abs(dG_ddelta_fd[bool_indices] - dG_ddelta[bool_indices])
                 / sqrt(
-                    np.abs(dG_ddelta_fd[bool_indices]) ** 2
-                    + np.abs(dG_ddelta[bool_indices]) ** 2
+                    np.abs(dG_ddelta_fd[bool_indices]) ** 2 + np.abs(dG_ddelta[bool_indices]) ** 2
                 )
             )
         )
@@ -673,10 +836,7 @@ class TransferFunctionTestGradient(unittest.TestCase):
         eps2 = np.max(
             (
                 np.abs(dG_dbld_fd[bool_indices] - dG_dbld[bool_indices])
-                / sqrt(
-                    np.abs(dG_dbld_fd[bool_indices]) ** 2
-                    + np.abs(dG_dbld[bool_indices]) ** 2
-                )
+                / sqrt(np.abs(dG_dbld_fd[bool_indices]) ** 2 + np.abs(dG_dbld[bool_indices]) ** 2)
             )
         )
         self.assertTrue(
@@ -685,80 +845,73 @@ class TransferFunctionTestGradient(unittest.TestCase):
         )
 
 
-# class TransferFunctionTestMethods(unittest.TestCase):
-#     def setUp(self):
-#         self.z = 15.0  # np.arange(0.1, 101, 1)
-#         # need to also test bld = np.inf, K0 = 0 and K1 = 0
-#         self.bld = [np.inf, 200.0]
-#         self.K0 = [0, 1/10, 1/10]
-#         self.K1 = [1,0,1]
-#         self.cor_freq = 2 * np.pi * 1.5
-#         self.delta = sqrt(2 * np.array(self.K0) / self.cor_freq)
-#         self.mu = 2 * np.array(self.K1) / self.cor_freq
-#         self.omega = 2 * np.pi * np.array([0.5])
-#         self.slipstr1 = "no-slip"
-#         self.slipstr2 = "free-slip"
+class TransferFunctionTestMethods(unittest.TestCase):
+    def setUp(self):
+        self.z = 15.0  # np.arange(0.1, 101, 1)
+        # cannot test K0 = 0 and K1 = 0: edge cases
+        self.bld = [100.0, 200.0, 200.0, np.inf]
+        self.K0 = [1 / 10, 1 / 10, 1 / 20, 1 / 20]
+        self.K1 = [1, 1, 2, 2]
+        self.cor_freq = 2 * np.pi * 1.5
+        self.delta = sqrt(2 * np.array(self.K0) / self.cor_freq)
+        self.mu = 2 * np.array(self.K1) / self.cor_freq
+        self.omega = 2 * np.pi * np.array([0.5])
+        self.slipstr1 = "no-slip"
+        self.slipstr2 = "free-slip"
 
-#     def test_method_equivalence_no_slip(self):
-#         for s in [1, -1]:
-#             for i, (delta, mu) in enumerate(zip(self.delta, self.mu)):
-#                 for j, bld in enumerate(self.bld):
-#                     Ge, _, _ = wind_transfer(
-#                         self.omega,
-#                         self.z,
-#                         self.cor_freq,
-#                         delta,
-#                         mu,
-#                         bld,
-#                         method="elipot",
-#                         boundary_condition=self.slipstr1,
-#                     )
-#                     Gl, _, _ = wind_transfer(
-#                         self.omega,
-#                         self.z,
-#                         self.cor_freq,
-#                         delta,
-#                         mu,
-#                         bld,
-#                         method="lilly",
-#                         boundary_condition=self.slipstr1,
-#                     )
-#                     #bool_idx = Ge != np.nan and Gl != np.nan
-#                     #print(Ge[bool_idx], Gl[bool_idx])
-#                     print(Ge, Gl)
-#                     #bool1 = np.allclose(Ge[bool_idx], Gl[bool_idx], atol=1e-8)
-#                     bool1 = np.allclose(Ge, Gl, atol=1e-8, equal_nan=True)
-#                     self.assertTrue(bool1)
+    def test_method_equivalence_no_slip(self):
+        for s in [1, -1]:
+            for i, (delta, mu) in enumerate(zip(self.delta, self.mu)):
+                for j, bld in enumerate(self.bld):
+                    Ge, _, _ = wind_transfer(
+                        self.omega,
+                        self.z,
+                        s * self.cor_freq,
+                        delta,
+                        mu,
+                        bld,
+                        method="elipot",
+                        boundary_condition=self.slipstr1,
+                    )
+                    Gl, _, _ = wind_transfer(
+                        self.omega,
+                        self.z,
+                        s * self.cor_freq,
+                        delta,
+                        mu,
+                        bld,
+                        method="lilly",
+                        boundary_condition=self.slipstr1,
+                    )
+                    bool1 = np.allclose(Ge, Gl, atol=1e-8, equal_nan=True)
+                    self.assertTrue(bool1)
 
-#     def test_method_equivalence_free_slip(self):
-#         for s in [1, -1]:
-#             for i, (delta, mu) in enumerate(zip(self.delta, self.mu)):
-#                 for j, bld in enumerate(self.bld):
-#                     Ge, _, _ = wind_transfer(
-#                         self.omega,
-#                         self.z,
-#                         self.cor_freq,
-#                         delta,
-#                         mu,
-#                         bld,
-#                         method="elipot",
-#                         boundary_condition=self.slipstr2,
-#                     )
-#                     Gl, _, _ = wind_transfer(
-#                         self.omega,
-#                         self.z,
-#                         self.cor_freq,
-#                         delta,
-#                         mu,
-#                         bld,
-#                         method="lilly",
-#                         boundary_condition=self.slipstr2,
-#                     )
-#                     #bool_idx = Ge != np.nan and Gl != np.nan
-#                     #print(Ge, Gl)
-#                     #bool1 = np.allclose(Ge[bool_idx], Gl[bool_idx], atol=1e-8)
-#                     bool1 = np.allclose(Ge, Gl, atol=1e-8, equal_nan=True)
-#                     self.assertTrue(bool1)
+    def test_method_equivalence_free_slip(self):
+        for s in [1, -1]:
+            for i, (delta, mu) in enumerate(zip(self.delta, self.mu)):
+                for j, bld in enumerate(self.bld):
+                    Ge, _, _ = wind_transfer(
+                        self.omega,
+                        self.z,
+                        s * self.cor_freq,
+                        delta,
+                        mu,
+                        bld,
+                        method="elipot",
+                        boundary_condition=self.slipstr2,
+                    )
+                    Gl, _, _ = wind_transfer(
+                        self.omega,
+                        self.z,
+                        s * self.cor_freq,
+                        delta,
+                        mu,
+                        bld,
+                        method="lilly",
+                        boundary_condition=self.slipstr2,
+                    )
+                    bool1 = np.allclose(Ge, Gl, atol=1e-8, equal_nan=True)
+                    self.assertTrue(bool1)
 
 
 class TestKvTilde(unittest.TestCase):
@@ -808,9 +961,7 @@ class TestKvTilde(unittest.TestCase):
 
             with self.subTest(test_name=test_name):
                 self.assertTrue(
-                    np.allclose(
-                        np.abs((np.hstack([bk0, bk1]) - bk) / bk), 0, atol=1e-15
-                    ),
+                    np.allclose(np.abs((np.hstack([bk0, bk1]) - bk) / bk), 0, atol=1e-15),
                     msg=f"Failed: {test_name}",
                 )
 
@@ -862,9 +1013,7 @@ class TestIvTilde(unittest.TestCase):
 
             with self.subTest(test_name=test_name):
                 self.assertTrue(
-                    np.allclose(
-                        np.abs((np.hstack([bi0, bi1]) - bi) / bi), 0, atol=1e-15
-                    ),
+                    np.allclose(np.abs((np.hstack([bi0, bi1]) - bi) / bi), 0, atol=1e-15),
                     msg=f"Failed: {test_name}",
                 )
 
@@ -1006,3 +1155,299 @@ class TestRot(unittest.TestCase):
         angles = np.array([])
         expected_results = np.array([])
         assert np.allclose(_rot(angles), expected_results)
+
+
+class TestApplyTransferFunction(unittest.TestCase):
+    def test_lowpass_filter_callable(self):
+        # Test with a simple low-pass filter as a callable
+        x = np.random.randn(128)
+        dt = 1.0
+        cutoff = 0.1
+        transfer_func = lambda omega: 1 / (1 + (omega / (2 * np.pi * cutoff)) ** 2)
+        y = apply_transfer_function(x, transfer_func, dt)
+        self.assertEqual(y.shape, x.shape)
+        # Output should be complex due to FFT/iFFT
+        self.assertTrue(np.iscomplexobj(y))
+
+    def test_transfer_func_array(self):
+        # Test with transfer_func as an array (all-pass)
+        x = np.random.randn(64)
+        transfer_func = np.ones_like(x)
+        y = apply_transfer_function(x, transfer_func)
+        self.assertEqual(y.shape, x.shape)
+        # Should be close to original (all-pass filter)
+        self.assertTrue(np.allclose(y, x, atol=1e-12))
+
+    def test_transfer_func_array_with_dt_warns(self):
+        # Should warn if transfer_func is an array and dt is provided
+        x = np.random.randn(32)
+        transfer_func = np.ones_like(x)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            y = apply_transfer_function(x, transfer_func, dt=1.0)
+            self.assertEqual(y.shape, x.shape)
+            self.assertTrue(any("`dt` argument is ignored" in str(warn.message) for warn in w))
+
+    def test_transfer_func_array_shape_mismatch(self):
+        # Should raise ValueError if transfer_func array shape does not match
+        x = np.random.randn(32)
+        transfer_func = np.ones(16)
+        with self.assertRaises(ValueError):
+            apply_transfer_function(x, transfer_func)
+
+    def test_non_1d_input(self):
+        # Should raise ValueError if input is not 1D
+        x = np.random.randn(8, 8)
+        transfer_func = np.ones(8)
+        with self.assertRaises(ValueError):
+            apply_transfer_function(x, transfer_func)
+
+    def test_callable_without_dt(self):
+        # Should raise ValueError if transfer_func is callable and dt is None
+        x = np.random.randn(16)
+        transfer_func = lambda omega: np.ones_like(omega)
+        with self.assertRaises(ValueError):
+            apply_transfer_function(x, transfer_func)
+
+    def test_complex_input(self):
+        # Test with complex input and a simple transfer function
+        x = np.random.randn(32) + 1j * np.random.randn(32)
+        transfer_func = np.ones_like(x)
+        y = apply_transfer_function(x, transfer_func)
+        self.assertEqual(y.shape, x.shape)
+        self.assertTrue(np.allclose(y, x, atol=1e-12))
+
+    def test_suppress_negative_frequencies(self):
+        # Test suppressing negative frequencies
+        x = np.random.randn(100)
+        transfer_func = np.ones(100)
+        transfer_func[50:] = 0
+        y = apply_transfer_function(x, transfer_func)
+        self.assertEqual(y.shape, x.shape)
+        # Output should not be real-valued due to frequency suppression
+        self.assertTrue(np.iscomplexobj(y))
+
+    def test_45_degrees_result(self):
+        # Test that the result is at 45 degrees for a specific transfer function
+        omega1 = 2 * np.pi / (24 * 60 * 60)
+        dt = 3600
+        x = np.exp(1j * np.arange(24 * 10) * dt * omega1)
+        transfer_func = lambda omega: wind_transfer(
+            omega,
+            z=0,
+            cor_freq=2 * np.pi * 1.5,
+            delta=100.0,
+            mu=0.0,
+            bld=np.inf,
+            boundary_condition="no-slip",
+        )[0].squeeze()
+        y = apply_transfer_function(x, transfer_func, dt)
+        self.assertTrue(np.allclose(np.unwrap(np.angle(x) - np.angle(y)), np.pi / 4, atol=1e-2))
+
+
+class TestEpanechnikovKernel(unittest.TestCase):
+    def test_kernel_sum(self):
+        # The sum should be positive and less than window_size (since endpoints are excluded)
+        for window_size in [1, 2, 5, 10, 50]:
+            kernel = _epanechnikov_kernel(window_size)
+            self.assertEqual(kernel.shape, (window_size,))
+            self.assertTrue(np.all(kernel >= 0))
+            self.assertTrue(np.sum(kernel) > 0)
+            self.assertTrue(np.sum(kernel) < window_size)
+
+    def test_kernel_values_range(self):
+        # All kernel values should be between 0 and 0.75 (inclusive)
+        for window_size in [1, 3, 7, 15]:
+            kernel = _epanechnikov_kernel(window_size)
+            self.assertTrue(np.all(kernel <= 0.75))
+            self.assertTrue(np.all(kernel >= 0))
+
+    def test_kernel_symmetry(self):
+        # The kernel should be symmetric
+        for window_size in [2, 4, 8, 16]:
+            kernel = _epanechnikov_kernel(window_size)
+            self.assertTrue(np.allclose(kernel, kernel[::-1]))
+
+
+class TestApplySlidingTransferFunction(unittest.TestCase):
+    def test_sliding_lowpass_callable_even(self):
+        # Test with a simple low-pass filter as a callable
+        x = np.random.randn(50)
+        window_size = 10
+        step = 1
+        dt = 1.0
+        cutoff = 0.1
+        transfer_func = lambda omega: 1 / (1 + (omega / (2 * np.pi * cutoff)) ** 2)
+        results, avg = apply_sliding_transfer_function(x, transfer_func, window_size, step, dt)
+        # Number of windows: (n + before + after - window_size) // step + 1
+        n = len(x)
+        before = window_size // 2
+        after = window_size - before
+        n_ = n + before + after
+        expected_windows = (n_ - window_size) // step + 1
+        self.assertEqual(results.shape, (expected_windows, window_size))
+        self.assertEqual(avg.shape, (n,))
+        self.assertTrue(np.iscomplexobj(results))
+        self.assertTrue(np.iscomplexobj(avg))
+
+    def test_sliding_lowpass_callable_odd(self):
+        # Test with a simple low-pass filter as a callable with odd window size
+        x = np.random.randn(51)
+        window_size = 9
+        step = 2
+        dt = 1.0
+        cutoff = 0.1
+        transfer_func = lambda omega: 1 / (1 + (omega / (2 * np.pi * cutoff)) ** 2)
+        results, avg = apply_sliding_transfer_function(x, transfer_func, window_size, step, dt)
+        n = len(x)
+        before = window_size // 2
+        after = window_size - before
+        n_ = n + before + after
+        expected_windows = (n_ - window_size) // step + 1
+        self.assertEqual(results.shape, (expected_windows, window_size))
+        self.assertEqual(avg.shape, (n,))
+        self.assertTrue(np.iscomplexobj(results))
+        self.assertTrue(np.iscomplexobj(avg))
+
+    def test_sliding_transfer_func_array(self):
+        # Test with transfer_func as an array (moving average)
+        x = np.random.randn(30)
+        window_size = 5
+        step = 1
+        transfer_func = np.ones(window_size) / window_size
+        results, avg = apply_sliding_transfer_function(x, transfer_func, window_size, step)
+        n = len(x)
+        before = window_size // 2
+        after = window_size - before
+        n_ = n + before + after
+        expected_windows = (n_ - window_size) // step + 1
+        self.assertEqual(results.shape, (expected_windows, window_size))
+        self.assertEqual(avg.shape, (n,))
+        # Output should be complex due to FFT/iFFT, but real input and real filter should yield real output
+        self.assertTrue(np.allclose(avg.imag, 0, atol=1e-12))
+
+    def test_kernel_epanechnikov(self):
+        # Test with Epanechnikov kernel
+        x = np.random.randn(40)
+        window_size = 8
+        step = 2
+        transfer_func = np.ones(window_size)
+        results, avg = apply_sliding_transfer_function(
+            x, transfer_func, window_size, step, kernel="epanechnikov"
+        )
+        n = len(x)
+        before = window_size // 2
+        after = window_size - before
+        n_ = n + before + after
+        expected_windows = (n_ - window_size) // step + 1
+        self.assertEqual(results.shape, (expected_windows, window_size))
+        self.assertEqual(avg.shape, (n,))
+
+    def test_invalid_window_size(self):
+        x = np.random.randn(10)
+        transfer_func = np.ones(5)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=1)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=11)
+
+    def test_invalid_step(self):
+        x = np.random.randn(10)
+        transfer_func = np.ones(5)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=5, step=0)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=5, step=5.5)
+
+    def test_callable_without_window(self):
+        x = np.random.randn(10)
+        transfer_func = lambda omega: np.ones_like(omega)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=None)
+
+    def test_callable_with_wrong_window_size(self):
+        x = np.random.randn(20)
+        transfer_func = lambda omega: np.ones_like(omega)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=-1, dt=1.0)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=0, dt=1.0)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=21, dt=1.0)
+
+    def test_callable_without_dt(self):
+        x = np.random.randn(10)
+        transfer_func = lambda omega: np.ones_like(omega)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=5)
+
+    def test_non_1d_transfer_func(self):
+        x = np.random.randn(10)
+        transfer_func = np.ones((5, 2))
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=5)
+
+    def test_transfer_and_window_mismatch(self):
+        x = np.random.randn(10)
+        transfer_func = np.ones(4)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=5)
+
+    def test_dt_warning_for_array(self):
+        x = np.random.randn(10)
+        transfer_func = np.ones(5)
+        # Should not raise, but should warn
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            apply_sliding_transfer_function(x, transfer_func, window_size=5, dt=1.0)
+            self.assertTrue(any("`dt` argument is ignored" in str(warn.message) for warn in w))
+
+    def test_invalid_kernel(self):
+        x = np.random.randn(10)
+        transfer_func = np.ones(5)
+        with self.assertRaises(ValueError):
+            apply_sliding_transfer_function(x, transfer_func, window_size=5, kernel="invalid")
+
+    def test_output_matches_allpass(self):
+        # If transfer_func is all ones, output should match input (except for edge effects)
+        x = np.random.randn(20)
+        window_size = 5
+        transfer_func = np.ones(window_size)
+        _, avg = apply_sliding_transfer_function(x, transfer_func, window_size, step=1)
+        # The average should be close to the input for the central region
+        center = slice(window_size // 2, -window_size // 2)
+        self.assertTrue(np.allclose(avg[center], x[center], atol=1e-10))
+
+    def test_output_45_degrees_northern_hemisphere(self):
+        # Test that the output is at 45 degrees for a specific transfer function
+        omega1 = 2 * np.pi / (24 * 60 * 60)
+        dt = 3600
+        x = np.exp(1j * np.arange(24 * 10) * dt * omega1)
+        transfer_func = lambda omega: wind_transfer(
+            omega,
+            z=0,
+            cor_freq=2 * np.pi * 1.5,
+            delta=100.0,
+            mu=0.0,
+            bld=np.inf,
+            boundary_condition="no-slip",
+        )[0].squeeze()
+        _, avg = apply_sliding_transfer_function(x, transfer_func, window_size=10, step=1, dt=dt)
+        self.assertTrue(np.allclose(np.unwrap(np.angle(x) - np.angle(avg)), np.pi / 4, atol=1e-2))
+
+    def test_output_45_degrees_southern_hemisphere(self):
+        # Test that the output is at 45 degrees for a specific transfer function
+        omega1 = 2 * np.pi / (24 * 60 * 60)
+        dt = 3600
+        x = np.exp(1j * np.arange(24 * 10) * dt * omega1)
+        transfer_func = lambda omega: wind_transfer(
+            omega,
+            z=0,
+            cor_freq=-2 * np.pi * 1.5,
+            delta=100.0,
+            mu=0.0,
+            bld=np.inf,
+            boundary_condition="no-slip",
+        )[0].squeeze()
+        _, avg = apply_sliding_transfer_function(x, transfer_func, window_size=10, step=1, dt=dt)
+        self.assertTrue(np.allclose(np.unwrap(np.angle(x) - np.angle(avg)), -np.pi / 4, atol=1e-2))

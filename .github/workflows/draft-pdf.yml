@@ -1,8 +1,8 @@
 name: Generate JOSS PDF Paper
 on:
   # manual trigger
-  workflow_dispatch:
-  # Triggers the workflow on push event for paper branch
+  workflow_dispatch: # Triggers the workflow on push event for paper branch
+
   pull_request:
     branches: [ "paper" ]
 jobs:
@@ -11,7 +11,7 @@ jobs:
     name: Paper Draft
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: paper
       - name: Build draft PDF

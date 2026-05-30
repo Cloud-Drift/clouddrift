@@ -14,9 +14,7 @@ class pairs_chance_pairs_from_ragged_tests(unittest.TestCase):
     def setUp(self) -> None:
         num_trajectories = 10
         ids = ["CARTHE_%3.3i" % (i + 1) for i in range(num_trajectories)]
-        ds = ragged.subset(
-            datasets.glad(), {"id": ids}, id_var_name="id", row_dim_name="traj"
-        )
+        ds = ragged.subset(datasets.glad(), {"id": ids}, id_var_name="id", row_dim_name="traj")
         self.lon = ds["longitude"]
         self.lat = ds["latitude"]
         self.time = ds["time"]
@@ -43,10 +41,7 @@ class pairs_chance_pairs_from_ragged_tests(unittest.TestCase):
             lat2 = ragged.unpack(self.lat, self.rowsize, rows=rows[1]).pop()
             time2 = ragged.unpack(self.time, self.rowsize, rows=rows[1]).pop()
             self.assertTrue(
-                np.all(
-                    sphere.distance(lon1[i1], lat1[i1], lon2[i2], lat2[i2])
-                    <= space_distance
-                )
+                np.all(sphere.distance(lon1[i1], lat1[i1], lon2[i2], lat2[i2]) <= space_distance)
             )
             self.assertTrue(np.all(time1[i1] == time2[i2]))
 
@@ -76,9 +71,7 @@ class pairs_chance_pair_tests(unittest.TestCase):
         )
         self.assertTrue(
             np.all(
-                sphere.distance(
-                    self.lon1[i1], self.lat1[i1], self.lon2[i2], self.lat2[i2]
-                )
+                sphere.distance(self.lon1[i1], self.lat1[i1], self.lon2[i2], self.lat2[i2])
                 <= space_distance
             )
         )
@@ -162,9 +155,7 @@ class pairs_bounding_box_overlap_tests(unittest.TestCase):
         self.assertTrue(np.all(mask2 == []))
 
     def test_antimeridian(self):
-        mask1, mask2 = pairs.pair_bounding_box_overlap(
-            [179, -179], [0, 2], [0, 2], [0, 2]
-        )
+        mask1, mask2 = pairs.pair_bounding_box_overlap([179, -179], [0, 2], [0, 2], [0, 2])
         self.assertTrue(mask1.size == mask2.size == 0)
 
 

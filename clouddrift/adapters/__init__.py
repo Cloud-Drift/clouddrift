@@ -15,7 +15,9 @@ import clouddrift.adapters.gdp.gdpsource as gdp_source
 import clouddrift.adapters.glad as glad
 import clouddrift.adapters.hurdat2 as hurdat2
 import clouddrift.adapters.ibtracs as ibtracs
+import clouddrift.adapters.laser as laser
 import clouddrift.adapters.mosaic as mosaic
+import clouddrift.adapters.quicche as quicche
 import clouddrift.adapters.subsurface_floats as subsurface_floats
 import clouddrift.adapters.utils as utils
 import clouddrift.adapters.yomaha as yomaha
@@ -27,7 +29,9 @@ __all__ = [
     "glad",
     "hurdat2",
     "ibtracs",
+    "laser",
     "mosaic",
+    "quicche",
     "subsurface_floats",
     "yomaha",
     "gdp_source",

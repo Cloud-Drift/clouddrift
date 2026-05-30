@@ -2,6 +2,8 @@
 Functions for kinematic computations.
 """
 
+import warnings
+
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -68,17 +70,40 @@ def inertial_oscillation_from_position(
     time_step: float = 3600.0,
     relative_vorticity: float | np.ndarray = 0.0,
 ) -> np.ndarray:
-    """Extract inertial oscillations from consecutive geographical positions.
+    """Extract inertial oscillations from consecutive geographical
+    positions.
 
-    This function acts by performing a time-frequency analysis of horizontal displacements
-    with analytic Morse wavelets. It extracts the portion of the wavelet transform signal
-    that follows the inertial frequency (opposite of Coriolis frequency) as a function of time,
-    potentially shifted in frequency by a measure of relative vorticity. The result is a pair
-    of zonal and meridional relative displacements in meters.
+    This function acts by performing a time-frequency analysis of
+    horizontal displacements with analytic Morse wavelets. It extracts
+    the portion of the wavelet transform signal that follows the
+    inertial frequency (opposite of Coriolis frequency) as a function
+    of time, potentially shifted in frequency by a measure of relative
+    vorticity. The result is a pair of zonal and meridional relative
+    displacements in meters.
 
-    This function is equivalent to a bandpass filtering of the horizontal displacements. The characteristics
-    of the filter are defined by the relative bandwidth of the wavelet transform or by the duration of the wavelet,
-    see the parameters below.
+    If the length of the data is too short to capture the inertial
+    frequency, as implied by the time step and range of latitudes of
+    the data, the function will issue a warning and return arrays of
+    NaNs.
+
+    This function is equivalent to a bandpass filtering of the
+    horizontal displacements. The characteristics of the filter are
+    defined by the relative bandwidth of the wavelet transform or by
+    the duration of the wavelet, see the parameters below.
+
+    The function searches for the inertial frequency in the positive
+    and negative frequency components of the wavelet transform,
+    depending on the latitude of the data. However, since it applies
+    a wavelet transform on the entirety of the data, it will likely
+    fail if the data crosses the equator as it will seek very low
+    inertial frequencies which cannot by captured if the time series
+    is not long enough. In this case, the function will issue a
+    warning and return arrays of NaNs. It is generally recommended to
+    segment your trajectories to avoid crossing the equator and reduce
+    the range of inertial frequencies to be captured by the wavelet
+    transform. If you have a trajectory that crosses the equator,
+    you can use the function :func:`clouddrift.ragged.subset`
+    to split the trajectory into segments that do not cross the equator.
 
     Parameters
     ----------
@@ -87,19 +112,23 @@ def inertial_oscillation_from_position(
     latitude : array-like
         Latitude sequence. Unidimensional array input.
     relative_bandwidth : float, optional
-        Bandwidth of the frequency-domain equivalent filter for the extraction of the inertial
-        oscillations; a number less or equal to one which is a fraction of the inertial frequency.
-        A value of 0.1 leads to a bandpass filter equivalent of +/- 10 percent of the inertial frequency.
+        Bandwidth of the frequency-domain equivalent filter for the
+        extraction of the inertial oscillations; a number less or equal
+        to one which is a fraction of the inertial frequency.
+        A value of 0.1 leads to a bandpass filter equivalent of +/- 10
+        percent of the inertial frequency.
     wavelet_duration : float, optional
-        Duration of the wavelet, or inverse of the relative bandwidth, which can be passed instead of the
-        relative bandwidth.
+        Duration of the wavelet, or inverse of the relative bandwidth,
+        which can be passed instead of the relative bandwidth.
     time_step : float, optional
-        The constant time interval between data points in seconds. Default is 3600.
+        The constant time interval between data points in seconds.
+        Default is 3600.
     relative_vorticity: Optional, float or array-like
-        Relative vorticity adding to the local Coriolis frequency. If "f" is the Coriolis
-        frequency then "f" + `relative_vorticity` will be the effective Coriolis frequency as defined by Kunze (1985).
-        Positive values correspond to cyclonic vorticity, irrespectively of the latitudes of the data
-        points.
+        Relative vorticity adding to the local Coriolis frequency.
+        If "f" is the Coriolis frequency then "f" + `relative_vorticity`
+        will be the effective Coriolis frequency as defined by Kunze (1985).
+        Positive values correspond to cyclonic vorticity, irrespectively
+        of the latitudes of the data points.
 
     Returns
     -------
@@ -110,29 +139,45 @@ def inertial_oscillation_from_position(
 
     Examples
     --------
-    To extract displacements from inertial oscillations from sequences of longitude
-    and latitude values, equivalent to bandpass around 20 percent of the local inertial frequency:
+    To extract displacements from inertial oscillations from sequences
+    of longitude and latitude values, equivalent to bandpass around 20
+    percent of the local inertial frequency:
 
-    >>> xhat, yhat = inertial_oscillation_from_position(longitude, latitude, relative_bandwidth=0.2)
+    >>> xhat, yhat = inertial_oscillation_from_position(
+    ...     longitude, latitude, relative_bandwidth=0.2
+    ... )
 
-    The same result can be obtained by specifying the wavelet duration instead of the relative bandwidth:
+    The same result can be obtained by specifying the wavelet duration
+    instead of the relative bandwidth:
 
-    >>> xhat, yhat = inertial_oscillation_from_position(longitude, latitude, wavelet_duration=5)
+    >>> xhat, yhat = inertial_oscillation_from_position(
+    ...     longitude, latitude, wavelet_duration=5
+    ... )
 
-    Next, the residual positions from the inertial displacements can be obtained with another function:
+    Next, the residual positions from the inertial displacements can be
+    obtained with another function:
 
-    >>> residual_longitudes, residual_latitudes = residual_position_from_displacement(longitude, latitude, xhat, yhat)
+    >>> residual_longitudes, residual_latitudes =
+    ...     residual_position_from_displacement(longitude, latitude, xhat, yhat)
 
     Raises
     ------
     ValueError
         If longitude and latitude arrays do not have the same shape.
-        If relative_vorticity is an array and does not have the same shape as longitude and latitude.
+        If relative_vorticity is an array and does not have the same shape
+        as longitude and latitude.
         If time_step is not a float.
         If both relative_bandwidth and wavelet_duration are specified.
         If neither relative_bandwidth nor wavelet_duration are specified.
         If the absolute value of relative_bandwidth is not in the range (0,1].
         If the wavelet duration is not greater than or equal to 1.
+
+    Warns
+    -----
+    UserWarning
+        If the length of the data is too short to capture the inertial frequency,
+        as implied by the time step and range of latitudes of the data, a warning is
+        issued and the function returns arrays of NaNs.
 
     See Also
     --------
@@ -143,13 +188,9 @@ def inertial_oscillation_from_position(
         raise ValueError("longitude and latitude arrays must have the same shape.")
 
     if relative_bandwidth is not None and wavelet_duration is not None:
-        raise ValueError(
-            "Only one of 'relative_bandwidth' and 'wavelet_duration' can be specified"
-        )
+        raise ValueError("Only one of 'relative_bandwidth' and 'wavelet_duration' can be specified")
     elif relative_bandwidth is None and wavelet_duration is None:
-        raise ValueError(
-            "One of 'relative_bandwidth' and 'wavelet_duration' must be specified"
-        )
+        raise ValueError("One of 'relative_bandwidth' and 'wavelet_duration' must be specified")
 
     # length of data sequence
     data_length = longitude.shape[0]
@@ -183,13 +224,29 @@ def inertial_oscillation_from_position(
         longitude = longitude.to_numpy()
 
     # Instantaneous absolute frequency of oscillations along trajectory in radian per second
-    cor_freq = np.abs(
-        coriolis_frequency(latitude) + relative_vorticity * np.sign(latitude)
-    )
+    cor_freq = np.abs(coriolis_frequency(latitude) + relative_vorticity * np.sign(latitude))
+
+    # test if the length of the data is sufficient to capture 95% of the inertial frequency,
+    # as implied by the time step and range of latitudes of the data; if not,
+    # issue a warning and return arrays of NaNs because the wavelet transform will
+    # not be able to capture the inertial oscillations
+    positive_cor_freq = cor_freq[cor_freq > 0]
+    if data_length < 2 * np.pi / (time_step * np.min(positive_cor_freq) * 0.95):
+        warnings.warn(
+            "The length of the data is too short to capture the inertial frequency",
+            UserWarning,
+        )
+        return np.full_like(latitude, np.nan, dtype=float), np.full_like(
+            latitude, np.nan, dtype=float
+        )
+
+    # Now defines the range of frequencies for the wavelet transform.
+    # The maximum frequency is set to 1.05 times the maximum inertial frequency,
+    # and the minimum frequency is set to the maximum of 0.95 times the minimum
+    # inertial frequency and the Rayleigh frequency implied by the time step and
+    # data length.
     cor_freq_max = np.max(cor_freq * 1.05)
-    cor_freq_min = np.max(
-        [np.min(cor_freq * 0.95), 2 * np.pi / (time_step * data_length)]
-    )
+    cor_freq_min = np.max([np.min(cor_freq * 0.95), 2 * np.pi / (time_step * data_length)])
 
     # logarithmically distributed frequencies for wavelet analysis
     radian_frequency = morse_logspace_freq(
@@ -227,8 +284,7 @@ def inertial_oscillation_from_position(
 
     # find the values of radian_frequency/dt that most closely match cor_freq
     frequency_bins = [
-        np.argmin(np.abs(cor_freq[i] - radian_frequency / time_step))
-        for i in range(data_length)
+        np.argmin(np.abs(cor_freq[i] - radian_frequency / time_step)) for i in range(data_length)
     ]
 
     # get the transform at the inertial and "anti-inertial" frequencies
@@ -306,9 +362,7 @@ def residual_position_from_displacement(
         latitude = latitude.to_numpy()
 
     latitudehat = 180 / np.pi * y / EARTH_RADIUS_METERS
-    longitudehat = (
-        180 / np.pi * x / (EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
-    )
+    longitudehat = 180 / np.pi * x / (EARTH_RADIUS_METERS * np.cos(np.radians(latitude)))
 
     residual_latitude = latitude - latitudehat
     residual_longitude = recast_lon360(
@@ -465,15 +519,13 @@ def position_from_velocity(
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(u.shape) - 1:
         raise ValueError(
-            f"time_axis ({time_axis}) is outside of the valid range ([-1,"
-            f" {len(u.shape) - 1}])."
+            f"time_axis ({time_axis}) is outside of the valid range ([-1, {len(u.shape) - 1}])."
         )
 
     # Input arrays must have the same length along the time axis.
     if not u.shape[time_axis] == v.shape[time_axis] == time.shape[time_axis]:
         raise ValueError(
-            f"u, v, and time must have the same length along the time axis "
-            f"({time_axis})."
+            f"u, v, and time must have the same length along the time axis ({time_axis})."
         )
 
     # Swap axes so that we can differentiate along the last axis.
@@ -501,9 +553,7 @@ def position_from_velocity(
         x[..., 1:] = np.cumsum(0.5 * (u_[..., :-1] + u_[..., 1:]) * dt, axis=-1)
         y[..., 1:] = np.cumsum(0.5 * (v_[..., :-1] + v_[..., 1:]) * dt, axis=-1)
     else:
-        raise ValueError(
-            'integration_scheme must be "forward", "backward", or "centered".'
-        )
+        raise ValueError('integration_scheme must be "forward", "backward", or "centered".')
 
     if coord_system.lower() == "cartesian":
         x += x_origin
@@ -638,15 +688,13 @@ def velocity_from_position(
     # time_axis must be in valid range
     if time_axis < -1 or time_axis > len(x.shape) - 1:
         raise ValueError(
-            f"time_axis ({time_axis}) is outside of the valid range ([-1,"
-            f" {len(x.shape) - 1}])."
+            f"time_axis ({time_axis}) is outside of the valid range ([-1, {len(x.shape) - 1}])."
         )
 
     # Input arrays must have the same length along the time axis.
     if not x.shape[time_axis] == y.shape[time_axis] == time.shape[time_axis]:
         raise ValueError(
-            f"x, y, and time must have the same length along the time axis "
-            f"({time_axis})."
+            f"x, y, and time must have the same length along the time axis ({time_axis})."
         )
 
     # Swap axes so that we can differentiate along the last axis.
@@ -771,9 +819,7 @@ def velocity_from_position(
             raise ValueError('coord_system must be "spherical" or "cartesian".')
 
     else:
-        raise ValueError(
-            'difference_scheme must be "forward", "backward", or "centered".'
-        )
+        raise ValueError('difference_scheme must be "forward", "backward", or "centered".')
 
     # This should avoid an array copy when returning the result
     dx /= dt
@@ -883,8 +929,7 @@ def spin(
     # axis must be in valid range
     if time_axis < -1 or time_axis > len(u.shape) - 1:
         raise ValueError(
-            f"axis ({time_axis}) is outside of the valid range ([-1,"
-            f" {len(u.shape) - 1}])."
+            f"axis ({time_axis}) is outside of the valid range ([-1, {len(u.shape) - 1}])."
         )
 
     # Swap axes so that we can differentiate along the last axis.
@@ -928,9 +973,7 @@ def spin(
         dt[..., 0] = time[..., 1] - time[..., 0]
         dt[..., -1] = time[..., -1] - time[..., -2]
     else:
-        raise ValueError(
-            'difference_scheme must be "forward", "backward", or "centered".'
-        )
+        raise ValueError('difference_scheme must be "forward", "backward", or "centered".')
 
     # Compute spin
     s = (u * dv - v * du) / (2 * dt * kinetic_energy(u, v))

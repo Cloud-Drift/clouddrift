@@ -23,6 +23,9 @@ from tenacity import (
 from tqdm import tqdm
 
 _DISABLE_SHOW_PROGRESS = False  # purely to de-noise our test suite output, should never be used/configured outside of that.
+_BROWSER_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+}
 
 
 def _before_call(rcs: RetryCallState):
@@ -65,6 +68,7 @@ def download_with_progress(
     show_list_progress: bool | None = None,
     desc: str = "Downloading files",
     custom_retry_protocol: Callable[[WrappedFn], WrappedFn] | None = None,
+    skip_download: bool = False,
 ):
     if show_list_progress is None:
         show_list_progress = len(download_map) > 20
@@ -94,6 +98,7 @@ def download_with_progress(
                 dst,
                 exp_size,
                 not show_list_progress,
+                skip_download,
             )
         ] = (src, dst)
 
@@ -140,14 +145,20 @@ def _download_with_progress(
     output: str | BufferedIOBase,
     expected_size: float | None,
     show_progress: bool,
+    skip_download: bool = False,
 ):
+    if skip_download and isinstance(output, str) and os.path.exists(output):
+        _logger.debug(f"skip_download=True: {output} assumed up to date; skipping.")
+        return
+
     if isinstance(output, str) and os.path.exists(output):
         _logger.debug(f"File exists {output} checking for updates...")
         local_last_modified = os.path.getmtime(output)
+        res: requests.Response | None = None
 
         # Get last modified time of the remote file
         try:
-            res = requests.head(url, timeout=5)
+            res = requests.head(url, headers=_BROWSER_HEADERS, timeout=10)
             remote_last_modified_str = res.headers.get("Last-Modified")
             if remote_last_modified_str:
                 remote_last_modified = datetime.strptime(
@@ -173,7 +184,7 @@ def _download_with_progress(
     buffer: BufferedWriter | BufferedIOBase | None = None
 
     try:
-        resp = requests.get(url, timeout=10, stream=True)
+        resp = requests.get(url, headers=_BROWSER_HEADERS, timeout=60, stream=True)
         temp_output = f"{output}.part" if isinstance(output, str) else None
 
         if isinstance(output, str) and temp_output is not None:

@@ -106,9 +106,7 @@ class HeaderLine:
 
 @dataclass
 class DataLine:
-    time: datetime = field(
-        metadata={"comments": "Computed property from YYY-MM-DD HH:MM in UTC"}
-    )
+    time: datetime = field(metadata={"comments": "Computed property from YYY-MM-DD HH:MM in UTC"})
     record_identifier: RecordIdentifier = field(
         metadata={
             "standard_name": "Record Idenfier",
@@ -311,9 +309,7 @@ class TrackData:
                 ),
                 "max_sustained_wind_speed_radius": (
                     ["obs"],
-                    np.array(
-                        [line.max_sustained_wind_speed_radius for line in self.data]
-                    ),
+                    np.array([line.max_sustained_wind_speed_radius for line in self.data]),
                 ),
             },
             coords={
@@ -358,12 +354,32 @@ def to_raggedarray(
     basin: _BasinOption = "both",
     tmp_path: str = _DEFAULT_FILE_PATH,
     convert: bool = True,
+    skip_download: bool = False,
 ) -> RaggedArray:
+    """Convert the HURDAT2 dataset to a RaggedArray instance.
+
+    Parameters
+    ----------
+    basin : str, optional
+        Basin selection: ``"atlantic"``, ``"pacific"``, or ``"both"`` (default).
+    tmp_path : str, optional
+        Path where dataset files are cached.
+    convert : bool, optional
+        If True, convert wind speed and pressure to SI units. Default is True.
+    skip_download : bool, optional
+        If True, skip re-downloading files that already exist in ``tmp_path``.
+        Default is False.
+
+    Returns
+    -------
+    RaggedArray
+        HURDAT2 dataset as a RaggedArray instance.
+    """
     os.makedirs(
         tmp_path, exist_ok=True
     )  # generate temp directory for hurdat related intermerdiary data
     download_requests = _get_download_requests(basin, tmp_path)
-    download_with_progress(download_requests)
+    download_with_progress(download_requests, skip_download=skip_download)
     track_data = list()
 
     for _, fp, _ in download_requests:
@@ -390,8 +406,7 @@ def to_raggedarray(
         preprocess_func=lambda idx: track_data[idx].to_xarray_dataset(),
         attrs_global=TrackData.global_attrs,
         attrs_variables={
-            field.name: field.metadata
-            for field in fields(HeaderLine) + fields(DataLine)
+            field.name: field.metadata for field in fields(HeaderLine) + fields(DataLine)
         },
     )
     return ra
@@ -417,16 +432,12 @@ def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
     track_data = list[TrackData]()
 
     is_html_line = lambda line: re.match(r"[html|head|pre]+", line)
-    is_header_line = (
-        lambda cols, data_line_count: len(cols) == 4 and data_line_count == 0
-    )
+    is_header_line = lambda cols, data_line_count: len(cols) == 4 and data_line_count == 0
     is_data_line = lambda cols, data_line_count: len(cols) == 21 and data_line_count > 0
     if convert:
-        nm_to_m = (
-            lambda x: float(x) * _METERS_IN_NAUTICAL_MILES
-        )  # nautical-miles to meters
-        k_to_mps = (
-            lambda x: float(x) * _METERS_IN_NAUTICAL_MILES / 3600
+        nm_to_m = lambda x: float(x) * _METERS_IN_NAUTICAL_MILES  # nautical-miles to meters
+        k_to_mps = lambda x: (
+            float(x) * _METERS_IN_NAUTICAL_MILES / 3600
         )  # knots to meters per second
         mb_to_pa = lambda x: float(x) * _PASCAL_PER_MILLIBAR  # millibar to pascal
     else:
@@ -458,11 +469,7 @@ def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
                 track_data.append(TrackData(current_header, data_lines))
                 data_lines = list()
                 current_header = header
-        elif (
-            is_data_line(cols, data_line_count)
-            and len(cols[0]) == 8
-            and len(cols[1]) == 4
-        ):
+        elif is_data_line(cols, data_line_count) and len(cols[0]) == 8 and len(cols[1]) == 4:
             data_lines.append(
                 DataLine(
                     time=datetime(
@@ -479,42 +486,18 @@ def _extract_track_data(datafile_path: str, convert: bool) -> list[TrackData]:
                     lon=_map_heading(cols[5]),
                     wind_speed=_apply_or_nan(cols[6], float(cols[6]) < 0, k_to_mps),
                     pressure=_apply_or_nan(cols[7], cols[7] == "-999", mb_to_pa),
-                    max_low_wind_radius_ne=_apply_or_nan(
-                        cols[8], cols[8] == "-999", nm_to_m
-                    ),
-                    max_low_wind_radius_se=_apply_or_nan(
-                        cols[9], cols[9] == "-999", nm_to_m
-                    ),
-                    max_low_wind_radius_sw=_apply_or_nan(
-                        cols[10], cols[10] == "-999", nm_to_m
-                    ),
-                    max_low_wind_radius_nw=_apply_or_nan(
-                        cols[11], cols[11] == "-999", nm_to_m
-                    ),
-                    max_med_wind_radius_ne=_apply_or_nan(
-                        cols[12], cols[12] == "-999", nm_to_m
-                    ),
-                    max_med_wind_radius_se=_apply_or_nan(
-                        cols[13], cols[13] == "-999", nm_to_m
-                    ),
-                    max_med_wind_radius_sw=_apply_or_nan(
-                        cols[14], cols[14] == "-999", nm_to_m
-                    ),
-                    max_med_wind_radius_nw=_apply_or_nan(
-                        cols[15], cols[15] == "-999", nm_to_m
-                    ),
-                    max_high_wind_radius_ne=_apply_or_nan(
-                        cols[16], cols[16] == "-999", nm_to_m
-                    ),
-                    max_high_wind_radius_se=_apply_or_nan(
-                        cols[17], cols[17] == "-999", nm_to_m
-                    ),
-                    max_high_wind_radius_sw=_apply_or_nan(
-                        cols[18], cols[18] == "-999", nm_to_m
-                    ),
-                    max_high_wind_radius_nw=_apply_or_nan(
-                        cols[19], cols[19] == "-999", nm_to_m
-                    ),
+                    max_low_wind_radius_ne=_apply_or_nan(cols[8], cols[8] == "-999", nm_to_m),
+                    max_low_wind_radius_se=_apply_or_nan(cols[9], cols[9] == "-999", nm_to_m),
+                    max_low_wind_radius_sw=_apply_or_nan(cols[10], cols[10] == "-999", nm_to_m),
+                    max_low_wind_radius_nw=_apply_or_nan(cols[11], cols[11] == "-999", nm_to_m),
+                    max_med_wind_radius_ne=_apply_or_nan(cols[12], cols[12] == "-999", nm_to_m),
+                    max_med_wind_radius_se=_apply_or_nan(cols[13], cols[13] == "-999", nm_to_m),
+                    max_med_wind_radius_sw=_apply_or_nan(cols[14], cols[14] == "-999", nm_to_m),
+                    max_med_wind_radius_nw=_apply_or_nan(cols[15], cols[15] == "-999", nm_to_m),
+                    max_high_wind_radius_ne=_apply_or_nan(cols[16], cols[16] == "-999", nm_to_m),
+                    max_high_wind_radius_se=_apply_or_nan(cols[17], cols[17] == "-999", nm_to_m),
+                    max_high_wind_radius_sw=_apply_or_nan(cols[18], cols[18] == "-999", nm_to_m),
+                    max_high_wind_radius_nw=_apply_or_nan(cols[19], cols[19] == "-999", nm_to_m),
                     max_sustained_wind_speed_radius=_apply_or_nan(
                         cols[20], cols[20] == "-999", nm_to_m
                     ),

@@ -30,8 +30,8 @@ You can find examples of how to use the GDP datasets in the `GDP Get-Started Not
 GLAD Dataset
 ------------
 
-:func:`clouddrift.datasets.glad`: 15-minute Grand LAgrangian Deployment (GLAD)
-data produced by the Consortium for Advanced Research on Transport of
+:func:`clouddrift.datasets.glad`: Grand LAgrangian Deployment (GLAD)
+dataset (raw, qc1, qc2) produced by the Consortium for Advanced Research on Transport of
 Hydrocarbon in the Environment (CARTHE) and hosted upstream at the `Gulf of
 Mexico Research Initiative Information and Data Cooperative (GRIIDC)
 <https://doi.org/10.7266/N7VD6WC8>`_.
@@ -90,6 +90,30 @@ Andro Dataset
 processed from the upstream dataset hosted at the `SEANOE repository
 <https://www.seanoe.org/data/00360/47077/>`_.
 
+QUICCHE Dataset
+---------------
+
+:func:`clouddrift.datasets.quicche`: CARTHE surface drifter trajectories from the QUICCHE (South Atlantic) experiment in March 2023 as a ragged array xarray dataset.
+Processed from the upstream dataset hosted at `Zenodo record 14902851 <https://zenodo.org/records/14902851>`_.
+
+The dataset provides four versions:
+
+- **RAW**: Original raw data
+- **QC1**: Raw data including pre-deployment GPS tests flagged
+- **QC2**: Bad records removed
+- **QC3**: QC2 interpolated on a regular 30-minute time grid (default)
+
+Trajectories are defined by four columns from the raw data: drifter ID, time (ISO 8601), latitude (decimal degrees North), and longitude (decimal degrees East).
+Use the ``version`` parameter to select the desired processing level:
+
+.. code-block:: python
+
+   from clouddrift.datasets import quicche
+   ds_qc3 = quicche()  # default, QC3
+   ds_raw = quicche(version="raw")
+   ds_qc1 = quicche(version="qc1")
+   ds_qc2 = quicche(version="qc2")
+
 Subsurface Floats Dataset
 -------------------------
 
@@ -114,7 +138,7 @@ More Information
 ----------------
 
 The GDP and the Spotters datasets are accessed lazily, so the data is only downloaded when
-specific array values are referenced. The ANDRO, GLAD, MOSAiC, Subsurface Floats, and YoMaHa'07
+specific array values are referenced. The ANDRO, GLAD, MOSAiC, QUICCHE, Subsurface Floats, and YoMaHa'07
 datasets are downloaded in their entirety when the function is called for the first 
 time and stored locally for later use.
 

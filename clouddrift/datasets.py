@@ -6,11 +6,14 @@ they will be downloaded from their upstream repositories and stored for later ac
 """
 
 import os
+import shutil
 from collections.abc import Callable
+from typing import Literal
 
 import xarray as xr
 
 from clouddrift import adapters
+from clouddrift.adapters.glad import GLAD_VERSIONS
 from clouddrift.adapters.hurdat2 import _BasinOption
 from clouddrift.adapters.ibtracs import _Kind, _Version
 
@@ -93,6 +96,9 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     Oceanographic and Meteorological Laboratory (AOML) accessible at
     https://www.aoml.noaa.gov/phod/gdp/index.php.
 
+    This returns the May 2025 version of the dataset including data from
+    1979-02-15:00:00:00Z to 2025-06-12:06:00:00Z
+
     Parameters
     ----------
     decode_times : bool, optional
@@ -111,45 +117,45 @@ def gdp6h(decode_times: bool = True) -> xr.Dataset:
     >>> ds = gdp6h()
     >>> ds
     <xarray.Dataset> Size: 2GB
-    Dimensions:                (traj: 27647, obs: 46535470)
+    Dimensions:                (traj: 28728, obs: 48887074)
     Coordinates:
-    id                     (traj) int64 221kB ...
-    time                   (obs) datetime64[ns] 372MB ...
+        id                     (traj) int64 230kB ...
+        time                   (obs) datetime64[ns] 391MB ...
     Dimensions without coordinates: traj, obs
-    Data variables: (12/49)
-    BuoyTypeManufacturer   (traj) |S20 553kB ...
-    BuoyTypeSensorArray    (traj) |S20 553kB ...
-    CurrentProgram         (traj) float64 221kB ...
-    DeployingCountry       (traj) |S20 553kB ...
-    DeployingShip          (traj) |S20 553kB ...
-    DeploymentComments     (traj) |S20 553kB ...
-    ...                     ...
-    start_lon              (traj) float32 111kB ...
-    temp                   (obs) float32 186MB ...
-    typebuoy               (traj) |S10 276kB ...
-    typedeath              (traj) int8 28kB ...
-    ve                     (obs) float32 186MB ...
-    vn                     (obs) float32 186MB ...
+    Data variables: (12/48)
+        BuoyTypeManufacturer   (traj) <U20 2MB ...
+        BuoyTypeSensorArray    (traj) <U20 2MB ...
+        CurrentProgram         (traj) float64 230kB ...
+        DeployingCountry       (traj) <U20 2MB ...
+        DeployingShip          (traj) <U20 2MB ...
+        DeploymentComments     (traj) <U20 2MB ...
+        ...                     ...
+        start_lon              (traj) float32 115kB ...
+        temp                   (obs) float32 196MB ...
+        typebuoy               (traj) |S10 287kB ...
+        typedeath              (traj) int8 29kB ...
+        ve                     (obs) float32 196MB ...
+        vn                     (obs) float32 196MB ...
     Attributes: (12/18)
-    Conventions:          CF-1.6
-    acknowledgement:      Lumpkin, Rick; Centurioni, Luca (2019). NOAA Global...
-    contributor_name:     NOAA Global Drifter Program
-    contributor_role:     Data Acquisition Center
-    date_created:         2024-04-04T13:44:01.176967
-    doi:                  10.25921/7ntx-z961
-    ...                   ...
-    publisher_name:       GDP Drifter DAC
-    publisher_url:        https://www.aoml.noaa.gov/phod/gdp
-    summary:              Global Drifter Program six-hourly data
-    time_coverage_end:    2023-10-18:18:00:00Z
-    time_coverage_start:  1979-02-15:00:00:00Z
-    title:                Global Drifter Program drifting buoy collection
+        Conventions:          CF-1.6
+        acknowledgement:      Lumpkin, Rick; Centurioni, Luca (2019). NOAA Global...
+        contributor_name:     NOAA Global Drifter Program
+        contributor_role:     Data Acquisition Center
+        date_created:         2026-04-20T20:18:51.793217
+        doi:                  10.25921/7ntx-z961
+        ...                   ...
+        publisher_name:       GDP Drifter DAC
+        publisher_url:        https://www.aoml.noaa.gov/phod/gdp
+        summary:              Global Drifter Program six-hourly data
+        time_coverage_end:    2025-06-12:06:00:00Z
+        time_coverage_start:  1979-02-15:00:00:00Z
+        title:                Global Drifter Program drifting buoy collection
 
     See Also
     --------
     :func:`gdp1h`
     """
-    url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/experimental/gdp6h_ragged_sep23.zarr"
+    url = "https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/experimental/gdp6h_ragged_may25.zarr"
     ds = xr.open_dataset(url, decode_times=decode_times, engine="zarr")
     return ds
 
@@ -161,8 +167,8 @@ def gdp_source(
     use_fill_values: bool = True,
     decode_times: bool = True,
 ) -> xr.Dataset:
-    """Returns the NOAA Global Drifter Program (GDP) source (raw) dataset as a ragged array
-    Xarray dataset.
+    """Returns the NOAA Global Drifter Program (GDP) source (raw) dataset
+    as a ragged array Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
     filesystem. If it is not found, the dataset will be downloaded using the
@@ -231,8 +237,8 @@ def gdp_source(
     )
 
 
-def glad(decode_times: bool = True) -> xr.Dataset:
-    """Returns the Grand LAgrangian Deployment (GLAD) dataset as a ragged array
+def glad(decode_times: bool = True, version: GLAD_VERSIONS = "qc2") -> xr.Dataset:
+    """Returns the CARTHE Grand LAgrangian Deployment (GLAD) dataset as a ragged array
     Xarray dataset.
 
     The function will first look for the ragged-array dataset on the local
@@ -247,6 +253,8 @@ def glad(decode_times: bool = True) -> xr.Dataset:
         If True, decode the time coordinate into a datetime object. If False, the time
         coordinate will be an int64 or float64 array of increments since the origin
         time indicated in the units attribute. Default is True.
+    version : {"raw", "qc1", "qc2"}, default: "qc2"
+        Dataset version to download from GRIIDC.
 
     Returns
     -------
@@ -282,7 +290,52 @@ def glad(decode_times: bool = True) -> xr.Dataset:
     ---------
     Özgökmen, Tamay. 2013. GLAD experiment CODE-style drifter trajectories (low-pass filtered, 15 minute interval records), northern Gulf of Mexico near DeSoto Canyon, July-October 2012. Distributed by: Gulf of Mexico Research Initiative Information and Data Cooperative (GRIIDC), Harte Research Institute, Texas A&M University–Corpus Christi. doi:10.7266/N7VD6WC8
     """
-    return _dataset_filecache("glad.nc", decode_times, adapters.glad.to_xarray)
+    return _dataset_filecache(
+        f"glad_{version}.nc",
+        decode_times,
+        lambda: adapters.glad.to_raggedarray(version=version).to_xarray(),
+    )
+
+
+def laser(decode_times: bool = True) -> xr.Dataset:
+    """Returns the LASER surface drifter dataset as a ragged array Xarray dataset.
+
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access.
+
+    The upstream data is available at https://doi.org/10.7266/N7W0940J.
+
+    Parameters
+    ----------
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
+
+    Returns
+    -------
+    xarray.Dataset
+        LASER dataset as a ragged array
+
+    Examples
+    --------
+    >>> from clouddrift.datasets import laser
+    >>> ds = laser()
+
+    Reference
+    ---------
+    Eric D'Asaro, Cedric Guigand, Angelique Haza, Helga Huntley, Guillaume Novelli,
+    Tamay Ozgokmen, Ed Ryan. 2017. Lagrangian Submesoscale Experiment (LASER)
+    surface drifters, interpolated to 15-minute intervals. Distributed by: GRIIDC,
+    Harte Research Institute, Texas A&M University-Corpus Christi.
+    https://doi.org/10.7266/N7W0940J
+    """
+    return _dataset_filecache(
+        "laser.nc",
+        decode_times,
+        lambda: adapters.laser.to_raggedarray().to_xarray(),
+    )
 
 
 def hurdat2(
@@ -511,7 +564,11 @@ def mosaic(decode_times: bool = True) -> xr.Dataset:
         Data Authors                (traj) object ...
         rowsize                     (traj) int64 ...
     """
-    return _dataset_filecache("mosaic.nc", decode_times, adapters.mosaic.to_xarray)
+    return _dataset_filecache(
+        "mosaic.nc",
+        decode_times,
+        lambda: adapters.mosaic.to_raggedarray().to_xarray(),
+    )
 
 
 def spotters(decode_times: bool = True) -> xr.Dataset:
@@ -646,7 +703,9 @@ def subsurface_floats(decode_times: bool = True) -> xr.Dataset:
     WOCE Subsurface Float Data Assembly Center (WFDAC) https://www.aoml.noaa.gov/phod/float_traj/index.php
     """
     return _dataset_filecache(
-        "subsurface_floats.nc", decode_times, adapters.subsurface_floats.to_xarray
+        "subsurface_floats.nc",
+        decode_times,
+        lambda: adapters.subsurface_floats.to_raggedarray().to_xarray(),
     )
 
 
@@ -713,7 +772,9 @@ def yomaha(decode_times: bool = True) -> xr.Dataset:
     assessed  from trajectories of Argo floats at parking level and at the sea
     surface. IPRC Technical Note, 4(2), 1-16.
     """
-    return _dataset_filecache("yomaha.nc", decode_times, adapters.yomaha.to_xarray)
+    return _dataset_filecache(
+        "yomaha.nc", decode_times, lambda: adapters.yomaha.to_raggedarray().to_xarray()
+    )
 
 
 def andro(decode_times: bool = True) -> xr.Dataset:
@@ -740,33 +801,33 @@ def andro(decode_times: bool = True) -> xr.Dataset:
     >>> from clouddrift.datasets import andro
     >>> ds = andro()
     >>> ds
-    <xarray.Dataset> Size: 110MB
-    Dimensions:     (obs: 510630, traj: 3344)
+    <xarray.Dataset> Size: 395MB
+    Dimensions:     (obs: 1762076, traj: 11561)
     Coordinates:
-        time_d      (obs) datetime64[ns] 4MB ...
-        time_s      (obs) datetime64[ns] 4MB ...
-        time_lp     (obs) datetime64[ns] 4MB ...
-        time_lc     (obs) datetime64[ns] 4MB ...
-        id          (traj) float32 13kB ...
+        time_d      (obs) datetime64[ns] 14MB ...
+        time_s      (obs) datetime64[ns] 14MB ...
+        time_lp     (obs) datetime64[ns] 14MB ...
+        time_lc     (obs) datetime64[ns] 14MB ...
+        id          (traj) int64 92kB ...
     Dimensions without coordinates: obs, traj
     Data variables: (12/33)
-        lon_d       (obs) float64 4MB ...
-        lat_d       (obs) float64 4MB ...
-        pres_d      (obs) float32 2MB ...
-        temp_d      (obs) float32 2MB ...
-        sal_d       (obs) float32 2MB ...
-        ve_d        (obs) float32 2MB ...
+        lon_d       (obs) float64 14MB ...
+        lat_d       (obs) float64 14MB ...
+        pres_d      (obs) float32 7MB ...
+        temp_d      (obs) float32 7MB ...
+        sal_d       (obs) float32 7MB ...
+        ve_d        (obs) float32 7MB ...
         ...          ...
-        lon_lc      (obs) float64 4MB ...
-        lat_lc      (obs) float64 4MB ...
-        surf_fix    (obs) float32 2MB ...
-        cycle       (obs) float32 2MB ...
-        profile_id  (obs) float32 2MB ...
-        rowsize     (traj) int64 27kB ...
+        lon_lc      (obs) float64 14MB ...
+        lat_lc      (obs) float64 14MB ...
+        surf_fix    (obs) int64 14MB ...
+        cycle       (obs) int64 14MB ...
+        profile_id  (obs) float32 7MB ...
+        rowsize     (traj) int64 92kB ...
     Attributes:
         title:           ANDRO: An Argo-based deep displacement dataset (Quality ...
-        history:         Dataset updated on 2024-03-25
-        date_created:    2024-07-02T12:11:50.643492
+        history:         Dataset updated on 2025-01
+        date_created:    2026-04-17T15:54:27.180801
         publisher_name:  SEANOE (SEA scieNtific Open data Edition)
         publisher_url:   https://www.seanoe.org/data/00360/47077/
         license:         Creative Commons Attribution 4.0 International License (...
@@ -777,7 +838,98 @@ def andro(decode_times: bool = True) -> xr.Dataset:
     Kolodziejczyk Nicolas (2022). ANDRO: An Argo-based deep displacement dataset.
     SEANOE. https://doi.org/10.17882/47077
     """
-    return _dataset_filecache("andro.nc", decode_times, adapters.andro.to_xarray)
+    return _dataset_filecache(
+        "andro.nc", decode_times, lambda: adapters.andro.to_raggedarray().to_xarray()
+    )
+
+
+def quicche(
+    version: Literal["raw", "qc1", "qc2", "qc3"] = "qc3",
+    decode_times: bool = True,
+) -> xr.Dataset:
+    """Returns the QUICCHE CARTHE surface drifter trajectories as a ragged array
+    Xarray dataset.
+
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored for later access.
+
+    The upstream data is available at https://zenodo.org/records/14902851.
+
+    Parameters
+    ----------
+    version : Literal["raw", "qc1", "qc2", "qc3"], optional
+        Specify the version to retrieve. "raw" = original raw messages,
+        "qc1" = raw data with pre-deployment GPS tests flagged,
+        "qc2" = bad records removed,
+        "qc3" = QC2 interpolated on a regular 30 minute time grid. Default is "qc3".
+    decode_times : bool, optional
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
+
+    Returns
+    -------
+    xarray.Dataset
+        QUICCHE CARTHE drifter trajectories as a ragged array
+
+    Examples
+    --------
+    >>> from clouddrift.datasets import quicche
+    >>> ds = quicche()
+    >>> ds
+    <xarray.Dataset>
+    Dimensions:    (traj: ..., obs: ...)
+    Coordinates:
+        id         (traj) object ...
+        time       (obs) datetime64[ns] ...
+    Dimensions without coordinates: traj, obs
+    Data variables:
+        latitude   (obs) float32 ...
+        longitude  (obs) float32 ...
+        rowsize    (traj) int64 ...
+    Attributes:
+        title:           QUICCHE CARTHE Surface Drifter Trajectories (QC3)
+        summary:         CARTHE surface drifter trajectories from the Cape Basin...
+        date_created:    2026-04-17T...
+        publisher_name:  Zenodo
+        publisher_url:   https://zenodo.org/records/14902851
+
+    To retrieve RAW or QC1 data instead:
+
+    >>> ds = quicche(version="raw")
+    >>> ds = quicche(version="qc1")
+
+    Reference
+    ---------
+    Novelli, G., & Beal, L. (2025). POSITION - GEOGRAPHIC collected from
+    CARTHE surface drifter in South Atlantic Ocean from 20230306 to 20230727
+    (NCEI Accession 0301712). (Version 1) [Data set]. National Centers for
+    Environmental Information. https://doi.org/10.25921/9m27-m532
+    """
+    filename = f"quicche_{version}.nc"
+    ds = _dataset_filecache(
+        filename,
+        decode_times,
+        lambda: adapters.quicche.to_raggedarray(version).to_xarray(),
+    )
+
+    # Backward compatibility: rebuild stale cache files created before
+    # version-specific variables were added.
+    needs_battery = version in ("raw", "qc1", "qc2") and "battery_state" not in ds.data_vars
+    needs_flag = version == "qc1" and "flag" not in ds.data_vars
+    if needs_battery or needs_flag:
+        ds.close()
+        ds = _dataset_filecache(
+            filename,
+            decode_times,
+            lambda: adapters.quicche.to_raggedarray(version).to_xarray(),
+            force=True,
+        )
+
+    if "index" in ds.variables:
+        ds = ds.drop_vars("index")
+    return ds
 
 
 def _dataset_filecache(
@@ -795,17 +947,34 @@ def _dataset_filecache(
     fp = f"{clouddrift_path}/data/{filename}"
     os.makedirs(os.path.dirname(fp), exist_ok=True)
 
-    if not os.path.exists(fp) or force:
-        ds = get_ds()
-        if ext == ".nc":
-            ds.to_netcdf(fp)
-        elif ext == ".zarr":
-            ds.to_zarr(fp)
-        else:
-            ds.to_netcdf(fp)
-
     engine = None
     if ext == ".zarr":
         engine = "zarr"
+
+    def _remove_cache(path: str):
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        elif os.path.exists(path):
+            os.remove(path)
+
+    # Try existing cache first. If it is unreadable/invalid, rebuild it.
+    if os.path.exists(fp) and not force:
+        try:
+            ds = xr.open_dataset(fp, decode_times=decode_times, engine=engine)
+            if len(ds.variables) == 0:
+                ds.close()
+                _remove_cache(fp)
+            else:
+                return ds
+        except Exception:
+            _remove_cache(fp)
+
+    ds = get_ds()
+    if ext == ".nc":
+        ds.to_netcdf(fp)
+    elif ext == ".zarr":
+        ds.to_zarr(fp)
+    else:
+        ds.to_netcdf(fp)
 
     return xr.open_dataset(fp, decode_times=decode_times, engine=engine)
