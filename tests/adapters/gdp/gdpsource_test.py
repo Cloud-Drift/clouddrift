@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 import numpy as np
 import xarray as xr
@@ -62,8 +62,8 @@ class gdpsource_tests(unittest.TestCase):
             patch("clouddrift.adapters.gdp.gdpsource.download_with_progress"),
             patch("clouddrift.adapters.gdp.gdpsource.get_gdp_metadata"),
             patch(
-                "clouddrift.adapters.gdp.gdpsource.asyncio.run",
-                return_value=_MOCK_DRIFTER_DATASETS,
+                "clouddrift.adapters.gdp.gdpsource._parallel_get",
+                new=AsyncMock(return_value=_MOCK_DRIFTER_DATASETS),
             ),
         ):
             return gdpsource.to_raggedarray(skip_download=True, **kwargs)

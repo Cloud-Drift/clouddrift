@@ -259,7 +259,7 @@ def to_raggedarray(
     max_chunks: int | None = None,
 ) -> RaggedArray:
     """
-    Convert GDP source data into a ragged array format and return it as an xarray Dataset.
+    Convert GDP source data into a ragged array format and return it as a RaggedArray.
 
     This function processes drifter data from the NOAA GDP (Global Drifter Program) source,
     organizes it into a ragged array format, and returns the resulting dataset. It
@@ -298,7 +298,7 @@ def to_raggedarray(
 
     # Filter down for testing purposes.
     if max:
-        requests = [requests[max]]
+        requests = requests[:max]
 
     # Download necessary data and metadata files.
     download_with_progress(requests, skip_download=skip_download)
@@ -338,7 +338,7 @@ def to_raggedarray(
     agg_ds = xr.merge([obs_ds, traj_ds])
 
     # Add variable metadata.
-    for var_name in _DATA_VARS + _METADATA_VARS:
+    for var_name in _COORDS + _DATA_VARS + _METADATA_VARS:
         if var_name in VARS_ATTRS.keys():
             agg_ds[var_name].attrs = VARS_ATTRS[var_name]
 
