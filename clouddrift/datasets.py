@@ -233,7 +233,7 @@ def gdp_source(
         decode_times,
         lambda: adapters.gdp_source.to_raggedarray(
             tmp_path, skip_download, max, use_fill_values=use_fill_values
-        ),
+        ).to_xarray(),
     )
 
 
