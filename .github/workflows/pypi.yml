@@ -56,8 +56,9 @@ jobs:
           ls -ltrh dist
       - name: Verify the built dist/wheel is valid
         run: |
-          uv pip install dist/clouddrift*.whl
-          uv run python -c "import clouddrift; print(clouddrift.__version__)"
+          uv venv --python 3.14
+          uv pip install --python .venv dist/clouddrift*.whl
+          uv run --python .venv python -c "import clouddrift; print(clouddrift.__version__)"
       - name: Publish package to TestPyPI
         if: github.event_name == 'push'
         uses: pypa/gh-action-pypi-publish@release/v1
