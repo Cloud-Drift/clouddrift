@@ -12,6 +12,9 @@ description = "Accelerating the use of Lagrangian data for atmospheric, oceanic,
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
+license-files = [
+    "LICENSE"
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
