@@ -19,3 +19,4 @@ dependencies:
   - tqdm>=4.67.3
   - xarray>=2025.6.1
   - zarr<3
+  
