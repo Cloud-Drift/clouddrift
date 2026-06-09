@@ -8,7 +8,7 @@ Required dependencies
 
 CloudDrift requires the following dependencies:
 
-- `python <https://github.com/python>`_ (3.10 or later)
+- `python <https://github.com/python>`_ (3.11 or later)
 - `aiohttp <https://github.com/aio-libs/aiohttp>`_ (3.8.4 or later)
 - `awkward <https://github.com/scikit-hep/awkward>`_ (2.0.0 or later)
 - `fsspec <https://github.com/fsspec/filesystem_spec>`_ (2022.3.0 or later)
