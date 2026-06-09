@@ -9,20 +9,20 @@ Required dependencies
 CloudDrift requires the following dependencies:
 
 - `python <https://github.com/python>`_ (3.11 or later)
-- `aiohttp <https://github.com/aio-libs/aiohttp>`_ (3.8.4 or later)
-- `awkward <https://github.com/scikit-hep/awkward>`_ (2.0.0 or later)
-- `fsspec <https://github.com/fsspec/filesystem_spec>`_ (2022.3.0 or later)
-- `netcdf4 <https://github.com/Unidata/netcdf4-python>`_ (1.6.4 or later)
+- `aiohttp <https://github.com/aio-libs/aiohttp>`_ (3.13.5 or later)
+- `awkward <https://github.com/scikit-hep/awkward>`_ (2.9.0 or later)
+- `fsspec <https://github.com/fsspec/filesystem_spec>`_ (2026.3.0 or later)
 - `h5netcdf <https://github.com/h5netcdf/h5netcdf>`_ (1.3.0 or later)
-- `numpy <https://github.com/numpy/numpy>`_ (1.22.4 or later)
-- `pandas <https://github.com/pandas-dev/pandas>`_ (1.3.4 or later)
-- `pyarrow <https://github.com/apache/arrow>`_ (8.0.0 or later)
-- `tqdm <https://github.com/tqdm/tqdm>`_ (4.64.0 or later)
-- `requests <https://github.com/psf/requests>`_ (2.31.0 or later)
-- `scipy <https://github.com/scipy/scipy>`_ (1.11.2 or later)
-- `xarray <https://github.com/pydata/xarray>`_ (2023.5.0 or later)
-- `zarr <https://github.com/zarr-developers/zarr-python>`_ (2.14.2 or later)
-- `tenacity <https://github.com/jd/tenacity>`_ (8.2.3 or later)
+- `netcdf4 <https://github.com/Unidata/netcdf4-python>`_ (1.7.3 or later)
+- `numpy <https://github.com/numpy/numpy>`_ (2.2.6 or later)
+- `pandas <https://github.com/pandas-dev/pandas>`_ (2.3.3 or later)
+- `pyarrow <https://github.com/apache/arrow>`_ (23.0.1 or later)
+- `requests <https://github.com/psf/requests>`_ (2.33.1 or later)
+- `scipy <https://github.com/scipy/scipy>`_ (1.15.3 or later)
+- `tenacity <https://github.com/jd/tenacity>`_ (9.1.4 or later)
+- `tqdm <https://github.com/tqdm/tqdm>`_ (4.67.3 or later)
+- `xarray <https://github.com/pydata/xarray>`_ (2025.6.1 or later)
+- `zarr <https://github.com/zarr-developers/zarr-python>`_ (strictly < 3.0)
 
 if you install CloudDrift using uv, pip or Conda, these dependencies will be installed automatically. See :ref:`installation-instructions` for details.
 
