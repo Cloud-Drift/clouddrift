@@ -1977,9 +1977,9 @@ class TestRidgeAnalysis(unittest.TestCase):
     def test_ridge_analysis_amplitude_integration(self):
         """Test complete ridge analysis workflow with amplitude ridges."""
         result = ridge_analysis(
-            wavelet=self.wavelet_y,
-            freqs=self.freqs,
-            t=self.t,
+            wavelet_transform=self.wavelet_y,
+            scale_frequencies=self.freqs,
+            time=self.t,
             ridge_type="amplitude",
             amplitude_threshold=10.0,
             min_ridge_size=5,
@@ -1996,13 +1996,14 @@ class TestRidgeAnalysis(unittest.TestCase):
             "inst_frequency",
             "inst_frequency_derivative",
             "ridge_quantity",
+            "transform",
             "rowsize",
             "ridge_length",
         }
         self.assertEqual(set(result.data_vars.keys()), expected_data_vars)
 
         # Check that expected coordinates are present
-        expected_coords = {"obs", "id"}
+        expected_coords = {"obs", "ridge"}
         self.assertEqual(set(result.coords.keys()), expected_coords)
 
         # Check data types and dimensions
@@ -2021,8 +2022,8 @@ class TestRidgeAnalysis(unittest.TestCase):
         self.assertEqual(result["ridge_quantity"].dtype, np.float64)
         self.assertEqual(result["ridge_quantity"].dims, ("obs",))
 
-        self.assertEqual(result["rowsize"].dims, ("id",))
-        self.assertEqual(result["ridge_length"].dims, ("id",))
+        self.assertEqual(result["rowsize"].dims, ("ridge",))
+        self.assertEqual(result["ridge_length"].dims, ("ridge",))
 
         # Check that observations dimension is consistent
         num_obs = result.sizes["obs"]
@@ -2033,7 +2034,7 @@ class TestRidgeAnalysis(unittest.TestCase):
         self.assertEqual(len(result["ridge_quantity"]), num_obs)
 
         # Check that ridge dimension is consistent
-        num_ridges = result.sizes["id"]
+        num_ridges = result.sizes["ridge"]
         self.assertEqual(len(result["rowsize"]), num_ridges)
         self.assertEqual(len(result["ridge_length"]), num_ridges)
 
@@ -2050,9 +2051,9 @@ class TestRidgeAnalysis(unittest.TestCase):
     def test_ridge_analysis_phase_integration(self):
         """Test complete ridge analysis workflow with phase ridges."""
         result = ridge_analysis(
-            wavelet=self.wavelet_y,
-            freqs=self.freqs,
-            t=self.t,
+            wavelet_transform=self.wavelet_y,
+            scale_frequencies=self.freqs,
+            time=self.t,
             ridge_type="phase",
             amplitude_threshold=0.1,
             min_ridge_size=3,
@@ -2069,13 +2070,14 @@ class TestRidgeAnalysis(unittest.TestCase):
             "inst_frequency",
             "inst_frequency_derivative",
             "ridge_quantity",
+            "transform",
             "rowsize",
             "ridge_length",
         }
         self.assertEqual(set(result.data_vars.keys()), expected_data_vars)
 
         # Get number of ridges from the 'id' dimension size
-        num_ridges = result.sizes["id"]
+        num_ridges = result.sizes["ridge"]
 
         # Check global attributes
         self.assertEqual(result.attrs["ridge_type"], "phase")
@@ -2097,17 +2099,17 @@ class TestRidgeAnalysis(unittest.TestCase):
         """Test that output format is stable across different inputs."""
         # Test with different ridge types
         result_amp = ridge_analysis(
-            wavelet=self.wavelet_y,
-            freqs=self.freqs,
-            t=self.t,
+            wavelet_transform=self.wavelet_y,
+            scale_frequencies=self.freqs,
+            time=self.t,
             ridge_type="amplitude",
             amplitude_threshold=10.0,
         )
 
         result_phase = ridge_analysis(
-            wavelet=self.wavelet_y,
-            freqs=self.freqs,
-            t=self.t,
+            wavelet_transform=self.wavelet_y,
+            scale_frequencies=self.freqs,
+            time=self.t,
             ridge_type="phase",
             amplitude_threshold=0.1,
         )
@@ -2126,9 +2128,9 @@ class TestRidgeAnalysis(unittest.TestCase):
         """Test behavior when no ridges are found."""
         # Use a very high threshold to ensure no ridges are found
         result = ridge_analysis(
-            wavelet=self.wavelet_y,
-            freqs=self.freqs,
-            t=self.t,
+            wavelet_transform=self.wavelet_y,
+            scale_frequencies=self.freqs,
+            time=self.t,
             ridge_type="amplitude",
             amplitude_threshold=1000.0,  # Extremely high threshold
             min_ridge_size=5,
@@ -2145,21 +2147,105 @@ class TestRidgeAnalysis(unittest.TestCase):
             "inst_frequency",
             "inst_frequency_derivative",
             "ridge_quantity",
+            "transform",
             "rowsize",
             "ridge_length",
         }
         self.assertEqual(set(result.data_vars.keys()), expected_data_vars)
 
         # Check for expected coordinates
-        expected_coords = {"obs", "id"}
+        expected_coords = {"obs", "ridge"}
         self.assertEqual(set(result.coords.keys()), expected_coords)
 
         # Check that all dimensions are size 0
         self.assertEqual(result.sizes["obs"], 0)
-        self.assertEqual(result.sizes["id"], 0)
+        self.assertEqual(result.sizes["ridge"], 0)
 
-        # Check that there are no global attributes, as the function returns early
-        self.assertEqual(len(result.attrs), 0)
+        # An empty result carries the same schema and metadata as a populated one, so that
+        # consumers do not have to special-case trajectories without ridges
+        self.assertEqual(result.attrs["num_ridges"], 0)
+        self.assertIn("ridge_type", result.attrs)
+        self.assertIn("long_name", result["transform"].attrs)
+
+    def test_ridge_analysis_recovers_modulated_oscillation(self):
+        """The transform along the ridge estimates the analytic signal, Eq. (54) of
+        Lilly and Perez-Brunius (2021), and the ridge length counts its oscillations."""
+        from clouddrift.wavelet import morse_logspace_freq, morse_wavelet_transform
+
+        n_times = 1024
+        time = np.arange(n_times, dtype=float)
+        omega = 2 * np.pi / 30.0  # radians per sample
+        amplitude = 3.0
+        x = amplitude * np.cos(omega * time)
+        y = amplitude * np.sin(omega * time)  # circular, counterclockwise
+
+        frequencies = morse_logspace_freq(3, 2, n_times, density=8)
+        wx = morse_wavelet_transform(x, 3, 2, frequencies, boundary="mirror")
+        wy = morse_wavelet_transform(y, 3, 2, frequencies, boundary="mirror")
+
+        result = ridge_analysis((wx, wy), frequencies, time, min_ridge_size=50)
+
+        # The longest ridge is the oscillation; the others are edge artifacts
+        rowsize = result["rowsize"].values
+        start = np.concatenate([[0], np.cumsum(rowsize)])
+        longest = int(np.argmax(result["ridge_length"].values))
+        ridge = slice(start[longest], start[longest + 1])
+
+        ridge_time = result["time"].values[ridge]
+        # Restrict to the interior, away from the edges of the transform
+        interior = (ridge_time > 150) & (ridge_time < n_times - 150)
+        transform_x = result["transform"].values[0][ridge][interior]
+
+        # The ridge length is the number of oscillations executed
+        self.assertAlmostEqual(
+            result["ridge_length"].values[longest], n_times * omega / (2 * np.pi), delta=0.5
+        )
+        # Time increases monotonically along a ridge, one point per time
+        self.assertTrue(np.all(np.diff(ridge_time) > 0))
+        # The instantaneous frequency recovers the frequency of the oscillation
+        np.testing.assert_allclose(
+            result["inst_frequency"].values[ridge][interior], omega, rtol=1e-3
+        )
+        # The transform along the ridge recovers the analytic signal itself
+        np.testing.assert_allclose(np.abs(transform_x), amplitude, rtol=1e-2)
+        np.testing.assert_allclose(
+            transform_x,
+            amplitude * np.exp(1j * omega * ridge_time[interior]),
+            atol=1e-2 * amplitude,
+        )
+
+    def test_ridge_analysis_multivariate_returns_component_axis(self):
+        """A multivariate transform yields a transform variable with a component axis."""
+        # A second component, in quadrature with the first, makes a bivariate transform
+        transform = np.stack([self.wavelet_y, 1j * self.wavelet_y], axis=0)
+        result = ridge_analysis(transform, self.freqs, self.t, min_ridge_size=3)
+
+        self.assertEqual(result["transform"].dims, ("component", "obs"))
+        self.assertEqual(result.sizes["component"], 2)
+        self.assertEqual(result["rowsize"].values.sum(), result.sizes["obs"])
+        self.assertEqual(result.attrs["n_components"], 2)
+
+    def test_ridge_analysis_mask_restricts_ridge_points(self):
+        """The mask confines ridges, which is how one-sided ridges are formed."""
+        no_ridges = ridge_analysis(
+            self.wavelet_y,
+            self.freqs,
+            self.t,
+            mask=np.zeros(self.wavelet_y.shape, dtype=bool),
+        )
+        self.assertEqual(no_ridges.sizes["ridge"], 0)
+        self.assertEqual(no_ridges.sizes["obs"], 0)
+        self.assertTrue(no_ridges.attrs["masked"])
+
+        # A mask covering half the scales confines ridge frequencies to those scales
+        mask = np.zeros(self.wavelet_y.shape, dtype=bool)
+        half = self.wavelet_y.shape[0] // 2
+        mask[half:, :] = True
+        allowed = self.freqs[half:]
+        masked = ridge_analysis(self.wavelet_y, self.freqs, self.t, mask=mask, min_ridge_size=3)
+        self.assertGreater(masked.sizes["obs"], 0)
+        self.assertTrue(np.all(masked["frequency"].values >= 0.9 * allowed.min()))
+        self.assertTrue(np.all(masked["frequency"].values <= 1.1 * allowed.max()))
 
 
 def synth_signal(t, tau, omega, k):
