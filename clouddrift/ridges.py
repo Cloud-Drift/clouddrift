@@ -1106,9 +1106,14 @@ def ridge_analysis(
     Returns
     -------
     xr.Dataset
-        Ridges as a ragged array, with one element of dimension ``obs`` per ridge point and
-        one element of dimension ``ridge`` per ridge:
+        Ridges as a ragged array, following the CloudDrift convention: one element of the
+        observation dimension ``obs`` per ridge point, and one element of the row dimension
+        ``ridge`` per ridge, identified by the variable ``id``. A single ridge is retrieved
+        with :func:`clouddrift.ragged.subset`::
 
+            subset(ridges, {"id": 3}, row_dim_name="ridge")
+
+        - ``id``: identification number of each ridge
         - ``time``: time of each ridge point
         - ``frequency``: interpolated scale frequency of each ridge point
         - ``inst_frequency``: instantaneous frequency of each ridge point
@@ -1200,10 +1205,10 @@ def ridge_analysis(
                     transform_dims,
                     empty_transform if is_multivariate else empty_transform[0],
                 ),
+                "id": (["ridge"], np.array([], dtype=int)),
                 "rowsize": (["ridge"], np.array([], dtype=int)),
                 "ridge_length": (["ridge"], empty),
             },
-            coords={"obs": empty, "ridge": empty},
         )
     else:
         # Concatenate the ridges into ragged arrays, ordered by ridge id
@@ -1235,10 +1240,10 @@ def ridge_analysis(
                 "inst_frequency_derivative": (["obs"], np.array(inst_frequency_derivatives)),
                 "ridge_quantity": (["obs"], np.array(ridge_quantities)),
                 "transform": (transform_dims, transform if is_multivariate else transform[0]),
+                "id": (["ridge"], np.array(ridge_ids)),
                 "rowsize": (["ridge"], np.array(rowsizes)),
                 "ridge_length": (["ridge"], np.array(ridge_lengths)),
             },
-            coords={"obs": np.arange(len(times)), "ridge": np.array(ridge_ids)},
         )
 
     time_units = "those corresponding to the wavelet transform"
@@ -1273,6 +1278,10 @@ def ridge_analysis(
             "wavelet transform evaluated along the ridge, component by component; the "
             "estimate of the analytic signal of the modulated oscillation"
         ),
+    }
+    ds["id"].attrs = {
+        "long_name": "ridge identification number",
+        "description": "identifier of each ridge, unique within this dataset",
     }
     ds["rowsize"].attrs = {
         "long_name": "number of observations per ridge",

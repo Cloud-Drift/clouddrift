@@ -1997,14 +1997,19 @@ class TestRidgeAnalysis(unittest.TestCase):
             "inst_frequency_derivative",
             "ridge_quantity",
             "transform",
+            "id",
             "rowsize",
             "ridge_length",
         }
         self.assertEqual(set(result.data_vars.keys()), expected_data_vars)
 
         # Check that expected coordinates are present
-        expected_coords = {"obs", "ridge"}
-        self.assertEqual(set(result.coords.keys()), expected_coords)
+        # Following the CloudDrift ragged convention the dimensions carry no coordinate
+        # values; rows are identified by the "id" variable, so that clouddrift.ragged.subset
+        # works with its default id_var_name
+        self.assertEqual(set(result.coords.keys()), set())
+        self.assertEqual(set(result.sizes), {"obs", "ridge"})
+        self.assertEqual(result["id"].dims, ("ridge",))
 
         # Check data types and dimensions
         self.assertEqual(result["time"].dtype, np.float64)
@@ -2071,6 +2076,7 @@ class TestRidgeAnalysis(unittest.TestCase):
             "inst_frequency_derivative",
             "ridge_quantity",
             "transform",
+            "id",
             "rowsize",
             "ridge_length",
         }
@@ -2148,14 +2154,19 @@ class TestRidgeAnalysis(unittest.TestCase):
             "inst_frequency_derivative",
             "ridge_quantity",
             "transform",
+            "id",
             "rowsize",
             "ridge_length",
         }
         self.assertEqual(set(result.data_vars.keys()), expected_data_vars)
 
         # Check for expected coordinates
-        expected_coords = {"obs", "ridge"}
-        self.assertEqual(set(result.coords.keys()), expected_coords)
+        # Following the CloudDrift ragged convention the dimensions carry no coordinate
+        # values; rows are identified by the "id" variable, so that clouddrift.ragged.subset
+        # works with its default id_var_name
+        self.assertEqual(set(result.coords.keys()), set())
+        self.assertEqual(set(result.sizes), {"obs", "ridge"})
+        self.assertEqual(result["id"].dims, ("ridge",))
 
         # Check that all dimensions are size 0
         self.assertEqual(result.sizes["obs"], 0)
@@ -2213,6 +2224,19 @@ class TestRidgeAnalysis(unittest.TestCase):
             amplitude * np.exp(1j * omega * ridge_time[interior]),
             atol=1e-2 * amplitude,
         )
+
+    def test_ridge_analysis_output_works_with_subset(self):
+        """One ridge is retrieved with clouddrift.ragged.subset and its defaults."""
+        from clouddrift.ragged import subset
+
+        result = ridge_analysis(self.wavelet_y, self.freqs, self.t, min_ridge_size=3)
+        self.assertGreater(result.sizes["ridge"], 0)
+
+        ridge_id = int(result["id"].values[0])
+        one_ridge = subset(result, {"id": ridge_id}, row_dim_name="ridge")
+
+        self.assertEqual(one_ridge.sizes["ridge"], 1)
+        self.assertEqual(one_ridge.sizes["obs"], int(result["rowsize"].values[0]))
 
     def test_ridge_analysis_multivariate_returns_component_axis(self):
         """A multivariate transform yields a transform variable with a component axis."""
