@@ -1021,7 +1021,7 @@ class TestCreate3DDeviationMatrix(unittest.TestCase):
         alpha = 0.1  # Small threshold
 
         result = create_3d_deviation_matrix(
-            freq_matrix, freq_next_pred_matrix, freq_prev_pred_matrix, alpha=alpha
+            freq_matrix, freq_next_pred_matrix, freq_prev_pred_matrix, max_frequency_deviation=alpha
         )
 
         # With large frequency changes and small alpha, many values should be NaN
@@ -1036,12 +1036,12 @@ class TestCreate3DDeviationMatrix(unittest.TestCase):
 
         # Test with very permissive alpha
         result_permissive = create_3d_deviation_matrix(
-            freq_matrix, freq_next_pred_matrix, freq_prev_pred_matrix, alpha=1.0
+            freq_matrix, freq_next_pred_matrix, freq_prev_pred_matrix, max_frequency_deviation=1.0
         )
 
         # Test with very restrictive alpha
         result_restrictive = create_3d_deviation_matrix(
-            freq_matrix, freq_next_pred_matrix, freq_prev_pred_matrix, alpha=0.01
+            freq_matrix, freq_next_pred_matrix, freq_prev_pred_matrix, max_frequency_deviation=0.01
         )
 
         # Permissive alpha should have fewer NaN values
@@ -1623,7 +1623,7 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             freq_mesh=self.interpolated_ridge_freqs,
             inst_frequency=self.interp_inst_freq,
             inst_frequency_derivative=self.interp_inst_freq_dev,
-            alpha=0.01,
+            max_frequency_deviation=0.01,
             min_ridge_size=3,
             max_gap=2,
         )
@@ -1637,7 +1637,7 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             freq_mesh=self.interpolated_ridge_freqs,
             inst_frequency=self.interp_inst_freq,
             inst_frequency_derivative=self.interp_inst_freq_dev,
-            alpha=100.0,
+            max_frequency_deviation=100.0,
             min_ridge_size=3,
             max_gap=2,
         )
@@ -1827,7 +1827,7 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             scattered_freq_mesh,
             scattered_inst_freq,
             scattered_inst_freq_deriv,
-            alpha=0.01,  # Very restrictive
+            max_frequency_deviation=0.01,  # Very restrictive
             min_ridge_size=2,
             max_gap=1,
         )
@@ -2248,6 +2248,56 @@ class TestRidgeAnalysis(unittest.TestCase):
         self.assertEqual(result.sizes["component"], 2)
         self.assertEqual(result["rowsize"].values.sum(), result.sizes["obs"])
         self.assertEqual(result.attrs["n_components"], 2)
+
+    def test_ridge_analysis_ridges_are_continuous_in_frequency(self):
+        """A ridge may not jump between unrelated oscillations.
+
+        Regression test: with no limit on the frequency change between successive ridge
+        points, a masked analysis connected an inertial-band ridge point to a
+        low-frequency one, producing a ridge that jumped by a factor of twelve in period
+        within a single time step. Masking makes this more likely, because it removes the
+        intervening candidates that would otherwise be the better match.
+        """
+        from clouddrift.wavelet import morse_logspace_freq, morse_wavelet_transform
+
+        rng = np.random.default_rng(7)
+        n_times = 6000
+        time = np.arange(n_times, dtype=float)  # hours
+        # A red-noise background, a clockwise inertial oscillation, and a slow eddy
+        signal = (
+            np.cumsum(rng.normal(size=n_times) + 1j * rng.normal(size=n_times)) * 0.7
+            + 6.0 * np.exp(-1j * 2 * np.pi * time / 24.0)
+            + 40.0 * np.exp(1j * 2 * np.pi * time / (20 * 24)) * ((time > 1000) & (time < 4000))
+        )
+        frequencies = morse_logspace_freq(3, 2, n_times, density=4)
+        wx = morse_wavelet_transform(np.real(signal), 3, 2, frequencies, boundary="mirror")
+        wy = morse_wavelet_transform(np.imag(signal), 3, 2, frequencies, boundary="mirror")
+        transform_difference = np.abs(wx + 1j * wy) - np.abs(wx - 1j * wy)
+
+        def largest_jump(result):
+            edges = np.concatenate([[0], np.cumsum(result["rowsize"].values)])
+            worst = 0.0
+            for k in range(result.sizes["ridge"]):
+                frequency = result["frequency"].values[edges[k] : edges[k + 1]]
+                if len(frequency) > 1:
+                    worst = max(worst, np.max(np.abs(np.diff(frequency)) / frequency[:-1]))
+            return worst
+
+        masked = ridge_analysis(
+            (wx, wy), frequencies, time, mask=transform_difference < 0, min_ridge_size=24
+        )
+        self.assertLessEqual(largest_jump(masked), 0.25)
+
+        # Without the criterion the artifact returns, so the test is not vacuous
+        unconstrained = ridge_analysis(
+            (wx, wy),
+            frequencies,
+            time,
+            mask=transform_difference < 0,
+            min_ridge_size=24,
+            max_frequency_deviation=1000.0,
+        )
+        self.assertGreater(largest_jump(unconstrained), 0.5)
 
     def test_ridge_analysis_mask_restricts_ridge_points(self):
         """The mask confines ridges, which is how one-sided ridges are formed."""

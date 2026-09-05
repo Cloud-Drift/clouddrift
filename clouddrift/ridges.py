@@ -725,7 +725,7 @@ def create_3d_deviation_matrix(
     freq_matrix: NDArray[np.float64],
     freq_next_pred_matrix: NDArray[np.float64],
     freq_prev_pred_matrix: NDArray[np.float64],
-    alpha: float = 0.25,
+    max_frequency_deviation: float = 0.25,
 ) -> NDArray[np.float64]:
     """
     Create a 3D matrix of frequency deviations between ridge points at adjacent time steps.
@@ -742,7 +742,9 @@ def create_3d_deviation_matrix(
     freq_prev_pred_matrix : NDArray[np.float64]
         Matrix of predicted previous frequencies, shape (time, max_ridges)
     alpha : float, optional
-        Maximum allowed frequency deviation (default: 0.25)
+        Maximum allowed relative frequency deviation between candidate ridge points,
+        expressed as a fraction of the frequency; deviations above it are set to NaN so
+        that the pair cannot be connected (default: 0.25)
 
     Returns
     -------
@@ -778,7 +780,7 @@ def create_3d_deviation_matrix(
     df = (np.abs(df1) + np.abs(df2)) / 2
 
     # Apply threshold mask
-    df[df > alpha] = np.nan
+    df[df > max_frequency_deviation] = np.nan
 
     # Remove last time step (no next time to connect to)
     df = df[:-1, :, :]
@@ -839,7 +841,7 @@ def separate_ridge_groups(
     inst_frequency: NDArray[np.float64],
     inst_frequency_derivative: NDArray[np.float64],
     extra_values: Optional[List[NDArray[np.float64]]] = None,
-    alpha: float = 1000.0,
+    max_frequency_deviation: float = 0.25,
     min_ridge_size: int = 3,
     max_gap: int = 2,
 ) -> Tuple[Dict[int, Dict[str, Any]], int]:
@@ -867,8 +869,12 @@ def separate_ridge_groups(
         Additional per-ridge-point arrays to carry through the grouping unchanged, appended
         to each ridge's ``values`` after the four arrays above. Used to keep the wavelet
         transform sampled along the ridge, component by component.
-    alpha : float, optional
-        Maximum allowed relative frequency difference for matching points (default: 1000.0)
+    max_frequency_deviation : float, optional
+        Maximum allowed relative frequency difference between successive ridge points,
+        as a fraction of the frequency (default: 0.25). Ridge points whose predicted and
+        actual frequencies disagree by more than this are not connected, which keeps a
+        ridge from jumping between distinct oscillations. This is the continuity condition
+        on the ridge curve, Eq. (19) of Lilly and Gascard (2006).
     min_ridge_size : int, optional
         Minimum number of points for a valid ridge (default: 3)
     max_gap : int, optional
@@ -917,7 +923,10 @@ def separate_ridge_groups(
 
     # Create 3D deviation matrix
     deviation_matrix_3d = create_3d_deviation_matrix(
-        organized_freq, organized_next_freq, organized_prev_freq, alpha=alpha
+        organized_freq,
+        organized_next_freq,
+        organized_prev_freq,
+        max_frequency_deviation=max_frequency_deviation,
     )
 
     # Apply bilateral minimum selection to get optimal connections
@@ -1063,6 +1072,7 @@ def ridge_analysis(
     amplitude_threshold: float = 0.0,
     min_ridge_size: int = 5,
     max_gap: int = 2,
+    max_frequency_deviation: float = 0.25,
     mask: Optional[NDArray[np.bool_]] = None,
 ) -> xr.Dataset:
     """
@@ -1096,6 +1106,15 @@ def ridge_analysis(
         Minimum number of points for a valid ridge, default 5.
     max_gap : int, optional
         Maximum allowed time gap between ridge points, default 2.
+    max_frequency_deviation : float, optional
+        Maximum relative change in frequency between successive points of a ridge, as a
+        fraction of the frequency, default 0.25. This enforces the continuity of the ridge
+        curve: without it a ridge can jump between two unrelated oscillations, for instance
+        from the inertial band to a low-frequency eddy, which happens most readily when a
+        mask has removed the intervening candidates. The frequency grid spacing scales with
+        the ``density`` argument of
+        :func:`clouddrift.wavelet.morse_logspace_freq`, so a denser grid makes a given value
+        of this parameter permit more grid steps.
     mask : NDArray[np.bool_], optional
         Boolean mask with shape (scale, time) restricting where ridge points may occur.
         Ridges are confined to the region where the mask is True. This is how one-sided
@@ -1184,6 +1203,7 @@ def ridge_analysis(
         extra_values=interpolation_arrays[4:],
         min_ridge_size=min_ridge_size,
         max_gap=max_gap,
+        max_frequency_deviation=max_frequency_deviation,
     )
 
     # Calculate lengths for each ridge
@@ -1299,6 +1319,7 @@ def ridge_analysis(
         "amplitude_threshold": amplitude_threshold,
         "min_ridge_size": min_ridge_size,
         "max_gap": max_gap,
+        "max_frequency_deviation": max_frequency_deviation,
         "masked": mask is not None,
         "n_components": n_components,
         "num_ridges": num_ridges,
