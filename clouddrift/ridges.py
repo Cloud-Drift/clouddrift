@@ -741,7 +741,7 @@ def create_3d_deviation_matrix(
         Matrix of predicted next frequencies, shape (time, max_ridges)
     freq_prev_pred_matrix : NDArray[np.float64]
         Matrix of predicted previous frequencies, shape (time, max_ridges)
-    alpha : float, optional
+    max_frequency_deviation : float, optional
         Maximum allowed relative frequency deviation between candidate ridge points,
         expressed as a fraction of the frequency; deviations above it are set to NaN so
         that the pair cannot be connected (default: 0.25)
