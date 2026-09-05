@@ -51,14 +51,19 @@ matlab_version = version();
 fprintf('wavetrans: %d by %d transform\n', size(wx, 1), size(wx, 2));
 
 %% 2. ridge analysis of the bivariate transform
-% W has the components along the third dimension, so the ridges are joint ridges of the
-% transform vector norm, as in Lilly and Olhede (2012).
-w = cat(3, wx, wy);
-[wr, ir, jr, omega] = ridgewalk(dt, w, fs, P, M, RHO);
+% The components of a multivariate transform are passed as separate arguments, not stacked
+% along a third dimension: ridgewalk collects the leading arguments that share the size of
+% the first one and treats them as the components of one transform vector. The ridges are
+% then joint ridges of the transform vector norm, as in Lilly and Olhede (2012).
+[wxr, wyr, ir, jr, omega] = ridgewalk(dt, wx, wy, fs, P, M, RHO);
 ridge_count = 1 + sum(isnan(ir));
 fprintf('ridgewalk: %d ridge points in %d ridges\n', sum(~isnan(ir)), ridge_count);
 
 %% 3. the eddy pipeline on the drifter
+% Wrapped so that a failure here still leaves cases 1 and 2 saved.
+eddy = struct();
+eddy_error = '';
+try
 % One-sided ridges, the frequency band expressed as a ratio to the Coriolis frequency.
 eddies = eddyridges(num, lat, lon, fmax, fmin, P, M, RHO);
 
@@ -87,8 +92,12 @@ if isfield(eddies, 'num') && iscell(eddies.num)
     fprintf('eddyridges: %d ridges, %d points\n', length(eddy.rowsize), sum(eddy.rowsize));
 end
 eddy.zhat = cell2col(eddies.zhat);
+catch failure
+    eddy_error = failure.message;
+    fprintf(2, 'eddyridges failed: %s\n', eddy_error);
+end
 
-save(output_file, 'wx', 'wy', 'wr', 'ir', 'jr', 'omega', 'eddy', ...
+save(output_file, 'wx', 'wy', 'wxr', 'wyr', 'ir', 'jr', 'omega', 'eddy', 'eddy_error', ...
      'jlab_version', 'matlab_version', 'fs', 'ga', 'be', 'P', 'M', 'RHO', ...
      'fmax', 'fmin', 'dt', '-v7.3')
 fprintf('wrote %s\n', output_file);
