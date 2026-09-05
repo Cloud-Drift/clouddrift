@@ -885,7 +885,9 @@ def separate_ridge_groups(
     ridge_data : Dict[int, Dict[str, Any]]
         Dictionary of ridges with indices and values for each ridge
         - 'indices': tuple of (freq_indices, time_indices)
-        - 'values': list of arrays, each containing values at ridge points
+        - 'values': dict of arrays at the ridge points, keyed by 'frequency',
+          'inst_frequency_derivative', 'ridge_quantity', 'inst_frequency', and
+          'extra_0', 'extra_1', ... for arrays passed through ``extra_values``
     num_ridges : int
         Number of distinct ridges found
     """
@@ -1003,9 +1005,17 @@ def separate_ridge_groups(
         ridge_freq_indices = freq_indices_sorted[original_indices]
         ridge_time_indices = time_indices_sorted[original_indices]
 
-        ridge_values = []
-        for val_array in sorted_values:
-            ridge_values.append(val_array[original_indices])
+        # Named rather than positional: the order of this collection used to be an
+        # implicit contract between the grouping, the length calculation and the dataset
+        # assembly, which is how the ridge length came to integrate the wrong frequency.
+        names = [
+            "frequency",
+            "inst_frequency_derivative",
+            "ridge_quantity",
+            "inst_frequency",
+        ]
+        names += [f"extra_{k}" for k in range(len(sorted_values) - len(names))]
+        ridge_values = {name: array[original_indices] for name, array in zip(names, sorted_values)}
 
         valid_ridge_count += 1
         ridge_data[valid_ridge_count] = {
@@ -1044,9 +1054,15 @@ def calculate_ridge_lengths(
             ridge_lengths.append(0.0)
             continue
 
-        # Extract frequency values and time indices
+        # Extract frequency values and time indices. Eq. (60) defines the ridge length as
+        # the integral of the INSTANTANEOUS frequency, not of the scale frequency along
+        # the ridge. The two are close along a ridge, but the choice decides
+        # marginal cases: on the jLab fixture, two ridges of scale-frequency length 1.593
+        # and 1.604 have instantaneous-frequency lengths of 1.529 and 1.491, so they fall
+        # on opposite sides of the 1.559 threshold, and only the instantaneous frequency
+        # reproduces jLab's ridge set.
         freq_indices, time_indices = ridge_data[ridge_id]["indices"]
-        freq_values = ridge_data[ridge_id]["values"][0]
+        freq_values = ridge_data[ridge_id]["values"]["inst_frequency"]
 
         # Skip if ridge is empty
         if len(freq_indices) == 0:
@@ -1242,12 +1258,12 @@ def ridge_analysis(
             values = ridge_data[ridge_id]["values"]
 
             times.extend(np.asarray(time)[ridge_time_indices])
-            frequencies.extend(values[0])
-            inst_frequency_derivatives.extend(values[1])
-            ridge_quantities.extend(values[2])
-            inst_frequencies.extend(values[3])
+            frequencies.extend(values["frequency"])
+            inst_frequency_derivatives.extend(values["inst_frequency_derivative"])
+            ridge_quantities.extend(values["ridge_quantity"])
+            inst_frequencies.extend(values["inst_frequency"])
             for k in range(n_components):
-                transforms[k].extend(values[4 + 2 * k] + 1j * values[4 + 2 * k + 1])
+                transforms[k].extend(values[f"extra_{2 * k}"] + 1j * values[f"extra_{2 * k + 1}"])
             rowsizes.append(len(ridge_time_indices))
 
         transform = np.array(transforms, dtype=np.complex128)

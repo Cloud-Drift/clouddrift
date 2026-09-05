@@ -1443,9 +1443,17 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             self.assertGreaterEqual(len(time_indices), 5)
             self.assertEqual(len(freq_indices), len(time_indices))
 
-            # Values should have same length as indices and contain 4 arrays
-            self.assertEqual(len(values), 4)  # freq_mesh, inst_freq_deriv, amplitude, inst_freq
-            for val_array in values:
+            # The per-ridge arrays are named, and each is as long as the index arrays
+            self.assertEqual(
+                set(values),
+                {
+                    "frequency",
+                    "inst_frequency_derivative",
+                    "ridge_quantity",
+                    "inst_frequency",
+                },
+            )
+            for val_array in values.values():
                 self.assertEqual(len(val_array), len(freq_indices))
 
     def test_frequency_continuity_within_ridges(self):
@@ -1464,7 +1472,7 @@ class TestSeparateRidgeGroups(unittest.TestCase):
 
         for ridge_id, ridge in ridge_data.items():
             freq_indices, time_indices = ridge["indices"]
-            freq_values = ridge["values"][0]  # First value array is freq_mesh
+            freq_values = ridge["values"]["frequency"]
 
             # Sort by time for continuity check
             sort_order = np.argsort(time_indices)
@@ -1700,14 +1708,20 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             self.assertIsInstance(freq_indices, np.ndarray)
             self.assertIsInstance(time_indices, np.ndarray)
 
-            # Check values structure
+            # Check values structure: named arrays, each as long as the index arrays
             values = ridge["values"]
-            self.assertIsInstance(values, list)
+            self.assertIsInstance(values, dict)
             self.assertEqual(
-                len(values), 4
-            )  # freq_mesh and inst_freq_deriv ridge_quantity, inst_freq
+                set(values),
+                {
+                    "frequency",
+                    "inst_frequency_derivative",
+                    "ridge_quantity",
+                    "inst_frequency",
+                },
+            )
 
-            for val_array in values:
+            for val_array in values.values():
                 self.assertIsInstance(val_array, np.ndarray)
                 self.assertEqual(len(val_array), len(freq_indices))
 
@@ -1739,7 +1753,7 @@ class TestSeparateRidgeGroups(unittest.TestCase):
         ridge_assignments = {}
 
         for ridge_id, ridge in ridge_data.items():
-            freq_values = ridge["values"][0]  # First value array is frequency
+            freq_values = ridge["values"]["frequency"]
             time_indices = ridge["indices"][1]  # Time indices for this ridge
 
             if len(freq_values) == 0:
@@ -1845,10 +1859,12 @@ class TestCalculateRidgeLengths(unittest.TestCase):
         constant_ridge_data = {
             1: {
                 "indices": (np.array([0, 1, 2, 3, 4]), np.array([0, 1, 2, 3, 4])),
-                "values": [
-                    np.array([2.0, 2.0, 2.0, 2.0, 2.0]),
-                    np.array([0.1, 0.1, 0.1, 0.1, 0.1]),
-                ],
+                "values": {
+                    "frequency": np.array([2.0, 2.0, 2.0, 2.0, 2.0]),
+                    "inst_frequency_derivative": np.array([0.1, 0.1, 0.1, 0.1, 0.1]),
+                    "ridge_quantity": np.array([2.0, 2.0, 2.0, 2.0, 2.0]),
+                    "inst_frequency": np.array([2.0, 2.0, 2.0, 2.0, 2.0]),
+                },
             }
         }
 
@@ -1868,10 +1884,12 @@ class TestCalculateRidgeLengths(unittest.TestCase):
         linear_ridge_data = {
             1: {
                 "indices": (np.array([0, 1, 2, 3]), np.array([0, 1, 2, 3])),
-                "values": [
-                    np.array([0.0, 1.0, 2.0, 3.0]),
-                    np.array([0.0, 0.1, 0.2, 0.3]),
-                ],
+                "values": {
+                    "frequency": np.array([0.0, 1.0, 2.0, 3.0]),
+                    "inst_frequency_derivative": np.array([0.0, 0.1, 0.2, 0.3]),
+                    "ridge_quantity": np.array([0.0, 1.0, 2.0, 3.0]),
+                    "inst_frequency": np.array([0.0, 1.0, 2.0, 3.0]),
+                },
             }
         }
 
@@ -1891,7 +1909,12 @@ class TestCalculateRidgeLengths(unittest.TestCase):
         quadratic_ridge_data = {
             1: {
                 "indices": (np.array([0, 1, 2]), np.array([0, 1, 2])),
-                "values": [np.array([0.0, 1.0, 4.0]), np.array([0.0, 0.1, 0.4])],
+                "values": {
+                    "frequency": np.array([0.0, 1.0, 4.0]),
+                    "inst_frequency_derivative": np.array([0.0, 0.1, 0.4]),
+                    "ridge_quantity": np.array([0.0, 1.0, 4.0]),
+                    "inst_frequency": np.array([0.0, 1.0, 4.0]),
+                },
             }
         }
 
@@ -1913,7 +1936,12 @@ class TestCalculateRidgeLengths(unittest.TestCase):
         sinusoidal_ridge_data = {
             1: {
                 "indices": (np.arange(len(t)), np.arange(len(t))),
-                "values": [freq_values, np.zeros_like(freq_values)],
+                "values": {
+                    "frequency": freq_values,
+                    "inst_frequency_derivative": np.zeros_like(freq_values),
+                    "ridge_quantity": freq_values,
+                    "inst_frequency": freq_values,
+                },
             }
         }
 
@@ -1931,7 +1959,12 @@ class TestCalculateRidgeLengths(unittest.TestCase):
         negative_ridge_data = {
             1: {
                 "indices": (np.array([0, 1, 2]), np.array([0, 1, 2])),
-                "values": [np.array([-1.0, -1.0, -1.0]), np.array([0.1, 0.1, 0.1])],
+                "values": {
+                    "frequency": np.array([-1.0, -1.0, -1.0]),
+                    "inst_frequency_derivative": np.array([0.1, 0.1, 0.1]),
+                    "ridge_quantity": np.array([-1.0, -1.0, -1.0]),
+                    "inst_frequency": np.array([-1.0, -1.0, -1.0]),
+                },
             }
         }
 
