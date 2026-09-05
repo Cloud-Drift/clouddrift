@@ -113,13 +113,9 @@ class TestInstantaneousMoments(unittest.TestCase):
         self.assertTrue(np.allclose(amp, amps, atol=1e-6))
         self.assertTrue(np.allclose(omega, omegas, atol=1e-6))
         self.assertTrue(
-            np.allclose(
-                upsilon[mid_start:mid_end], upsilons[mid_start:mid_end], atol=1e-3
-            )
+            np.allclose(upsilon[mid_start:mid_end], upsilons[mid_start:mid_end], atol=1e-3)
         )
-        self.assertTrue(
-            np.allclose(xi[mid_start:mid_end], xis[mid_start:mid_end], atol=1e-3)
-        )
+        self.assertTrue(np.allclose(xi[mid_start:mid_end], xis[mid_start:mid_end], atol=1e-3))
 
     def test_multivariate_complex_signal(self):
         """Complex multivariate signal with known frequencies"""
@@ -173,14 +169,10 @@ class TestInstantaneousMoments(unittest.TestCase):
                 )
             )
             self.assertTrue(
-                np.allclose(
-                    xi[:, 0][mid_start:mid_end], xis_1[mid_start:mid_end], atol=1e-3
-                )
+                np.allclose(xi[:, 0][mid_start:mid_end], xis_1[mid_start:mid_end], atol=1e-3)
             )
             self.assertTrue(
-                np.allclose(
-                    xi[:, 1][mid_start:mid_end], xis_2[mid_start:mid_end], atol=1e-3
-                )
+                np.allclose(xi[:, 1][mid_start:mid_end], xis_2[mid_start:mid_end], atol=1e-3)
             )
 
 
@@ -625,22 +617,16 @@ class TestRidgeShiftInterpolation:
         # Accuracy test against theoretical ridge
         ridge_scales, ridge_times = np.where(rp)
         ridge_time_vals = t[ridge_times]
-        theoretical_at_ridge_times = theoretical_ridge_function(
-            ridge_time_vals, tau, omega
-        )
+        theoretical_at_ridge_times = theoretical_ridge_function(ridge_time_vals, tau, omega)
 
         # Calculate RMS error
-        rms_error = np.sqrt(
-            np.mean((interpolated_ridge_freqs - theoretical_at_ridge_times) ** 2)
-        )
+        rms_error = np.sqrt(np.mean((interpolated_ridge_freqs - theoretical_at_ridge_times) ** 2))
         assert rms_error < 0.003
 
         # Check frequency range alignment
         theoretical_full = theoretical_ridge_function(t, tau, omega)
         theoretical_range = theoretical_full.max() - theoretical_full.min()
-        interpolated_range = (
-            interpolated_ridge_freqs.max() - interpolated_ridge_freqs.min()
-        )
+        interpolated_range = interpolated_ridge_freqs.max() - interpolated_ridge_freqs.min()
 
         # Ranges should be similar (within 20%)
         range_ratio = interpolated_range / theoretical_range
@@ -720,12 +706,8 @@ class TestOrganizeRidgePoints(unittest.TestCase):
 
         for ridge_idx in range(3):
             self.assertEqual(index_matrix[10, ridge_idx], expected_indices[ridge_idx])
-            self.assertEqual(
-                organized_arrays[0][10, ridge_idx], expected_values_0[ridge_idx]
-            )
-            self.assertEqual(
-                organized_arrays[1][10, ridge_idx], expected_values_1[ridge_idx]
-            )
+            self.assertEqual(organized_arrays[0][10, ridge_idx], expected_values_0[ridge_idx])
+            self.assertEqual(organized_arrays[1][10, ridge_idx], expected_values_1[ridge_idx])
 
         # All other times should be NaN
         for t in range(30):
@@ -768,9 +750,7 @@ class TestOrganizeRidgePoints(unittest.TestCase):
 
         # Check time 10 (should have 1 ridge)
         self.assertFalse(np.isnan(index_matrix[10, 0]))
-        self.assertTrue(
-            np.isnan(index_matrix[10, 1])
-        )  # Second ridge slot should be empty
+        self.assertTrue(np.isnan(index_matrix[10, 1]))  # Second ridge slot should be empty
         self.assertFalse(np.isnan(organized_arrays[0][10, 0]))
         self.assertTrue(np.isnan(organized_arrays[0][10, 1]))
 
@@ -801,13 +781,9 @@ class TestOrganizeRidgePoints(unittest.TestCase):
         """Test that ridge points are properly sorted by time first, then frequency."""
         # Unsorted input: mix of times and frequencies
         freq_indices = np.array([5, 2, 3, 1])
-        time_indices = np.array(
-            [2, 1, 2, 1]
-        )  # Times: 2,1,2,1 -> should sort to 1,1,2,2
+        time_indices = np.array([2, 1, 2, 1])  # Times: 2,1,2,1 -> should sort to 1,1,2,2
         transform_shape = (10, 5)
-        arrays_to_organize = [
-            np.array([50, 20, 30, 10])
-        ]  # Values corresponding to original order
+        arrays_to_organize = [np.array([50, 20, 30, 10])]  # Values corresponding to original order
 
         index_matrix, organized_arrays = organize_ridge_points(
             freq_indices, time_indices, transform_shape, arrays_to_organize
@@ -870,17 +846,11 @@ class TestOrganizeRidgePoints(unittest.TestCase):
         # So sorted indices should be: [0,2,1]
 
         # Time 0 should have original indices 0 and 2 (in that order after sorting by freq)
-        self.assertEqual(
-            index_matrix[0, 0], 0
-        )  # Original index for freq=1, time=0, value=100
-        self.assertEqual(
-            index_matrix[0, 1], 1
-        )  # Original index for freq=2, time=0, value=300
+        self.assertEqual(index_matrix[0, 0], 0)  # Original index for freq=1, time=0, value=100
+        self.assertEqual(index_matrix[0, 1], 1)  # Original index for freq=2, time=0, value=300
 
         # Time 1 should have original index 1
-        self.assertEqual(
-            index_matrix[1, 0], 2
-        )  # Original index for freq=3, time=1, value=200
+        self.assertEqual(index_matrix[1, 0], 2)  # Original index for freq=3, time=1, value=200
 
         # Verify values match
         self.assertEqual(organized_arrays[0][0, 0], 100)
@@ -1421,9 +1391,7 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             self.assertEqual(len(freq_indices), len(time_indices))
 
             # Values should have same length as indices and contain 4 arrays
-            self.assertEqual(
-                len(values), 4
-            )  # freq_mesh, inst_freq_deriv, amplitude, inst_freq
+            self.assertEqual(len(values), 4)  # freq_mesh, inst_freq_deriv, amplitude, inst_freq
             for val_array in values:
                 self.assertEqual(len(val_array), len(freq_indices))
 
@@ -1540,12 +1508,8 @@ class TestSeparateRidgeGroups(unittest.TestCase):
         gap_start2 = np.min(original_ridge_times) + time_range * 0.7
         gap_end2 = gap_start2 + 8  # Create an 8-time-step gap
 
-        gap_mask &= ~(
-            (original_ridge_times >= gap_start1) & (original_ridge_times <= gap_end1)
-        )
-        gap_mask &= ~(
-            (original_ridge_times >= gap_start2) & (original_ridge_times <= gap_end2)
-        )
+        gap_mask &= ~((original_ridge_times >= gap_start1) & (original_ridge_times <= gap_end1))
+        gap_mask &= ~((original_ridge_times >= gap_start2) & (original_ridge_times <= gap_end2))
 
         gapped_freq_indices = original_ridge_scales[gap_mask]
         gapped_time_indices = original_ridge_times[gap_mask]
@@ -1733,12 +1697,8 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             theoretical_high_at_times = theoretical_high[time_indices]
 
             # Calculate RMS errors against both theoretical curves
-            rms_error_low = np.sqrt(
-                np.mean((freq_values - theoretical_low_at_times) ** 2)
-            )
-            rms_error_high = np.sqrt(
-                np.mean((freq_values - theoretical_high_at_times) ** 2)
-            )
+            rms_error_low = np.sqrt(np.mean((freq_values - theoretical_low_at_times) ** 2))
+            rms_error_high = np.sqrt(np.mean((freq_values - theoretical_high_at_times) ** 2))
 
             # Assign ridge to the theoretical curve with lower RMS error
             if rms_error_low < rms_error_high:
@@ -1767,9 +1727,9 @@ class TestSeparateRidgeGroups(unittest.TestCase):
             )
 
             # Absolute RMS error should be reasonable (< 10% of frequency range)
-            freq_range = np.max(
-                [theoretical_low.max(), theoretical_high.max()]
-            ) - np.min([theoretical_low.min(), theoretical_high.min()])
+            freq_range = np.max([theoretical_low.max(), theoretical_high.max()]) - np.min(
+                [theoretical_low.min(), theoretical_high.min()]
+            )
             max_acceptable_rms = 0.03 * freq_range
 
             self.assertLess(
@@ -1782,9 +1742,7 @@ class TestSeparateRidgeGroups(unittest.TestCase):
         # Check that we have ridges assigned to both frequency components
         # (if we found multiple ridges)
         if num_ridges >= 2:
-            assigned_types = [
-                assignment["type"] for assignment in ridge_assignments.values()
-            ]
+            assigned_types = [assignment["type"] for assignment in ridge_assignments.values()]
             unique_types = set(assigned_types)
 
             # Should have at least one group type, ideally both
@@ -1804,9 +1762,7 @@ class TestSeparateRidgeGroups(unittest.TestCase):
         scattered_freq_indices = np.array([0, 10, 20, 30])
         scattered_time_indices = np.array([0, 100, 200, 300])
         scattered_ridge_quantity = np.array([0.1, 0.2, 0.3, 0.4])
-        scattered_freq_mesh = np.array(
-            [0.01, 0.5, 1.0, 2.0]
-        )  # Very different frequencies
+        scattered_freq_mesh = np.array([0.01, 0.5, 1.0, 2.0])  # Very different frequencies
         scattered_inst_freq = np.array([0.01, 0.5, 1.0, 2.0])
         scattered_inst_freq_deriv = np.array([0.001, 0.01, 0.1, 1.0])
 
@@ -2189,8 +2145,10 @@ def theoretical_ridge_function(t, tau, omega):
         [t < tau / 4.0, t >= tau / 4.0],
         [
             lambda x: omega * (1 + 2 * x / tau) + omega / 10,
-            lambda x: omega * (1 + 2 * x / tau)
-            + (omega / 10) * np.sqrt(1 + (4 * x / (3 * tau) - 1 / 3) ** 2),
+            lambda x: (
+                omega * (1 + 2 * x / tau)
+                + (omega / 10) * np.sqrt(1 + (4 * x / (3 * tau) - 1 / 3) ** 2)
+            ),
         ],
     )
 

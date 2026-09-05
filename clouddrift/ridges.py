@@ -169,9 +169,7 @@ def calculate_multivariate_inst_moments(
     sample_rate: float = 1.0,
     time_axis: int = -1,
     joint_axis: int = -1,
-) -> Tuple[
-    NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]
-]:
+) -> Tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
     """
     Calculate joint instantaneous moments across multiple signals.
 
@@ -223,9 +221,7 @@ def calculate_multivariate_inst_moments(
 
     # Calculate joint amplitude (first moment)
     squared_amplitude = amplitude**2
-    joint_amplitude = np.sqrt(
-        np.mean(squared_amplitude, axis=joint_axis, keepdims=True)
-    )
+    joint_amplitude = np.sqrt(np.mean(squared_amplitude, axis=joint_axis, keepdims=True))
 
     # Calculate joint frequency (second moment)
     weights = squared_amplitude
@@ -244,15 +240,11 @@ def calculate_multivariate_inst_moments(
     # Calculate joint bandwidth (third moment)
     deviation = upsilon + 1j * (omega - omega_mean)
     joint_upsilon = np.sqrt(
-        np.sum(
-            np.abs(deviation) ** 2 * normalized_weights, axis=joint_axis, keepdims=True
-        )
+        np.sum(np.abs(deviation) ** 2 * normalized_weights, axis=joint_axis, keepdims=True)
     )
 
     # Calculate joint curvature (fourth moment)
-    curvature_deviation = (
-        xi + 2j * upsilon * (omega - omega_mean) - (omega - omega_mean) ** 2
-    )
+    curvature_deviation = xi + 2j * upsilon * (omega - omega_mean) - (omega - omega_mean) ** 2
     joint_xi = np.sqrt(
         np.sum(
             np.abs(curvature_deviation) ** 2 * normalized_weights,
@@ -278,9 +270,7 @@ def find_ridge_points(
     freq_min: Optional[Union[float, NDArray[np.float64]]] = None,
     freq_max: Optional[Union[float, NDArray[np.float64]]] = None,
     mask: Optional[NDArray[np.bool_]] = None,
-) -> Tuple[
-    NDArray[np.bool_], NDArray[np.float64], NDArray[np.complex128], NDArray[np.float64]
-]:
+) -> Tuple[NDArray[np.bool_], NDArray[np.float64], NDArray[np.complex128], NDArray[np.float64]]:
     """
     Find wavelet ridge points using specified criterion.
     Ridge detection is performed by finding local maxima along the time axis.
@@ -331,9 +321,9 @@ def find_ridge_points(
         )[:2]
     else:
         # Univariate case
-        amplitude, inst_frequency = calculate_univariate_inst_moments(
-            wavelet_transform, axis=-1
-        )[:2]
+        amplitude, inst_frequency = calculate_univariate_inst_moments(wavelet_transform, axis=-1)[
+            :2
+        ]
 
     # Determine ridge quantity based on ridge type
     if ridge_type.lower().startswith("amp"):
@@ -358,9 +348,7 @@ def find_ridge_points(
         # Safe division for weighted average
         phase_average = np.zeros_like(weight_sum, dtype=complex)
         mask_nonzero = weight_total != 0
-        phase_average[mask_nonzero] = (
-            weight_sum[mask_nonzero] / weight_total[mask_nonzero]
-        )
+        phase_average[mask_nonzero] = weight_sum[mask_nonzero] / weight_total[mask_nonzero]
 
         # Create joint transform with combined magnitude and average phase
         joint_magnitude = np.sqrt(np.sum(transform_magnitude**2, axis=2))
@@ -417,17 +405,13 @@ def find_ridge_points(
         if i > 1:
             is_prev_ridge = ridge_points[i - 1, :]
             is_bigger_than_prev = error_matrix[i, :] > error_matrix[i - 1, :]
-            ridge_points[i, :] = ridge_points[i, :] & ~(
-                is_prev_ridge & is_bigger_than_prev
-            )
+            ridge_points[i, :] = ridge_points[i, :] & ~(is_prev_ridge & is_bigger_than_prev)
 
         # Check next time step
         if i < ridge_quantity.shape[0] - 2:
             is_next_ridge = ridge_points[i + 1, :]
             is_bigger_than_next = error_matrix[i, :] > error_matrix[i + 1, :]
-            ridge_points[i, :] = ridge_points[i, :] & ~(
-                is_next_ridge & is_bigger_than_next
-            )
+            ridge_points[i, :] = ridge_points[i, :] & ~(is_next_ridge & is_bigger_than_next)
 
     # Apply basic filtering criteria
     ridge_points = ridge_points & ~np.isnan(processed_transform)
@@ -436,9 +420,7 @@ def find_ridge_points(
     # Apply frequency constraints if provided
     if freq_min is not None and freq_max is not None:
         # Create frequency constraint matrices
-        if np.isscalar(freq_min) or (
-            isinstance(freq_min, np.ndarray) and freq_min.size == 1
-        ):
+        if np.isscalar(freq_min) or (isinstance(freq_min, np.ndarray) and freq_min.size == 1):
             freq_min_matrix = np.full(processed_transform.shape[:2], freq_min)
         else:
             # Ensure freq_min is an array before indexing
@@ -448,9 +430,7 @@ def find_ridge_points(
                 freq_min_array[:, np.newaxis], processed_transform.shape[:2]
             )
 
-        if np.isscalar(freq_max) or (
-            isinstance(freq_max, np.ndarray) and freq_max.size == 1
-        ):
+        if np.isscalar(freq_max) or (isinstance(freq_max, np.ndarray) and freq_max.size == 1):
             freq_max_matrix = np.full(processed_transform.shape[:2], freq_max)
         else:
             # Ensure freq_max is an array before indexing
@@ -461,9 +441,7 @@ def find_ridge_points(
             )
 
         # Apply frequency constraints
-        freq_constraint = (inst_frequency > freq_min_matrix) & (
-            inst_frequency < freq_max_matrix
-        )
+        freq_constraint = (inst_frequency > freq_min_matrix) & (inst_frequency < freq_max_matrix)
         ridge_points = ridge_points & freq_constraint
 
     # Apply additional mask if provided
@@ -520,9 +498,7 @@ def ridge_shift_interpolation(
         boundary_freq = freq_indices[boundary_mask]
         boundary_time = time_indices[boundary_mask]
         for j, y_array in enumerate(y_arrays):
-            y_values_interpolated[j][boundary_mask] = y_array[
-                boundary_freq, boundary_time
-            ]
+            y_values_interpolated[j][boundary_mask] = y_array[boundary_freq, boundary_time]
 
     # Process interior points using vectorized operations
     if np.any(interior_mask):
@@ -601,9 +577,9 @@ def ridge_shift_interpolation(
                 denom = lin_prev[prev_higher] - lin_curr[prev_higher]
                 nonzero = denom != 0
                 if np.any(nonzero):
-                    w = (
-                        lin_prev[prev_higher][nonzero] - lin_curr[prev_higher][nonzero]
-                    ) / denom[nonzero]
+                    w = (lin_prev[prev_higher][nonzero] - lin_curr[prev_higher][nonzero]) / denom[
+                        nonzero
+                    ]
                     weights[prev_higher][nonzero] = np.minimum(0.5, w)
 
             # For points where next is higher
@@ -613,9 +589,9 @@ def ridge_shift_interpolation(
                 denom = lin_next[next_higher] - lin_curr[next_higher]
                 nonzero = denom != 0
                 if np.any(nonzero):
-                    w = (
-                        lin_next[next_higher][nonzero] - lin_curr[next_higher][nonzero]
-                    ) / denom[nonzero]
+                    w = (lin_next[next_higher][nonzero] - lin_curr[next_higher][nonzero]) / denom[
+                        nonzero
+                    ]
                     weights[next_higher][nonzero] = np.minimum(0.5, w)
 
             # Apply linear interpolation for each y_array
@@ -627,18 +603,14 @@ def ridge_shift_interpolation(
                     prev_weights = weights[prev_higher]
                     y_curr = y_array[lin_freq[prev_higher], lin_time[prev_higher]]
                     y_prev = y_array[lin_freq[prev_higher] - 1, lin_time[prev_higher]]
-                    y_interp[prev_higher] = (
-                        1 - prev_weights
-                    ) * y_curr + prev_weights * y_prev
+                    y_interp[prev_higher] = (1 - prev_weights) * y_curr + prev_weights * y_prev
 
                 # Points where next is higher
                 if np.any(next_higher):
                     next_weights = weights[next_higher]
                     y_curr = y_array[lin_freq[next_higher], lin_time[next_higher]]
                     y_next = y_array[lin_freq[next_higher] + 1, lin_time[next_higher]]
-                    y_interp[next_higher] = (
-                        1 - next_weights
-                    ) * y_curr + next_weights * y_next
+                    y_interp[next_higher] = (1 - next_weights) * y_curr + next_weights * y_next
 
                 # Store the interpolated values in the result array
                 y_values_interpolated[j][lin_indices] = y_interp
@@ -707,9 +679,7 @@ def organize_ridge_points(
         if np.isrealobj(arr):
             organized_arrays.append(np.full((num_times, max_ridge_count), np.nan))
         else:
-            organized_arrays.append(
-                np.full((num_times, max_ridge_count), np.nan + 1j * np.nan)
-            )
+            organized_arrays.append(np.full((num_times, max_ridge_count), np.nan + 1j * np.nan))
 
     # Fill index matrix with original indices
     ridge_counter = np.zeros(num_times, dtype=int)
@@ -759,12 +729,8 @@ def create_3d_deviation_matrix(
 
     # Create 3D matrices
     freq_3d = np.repeat(freq_matrix[:, :, np.newaxis], max_ridges, axis=2)
-    freq_next_pred_3d = np.repeat(
-        freq_next_pred_matrix[:, :, np.newaxis], max_ridges, axis=2
-    )
-    freq_prev_pred_3d = np.repeat(
-        freq_prev_pred_matrix[:, :, np.newaxis], max_ridges, axis=2
-    )
+    freq_next_pred_3d = np.repeat(freq_next_pred_matrix[:, :, np.newaxis], max_ridges, axis=2)
+    freq_prev_pred_3d = np.repeat(freq_prev_pred_matrix[:, :, np.newaxis], max_ridges, axis=2)
 
     # Shift and permute for next time comparison
     freq_shifted = np.roll(freq_3d, -1, axis=0)
@@ -1048,9 +1014,7 @@ def calculate_ridge_lengths(
 
         # Calculate the length of the ridge using Simpson's rule
         try:
-            ridge_length = np.abs(integrate.simpson(freq_values, x=t[time_indices])) / (
-                2.0 * np.pi
-            )
+            ridge_length = np.abs(integrate.simpson(freq_values, x=t[time_indices])) / (2.0 * np.pi)
             ridge_lengths.append(ridge_length)
         except Exception as e:
             logging.error(f"Error calculating length for ridge {ridge_id}: {e}")
@@ -1104,13 +1068,11 @@ def ridge_analysis(
     """
 
     # Find ridge points in wavelet transform
-    ridge_points, ridge_quantity, processed_transform, inst_frequency = (
-        find_ridge_points(
-            wavelet_transform=wavelet,
-            scale_frequencies=freqs,
-            amplitude_threshold=amplitude_threshold,
-            ridge_type=ridge_type,
-        )
+    ridge_points, ridge_quantity, processed_transform, inst_frequency = find_ridge_points(
+        wavelet_transform=wavelet,
+        scale_frequencies=freqs,
+        amplitude_threshold=amplitude_threshold,
+        ridge_type=ridge_type,
     )
 
     # Create frequency meshgrid for ridge point shifting
