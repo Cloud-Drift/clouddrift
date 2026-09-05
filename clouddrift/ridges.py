@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import xarray as xr
@@ -168,7 +168,7 @@ def calculate_multivariate_inst_moments(
     signals: NDArray[np.complex128],
     sample_rate: float = 1.0,
     time_axis: int = -1,
-    joint_axis: int = -1,
+    joint_axis: int = 0,
 ) -> Tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
     """
     Calculate joint instantaneous moments across multiple signals.
@@ -179,14 +179,16 @@ def calculate_multivariate_inst_moments(
     Parameters
     ----------
     signals : NDArray[np.complex128]
-        Input array with shape (..., n_signals) where n_signals is the number
-        of signals across which to compute joint moments. (shape: (scale, time, n_signals))
+        Input array of complex-valued signals. The axis holding the signal components is
+        given by ``joint_axis`` and the time axis by ``time_axis``. The convention used
+        throughout this module, following the rest of CloudDrift, is that components come
+        first and time last, i.e. ``(n_signals, scale, time)``.
     sample_rate : float, optional
         Sample rate for time derivatives, defaults to 1.0
     time_axis : int, optional
-        Axis representing time, defaults to 0
+        Axis representing time, defaults to -1 (the last axis)
     joint_axis : int, optional
-        Axis across which to compute joint moments, defaults to -1
+        Axis across which to compute joint moments, defaults to 0 (the leading axis)
 
     Returns
     -------
@@ -263,26 +265,34 @@ def calculate_multivariate_inst_moments(
 
 
 def find_ridge_points(
-    wavelet_transform: NDArray[np.complex128],
+    wavelet_transform: Union[NDArray[np.complex128], Sequence[NDArray[np.complex128]]],
     scale_frequencies: NDArray[np.float64],
-    amplitude_threshold: float,
-    ridge_type: str,
+    amplitude_threshold: float = 0.0,
+    ridge_type: str = "amplitude",
     freq_min: Optional[Union[float, NDArray[np.float64]]] = None,
     freq_max: Optional[Union[float, NDArray[np.float64]]] = None,
     mask: Optional[NDArray[np.bool_]] = None,
 ) -> Tuple[NDArray[np.bool_], NDArray[np.float64], NDArray[np.complex128], NDArray[np.float64]]:
     """
     Find wavelet ridge points using specified criterion.
-    Ridge detection is performed by finding local maxima along the time axis.
+
+    Ridge points are local maxima of the ridge quantity with respect to *scale*, evaluated
+    at each fixed time; they are not maxima in time.
 
     Parameters
     ----------
-    wavelet_transform : NDArray[np.complex128]
-        Wavelet transform matrix with shape (time, scale)
+    wavelet_transform : NDArray[np.complex128] or sequence of NDArray[np.complex128]
+        Wavelet transform with shape (scale, time) for a univariate signal, or
+        (n_signals, scale, time) for a multivariate signal, in which case ridges are joint
+        ridges of the transform vector norm. A sequence of (scale, time) transforms, such as
+        the pair returned by :func:`clouddrift.wavelet.morse_spherical_wavelet_transform`,
+        is stacked along a leading component axis.
     scale_frequencies : NDArray[np.float64]
         Frequencies corresponding to wavelet scales (in radians)
-    amplitude_threshold : float
-        Minimum amplitude threshold for ridge points
+    amplitude_threshold : float, optional
+        Minimum transform amplitude for ridge points, in the units of the input signal.
+        Defaults to 0.0, i.e. no threshold; ridges are then edited by their length alone,
+        as in Lilly and Perez-Brunius (2021). A nonzero value is an optional speed knob.
     ridge_type : str
         Ridge definition: 'amplitude' or 'phase'
     freq_min : float or NDArray[np.float64], optional
@@ -303,9 +313,22 @@ def find_ridge_points(
     inst_frequency : NDArray[np.float64]
         Instantaneous frequency of the transform
     """
+    # Accept a sequence of per-component transforms, e.g. (wx, wy)
+    if not isinstance(wavelet_transform, np.ndarray):
+        wavelet_transform = np.stack([np.asarray(w) for w in wavelet_transform], axis=0)
+    if wavelet_transform.ndim > 3:
+        raise ValueError(
+            "wavelet_transform must have shape (scale, time) or (n_signals, scale, time); "
+            f"got shape {wavelet_transform.shape}"
+        )
+    # A single-component transform is treated as univariate
+    if wavelet_transform.ndim == 3 and wavelet_transform.shape[0] == 1:
+        wavelet_transform = wavelet_transform[0]
+    is_multivariate = wavelet_transform.ndim == 3
+
     # Handle empty arrays
     if wavelet_transform.size == 0:
-        empty_shape = wavelet_transform.shape
+        empty_shape = wavelet_transform.shape[-2:] if is_multivariate else wavelet_transform.shape
         return (
             np.zeros(empty_shape, dtype=bool),
             np.zeros(empty_shape, dtype=np.float64),
@@ -314,10 +337,10 @@ def find_ridge_points(
         )
 
     # Calculate instantaneous moments
-    if wavelet_transform.ndim > 2 and wavelet_transform.shape[2] > 1:
-        # Multivariate case
+    if is_multivariate:
+        # Multivariate case: joint moments over the leading (component) axis, time last
         amplitude, inst_frequency = calculate_multivariate_inst_moments(
-            wavelet_transform, time_axis=-1, joint_axis=2
+            wavelet_transform, time_axis=-1, joint_axis=0
         )[:2]
     else:
         # Univariate case
@@ -330,20 +353,22 @@ def find_ridge_points(
         ridge_quantity = amplitude
     else:  # phase-based ridges
         # Create array of scale frequencies matching time dimension
+        # The ridge quantity is always two-dimensional, (scale, time), even in the
+        # multivariate case, where it derives from the joint instantaneous frequency.
         freq_matrix = np.broadcast_to(
             scale_frequencies[:, np.newaxis],
-            wavelet_transform.shape,
+            amplitude.shape,
         )
         ridge_quantity = inst_frequency - freq_matrix
 
     # Handle univariate and multivariate cases
-    if wavelet_transform.ndim > 2 and wavelet_transform.shape[2] > 1:
+    if is_multivariate:
         # Calculate magnitude
         transform_magnitude = np.abs(wavelet_transform)
 
-        # Compute power-weighted phase average
-        weight_sum = np.sum(transform_magnitude * wavelet_transform, axis=2)
-        weight_total = np.sum(transform_magnitude**2, axis=2)
+        # Compute power-weighted phase average over the component axis
+        weight_sum = np.sum(transform_magnitude * wavelet_transform, axis=0)
+        weight_total = np.sum(transform_magnitude**2, axis=0)
 
         # Safe division for weighted average
         phase_average = np.zeros_like(weight_sum, dtype=complex)
@@ -351,7 +376,7 @@ def find_ridge_points(
         phase_average[mask_nonzero] = weight_sum[mask_nonzero] / weight_total[mask_nonzero]
 
         # Create joint transform with combined magnitude and average phase
-        joint_magnitude = np.sqrt(np.sum(transform_magnitude**2, axis=2))
+        joint_magnitude = np.sqrt(np.sum(transform_magnitude**2, axis=0))
         joint_phase = np.angle(phase_average)
         processed_transform = joint_magnitude * np.exp(1j * joint_phase)
     else:

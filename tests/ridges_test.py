@@ -462,8 +462,8 @@ class TestFindRidgePoints(unittest.TestCase):
         t = np.linspace(-2, 2, time_points)
         freqs = np.linspace(0.5, 1.5, scale_points)
 
-        # Create multivariate wavelet transform
-        wt = np.zeros((scale_points, time_points, components), dtype=np.complex128)
+        # Create multivariate wavelet transform, (n_signals, scale, time)
+        wt = np.zeros((components, scale_points, time_points), dtype=np.complex128)
         sigma = 2.0
 
         for i, time_val in enumerate(t):
@@ -474,8 +474,8 @@ class TestFindRidgePoints(unittest.TestCase):
             for j in range(scale_points):
                 scale_distance = abs(j - peak_scale_idx)
                 amplitude = np.exp(-(scale_distance**2) / (2 * sigma**2)) + 0.1
-                wt[j, i, 0] = amplitude * np.exp(1j * 0.5)
-                wt[j, i, 1] = amplitude * np.exp(1j * 1.0)
+                wt[0, j, i] = amplitude * np.exp(1j * 0.5)
+                wt[1, j, i] = amplitude * np.exp(1j * 1.0)
 
         rp, rq, proc, inst_freq = find_ridge_points(wt, freqs, 0.1, "amplitude")
 
@@ -488,6 +488,59 @@ class TestFindRidgePoints(unittest.TestCase):
         # Output shapes should match 2D case
         self.assertEqual(rp.shape, (scale_points, time_points))
         self.assertEqual(rq.shape, (scale_points, time_points))
+
+    def test_multivariate_inst_frequency_is_along_time(self):
+        """The joint instantaneous frequency must differentiate phase along time.
+
+        Regression test: with the component axis last and ``time_axis=-1``, the phase was
+        differentiated across components instead, so a constant phase offset between the
+        components was reported as the frequency.
+        """
+        n_scales, n_times = 9, 200
+        omega_true = 0.3  # radians per sample, identical in both components
+        phase_offset = 0.7  # constant offset between components, must not leak into omega
+        t = np.arange(n_times)
+        envelope = np.exp(-((np.arange(n_scales)[:, None] - 4.0) ** 2) / 8.0)
+
+        wt = np.stack(
+            [envelope * np.exp(1j * (omega_true * t + k * phase_offset)) for k in range(2)],
+            axis=0,
+        )
+
+        _, _, _, inst_frequency = find_ridge_points(wt, np.linspace(0.1, 0.9, n_scales))
+
+        # Interior points are free of gradient edge effects
+        np.testing.assert_allclose(inst_frequency[:, 1:-1], omega_true, rtol=1e-10)
+
+    def test_sequence_of_transforms_is_stacked(self):
+        """A sequence of (scale, time) transforms is accepted, as returned by the
+        spherical wavelet transform, and is equivalent to stacking them."""
+        n_scales, n_times = 9, 64
+        freqs = np.linspace(0.1, 0.9, n_scales)
+        t = np.arange(n_times)
+        envelope = np.exp(-((np.arange(n_scales)[:, None] - 4.0) ** 2) / 8.0)
+        wx = envelope * np.exp(1j * 0.3 * t)
+        wy = envelope * np.exp(1j * (0.3 * t + 0.5))
+
+        from_sequence = find_ridge_points((wx, wy), freqs)
+        from_array = find_ridge_points(np.stack([wx, wy], axis=0), freqs)
+
+        for a, b in zip(from_sequence, from_array):
+            np.testing.assert_array_equal(a, b)
+
+    def test_single_component_is_treated_as_univariate(self):
+        """A (1, scale, time) transform behaves like its (scale, time) counterpart."""
+        n_scales, n_times = 9, 64
+        freqs = np.linspace(0.1, 0.9, n_scales)
+        t = np.arange(n_times)
+        envelope = np.exp(-((np.arange(n_scales)[:, None] - 4.0) ** 2) / 8.0)
+        wx = envelope * np.exp(1j * 0.3 * t)
+
+        as_3d = find_ridge_points(wx[np.newaxis], freqs)
+        as_2d = find_ridge_points(wx, freqs)
+
+        for a, b in zip(as_3d, as_2d):
+            np.testing.assert_array_equal(a, b)
 
     def test_ridge_quantity_values(self):
         """Test that ridge quantities have expected values"""
