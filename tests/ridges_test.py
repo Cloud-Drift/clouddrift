@@ -2258,6 +2258,53 @@ class TestRidgeAnalysis(unittest.TestCase):
             atol=1e-2 * amplitude,
         )
 
+    def test_ridge_analysis_instantaneous_frequency_includes_precession(self):
+        """For an elliptical signal, omega = phi' + xi * theta'.
+
+        The instantaneous frequency of a modulated elliptical signal is the phase rate plus
+        the precession rate of the ellipse weighted by the circularity, Eqs. (34)-(36) of
+        Lilly and Perez-Brunius (2021). Comparing a ridge estimate against the phase rate
+        alone makes the precession look like a bias of the method, which it is not.
+        """
+        from clouddrift.signal import modulated_ellipse_signal
+        from clouddrift.wavelet import morse_logspace_freq, morse_wavelet_transform
+
+        n_times = 2048
+        time = np.arange(n_times, dtype=float)
+        phase_rate = 2 * np.pi / 40.0
+        linearity = np.full(n_times, 0.3)
+        circularity = np.sign(linearity) * np.sqrt(1 - linearity**2)
+        theta = 0.4 * np.pi * time / n_times  # a slowly precessing ellipse
+        xa, ya = modulated_ellipse_signal(
+            np.full(n_times, 20.0), linearity, theta, phase_rate * time
+        )
+        omega_true = phase_rate + circularity * np.gradient(theta)
+
+        frequencies = morse_logspace_freq(3, 2, n_times, density=8)
+        wx = morse_wavelet_transform(np.real(xa), 3, 2, frequencies, boundary="mirror")
+        wy = morse_wavelet_transform(np.real(ya), 3, 2, frequencies, boundary="mirror")
+        result = ridge_analysis((wx, wy), frequencies, time, min_ridge_size=20)
+
+        longest = int(np.argmax(result["ridge_length"].values))
+        edges = np.concatenate([[0], np.cumsum(result["rowsize"].values)])
+        ridge = slice(edges[longest], edges[longest + 1])
+        ridge_time = result["time"].values[ridge]
+        interior = (ridge_time > 200) & (ridge_time < n_times - 200)
+        estimate = result["inst_frequency"].values[ridge][interior]
+        index = ridge_time[interior].astype(int)
+
+        # The estimate follows the full instantaneous frequency
+        np.testing.assert_allclose(estimate, omega_true[index], rtol=2e-3)
+        # and is measurably different from the phase rate alone, so the test is not vacuous
+        self.assertGreater(np.abs(estimate.mean() - phase_rate) / phase_rate, 1e-3)
+
+        # The ridge length integrates that same frequency, Eq. (60)
+        self.assertAlmostEqual(
+            result["ridge_length"].values[longest],
+            np.trapezoid(omega_true, time) / (2 * np.pi),
+            delta=0.5,
+        )
+
     def test_ridge_analysis_output_works_with_subset(self):
         """One ridge is retrieved with clouddrift.ragged.subset and its defaults."""
         from clouddrift.ragged import subset
