@@ -18,6 +18,7 @@ Auto-generated summary of CloudDrift's API. For more details and examples, refer
     plotting
     ragged
     raggedarray
+    ridges
     signal
     sphere
     wavelet
