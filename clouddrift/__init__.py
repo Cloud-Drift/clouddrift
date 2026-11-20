@@ -8,6 +8,7 @@ import clouddrift.kinematics as kinematics
 import clouddrift.pairs as pairs
 import clouddrift.plotting as plotting
 import clouddrift.ragged as ragged
+import clouddrift.ridges as ridges
 import clouddrift.signal as signal
 import clouddrift.sphere as sphere
 import clouddrift.transfer as transfer
@@ -22,6 +23,7 @@ __all__ = [
     "pairs",
     "plotting",
     "ragged",
+    "ridges",
     "signal",
     "sphere",
     "transfer",
