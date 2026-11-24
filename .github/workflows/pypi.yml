@@ -19,6 +19,8 @@ jobs:
           fetch-depth: 0
       - name: Install uv
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
+        with:
+          python-version: "3.13"
       - name: Install the project
         run: uv sync --frozen --no-group dev
       - name: Build wheel
@@ -55,6 +57,10 @@ jobs:
           ls -ltrh
           ls -ltrh dist
       - name: Verify the built dist/wheel is valid
+        env:
+          # numcodecs<0.16 (required by zarr<3) has no Python 3.14 wheels and its bundled
+          # c-blosc fails to compile as C23, the default of GCC 15 on Ubuntu 26.
+          CFLAGS: -std=gnu17
         run: |
           uv venv --python 3.14
           uv pip install --python .venv dist/clouddrift*.whl
