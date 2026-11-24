@@ -1,3 +1,6 @@
+import os
+import tempfile
+import warnings
 from unittest.mock import Mock, patch
 
 import numpy as np
@@ -100,6 +103,41 @@ class datasets_tests(testutils.DisableProgressTestCase):
         self.assertEqual(filecache.call_args.args[0], "laser.nc")
         self.assertFalse(filecache.call_args.args[1])
         self.assertTrue(callable(filecache.call_args.args[2]))
+
+    def test_dataset_filecache_zarr_round_trip(self):
+        """Zarr caches are written in the Zarr v2 format, without warnings, and reused."""
+        expected = xr.Dataset(
+            {
+                "rowsize": ("traj", np.array([3, 2], dtype=np.int64)),
+                "buoys_type": ("traj", np.array(["SVPB", "SVP"])),
+                "start_date": (
+                    "traj",
+                    np.array(["2020-01-01", "2020-06-01"], dtype="datetime64[ns]"),
+                ),
+                "sst": ("obs", np.arange(5, dtype=np.float32)),
+            },
+            coords={
+                "id": ("traj", np.array([1001, 1002], dtype=np.int64)),
+                "obs_index": ("obs", np.arange(5, dtype=np.int32)),
+            },
+            attrs={"title": "cache test"},
+        )
+        get_ds = Mock(return_value=expected)
+
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, {"CLOUDDRIFT_PATH": tmp}):
+            with warnings.catch_warnings():
+                warnings.simplefilter("error")
+                with datasets._dataset_filecache("test_cache.zarr", True, get_ds) as ds:
+                    xr.testing.assert_identical(ds.load(), expected)
+
+            store = os.path.join(tmp, "data", "test_cache.zarr")
+            self.assertTrue(os.path.exists(os.path.join(store, ".zgroup")))
+            self.assertFalse(os.path.exists(os.path.join(store, "zarr.json")))
+
+            # A second call is served from the cache without rebuilding the dataset.
+            with datasets._dataset_filecache("test_cache.zarr", True, get_ds) as ds:
+                xr.testing.assert_identical(ds.load(), expected)
+            get_ds.assert_called_once()
 
     @pytest.mark.network
     def test_spotters_opens(self):
