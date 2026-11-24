@@ -19,10 +19,10 @@ class gdp_source_files_integration(unittest.TestCase):
         may contain rows for one drifter (chunking can split a drifters trajectory) we join
         these partitioned segments in parallel per drifter.
         """
-        ds = gdp_source.to_raggedarray(max=1, chunk_size=1_000, max_chunks=100)
-        assert ds is not None
+        ra = gdp_source.to_raggedarray(max=1, chunk_size=1_000, max_chunks=100)
+        assert ra is not None
 
-        all_drifter_obs_index = unpack(ds["obs_index"].data, ds["rowsize"])
+        all_drifter_obs_index = unpack(ra.coords["obs_index"], ra.metadata["rowsize"])
         for drifter_obs_index in all_drifter_obs_index:
             obs_index_diffs = np.diff(drifter_obs_index, axis=0)
             self.assertEqual(
@@ -31,7 +31,7 @@ class gdp_source_files_integration(unittest.TestCase):
                 "obs_index values not monotonically increasing",
             )
 
-        start_dt_diffs = np.diff(ds["start_date"].data, axis=0)
+        start_dt_diffs = np.diff(ra.metadata["start_date"], axis=0)
         self.assertEqual(
             np.all(start_dt_diffs.astype(np.int64) >= 0).T,
             True,
@@ -40,7 +40,7 @@ class gdp_source_files_integration(unittest.TestCase):
 
         agg_path = os.path.join(gdp_source._TMP_PATH, "aggregate")
         os.makedirs(agg_path, exist_ok=True)
-        ds.to_zarr(os.path.join(agg_path, "gdpsource_1f_agg.zarr"))
+        ra.to_xarray().to_zarr(os.path.join(agg_path, "gdpsource_1f_agg.zarr"))
 
     @classmethod
     def tearDownClass(cls):
