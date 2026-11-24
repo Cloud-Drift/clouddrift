@@ -74,7 +74,10 @@ select = ["E4", "E7", "E9", "F", "I"]
 testpaths = [
   "tests/**/*_test.py",
 ]
-addopts = "-rs"
+addopts = "-rs --strict-markers -m 'not network'"
+markers = [
+  "network: downloads data from remote servers; deselected by default, run with `pytest -m network`",
+]
 
 [tool.mypy]
 python_version = "3.14"

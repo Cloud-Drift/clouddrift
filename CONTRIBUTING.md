@@ -136,6 +136,14 @@ pytest tests/*_test.py tests/adapters/*_test.py
   pytest --doctest-modules clouddrift/ragged.py
   ```
 
+  b. Tests that download data from remote servers are marked `network` and are
+  skipped by default. Run them with:
+  ```
+  pytest -m network
+  ```
+  Mark any new test that needs network access with `@pytest.mark.network`. These
+  tests are run weekly by the "Network tests" workflow rather than on every pull request.
+
 4. Run the test suite (with coverage):
 ```
 coverage run -m pytest tests/*_test.py tests/adapters/*_test.py

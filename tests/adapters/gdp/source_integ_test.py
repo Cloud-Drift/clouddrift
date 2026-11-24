@@ -3,9 +3,12 @@ import shutil
 import unittest
 
 import numpy as np
+import pytest
 
 from clouddrift.adapters import gdp_source
 from clouddrift.ragged import unpack
+
+pytestmark = pytest.mark.network
 
 
 class gdp_source_files_integration(unittest.TestCase):

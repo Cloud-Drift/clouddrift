@@ -2,6 +2,7 @@ import unittest
 
 import numpy as np
 import pandas as pd
+import pytest
 import xarray as xr
 
 from clouddrift import datasets, pairs, ragged, sphere
@@ -10,6 +11,7 @@ if __name__ == "__main__":
     unittest.main()
 
 
+@pytest.mark.network
 class pairs_chance_pairs_from_ragged_tests(unittest.TestCase):
     def setUp(self) -> None:
         num_trajectories = 10
@@ -46,6 +48,7 @@ class pairs_chance_pairs_from_ragged_tests(unittest.TestCase):
             self.assertTrue(np.all(time1[i1] == time2[i2]))
 
 
+@pytest.mark.network
 class pairs_chance_pair_tests(unittest.TestCase):
     def setUp(self) -> None:
         ds = datasets.glad()
