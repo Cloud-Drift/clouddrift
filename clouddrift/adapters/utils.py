@@ -185,6 +185,8 @@ def _download_with_progress(
 
     try:
         resp = requests.get(url, headers=_BROWSER_HEADERS, timeout=60, stream=True)
+        # Fail on HTTP errors (e.g. 403/404) instead of saving the error page as the file.
+        resp.raise_for_status()
         temp_output = f"{output}.part" if isinstance(output, str) else None
 
         if isinstance(output, str) and temp_output is not None:

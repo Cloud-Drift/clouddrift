@@ -7,7 +7,7 @@ import os
 import tempfile
 import warnings
 from collections import defaultdict
-from concurrent.futures import Future, ProcessPoolExecutor, as_completed
+from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from typing import Callable
 
 import numpy as np
@@ -574,6 +574,19 @@ async def _parallel_get(
         return drifter_datasets
 
 
+def _run_async(coro):
+    """Run an async coroutine, handling the case where an event loop is already running
+    (e.g., inside IPython or Jupyter).
+    """
+    try:
+        asyncio.get_running_loop()
+        # Already inside a running event loop — run in a fresh thread with its own loop.
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            return pool.submit(asyncio.run, coro).result()
+    except RuntimeError:
+        return asyncio.run(coro)
+
+
 def to_raggedarray(
     tmp_path: str = _TMP_PATH,
     skip_download: bool = False,
@@ -581,9 +594,9 @@ def to_raggedarray(
     chunk_size: int = 100_000,
     use_fill_values: bool = True,
     max_chunks: int | None = None,
-) -> xr.Dataset:
+) -> RaggedArray:
     """
-    Convert GDP source sensor data into a ragged array format and return it as an xarray Dataset.
+    Convert GDP source sensor data into a ragged array format and return it as a RaggedArray.
 
     This function processes drifter data from the NOAA GDP (Global Drifter Program) source,
     organizes it into a ragged array format, and returns the resulting dataset. It
@@ -602,9 +615,9 @@ def to_raggedarray(
                                  chunks. Defaults to None.
 
     Returns:
-        xr.Dataset: An xarray Dataset containing the processed GDP drifter data in a
-                    ragged array format. The dataset includes both observation and
-                    trajectory metadata variables, with appropriate attributes added.
+        RaggedArray: A RaggedArray instance containing the processed GDP drifter sensor data.
+                     The instance includes both observation and trajectory metadata
+                     variables, with appropriate attributes added.
 
     Raises:
         Any exceptions raised during file operations, data processing, or async tasks
@@ -622,16 +635,15 @@ def to_raggedarray(
 
     # Filter down for testing purposes.
     if max:
-        requests = [requests[max]]
+        requests = requests[:max]
 
     # Download necessary data and metadata files.
-    if not skip_download:
-        download_with_progress(requests)
+    download_with_progress(requests, skip_download=skip_download)
 
-    gdp_metadata_df = get_gdp_metadata(tmp_path)
+    gdp_metadata_df = get_gdp_metadata(tmp_path, skip_download=skip_download)
 
     # Run async process to parallelize data processing.
-    drifter_datasets = asyncio.run(
+    drifter_datasets = _run_async(
         _parallel_get(
             [dst for (_, dst) in requests],
             gdp_metadata_df,
@@ -663,9 +675,24 @@ def to_raggedarray(
     agg_ds = xr.merge([obs_ds, traj_ds])
 
     # Add variable metadata.
-    for var_name in _DATA_VARS + _METADATA_VARS:
+    for var_name in _COORDS + _DATA_VARS + _METADATA_VARS:
         if var_name in VARS_ATTRS.keys():
             agg_ds[var_name].attrs = VARS_ATTRS[var_name]
-    agg_ds.attrs = ATTRS
 
-    return agg_ds
+    attrs_variables = {
+        var: agg_ds[var].attrs for var in _COORDS + _METADATA_VARS + _DATA_VARS if var in agg_ds
+    }
+
+    return RaggedArray(
+        coords={var: agg_ds[var].values for var in _COORDS},
+        metadata={var: agg_ds[var].values for var in _METADATA_VARS},
+        data={var: agg_ds[var].values for var in _DATA_VARS},
+        attrs_global=ATTRS,
+        attrs_variables=attrs_variables,
+        name_dims={"traj": "rows", "obs": "obs"},
+        coord_dims={"id": "traj", "obs_index": "obs"},
+        var_dims={
+            **{var: ["traj"] for var in _METADATA_VARS},
+            **{var: ["obs"] for var in _DATA_VARS},
+        },
+    )

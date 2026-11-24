@@ -19,6 +19,8 @@ Global Drifter Program (GDP) Datasets
 - :func:`clouddrift.datasets.gdp6h`: 6-hourly GDP data from zarr archive hosted on a public AWS S3 bucket accessible at `s3://noaa-oar-hourly-gdp-pds/experimental/ <https://noaa-oar-hourly-gdp-pds.s3.amazonaws.com/index.html#experimental/>`_.
 - :func:`clouddrift.datasets.gdp_source`: source GDP data without being pre-processed unlike
   the 6-hourly/1-hourly datasets that are derived from it.
+- :func:`clouddrift.datasets.gdp_sensor`: source GDP sensor data (SST, voltage, drogue
+  and additional sensors) at the times of the sensor measurements.
 
 You can find examples of how to use the GDP datasets in the `GDP Get-Started Notebooks <https://github.com/Cloud-Drift/gdp-get-started>`_.
 
