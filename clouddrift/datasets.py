@@ -1080,7 +1080,11 @@ def _dataset_filecache(
     if ext == ".nc":
         ds.to_netcdf(fp)
     elif ext == ".zarr":
-        ds.to_zarr(fp)
+        # Write caches in the Zarr v2 format: zarr-python 3 can read and write it
+        # without warnings (Zarr v3 lacks a specification for fixed-length string
+        # dtypes and consolidated metadata), and it matches caches written by
+        # earlier clouddrift versions.
+        ds.to_zarr(fp, zarr_format=2)
     else:
         ds.to_netcdf(fp)
 

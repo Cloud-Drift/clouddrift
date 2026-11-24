@@ -57,10 +57,6 @@ jobs:
           ls -ltrh
           ls -ltrh dist
       - name: Verify the built dist/wheel is valid
-        env:
-          # numcodecs<0.16 (required by zarr<3) has no Python 3.14 wheels and its bundled
-          # c-blosc fails to compile as C23, the default of GCC 15 on Ubuntu 26.
-          CFLAGS: -std=gnu17
         run: |
           uv venv --python 3.14
           uv pip install --python .venv dist/clouddrift*.whl

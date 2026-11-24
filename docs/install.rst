@@ -22,7 +22,7 @@ CloudDrift requires the following dependencies:
 - `tenacity <https://github.com/jd/tenacity>`_ (9.1.4 or later)
 - `tqdm <https://github.com/tqdm/tqdm>`_ (4.67.3 or later)
 - `xarray <https://github.com/pydata/xarray>`_ (2025.6.1 or later)
-- `zarr <https://github.com/zarr-developers/zarr-python>`_ (strictly < 3.0)
+- `zarr <https://github.com/zarr-developers/zarr-python>`_ (3.1 or later)
 
 if you install CloudDrift using uv, pip or Conda, these dependencies will be installed automatically. See :ref:`installation-instructions` for details.
 
