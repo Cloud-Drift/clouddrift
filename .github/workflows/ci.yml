@@ -25,10 +25,6 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
       - name: Install the project with plotting extra
-        env:
-          # numcodecs<0.16 (required by zarr<3) has no Python 3.14 wheels and its bundled
-          # c-blosc fails to compile as C23, the default of GCC 15 on Ubuntu 26.
-          CFLAGS: ${{ runner.os == 'Linux' && '-std=gnu17' || '' }}
         run: uv sync --frozen --extra plotting --python ${{ matrix.python-version }}
       - name: Run unit tests with coverage
         shell: bash -l {0}
