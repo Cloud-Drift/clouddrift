@@ -1,18 +1,16 @@
 import os
 import shutil
-import unittest
 
 import numpy as np
+import pytest
 
 import tests.utils as testutils
 from clouddrift.adapters import gdp6h
 
+pytestmark = pytest.mark.network
+
 
 class gdp6h_integration_tests(testutils.DisableProgressTestCase):
-    @unittest.skipUnless(
-        os.getenv("CLOUDDRIFT_RUN_NETWORK_TESTS") == "1",
-        "Set CLOUDDRIFT_RUN_NETWORK_TESTS=1 to run network integration tests.",
-    )
     def test_load_subset_and_create_aggregate(self):
         ra = gdp6h.to_raggedarray(n_random_id=5, tmp_path=gdp6h.GDP_TMP_PATH)
         assert "rowsize" in ra.metadata

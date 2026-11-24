@@ -1,9 +1,12 @@
 import shutil
 
 import numpy as np
+import pytest
 
 import tests.utils as testutils
 from clouddrift.adapters import hurdat2
+
+pytestmark = pytest.mark.network
 
 
 class hurdat2_integration_tests(testutils.DisableProgressTestCase):

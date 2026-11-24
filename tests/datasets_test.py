@@ -1,6 +1,7 @@
 from unittest.mock import Mock, patch
 
 import numpy as np
+import pytest
 import xarray as xr
 
 import tests.utils as testutils
@@ -9,14 +10,17 @@ from clouddrift.ragged import apply_ragged, subset
 
 
 class datasets_tests(testutils.DisableProgressTestCase):
+    @pytest.mark.network
     def test_gdp1h(self):
         with datasets.gdp1h() as ds:
             self.assertTrue(ds)
 
+    @pytest.mark.network
     def test_gdp6h(self):
         with datasets.gdp6h() as ds:
             self.assertTrue(ds)
 
+    @pytest.mark.network
     def test_ibtracs(self):
         """
         The original dataset contains data points for entire time span of the dataset. Due to this, we trim
@@ -53,6 +57,7 @@ class datasets_tests(testutils.DisableProgressTestCase):
             )
         )
 
+    @pytest.mark.network
     def test_glad(self):
         with datasets.glad() as ds:
             self.assertTrue(ds)
@@ -61,6 +66,7 @@ class datasets_tests(testutils.DisableProgressTestCase):
         with self.assertRaises(ValueError):
             datasets.glad(version="wrong_version")
 
+    @pytest.mark.network
     def test_glad_dims_coords(self):
         with datasets.glad() as ds:
             self.assertTrue(len(ds.sizes) == 2)
@@ -70,6 +76,7 @@ class datasets_tests(testutils.DisableProgressTestCase):
             self.assertTrue("time" in ds.coords)
             self.assertTrue("id" in ds.coords)
 
+    @pytest.mark.network
     def test_glad_subset_and_apply_ragged_work(self):
         with datasets.glad() as ds:
             ds_sub = subset(
@@ -94,14 +101,17 @@ class datasets_tests(testutils.DisableProgressTestCase):
         self.assertFalse(filecache.call_args.args[1])
         self.assertTrue(callable(filecache.call_args.args[2]))
 
+    @pytest.mark.network
     def test_spotters_opens(self):
         with datasets.spotters() as ds:
             self.assertTrue(ds)
 
+    @pytest.mark.network
     def test_subsurface_floats_opens(self):
         with datasets.subsurface_floats() as ds:
             self.assertTrue(ds)
 
+    @pytest.mark.network
     def test_andro_opens(self):
         with datasets.andro() as ds:
             self.assertTrue(ds is not None)
@@ -111,10 +121,12 @@ class datasets_tests(testutils.DisableProgressTestCase):
             self.assertTrue(len(ds.lat_d[np.logical_or(ds.lat_d > 90, ds.lat_d < -90)]) == 0)
             self.assertTrue(len(ds.lat_d[np.logical_or(ds.lon_d > 180, ds.lon_d < -180)]) == 0)
 
+    @pytest.mark.network
     def test_yomaha_opens(self):
         with datasets.yomaha() as ds:
             self.assertTrue(ds)
 
+    @pytest.mark.network
     def test_mosaic_opens(self):
         with datasets.mosaic() as ds:
             self.assertTrue(ds)

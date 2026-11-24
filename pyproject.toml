@@ -1,6 +1,6 @@
 [project]
 name = "clouddrift"
-version = "0.48.1"
+version = "0.49.0"
 authors = [
   { name="Shane Elipot", email="selipot@miami.edu" },
   { name="Philippe Miron", email="philippemiron@gmail.com" },
@@ -74,7 +74,10 @@ select = ["E4", "E7", "E9", "F", "I"]
 testpaths = [
   "tests/**/*_test.py",
 ]
-addopts = "-rs"
+addopts = "-rs --strict-markers -m 'not network'"
+markers = [
+  "network: downloads data from remote servers; deselected by default, run with `pytest -m network`",
+]
 
 [tool.mypy]
 python_version = "3.14"
