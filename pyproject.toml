@@ -1,6 +1,6 @@
 [project]
 name = "clouddrift"
-version = "0.48.0"
+version = "0.48.1"
 authors = [
   { name="Shane Elipot", email="selipot@miami.edu" },
   { name="Philippe Miron", email="philippemiron@gmail.com" },
