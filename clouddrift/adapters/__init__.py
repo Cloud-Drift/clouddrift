@@ -11,6 +11,7 @@ in the future.
 import clouddrift.adapters.andro as andro
 import clouddrift.adapters.gdp.gdp1h as gdp1h
 import clouddrift.adapters.gdp.gdp6h as gdp6h
+import clouddrift.adapters.gdp.gdp_sensor as gdp_sensor
 import clouddrift.adapters.gdp.gdpsource as gdp_source
 import clouddrift.adapters.glad as glad
 import clouddrift.adapters.hurdat2 as hurdat2
@@ -35,5 +36,6 @@ __all__ = [
     "subsurface_floats",
     "yomaha",
     "gdp_source",
+    "gdp_sensor",
     "utils",
 ]

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from io import BufferedIOBase
 from unittest.mock import Mock, call, mock_open, patch
 
-from requests import RequestException
+from requests import HTTPError, RequestException
 
 from clouddrift.adapters import utils
 from tests.adapters.utils import MultiPatcher
@@ -166,6 +166,24 @@ class utils_tests(unittest.TestCase):
             )
 
             self.requests_mock.get.assert_called_once()
+
+    def test_http_error_raises_without_writing_file(self):
+        """An HTTP error response (e.g. 404) raises instead of saving the error page."""
+        self.get_response_mock.raise_for_status = Mock(side_effect=HTTPError("404 Not Found"))
+        rename_mock = Mock()
+        with MultiPatcher(
+            [
+                patch("clouddrift.adapters.utils.os.path.exists", Mock(return_value=False)),
+                patch("clouddrift.adapters.utils.os.rename", rename_mock),
+            ]
+        ):
+            with self.assertRaises(HTTPError):
+                utils._download_with_progress(
+                    "some.url.com", "output.file", 0, False, skip_download=True
+                )
+
+            self.open_mock.assert_not_called()
+            rename_mock.assert_not_called()
 
     def test_head_failure_raises_exception_without_downloading(self):
         with MultiPatcher(

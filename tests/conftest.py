@@ -8,6 +8,7 @@ _NETWORK_FAILURE_SIGNATURES = (
     "EOF occurred in violation of protocol",
     "ConnectTimeout",
     "ConnectionError",
+    "HTTPError",
     "ClientResponseError",
     "EmptyDataError",
     "MatReadError",

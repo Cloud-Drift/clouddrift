@@ -206,32 +206,139 @@ def gdp_source(
     >>> from clouddrift.datasets import gdp_source
     >>> ds = gdp_source()
     >>> ds
-    <xarray.Dataset> Size: ...
-    Dimensions:            (traj: ..., obs: ...)
+    <xarray.Dataset> Size: 20GB
+    Dimensions:            (traj: 28954, obs: 349326441)
     Coordinates:
-        id                 (traj) int64 222kB ...
+        id                 (traj) int64 232kB ...
         obs_index          (obs) int32 1GB ...
     Dimensions without coordinates: traj, obs
-    Data variables: (12/22)
-        buoys_type         (traj) <U5 ...
-        death_code         (traj) int64 ...
-        drogue             (obs) float32 ...
-        drogue_off_date    (traj) datetime64[ns] ...
-        end_date           (traj) datetime64[ns] ...
-        end_lat            (traj) float64 222kB ...
+    Data variables: (12/23)
+        buoys_type         (traj) <U5 579kB ...
+        death_code         (traj) int64 232kB ...
+        drogue             (obs) float32 1GB ...
+        drogue_off_date    (traj) datetime64[ns] 232kB ...
+        end_date           (traj) datetime64[ns] 232kB ...
+        end_lat            (traj) float64 232kB ...
         ...                 ...
-        sst                (obs) float32 ...
-        start_date         (traj) datetime64[ns] ...
-        start_lat          (traj) float64 ...
-        start_lon          (traj) float64 ...
-        voltage            (obs) float32 ...
-        wmo_number         (traj) int64 ...
+        sst                (obs) float32 1GB ...
+        start_date         (traj) datetime64[ns] 232kB ...
+        start_lat          (traj) float64 232kB ...
+        start_lon          (traj) float64 232kB ...
+        voltage            (obs) float32 1GB ...
+        wmo_number         (traj) int64 232kB ...
+    Attributes: (12/13)
+        Conventions:       CF-1.6
+        contributor_name:  NOAA Global Drifter Program
+        contributor_role:  Data Acquisition Center
+        date_created:      2026-11-24T11:44:04.619029
+        institution:       NOAA Atlantic Oceanographic and Meteorological Laboratory
+        license:           freely available
+        ...                ...
+        processing_level:  source files
+        publisher_email:   aoml.dftr@noaa.gov
+        publisher_name:    GDP Drifter DAC
+        publisher_url:     https://www.aoml.noaa.gov/phod/gdp
+        summary:           Global Drifter Program source (raw) data
+        title:             Global Drifter Program source drifter dataset
     """
     file_selection_label = "all" if max is None else f"first-{max}"
     return _dataset_filecache(
         f"gdpsource_agg_{file_selection_label}.zarr",
         decode_times,
         lambda: adapters.gdp_source.to_raggedarray(
+            tmp_path, skip_download, max, use_fill_values=use_fill_values
+        ).to_xarray(),
+    )
+
+
+def gdp_sensor(
+    tmp_path: str = adapters.gdp_sensor._TMP_PATH,
+    max: int | None = None,
+    skip_download: bool = False,
+    use_fill_values: bool = True,
+    decode_times: bool = True,
+) -> xr.Dataset:
+    """Returns the NOAA Global Drifter Program (GDP) source sensor dataset
+    as a ragged array Xarray dataset.
+
+    The function will first look for the ragged-array dataset on the local
+    filesystem. If it is not found, the dataset will be downloaded using the
+    corresponding adapter function and stored as zarr archive for later access.
+
+    The data is accessed from a public HTTPS server at NOAA's Atlantic
+    Oceanographic and Meteorological Laboratory (AOML) at
+    https://www.aoml.noaa.gov/ftp/pub/phod/pub/pazos/data/shane/sst/.
+
+    Parameters
+    ----------
+    tmp_path: str, default adapter temp path (default)
+        Temporary path where intermediary files are stored.
+    max: int, optional
+        Maximum number of files to retrieve and parse to generate the aggregate file. Mainly used
+        for testing purposes.
+    skip_download: bool, False (default)
+        If True, skips downloading the data files and the code assumes the files have already been downloaded.
+        This is mainly used to skip downloading files if the remote doesn't provide the HTTP  Last-Modified header.
+    use_fill_values: bool, True (default)
+        When True, missing metadata fields are replaced with fill values. When False and no metadata
+        is found for a given drifter its observations are ignored.
+    decode_times : bool, True (default)
+        If True, decode the time coordinate into a datetime object. If False, the time
+        coordinate will be an int64 or float64 array of increments since the origin
+        time indicated in the units attribute. Default is True.
+
+    Returns
+    -------
+    xarray.Dataset
+        source GDP sensor dataset as a ragged array, with the observation variables
+        ``sensor_datetime``, ``drogue``, ``sst``, ``voltage``, ``sensor4``,
+        ``sensor5`` and ``sensor6``, and per-trajectory drifter metadata.
+
+    Examples
+    --------
+    >>> from clouddrift.datasets import gdp_sensor
+    >>> ds = gdp_sensor()
+    >>> ds
+    <xarray.Dataset> Size: 9GB
+    Dimensions:          (traj: 28265, obs: 237275495)
+    Coordinates:
+        id               (traj) int64 226kB ...
+        obs_index        (obs) int32 949MB ...
+    Dimensions without coordinates: traj, obs
+    Data variables: (12/19)
+        buoys_type       (traj) <U5 565kB ...
+        death_code       (traj) int64 226kB ...
+        drogue           (obs) float32 949MB ...
+        drogue_off_date  (traj) datetime64[ns] 226kB ...
+        end_date         (traj) datetime64[ns] 226kB ...
+        end_lat          (traj) float64 226kB ...
+        ...               ...
+        sst              (obs) float32 949MB ...
+        start_date       (traj) datetime64[ns] 226kB ...
+        start_lat        (traj) float64 226kB ...
+        start_lon        (traj) float64 226kB ...
+        voltage          (obs) float32 949MB ...
+        wmo_number       (traj) int64 226kB ...
+    Attributes: (12/13)
+        Conventions:       CF-1.6
+        contributor_name:  NOAA Global Drifter Program
+        contributor_role:  Data Acquisition Center
+        date_created:      2026-11-24T10:44:43.989516
+        institution:       NOAA Atlantic Oceanographic and Meteorological Laboratory
+        license:           freely available
+        ...                ...
+        processing_level:  edited s-files
+        publisher_email:   aoml.dftr@noaa.gov
+        publisher_name:    GDP Drifter DAC
+        publisher_url:     https://www.aoml.noaa.gov/phod/gdp
+        summary:           Global Drifter Program sensor data
+        title:             Global Drifter Program edited s-files dataset
+    """
+    file_selection_label = "all" if max is None else f"first-{max}"
+    return _dataset_filecache(
+        f"gdpsensor_agg_{file_selection_label}.zarr",
+        decode_times,
+        lambda: adapters.gdp_sensor.to_raggedarray(
             tmp_path, skip_download, max, use_fill_values=use_fill_values
         ).to_xarray(),
     )
