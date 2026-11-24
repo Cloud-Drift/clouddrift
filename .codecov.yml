@@ -9,6 +9,10 @@ coverage:
     project:
       default:
         threshold: 10%
+        # Report project coverage without failing the check: network-dependent tests
+        # (pytest -m network) are not run on pull requests, so project coverage is
+        # incomplete there. Patch coverage below still gates new code.
+        informational: true
     patch:
       default:
         threshold: 10%
