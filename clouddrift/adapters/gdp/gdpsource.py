@@ -290,7 +290,7 @@ def to_raggedarray(
     # Download necessary data and metadata files.
     download_with_progress(requests, skip_download=skip_download)
 
-    gdp_metadata_df = get_gdp_metadata(tmp_path)
+    gdp_metadata_df = get_gdp_metadata(tmp_path, skip_download=skip_download)
 
     # Run async process to parallelize data processing.
     drifter_datasets = asyncio.run(
